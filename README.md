@@ -65,7 +65,14 @@ python -m http.server 8080
 
 ## 在线部署
 
-Fork 到自己账号后，在仓库 Settings → Pages 开启即可运行，任意域名与子路径都无需改动源码：页面内的 canonical、og:url 与分享图链接由 `assets/meta.js` 按实际访问地址自动生成。
+纯静态零构建，Fork 到自己账号后任选一家托管，任意域名与子路径都无需改动源码：页面内的 canonical、og:url 与分享图链接由 `assets/meta.js` 按实际访问地址自动生成，404 页各平台自动识别。
+
+- **GitHub Pages**：仓库 Settings → Pages → Source 选 Deploy from a branch，Branch 选 main 与根目录（`(root)`）。
+- **Vercel**：在 vercel.com/new 导入仓库，Framework Preset 选 Other，构建命令留空、输出目录 `./`；缓存与 URL 规则已由 `vercel.json` 给定，保持默认即可。
+- **Cloudflare Pages**：控制台 Workers 和 Pages → 创建 → Pages → 连接到 Git，预设选 None，构建命令留空、输出目录 `/`。
+- **Cloudflare Workers（命令行直传）**：`npm i -g wrangler`，`wrangler login` 后在本目录执行 `wrangler deploy`；配置见 `wrangler.jsonc`，上传排除清单见 `.assetsignore`。
+- **Netlify**：在 app.netlify.com 导入仓库，构建命令留空、发布目录 `./`。
+- **其他托管**：任意静态托管或对象存储加 CDN（阿里云 OSS、腾讯云 COS、EdgeOne Pages、Render 等）将仓库文件原样上传即可，无需服务端。
 
 ## 目录结构
 
