@@ -10,7 +10,7 @@
 
 [![许可](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=许可)](LICENSE)
 [![最近提交](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square&display_timestamp=relative)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-34 个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-34_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
@@ -158,7 +158,7 @@ python -m http.server 8080
 
 ### 提交活动
 
-![Repobeats 分析图](https://repobeats.axiom.co/api/embed/3fb4616016b6bb9e535797104c9817ea2dae5a6d.svg "Repobeats analytics image")
+![Repobeats 分析图](https://repobeats.com/GaoRenYouShu/XuanJiPaiPan?theme=light&size=medium&period=30)
 
 ## 目录结构
 
