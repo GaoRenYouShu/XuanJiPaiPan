@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>算法数据 玄机排盘</title>
+<meta name="description" content="算法数据：本站引用的开源算法库、数据来源与各自的开源协议说明。">
+<meta name="keywords" content="开源算法,lunar-javascript,iztro,数据来源,MIT协议">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/opensource.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="算法数据 玄机排盘">
+<meta property="og:description" content="算法数据：本站引用的开源算法库、数据来源与各自的开源协议说明。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/opensource.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+
+</head>
+<body class="page-os">
+<div id="topbar"></div>
+<div class="wrap">
+  <div class="page ospage">
+    <div class="os-hero">
+      <div class="os-eyebrow">玄机排盘　版本构成</div>
+      <h1>算法数据</h1>
+      <div class="os-lead">
+        本站“玄机排盘”为传统文化研究演示项目，全部排盘结果由下列<b>开源算法库</b>与<b>项目自研算法</b>共同生成；
+        引入开源一栏另列牌图与字体两项不参与计算的素材，一并计入权重。
+        按各条目对本站的<b>贡献权重</b>列出（权重为相对占比，全体合计 100，仅供理解参考，非精确度量）。
+        所有引入的开源项目均保留原作者版权与许可，链接直达其仓库与文档。
+        法定节假日与调休补班、页脚来访归属地、风水页磁偏角在线校验三项数据于运行时取自<b>站外数据服务</b>，与算法库分列于后，不计权重。
+      </div>
+      <div class="os-stats">
+        <span class="os-stat"><b id="stIn">-<i> 项</i></b><span>引入开源</span></span>
+        <span class="os-stat"><b id="stSelf">-<i> 项</i></b><span>自研引擎与数据</span></span>
+        <span class="os-stat"><b id="stMod">-<i> 个</i></b><span>覆盖页面模块</span></span>
+        <span class="os-stat"><b>MIT</b><span>开源协议</span></span>
+      </div>
+    </div>
+
+    <div class="os-sec"><b>权重分布</b><span id="barNote"></span></div>
+    <div class="os-bar" id="osBar"></div>
+    <div class="os-legend" id="osLegend"></div>
+
+    <div class="os-tabs" id="osTabs">
+      <button class="os-tab on" data-f="all">全部</button>
+      <button class="os-tab" data-f="in">引入开源</button>
+      <button class="os-tab" data-f="self">自研引擎与数据</button>
+      <button class="os-tab" data-f="ext">站外数据服务</button>
+    </div>
+
+    <div class="os-sec" data-group="in"><b>引入开源</b><span id="cntIn"></span></div>
+    <div class="os-list" id="osInList" data-group="in"></div>
+
+    <div class="os-sec" data-group="self"><b>自研引擎与数据</b><span id="cntSelf"></span></div>
+    <div class="os-list" id="osSelfList" data-group="self"></div>
+
+    <div class="os-sec" data-group="ext"><b>站外数据服务</b><span id="cntExt"></span></div>
+    <div class="os-list" id="osExtList" data-group="ext"></div>
+
+    <div class="os-colophon">
+      <div class="os-ct">凡例</div>
+      <p>引入开源项目，版权与许可归原作者所有，使用遵循其对应协议；MIT 许可文本全文见上方 iztro 与 lunar-javascript 条目链接。</p>
+      <p>运行时联网取数只有三类：万年历与老黄历的法定节假日与调休补班，页脚展示的来访 IP 归属地（四家服务顺序兜底），以及风水页的磁偏角在线校验（点按才发出，默认用内置 WMM2025 离线计算）。三类请求均不带 cookie、不上传任何排盘数据，取不到即静默回落（节假日按星期兜底、归属地不显示、磁偏角用离线值），不影响任何排盘功能。AI 解读为可选功能，仅在用户自行配置接口后由浏览器直连该接口。</p>
+      <p>自研数据表与算法逻辑为本项目整理编写，排盘计算依各自主流口径实现，断语与解读的详略因模块而异，或有整理之误。</p>
+      <p>占星与七政的星历计算采用 VSOP87 高精度天文历，塔罗、雷诺曼为完整牌制整理；各模块解读文字均为传统命理文化演绎，不构成科学结论，亦非专业心理测评或医疗建议。</p>
+      <p>所有排盘结果仅供文化研究与娱乐参考，请勿迷信，重大决策请以专业意见为准。本项目源码以 MIT 协议开源，可自由使用与分发，请保留来源声明。</p>
+    </div>
+  </div>
+</div>
+<footer id="footer"></footer>
+<script src="assets/lunar.js?v=20260826a"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script>
+renderChrome('opensource.html');
+
+const DATA=[
+ {name:'lunar-javascript( lunar.js )', type:'in', w:11.6,
+  link:'https://github.com/6tail/lunar-javascript',
+  fn:'核心历法引擎。提供公历⇄农历、干支转换、四柱八字、老黄历宜忌、建除十二值、黄黑道十二神、二十八宿、纳音、生肖、节气、彭祖百忌、吉神凶煞等。本站八字、老黄历、择日、万年历、九宫飞星等均以其为数据底座。',
+  note:'许可：MIT。作者 6tail。文档 https://6tail.cn/ 。为全站权重最高、被最多模块依赖的基础库。许可全文见 <a class="os-link" href="https://github.com/6tail/lunar-javascript?tab=MIT-1-ov-file" target="_blank" rel="noopener">lunar-javascript 许可</a>'},
+ {name:'iztro( iztro.min.js )', type:'in', w:4.7,
+  link:'https://github.com/SylarLong/iztro',
+  fn:'紫微斗数排盘引擎。依据生辰干支与出生时辰索引，输出十二宫、主星辅星四化（禄权科忌）、命身宫、五行局、三方四正等完整斗数结构。',
+  note:'许可：MIT。作者 SylarLong。文档 https://iztro.com/ 。紫微斗数模块唯一依赖。许可全文见 <a class="os-link" href="https://github.com/SylarLong/iztro?tab=MIT-1-ov-file" target="_blank" rel="noopener">iztro 许可</a>'},
+ {name:'astronomy-engine( astronomy-engine.min.js )', type:'in', w:2.4,
+  link:'https://github.com/cosinekitty/astronomy',
+  fn:'VSOP87 高精度星历库。计算太阳、月亮、各大行星、冥王星的地心黄经，精度 ±1 角分，基于 VSOP87 解析理论加 NOVAS C 3.1 交叉验证，用于占星术模块的星位计算。',
+  note:'许可：MIT。作者 Don Cross(cosinekitty)。文档 https://github.com/cosinekitty/astronomy 。本文件 116KB(minified)，离线运行无外部依赖，许可文本内嵌于文件头部。'},
+ {name:'韦特塔罗牌图（ tarot-img 目录，78 张 ）', type:'in', w:1.9,
+  link:'https://commons.wikimedia.org/wiki/Category:Rider-Waite_tarot_deck',
+  fn:'1909 年韦特-史密斯塔罗 78 张扫描图（ Pamela Colman Smith 绘），公有领域，供塔罗七种牌阵直接呈现牌面。',
+  note:'许可：公有领域（原作者 1909 年逝世）。取自 Wikimedia Commons 400px 缩略本，tarot.html 使用，页内已标注。'},
+ {name:'Unicode Unihan 数据库（ kangxi.js 数据源 ）', type:'in', w:1.6,
+  link:'https://www.unicode.org/charts/unihan.html',
+  fn:'全站汉字属性的原始数据源：kRSUnicode 康熙部首余画表与 214 部首本画表构成康熙笔画全量字库（kangxi.js，覆盖 U+4E00 至 U+9FFF 共 20953 字，简体经 kTraditionalVariant 映射繁体）；kMandarin 为姓名学音律数据的拼音来源；kTotalStrokes 用于姓名学候选字库笔画的交叉验证。',
+  note:'许可：Unicode Data Files License（允许使用与再分发）。kangxi.js 与 name-phonetics.js 文件头均注明数据依据。'},
+ {name:'哈工大《同义词词林扩展版》（ name-synonyms.js 同义词对仗词典 ）', type:'in', w:1.6,
+  link:'http://ir.hit.edu.cn/',
+  fn:'姓名学同义对仗起名法的同义词词典：9291 组、37479 词条，用于联名模式中两名语义相等的对仗配对。',
+  note:'版权归哈尔滨工业大学社会计算与信息检索研究中心，学术研究用途。xingming.html 联名模式说明中已标注。'},
+ {name:'中文维基百科名人资料( name-celebs.js )', type:'in', w:1.6,
+  link:'https://zh.wikipedia.org/',
+  fn:'名人库的人物条目来源，逐条注明出处与置信度，供起名推荐仿前贤参考与同名核验。',
+  note:'许可：CC BY-SA 3.0（维基百科条目署名要求）。姓名学页名人模块使用，页内已标注。'},
+ {name:'中国历代人物传记资料库 CBDB（ name-celebs-cbdb.js 数据源 ）', type:'in', w:1.6,
+  link:'https://cbdb.fas.harvard.edu/',
+  fn:'历史名人库古代段的补源：取 CBDB 的 TEI 人物导出，经汉字、字库、名讳三闸清洗后，按全名、朝代、身份短语三项入片，约二十万人，供起名仿前贤参考与同名核验。',
+  note:'许可：CC BY-NC-SA 4.0（署名、非商业性使用、相同方式共享）。由哈佛大学、中央研究院与北京大学共建。派生分片单独成文件，文件头随行注明来源与许可；本站源码仍为 MIT，该分片不得改标其他许可，涉商业使用须先取得 CBDB 项目方授权。'},
+ {name:'chinese-poetry（ link-corpus.js、name-classics.js 语料底本 ）', type:'in', w:1.6,
+  link:'https://github.com/chinese-poetry/chinese-poetry',
+  fn:'典籍语料底本。先秦至清诗词与经史蒙学的结构化全文，本站取诗经、楚辞、论语、孟子、大学、中庸、全唐诗、宋词、元曲、古文观止、声律启蒙、幼学琼林、百家姓等篇目，繁转简并去标点归一后成姓名学联动语料；典籍名源与起名成词的出处须在此语料中真实命中方可入片。',
+  note:'许可：MIT。源文自先秦至清，全部公有领域，MIT 标的是其结构化整理成果。'},
+ {name:'说文解字（ name-archive-shuowen.js 数据源 ）', type:'in', w:1.6,
+  link:'https://github.com/shuowenjiezi/shuowen',
+  fn:'字源本义的训诂口径来源。取说文正篆的释义、部首、卷次、反切、段玉裁注、小篆、拆字部件与异体，经字形直配、繁体域折回、异体索引兜底三条路径桥接落档一万一千零二十字，与站内拆字术口径的本义断语并列同存。',
+  note:'许可：Apache-2.0（整理成果）。源文《说文解字》为东汉许慎所撰，公有领域。'},
+ {name:'《周易》经文（ jingwen.js 底本 ）', type:'in', w:1.6,
+  link:'https://ctext.org/book-of-changes/zh',
+  fn:'六十四卦的卦辞、彖传、大象、爻辞、小象为《周易》原文，供六爻、梅花易数、测字、河洛理数、铁板神数、道历六处经文库直接呈现，不另录经文。',
+  note:'许可：公有领域。经文自先秦传承至今，本站按通行本录入，异文随条入注，不出校改。'},
+ {name:'相术古籍图（ xiang-img 目录，3 张 ）', type:'in', w:1.2,
+  link:'https://commons.wikimedia.org/wiki/Category:%E9%BA%BB%E8%A1%A3%E7%9B%B8%E6%B3%95',
+  fn:'手相掌图与面相十二宫图三帧：手紋之圖录自《手相學》第十三圖、掌丘分布之图录自同书第十二圖（民国八年刊本），十二宫分之图录自《麻衣相法》卷一民国十四年（一九二五）刊本，三帧均取自中国国家图书馆数字化扫描本，按原图边界整幅裁切、去底灰后供手相页与面相页直接呈现。',
+  note:'许可：公有领域（PD China，扫描件 PD-scan）。原刊本藏中国国家图书馆，取自 Wikimedia Commons，shouxiang.html 与 mianxiang.html 使用，页内已标注底本与藏地。'},
+ {name:'kintaiyi（ taiyi-engine.js 数据表来源 ）', type:'in', w:1.2,
+  link:'https://github.com/kentang2017/kintaiyi',
+  fn:'太乙神数积年体系与格局表的移植来源：本站太乙页的积年定局、太乙落宫、文昌（天目）、始击、主客算与格局表，均据其太乙统宗体系的同名数据表忠实移植；格局名目另参《太乙金镜式经》《太乙统宗宝鉴》。',
+  note:'许可：MIT。作者 kentang2017（Ken Tang）。Python 实现的太乙神数排盘库，含年计、月计、日计、时计、分计、命法六法与统宗、金镜、淘金歌、太乙局四系；本站只移植其统宗体系的数据表与起例，未引用其代码。'},
+ {name:'维基文库、漢籍リポジトリ（ huangji-chronicle.js 底本 ）', type:'in', w:1.2,
+  link:'https://zh.wikisource.org/',
+  fn:'古籍全文底本来源：《皇极经世书》以运经世逐年记事表（前 2357 至公元 959 共 3316 年、记事 1539 条）取自京都大学人文科学研究所“漢籍リポジトリ”(Kanripo) 所收四库本 KR3g0005，与维基文库四库本互校；测字页卷三取格断语照录维基文库《测字秘牒》全文。',
+  note:'许可：原文公有领域，维基文库转录文本 CC BY-SA 4.0。测字页相应内容以相同方式共享；原文繁体照录，异文与讹字随条入注，不出校改。'},
+ {name:'Chinese-Names-Corpus（ 姓名学用名频次与性别比 ）', type:'in', w:1.2,
+  link:'https://github.com/wainshine/Chinese-Names-Corpus',
+  fn:'用名偏好的量化底数。取一百二十万条带性别标注的常见人名语料，逐字计频得该字在人名中的使用偏好与性别比；性别比以男女样本量作后分层加权，基线归到中性，故可直接判偏男、偏女与中性。',
+  note:'许可：Apache-2.0。语料为网络汇总产物，无出生年代与地域字段，故只出用名频次与性别比，不出分年代热度曲线与地域偏好。'},
+ {name:'OpenCC 简繁字表（ jianfan.js 数据源 ）', type:'in', w:1.2,
+  link:'https://github.com/BYVoid/OpenCC',
+  fn:'简体到繁体首选映射的来源：取 OpenCC 简繁字表的第一顺位繁体，供康熙字库把简体输入映射为繁体后取笔画；多繁歧义（如 干→幹、乾）以首选为准，链式映射不参与二次映射。',
+  note:'许可：Apache-2.0。用于六爻、梅花易数、小六壬、民俗、测字等页的康熙笔画换算。'},
+ {name:'@hnw/date-tibetan（ zangli-core.js 算法来源 ）', type:'in', w:1.2,
+  link:'https://github.com/hnw/date-tibetan',
+  fn:'藏历时轮历排算的算法与常数来源：其纯代数解与浦派（Phugpa）常数经移植后构成藏历页的月相、闰月、曜宿与节日推算；蒙古新甘丹、不丹两派仅换历元与少数常数，同引擎承载。',
+  note:'许可：MIT（Copyright Yoshio HANAWA）。常数与公式另据 Svante Janson《Tibetan Calendar Mathematics》(2007, rev.2014)。'},
+ {name:'leakon chinese-dictionary（ jianbi.js 笔画数据源 ）', type:'in', w:0.8,
+  link:'https://github.com/leakon/chinese-dictionary',
+  fn:'简体笔画表的数据来源：整理其字表中 frequency 不大于 2 的可靠简体字笔画，已全部内联进 jianbi.js。',
+  note:'数据仅作整理来源，运行时不读取外部数据，jianbi.js 文件头已注明。'},
+ {name:'公安部《全国姓名报告》（ name-heat.js 数据源 ）', type:'in', w:0.8,
+  link:'https://www.mps.gov.cn/',
+  fn:'当代重名风险的权威口径。取公安部户政管理研究中心《全国姓名报告》公布的新生儿名字用字榜（二〇一九年、二〇二〇年、二〇二一年三期，各 50 字）逐字照录，并集 58 字分极高热、高热两档，用于起名推荐中提示该字当下的重名概率。',
+  note:'数据为公安部公开发布的年度报告内容，可自由引用；本站只取其榜单用字与档位，不转载报告全文。该报告以二〇二一年为最后一期，其后未再发布，故本站不取更晚年份，网络流传的近年榜单多为推算，非官方。与 Chinese-Names-Corpus 的用名频次口径并列同存：前者量的是当代重名风险，后者量的是长期命名偏好，两者不互相替代。'},
+ {name:'hanzi-jiegou（ name-phonetics.js 结构主源 ）', type:'in', w:0.8,
+  link:'https://github.com/chilingg/hanzi-jiegou',
+  fn:'汉字结构主源。其十四类结构映射为本站六类，覆盖国标一二级字；部首字另有过度拆分者，以 GF 0013-2009《现代常用独体字规范》二百五十六字表仲裁独体，再经人工裁决落定。',
+  note:'许可：MIT。结构索引与拼音同落 name-phonetics.js，拼音取 Unihan kMandarin。'},
+ {name:'chinese-xinhua（ name-idioms.js 成语底本 ）', type:'in', w:0.8,
+  link:'https://github.com/pwxcoo/chinese-xinhua',
+  fn:'汉语成语大词典，姓名学成语库的释义底本，供联名模式的成语拆名与姓名模式的合观表引证。入片前经四字校验、释义清洗与字符合规白名单过滤，非四字或释义含乱码者不收。',
+  note:'许可：仓库代码许可为 MIT，数据为网络整理、来源自陈。本站取其四字成语与释义作底本，来源与许可状况随行注明；涉商业使用须另行核实。'},
+ {name:'世界地磁模型 WMM2025 系数（ fs-mag.js 数据源 ）', type:'in', w:0.4,
+  link:'https://www.ncei.noaa.gov/products/world-magnetic-model',
+  fn:'风水页磁偏角计算的球谐系数来源。12 阶主系数与年变率由 NOAA 与国家地理空间情报局联合发布，本站内置该系数并按 NOAA 技术报告的球谐展开算法离线求任意经纬度的磁偏角与年变率，供罗盘实测坐度折算真北。模型有效期 2025.0 至 2030.0。',
+  note:'许可：公有领域（美国政府作品）。系数文件 WMM2025.COF 随模型公开发布；本站 fs-mag.js 内的展开算法与 magvar 2.2.0（MIT，作者 Darren Yeates）同构，该实现的许可文本随源码保留。'},
+ {name:'Noto Serif SC 思源宋体( noto-serif-sc )', type:'in', w:0.4,
+  link:'https://fonts.google.com/noto/specimen/Noto+Serif+SC',
+  fn:'全站正文与标题的宋体字面。自托管 Google Fonts 的 Noto Serif SC 可变字重分片一百零一个 woff2，按 unicode-range 按需取用，只下载页面实际出现的码位，运行时不外发字体请求。',
+  note:'许可：SIL OFL 1.1。由 Google Noto 项目发布，可自由自托管与再分发，须保留版权与许可声明；assets/fonts/noto-serif-sc.css 文件头已注明来源与授权。'},
+ {name:'Noto 字形补全子集( site-sym )', type:'in', w:0.3,
+  link:'https://fonts.google.com/noto',
+  fn:'页面用到而思源宋体不含字形的非汉字码位：八卦、箭头、棋子、花饰归 Noto Sans Symbols 2，行星与黄道十二宫归 Noto Sans Symbols，emoji 与带 emoji 呈现的字符归 Noto Emoji，希腊字母归 Noto Serif，带调拼音 ǜ 归同族的思源宋体分片。六支 woff2 合计约三十千字节，按 unicode-range 按需取用，运行时不外发字体请求。',
+  note:'许可：SIL OFL 1.1。由 Google Noto 项目发布，可自由自托管与再分发。码位真源与生成方式见 _tools/build_glyph_subset.js，U+FE0F 变体序列补全见 _tools/patch_glyph_uvs.py；assets/fonts/site-sym.css 文件头已注明来源与授权。'},
+ {name:'八字排盘核心( bazi-core.js )', type:'self', w:3.9,
+  link:'assets/bazi-core.js',
+  fn:'四柱结构解析、十神、宫位、五行流转，命局断事（婚姻、健康、家庭、事业四模块表格化），大运流年起法，与 bazi-data、bazi-rel、bazi-shishen 协同完成整张八字盘的断语输出。',
+  note:'源码 bazi-core.js（八字、姓名学两页加载）。与 bazi-rel.js 的 REL.tenCombo 断语引擎、bazi-shishen.js 定向句真源联动。'},
+ {name:'八字旺衰、喜用神判定、合婚', type:'self', w:3.2,
+  link:'assets/bazi-data.js',
+  fn:'基于日主五行与四柱干支（含藏干、十神、禄刃）统计五行生克得分，判定身强身弱、喜用神（喜与忌）类别，并据此做八字合婚之喜用互补、五行冲合、十神互补等专项比对。',
+  note:'源码 bazi-data.js（八字、合婚、民俗、太岁、铁板神数、姓名学、择日、阴宅八页加载；旺衰喜用与合婚判定为八字、合婚两页所用）。为经验性旺衰打分法，存在流派争议，仅供参考。'},
+ {name:'十神断语引擎（ bazi-rel.js、bazi-shishen.js ）', type:'self', w:2.7,
+  link:'assets/bazi-rel.js',
+  fn:'REL.tenCombo 经典组合判定引擎（官印、杀印、食伤泄秀、比劫夺财等数十组，含刑冲害合、神煞、十二长生扩展判定），逐条输出十神经典断语与人生议题四模块定向句；bazi-shishen.js 为婚姻、健康、家庭定向断语真源。',
+  note:'源码 bazi-rel.js 与 bazi-shishen.js。断语依据《三命通会》《渊海子平》等古籍体系与素材整理，含权重排序（核心组合、方向专断、常规补充）。'},
+ {name:'奇门遁甲引擎', type:'self', w:2.4,
+  link:'assets/qimen-engine.js',
+  fn:'实现阴阳遁局数排盘、三奇六仪、九星、八门、八神、值符值使、天地人神四盘及落宫推算，提供问事、出行、择方等简要断语。',
+  note:'源码 qimen-engine.js 与 qimen-extra.js(qimen.html)。时家、日家、月家、年家、刻家五家齐备，转盘、飞盘两种排法，置闰、拆补、茅山三门派，另设山向奇门；断语为逐宫演示层。'},
+ {name:'大六壬三传', type:'self', w:1.9,
+  link:'daliuren.html',
+  fn:'排地盘、起天盘、排十二天将（支持地盘贵、天盘贵两种起贵法），立四课，依“贼克比用、涉害优先”等不同发用法求出元首、重审、涉害等三传。',
+  note:'源码 daliuren.html。流派切换会真实改变起贵方式与三传结果。'},
+ {name:'七政四余排盘', type:'self', w:1.9,
+  link:'qizheng.html',
+  fn:'中国古典星命（果老星宗）：七政（日月五星 VSOP87 真黄经）加四余（罗计平交点、月孛平远点、紫炁古典历元虚点）十一曜躔十二宫、入二十八宿度（角宿一定界岁差前推），安命安身、命度双法（果老度级与天文上升）、宫曜五行庙旺、十干化曜与天官贵人、神煞入宫、23 条经典格局判定、洞微大限宫度两级行限，配中式地支盘图。',
+  note:'源码 qizheng.html 与 qizheng-data.js、qizheng-engine.js。复用 astronomy-engine 与 xz-ephem.js；定气、恒气过宫可切换，各流派口径在页面“算法与流派说明”明示。'},
+ {name:'风水引擎（ fengshui-engine.js ）', type:'self', w:1.9,
+  link:'assets/fengshui-engine.js',
+  fn:'年月日时紫白飞星、八宅游年、流年方位煞、玄空飞星、三合水法、分金龙例的确定性计算；各算法块以【定源】注明典籍依据与可校验锚点，流派分歧处注明本页取舍，FS.selfTest() 集中校验全部锚点。阳宅、阴宅、合婚、八字四页共用。',
+  note:'源码 fengshui-engine.js。锚点即回归基线，改动锚点须先给出典籍出处，防止改对改错。'},
+ {name:'六爻纳甲', type:'self', w:1.6,
+  link:'liuyao.html',
+  fn:'铜钱摇卦得六爻阴阳与老变，安世应、装六亲（父母、官鬼、妻财、子孙、兄弟）、纳甲、排六神，并依流派给出不同断卦要点。',
+  note:'源码 liuyao.html。不同流派（京房、火珠林、增删、卜筮正宗等）切换会附带各自断法要点。'},
+ {name:'占星术推算', type:'self', w:1.6,
+  link:'xingzhan.html',
+  fn:'依出生时间地点（VSOP87 高精度星历、整宫制、Meeus 上升公式）计算十大行星地心黄经、十二宫分布、上升与中天、主要相位（合、六合、刑、三合、冲），并做庙旺落陷与星座宫位基础解读。',
+  note:'源码 xingzhan.html 与 xingzhan-data.js、xz-ephem.js。星历依赖 astronomy-engine(MIT)，可离线运行。'},
+ {name:'小六壬、太乙神数', type:'self', w:1.6,
+  link:'xiaoliuren.html',
+  fn:'小六壬依大安、留连、速喜、赤口、小吉、空亡六神掌诀推算；太乙神数依五元六纪积年定局，排十六宫神将盘与太乙八门，参主客算、格局、大游小游论主客胜负与岁气灾祥。',
+  note:'源码 xiaoliuren.html、taiyi.html（含 taiyi-engine.js）。小六壬为民间掌诀本位；太乙神数含积年定局、十六神落宫、主客算、格局判定、八门值使、大游小游与太乙命法。其积年体系、太乙落宫、文昌（天目）、始击、主客算与格局表，均据开源项目 <a class="os-link" href="https://github.com/kentang2017/kintaiyi" target="_blank" rel="noopener">kentang2017/kintaiyi</a>（太乙统宗积年体系）的同名数据表移植；格局名目另参《太乙金镜式经》《太乙统宗宝鉴》。'},
+ {name:'姓名学五格引擎与数理数据（ name-engine.js、name-data.js ）', type:'self', w:1.6,
+  link:'assets/name-engine.js',
+  fn:'五格剖象（天、人、地、外、总）取康熙笔画口径，配三才一百二十五组、三运（成功运、基础运、社交运）五行关系断语、八十一数理吉凶与含义、喜用神双轨（义五行与数理五行）匹配，以及综合评分分项满分表。分项与满分只在 name-data.js 声明一处，引擎按表出分项盘。',
+  note:'源码 name-engine.js 与 name-data.js（姓名学页加载；数理表 NAME81 与 n81 另为测字、民俗两页取用）。数理、三才、三运取通行坊本（熊崎式五格剖象法）口径，传统民俗内容仅供文化研习。'},
+ {name:'起名候选字库、音律与结构（ name-chars.js、name-phonetics.js ）', type:'self', w:1.6,
+  link:'assets/name-chars.js',
+  fn:'构建产物。候选字四千二百七十一字，每字八元组：拼音、声调、康熙笔画、结构、义五行、义类、性别倾向、适用度。音律取普通话读音与声调，结构取汉字结构主源并加国标独体字仲裁。',
+  note:'源码 name-chars.js 与 name-phonetics.js（由 _tools 下的生成器出片）。笔画与站内康熙字库同口径，并经 Unihan kTotalStrokes 交叉验证；义五行空缺者按部首与字义机械填充并标置信级，界面标待校。'},
+ {name:'周公解梦引擎与两系底本（ zhougong.js、zhougong-data.js、zhougong-duanm.js ）', type:'self', w:1.6,
+  link:'assets/zhougong.js',
+  fn:'底本一为通行本《周公解梦》二十七类九百五十一句，简体源与繁体两源逐条互证、同位异文取多数定夺；底本二为《断梦秘书》中编十二地支类，与通行本并存互证、不归并不改字。引擎提供条目展开、吉凶判读、主体梦象聚类、关键词同义归并与三级排序、无结果邻条推荐。',
+  note:'源码 zhougong.js、zhougong-data.js、zhougong-duanm.js。类名与条目文字以底本原字为准，疑讹与通假另见 ZG_NOTES，录入不擅改。'},
+ {name:'道历、佛历、万年历换算', type:'self', w:1.2,
+  link:'daoli.html',
+  fn:'历法换算。道历以老子降生为纪元、佛历以佛涅槃为纪元，结合 lunar.js 的公历与农历输出对应年份；万年历聚合多历对照与节气。',
+  note:'源码 daoli.html、foli.html、wannianli.html（数据底座仍来自 lunar.js）。'},
+ {name:'塔罗、雷诺曼牌义', type:'self', w:1.2,
+  link:'tarot.html',
+  fn:'牌义数据。整理韦特塔罗 78 张牌的正逆位含义、三大占法牌阵，以及雷诺曼 36 张牌的人物主事所象、扑克对应、630 对全组合词典与大全景宫位盘。',
+  note:'源码 tarot.html 与 tarot-data.js、lenormand.html 与 leno-data.js。牌义为通用释义整理，非占卜结论；塔罗牌图取自 Wikimedia Commons 公有领域扫描（见上方“韦特塔罗牌图”条目）。'},
+ {name:'择日引擎( zeri-engine.js )', type:'self', w:1.2,
+  link:'assets/zeri-engine.js',
+  fn:'黄历择吉：综合建除十二值、黄黑道、宜忌、冲煞、吉凶神方位与天干地支关系，给出当日择吉建议。',
+  note:'源码 zeri-engine.js 与 zeri-zaoming.js(zeri.html)。择事、造命双模式；造命为八字质量、大运、父母缘分、避凶四层评分，含小儿关煞 32 条。'},
+ {name:'起名推荐引擎（ name-generate.js ）', type:'self', w:1.2,
+  link:'assets/name-generate.js',
+  fn:'按姓氏笔画枚举候选，数理零否决（凶格计分沉底而不除名），喜用补益按义五行判、姓不入补益，另典籍正源与成词加分、当代热字减权，并对同首字、同末字、同义类搭配做多样性限流。',
+  note:'源码 name-generate.js。候选池取自起名候选字库，性别倾向按偏男字可冠首、偏女字可煞尾的位置规则过滤。'},
+ {name:'字义寓意、字源本义与典籍名源（ name-yuyi.js、name-etym.js、name-classics.js、name-words.js、link-corpus.js ）', type:'self', w:1.2,
+  link:'assets/name-yuyi.js',
+  fn:'寓意短语为站内自撰的褒义短语，词典释义只作内部底稿；字源本义分拆字术与训诂两口径并列同存，各有其依据；典籍名源与起名成词逐条注明书名与篇句，出处须在典籍语料中真实命中。',
+  note:'源码 name-yuyi.js、name-etym.js、name-classics.js、name-words.js 与 link-corpus.js。典籍语料底本见上方 chinese-poetry 条目。'},
+ {name:'姓名学字档分片（ name-archive-*.js ）', type:'self', w:1.2,
+  link:'assets/name-archive-core.js',
+  fn:'构建产物。字档按基础、语义、字源、简繁、谐音、姓氏异读、生肖七类分片，另有候选字片与人工校订片，共十片，每字段带来源与置信级；基础组随页面取回，其余按需加载。语义片承载义五行、字义、义类与语料频次，字源片承载说文正篆释义。',
+  note:'源码 name-archive-core.js 等分片与 name-archive-loader.js（按需取数）。字段契约见 _tools/nm/data-src/char-archive/SCHEMA.md。'},
+ {name:'太岁生肖引擎与共享数据（ taisui.js、taisui-data.js ）', type:'self', w:1.2,
+  link:'assets/taisui.js',
+  fn:'太岁生肖页的刑冲害破合关系判定与生肖宜忌，关系真源取自 bazi-rel.js 的 zhiRelTypes，三合另取 bazi-data.js 的 DIZHI_SANHE；共享数据层与老黄历、道历同源。',
+  note:'源码 taisui.js、taisui-data.js。'},
+ {name:'二十八宿数据与演禽（ xingxiu-data.js、xingxiu.js ）', type:'self', w:1.2,
+  link:'assets/xingxiu-data.js',
+  fn:'值宿、七曜、禽、四象、吉凶与吉凶歌取 lunar.js；本命宿与演禽算法依《宿曜经》《选择纪要》《禽星易见》；占辞、距度、三十六禽、属相宿、十二宫次分野、值宿宜忌、伏断依《宿曜经》《史记·天官书》《汉书·律历志》《五行大义》《演禽通纂》《玉匣记》。',
+  note:'源码 xingxiu-data.js、xingxiu.js。五行与宿另与 qizheng-data.js 的 QZ_XIU28 互校。'},
+ {name:'民俗占法数据（ minsu-data.js、minsu.js、chengu-songs.js ）', type:'self', w:1.2,
+  link:'assets/minsu-data.js',
+  fn:'称骨算命、犯月查询、本命佛、号码吉凶四模块的数据与逻辑：称骨骨重算法真源在 bazi-rel.js，本处只存《袁天罡称骨歌》男卷女卷全本歌诀；犯月以《玉匣记》系坊本通行口诀为准，败子歌与骨髓破歌两套并收；本命佛八尊十二生肖映射多源一致，真言以唐密汉译通行音为准。',
+  note:'源码 minsu-data.js、minsu.js、chengu-songs.js。歌诀异文随条入笺注。'},
+ {name:'河洛理数引擎与数据（ heluo.js、heluo-data.js ）', type:'self', w:1.2,
+  link:'assets/heluo.js',
+  fn:'干支取数、数配卦、三元寄卦、元堂表、两至逆表、至尊卦特例与元气化工诀的排算，口径为多源互校后的通行排法；四柱取 lunar.js 立春界年干支与节气月支，卦名爻位复用 gua.js，卦辞爻辞直读 jingwen.js。',
+  note:'源码 heluo.js、heluo-data.js。'},
+ {name:'铁板神数引擎与条文（ tieban-engine.js、tieban-tiaowen.js、tieban-hegu.js ）', type:'self', w:1.2,
+  link:'assets/tieban-engine.js',
+  fn:'干支化数以太玄经数（甲己子午九、乙庚丑未八、丙辛寅申七、丁壬卯酉六、戊癸辰戌五、巳亥单四数），每时辰八刻按先天八卦数取刻修正数，刻下再分十五分金；六亲考刻与条文抽演按考刻结论过滤同类条文。',
+  note:'源码 tieban-engine.js、tieban-tiaowen.js、tieban-hegu.js。铁板神数真本条文自古为师传刻本、并无公开权威全本，本站条文库据公开流传铁板类断语整理改编，为演示性质，非秘传全本、非古籍原文。'},
+ {name:'藏历时轮历引擎与数据（ zangli-core.js、zangli-data.js ）', type:'self', w:1.2,
+  link:'assets/zangli-core.js',
+  fn:'藏历的月相、闰月、曜宿、节日与功德日排算，含五行（藏历金称铁）、七曜、生肖与诸派历元；数据字典仅收多源一致者，诸本异说单列 note 随文出校。',
+  note:'源码 zangli-core.js、zangli-data.js。算法与常数来源见上 @hnw/date-tibetan 条。'},
+ {name:'周易经文库与速查件（ jingwen.js、jingwen-ref.js ）', type:'self', w:1.2,
+  link:'assets/jingwen.js',
+  fn:'六十四卦的卦辞、彖传、大象、爻辞、小象按通行本录入并编排为共享经文库，速查件提供经文卡渲染、检索与折叠展开。六爻、梅花易数、测字、铁板神数、河洛理数、道历六处读经文，速查件由前五处加载。',
+  note:'源码 jingwen.js、jingwen-ref.js。经文底本为公有领域，见上《周易》经文条。'},
+ {name:'八字装配入口与命理断语库（ bazi-app.js、bazi-duanyu.js ）', type:'self', w:1.2,
+  link:'assets/bazi-app.js',
+  fn:'装配入口对外暴露 BaziAPI，以纯数据方式返回结构化 JSON，不含 HTML 与 DOM 操作，供第三方调用；命理断语库以结构化条件 when、改写模板 say 与古籍出处 src 三段组织，条件判定复用引擎已算字段，不照搬古籍原文而改述其意。',
+  note:'源码 bazi-app.js、bazi-duanyu.js。断语库被八字、铁板神数、姓名学三页共用。'},
+ {name:'灵签数据( lingqian-data.js )', type:'self', w:0.8,
+  link:'assets/lingqian-data.js',
+  fn:'整理三山国王、观音、月老、关公等灵签签文与解签条目，供灵签模块随机抽取并解读。签文为传世通本整理（公版古籍）。',
+  note:'源码 lingqian-data.js(lingqian.html)。签文为通用释义整理。'},
+ {name:'联名命名引擎（ name-twin.js ）', type:'self', w:0.8,
+  link:'assets/name-twin.js',
+  fn:'双名之间的呼应设计：合读成词、共用一字、同出一篇，据成语库与同义词词典生成候选并给出出处与释义。',
+  note:'源码 name-twin.js。只设计两名之间的呼应，不评判单名吉凶；单名吉凶须另用姓名分析。'},
+ {name:'姓氏源流、用名热度与成语库（ name-surnames.js、name-heat.js、name-idioms.js ）', type:'self', w:0.8,
+  link:'assets/name-surnames.js',
+  fn:'姓氏一百一十七条（单姓一百零一、复姓十六），源流、郡望与祖地依《通志·氏族略》《元和姓纂》《姓氏考略》通行口径撰写，未收录姓由页面如实标注；用名热度为公安部历年《全国姓名报告》热榜用字的整理；成语库二万九千四百六十七条，供联名拆名与合观表引证。',
+  note:'源码 name-surnames.js、name-heat.js、name-idioms.js。姓氏源流为考证散文，不可机造，故维持人工撰写；成语库底本见上方 chinese-xinhua 条目。'},
+ {name:'名卦、谐音避讳、简繁选字、生肖字根（ name-hexagram.js、name-homophone.js、name-jianfan-select.js、name-zodiac.js ）', type:'self', w:0.8,
+  link:'assets/name-hexagram.js',
+  fn:'名卦按姓名笔画起卦，出卦名、卦义与世应，输出民俗参考；谐音避讳以无调读音比对，分整句与词级两档，命中不等于名字不好；简繁选字按用户指定、语境提示、首选取用三条规则，并输出取字依据；生肖字根分客观地支关系与民俗字根宜忌两层。',
+  note:'源码 name-hexagram.js、name-homophone.js、name-jianfan-select.js 与 name-zodiac.js。名卦起卦口径已锁定；生肖字根界面标民俗参考。'},
+ {name:'圆盘几何通用件（ wheel.js ）', type:'self', w:0.8,
+  link:'assets/wheel.js',
+  fn:'圆盘的几何层：极角以正上为 0 度、顺时针为正，输出刻度、扇区与选中态改写；颜色字号一律交给 style.css 的圆盘令牌，各页不重写。',
+  note:'源码 wheel.js。老黄历、万年历、佛历、道历、七政四余、二十八宿、藏历、风水等十余页共用。'},
+ {name:'传统时令历注（ shiling.js ）', type:'self', w:0.8,
+  link:'assets/shiling.js',
+  fn:'三伏、数九、入梅出梅、七十二候的排算：三伏以夏至后第三个庚日入初伏、立秋后第一个庚日出末伏，数九自冬至起每九日一进，入梅以芒种后第一个丙日、出梅以小暑后第一个未日。',
+  note:'源码 shiling.js。万年历、老黄历、道历共用。'},
+ {name:'造命择日引擎（ zeri-zaoming.js ）', type:'self', w:0.8,
+  link:'assets/zeri-zaoming.js',
+  fn:'新生儿造命择日（剖腹产择日）的独立范式：判据为八字相对命主的吉凶，与择事模式所判的日子本身吉凶口径互斥，故独立成文件，不在择事流水线上打补丁。',
+  note:'源码 zeri-zaoming.js。与 zeri-engine.js 并列，两范式各自独立。'},
+ {name:'五运六气引擎( yunqi-engine.js )', type:'self', w:0.8,
+  link:'assets/yunqi-engine.js',
+  fn:'《黄帝内经·素问》运气七篇大论体系的排算：年干化五运（阳干太过、阴干不及）、年支定司天在泉、主气六步、客气环序、客主加临，与天符、岁会、太乙天符、同天符、同岁会五项运气同化判定，YQ.selfTest() 集中校验全部锚点。',
+  note:'源码 yunqi-engine.js（yunqi.html 加载）。起例出《天元纪大论》《五运行大论》《六微旨大论》，客主加临相得断为通行归纳；本页为运气学说文化研究演示，不作医学诊断依据。'},
+ {name:'相术数据（ xiangshu-data.js ）', type:'self', w:0.8,
+  link:'assets/xiangshu-data.js',
+  fn:'面相三停、十二宫与手相三线八丘的条文数据：十二宫定位主事与吉凶条文照录《神相全编·十二宫诀》通行本，三停与三才纹照录《麻衣相法》，逐条标 src；变体断语与八丘名目为通行之说，明标本站归纳。',
+  note:'源码 xiangshu-data.js（shouxiang.html 与 mianxiang.html 共同加载）。录入三原则：条文照录、异文不并、未验不断；自查计分档值为本站归纳权重，非典籍成法。'},
+ {name:'典籍参考书目与版本评级（ dianji.html ）', type:'self', w:0.8,
+  link:'dianji.html',
+  fn:'按首页六卷分类列出各模块所据典籍与版本评级（A、B 两级），并汇总开放电子古籍渠道（ctext、维基文库、殆知阁、识典古籍）供逐条对照查阅。',
+  note:'源码 dianji.html。所收为书目与外部检索链接，不含古籍全文。'},
+ {name:'风水罗经立向盘共享件（ fs-luo.js ）', type:'self', w:0.6,
+  link:'assets/fs-luo.js',
+  fn:'罗经三盘三针立向盘的几何层与绘制层：自盘心向外依次为盘心读数、地盘正针、地盘正针百二十分金、人盘中针、天盘缝针、正兼向度数带、周天刻度共六层，取角以地盘正针为基准，中针逆偏七点五度、缝针顺偏七点五度；盘面点选、热区与选中态改写同在此件，盘下详情条由页面自负。',
+  note:'源码 fs-luo.js（阴宅页装载）。圈数多于他盘，装不进圆盘通用件的骨架，故另立 528 一套；盘面几何与点选只此一处，页面只给数据与文案。'},
+ {name:'gua.js 卦象数据表', type:'self', w:0.6,
+  link:'assets/gua.js',
+  fn:'八卦（先天与后天数、阴阳爻）、六十四卦卦名卦义、世应、纳甲、六神、宫位等基础数据表，供梅花、六爻、周易等模块共用。',
+  note:'源码 gua.js。'},
+ {name:'xuanji-lib.js 共享着色、工具库', type:'self', w:0.6,
+  link:'assets/xuanji-lib.js',
+  fn:'全站统一五行着色引擎（天干地支、十神、纳音）、拼音与干支工具、共享判定函数，共十七个排盘页加载。',
+  note:'源码 xuanji-lib.js。'},
+ {name:'梅花易数起卦', type:'self', w:0.6,
+  link:'meihua.html',
+  fn:'依流派分别采用先天数（乾一兑二至坤八）与后天洛书数（坎一坤二至离九中五）两套数系，结合年月日时、地支、天干、季节权重等不同起卦源，求得上卦、下卦、动爻、体用与起卦法。',
+  note:'源码 meihua.html 与 gua.js。不同流派切换会真实改变上卦、下卦、动爻与体用判定。'},
+ {name:'测字引擎与拆字字典（ cezi-engine.js、cezi-data.js ）', type:'self', w:0.6,
+  link:'cezi.html',
+  fn:'精编拆字字典（2517 字、615 字随问取拆多拆法、934 字六书标注、108 条加笔减笔活拆变象、部件释义表 312 项），叠以康熙数理（复用姓名学 NAME81）、梅花字占起卦（与梅花易数字占完全同源，附 64 卦义、周易卦辞、24 动爻白话爻解与九类事断语，起卦全空间覆盖，互变事类参断为九类乘三态插槽），经文复用 jingwen.js，加以时辰外应与值日冲日应期、九类事综合断语，四项加权得五档评级；未收录字按结构与数理兜底。',
+  note:'源码 cezi-engine.js 与 cezi-data.js(cezi.html)。相字十法全收，八卦归象依《说卦传》；卷三取格断语 828 条照录《测字秘牒》（维基文库全文，CC BY-SA 4.0，本页以相同方式共享），卷五散格骨格 64 部件、卷七至理测法 18 案例照录底本，心易谐声、假借、转注三通道，经文照录《周易》，其余拆语自撰演绎。'},
+ {name:'皇极经世引擎( huangji-engine.js )', type:'self', w:0.4,
+  link:'huangji.html',
+  fn:'邵雍元会运世推演：以元 1 年等于公元前 67017 年为锚点，输出任一公历年（支持公元前）的元会运世四级定位、干支标注、十二会辟卦与配卦、皇极尺、大事锚点表。',
+  note:'源码 huangji-engine.js（huangji.html 加载）。配卦起例与大事纪年为整理口径，存在传承分歧，仅供参考；大事纪年表底本见上方“维基文库、漢籍リポジトリ”条目。'},
+ {name:'AI 解读( ai.js )', type:'self', w:0.4,
+  link:'assets/ai.js?v=20260924a',
+  fn:'将当前排盘数据组装为结构化提示词，接入用户配置的 AI 服务生成智能解读；含模型配置面板与自定义接口。',
+  note:'源码 ai.js。AI 解读为可选增强，未配置时不影响全部排盘功能。'},
+ {name:'真太阳时( latlng.js )', type:'self', w:0.2,
+  link:'assets/latlng.js',
+  fn:'国内主要城市经纬度库与真太阳时校正计算，用于出生时间的真太阳时换算（八字、紫微等时辰精度）。',
+  note:'源码 latlng.js。'},
+ {name:'app.js 框架、共享日期选择器', type:'self', w:0.2,
+  link:'assets/app.js?v=20260924i',
+  fn:'统一导航栏与页脚渲染、全站共享的自定义日期时间选择器（解决移动端原生日历无法弹出的问题）、默认当日时间、通用工具函数。',
+  note:'源码 app.js，被全站页面统一加载。'},
+ {name:'style.css 全站样式', type:'self', w:0.2,
+  link:'assets/style.css',
+  fn:'全站设计系统：CSS 变量配色、响应式布局（电脑、平板、手机三端适配）、日历网格、表格与卡片样式。',
+  note:'源码 style.css。'},
+ {name:'法定节假日与调休补班数据（ holiday.js ）', type:'ext', link:'https://github.com/NateScarlet/holiday-cn',
+  fn:'运行时联网取数。万年历与老黄历日历格的休、班标与调休补班判定取自国务院公告整理数据：isOffDay 为真即放假，为假即调休补班，周末遇补班亦算上班日。lunar.js 内置的节假日表止于 2026-10-10，其后日期由此数据补足。',
+  note:'许可：MIT。作者 NateScarlet；该社区库由 CI 每日抓取国务院公告自动生成。主源经 jsDelivr 分发 GitHub 社区库 holiday-cn，取不到时依次回落备源 timor.tech、再回落按星期（周六周日为休），不报错不提示。结果缓存 localStorage 七天，同一页面不重复外发请求。'},
+ {name:'节假日查询接口（ timor.tech ）', type:'ext', link:'https://timor.tech/api/holiday/',
+  fn:'节假日与调休的备源。主源不可用时按年取该年全部放假日与补班日，含节日名称；免费开放，支持 HTTPS 与跨域，按 IP 限每日一万次，无需密钥。',
+  note:'许可：免费公共接口（非开源项目，版权归 timor.tech）。仅作备源，主源正常时不发请求。'},
+ {name:'IP 归属地查询（ myip.ipip.net ）', type:'ext', link:'https://myip.ipip.net/json',
+  fn:'页脚展示来访 IP 归属地的第一顺位源。ipip.net 是国内专业 IP 地址库服务商，按来访 IP 反查国家、省、市与运营商，归属地直接返回中文，拼为一行文字置于页脚免责声明之下。',
+  note:'许可：免费公共接口（非开源项目）。请求不带 cookie（credentials: omit），不上传任何排盘数据，仅取归属地文本用于展示；取不到则依次切换下一源，全部取不到即静默不显示，不影响任何排盘功能。单源等待 4 秒即切下一家。'},
+ {name:'IP 归属地查询（ uapis.cn ）', type:'ext', link:'https://uapis.cn/api/v1/network/myip',
+  fn:'页脚 IP 归属地的第二顺位源（国内聚合服务）：返回国家与省合并的归属地串、运营商、ASN、经纬度等字段，归属地为中文，由本站归一后统一渲染。',
+  note:'许可：免费公共接口（无需密钥，非开源项目）。仅在前面顺位取不到时发出请求。'},
+ {name:'IP 归属地查询（ api.ip.sb ）', type:'ext', link:'https://api.ip.sb/geoip',
+  fn:'页脚 IP 归属地的第三顺位源（国内可达、跨域开放）：返回国家、地区、城市、运营商等字段，归属地为英文，由本站归一后统一渲染。',
+  note:'许可：免费公共接口（无需密钥，非开源项目）。仅在前面顺位取不到时发出请求。'},
+ {name:'IP 归属地查询（ ipwho.is ）', type:'ext', link:'https://ipwho.is/',
+  fn:'页脚 IP 归属地的末位源（国际源）：返回国家、地区、城市等字段，字段名与前三源不一，由本站归一后统一渲染。',
+  note:'许可：免费公共接口（无需密钥，非开源项目）。四源全部取不到则不显示。结果按会话缓存 sessionStorage，同一标签页只请求一次，避免逐页重复外发请求。'},
+ {name:'地磁偏角查询（ geomag.bgs.ac.uk ）', type:'ext', link:'https://geomag.bgs.ac.uk/web_service/GMModels/wmm/2025/',
+  fn:'风水两页磁偏角的在线校验源。英国地质调查局按 WMM2025 模型返回给定经纬度与日期的磁偏角、磁倾角、总强度及各自年变率。本站以本地 WMM2025 离线计算为主，此接口仅供点“在线校验磁偏角”时取官方值比对，并显示两者差异。',
+  note:'许可：免费公共接口（无需密钥，非开源项目，版权归英国地质调查局）。请求不带 cookie（credentials: omit），只上传经纬度与日期，不上传任何排盘数据；取不到即静默回退离线值，不影响任何排盘功能。'}
+];
+
+/* 分组真源：权重条色、图例、分组标题与条目标签统一取此，DATA 只存内容不存色 */
+const GROUP={
+  in:{label:'引入开源', color:'#b03a2e'},
+  self:{label:'自研引擎与数据', color:'#3a352e'},
+  ext:{label:'站外数据服务', color:'#55697a'}
+};
+const ofType=t=>DATA.filter(d=>d.type===t);
+const countOf=t=>ofType(t).length;
+
+/* 统计徽章 */
+document.getElementById('stIn').innerHTML=countOf('in')+'<i> 项</i>';
+document.getElementById('stSelf').innerHTML=countOf('self')+'<i> 项</i>';
+/* 覆盖页面模块数取导航真源（app.js 的 NAV_GROUPS，同页脚本共享同一全局词法环境）：
+   首页与附录内的说明文档、算法数据三项非排盘模块，不计 */
+const NON_MODULE=['index.html','shuoming.html','opensource.html'];
+document.getElementById('stMod').innerHTML=NAV_GROUPS.reduce((n,g)=>n+(g.type==='group'?g.items.filter(it=>NON_MODULE.indexOf(it.href)<0).length:0),0)+'<i> 个</i>';
+
+/* 权重概览条：只列算法与数据条目，站外数据服务为运行时取数，不计权重 */
+const weighted=DATA.filter(d=>d.type!=='ext');
+const bar=document.getElementById('osBar');
+weighted.forEach(d=>{
+  const seg=document.createElement('span');
+  seg.style.width=d.w+'%';
+  seg.style.background=GROUP[d.type].color;
+  seg.title=`${d.name}，权重 ${d.w}%`;
+  bar.appendChild(seg);
+});
+document.getElementById('barNote').textContent=`分段宽度即贡献权重，共 ${weighted.length} 项，合计 ${(Math.round(weighted.reduce((a,d)=>a+d.w,0)*10)/10).toFixed(1)}%（站外数据服务不计权重）`;
+document.getElementById('osLegend').innerHTML=['in','self']
+  .map(t=>`<span><i style="background:${GROUP[t].color}"></i>${GROUP[t].label}（${countOf(t)} 项）</span>`).join('');
+
+/* 许可徽章：从说明中提取“许可：…”句 */
+function licChip(note){
+  const m=note.match(/许可：([^。]+)。/);
+  return m?`<span class="os-lic">${m[1]}</span>`:'';
+}
+function bodyNote(note){
+  return note.replace(/许可：[^。]+。/,'');
+}
+function renderCard(d){
+  const isExt=d.type==='ext';
+  const out=d.type!=='self';        // 站外条目一律新开标签
+  const card=document.createElement('div');
+  card.className='os-card';
+  card.innerHTML=`
+    <div class="os-side">
+      ${isExt
+        ? '<span class="os-num">联网<i>取数</i></span>'
+        : `<span class="os-num">${d.w}<i>%</i></span><span class="os-mini"><i style="width:${Math.min(100,d.w*10)}%"></i></span>`}
+    </div>
+    <div class="os-main">
+      <div class="os-top">
+        <h3 class="os-name">${d.name}</h3>
+        <span class="os-tag ${d.type}">${GROUP[d.type].label}</span>
+        ${licChip(d.note)}
+      </div>
+      <div class="os-row">${d.fn}</div>
+      <div class="os-note">${bodyNote(d.note)}　<a class="os-link" href="${d.link}"${out?' target="_blank" rel="noopener"':''}>${out?'服务主页':'源码'}</a></div>
+    </div>`;
+  return card;
+}
+const listOf={in:document.getElementById('osInList'), self:document.getElementById('osSelfList'), ext:document.getElementById('osExtList')};
+Object.keys(listOf).forEach(t=>{
+  ofType(t).forEach(d=>listOf[t].appendChild(renderCard(d)));
+  const cnt=document.getElementById('cnt'+t[0].toUpperCase()+t.slice(1));
+  if(cnt) cnt.textContent='共 '+countOf(t)+' 项';
+});
+
+/* 筛选页签：分组标题与列表同带 data-group，按组整体显隐 */
+document.getElementById('osTabs').addEventListener('click',e=>{
+  const b=e.target.closest('.os-tab'); if(!b) return;
+  const cur=b.dataset.f;
+  document.querySelectorAll('.os-tab').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('[data-group]').forEach(el=>{
+    el.style.display=(cur==='all'||cur===el.dataset.group)?'':'none';
+  });
+});
+</script>
+</body>
+</html>

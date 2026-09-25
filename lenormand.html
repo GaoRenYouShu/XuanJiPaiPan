@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>雷诺曼卡 玄机排盘</title>
+<meta name="description" content="雷诺曼卡在线占卜：36 张雷诺曼卡全数据详解，单张、三卡、五卡、关系阵、九宫、八宫箱阵与大全景七种牌阵，630 对全组合词典成句、扑克对应、所象之人主事、时间指引、指标牌宫位与马步读法，点击牌面可看详批。">
+<meta name="keywords" content="雷诺曼,雷诺曼卡,lenormand,卡牌占卜,36张卡,九宫牌阵,大全景,组合词典">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/lenormand.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="雷诺曼卡 玄机排盘">
+<meta property="og:description" content="雷诺曼卡在线占卜：36 张雷诺曼卡全数据详解，单张、三卡、五卡、关系阵、九宫、八宫箱阵与大全景七种牌阵，630 对全组合词典成句、扑克对应、所象之人主事、时间指引、指标牌宫位与马步读法，点击牌面可看详批。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/lenormand.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap page-ln">
+  <div class="page">
+    <h1>雷诺曼卡</h1>
+    <div class="lead">Lenormand 36 张预言卡详解，默想所问之事选牌阵抽牌，两牌组合成句。</div>
+    <div class="form-row">
+      <div class="field"><label>牌阵</label>
+        <select id="spread" onchange="sigShow()">
+          <option value="1">单张牌（即时指引）</option>
+          <option value="3" selected>三卡（情况发展结果）</option>
+          <option value="5">五卡（时间线）</option>
+          <option value="rel">关系阵（我对方关系阻碍走向）</option>
+          <option value="9">九宫（3×3 全景）</option>
+          <option value="box">八宫箱阵（镜像读法）</option>
+          <option value="gt">大全景（36 张宫位盘）</option>
+        </select>
+      </div>
+      <div class="field" id="sigField" style="display:none"><label>指标牌（问卜者）</label>
+        <select id="sig">
+          <option value="f" selected>女人牌是我</option>
+          <option value="m">男人牌是我</option>
+          <option value="auto">不指定（仅标注）</option>
+        </select>
+      </div>
+      <div class="field"><label>所问之事（可选）</label><input id="question" placeholder="如：这段关系走向…"></div>
+      <button class="btn gold" onclick="draw()">抽牌</button>
+    </div>
+    <div id="out"></div>
+  </div>
+</div>
+<footer id="footer"></footer>
+<div id="lnMask" onclick="if(event.target===this)lnClose()"><div class="ln-modal" id="lnModalBox"></div></div>
+<script src="assets/lunar.js?v=20260826a"></script>
+<script src="assets/leno-data.js?v=20260917da"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script>
+renderChrome('lenormand.html');
+/* 分享链接优先：带 #xj 进入时清掉全站刷新机制的本页表单/滚动快照，
+   否则 app.js 在 load 后会把上次会话的控件值回灌，覆盖分享还原的盘面 */
+if(/[#&]xj=/.test(location.hash||'')){
+  try{
+    const pg=(location.pathname.split('/').pop()||'index').replace(/\.html?$/,'')||'index';
+    sessionStorage.removeItem('xj:form:'+pg);
+    sessionStorage.removeItem('xj:scroll:'+pg);
+  }catch(e){}
+}
+/* 吉牌 / 需留意之牌集合（由 leno-data.js 的 tone 汇得，用于统计与关键位定性） */
+const LENO_GOOD=LENO_DECK.filter(c=>c.tone===1).map(c=>c.n);
+const LENO_BAD=LENO_DECK.filter(c=>c.tone===-1).map(c=>c.n);
+const LENO_TONE=c=>c.tone===1?'吉牌':c.tone===-1?'需留意之牌':'中性牌';
+/* 大全景时区（按宫位所在列：1-2 过去、3-4 当下、5-6 未来）与四角、中央 */
+const GT_ZONE=h=>{const c=(h-1)%6;return c<2?'过去':c<4?'当下':'未来';};
+const GT_CORNERS=[[1,'起点与主题'],[6,'大势所向'],[31,'收束将近'],[36,'终局归宿']];
+const GT_CENTER=[15,16,21,22];
+/* 牌阵位次与位义：role 供位×牌合断（guide 指引/state 状态/past 过去/future 走向/
+   block 阻碍/advice 建议/env 外因/self 自身/other 对方/result 结果/core 核心），
+   box 下排落位由渲染层控制（8→5 右→左，使镜像两两垂直相对） */
+const POS={
+  '1':[{pos:'指引',role:'guide',desc:'当前最该留意的讯息与指引'}],
+  '3':[{pos:'情况',role:'state',desc:'当前境况与来由'},{pos:'发展',role:'future',desc:'事态推进的走向'},{pos:'结果',role:'result',desc:'收束之归宿'}],
+  '5':[{pos:'过去',role:'past',desc:'已经过去的影响'},{pos:'现在',role:'state',desc:'你当下的处境'},{pos:'趋势',role:'future',desc:'顺流而下的走向'},{pos:'外因',role:'env',desc:'外部推动或牵制'},{pos:'结果',role:'result',desc:'最终落点'}],
+  'rel':[{pos:'我',role:'self',desc:'你在关系中的状态与姿态'},{pos:'对方',role:'other',desc:'对方在关系中的状态与姿态'},{pos:'关系',role:'state',desc:'两人之间的连接与互动基调'},{pos:'阻碍',role:'block',desc:'关系当前的难点与功课'},{pos:'走向',role:'future',desc:'若维持现状关系可能的走向'}],
+  '9':[{pos:'①',role:'past',desc:'事之来由（上排看大势）'},{pos:'②',role:'state',desc:'当下氛围'},{pos:'③',role:'future',desc:'大势所向'},{pos:'④',role:'past',desc:'当下根基（中排看当下）'},{pos:'⑤ 核心',role:'core',desc:'整局之焦点，读牌之纲'},{pos:'⑥',role:'future',desc:'当下去向'},{pos:'⑦',role:'past',desc:'收尾之底（下排看收尾）'},{pos:'⑧',role:'state',desc:'收尾之势'},{pos:'⑨',role:'result',desc:'收尾之归宿'}],
+  'box':[{pos:'近况',role:'state',desc:'眼下的情形'},{pos:'进展',role:'future',desc:'正在推进之事'},{pos:'远因',role:'past',desc:'背后的远因'},{pos:'外缘',role:'env',desc:'外部的人与事'},{pos:'归宿',role:'result',desc:'此局最终归宿'},{pos:'转机',role:'guide',desc:'可借力的转机'},{pos:'阻力',role:'block',desc:'明显的阻力'},{pos:'基调',role:'state',desc:'整局的底色基调'}],
+  'gt':Array.from({length:36},(_,i)=>({pos:'宫'+(i+1),role:GT_ZONE(i+1)==='过去'?'past':GT_ZONE(i+1)==='当下'?'state':'future',desc:'第'+(i+1)+'宫（'+LENO_HOUSE[i+1]+'）'}))
+};
+/* 位×牌合断：位置角色 × 牌面吉凶基调（1 吉 0 中 -1 滞）组合成一句断语 */
+const COMBO_LN={
+  guide:{1:'此牌给出明确可行的指引，照做即是',0:'指引中性，宜再观察一轮','-1':'此牌提醒先停下整理，勿急着走'},
+  past:{1:'来处有助力，旧日积累仍是本钱',0:'往事平叙，影响渐淡','-1':'旧事余波未平，宜先了结根源'},
+  state:{1:'现状与牌义相成，势头正可用',0:'现状平稳，留意变量即可','-1':'现状承压，牌面照见症结所在'},
+  future:{1:'走向向好，顺势推进可期',0:'走向未定，随当下选择而变','-1':'走向有阻，宜提前布局规避'},
+  block:{1:'阻碍中藏生机，此位得此牌反是转机',0:'阻力不重，属可协商的摩擦','-1':'阻力确实棘手，先解结再图进'},
+  advice:{1:'牌面赞成推进，宜果断执行',0:'宜观望评估，择机而动','-1':'宜收敛调整，勿沿旧路硬推'},
+  env:{1:'外部环境于你有助，可借势',0:'外缘中性，风向未定','-1':'外部压力不小，宜减少消耗'},
+  self:{1:'你自身状态与能量正处佳位',0:'你的态度决定走向，先安顿自己','-1':'当下自我消耗较大，宜先照顾自己'},
+  other:{1:'对方姿态开放，互动可期',0:'对方态度含蓄，宜直接沟通','-1':'对方有所保留，或自顾不暇'},
+  result:{1:'结局偏顺，可安心收官',0:'结局平顺中有保留，落点取决于过程','-1':'结局偏滞涩，宜调整路径再收束'},
+  core:{1:'核心明亮，整局有主心骨',0:'核心平稳，成事在人为','-1':'核心承压，此局之结在此牌'}
+};
+/* Fisher-Yates 洗牌 */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function comboLine(p){return (COMBO_LN[p.role]&&COMBO_LN[p.role][p.card.tone])||'';}
+function keyPick(picks,sp){
+  const byPos=n=>picks.find(p=>p.pos===n);
+  return byPos('结果')||byPos('走向')||byPos('⑤ 核心')||byPos('归宿')||byPos('指引')||picks[picks.length-1];
+}
+let LAST=null;
+function draw(){
+ try{
+  const sp=document.getElementById('spread').value;
+  const sig=document.getElementById('sig').value;
+  const layout=POS[sp];
+  const deck=shuffle(LENO_DECK.slice());
+  const picks=layout.map(o=>({card:deck.pop(),pos:o.pos,desc:o.desc,role:o.role||'state',cls:o.cls||'',house:sp==='gt'?(o.pos.replace('宫','')|0):0}));
+  LAST={q:document.getElementById('question').value,sp,key:document.getElementById('spread').selectedOptions[0].text,sig,picks:null};
+  renderSpread(picks,sp);
+ }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
+}
+/* 指标牌选择仅关系阵与大全景用到 */
+function sigShow(){
+  const sp=document.getElementById('spread').value;
+  document.getElementById('sigField').style.display=(sp==='rel'||sp==='gt')?'':'none';
+}
+sigShow();
+/* 卡面：小牌阵用整卡，大全景用宫位小砖 */
+function cardFace(p,idx){
+  const c=p.card;
+  return `<div class="leno-card ${p.cls}" onclick="lenoOpen(${idx})">
+    <div class="leno-pos">${p.pos}</div>
+    <div class="leno-em">${c.em}</div>
+    <div class="leno-name">${c.no}. ${c.n}</div>
+    <div class="leno-k2">${c.kw.slice(0,2).join('、')}</div>
+    <div class="leno-hint">${comboLine(p)}</div>
+  </div>`;
+}
+function gtTile(p,idx){
+  const c=p.card;
+  const isSig=(c.no===28||c.no===29);
+  return `<div class="gt-tile ${isSig?'sig':''}" onclick="lenoOpen(${idx})">
+    <div class="gt-h">${p.pos} ${LENO_HOUSE[p.house]}</div>
+    <div class="gt-em">${c.em}</div>
+    <div class="gt-n">${c.no}. ${c.n}</div>
+    <div class="gt-k2">${c.kw.slice(0,2).join('、')}</div>
+    ${isSig?`<span class="gt-badge">${sigName(c.no)}</span>`:''}
+  </div>`;
+}
+function sigName(no){
+  const sel=document.getElementById('sig');
+  const s=(sel&&sel.value)||'f';
+  const n=Number(no);
+  if(s==='auto') return n===28?'男牌':'女牌';
+  return n===28?(s==='m'?'我':'他'):(s==='f'?'我':'她');
+}
+function renderSpread(picks,sp){
+  LAST.picks=picks;
+  let cardsHtml='';
+  if(sp==='9'){ cardsHtml=`<div class="leno-9">${picks.map(cardFace).join('')}</div>`; }
+  else if(sp==='box'){ /* 下排落位 8→5（右→左），镜像两两垂直相对 */
+    const order=[0,1,2,3,7,6,5,4];
+    cardsHtml=`<div class="leno-box">${order.map(i=>cardFace(picks[i],i)).join('')}</div>`;
+  }
+  else if(sp==='gt'){
+    cardsHtml=`<div class="leno-gt">${picks.map((p,i)=>gtTile(p,i)).join('')}</div>`;
+  }
+  else{ cardsHtml=`<div class="leno-row">${picks.map(cardFace).join('')}</div>`; }
+  document.getElementById('out').innerHTML=`${cardsHtml}${lenoRead(sp,picks)}`;
+}
+/* 综合判断（表格版）：连读成句、组合词典、结构读法、吉凶统计与牌阵指南逐行进表 */
+function lenoRead(sp,picks){
+  const n=picks.length;
+  const kp=keyPick(picks,sp);
+  const keyCard=kp.card;
+  const toneTxt=LENO_GOOD.includes(keyCard.n)?'整体走向偏顺、可期成。':LENO_BAD.includes(keyCard.n)?'提示阻力或考验，宜谨慎应对、做好预案。':'事态平稳，重在结合前后牌意细察。';
+  let goodN=0,badN=0;
+  picks.forEach(p=>{ if(p.card.tone===1)goodN++; else if(p.card.tone===-1)badN++; });
+  const rows=[];
+  /* 连读成句：单张无串可连，大全景 36 词太长，均不展示 */
+  if(sp!=='gt'&&sp!=='1') rows.push(['连读成句','把各牌关键词串联，可理解为"'+picks.map(p=>p.card.kw[0]).join('，')+'"。']);
+  if(sp==='gt'){
+    gtRead(picks).forEach(r=>rows.push(r));
+  }else if(sp==='9'){
+    const g=i=>picks[i].card;
+    ['大势层面','当下氛围','收尾走向'].forEach((lab,r)=>rows.push([['上排','中排','下排'][r],lab+'，'+lenoPair(g(r*3),g(r*3+1))+'，'+lenoPair(g(r*3+1),g(r*3+2))]));
+    rows.push(['中列','纵轴贯穿，'+lenoPair(g(1),g(4))+'，'+lenoPair(g(4),g(7))]);
+    rows.push(['对角线',lenoPair(g(0),g(4))+'，'+lenoPair(g(4),g(8))+'；'+lenoPair(g(2),g(4))+'，'+lenoPair(g(4),g(6))]);
+  }else if(sp==='box'){
+    const m=(a,b)=>lenoPair(picks[a].card,picks[b].card);
+    rows.push(['近况×基调','整局底色，'+m(0,7)]);
+    rows.push(['进展×阻力','推进之卡，'+m(1,6)]);
+    rows.push(['远因×转机','背后之源，'+m(2,5)]);
+    rows.push(['外缘×归宿','外力之落，'+m(3,4)]);
+    rows.push(['上排','由近及远，'+m(0,1)+'，'+m(1,2)+'，'+m(2,3)]);
+    rows.push(['下排','由远归近，'+m(4,5)+'，'+m(5,6)+'，'+m(6,7)]);
+  }else{
+    for(let i=0;i<picks.length-1;i++) rows.push([picks[i].pos+' → '+picks[i+1].pos,lenoPair(picks[i].card,picks[i+1].card)]);
+  }
+  rows.push(['关键位',kp.pos+'，'+keyCard.n+'（'+LENO_TONE(keyCard)+'），'+toneTxt]);
+  rows.push(['本阵','共 '+n+' 张；吉牌 '+goodN+'、需留意之牌 '+badN+'、中性'+(n-goodN-badN)+'。']);
+  const spreadGuide={
+    '1':'单张即断。此牌就是当下的答案或提醒，不枝不蔓，直读其义。',
+    '3':'三卡牌阵按线性时序解读，首牌明当前境况之来由，中牌见发展之趋势，末牌（结果位）为收束之归宿；读牌时以末牌作主语，前两牌为推进之铺垫。',
+    '5':'五卡牌阵展开完整时间线，过去、现在、趋势层层递进，外因位交代外部推动或牵制，结果位为最终落点；读牌时以外因与趋势为变数，结果位定其结局。',
+    'rel':'关系阵以我、对方双轴并读，先看双方牌义是否相容（人物牌所指），再读关系位定互动基调，阻碍位见功课，走向位收束结局；若人物牌落在 我、对方 位，所应更切。',
+    '9':'九宫牌阵为全景俯瞰，中央位（⑤ 核心）为整局之焦点，四周八牌从不同面向围绕核心展开；读牌时以核心牌为纲，三行看大势、当下与收尾，中列纵轴看贯穿主线，两条对角线互为印证。',
+    'box':'八宫箱阵八牌两两镜像相照，照处即见因与果、表与里，先读四组镜像定格局，再以上排由近及远、下排由远归近连读，归宿牌收束全盘。',
+    'gt':'大全景(Grand Tableau)以 36 张牌落 36 宫，宫宫有定义，读法次第为先看四角定大局，再看中央四宫定核心场域，然后锁定指标牌看其宫位、四邻与马步所及，最后按左两列过去、中两列当下、右两列未来分区收束。'
+  }[sp]||'';
+  if(spreadGuide) rows.push(['读法指南',spreadGuide]);
+  rows.push(['提醒','雷诺曼直白肯定、不作宿命之断；组合句供取向参考，请结合所问之事与现实情境综合判断。']);
+  const body=rows.map(r=>'<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');
+  return `<h3 class="rel-title">综合判断</h3><table class="ln-table"><thead><tr><th>项目</th><th>解读</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+/* 大全景结构读法行：四角、中央、指标牌（宫位、四邻、马步）、时区统计、开篇成句 */
+function gtRead(picks){
+  const byH=h=>picks[h-1];
+  const nm=p=>p.card.no+'.'+p.card.n;
+  const corners=GT_CORNERS.map(([h,lab])=>lab+'（'+h+'宫，'+nm(byH(h))+'）').join('；');
+  const center=GT_CENTER.map(h=>nm(byH(h))+'（'+h+'宫，'+LENO_HOUSE[h]+'）').join('，');
+  const sel=document.getElementById('sig');
+  const sigNo=(sel&&sel.value)==='m'?28:29;
+  const sigPick=byH(sigNo);
+  const r=Math.floor((sigPick.house-1)/6),c=(sigPick.house-1)%6;
+  const around=[[r-1,c,'上'],[r+1,c,'下'],[r,c-1,'左'],[r,c+1,'右']];
+  const nbrs=around.filter(([rr,cc])=>rr>=0&&rr<6&&cc>=0&&cc<6)
+    .map(([rr,cc,lab])=>{const h=rr*6+cc+1;return lab+'方 '+nm(byH(h))+'（'+h+'宫，'+LENO_HOUSE[h]+'）';}).join('，');
+  const kn=[];
+  [[r-1,c-2],[r-1,c+2],[r+1,c-2],[r+1,c+2],[r-2,c-1],[r-2,c+1],[r+2,c-1],[r+2,c+1]].forEach(([rr,cc])=>{
+    if(rr>=0&&rr<6&&cc>=0&&cc<6){const h=rr*6+cc+1;kn.push(nm(byH(h))+'（'+h+'宫，'+LENO_HOUSE[h]+'）');}
+  });
+  const cnt={过去:0,当下:0,未来:0};
+  picks.forEach(p=>cnt[GT_ZONE(p.house)]++);
+  const pairTxt=picks.slice(0,8).map((p,i)=>lenoPair(p.card,picks[i+1].card)).slice(0,7).join('；');
+  /* 同宫强化：牌落自己名下的宫位，牌义加倍活化 */
+  const own=picks.filter(p=>p.card.no===p.house).map(p=>p.card.no+'.'+p.card.n+'（'+p.house+'宫）');
+  /* 镜像呼应：沿盘心对称（37-h）的两牌互为映照，取指标牌与四角所在的镜像对 */
+  const seen={},mirTxt=[];
+  [1,6,31,36,sigPick.house].forEach(h=>{
+    const m=37-h,k=Math.min(h,m)+'-'+Math.max(h,m);
+    if(h!==m&&!seen[k]){seen[k]=1;mirTxt.push(nm(byH(h))+'（'+h+'宫）映'+nm(byH(m))+'（'+m+'宫）');}
+  });
+  return [
+    ['四角',corners+'。'],
+    ['中央四宫','15、16、21、22 四宫居第3-4行×第3-4列，为整局核心场域，'+center+'。'],
+    ['指标牌',nm(sigPick)+'落于'+sigPick.house+'宫（'+LENO_HOUSE[sigPick.house]+'，'+GT_ZONE(sigPick.house)+'区），即所问之事落在'+LENO_HOUSE[sigPick.house]+'的领域。'],
+    ['四邻','贴身影响，'+nbrs+'。'],
+    ['马步八点','远因脉络，'+kn.join('，')+'。'],
+    ['镜像呼应','盘心对称两牌互为映照，'+mirTxt.join('；')+'。'],
+    ['同宫强化',own.length?'牌落本宫、义气加倍，'+own.join('，')+'。':'无牌落本宫，宫义与牌义交叠处即事之焦点。'],
+    ['首尾呼应','宫1 与宫36 首尾相扣，'+lenoPair(byH(1).card,byH(36).card)+'。'],
+    ['时区统计','过去区 '+cnt['过去']+' 张、当下区 '+cnt['当下']+' 张、未来区 '+cnt['未来']+' 张，'+(cnt['未来']>cnt['过去']?'重心落在未来区，事在前进而非回望。':cnt['过去']>cnt['未来']?'重心落在过去区，旧事牵扯较多，宜先理旧再图新。':'时区均衡，事在当下盘桓，进退皆看此一步。')],
+    ['开篇成句','宫1至宫8 相邻示范，'+pairTxt+'。']
+  ];
+}
+/* 牌面详批弹窗：关键词、总义、四域牌义、扑克对应与位次信息 */
+function lenoOpen(i){
+  const p=(LAST&&LAST.picks||[])[i]; if(!p) return;
+  const c=p.card;
+  const tl=LENO_TONE(c);
+  const posTxt=LAST&&LAST.sp==='gt'?(p.pos+'（'+LENO_HOUSE[p.house]+'）'):p.pos;
+  document.getElementById('lnModalBox').innerHTML=`
+   <div class="lm-close" onclick="lnClose()">×</div>
+   <div class="lm-head">
+    <div class="lm-em">${c.em}</div>
+    <div class="lm-b">
+     <h3>${c.no}. ${c.n} <span class="lm-en">${c.en}</span></h3>
+     <div class="lm-tags"><span>${tl}</span><span>主题：${c.th}</span><span>扑克对应：${c.pc}</span><span>时间：${c.time}</span></div>
+     <p class="lm-kw"><b>关键词</b>：${c.kw.join('、')}</p>
+     <p class="lm-core"><b>总义</b>：${c.up}</p>
+     ${c.person?`<p class="lm-person"><b>人物所指</b>：${c.person}</p>`:''}
+    </div>
+   </div>
+   <div class="lm-grid">
+    <div class="lm-dom"><h4>所象之人</h4><p>${c.person}</p></div>
+    <div class="lm-dom"><h4>所主之事</h4><p>${c.area}</p></div>
+    <div class="lm-dom"><h4>行动指引</h4><p>${c.advice}</p></div>
+    <div class="lm-dom"><h4>时间指引</h4><p>${c.time}</p></div>
+   </div>
+   <div class="lm-pos"><b>位次</b>：${posTxt}　${p.desc||''}${p.desc?'<br>':''}${comboLine(p)}　（${tl}）</div>`;
+  document.getElementById('lnMask').classList.add('on');
+}
+function lnClose(){ document.getElementById('lnMask').classList.remove('on'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') lnClose(); });
+draw();
+/* AI 提示词：小牌阵喂全量人物主事与指引，大全景喂宫位压缩数据 */
+mountAI(function(){
+ if(!LAST) return '';
+ const isGt=LAST.sp==='gt';
+ let s=`雷诺曼占卜\n牌阵：${LAST.key}\n`;
+ if(LAST.q) s+=`所问：${LAST.q}\n`;
+ if(isGt){
+  const sigNo=LAST.sig==='m'?28:29;
+  s+=(LAST.sig==='auto'?'指标牌：未指定，默认以女人牌为问卜者、男人牌为对方。':'指标牌：'+(sigNo===28?'男人':'女人')+'牌为问卜者。')+'\n';
+  LAST.picks.forEach(p=>{ s+=`宫${p.house}（${LENO_HOUSE[p.house]}）：${p.card.no}.${p.card.n}［${p.card.kw.join('/')}，${LENO_TONE(p.card)}］\n`; });
+  const sigP=LAST.picks[sigNo-1];
+  s+=`\n指标牌落于宫${sigP.house}（${LENO_HOUSE[sigP.house]}）；四角：`+GT_CORNERS.map(([h,l])=>l+'='+LAST.picks[h-1].card.n).join('、')+'；中央四宫：'+GT_CENTER.map(h=>LAST.picks[h-1].card.n).join('、')+'；首尾呼应：宫1 '+LAST.picks[0].card.n+' 与宫36 '+LAST.picks[35].card.n+' 相扣。'+(()=>{const own=LAST.picks.filter(p=>p.card.no===p.house).map(p=>p.card.no+'.'+p.card.n);return own.length?('同宫强化（牌落本宫、义气加倍）：'+own.join('、')+'。'):'无牌落本宫。';})()+'\n请按大全景读法（四角、中央、指标牌宫位四邻马步、同宫强化、镜像、首尾、时区）综合成文。';
+ }else{
+  LAST.picks.forEach(p=>{ const c=p.card;
+   s+=`【${p.pos}】${c.no}.${c.n}（${LENO_TONE(c)}，扑克${c.pc}）：${c.up}\n关键词：${c.kw.join('/')}；时间：${c.time}\n所象之人：${c.person}；所主之事：${c.area}；行动指引：${c.advice}\n合断：${comboLine(p)}\n`; });
+  const pairs=[];
+  if(LAST.sp==='9'){
+   const g=i=>LAST.picks[i].card;
+   pairs.push(lenoPair(g(0),g(4)),lenoPair(g(4),g(8)),lenoPair(g(2),g(4)),lenoPair(g(4),g(6)));
+  }else if(LAST.sp==='box'){
+   const m=(a,b)=>lenoPair(LAST.picks[a].card,LAST.picks[b].card);
+   pairs.push(m(0,7),m(1,6),m(2,5),m(3,4));
+  }else{
+   for(let i=0;i<LAST.picks.length-1;i++) pairs.push(lenoPair(LAST.picks[i].card,LAST.picks[i+1].card));
+  }
+  const keyCard=keyPick(LAST.picks,LAST.sp).card;
+  s+=`\n组合成句：${pairs.join('；')}\n关键位：${keyCard.n}（${LENO_TONE(keyCard)}）。请按雷诺曼直白语法组合解读，给出整体判断。`;
+ }
+ return s;
+}, '雷诺曼卡');
+</script>
+<script>
+/* 盘面分享与数据：collect 记录牌阵、所问、指标牌与逐张编号，restore 按 no 原样重绘（不 recast，避免随机重抽覆盖还原结果） */
+shareWait({ page:"lenormand", title:"雷诺曼卡在线占卜",
+ collect:function(){
+   if(!LAST) return {};
+   return {sp:LAST.sp,q:LAST.q||'',sig:LAST.sig||'f',picks:LAST.picks.map(p=>p.card.no)};
+ },
+ restore:function(d){
+   if(!d||!d.sp||!Array.isArray(d.picks)) return;
+   const fire=el=>{ try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} };
+   const sel=document.getElementById('spread'); if(sel&&sel.value!==String(d.sp)){ sel.value=d.sp; fire(sel); }
+   sigShow();
+   const sigSel=document.getElementById('sig'); if(sigSel&&d.sig&&sigSel.value!==String(d.sig)){ sigSel.value=d.sig; fire(sigSel); }
+   const q=document.getElementById('question'); if(q&&d.q&&q.value!==d.q){ q.value=d.q; fire(q); }
+   const layout=POS[d.sp]; if(!layout) return;
+   const byNo={}; LENO_DECK.forEach(c=>byNo[c.no]=c);
+   const picks=d.picks.map((no,i)=>byNo[no]?({card:byNo[no],pos:layout[i]?layout[i].pos:'位'+(i+1),desc:layout[i]?layout[i].desc:'',role:layout[i]?(layout[i].role||'state'):'state',cls:layout[i]?(layout[i].cls||''):'',house:d.sp==='gt'?(i+1):0}):null).filter(Boolean);
+   if(!picks.length) return;
+   LAST={q:d.q||'',sp:d.sp,key:document.getElementById('spread').selectedOptions[0].text,sig:(sigSel&&sigSel.value)||'f',picks:null};
+   renderSpread(picks,d.sp);
+ }
+});
+</script>
+</body>
+</html>
