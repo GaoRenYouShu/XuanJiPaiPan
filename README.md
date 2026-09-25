@@ -88,8 +88,11 @@ python -m http.server 8080
 
 ```
 XuanJiPaiPan/
-├── *.html        38 个页面入口（34 个工具加首页与附录三类）
+├── *.html        39 个页面：34 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
+├── vercel.json   Vercel 部署配置（URL 规则与字体缓存）
+├── wrangler.jsonc 与 .assetsignore  Cloudflare Workers 静态资产部署配置
+├── .nojekyll     GitHub Pages 免 Jekyll 处理
 ├── LICENSE       MIT 许可文本
 ├── README.md
 ├── robots.txt
