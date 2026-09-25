@@ -14,4 +14,15 @@
   set('link[rel="canonical"]', 'href', url);
   set('meta[property="og:url"]', 'content', url);
   set('meta[property="og:image"]', 'content', img);
+
+  /* PWA：注入 manifest 链接并注册 Service Worker（本件为全站统一入口，故挂于此而非各页手写） */
+  var m = document.createElement('link');
+  m.rel = 'manifest';
+  m.href = dir + 'manifest.webmanifest';
+  document.head.appendChild(m);
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register(dir + 'sw.js').catch(function () {});
+    });
+  }
 })();
