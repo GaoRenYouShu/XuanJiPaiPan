@@ -1,5 +1,10 @@
 # 玄机排盘 XuanJi PaiPan
 
+[![GitHub Pages](https://github.com/GaoRenYouShu/XuanJiPaiPan/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/GaoRenYouShu/XuanJiPaiPan/deployments)
+[![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel)](https://xuanjipaipan.vercel.app/)
+[![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare)](https://xuanjipaipan.pages.dev/)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/39651e9e-35f7-4f29-a2ab-0d41fdeab4f4/deploy-status)](https://app.netlify.com/projects/gregarious-duckanoo-ed4d5b/deploys)
+
 传统命理、历法与占卜文化研究演示站。纯前端静态应用，无需后端，打开即用。
 
 **在线体验**（四路镜像同源同步，任选其一）：
@@ -77,7 +82,6 @@ python -m http.server 8080
 - **Cloudflare Pages**：控制台 Workers 和 Pages → 创建 → Pages → 连接到 Git，预设选 None，构建命令留空、输出目录 `/`。
 - **Cloudflare Workers（命令行直传）**：`npm i -g wrangler`，`wrangler login` 后在本目录执行 `wrangler deploy`；配置见 `wrangler.jsonc`，上传排除清单见 `.assetsignore`。
 - **Netlify**：在 app.netlify.com 导入仓库，构建命令留空、发布目录 `./`。
-  [![Netlify Status](https://api.netlify.com/api/v1/badges/39651e9e-35f7-4f29-a2ab-0d41fdeab4f4/deploy-status)](https://app.netlify.com/projects/gregarious-duckanoo-ed4d5b/deploys)
 - **其他托管**：任意静态托管或对象存储加 CDN（阿里云 OSS、腾讯云 COS、EdgeOne Pages、Render 等）将仓库文件原样上传即可，无需服务端。
 
 ## 目录结构
