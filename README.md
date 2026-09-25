@@ -56,6 +56,7 @@
 ## 技术构成
 
 - 纯 HTML、CSS 与原生 JavaScript，无构建步骤，静态部署即可运行
+- 可安装到桌面与主屏幕（PWA），已访问页面断网可用；跟随系统自动切换深浅色主题
 - 历法引擎基于 [lunar-javascript](https://github.com/6tail/lunar-javascript)（MIT）
 - 紫微斗数排盘基于 [iztro](https://github.com/SylarLong/iztro)（MIT）
 - 占星星历基于 [astronomy-engine](https://github.com/cosinekitty/astronomy)（MIT）
@@ -90,6 +91,7 @@ python -m http.server 8080
 XuanJiPaiPan/
 ├── *.html        39 个页面：34 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
+├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── vercel.json   Vercel 部署配置（URL 规则与字体缓存）
 ├── wrangler.jsonc 与 .assetsignore  Cloudflare Workers 静态资产部署配置
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理
