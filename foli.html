@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>佛历 玄机排盘</title>
+<meta name="description" content="佛历在线查询：佛历纪年与公历农历对照，佛诞、卫塞节等佛教节日标注。">
+<meta name="keywords" content="佛历,佛历查询,佛教节日,卫塞节,佛诞">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/foli.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="佛历 玄机排盘">
+<meta property="og:description" content="佛历在线查询：佛历纪年与公历农历对照，佛诞、卫塞节等佛教节日标注。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/foli.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap cal-page page-foli">
+  <div class="page">
+    <h1>佛历</h1>
+    <div class="lead">佛历纪年、佛菩萨圣诞、斋日与宿曜二十七宿吉凶。</div>
+    <div class="form-row">
+      <div class="field"><label>选择日期</label><input type="text" class="dt-input" placeholder="yyyy-mm-dd" id="dInput" onchange="jumpToDate(this.value)"></div>
+      <button class="btn gold" onclick="goToday()">今天</button>
+    </div>
+    <div data-export-target>
+      <div class="exp-title" data-export-title>佛历 玄机排盘</div>
+      <div class="cal-nav">
+        <div class="cal-nav-grp">
+          <button type="button" class="nav-btn" data-export-hide onclick="moveYear(-1)" title="上一年">«</button>
+          <button type="button" class="nav-btn" data-export-hide onclick="move(-1)" title="上一月">‹</button>
+        </div>
+        <div id="calTitle" class="cal-title"></div>
+        <div class="cal-nav-grp">
+          <button type="button" class="nav-btn" data-export-hide onclick="move(1)" title="下一月">›</button>
+          <button type="button" class="nav-btn" data-export-hide onclick="moveYear(1)" title="下一年">»</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div id="dayDetail"></div>
+    </div>
+  </div>
+</div>
+<footer id="footer"></footer>
+<script src="assets/lunar.js?v=20260830w1"></script>
+<script src="assets/wheel.js?v=20260925a"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script>
+renderChrome('foli.html');
+let cur = new Date();
+let lastKey = '';
+function render(){
+  const y=cur.getFullYear(), m=cur.getMonth();
+  const ct=document.getElementById('calTitle'); if(ct) ct.textContent = y+'年'+(m+1)+'月';
+  const first = safeDate(y,m+1,1);
+  const daysInMonth = safeDate(y,m+2,0).getDate();
+  const todayStr = new Date().toDateString();
+  let cells = ['一','二','三','四','五','六','日'].map(w=>`<div class="wd">${w}</div>`);
+  const lead = (first.getDay()+6)%7;              /* 周一起始：周一=0 … 周日=6 */
+  for(let i=0;i<lead;i++){ cells.push(cell(safeDate(y,m+1,1-(lead-i)),true,todayStr)); }
+  for(let d=1;d<=daysInMonth;d++){ cells.push(cell(safeDate(y,m+1,d),false,todayStr)); }
+  const total=lead+daysInMonth, tail=(7-total%7)%7;
+  for(let i=1;i<=tail;i++) cells.push(cell(safeDate(y,m+2,i),true,todayStr));
+  document.getElementById('calGrid').innerHTML = cells.join('');
+}
+function cell(d,other,todayStr){
+  const solar=Solar.fromDate(d), lunar=solar.getLunar(), foto=lunar.getFoto();
+  /* 杨公忌为风水择日忌日，非佛菩萨圣诞、节庆，本页不列（与 collectFests、monthFestList 同口径）；
+     缺此过滤时日期格会独独冒出「杨公忌」，而一览表与 AI 提词里都没有，三处不一致。 */
+  const fest=foto.getFestivals().filter(f=>f.getName()!=='杨公忌');
+  const alt=foto.getOtherFestivals().filter(n=>n!=='杨公忌');
+  /* 格内文字只留给节日：斋期由四角角标承担，不占文字行，故不设斋期兜底。
+     节日表为空时再取附表（龙树菩萨圣诞、月光菩萨圣诞等真佛诞只在附表里，缺此兜底这些日子会全空）。 */
+  const tag=fest.length?fest[0].toString():(alt.length?alt[0]:'');
+  /* 角标只有两个单字：五类斋期统一一个「斋」，名含「诞」者统一一个「诞」。
+     斋只认日斋（朔望斋、六斋日、十斋日、观音斋）；三长斋月是整月斋期，不逐日打标，
+     否则正、五、九三个月天天带字，角标就从「今日斋否」退化成「本月斋月否」。 */
+  const zhaiDay=foto.isDayZhaiShuoWang()||foto.isDayZhaiSix()||foto.isDayZhaiTen()||foto.isDayZhaiGuanYin();
+  const danDay=fest.some(f=>f.getName().indexOf('诞')>=0)||alt.some(n=>n.indexOf('诞')>=0);
+  const isToday=d.toDateString()===todayStr;
+  const wd=d.getDay();
+  const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const wk=(wd===0||wd===6)?'weekend':'';
+  return `<div class="cal-cell ${other?'other':''} ${isToday?'today':''} ${zhaiDay?'zhai':''} ${wk}" data-date="${key}"
+    onclick="showDay('${key}', this)">
+    <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
+    ${zhaiDay?'<span class="mk mk-z">斋</span>':''}
+    ${danDay?'<span class="mk mk-d">诞</span>':''}
+    ${tag?`<div class="festival">${tag}</div>`:''}
+    <div class="ld">佛${foto.getDayInChinese()}</div></div>`;
+}
+function collectFests(foto){
+  const out=[]; const seen=new Set();
+  foto.getFestivals().forEach(f=>{
+    if(f.getName()==='杨公忌') return; /* 杨公忌为风水择日忌日，非佛菩萨圣诞、节庆，佛历不列 */
+    const rk=f.getRemark&&f.getRemark();
+    const s=f.getName()+(rk?`（${rk}）`:'');
+    if(!seen.has(f.getName())){ seen.add(f.getName()); out.push(s); }
+  });
+  foto.getOtherFestivals().forEach(n=>{ if(n==='杨公忌') return; if(!seen.has(n)){ seen.add(n); out.push(n); } });
+  return out;
+}
+function collectZhai(foto){
+  const list=[];
+  if(foto.isDayZhaiShuoWang()) list.push('朔望斋');
+  if(foto.isDayZhaiSix()) list.push('六斋日');
+  if(foto.isDayZhaiTen()) list.push('十斋日');
+  if(foto.isDayZhaiGuanYin()) list.push('观音斋');
+  if(foto.isMonthZhai()) list.push('三长斋月');
+  return list;
+}
+function lmKey(lm){ return Math.abs(lm)*2 + (lm<0?1:0); }
+function monthFestList(y,m){
+  const dim=new Date(y,m,0).getDate();
+  const groups={}; const seen=new Set();
+  for(let d=1;d<=dim;d++){
+    const lunar=Solar.fromYmd(y,m,d).getLunar(), foto=lunar.getFoto();
+    const lm=lunar.getMonth();
+    if(!(lm in groups)) groups[lm]={label:lunar.getMonthInChinese(),items:[]};
+    const names=[];
+    foto.getFestivals().forEach(f=>{
+      if(f.getName()==='杨公忌') return;
+      const k='M'+lm+'-'+lunar.getDay()+f.getName();
+      if(!seen.has(k)){ seen.add(k); const rk=f.getRemark&&f.getRemark(); names.push(f.getName()+(rk?`（${rk}）`:'')); }
+    });
+    foto.getOtherFestivals().forEach(n=>{
+      const k='M'+lm+'-'+lunar.getDay()+n;
+      if(!seen.has(k)){ seen.add(k); names.push(n); }
+    });
+    if(names.length) groups[lm].items.push(`农历${groups[lm].label}月${lunar.getDayInChinese()}：${names.join('、')}`);
+  }
+  return Object.keys(groups).map(Number).sort((a,b)=>lmKey(a)-lmKey(b)).map(lm=>({label:groups[lm].label,items:groups[lm].items}));
+}
+function monthZhaiList(y,m){
+  const dim=new Date(y,m,0).getDate();
+  const map={'朔望斋':[],'六斋日':[],'十斋日':[],'观音斋':[]};
+  for(let d=1;d<=dim;d++){
+    const lunar=Solar.fromYmd(y,m,d).getLunar(), foto=lunar.getFoto();
+    const label='农历'+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese();
+    if(foto.isDayZhaiShuoWang()) map['朔望斋'].push(label);
+    if(foto.isDayZhaiSix()) map['六斋日'].push(label);
+    if(foto.isDayZhaiTen()) map['十斋日'].push(label);
+    if(foto.isDayZhaiGuanYin()) map['观音斋'].push(label);
+  }
+  const cl=Solar.fromYmd(y,m,1).getLunar();
+  const isThree=[1,5,9].includes(Math.abs(cl.getMonth()));
+  const order=['朔望斋','六斋日','十斋日','观音斋'];
+  const lines=[];
+  for(const k of order) if(map[k].length) lines.push(k+'：'+map[k].join('、'));
+  if(isThree) lines.push('三长斋月：本年农历'+cl.getMonthInChinese()+'月为三长斋月（正、五、九），宜茹素持戒');
+  return lines;
+}
+/* 佛历文书：只出纪年（佛菩萨圣诞、节庆另占一项，不在此重复） */
+function foliDateText(foto){
+  return foto.getYearInChinese()+'年'+foto.getMonthInChinese()+'月'+foto.getDayInChinese();
+}
+/* ===== 二十七宿盘（佛历宿曜） =====
+   宿曜二十七宿＝二十八宿去牛宿，故四象作 7/6/7/7，排成圆环。
+   环向与取字角一律照老黄历二十八宿盘：角宿起于 135 度、逆时针绕行，
+   于是东方青龙落正右（东）、北方玄武落正上（北）、西方白虎落正左（西）、南方朱雀落正下（南）。
+   四方归属不另立一说，直接取本站数据源 LunarUtil.GONG（角亢氐房心尾箕属东、斗女虚危室壁属北、
+   奎娄胃昴毕觜参属西、井鬼柳星张翼轸属南），与盘下详情条的「X方」同源，改一处两处同改。
+   🔴 外圈四方单字钉在四正（东右、北上、西左、南下），不随各象扇区中心：
+   二十七宿不是四的整数倍，各象中心角会偏出四正（北象偏 1.7 度、西象偏 5 度），
+   钉四正既合罗盘方位之例，四象名落象带时也只取整圈一致的环布读法。
+   🔴 取字角：最外圈四方单字沿圆周环布（WHEEL.ring）——正上横排、右半圈顺时针转向、正下倒排，
+   整圈读作一条环带；内圈二十七宿名单字照旧走 WHEEL.dir（四正正立、其余沿半径散射）。 */
+const FOLI_XIU=['角','亢','氐','房','心','尾','箕','斗','女','虚','危','室','壁',
+  '奎','娄','胃','昴','毕','觜','参','井','鬼','柳','星','张','翼','轸'];
+const FOLI_GONG_DIR={东:90,北:0,西:270,南:180};   /* 四方在罗盘上的固定角度 */
+const FOLI_XIU_W=360/27, FOLI_XIU_A0=135;         /* 角宿起点角 */
+const FW_C=220, FW_ARC=192, FW_OUT=182, FW_IN=120, FW_CORE=78,
+  FW_LAB_IN=148, FW_LAB_OUT=206, FW_TICK0=168, FW_TICK1=176, FW_P0=82, FW_P1=116,
+  /* 🔴 热区外沿（198，弧带外沿再外扩 6）只此一处定义，命中区与悬停着色同取此值，
+     与老黄历、万年历四盘同沿；单写外圈线（182）会让悬停色缺最外那段环带。 */
+  FW_HIT1=FW_ARC+6;
+const FOLI_XIU_IDS={arc:'foliXiuArc',needle:'foliXiuNeedle',dot:'foliXiuDot'};
+let FOLI_XIU_ITEMS=null, FOLI_XIU_CUR=0, FOLI_XIU_SEL=0;
+/* 第 i 宿在环上的角度区间：自 a0 顺时针到 a1（a0 小于 a1） */
+function foliXiuSpan(i){return [FOLI_XIU_A0-(i+1)*FOLI_XIU_W, FOLI_XIU_A0-i*FOLI_XIU_W];}
+function foliXiuMid(i){return FOLI_XIU_A0-(i+0.5)*FOLI_XIU_W;}
+/* 象序按 GONG 的连续段切分，段序即环序（东 北 西 南）；不写死 7/6/7/7，改数据源即自动跟随 */
+function foliXiuGroups(){
+  const gs=[]; let s=0;
+  for(let i=1;i<=FOLI_XIU.length;i++){
+    const a=LunarUtil.GONG[FOLI_XIU[s]]||'';
+    const b=i<FOLI_XIU.length?(LunarUtil.GONG[FOLI_XIU[i]]||''):null;
+    if(i===FOLI_XIU.length||b!==a){ gs.push({gong:a,shou:LunarUtil.SHOU[a]||'',a:s,b:i}); s=i; }
+  }
+  return gs;
+}
+/* 加粗弧、指针、圆点三件随选中走的公共改写（与老黄历 wheelSpot 同法，各页自成一份，不跨页共用） */
+function foliWheelSpot(ids,dg,a0,a1){
+  const arc=document.getElementById(ids.arc);
+  if(arc) arc.setAttribute('d',WHEEL.arc(FW_ARC,a0,a1));
+  const q0=WHEEL.px(FW_P0,dg), q1=WHEEL.px(FW_P1,dg);
+  const ln=document.getElementById(ids.needle);
+  if(ln){
+    ln.setAttribute('x1',WHEEL.n(q0[0])); ln.setAttribute('y1',WHEEL.n(q0[1]));
+    ln.setAttribute('x2',WHEEL.n(q1[0])); ln.setAttribute('y2',WHEEL.n(q1[1]));
+  }
+  const dt=document.getElementById(ids.dot);
+  if(dt){ dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1])); }
+}
+function foliXiuWheel(foto){
+  const cur=foto.getXiu();
+  FOLI_XIU_CUR=Math.max(0,FOLI_XIU.indexOf(cur));
+  FOLI_XIU_SEL=FOLI_XIU_CUR;
+  FOLI_XIU_ITEMS=FOLI_XIU.map(function(nm){
+    const luck=LunarUtil.XIU_LUCK[nm]||'';
+    const g=LunarUtil.GONG[nm]||'', sh=LunarUtil.SHOU[g]||'';
+    /* 宿曜全名＝宿＋七曜＋禽兽（如室火猪），与盘下详情条同口径 */
+    return {nm:nm, full:nm+(LunarUtil.ZHENG[nm]||'')+(LunarUtil.ANIMAL[nm]||''),
+      luck:luck, good:luck==='吉', gong:g, xiang:g?g+'方'+sh:''};
+  });
+  const curSp=foliXiuSpan(FOLI_XIU_SEL), curX=FOLI_XIU_ITEMS[FOLI_XIU_SEL];
+  let s='';
+  /* 二十七段弧：段间不留缝，整圈是一条淡环；加粗那段另出一条，随选中走 */
+  FOLI_XIU_ITEMS.forEach(function(x,i){
+    const sp=foliXiuSpan(i);
+    s+=`<path d="${WHEEL.arc(FW_ARC,sp[0],sp[1])}" class="w-arc"/>`;
+  });
+  /* 刻度落在每宿中点，与两侧文字同轴 */
+  for(let i=0;i<FOLI_XIU_ITEMS.length;i++){
+    const dg=foliXiuMid(i), ta=WHEEL.px(FW_TICK0,dg), tb=WHEEL.px(FW_TICK1,dg);
+    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
+  }
+  /* 热区只取环带（内界圈到弧带外沿），不盖盘心 */
+  FOLI_XIU_ITEMS.forEach(function(x,i){
+    const sp=foliXiuSpan(i);
+    s+=`<path d="${WHEEL.band(FW_IN,FW_HIT1,sp[0],sp[1])}" class="w-hit${i===FOLI_XIU_SEL?' is-on':''}" data-i="${i}" onclick="foliPickXiu(${i})"/>`;
+    s+=`<path d="${WHEEL.band(FW_IN,FW_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
+  });
+  s+=`<path id="foliXiuArc" d="${WHEEL.arc(FW_ARC,curSp[0],curSp[1])}" class="w-arc w-arc-cur"/>`;
+  /* 外圈：四方单字，钉四正；不带 data-i（纯方位标记，不参与选中高亮） */
+  foliXiuGroups().forEach(function(g){
+    const dg=FOLI_GONG_DIR[g.gong]; if(dg===undefined) return;
+    const tp=WHEEL.px(FW_LAB_OUT,dg);
+    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl"`
+      +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${g.gong}</text>`;
+  });
+  /* 内圈：二十七宿名单字，按吉凶着色；选中态靠加粗字示，不铺色块 */
+  FOLI_XIU_ITEMS.forEach(function(x,i){
+    const dg=foliXiuMid(i), tp=WHEEL.px(FW_LAB_IN,dg);
+    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg${i===FOLI_XIU_SEL?' w-lab-cur':''}"`
+      +` data-i="${i}" style="fill:${x.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
+      +` transform="rotate(${WHEEL.dir(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.nm}</text>`;
+  });
+  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`;
+  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`;
+  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
+  /* 指针只走盘心与内界圈之间，不穿过盘心文字 */
+  const dg=foliXiuMid(FOLI_XIU_SEL), q0=WHEEL.px(FW_P0,dg), q1=WHEEL.px(FW_P1,dg);
+  s+=`<line id="foliXiuNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
+  s+=`<circle id="foliXiuDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
+  s+=`<text x="${FW_C}" y="${FW_C-16}" class="w-c1" id="foliXiuC1">${curX.full}</text>`;
+  s+=`<text x="${FW_C}" y="${FW_C+14}" class="w-c2" id="foliXiuC2" style="font-weight:700;fill:${curX.good?'var(--wheel-good)':'var(--wheel-bad)'}">${curX.luck}</text>`;
+  s+=`<text x="${FW_C}" y="${FW_C+34}" class="w-c3" id="foliXiuC3">${curX.xiang}</text>`;
+  return `<svg class="wheel" id="foliXiuWheel" viewBox="0 0 440 440" role="img" aria-label="二十七宿盘">${s}</svg>`;
+}
+/* 盘下详情条：宿曜全名、方位、吉凶，再换行给该宿的宿曜吉凶歌。
+   一律不加粗，强调走色（.wd-g / .wd-x）——与老黄历、万年历四盘同一口径。 */
+function foliXiuDetailHTML(i){
+  const x=FOLI_XIU_ITEMS&&FOLI_XIU_ITEMS[i]; if(!x) return '';
+  const song=(LunarUtil.XIU_SONG&&LunarUtil.XIU_SONG[x.nm])||'';
+  return `${x.full}，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`
+    +(song?`<span class="wd-br"></span>${song}`:'');
+}
+function foliPickXiu(i){
+  if(!FOLI_XIU_ITEMS||!FOLI_XIU_ITEMS[i]) return;
+  FOLI_XIU_SEL=i;
+  const x=FOLI_XIU_ITEMS[i], sp=foliXiuSpan(i);
+  WHEEL.pick('foliXiuWheel',i);
+  WHEEL.lab('foliXiuWheel',i);
+  foliWheelSpot(FOLI_XIU_IDS,foliXiuMid(i),sp[0],sp[1]);
+  WHEEL.text('foliXiuC1',x.full);
+  WHEEL.text('foliXiuC2',x.luck,x.good?'var(--wheel-good)':'var(--wheel-bad)');
+  WHEEL.text('foliXiuC3',x.xiang);
+  const d=document.getElementById('foliXiuDetail'); if(d) d.innerHTML=foliXiuDetailHTML(i);
+}
+/* ===== 斋日盘（按农历月的逐日排布） =====
+   佛历斋期共五类：朔望斋、六斋日、十斋日、观音斋都落在固定的农历日上，
+   故以「农历月的每一天」为天然成环的序列：外圈标斋期单字，内圈排农历日名，
+   弧带全圈淡色，实色只给所查之日与选中之日两天，指针指向选中之日。
+   🔴 三长斋月（正月、五月、九月）不逐日打标，与日期格角标同口径：
+   逐日打标会让这三个月天天满格，盘就从「今日斋否」退化成「本月斋月否」。
+   月一级的事实（本月为三长斋月）由基础信息表「斋期」条承担，盘面仍只回答「哪几天斋」。
+   🔴 盘题只写「斋日盘」四字、不带月名：盘心首行已作「八月廿四」，
+   标题再挂「（农历八月）」是同屏重复。
+   🔴 格数按该农历月的实际天数等分（大月三十格 12 度、小月廿九格 12.41 度），不固定三十格留空槽：
+   空槽在整圈弧上就是一段缺口，看去像画坏了。代价是十五在小月略偏约 6 度，可接受。
+   🔴 外圈只放单字（多字沿半径排开会顶出画布，见老黄历盘首注），故一日兼逢数斋时
+   外圈只标优先级最高的那一个（朔望 > 六斋 > 十斋 > 观音），全部斋期在盘下详情条里列全。 */
+const FZ_C=220, FZ_ARC=192, FZ_OUT=182, FZ_IN=120, FZ_CORE=78,
+  FZ_LAB_IN=148, FZ_LAB_OUT=206, FZ_TICK0=168, FZ_TICK1=176, FZ_P0=82, FZ_P1=116,
+  FZ_HIT1=FZ_ARC+6;
+const FZ_IDS={arc:'foliZhaiArc',needle:'foliZhaiNeedle',dot:'foliZhaiDot'};
+/* 五类斋期的判定说明：与 assets/lunar.js 里 FotoUtil 的五个判定函数一一对应
+   （isDayZhaiShuoWang / isDayZhaiSix / isDayZhaiTen / isDayZhaiGuanYin / isMonthZhai），
+   改判定须同改此处，免得盘下说的是另一套日子。 */
+const FZ_DEF={
+  '朔望斋':'月朔、月望（初一、十五）持斋',
+  '六斋日':'每月初八、十四、十五、廿三、廿九、三十持斋，小月改廿八',
+  '十斋日':'每月初一、初八、十四、十五、十八、廿三、廿四、廿八、廿九、三十持斋',
+  '观音斋':'观音菩萨斋日，全年廿二日持斋',
+  '三长斋月':'正月、五月、九月全月持斋'
+};
+const FZ_ORDER=['朔望斋','六斋日','十斋日','观音斋','三长斋月'];
+/* 盘心用的短名：盘心只有 156 宽的圆心，一日兼逢四类时全名（十六字）会撑出圆外，故取两字简称；
+   全名与判定说明留给盘下详情条。 */
+const FZ_SHORT={'朔望斋':'朔望','六斋日':'六斋','十斋日':'十斋','观音斋':'观音','三长斋月':'三长'};
+/* 外圈单字标记：朔望斋在初一给「朔」、十五给「望」，其余各取首字 */
+const FZ_MARK={'朔望斋':'朔','六斋日':'六','十斋日':'十','观音斋':'观'};
+let FZ_ITEMS=null, FZ_N=30, FZ_W=12, FZ_LABEL='', FZ_MONTH_ZHAI=false, FZ_SEL=0, FZ_CUR=0;
+/* 第 i 格的角度区间：自 a0 顺时针到 a1（a0 小于 a1）；初一在正上（0 度）、顺时针排 */
+function fzSpan(i){return [i*FZ_W-FZ_W/2, i*FZ_W+FZ_W/2];}
+function fzMid(i){return i*FZ_W;}
+/* 取该农历月逐日的斋期。返回月一级的两项（月名、是否三长斋月），逐日数据落在 FZ_ITEMS。
+   types 已按 FZ_ORDER 排好；dayZhai 是其中属「日斋」的四类（决定弧带与标记，三长斋月不计入）。 */
+function foliZhaiBuild(lunar){
+  const ly=lunar.getYear(), lm=lunar.getMonth();
+  const mObj=LunarMonth.fromYm(ly,lm);
+  FZ_N=mObj?mObj.getDayCount():30;
+  FZ_W=360/FZ_N;
+  FZ_LABEL=lunar.getMonthInChinese();
+  FZ_MONTH_ZHAI=lunar.getFoto().isMonthZhai();
+  FZ_ITEMS=[];
+  for(let d=1;d<=FZ_N;d++){
+    const x=Lunar.fromYmd(ly,lm,d), f=x.getFoto();
+    const t=[];
+    if(f.isDayZhaiShuoWang()) t.push('朔望斋');
+    if(f.isDayZhaiSix()) t.push('六斋日');
+    if(f.isDayZhaiTen()) t.push('十斋日');
+    if(f.isDayZhaiGuanYin()) t.push('观音斋');
+    if(f.isMonthZhai()) t.push('三长斋月');
+    FZ_ITEMS.push({d:d, name:x.getDayInChinese(), solar:x.getSolar().toYmd(), types:t,
+      dayZhai:t.filter(function(s){return s!=='三长斋月';})});
+  }
+  /* 所查之日与选中之日是两个位置：前者是本次排盘锚定的那天，不随点选移动；
+     后者随点选走。初排时两者重合，盘上只见一条加粗弧。 */
+  FZ_SEL=Math.min(FZ_N,Math.max(1,lunar.getDay()))-1;
+  FZ_CUR=FZ_SEL;
+  return {label:FZ_LABEL, isMonthZhai:FZ_MONTH_ZHAI};
+}
+/* 外圈单字标记：取当值斋期里优先级最高的一个；朔望斋再分朔（初一）望（十五） */
+function foliZhaiMark(x){
+  for(const k of FZ_ORDER){
+    if(k==='三长斋月') continue;
+    if(x.types.indexOf(k)<0) continue;
+    if(k==='朔望斋') return x.d===15?'望':'朔';
+    return FZ_MARK[k];
+  }
+  return '';
+}
+function foliZhaiWheel(){
+  const curSp=fzSpan(FZ_SEL), curX=FZ_ITEMS[FZ_SEL];
+  let s='';
+  /* 逐格弧：全圈一律淡线。斋日不预标实色，一月的斋日六七天，未点之前先冒六七处主体色，
+     与选中态争焦点；哪几天斋由外圈单字标记与内圈日名点出，淡环本身已是完整的盘。 */
+  FZ_ITEMS.forEach(function(x,i){
+    const sp=fzSpan(i);
+    s+=`<path d="${WHEEL.arc(FZ_ARC,sp[0],sp[1])}" class="w-arc"/>`;
+  });
+  /* 刻度落在每格中点，与两侧文字同轴 */
+  for(let i=0;i<FZ_N;i++){
+    const dg=fzMid(i), ta=WHEEL.px(FZ_TICK0,dg), tb=WHEEL.px(FZ_TICK1,dg);
+    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
+  }
+  /* 热区只取环带（内界圈到弧带外沿），不盖盘心 */
+  FZ_ITEMS.forEach(function(x,i){
+    const sp=fzSpan(i);
+    s+=`<path d="${WHEEL.band(FZ_IN,FZ_HIT1,sp[0],sp[1])}" class="w-hit${i===FZ_SEL?' is-on':''}" data-i="${i}" onclick="foliPickZhai(${i})"/>`;
+    s+=`<path d="${WHEEL.band(FZ_IN,FZ_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
+  });
+  /* 实色弧只给两天：所查之日（本次排盘锚定，随查询走）与选中之日（随点选走）。
+     两者初排时重合，盘上只见一条；点开别日后各出一条，锚定那条不移动，故仍认得出查的是哪天。 */
+  const fixSp=fzSpan(FZ_CUR);
+  s+=`<path id="foliZhaiArcFix" d="${WHEEL.arc(FZ_ARC,fixSp[0],fixSp[1])}" class="w-arc w-arc-solid"/>`;
+  s+=`<path id="foliZhaiArc" d="${WHEEL.arc(FZ_ARC,curSp[0],curSp[1])}" class="w-arc w-arc-cur"/>`;
+  /* 外圈：斋期单字，沿圆周环布（WHEEL.ring）；非斋日留空 */
+  FZ_ITEMS.forEach(function(x,i){
+    const mk=foliZhaiMark(x); if(!mk) return;
+    const dg=fzMid(i), tp=WHEEL.px(FZ_LAB_OUT,dg);
+    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===FZ_SEL?' w-lab-cur':''}"`
+      +` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${mk}</text>`;
+  });
+  /* 内圈：农历日名两字，**一律径向散射**（与经络盘内圈排经名、时辰盘内圈排干支同制式）；
+     一圈两字若也套四正，会在初一、十六两处冒出横排，破整圈放射 */
+  FZ_ITEMS.forEach(function(x,i){
+    const dg=fzMid(i), tp=WHEEL.px(FZ_LAB_IN,dg);
+    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===FZ_SEL?' w-lab-cur':''}"`
+      +` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.name}</text>`;
+  });
+  s+=`<circle cx="${FZ_C}" cy="${FZ_C}" r="${FZ_OUT}" class="w-ring"/>`;
+  s+=`<circle cx="${FZ_C}" cy="${FZ_C}" r="${FZ_IN}" class="w-ring"/>`;
+  s+=`<circle cx="${FZ_C}" cy="${FZ_C}" r="${FZ_CORE}" class="w-core"/>`;
+  const dg=fzMid(FZ_SEL), q0=WHEEL.px(FZ_P0,dg), q1=WHEEL.px(FZ_P1,dg);
+  s+=`<line id="foliZhaiNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
+  s+=`<circle id="foliZhaiDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
+  /* 盘心三行：农历月日（大）、斋期短名（中，属斋期取主体色）、该日公历（小） */
+  const c2=curX.types.length?curX.types.map(function(t){return FZ_SHORT[t]||t;}).join('、'):'非斋期';
+  s+=`<text x="${FZ_C}" y="${FZ_C-16}" class="w-c1" id="foliZhaiC1">${FZ_LABEL}月${curX.name}</text>`;
+  s+=`<text x="${FZ_C}" y="${FZ_C+14}" class="w-c2" id="foliZhaiC2"${curX.types.length?' style="fill:var(--wheel-cur)"':''}>${c2}</text>`;
+  s+=`<text x="${FZ_C}" y="${FZ_C+34}" class="w-c3" id="foliZhaiC3">${curX.solar}</text>`;
+  return `<svg class="wheel" id="foliZhaiWheel" viewBox="0 0 440 440" role="img" aria-label="斋日盘">${s}</svg>`;
+}
+/* 盘下详情条：该日斋期全列 + 每一类的判定说明（不与盘心重复；判定说明是新增信息，
+   页内「斋期」条只说今日斋否、不说判据）。非斋日给下一个斋日，好顺着盘找下去。 */
+function foliZhaiDetailHTML(i){
+  const x=FZ_ITEMS&&FZ_ITEMS[i]; if(!x) return '';
+  const head=`农历${FZ_LABEL}月${x.name}，`+(x.types.length?`逢${x.types.join('、')}，属斋期`:'非斋期');
+  if(x.types.length){
+    const defs=x.types.map(function(t){return FZ_DEF[t]?t+'：'+FZ_DEF[t]:'';}).filter(Boolean);
+    return head+(defs.length?'<span class="wd-br"></span>'+defs.join('<span class="wd-br"></span>'):'');
+  }
+  const nx=FZ_ITEMS.slice(i+1).filter(function(y){return y.dayZhai.length;})[0];
+  return head+(nx?'<span class="wd-br"></span>下一个斋日：农历'+nx.name:'');
+}
+function foliPickZhai(i){
+  if(!FZ_ITEMS||!FZ_ITEMS[i]) return;
+  FZ_SEL=i;
+  const x=FZ_ITEMS[i], sp=fzSpan(i);
+  WHEEL.pick('foliZhaiWheel',i);
+  WHEEL.lab('foliZhaiWheel',i);
+  foliWheelSpot(FZ_IDS,fzMid(i),sp[0],sp[1]);
+  WHEEL.text('foliZhaiC1',FZ_LABEL+'月'+x.name);
+  WHEEL.text('foliZhaiC2',x.types.length?x.types.map(function(t){return FZ_SHORT[t]||t;}).join('、'):'非斋期',
+    x.types.length?'var(--wheel-cur)':'var(--wheel-ink2)');
+  WHEEL.text('foliZhaiC3',x.solar);
+  const d=document.getElementById('foliZhaiDetail'); if(d) d.innerHTML=foliZhaiDetailHTML(i);
+}
+function showDay(str, el){
+  const key = str.split('-').map(Number).join('-');
+  lastKey = key;
+  const [y,m,d]=key.split('-').map(Number);
+  document.querySelectorAll('.cal-cell.selected').forEach(c=>c.classList.remove('selected'));
+  const target=el||document.querySelector(`.cal-cell[data-date="${key}"]`);
+  if(target) target.classList.add('selected');
+  const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), foto=lunar.getFoto();
+  const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
+  const fests=collectFests(foto);
+  const zt=collectZhai(foto);
+  foliZhaiBuild(lunar);   /* 只取副作用：备好 FZ_ITEMS 与盘心用的 FZ_LABEL */
+  /* 斋期：属斋期取宜绿，非斋期不着色 */
+  const zhaiText = zt.length
+    ? `本日逢${zt.join('、')}，属斋期。<span class="foli-br"></span>佛子宜茹素、持戒、诵经、礼忏，不杀生、不荤腥。`
+    : '本日非斋期，饮食起居无特别禁戒。';
+  /* 节气项：无内容的小项不输出，不留「无」占位 */
+  const jqText = (lunar.getJieQi()?('当前：'+lunar.getJieQi()+'<span class="foli-br"></span>'):'')
+    + '上：'+pj.getName()+' '+pj.getSolar().toYmd()
+    + '<span class="foli-br"></span>下：'+nj.getName()+' '+nj.getSolar().toYmd();
+  document.getElementById('dayDetail').innerHTML = `
+  <div class="today-card">
+    <div class="today-top">
+      <div class="big-date"><div class="d">${d}</div>
+        <div class="ym">${y}年${m}月 星期${'日一二三四五六'[solar.getWeek()]}</div></div>
+      <div class="lunar-info">
+        <div class="ln">佛历 ${foto.getYearInChinese()}年 ${foto.getMonthInChinese()}月${foto.getDayInChinese()}</div>
+        <div class="zodiac">农历 ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日</div>
+        <div class="zodiac">${lunar.getYearShengXiao()} ${solar.getXingZuo()}座 月建 ${lunar.getMonthInGanZhi().slice(-1)}月 月相 ${lunar.getYueXiang()}</div>
+        <div class="zodiac">${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}</div>
+      </div>
+    </div>
+  </div>
+  <h3 class="rel-title">基础信息</h3>
+  <div class="foli-info">
+    <div class="foli-i"><span class="k">斋期</span><span class="v${zt.length?' yi':''}">${zhaiText}</span></div>
+    <div class="foli-i"><span class="k">佛历文书</span><span class="v">${foliDateText(foto)}</span></div>
+    <div class="foli-i"><span class="k">节气</span><span class="v">${jqText}</span></div>
+    <div class="foli-i"><span class="k">圣诞节庆</span><span class="v">${fests.length?fests.join('、'):'无'}</span></div>
+  </div>
+  <div class="wheel-wheels">
+    <div class="wheel-block"><h4>二十七宿盘</h4>${foliXiuWheel(foto)}<div class="wheel-detail" id="foliXiuDetail">${foliXiuDetailHTML(FOLI_XIU_SEL)}</div></div>
+    <div class="wheel-block"><h4>斋日盘</h4>${foliZhaiWheel()}<div class="wheel-detail" id="foliZhaiDetail">${foliZhaiDetailHTML(FZ_SEL)}</div></div>
+  </div>`;
+}
+function move(n){cur=safeDate(cur.getFullYear(),cur.getMonth()+n+1,1);render(); if(lastKey){const[Y,M]=lastKey.split('-').map(Number); if(Y===cur.getFullYear()&&M===cur.getMonth()+1)showDay(lastKey);} }
+function moveYear(n){cur=safeDate(cur.getFullYear()+n,cur.getMonth()+1,1);render(); if(lastKey) showDay(lastKey);}
+function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
+function goToday(){cur=new Date();document.getElementById('dInput').value=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;render();showDay(`${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`);}
+render();goToday();
+mountAI(function(){
+  if(!lastKey) return '';
+  const [y,m,d]=lastKey.split('-').map(Number);
+  const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), foto=lunar.getFoto();
+  const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
+  const jqText=(lunar.getJieQi()?('当前：'+lunar.getJieQi()+'  '):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'  下：'+nj.getName()+' '+nj.getSolar().toYmd();
+  const fests=collectFests(foto).join('、')||'无';
+  const zt=collectZhai(foto);
+  const zhai = zt.length?('本日逢'+zt.join('、')+'，属斋期；佛子宜茹素持戒、诵经、礼忏'):'本日非斋期，饮食起居无特别禁戒';
+  const monthFest=monthFestList(y,m);
+  const mfText=monthFest.length?monthFest.flatMap(g=>g.items).join('\n'):'本月无';
+  const monthZhai=monthZhaiList(y,m);
+  const zhText=monthZhai.length?monthZhai.join('\n'):'本月无';
+  const foText=foliDateText(foto);
+  return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n佛历：${foto.getYearInChinese()}年${foto.getMonthInChinese()}月${foto.getDayInChinese()}\n农历：${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}、${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日\n生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座、月建 ${lunar.getMonthInGanZhi().slice(-1)}月、月相${lunar.getYueXiang()}\n${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}\n佛历文书：${foText}\n宿曜二十七宿：${foto.getXiu()}${foto.getZheng()}${foto.getAnimal()}（${foto.getXiuLuck()}）\n节气：${jqText}\n佛菩萨圣诞、节庆：${fests}\n本日斋期综合判定：${zhai}\n宿曜吉凶歌：${foto.getXiuSong()}\n当月佛菩萨圣诞一览：\n${mfText}\n当月斋日 布萨日一览：\n${zhText}`;
+}, '佛历');
+</script>
+<script>
+/* 盘面分享与数据（全站附加功能模块）：dInput 快照即选中日期，还原时经 onchange→jumpToDate 恢复该日视图 */
+shareWait({ page:"foli", title:"佛历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } });
+</script>
+</body>
+</html>

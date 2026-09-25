@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>奇门遁甲 玄机排盘</title>
+<meta name="description" content="奇门遁甲在线排盘：时家奇门九宫布局，三奇六仪、八门九星八神、格局用神自动标注，断验参考清晰直观。">
+<meta name="keywords" content="奇门遁甲,奇门排盘,时家奇门,九宫,八门,九星,八神,三奇六仪,遁甲">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/qimen.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="奇门遁甲 玄机排盘">
+<meta property="og:description" content="奇门遁甲在线排盘：时家奇门九宫布局，三奇六仪、八门九星八神、格局用神自动标注，断验参考清晰直观。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/qimen.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap page-qm">
+  <div class="page">
+    <h1>奇门遁甲</h1>
+    <div class="lead">输入起局时间，排九宫盘，标三奇六仪、八门九星八神与十干克应。</div>
+    <div class="form-row r3">
+      <div class="field"><label>起局模式</label>
+        <select id="qMode" onchange="qModeChange()">
+          <option value="normal">常规（时间起局）</option>
+          <option value="shanxiang">山向奇门（空间起局）</option>
+        </select>
+      </div>
+      <div class="field" id="qModeTime"><label>起局日期</label><input type="text" class="dt-input" placeholder="yyyy-mm-dd" id="qDate"></div>
+      <div class="field" id="qModeTime"><label>时间</label><input type="time" id="qTime" value="12:00"></div>
+      <div class="field" id="qModeNormal"><label>用神</label>
+        <select id="qPurpose">
+          <option value="综合">综合</option>
+          <option value="事业">事业</option>
+          <option value="财运">财运</option>
+          <option value="婚姻">婚姻</option>
+          <option value="健康">健康</option>
+          <option value="学业">学业</option>
+          <option value="出行">出行</option>
+          <option value="失物">失物</option>
+        </select>
+      </div>
+      <div class="field" id="qModeNormal"><label>年命（选填）</label>
+        <input id="qBirthGZ" class="qi-w-gz" placeholder="如：甲子" title="求测人生年干支，填后综合判断加年命用神">
+      </div>
+      <div class="field" id="qModeNormal"><label>家数</label>
+        <select id="qFamily" title="时家/日家/月家/年家/刻家：决定驱动排盘的干支">
+          <option value="时家">时家</option>
+          <option value="日家">日家</option>
+          <option value="月家">月家</option>
+          <option value="年家">年家</option>
+          <option value="刻家">刻家</option>
+        </select>
+      </div>
+      <div class="field" id="qModeNormal"><label>排法</label>
+        <select id="qMethod" title="转盘：九星八门随值符旋转；飞盘：按洛书顺飞">
+          <option value="转盘">转盘</option>
+          <option value="飞盘">飞盘</option>
+        </select>
+      </div>
+      <div class="field" id="qModeNormal"><label>门派</label>
+        <select id="qSchool" title="传统置闰、拆补、茅山，主要影响起局定局">
+          <option value="传统">传统（置闰）</option>
+          <option value="拆补">拆补</option>
+          <option value="茅山">茅山</option>
+        </select>
+      </div>
+      <div class="field" id="qModeNormal"><label>天禽寄宫</label>
+        <select id="qQinGong" title="中五天禽与中五仪的寄宫流派：主流寄坤二；道家阴盘有寄艮八之说">
+          <option value="坤二">寄坤二（主流）</option>
+          <option value="艮八">寄艮八（阴盘）</option>
+        </select>
+      </div>
+      <!-- 山向奇门专属字段 -->
+      <div class="field" id="qModeSx" style="display:none"><label>坐山</label>
+        <select id="qShan" onchange="qShanChange()"></select>
+      </div>
+      <div class="field" id="qModeSx" style="display:none"><label>向山（自动对宫）</label>
+        <input id="qXiang" class="qi-in-ro" readonly></div>
+      <div class="field" id="qModeSx" style="display:none"><label>用事年干支</label>
+        <input id="qYearGZ" class="qi-w-gz" placeholder="如：丙午"></div>
+      <div class="field" id="qModeSx" style="display:none"><label>分段</label>
+        <select id="qYuan"><option value="0">上元（能量最大）</option><option value="1">中元</option><option value="2">下元</option></select>
+      </div>
+      <div class="field" id="qModeSx" style="display:none"><label>流派</label>
+        <select id="qSxSchool"><option value="阴盘">道家阴盘山向</option></select>
+      </div>
+      <div class="field" id="qModeSx" style="display:none"><label>用神</label>
+        <select id="qSxPurpose">
+          <option value="综合">综合</option>
+          <option value="事业">事业</option>
+          <option value="财运">财运</option>
+          <option value="婚姻">婚姻</option>
+          <option value="健康">健康</option>
+          <option value="学业">学业</option>
+          <option value="出行">出行</option>
+          <option value="失物">失物</option>
+        </select>
+      </div>
+      <button class="btn" onclick="paiju()">起局</button>
+    </div>
+    <div id="out"></div>
+    <details class="mh-ref qm-gloss-ref" id="qmGlossRef"><summary>术语速查</summary>
+    <table class="qm-gloss"><thead><tr><th>术语</th><th>白话解释</th></tr></thead>
+    <tbody>
+    <tr><td>三奇六仪</td><td>排盘的基本符号。三奇是乙、丙、丁（吉），六仪是戊、己、庚、辛、壬、癸。好比棋盘上的棋子，天盘、地盘各布一套，天盘干与地盘干的组合构成"十干克应"。</td></tr>
+    <tr><td>九宫</td><td>九宫格代表九个方位（坎北、坤西南、震东、巽东南、中宫、乾西北、兑西、艮东北、离南），也对应不同的五行与人事。</td></tr>
+    <tr><td>八门</td><td>开、休、生、伤、杜、景、死、惊八门。开门主事业、休门主婚姻休养、生门主财源、景门主文书名声、伤门主出行伤灾、杜门主闭塞、死门主了结、惊门主惊恐口舌。</td></tr>
+    <tr><td>九星</td><td>天蓬、天芮、天冲、天辅、天禽、天心、天柱、天任、天英九星。吉星（辅、心、冲、任、禽）主顺利，凶星（蓬、芮、柱）主阻碍，天英为平星。可悬停盘面查看每星白话。</td></tr>
+    <tr><td>八神</td><td>值符、螣蛇、太阴、六合、白虎、玄武、九地、九天。值符主贵人、六合主合作、太阴主暗中相助；白虎玄武螣蛇主凶险暗昧。可悬停盘面查看每神白话。</td></tr>
+    <tr><td>值符值使</td><td>值符是本局总管之神（主事有主心骨），值使是管事之门（管行动执行）。看它们落在哪宫，就看那宫的力量强弱。</td></tr>
+    <tr><td>空亡</td><td>某些干支组合会"空"，落到空亡的宫位吉凶都打折扣，事情多半虚浮不实、先难后成。</td></tr>
+    <tr><td>驿马</td><td>主动的符号，临驿马之宫主变动、出行、调动、消息传来。</td></tr>
+    <tr><td>门迫门制</td><td>门克宫为门迫（做事受制于人），宫克门为门制（使不上力、有牵制）。</td></tr>
+    <tr><td>格局</td><td>特殊组合的断语。吉格（如青龙回首、飞鸟跌穴、三奇得使、九遁）主成事；凶格（如伏吟、反吟、六仪击刑、五不遇时）主受阻。</td></tr>
+    <tr><td>用神</td><td>你所问的那件事对应的符号。问事业看开门、问财运看生门、问婚姻看休门、问健康看天芮、问学业看景门、问失物看六合。页面上选好"用神"，综合判断就围绕它展开。</td></tr>
+    </tbody></table>
+    </details>
+
+  </div>
+</div>
+<footer id="footer"></footer>
+<script src="assets/lunar.js?v=20260830w1"></script>
+<script src="assets/qimen-engine.js?v=20260925a"></script>
+<script src="assets/qimen-extra.js?v=20260925a"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script>
+renderChrome('qimen.html');
+let __qm=null;
+/* 九宫洛书显示顺序：4巽 9离 2坤 / 3震 5中 7兑 / 8艮 1坎 6乾 */
+const GRID=['4','9','2','3','5','7','8','1','6'];
+const GONG_NAME={'1':'坎','2':'坤','3':'震','4':'巽','5':'中','6':'乾','7':'兑','8':'艮','9':'离'};
+const GONG_DIR={'1':'正北','2':'西南','3':'正东','4':'东南','5':'中宫','6':'西北','7':'正西','8':'东北','9':'正南'};
+const MEN_TYPE={'休门':'ji','生门':'ji','景门':'ji','开门':'ji','伤门':'xiong','杜门':'xiong','死门':'xiong','惊门':'xiong'};
+const SHEN_TYPE={'值符':'ji','太阴':'ji','六合':'ji','九地':'ji','九天':'ji','螣蛇':'xiong','白虎':'xiong','玄武':'xiong'};
+const JX_TEXT={'da_ji':'大吉','xiao_ji':'小吉','ping':'平','xiao_xiong':'小凶','da_xiong':'大凶'};
+/* 宫位吉凶徽章映射：引擎 jx 值为 吉/凶/平，映射到 JX_TEXT 键（da_ji/da_xiong/ping） */
+const JX_KEY={'吉':'da_ji','凶':'da_xiong','平':'ping'};
+/* 图例说明（置于排盘表底部） */
+const QI_LEGEND='天盘干（红，大字），地盘、暗干（灰），值符（红角），值使（绿角），空亡（黑角），驿马（蓝角）。点击任意宫可看本宫详情。';
+/* 综合判断/格局建议转表格 */
+const TP_GAN_WX={'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+/* 九星/八门/八神/九宫 通俗释义（用于悬停 tooltip 和白话解读） */
+const XING_MEAN = {'天蓬':'凶星，主胆大冒险、易惹是非，宜静守','天芮':'凶星，主疾病问题、师生交流，遇吉门可解','天冲':'吉星，主冲锋行动、快速见效，利武事',
+  '天辅':'吉星，主辅助文教、温和稳重，利学业','天禽':'吉星，主居中协调、稳重有成，百事可为','天心':'吉星，主谋略管理、计划周密，利策划',
+  '天柱':'凶星，主口舌破坏、中伤毁谤，宜防守','天任':'吉星，主担当承受、厚德载物，利农事','天英':'平星，主表象英华、虚有其表，宜观望'};
+const MEN_MEAN = {'休门':'大吉，主婚姻休养、安定团结，北行大利','生门':'大吉，主财源生长、求财得利，东北方吉','伤门':'大凶，主伤灾破损、出行不利，宜捕猎',
+  '杜门':'大凶，主闭塞不通、隐藏埋伏，宜防守','景门':'小吉，主文书消息、名声远扬，宜献策','死门':'大凶，主死亡争斗、了结之事，行刑可用',
+  '惊门':'小凶，主惊恐不安、官非口舌，宜埋伏','开门':'大吉，主事业开创、万事通达，西北方吉'};
+const SHEN_MEAN = {'值符':'吉神，主贵人相助、首脑坐镇，百恶消散','螣蛇':'凶神，主虚惊怪异、缠绕不安，事多反复','太阴':'吉神，主暗中辅助、福荫庇护，宜密谋',
+  '六合':'吉神，主合作和合、婚姻中介，利合伙','白虎':'凶神，主凶险争斗、血光刑伤，急事刚烈','玄武':'凶神，主盗贼暗昧、小人欺诈，防丢失',
+  '九地':'吉神，主稳定伏藏、积蓄力量，宜固守','九天':'吉神，主高远进取、扬兵布阵，利进攻'};
+const GONG_MEAN = {'1':'坎宫 正北 五行属水，主险阻、智慧、流动之事','2':'坤宫 西南 五行属土，主包容、母亲、田地房产','3':'震宫 正东 五行属木，主行动、长子、事业变动',
+  '4':'巽宫 东南 五行属木，主文书、长女、入仕进官','5':'中宫 中央 五行属土，主枢纽、协调、居中调度','6':'乾宫 西北 五行属金，主权威、父亲、领导能力','7':'兑宫 正西 五行属金，主口舌、少女、表达沟通',
+  '8':'艮宫 东北 五行属土，主停止、少男、积蓄等待','9':'离宫 正南 五行属火，主光明、中女、事业成就'};
+function qiTr(label, val, cls){ return `<tr${cls?(' class="'+cls+'"'):''}><th>${label}</th><td>${val||'-'}</td></tr>`; }
+let qiHtml='';
+function buildCells(pan){
+  const kw = pan.kongWangGong||[], ymG = (pan.maStar&&pan.maStar.gong)||'';
+  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
+  let cells='';
+  GRID.forEach(g=>{
+    const xing=(pan.jiuXing||{})[g]||'', men=(pan.baMen||{})[g]||'', shen=(pan.baShen||{})[g]||'';
+    const tian=(pan.tianPan||{})[g]||'', di=(pan.diPan||{})[g]||'', an=(pan.anGan||{})[g]||'';
+    const a=((pan.jiuGongAnalysis||{})[g])||{};
+    const badges=[];
+    if(g===zf) badges.push('<span class="b-zf">值符</span>');
+    if(g===zs) badges.push('<span class="b-zs">值使</span>');
+    if(kw.includes(g)) badges.push('<span class="b-kw">空亡</span>');
+    if(ymG===g) badges.push('<span class="b-ym">驿马</span>');
+    const jxKey = a.jiXiong && JX_KEY[a.jiXiong] ? JX_KEY[a.jiXiong] : '';
+    const jxTxt = jxKey ? (jxKey==='da_ji'?'吉':jxKey==='da_xiong'?'凶':jxKey==='ping'?'平':JX_TEXT[jxKey]||'') : '';
+    const jx = jxTxt ? `<div class="qi-jx-txt ${jxKey}">${jxTxt}</div>` : '';
+    const menCls = men?('men-'+(MEN_TYPE[men]||'ji')):'';
+    const shenCls = shen?('shen-'+(SHEN_TYPE[shen]||'ji')):'';
+    const keYingLine = (a.keYing)?`<div class="ky" title="${a.keYingSrc?('出处：'+a.keYingSrc):''}">克应 ${a.keYing}</div>`:'';
+    const tpCls = tian && TP_GAN_WX[tian] ? (' wx-'+(TP_GAN_WX[tian]==='木'?'mu':TP_GAN_WX[tian]==='火'?'huo':TP_GAN_WX[tian]==='土'?'tu':TP_GAN_WX[tian]==='金'?'jin':'shui')) : '';
+    const cellCls = 'qi-cell' + (g===zf?' cell-zf':'') + (g===zs?' cell-zs':'');
+    const gTip = GONG_MEAN[g]||'';
+    const xTip = xing ? (XING_MEAN[xing]||'') : '';
+    const mTip = men ? (MEN_MEAN[men]||'') : '';
+    const sTip = shen ? (SHEN_MEAN[shen]||'') : '';
+    /* 宫格综合 tooltip：整框悬停可见，无需对准具体文字 */
+    const cellTip = `${GONG_NAME[g]}宫 ${GONG_DIR[g]}　${gTip.split('，')[0].replace(GONG_NAME[g]+'宫','').replace(GONG_DIR[g],'').trim()}　星：${xing}（${xTip.split('，')[0]}）　门：${men}（${mTip.split('，')[0]}）　神：${shen}（${sTip.split('，')[0]}）`;
+    cells+=`<div class="${cellCls}" data-g="${g}" title="${cellTip}">
+      <div class="gname" title="${gTip}">${GONG_NAME[g]}宫<span class="gdir">${GONG_DIR[g]}</span></div>
+      <div class="tp${tpCls}">${tian||'无'}</div>
+      <div class="dp">地 ${di||'无'}${an?' 暗 '+an:''}</div>
+      <div class="row"><span class="k">星</span><span class="xing" title="${xTip}">${xing||'无'}</span></div>
+      <div class="row"><span class="k">门</span><span class="${menCls}" title="${mTip}">${men||'无'}</span></div>
+      <div class="row"><span class="k">神</span><span class="${shenCls}" title="${sTip}">${shen||'无'}</span></div>
+      ${keYingLine}
+      ${badges.length?`<div class="qi-badge">${badges.join('')}</div>`:''}
+      ${jx}
+    </div>`;
+  });
+  return cells;
+}
+function renderQiOutput(pan, cells, baseInfo, purpose){
+  const an=pan.analysis||{};
+  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
+  /* 基础信息表 */
+  const infoRows=(baseInfo||[]).map(r=>qiTr(r[0],r[1])).join('');
+  /* 格局表：名称/吉凶/断语/出处 逐项列出，缺项用 -；列宽按内容最大宽自适应 */
+  const gjs=pan.geju||[];
+  let gejuHtml;
+  if(gjs.length){
+    gejuHtml='<table class="qm-tbl geju"><thead><tr><th class="col-ge">格局</th><th class="col-jx">吉凶</th><th class="col-cy">断语</th><th class="col-sc">出处</th></tr></thead><tbody>'+
+      gjs.map(g=>{
+        const jx=g.jiXiong==='ji'?'吉':(g.jiXiong==='xiong'?'凶':'平');
+        return `<tr><th class="col-ge">${g.name}</th><td class="col-jx ${g.jiXiong==='ji'?'qi-ji':'qi-xiong'}">${jx}</td><td class="col-cy">${g.explain||'-'}</td><td class="col-sc qm-src">${g.src||'-'}</td></tr>`;
+      }).join('')+'</tbody></table>';
+  } else {
+    gejuHtml='<table class="qm-tbl geju"><tbody>'+qiTr('格局','无明显格局')+'</tbody></table>';
+  }
+  /* 综合判断表：总体 + 各分类建议 */
+  const zhCats={};
+  (an.suggestions||[]).forEach(s=>{ const c=(s&&s.cat)||'其他'; (zhCats[c]=zhCats[c]||[]).push(s.text); });
+  let zhRows='';
+  /* 吉凶等级胶囊（仿六爻配色）：注入总体行开头，避免单独成行重复统计 */
+  const jgJX=(pan.jiuGongAnalysis||{});
+  let jiN=0,xiongN=0,pingN=0;
+  ['1','2','3','4','6','7','8','9'].forEach(g=>{ const j=jgJX[g]&&jgJX[g].jiXiong; if(j==='吉')jiN++; else if(j==='凶')xiongN++; else pingN++; });
+  let gradeHtml='';
+  if(jiN||xiongN||pingN){
+    const d=jiN-xiongN;
+    const grade=d>=4?'大吉':d>=1?'吉':d===0?'平':d>=-3?'凶':'大凶';
+    const gcolor=d>=4?'#2e8b57':d>=1?'#5b8c5a':d===0?'#8a6d3b':d>=-3?'#c0392b':'#a93226';
+    gradeHtml=`<span class="qm-badge" style="background:${gcolor}">${grade}</span>`;
+  }
+  if(an.overallJiXiongText) zhRows+=qiTr('总体', gradeHtml+an.overallJiXiongText);
+  Object.keys(zhCats).forEach(c=>{ zhRows+=qiTr(c, zhCats[c].map(t=>t.replace(/[。；，]+$/,'')).join('；')); });
+  if(!zhRows) zhRows=qiTr('综合判断','暂无断语');
+  /* 九宫盘（图例在盘下方） */
+  /* 宫位要览：各宫门迫、门制、星旺、十干克应 一览表（九宫盘下方更显专业） */
+  const gongOverviewRows = GRID.map(g=>{
+    const a = (pan.jiuGongAnalysis||{})[g]||{};
+    const menRel = a.menRel ? `<span class="${a.menRel==='门迫'?'qm-rel-xiong':'qm-rel-ji'}">${a.menRel}</span>` : '无';
+    const xingW = a.xingWang ? `<span class="${a.xingWang==='旺'||a.xingWang==='相'?'qm-wx-wang':(a.xingWang==='囚'||a.xingWang==='废'?'qm-wx-ruo':'qm-wx-ping')}">${a.xingWang}</span>` : '无';
+    const ky = a.keYing ? a.keYing.slice(0,20)+(a.keYing.length>20?'…':'') : '无';
+    return `<tr><td>${GONG_NAME[g]}宫</td><td>${pan.jiuXing[g]||'无'}</td><td>${pan.baMen[g]||'无'}</td><td>${pan.baShen[g]||'无'}</td><td>${menRel}</td><td>${xingW}</td><td>${ky}</td></tr>`;
+  }).join('');
+  const plain = plainTalk(pan, purpose||'综合');
+  const plainRows = plain.map(r=>qiTr(r.label, r.text)).join('');
+  qiHtml=`
+    <section class="mod" id="qmModBase"><div class="mod-head" onclick="qmToggleMod('qmModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">一、基础信息</span><span class="mod-sub">四柱 局数 九宫格</span></div><div class="mod-body">
+     <table class="qm-tbl base-info"><tbody>${infoRows}</tbody></table>
+     <div class="qi-board">${cells}</div>
+     <div class="qi-legend">${QI_LEGEND}</div>
+    </div></section>
+    <section class="mod" id="qmModGong"><div class="mod-head" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">二、宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
+     <table class="qm-tbl qm-tbl-sm"><thead><tr><th>宫</th><th>九星</th><th>八门</th><th>八神</th><th>门宫关系</th><th>星之旺衰</th><th>十干克应</th></tr></thead>
+     <tbody>${gongOverviewRows}</tbody></table>
+     <div class="qm-note">门迫（门克宫，事受制）<span class="qm-rel-xiong">红字</span>；门制（宫克门，力有牵制）<span class="qm-rel-ji">金字</span>。星旺衰：旺相<span class="qm-wx-wang">绿</span>、囚废<span class="qm-wx-ruo">红</span>、休平<span class="qm-wx-ping">灰</span>。</div>
+    </div></section>
+    <section class="mod" id="qmModGeju"><div class="mod-head" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="gua-ico">✦</span><span class="mod-title">三、格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}</div></section>
+    <section class="mod" id="qmModSynth"><div class="mod-head" onclick="qmToggleMod('qmModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">四、综合判断</span><span class="mod-sub">值符 值使 用神</span></div><div class="mod-body">
+     <table class="qm-tbl zh-tbl"><tbody>${zhRows}</tbody></table>
+    </div></section>
+    <section class="mod" id="qmModPlain"><div class="mod-head" onclick="qmToggleMod('qmModPlain')"><span class="mod-caret">▾</span><span class="gua-ico">✎</span><span class="mod-title">五、白话解读</span><span class="mod-sub">逐项白话</span></div><div class="mod-body">
+     <table class="qm-plain-tb"><tbody>${plainRows}</tbody></table>
+     <div class="qm-note">奇门排盘为传统文化研究，结果仅供参考，请勿迷信。</div>
+    </div></section>`;
+}/* 构建 AI 文本导出（__qm） */
+function buildQmText(pan, purpose, family, method, school, extraLines){
+  const gongLines=GRID.map(g=>{
+    const xing=(pan.jiuXing||{})[g]||'无', men=(pan.baMen||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
+    const tian=(pan.tianPan||{})[g]||'无', di=(pan.diPan||{})[g]||'无';
+    return `${GONG_NAME[g]}宫（${GONG_DIR[g]}）：天${tian}、地${di} 星${xing} 门${men} 神${shen}`;
+  }).join('\n');
+  const gj=(pan.geju||[]).map(g=>g.name).join('、')||'无明显格局';
+  const an=pan.analysis||{};
+  const zonghe=an.overallJiXiongText?`综合判断：${an.overallJiXiongText}\n` + (an.suggestions||[]).map(s=>`【${(s&&s.cat)||'其他'}】${s.text}`).join('\n'):'';
+  return (extraLines||'')+`\n四柱：${pan.siZhu.year}年${pan.siZhu.month}月${pan.siZhu.day}日${pan.siZhu.time}时\n节气局数：${pan.juShu.jieQiName}（${pan.juShu.yuan}）${pan.juShu.fullName}\n旬首${pan.xunShou} 落宫干${pan.luoGongGan}\n值符宫：${GONG_NAME[pan.zhiFuGong]||pan.zhiFuGong}（${pan.zhiFuXing}）值使门：${pan.zhiShiMen}\n空亡：${pan.kongWangZhi.join('、')||'无'} 驿马：${pan.maStar?pan.maStar.zhi:'无'}\n格局：${gj}\n九宫：\n${gongLines}${zonghe?('\n'+zonghe):''}`;
+}
+/* 白话解读：把本局结论翻译成普通人能懂的话（面向非专业用户），返回结构数组用于表格渲染 */
+function plainTalk(pan, purpose){
+  const an=pan.analysis||{};
+  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
+  const zfX=pan.zhiFuXing||'', zfM=pan.zhiShiMen||'';
+  const gongOf=(arr,key)=>{ for(const g of ['1','2','3','4','5','6','7','8','9']){ if((arr[g]||'')===key) return g; } return null; };
+  const USE={
+    '综合':{g:zf,l:'值符（全盘总枢纽）'},
+    '事业':{g:gongOf(pan.baMen,'开门'),l:'开门（事业）'},
+    '财运':{g:gongOf(pan.baMen,'生门'),l:'生门（财运）'},
+    '婚姻':{g:gongOf(pan.baMen,'休门'),l:'休门（婚姻）'},
+    '健康':{g:gongOf(pan.jiuXing,'天芮'),l:'天芮（病星）'},
+    '学业':{g:gongOf(pan.baMen,'景门'),l:'景门（学业）'},
+    '出行':{g:gongOf(pan.baMen,'伤门'),l:'伤门（出行）'},
+    '失物':{g:gongOf(pan.baShen,'六合'),l:'六合（失物）'}
+  };
+  const use=USE[purpose]||USE['综合'];
+  const g=(use.g&&pan.jiuGongAnalysis[use.g])?use.g:zf;
+  const a=(pan.jiuGongAnalysis||{})[g]||{};
+  const jx = a.jiXiong==='吉'?'偏吉':(a.jiXiong==='凶'?'偏凶':'平平');
+  const gName=GONG_NAME[g]+'宫', gDir=GONG_DIR[g];
+  const gMean=(GONG_MEAN[g]||'').split('，')[0].split(' 五行')[0].replace(new RegExp('^'+GONG_NAME[g]+'宫\\s*'+GONG_DIR[g]+'\\s*'),'')||'';
+  const rows=[];
+  /* 总体 */
+  const overall=an.overallJiXiongText||'';
+  rows.push({label:'总体', text:`本局${overall.includes('以吉')?'偏吉，事情有成的希望较大':(overall.includes('以凶')?'偏凶，行事宜谨慎、多留余地':'吉凶相半，看具体所问而定')}。`});
+  /* 用神定位 */
+  const xing=pan.jiuXing[g]||'', men=pan.baMen[g]||'', shen=pan.baShen[g]||'';
+  const xMean=xing?(XING_MEAN[xing]||'').split('，')[0]:'';
+  const mMean=men?(MEN_MEAN[men]||'').split('，')[0]:'';
+  const sMean=shen?(SHEN_MEAN[shen]||'').split('，')[0]:'';
+  let useText=`问“${purpose}”，关键看${use.l}，落在${gName}（${gDir}${gMean?('，'+gMean):''}），这一宫${jx}。`;
+  if(xing) useText+=` 此宫九星“${xing}”，${xMean||''}；`;
+  if(men) useText+=` 八门“${men}”，${mMean||''}；`;
+  if(shen) useText+=` 八神“${shen}”，${sMean||''}。`;
+  if(a.menRel) useText+=` ${a.menRel==='门迫'?'此宫门克宫（门迫），做事易受阻、受制于人。':'此宫宫克门（门制），做事有牵制、使不上力。'}`;
+  if((pan.kongWangGong||[]).includes(g)) useText+=' 此宫正逢空亡，吉凶都打了折扣，事情多半虚浮不实、先难后成。';
+  rows.push({label:'用神定位', text:useText});
+  /* 值符值使 */
+  rows.push({label:'值符值使', text:`本局值符（总管之神）在${GONG_NAME[zf]}宫（${zfX}），值使（管事之门）为${zfM}，落${GONG_NAME[zs]}宫。值符坐镇之处力量最强，主事有主心骨；值使管行动执行。`});
+  /* 备注 */
+  const gjs=(pan.geju||[]).filter(x=>x.jiXiong==='xiong').slice(0,2);
+  const noteParts=[];
+  if(gjs.length) noteParts.push(`凶格：${gjs.map(x=>x.name).join('、')}，提示有不利因素，宜谨慎应对、择吉而行。`);
+  rows.push({label:'备注', text:noteParts.length?noteParts.join('；'):'无明显凶格，整体平稳。'});
+  return rows;
+}
+/* 起局模式切换：常规 vs 山向奇门 */
+/* 折叠态属交互态：结果区模块与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+function qmReadModState(){
+  try{
+    let raw = localStorage.getItem('qmModState');
+    if(!raw) raw = sessionStorage.getItem('qmModState');
+    const s = JSON.parse(raw || '{}');
+    return (s && typeof s === 'object') ? s : {};
+  }catch(e){ return {}; }
+}
+function qmSaveModState(){
+  if(!window.__qmInitDone) return;   /* 初始化完成前不写，避免覆盖已存状态 */
+  try{
+    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
+       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
+    const o = qmReadModState();
+    document.querySelectorAll('#out section.mod[id]').forEach(m => { o[m.id] = !m.classList.contains('collapsed'); });
+    document.querySelectorAll('details[id]').forEach(d => { o[d.id] = d.open; });
+    const v = JSON.stringify(o);
+    try{ localStorage.setItem('qmModState', v); }catch(e){}
+    try{ sessionStorage.setItem('qmModState', v); }catch(e){}
+  }catch(e){}
+}
+function qmToggleMod(id){
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('collapsed');
+  qmSaveModState();
+}
+function qmApplyModState(){
+  const s = qmReadModState();
+  document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
+  document.querySelectorAll('details[id]').forEach(d => { if(d.id in s) d.open = !!s[d.id]; });
+}
+document.addEventListener('toggle', function(e){
+  const t = e.target;
+  if(t && t.tagName === 'DETAILS' && t.id) qmSaveModState();
+}, true);
+function qModeChange(){
+  const mode=document.getElementById('qMode').value;
+  const isSx = mode==='shanxiang';
+  ['qModeTime','qModeNormal'].forEach(id=>{ const el=document.querySelectorAll('#'+id); el.forEach(x=>x.style.display=isSx?'none':''); });
+  document.querySelectorAll('#qModeSx').forEach(x=>x.style.display=isSx?'':'none');
+}
+/* 填充二十四山坐山下拉（SHAN_ORDER 由引擎导出） */
+function fillShan(){
+  const el=document.getElementById('qShan');
+  if(!el||el.options.length) return;
+  const order=(Qimen&&Qimen.SHAN_ORDER)?Qimen.SHAN_ORDER:['子','午'];
+  el.innerHTML=order.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+  qShanChange();
+}
+/* 坐山变化 → 自动对宫为向山 */
+function qShanChange(){
+  const shan=document.getElementById('qShan').value;
+  const opp=Qimen.shanOpposite?Qimen.shanOpposite(shan):'';
+  const xiang=document.getElementById('qXiang');
+  if(xiang) xiang.value=opp;
+}
+function paiju(){
+  const mode=document.getElementById('qMode')?document.getElementById('qMode').value:'normal';
+  /* 山向奇门：空间起局，不依赖日期时间 */
+  if(mode==='shanxiang'){
+    return paijuShanXiang();
+  }
+  const dv=document.getElementById('qDate').value,tv=document.getElementById('qTime').value;
+  if(!dv||!tv){alert('请选择日期和时间');return;}
+  const [y,m,d]=dv.split('-').map(Number);const [h,mi]=tv.split(':').map(Number);
+  const purpose=document.getElementById('qPurpose').value;
+  const family=document.getElementById('qFamily').value;
+  const method=document.getElementById('qMethod').value;
+  const school=document.getElementById('qSchool').value;
+  const qinGong=(document.getElementById('qQinGong')||{}).value||'坤二';
+  const birthGZ=(document.getElementById('qBirthGZ')||{}).value?document.getElementById('qBirthGZ').value.trim():'';
+  let pan;
+  try{
+    pan=QimenX.calculate(safeDate(y,m,d,h,mi,0), {family, method, school, purpose, birthGZ, qinGong});
+  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+e.message+'</p>'; return; }
+  if(pan.error){ document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+pan.message+'</p>'; return; }
+  const cells = buildCells(pan);
+  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
+  /* 基础信息表：排盘参数 + 四柱/节气局数/值符值使/空亡驿马 */
+  const familyNote = (pan.family==='日家') ? '（日家九星：太乙、摄提、轩辕、招摇、天符、青龙、咸池、太阴、天乙）' : '';
+  const baseInfo=[
+    ['排盘参数', `${pan.family} ${pan.method} ${pan.school} 天禽寄${pan.qinGong||'坤二'} 用神【${purpose}】${birthGZ?' 年命'+birthGZ:''}`],
+    ['四柱', `${pan.siZhu.year}年${pan.siZhu.month}月${pan.siZhu.day}日${pan.siZhu.time}时`],
+    ['节气局数', `${pan.juShu.jieQiName}（${pan.juShu.yuan}），${pan.juShu.fullName}${pan.juShu.juMeta&&pan.juShu.juMeta.note?('，'+pan.juShu.juMeta.note):''}`],
+    ['旬首时干', `旬首 ${pan.xunShou}，时干 ${pan.luoGongGan}`],
+    ['值符值使', `值符 ${GONG_NAME[zf]||zf}宫（${pan.zhiFuXing}），值使 ${GONG_NAME[zs]||zs}宫（${pan.zhiShiMen}）`],
+    ['空亡驿马', `空亡 ${pan.kongWangZhi.join('、')||'无'}（${(pan.kongWangGong||[]).map(g=>GONG_NAME[g]+'宫').join('、')}），驿马 ${pan.maStar?pan.maStar.zhi+'（'+(GONG_NAME[pan.maStar.gong]||'')+'宫，'+(pan.maStar.from||'')+'马）':'无'}`],
+    ['星系统', pan.xingSystem||'时家九星（天蓬、天芮、天冲、天辅、天禽、天心、天柱、天任、天英）'+familyNote]
+  ];
+  renderQiOutput(pan, cells, baseInfo, purpose);
+  document.getElementById('out').innerHTML = qiHtml;
+  qmApplyModState();
+  window.__qmInitDone = true;
+  try{ renderBaziLink(pan, qiHtml); }catch(e){}
+  const sysLabel = family==='日家'
+    ? '\n九星系统：太乙九星（日家专用：太乙、摄提、轩辕、招摇、天符、青龙、咸池、太阴、天乙），非时家蓬任冲辅英芮柱心禽；八门：休门落宫本系统'
+    : '';
+  __qm=buildQmText(pan, purpose, family, method, school, `用神：${purpose}\n家数/排法/门派：${family} ${method} ${school} 天禽寄${pan.qinGong||'坤二'}${sysLabel}\n`);
+  window.__qmPan = pan;
+}
+/* 山向奇门专用排盘 */
+function paijuShanXiang(){
+  const shan=document.getElementById('qShan').value;
+  const xiang=document.getElementById('qXiang').value;
+  const yearGZ=document.getElementById('qYearGZ').value.trim();
+  const yuanIdx=parseInt(document.getElementById('qYuan').value)||0;
+  const purpose=document.getElementById('qSxPurpose').value;
+  if(!yearGZ){alert('请输入用事年干支（如：丙午）');return;}
+  if(!Qimen||!Qimen.calculateShanXiang){alert('山向奇门引擎未加载');return;}
+  let pan;
+  try{
+    pan=Qimen.calculateShanXiang({shan,xiang,yearGZ,yuanIdx,purpose});
+  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+e.message+'</p>'; return; }
+  if(pan.error){ document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+pan.message+'</p>'; return; }
+  const cells = buildCells(pan);
+  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
+  const baseInfo=[
+    ['山向', `${shan}山${xiang}向，用事年 ${yearGZ}`],
+    ['局数', pan.juShu.fullName],
+    ['旬首时干', `旬首 ${pan.xunShou}，时干 ${pan.luoGongGan}`],
+    ['值符值使', `值符 ${GONG_NAME[zf]||zf}宫（${pan.zhiFuXing}），值使 ${GONG_NAME[zs]||zs}宫（${pan.zhiShiMen}）`],
+    ['空亡驿马', `空亡 ${pan.kongWangZhi.join('、')||'无'}，驿马 ${pan.maStar?pan.maStar.zhi+'（'+(GONG_NAME[pan.maStar.gong]||'')+'宫）':'无'}`]
+  ];
+  renderQiOutput(pan, cells, baseInfo, purpose);
+  document.getElementById('out').innerHTML = qiHtml;
+  qmApplyModState();
+  window.__qmInitDone = true;
+  __qm=buildQmText(pan, purpose, '山向', '转盘', '阴盘', `山向奇门：${shan}山${xiang}向\n用事年：${yearGZ}  局数：${pan.juShu.fullName}\n`);
+  window.__qmPan = pan;
+}
+/* 宫位详情弹层：点击九宫某宫弹出该宫完整分析（含白话释义） */
+function showGongDetail(g){
+  const pan=window.__qmPan; if(!pan) return;
+  const xing=(pan.jiuXing||{})[g]||'无', men=(pan.baMen||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
+  const tian=(pan.tianPan||{})[g]||'无', di=(pan.diPan||{})[g]||'无', an=(pan.anGan||{})[g]||'无';
+  const a=((pan.jiuGongAnalysis||{})[g])||{};
+  const gwx={1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'}[g]||'';
+  const marks=[];
+  if(g===pan.zhiFuGong) marks.push('<span class="b-zf">值符</span>');
+  if(g===pan.zhiShiGong) marks.push('<span class="b-zs">值使</span>');
+  if((pan.kongWangGong||[]).includes(g)) marks.push('<span class="b-kw">空亡</span>');
+  if(pan.maStar&&pan.maStar.gong===g) marks.push('<span class="b-ym">驿马</span>');
+  const jxText = (a.jiXiong && JX_KEY[a.jiXiong] ? JX_TEXT[JX_KEY[a.jiXiong]] : '') || '';
+  const menCls=men?('men-'+(MEN_TYPE[men]||'ji')):'';
+  const shenCls=shen?('shen-'+(SHEN_TYPE[shen]||'ji')):'';
+  /* 白话释义：只解释九星/八门/八神，宫位信息已在"宫位"行展示，不再重复 */
+  const xPlain=xing!=='无'?(XING_MEAN[xing]||''):'';
+  const mPlain=men!=='无'?(MEN_MEAN[men]||''):'';
+  const sPlain=shen!=='无'?(SHEN_MEAN[shen]||''):'';
+  const plainParts=[];
+  if(xPlain) plainParts.push(`九星“${xing}”：${xPlain}`);
+  if(mPlain) plainParts.push(`八门“${men}”：${mPlain}`);
+  if(sPlain) plainParts.push(`八神“${shen}”：${sPlain}`);
+  const plainText = plainParts.length ? plainParts.join('；')+'。' : '本宫九星、八门、八神释义暂无补充。';
+  /* 分组：本宫要素（宫位已在头部，此处只列干星门神）、关系判断、白话解读 */
+  const baseRows=[
+    ['天盘干', tian],
+    ['地盘干', di+(an&&an!=='无'?'；暗干 '+an:'')],
+    ['九星', xing],
+    ['八门', `<span class="${menCls}">${men}</span>`],
+    ['八神', `<span class="${shenCls}">${shen}</span>`]
+  ];
+  const relRows=[['宫位吉凶', jxText||'平']];
+  if(a.menRel) relRows.push(['门宫关系', a.menRel==='门迫'?'门迫（门克宫，事受制）':'门制（宫克门，力有牵制）']);
+  if(a.xingWang) relRows.push(['星之旺衰', a.xingWang]);
+  if(a.keYing) relRows.push(['十干克应', a.keYing+(a.keYingSrc?` <span class="qi-mp-src">${a.keYingSrc}</span>`:'')]);
+  const kv=arr=>arr.map(r=>`<div class="mk">${r[0]}</div><div>${r[1]}</div>`).join('');
+  const sec=(t,inner)=>`<div class="qi-g-sec"><div class="qi-g-sec-t">${t}</div>${inner}</div>`;
+  const bodyHtml=
+    sec('本宫要素', `<div class="qi-mp-grid">${kv(baseRows)}</div>`)+
+    sec('关系判断', `<div class="qi-mp-grid">${kv(relRows)}</div>`)+
+    sec('白话解读', `<div class="qi-g-plain">${plainText}</div>`);
+  const mask=document.createElement('div');
+  mask.className='modal-mask';
+  mask.innerHTML=`<div class="modal qi-gong-modal"><span class="close" aria-label="关闭">×</span>
+    <div class="qi-modal-head"><span class="qi-g-name">${GONG_NAME[g]}宫</span><span class="qi-g-sub">${GONG_DIR[g]}（五行${gwx}）</span>${marks.length?`<span class="qm-badge-row">${marks.join('')}</span>`:''}</div>
+    ${bodyHtml}
+    <div class="qi-mp-note">本宫聚合：${tian}（天），${di}（地），${xing}（星），${men}（门），${shen}（神），${jxText||'平'}。断事以用神落宫为主，兼看生克旺衰与十干克应。空亡宫吉凶减半，驿马主动，门迫事制。</div>
+  </div>`;
+  mask.addEventListener('click',function(e){ if(e.target===mask){ clearGongHighlight(); mask.remove(); } });
+  mask.querySelector('.close').addEventListener('click',function(){ clearGongHighlight(); mask.remove(); });
+  document.body.appendChild(mask);
+  mask.classList.add('show');
+}
+/* 对宫映射（洛书相隔180°）：1坎↔9离 2坤↔8艮 3震↔7兑 4巽↔6乾 中5无对宫 */
+const DUI_GONG={'1':'9','9':'1','2':'8','8':'2','3':'7','7':'3','4':'6','6':'4','5':''};
+function highlightGong(g){
+  const cells=document.querySelectorAll('.qi-cell');
+  const rel=DUI_GONG[g]||'';
+  cells.forEach(c=>{
+    const gv=c.getAttribute('data-g');
+    c.classList.remove('qi-sel','qi-dim');
+    if(gv===g) c.classList.add('qi-sel');
+    else c.classList.add('qi-dim');
+  });
+}
+/* 关闭弹层时清除宫格高亮类，恢复未点击原状 */
+function clearGongHighlight(){
+  document.querySelectorAll('.qi-cell').forEach(c=>c.classList.remove('qi-sel','qi-dim'));
+}
+document.addEventListener('click',function(e){
+  const cell=e.target.closest?e.target.closest('.qi-cell'):null;
+  if(cell&&cell.getAttribute('data-g')){ const g=cell.getAttribute('data-g'); highlightGong(g); showGongDetail(g); }
+});
+document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===' ')){
+    const t=e.target;
+    if(t&&t.classList&&t.classList.contains('qi-cell')&&t.getAttribute('data-g')){ e.preventDefault(); const g=t.getAttribute('data-g'); highlightGong(g); showGongDetail(g); }
+  }
+});
+/* ============ 八字 × 奇门联动解读：读 URL 参数（fromBazi/dayGan/yearGZ/sex/xi/ji）============
+ * 思路：八字喜用神五行 → 九宫方位（水坎1、木震3巽4、火离9、土坤2艮8、金乾6兑7），
+ *      看对应宫的门/星/神/宫吉凶是否得地；忌神五行宫则作回避提示；最后四档综合。 */
+function renderBaziLink(pan){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('fromBazi')!=='1'||!pan) return;
+  const dayGan=p.get('dayGan')||'';
+  const yearGZ=p.get('yearGZ')||'';
+  const sex=p.get('sex')||'';
+  const xi=(p.get('xi')||'').split(',').filter(Boolean);
+  const ji=(p.get('ji')||'').split(',').filter(Boolean);
+  if(!xi.length&&!ji.length) return;
+  const WX_PALACE={水:['1'],木:['3','4'],火:['9'],土:['2','8'],金:['6','7']};
+  const MEN_JX=MEN_TYPE||{}; const XING_JX_LOCAL={'天蓬':'凶','天芮':'凶','天冲':'吉','天辅':'吉','天英':'平','天心':'吉','天柱':'凶','天任':'吉','天禽':'吉'};
+  const SHEN_JX=SHEN_TYPE||{};
+  const gongJX=(g)=>{ const a=(pan.jiuGongAnalysis||{})[g]||{}; return a.jiXiong||'平'; };
+  const cellHtml=(wx,g,kind)=>{
+    const jx=gongJX(g);
+    const men=(pan.baMen||{})[g]||'无', xing=(pan.jiuXing||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
+    const mJX=MEN_JX[men]==='ji'?'吉':(MEN_JX[men]==='xiong'?'凶':'平');
+    const xJX=XING_JX_LOCAL[xing]||'平';
+    const sJX=SHEN_JX[shen]==='ji'?'吉':(SHEN_JX[shen]==='xiong'?'凶':'平');
+    const jxTxt=JX_KEY&&JX_KEY[jx]?JX_TEXT[JX_KEY[jx]]:jx;
+    return `<tr><th>${wx} ${kind}</th><td>${GONG_NAME[g]}宫 ${GONG_DIR[g]}　${jxTxt}　门${men}（${mJX}） 星${xing}（${xJX}） 神${shen}（${sJX}）</td></tr>`;
+  };
+  let rows='';
+  xi.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{ rows+=cellHtml(wx,g,'喜用'); }); });
+  ji.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{ rows+=cellHtml(wx,g,'忌神'); }); });
+  /* 四档综合：喜用宫得吉门/吉星/吉神 计数 vs 忌神宫凶门计数 */
+  let good=0,bad=0;
+  xi.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{
+    const men=(pan.baMen||{})[g]||'无', xing=(pan.jiuXing||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
+    const mJX=MEN_JX[men]==='ji', xJX=XING_JX_LOCAL[xing]==='吉', sJX=SHEN_JX[shen]==='ji';
+    if(mJX&&(xJX||sJX)) good++; else if(gongJX(g)==='凶'||MEN_JX[men]==='xiong') bad++;
+  }); });
+  ji.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{
+    const men=(pan.baMen||{})[g]||'无';
+    if(MEN_JX[men]==='xiong'||gongJX(g)==='凶') bad++;
+  }); });
+  let verdict, vcolor;
+  if(good>bad&&good>0){ verdict='吉：八字喜用方位在当前时空得地、门星神多吉，宜乘势而为、主动推进。'; vcolor='#2e8b57'; }
+  else if(good===bad&&good>0){ verdict='平：喜用方位有得有失，门星神吉凶相半，宜审慎行动、留有余地。'; vcolor='#8a6d3b'; }
+  else if(good<bad&&good>0){ verdict='凶多于吉：喜用方位受阻、忌神方位逢凶，此时机不宜硬闯，宜另择吉时再验。'; vcolor='#c0392b'; }
+  else if(good===0&&bad===0){ verdict='平：喜用方位门星神皆平，无大碍亦无强助，顺其自然、按常行事。'; vcolor='#8a6d3b'; }
+  else { verdict='凶：喜用方位不得地、忌神方位逢凶，当前时空不利此命推进，宜静守待时、择日再验。'; vcolor='#a93226'; }
+  const head=`<span class="qm-lh-it">日主 ${dayGan||'无'}</span><span class="qm-lh-it">年命 ${yearGZ||'无'}</span>${sex?`<span class="qm-lh-it">性别 ${sex}</span>`:''}<span class="qm-lh-it">喜用 ${xi.join('、')||'未明'}</span><span class="qm-lh-it">忌神 ${ji.join('、')||'未明'}</span>`;
+  const html=`<h3 class="rel-title">八字命盘联动解读</h3>
+  <table class="qm-tbl zh-tbl link-th"><tbody>
+    <tr><th>联动命盘</th><td><div class="qm-link-head">${head}</div></td></tr>
+    ${rows}
+    <tr><th>综合判断</th><td><span class="qm-badge" style="background:${vcolor}">${verdict.split('：')[0]}</span>${verdict}</td></tr>
+  </tbody></table>`;
+  const out=document.getElementById('out');
+  if(out) out.insertAdjacentHTML('beforeend', html);
+}
+/* 初始化：自动排当前时刻盘；山向模式不自动排盘 */
+if(Qimen&&Qimen.SHAN_ORDER){ fillShan(); }
+(function(){const n=new Date();
+  document.getElementById('qDate').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
+  document.getElementById('qTime').value=`${pad2(n.getHours())}:${pad2(n.getMinutes())}`;paiju();})();
+mountAI(function(){ return __qm||''; }, '奇门遁甲');
+</script>
+<script>
+/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
+shareWait({ page:"qimen", title:"奇门遁甲在线排盘", recast:function(){ try{ paiju(); }catch(e){} } });
+</script>
+</body>
+</html>

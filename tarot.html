@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>塔罗牌 玄机排盘</title>
+<meta name="description" content="在线塔罗牌占卜：韦特体系 78 张原版牌图，单张、时间之流、身心灵、五牌决策、凯尔特十字、关系牌阵六种牌阵，逐张正逆位关键词与恋爱、事业、财运、健康分域牌义，含占星对应、时间指引、元素互动与位牌合断，供文化研究与娱乐。">
+<meta name="keywords" content="塔罗牌,塔罗占卜,抽牌,牌阵,凯尔特十字,大阿卡纳,小阿卡纳,牌义,韦特塔罗,元素互动">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/tarot.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="塔罗牌 玄机排盘">
+<meta property="og:description" content="在线塔罗牌占卜：韦特体系 78 张原版牌图，单张、时间之流、身心灵、五牌决策、凯尔特十字、关系牌阵六种牌阵，逐张正逆位关键词与恋爱、事业、财运、健康分域牌义，含占星对应、时间指引、元素互动与位牌合断，供文化研究与娱乐。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/tarot.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap page-tr">
+  <div class="page">
+    <h1>塔罗牌</h1>
+    <div class="lead">韦特体系 78 张塔罗原版牌图，默想所问之事选牌阵抽牌，点牌面看详批。</div>
+    <div class="form-row">
+      <div class="field"><label>牌阵</label>
+        <select id="spread">
+          <option value="1">单张牌（即时指引）</option>
+          <option value="3" selected>时间之流（过去，现在，未来）</option>
+          <option value="3s">身心灵（现状，阻碍，建议）</option>
+          <option value="5">五牌决策（现状，挑战，潜在，外因，结果）</option>
+          <option value="rel">关系阵（我，对方，关系，阻碍，走向）</option>
+          <option value="10">凯尔特十字（十张详断）</option>
+        </select>
+      </div>
+      <div class="field"><label>所问之事（可选）</label><input id="question" placeholder="如：近期事业发展…"></div>
+      <button class="btn gold" onclick="draw()">洗牌抽牌</button>
+    </div>
+    <div id="out"></div>
+  </div>
+</div>
+<footer id="footer"></footer>
+<div id="trMask" onclick="if(event.target===this)trClose()"><div class="tr-modal" id="trModalBox"></div></div>
+<script src="assets/lunar.js?v=20260826a"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script src="assets/tarot-data.js?v=20260912a"></script>
+<script>
+renderChrome('tarot.html');
+/* 牌阵位次与位义：role 供位×牌合断（state 状态/past 过去/future 走向/block 阻碍/advice 建议/
+   under 潜层/env 外因/self 自身/other 对方/result 结果/guide 指引），cross 标记凯尔特十字专用布局类 */
+const POS={
+  '1':[{pos:'指引',role:'guide',desc:'当前最该留意的课题与指引'}],
+  '3':[{pos:'过去',role:'past',desc:'事情形成的来由、已经过去的影响'},{pos:'现在',role:'state',desc:'你当下的处境与能量状态'},{pos:'未来',role:'future',desc:'若顺其自然、不做改变可能走向的结果'}],
+  '3s':[{pos:'现状',role:'state',desc:'眼前的客观情形'},{pos:'阻碍',role:'block',desc:'当前挡在面前的困难或内在卡点'},{pos:'建议',role:'advice',desc:'牌面建议你采取的态度或行动'}],
+  '5':[{pos:'现状',role:'state',desc:'眼前的客观情形'},{pos:'挑战',role:'block',desc:'需要面对的考验'},{pos:'潜在',role:'under',desc:'尚未显现、正在酝酿的因素'},{pos:'外部影响',role:'env',desc:'来自外界、他人或环境的作用力'},{pos:'结果',role:'result',desc:'综合发展可能落到的结局'}],
+  'rel':[{pos:'我',role:'self',desc:'你在关系中的状态与姿态'},{pos:'对方',role:'other',desc:'对方在关系中的状态与姿态'},{pos:'关系',role:'state',desc:'两人之间的连接与互动基调'},{pos:'阻碍',role:'block',desc:'关系当前的难点与功课'},{pos:'走向',role:'future',desc:'若维持现状关系可能的走向'}],
+  '10':[{pos:'现状',role:'state',desc:'核心处境与问题本质',cls:'cx-mid'},{pos:'交汇',role:'block',desc:'横跨现状的直接影响或挑战',cls:'cx-crosser'},{pos:'根源',role:'under',desc:'潜意识根基，你所不知的底层因素',cls:'cx-below'},{pos:'过去',role:'past',desc:'正在退去的影响',cls:'cx-past'},{pos:'冠冕',role:'future',desc:'目标、理想或可达成的高度',cls:'cx-above'},{pos:'未来',role:'future',desc:'即将到来的发展',cls:'cx-future'},{pos:'自己',role:'self',desc:'你的态度与自我期许',staff:true},{pos:'环境',role:'env',desc:'他人与外部环境的氛围影响',staff:true},{pos:'期望恐惧',role:'under',desc:'内在的期望与恐惧',staff:true},{pos:'结果',role:'result',desc:'十张综合指向的最终走向',staff:true}]
+};
+/* 位×牌合断：位置角色 × 牌面吉凶基调（1 吉 0 中 -1 滞）组合成一句断语 */
+const COMBO={
+  guide:{1:'此牌为当前明确的通行信号，念起即动',0:'信号中性，宜观察一轮再动','-1':'此牌是叫停或转向的信号，宜缓'},
+  past:{1:'来处有光，旧日积累仍是本钱',0:'往事平叙，影响渐淡','-1':'旧事余波未平，宜先了结根源'},
+  state:{1:'现状与牌义相成，势头正可用',0:'现状平稳，牌义提示留意变量','-1':'现状承压，牌面照见症结所在'},
+  future:{1:'前景向明，顺流可期',0:'前路未定，走向随当下的选择而变','-1':'前景有阻，宜提前布局规避'},
+  block:{1:'阻碍中藏生机，此位得此牌反是转机',0:'卡点不重，属可协商的摩擦','-1':'卡点确实棘手，先解结再图进'},
+  advice:{1:'牌面赞成推进，宜果断执行',0:'宜观望评估，择机而动','-1':'宜收敛调整，勿沿旧路硬推'},
+  under:{1:'底层藏着尚未察觉的助力',0:'潜层信息未明，宜先自省','-1':'潜意识藏有隐忧或旧创，正待照见'},
+  env:{1:'外部环境于你有助，可借势',0:'环境影响中性，风向未定','-1':'外部压力不小，宜减少消耗'},
+  self:{1:'你的姿态与能量正处于佳位',0:'你的态度决定走向，先安顿自己','-1':'当下自我消耗较大，宜先照顾自己'},
+  other:{1:'对方姿态开放，互动可期',0:'对方态度含蓄，宜直接沟通','-1':'对方有所保留，或自顾不暇'},
+  result:{1:'结局偏顺，可安心收官',0:'结局平顺中有保留，落点取决于过程','-1':'结局偏滞涩，宜调整路径再收束'}
+};
+/* 跨位因果呼应：每个牌阵取关键位对，以两牌吉凶基调（1 吉 0 中 -1 滞）组合出对照断语 */
+const ECHO={
+  '3':[['过去','未来','因与果']],
+  '3s':[['现状','建议','处境与出路']],
+  '5':[['现状','结果','开局与结局'],['挑战','结果','卡点与结局']],
+  'rel':[['我','对方','两造之势'],['关系','走向','当下与走向']],
+  '10':[['根源','结果','潜因与结局'],['现状','未来','现状与走向'],['过去','未来','来处与去处']]
+};
+const ECHO_MAT={
+  '11':'两处同调向好，前因正滋养后果，事势相承，可乘势而行',
+  '10':'起处吉而落点未定，主动权仍在手中，宜明确目标再推进',
+  '1-1':'起处有光而落点受阻，提示中段变量，宜守成防回落',
+  '01':'起处未定而落点向好，方向渐明，宜稳中求进',
+  '00':'两处俱平，事态不受强力牵引，落点由当下作为而定',
+  '0-1':'起处平缓而落点走滞，宜提前布防，勿等事到临头',
+  '-11':'起处有滞而落点转明，先难后成之象，耐心化解可期',
+  '-10':'起处有阻而落点未定，需先了结旧结，方能腾出手来',
+  '-1-1':'两处皆滞，旧结未解又添新题，宜先断根源再图后进'
+};
+/* 元素成势语义表：按元素给出主导全局时的基调与提醒 */
+const EL_DOM={
+  火:'火势成局，行动、热情与冲劲主导全局，宜顺势急进，忌散乱无章',
+  水:'水势成局，情感、直觉与关系主导全局，宜以情驭事，忌沉溺犹疑',
+  风:'风势成局，思维、沟通与信息主导全局，宜谋定后动，忌空谈多变',
+  土:'土势成局，实务、资源与积累主导全局，宜稳扎稳打，忌保守迟滞'
+};
+/* 元素缺失语义表：四元素中全阵未出现者，其对应领域能量未被调动 */
+const EL_LACK={
+  火:'缺火：行动与热情未入局，事态偏于被动等待',
+  水:'缺水：情感与直觉未入局，宜防关系疏离或理智过刚',
+  风:'缺风：思维与沟通未入局，宜防闭门造车或信息不畅',
+  土:'缺土：实务与资源未入局，宜防计划落空或根基不稳'
+};
+/* 三牌连判语义表（黄金黎明 Book T）：中牌由紧邻两侧共判 */
+const TRIAD={
+  tri:'三张同气，中牌至强，此位能量贯注，其象最为鲜明',
+  strong:'两侧俱相生，中牌得双力夹持，此位能量显著增强，其显化最为直接',
+  weak:'两侧俱相冲，中牌陷双力相抵，此位能量显著削弱，宜缓行或借外力破局',
+  lone:'两侧彼此相斥，中牌不受牵引而独立自持，此位显的是事情本然之相',
+  link:'一侧相生一侧相冲，相生侧为连接之桥，中牌不失其用而略有倚重'
+};
+/* 中性异类对的规范写法：火土、风水在现代通行口径为中性，Book T 列为相友，此表仅用于流派标注去重 */
+const ALT_PAIR={'火土':'火土','土火':'火土','风水':'风水','水风':'风水'};
+/* 邻接关系：默认按牌阵位序相邻；凯尔特十字为十字加杖布局，相邻按几何对（中心四向加杖部线性） */
+const ADJ={'10':[[0,1],[0,2],[0,3],[0,4],[0,5],[6,7],[7,8],[8,9]]};
+/* 三牌连判的中间位索引：凯尔特十字仅杖部为线性叙事，故只判杖部 */
+const TRI_IDX={'10':[7,8]};
+/* 最近一次抽牌的完整状态（问题/牌阵/结果），分享与连判共用 */
+let LAST=null;
+/* 元素成势：满三张且为全阵唯一最多者为全局主导，至多一元素成局，不会双主并列 */
+function domLines(picks){
+  const cnt={火:0,水:0,风:0,土:0},n=picks.length;
+  picks.forEach(p=>{ if(p.card.el) cnt[p.card.el]++; });
+  const mx=Math.max(cnt.火,cnt.水,cnt.风,cnt.土);
+  const tops=['火','水','风','土'].filter(e=>cnt[e]===mx);
+  if(mx<3||tops.length!==1) return [];
+  const e=tops[0];
+  return [`${e}元素 ${cnt[e]} 张(${Math.round(cnt[e]/n*100)}%)，${EL_DOM[e]}`];
+}
+/* 跨位呼应断语：按角色取关键位对，两牌基调组合出对照句 */
+function echoLines(picks,sp){
+  const out=[];
+  (ECHO[sp]||[]).forEach(pr=>{
+    const a=picks.find(x=>x.pos===pr[0]),b=picks.find(x=>x.pos===pr[1]);
+    if(!a||!b) return;
+    const ta=a.rev?(a.card.toneR||0):(a.card.tone||0);
+    const tb=b.rev?(b.card.toneR||0):(b.card.tone||0);
+    const s=ECHO_MAT[''+ta+tb];
+    if(s) out.push(`${pr[2]}：${pr[0]}《${a.card.name}》对${pr[1]}《${b.card.name}》，${s}`);
+  });
+  return out;
+}
+/* Fisher-Yates 洗牌 */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function draw(){
+ try{
+  const sp=document.getElementById('spread').value;
+  const layout=POS[sp];
+  const majorOnly=(sp==='1');
+  const deck=shuffle(buildTarotDeck(majorOnly).slice());
+  const picks=layout.map(o=>({card:deck.pop(),rev:Math.random()<0.5,pos:o.pos,desc:o.desc,role:o.role||'state',cls:o.cls||'',staff:!!o.staff}));
+  renderSpread(picks,sp);
+ }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
+}
+/* 牌图加载失败兜底：回退为花色符号 */
+function trImgFallback(el,sym){ el.outerHTML='<span class="tr-sym">'+sym+'</span>'; }
+/* 位×牌合断一句 */
+function comboLine(p){
+  const t=p.rev?(p.card.toneR||0):(p.card.tone||0);
+  return (COMBO[p.role]&&COMBO[p.role][t])||'';
+}
+/* 是/否倾向由吉凶基调推导 */
+function ynOf(p){ const t=p.rev?(p.card.toneR||0):(p.card.tone||0); return t===1?'是否：偏是':t===-1?'是否：偏否':'是否：未定'; }
+function cardFace(p,idx){
+ const c=p.card;
+ const num=(c.num&&c.num!=='0')?`<div class="tr-num">${c.num}</div>`:'';
+ const court=c.court?`<div class="tr-court">${c.court}</div>`:'';
+ return `<div class="tr-card ${p.rev?'rev':''}" onclick="trOpen(${idx})">
+  <div class="tr-pos">${p.pos}</div>
+  <div class="tr-face">
+    <img class="tr-img" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" loading="lazy" onerror="trImgFallback(this,'${c.sym||'✦'}')">
+    ${num}${court}
+    <div class="tr-badge">${c.type}${c.el?('（'+c.el+'）'):''}</div>
+    <div class="tr-name">${c.name}</div>
+    <div class="tr-en">${c.en}</div>
+    <div class="tr-ori">${p.rev?'逆位 ▼':'正位 ▲'}</div>
+  </div>
+  <div class="tr-mean">
+    <div class="tr-combo">${comboLine(p)}</div>
+    <div class="tr-core">${p.rev?c.rev:c.up}</div>
+    <div class="tr-meta">${c.astro}，${p.rev?(c.timeR||c.time):c.time}，${ynOf(p)}</div>
+  </div>
+ </div>`;
+}
+/* 凯尔特十字固定小牌：只含位次/牌图/牌名/正逆，牌义在详断表 */
+function tileFace(p,idx){
+ const c=p.card;
+ const num=(c.num&&c.num!=='0')?`<div class="tt-num">${c.num}</div>`:'';
+ const court=c.court?`<div class="tt-court">${c.court}</div>`:'';
+ return `<div class="tr-tile ${p.cls} ${p.rev?'rev':''}" onclick="trOpen(${idx})">
+  <div class="tt-pos">${p.pos}</div>
+  <div class="tt-face">${num}${court}<img class="tt-img" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" loading="lazy" onerror="trImgFallback(this,'${c.sym||'✦'}')"><div class="tt-name">${c.name}</div><div class="tt-en">${c.en}</div><div class="tt-ori">${p.rev?'逆 ▼':'正 ▲'}</div></div>
+ </div>`;
+}
+/* 十张详断表：位次、牌、牌义与位义、合断 */
+function cxDetail(picks){
+ const rows=picks.map((p,i)=>`<tr onclick="trOpen(${i})"><td class="cx-p">${p.pos}</td><td class="cx-c">${p.card.name}<span class="cx-o ${p.rev?'r':''}">${p.rev?'逆位':'正位'}</span><br><span class="cx-en">${p.card.en}</span></td><td>${p.rev?p.card.rev:p.card.up}<br><span class="cx-d">位义：${p.desc}</span><br><span class="cx-d">合断：${comboLine(p)}</span></td></tr>`).join('');
+ return `<table class="cx-detail"><thead><tr><th>位次</th><th>牌</th><th>牌义与位义</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderSpread(picks,sp){
+ window._TR_PKS=picks;
+ const layoutName=document.getElementById('spread').selectedOptions[0].text;
+ const isCross=(sp==='10');
+ let cardsHtml='';
+ if(isCross){
+   const cross=picks.slice(0,6).map(tileFace).join('');
+   const staff=picks.slice(6,10).map(tileFace).join('');
+   cardsHtml=`<div class="cx-frame">${cross}<div class="cx-staff">${staff}</div></div>`+cxDetail(picks);
+ }else{
+   cardsHtml=`<div class="tr-spread">${picks.map(cardFace).join('')}</div>`;
+ }
+ document.getElementById('out').innerHTML=`
+   ${cardsHtml}
+   ${tarotRead(picks,sp)}
+   <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图，取自 Wikimedia Commons。</div>`;
+ LAST={q:document.getElementById('question').value,sp:layoutName,key:sp,picks};
+}
+draw();
+/* 元素尊贵：同气相强，火风、水土相生互旺，水火、土风相冲互削，余者（火土、风水）中性。
+   流派并列：黄金黎明 Book T 以火亲土、风亲水为相友而互强，现代通行作中性，此处以中性为主口径，断语处两说并列备参 */
+function elRel(a,b){
+ if(a===b) return ['强','同气连枝，两牌效力彼此加强'];
+ const k=[a,b].sort().join('');
+ if(k==='火风'||k==='土水') return ['强','相生互旺，两牌效力叠加'];
+ if(k==='水火'||k==='土风') return ['弱','相冲互削，两牌效力相抵'];
+ return ['中','一攻一守，中性互补'];
+}
+/* 元素缺失：全阵未出现的元素，其对应领域能量未被调动，三张起报 */
+function lackLines(picks){
+ if(picks.length<3) return [];
+ const cnt={火:0,水:0,风:0,土:0};
+ picks.forEach(p=>{ if(p.card.el) cnt[p.card.el]++; });
+ return ['火','水','风','土'].filter(e=>cnt[e]===0).map(e=>EL_LACK[e]);
+}
+/* 三牌连判：按邻接序逐组取三张，中牌由两侧共判；两侧互斥则中牌独立自持，中性与单侧相斥不报。
+   中间位索引由调用方给定，缺省取全阵线性中间位（凯尔特十字仅杖部为线性叙事，故只判杖部） */
+function triadLines(picks,midIdx){
+ const out=[];
+ const idxs=midIdx||picks.map((_,i)=>i).slice(1,-1);
+ for(const i of idxs){
+  const le=picks[i-1].card.el,ce=picks[i].card.el,re=picks[i+1].card.el;
+  if(!le||!ce||!re) continue;
+  let k=null;
+  if(le===ce&&ce===re) k='tri';
+  else if(elRel(le,re)[0]==='弱') k='lone';
+  else{
+   const cl=elRel(le,ce)[0],cr=elRel(re,ce)[0];
+   if(cl==='强'&&cr==='强') k='strong';
+   else if(cl==='弱'&&cr==='弱') k='weak';
+   else if(cl!=='中'&&cr!=='中') k='link';
+  }
+  if(k) out.push(`${picks[i].pos}《${picks[i].card.name}》${TRIAD[k]}`);
+ }
+ return out;
+}
+/* 牌面详批弹窗：关键词、总义、四领域牌义、占星/时间/是否与位次信息 */
+function trOpen(i){
+ const p=(window._TR_PKS||[])[i]; if(!p) return;
+ const c=p.card;
+ const kw=p.rev?c.kwr:c.kw;
+ document.getElementById('trModalBox').innerHTML=`
+  <div class="tm-close" onclick="trClose()">×</div>
+  <div class="tm-head">
+   <img class="tm-img ${p.rev?'rev':''}" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" onerror="this.style.display='none'">
+   <div class="tm-b">
+    <h3>${c.name} <span class="tm-en">${c.en}</span></h3>
+    <div class="tm-tags"><span>${c.type}${c.el?('（'+c.el+'）'):''}</span><span>占星：${c.astro}</span><span>${ynOf(p)}</span></div>
+    <p class="tm-time"><b>时间指引：</b>${p.rev?(c.timeR||c.time):c.time}</p>
+    <p class="tm-kw"><b>${p.rev?'逆位关键词':'正位关键词'}</b>：${kw.join('、')}</p>
+    <p class="tm-core"><b>${p.rev?'逆位总义':'正位总义'}</b>：${p.rev?c.rev:c.up}</p>
+   </div>
+  </div>
+  <div class="tm-grid">
+   <div class="tm-dom"><h4>恋爱</h4><p>${p.rev?c.loveR:c.love}</p></div>
+   <div class="tm-dom"><h4>事业</h4><p>${p.rev?c.workR:c.work}</p></div>
+   <div class="tm-dom"><h4>财运</h4><p>${p.rev?c.wealthR:c.wealth}</p></div>
+   <div class="tm-dom"><h4>健康</h4><p>${p.rev?c.healthR:c.health}</p></div>
+  </div>
+  <div class="tm-pos"><b>位次</b>：${p.pos}　${p.desc||''}</div>`;
+ document.getElementById('trMask').classList.add('on');
+}
+function trClose(){ document.getElementById('trMask').classList.remove('on'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') trClose(); });
+/* 综合判断（表格版，对齐雷诺曼 ln-table 体例）：牌阵连贯、本阵统计、整体基调、元素尊贵、元素成势、跨位呼应、大阿卡纳提示与提醒逐行进表 */
+function tarotRead(picks,sp){
+ let upN=0,revN=0,majorN=0;
+ const elCnt={火:0,水:0,风:0,土:0}, suitCnt={};
+ picks.forEach(p=>{
+   if(p.rev)revN++;else upN++;
+   if(p.card.type==='大阿卡纳')majorN++;
+   if(p.card.el)elCnt[p.card.el]++;
+   suitCnt[p.card.type]=(suitCnt[p.card.type]||0)+1;
+ });
+ const n=picks.length;
+ const cue=p=>p.rev?'（逆位，宜内省调整）':'（正位，宜顺势而为）';
+ const narr=picks.map(p=>`${p.pos}《${p.card.name}》${cue(p)}`).join('，');
+ let tone;
+ if(upN>revN) tone='正位牌居多，整体能量较为顺畅、事态向好，宜顺势而为。';
+ else if(revN>upN) tone='逆位牌居多，提示某些环节受阻、能量内收，宜先梳理卡点、调整方向，不必急于强求。';
+ else tone='正逆参半，吉凶相倚，关键在如何把逆位的提醒转化为正向行动。';
+ /* 大小阿卡纳占比 */
+ const majorPct=Math.round(majorN/n*100);
+ let archTxt;
+ if(majorN===0) archTxt='全为小阿卡纳：所问多属日常事务层面，在你能掌控与行动的范围之内。';
+ else if(majorPct>=60) archTxt=`大阿卡纳 ${majorN} 张(${majorPct}%)：命运层面的课题为主，事态超出日常可控范围，宜顺势觉察、不可强求。`;
+ else archTxt=`大阿卡纳 ${majorN} 张、小阿卡纳 ${n-majorN} 张：命运走向与日常应对交织，大阿卡纳处为关键节点。`;
+ /* 元素分布：取占比最高者为当下主导能量 */
+ const elOrder=['火','水','风','土'].sort((a,b)=>elCnt[b]-elCnt[a]);
+ const elMain=elOrder[0];
+ const EL_MEAN={火:'主导能量属火：行动、热情与决断为先，宜推进而非观望',水:'主导能量属水：情感、直觉与滋养为先，宜感受而非强断',风:'主导能量属风：思维、沟通与信息为先，宜明辨而非蛮干',土:'主导能量属土：物质、务实与积累为先，宜稳扎稳打'};
+ const elTxt=elCnt[elMain]>0?`${EL_MEAN[elMain]}。`:'';
+ const elDetail=elOrder.filter(e=>elCnt[e]>0).map(e=>`${e} ${elCnt[e]}`).join('、');
+ /* 元素尊贵：相邻两张牌的元素互动 */
+ const dgLines=[],altPairs=new Set();
+ const adj=ADJ[sp]||Array.from({length:n-1},(_,i)=>[i,i+1]);
+ adj.forEach(([i,j])=>{
+   const a=picks[i].card.el,b=picks[j].card.el;
+   if(!a||!b) return;
+   const r=elRel(a,b);
+   if(r[0]!=='中') dgLines.push(`${picks[i].pos}×${picks[j].pos}(${a}×${b})：${r[1]}`);
+   else if(ALT_PAIR[a+b]) altPairs.add(ALT_PAIR[a+b]);
+ });
+ const altTxt=[...altPairs].join('、');
+ const dgTxt=(dgLines.length?dgLines.join('；')+'。':'相邻各牌无相生相冲，元素互动平缓。')+(altTxt?`另：本阵 ${altTxt} 相邻，黄金黎明 Book T 以火亲土、风亲水为相友互强，现代通行作中性，此处依中性，两说并存备参。`:'');
+ const domTxt=domLines(picks),lackTxt=lackLines(picks),triTxt=triadLines(picks,TRI_IDX[sp]);
+ const echoTxt=echoLines(picks,sp);
+ const majorList=picks.filter(p=>p.card.type==='大阿卡纳').map(p=>`《${p.card.name}》（${p.pos}）`).join('、');
+ const rows=[];
+ rows.push(['牌阵连贯',narr+'。']);
+ rows.push(['本阵统计',`共 ${n} 张；正位 ${upN}、逆位 ${revN}；大阿卡纳 ${majorN}；元素 ${elDetail||'无'}。`]);
+ rows.push(['整体基调',tone+archTxt+elTxt]);
+ rows.push(['元素尊贵',dgTxt]);
+ const elPat=[...domTxt,...lackTxt];
+ if(elPat.length) rows.push(['元素格局',elPat.join('；')+'。']);
+ if(triTxt.length) rows.push(['三牌连判',triTxt.join('；')+'。']);
+ if(echoTxt.length) rows.push(['跨位呼应',echoTxt.join('；')+'。']);
+ if(majorList) rows.push(['大阿卡纳提示',majorList+' 为本阵命运层级的关键课题，宜优先参详。']);
+ rows.push(['提醒','塔罗映照的是你当下的心境与能量流向，而非注定之命；请把它当作自我觉察的镜子，结合所问之事整体感受。']);
+ const body=rows.map(r=>'<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');
+ return `<h3 class="rel-title">综合判断</h3><table class="tr-table"><thead><tr><th>项目</th><th>解读</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+mountAI(function(){
+ if(!LAST) return '';
+ let s=`塔罗占卜\n牌阵：${LAST.sp}\n`;
+ if(LAST.q) s+=`所问：${LAST.q}\n`;
+ let upN=0,revN=0;
+ LAST.picks.forEach(p=>{
+   const c=p.card,up=!p.rev;
+   if(p.rev)revN++;else upN++;
+   s+=`【${p.pos}】${c.name}（${up?'正位':'逆位'}）：${up?c.up:c.rev}\n关键词：${(up?c.kw:c.kwr).join('/')}；占星：${c.astro}；时间：${up?c.time:(c.timeR||c.time)}\n恋爱：${up?c.love:c.loveR}；事业：${up?c.work:c.workR}；财运：${up?c.wealth:c.wealthR}；健康：${up?c.health:c.healthR}\n合断：${comboLine(p)}\n`;
+ });
+ const tone = upN>revN?'正位居多，能量顺畅、事态向好，宜顺势而为。':revN>upN?'逆位居多，提示受阻、宜先梳理卡点再行动。':'正逆参半，须转化逆位提醒为正向行动。';
+ const dg=[],pk=LAST.picks;
+ const adj=ADJ[LAST.key]||pk.map((_,i)=>i).slice(0,-1).map(i=>[i,i+1]);
+ adj.forEach(([i,j])=>{
+   const a=pk[i].card.el,b=pk[j].card.el; if(!a||!b) return;
+   const r=elRel(a,b); if(r[0]!=='中') dg.push(`${pk[i].pos}×${pk[j].pos}(${a}×${b})${r[1]}`);
+ });
+ const dom=domLines(pk),lack=lackLines(pk),tri=triadLines(pk,TRI_IDX[LAST.key]),echo=echoLines(pk,LAST.key);
+ const elPat=[...dom,...lack];
+ s+=`\n综合：正位 ${upN} 张、逆位 ${revN} 张，${tone}${dg.length?(' 元素互动：'+dg.join('；')):''}${elPat.length?(' 元素格局：'+elPat.join('；')):''}${tri.length?(' 三牌连判：'+tri.join('；')):''}${echo.length?(' 跨位呼应：'+echo.join('；')):''}`;
+ return s;
+}, '塔罗牌');
+</script>
+<script>
+/* 盘面分享与数据：collect 记录牌阵、所问与逐张抽牌结果，restore 原样重绘（不 recast，避免随机重抽覆盖还原结果） */
+shareWait({ page:"tarot", title:"在线塔罗牌占卜",
+ collect:function(){
+   if(!LAST) return {};
+   return {sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))};
+ },
+ restore:function(d){
+   if(!d||!d.sp) return;
+   const sel=document.getElementById('spread'); if(sel) sel.value=d.sp;
+   const q=document.getElementById('question'); if(q&&d.q) q.value=d.q;
+   const layout=POS[d.sp]; if(!layout||!Array.isArray(d.picks)) return;
+   const deck=buildTarotDeck(false);
+   const byId={}; deck.forEach(c=>byId[c.id]=c);
+   const picks=d.picks.map((x,i)=>({card:byId[x.id],rev:x.rev==='1',pos:layout[i]?layout[i].pos:'',desc:layout[i]?layout[i].desc:'',role:layout[i]?(layout[i].role||'state'):'state',cls:layout[i]?(layout[i].cls||''):'',staff:layout[i]?!!layout[i].staff:false})).filter(p=>p.card);
+   if(!picks.length) return;
+   renderSpread(picks,d.sp);
+ }
+});
+</script>
+</body>
+</html>

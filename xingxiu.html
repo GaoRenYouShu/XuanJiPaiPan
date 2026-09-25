@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>二十八宿 星宿择日 玄机排盘</title>
+<meta name="description" content="二十八宿在线查询：本命宿、演禽、本日值宿一键可查，另备宿位总表、十二宫次分野、值宿宜忌与伏断、二十四山配宿、《天官书》占辞、距度岁差、三十六禽，底本原文照录，异文并列标注。">
+<meta name="keywords" content="二十八宿,星宿,值日,本命宿,演禽,七元,分野,择日">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/xingxiu.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="二十八宿 星宿择日 玄机排盘">
+<meta property="og:description" content="二十八宿在线查询：本命宿、演禽、本日值宿一键可查，另备宿位总表、十二宫次分野、值宿宜忌与伏断、二十四山配宿、《天官书》占辞、距度岁差、三十六禽，底本原文照录，异文并列标注。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/xingxiu.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap xx-page page-xx">
+<main class="page">
+  <h1>二十八宿</h1>
+  <p class="lead">二十八宿古天文体系，输入生日查本命宿，输入日期演禽并看本日值宿。</p>
+  <section class="mod">
+    <h2 class="mod-title">本命宿查询</h2>
+    <div class="form-row">
+      <div class="field xx-field-date"><label for="xxMingDate">公历生日</label><input type="text" class="dt-input" id="xxMingDate" aria-label="公历生日" placeholder="yyyy-mm-dd"></div>
+      <button id="xxMingBtn" class="btn gold" type="button">推算本命宿</button>
+    </div>
+    <div id="xxMingOut"></div>
+  </section>
+  <section class="mod">
+    <h2 class="mod-title">演禽查询</h2>
+    <div class="form-row">
+      <div class="field xx-field-date"><label for="xxYanDate">公历日期</label><input type="text" class="dt-input" id="xxYanDate" aria-label="公历日期" placeholder="yyyy-mm-dd"></div>
+      <div class="field"><label for="xxYanShi">时辰</label>
+        <select id="xxYanShi">
+          <option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option>
+          <option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option>
+          <option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option>
+          <option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option>
+        </select>
+      </div>
+      <button id="xxYanBtn" class="btn gold" type="button">演禽</button>
+    </div>
+    <div id="xxYanOut"></div>
+  </section>
+  <section class="mod">
+    <h2 class="mod-title">本日值宿</h2>
+    <div id="xxToday"></div>
+  </section>
+  <section class="mod">
+    <h2 class="mod-title">二十八宿示意星图</h2>
+    <div class="wheel-block">
+      <div id="xxSky"></div>
+      <div class="wheel-detail">
+        <p class="xx-sky-note">宿界依《汉书·律历志》赤道距度布列，宿点与四象方位为示意，非真实天象</p>
+        <p class="xx-sky-legend"><span class="sk-lg sk-青龙">东方青龙七宿</span><span class="sk-lg sk-朱雀">南方朱雀七宿</span><span class="sk-lg sk-白虎">西方白虎七宿</span><span class="sk-lg sk-玄武">北方玄武七宿</span><span class="sk-lg sk-cur">今日值宿</span></p>
+      </div>
+    </div>
+  </section>
+  <details class="mh-ref xx-fold" id="xxFoldSuwei">
+    <summary>宿位总表</summary>
+    <div class="xx-tbl-wrap">
+      <table class="xx-tbl">
+        <thead><tr><th>宿（七曜禽）</th><th>七曜</th><th>禽</th><th>四象</th><th>方</th><th>吉凶</th><th>值日歌诀</th></tr></thead>
+        <tbody id="xxTableBody"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldGongci">
+    <summary>十二宫次与分野</summary>
+    <div class="xx-tbl-wrap">
+      <table class="xx-tbl">
+        <thead><tr><th>宫次</th><th>所躔宿</th><th>国</th><th>州</th><th>异文标注</th></tr></thead>
+        <tbody id="xxGongBody"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldYiji">
+    <summary>值宿宜忌与伏断</summary>
+    <div class="xx-tbl-wrap">
+      <table class="xx-tbl">
+        <thead><tr><th>宿（七曜禽）</th><th>宜</th><th>忌</th><th>伏断</th><th>歌诀定性</th></tr></thead>
+        <tbody id="xxYiJiBody"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldShan">
+    <summary>二十四山配宿</summary>
+    <div class="xx-tbl-wrap">
+      <table class="xx-tbl xx-tbl-shan">
+        <thead><tr><th>山</th><th>配宿</th></tr></thead>
+        <tbody id="xxShanBody"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldTianguan">
+    <summary>《天官书》占辞</summary>
+    <div class="xx-tbl-wrap">
+      <table class="xx-tbl">
+        <thead><tr><th>宿（七曜禽）</th><th>占辞</th></tr></thead>
+        <tbody id="xxZhanciBody"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldSanjia">
+    <summary>三家占辞</summary>
+    <div class="xx-tbl-wrap">
+      <table class="xx-tbl">
+        <thead><tr><th>宿（七曜禽）</th><th>三家占辞</th></tr></thead>
+        <tbody id="xxZ3jBody"></tbody>
+      </table>
+    </div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldSuicha">
+    <summary>距度与岁差</summary>
+    <div id="xxDuOut"></div>
+  </details>
+  <details class="mh-ref xx-fold" id="xxFoldQin">
+    <summary>三十六禽</summary>
+    <div id="xxSan36Body"></div>
+  </details>
+</main>
+</div>
+<footer id="footer"></footer>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script src="assets/lunar.js?v=20260830w1"></script>
+<script src="assets/wheel.js?v=20260925a"></script>
+<script src="assets/xingxiu-data.js?v=20260925a"></script>
+<script src="assets/xingxiu.js?v=20260925a"></script>
+<script>
+/* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+function xxReadFold(){
+  try{
+    let raw=localStorage.getItem('xxFoldState');
+    if(!raw) raw=sessionStorage.getItem('xxFoldState');
+    const o=JSON.parse(raw||'{}');
+    return (o&&typeof o==='object')?o:{};
+  }catch(e){ return {}; }
+}
+function xxSaveFold(){
+  try{
+    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
+       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
+    const o=xxReadFold();
+    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
+    const v=JSON.stringify(o);
+    try{ localStorage.setItem('xxFoldState', v); }catch(e){}
+    try{ sessionStorage.setItem('xxFoldState', v); }catch(e){}
+  }catch(e){}
+}
+function xxApplyFold(){
+  const o=xxReadFold();
+  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
+}
+document.addEventListener('toggle',function(e){
+  const t=e.target;
+  if(t && t.tagName==='DETAILS' && t.id) xxSaveFold();
+},true);
+/* 页面装配：共享导航与免责声明 */
+renderChrome('xingxiu.html');
+xxApplyFold();
+</script>
+</body>
+</html>

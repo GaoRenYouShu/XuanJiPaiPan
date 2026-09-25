@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小六壬 玄机排盘</title>
+<meta name="description" content="小六壬在线掐算：大安、留连、速喜、赤口、小吉、空亡六神掌诀，月日时三数即断吉凶速应，简单快捷。">
+<meta name="keywords" content="小六壬,掌诀,大安,留连,速喜,赤口,小吉,空亡,掐指一算">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/xiaoliuren.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="小六壬 玄机排盘">
+<meta property="og:description" content="小六壬在线掐算：大安、留连、速喜、赤口、小吉、空亡六神掌诀，月日时三数即断吉凶速应，简单快捷。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/xiaoliuren.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap page-xlr">
+  <div class="page">
+    <h1>小六壬</h1>
+    <div class="lead">又名诸葛马前课。以农历月、日、时三数起课，落六宫断吉凶。</div>
+    <div class="form-row r2">
+      <div class="field"><label>方式</label><select id="qiMode" onchange="switchQiMode()">
+        <option value="time">时间（农历月日时）</option>
+        <option value="num">数字（报三个数）</option>
+        <option value="rand">随机数</option>
+        <option value="char">汉字笔画</option>
+      </select></div>
+      <div class="field" id="fDate"><label>日期（公历）</label><input type="text" class="dt-input" placeholder="yyyy-mm-dd" id="dInput"></div>
+      <div class="field" id="fShi"><label>时辰</label>
+        <select id="shichen"></select>
+      </div>
+      <div class="field" id="fNum1" style="display:none"><label>第一数（月）</label><input type="number" min="1" max="999" id="qNum1" class="dt-input xlr-num-input"></div>
+      <div class="field" id="fNum2" style="display:none"><label>第二数（日）</label><input type="number" min="1" max="999" id="qNum2" class="dt-input xlr-num-input"></div>
+      <div class="field" id="fNum3" style="display:none"><label>第三数（时）</label><input type="number" min="1" max="999" id="qNum3" class="dt-input xlr-num-input"></div>
+      <div class="field" id="fChar" style="display:none"><label>汉字</label><input type="text" maxlength="3" id="qChar" class="xlr-char-input" placeholder="输一个字或三个字"></div>
+      <div class="field"><label>流派</label><select id="school"></select></div>
+      <button class="btn" onclick="query()">起课</button>
+    </div>
+    <div class="sub-note xlr-line-note" id="lunarLine"></div>
+    <div id="out"></div>
+    <div class="xlr-ref" id="xlrRef"></div>
+  </div>
+</div>
+<footer id="footer"></footer>
+<script src="assets/lunar.js?v=20260830w1"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/jianbi.js?v=20260917da"></script>
+<script src="assets/jianfan.js?v=20260917da"></script>
+<script src="assets/kangxi.js?v=20260925a"></script>
+<script src="assets/xuanji-lib.js?v=20260925a"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script>
+renderChrome('xiaoliuren.html');
+const ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const SHI_NAME=['子(23-01)','丑(01-03)','寅(03-05)','卯(05-07)','辰(07-09)','巳(09-11)','午(11-13)','未(13-15)','申(15-17)','酉(17-19)','戌(19-21)','亥(21-23)'];
+const GONG=[
+  {n:'大安',wx:'木',sx:'青龙',fx:'东方',luck:'吉',ying:'静迟稳',xiang:'安稳、静止、守成',
+   duan:'大安事事昌，求财在坤方，失物去不远，宅舍保安康。行人身未动，病者主无妨，将军回田野，仔细好推详。',
+   brief:'身不动时，属静、稳、安。主平安顺遂，宜守不宜攻。',
+   cats:{hun:'婚缘平稳，宜迟不宜急，终成。',cai:'财稳缓得，不宜冒进，守可获利。',bing:'病无大妨，静养可愈，勿忧。',ren:'行人未动身，会回家，缓至。',shi:'失物去不远，就近、家中寻。',xun:'寻人未远行，在近处或家中，可寻。',chan:'生产平稳，母子安康，宜顺其自然。',xue:'学业稳进，根基扎实，宜循序渐进。',qiu:'求职可成，宜守成稳进，不急躁。',hehuo:'合伙平顺，宜守分，不宜冒进。',jia:'家宅安稳，平安无事。',kai:'开张平顺，宜守成，客源渐稳。',xing:'行人未动身，失物去不远，就近寻。',guan:'官事平宁，无忧无刑。',chu:'宜静守，出行缓，动则平平。',mou:'谋事昌顺，宜守不宜攻。',jiao:'交易平稳，和而不迫。'}},
+  {n:'留连',wx:'水',sx:'玄武',fx:'北方',luck:'凶',ying:'缓迟反复',xiang:'纠缠、拖延、犹豫',
+   duan:'留连事难成，求谋日未明，官事只宜缓，去者未回程。失物南方去，急寻方可寻，更需防口舌，恐怕自身刑。',
+   brief:'主拖延、纠缠、反复。事情难以速成，宜耐心等待。',
+   cats:{hun:'婚姻反复，迟滞难成，防口舌。',cai:'财迟有阻，防耗散，急则无。',bing:'病势缠绵，迟愈，防反复。',ren:'行人未回程，迟归，防音信阻。',shi:'失物向南方，急寻可获，迟则难寻。',xun:'寻人迟滞，在外滞留，急寻可获。',chan:'生产迟滞，宜缓，防反复不顺。',xue:'学业受阻，进展迟慢，宜耐心。',qiu:'求职反复，迟成，防中途有变。',hehuo:'合伙纠缠，宜分清权责，防牵绊。',jia:'家宅多口舌，宜和缓，勿急进。',kai:'开张迟滞，客源反复，宜待时机。',xing:'行人未回程，失物向南方，急寻可获。',guan:'官事宜缓，恐自身刑，慎防。',chu:'出行迟滞，反复多阻。',mou:'谋事难成，宜缓图，勿躁。',jiao:'交易迟滞，难就。'}},
+  {n:'速喜',wx:'火',sx:'朱雀',fx:'南方',luck:'吉',ying:'速近快',xiang:'迅速、喜讯、通达',
+   duan:'速喜喜来临，求财向南行，失物申未午，逢人须回音。官事有福德，病者无祸侵，田宅六畜吉，行人有喜临。',
+   brief:'主快速、喜讯、好消息。求谋易成，多有惊喜。',
+   cats:{hun:'喜事速成，媒妁得力，吉。',cai:'财速至，向南行，求谋易成。',bing:'病无祸侵，速愈，勿药而安。',ren:'行人有喜临，近归，音信至。',shi:'失物可寻，在申、未、午方。',xun:'寻人速有音信，近处可寻，南向。',chan:'生产迅速，母子平安，顺产之象。',xue:'学业速成，成绩提升，考试可中。',qiu:'求职速成，机会即至，宜主动把握。',hehuo:'合伙速成，进展顺利，利合作。',jia:'家宅喜庆，和乐安康。',kai:'开张大吉，客源兴旺，财气速至。',xing:'行人有喜临，失物在申未午。',guan:'官事有福德，无妨。',chu:'出行有喜，顺畅。',mou:'谋事速成，多有惊喜。',jiao:'交易速成，向南有利。'}},
+  {n:'赤口',wx:'金',sx:'白虎',fx:'西方',luck:'凶',ying:'急争凶',xiang:'口舌、争讼、血光',
+   duan:'赤口主口舌，官非切要防，失物急去寻，行人有惊慌。鸡犬多作怪，病者出西方，更须防咀咒，恐怕染瘟殃。',
+   brief:'主口舌、是非、争执。凡事谨言慎行，防冲突官非。',
+   cats:{hun:'口舌争斗，婚不成或迟，慎防。',cai:'破财之象，防争讼耗散。',bing:'病凶，防血光，出西方，宜慎。',ren:'行人有惊慌，途中有口舌争阻。',shi:'失物急寻西方，迟恐难获。',xun:'寻人难获，有口舌惊阻，宜防。',chan:'生产不顺，防血光，宜谨慎。',xue:'学业受阻，防口舌，宜静心。',qiu:'求职有争，防口舌，宜缓图。',hehuo:'合伙防争讼，权责分明防破败。',jia:'家宅多口舌是非，谨言慎行。',kai:'开张防官非口舌，宜迟不宜急。',xing:'行人有惊慌，失物急寻西方。',guan:'官非切要防，口舌刑伤。',chu:'出行防口舌，争执。',mou:'谋事有争，防破败。',jiao:'交易防争讼，不成。'}},
+  {n:'小吉',wx:'水',sx:'六合',fx:'东方',luck:'吉',ying:'和缓合',xiang:'和合、顺利、双喜',
+   duan:'小吉最吉昌，路上好商量，阴人来报喜，失物在坤方。行人立便至，交易甚是强，凡事皆和合，病者祷上苍。',
+   brief:'主和合、顺利、双喜。人和事顺，交易婚姻皆宜。',
+   cats:{hun:'和合美满，成，宜婚。',cai:'财和合，缓得，交易强。',bing:'病渐愈，和，祷之安。',ren:'行人立便至，速归。',shi:'失物在坤方（西南），可寻自出。',xun:'寻人可寻，近处或西南方，有音信。',chan:'生产和顺，母子平安。',xue:'学业和顺，稳步提升，有助。',qiu:'求职和合，贵人有助，可成。',hehuo:'合伙和合，互有裨益，利合作。',jia:'家宅和乐，邻里和睦。',kai:'开张和顺，客源和合，渐入佳境。',xing:'行人立便至，失物在坤方。',guan:'官事和合，无妨。',chu:'出行和顺，利。',mou:'谋事和合，成。',jiao:'交易甚强，和合。'}},
+  {n:'空亡',wx:'土',sx:'勾陈',fx:'中央',luck:'凶',ying:'空无远',xiang:'落空、虚耗、无果',
+   duan:'空亡事不祥，阴人多乖张，求财无利益，行人有灾殃。失物寻不见，官事有刑伤，病人逢暗鬼，析祷保安康。',
+   brief:'主落空、虚耗、无果。凡谋多不遂，宜暂缓改期。',
+   cats:{hun:'婚事不成，落空。',cai:'求财无利益，落空。',bing:'病逢暗鬼，虚怯，宜祷禳。',ren:'行人有灾殃，阻隔，返期难定。',shi:'失物寻不见，已遗失难获。',xun:'寻人不见，音信渺茫，难寻。',chan:'生产不顺，虚惊，宜防。',xue:'学业无成，落空，宜改期。',qiu:'求职无果，落空，宜另寻机会。',hehuo:'合伙无益，虚耗，宜防。',jia:'家宅空落，防虚耗，宜静守。',kai:'开张不利，客源空落，不宜开业。',xing:'行人有灾殃，失物寻不见。',guan:'官事有刑伤，凶。',chu:'出行不利，落空。',mou:'谋事不成，虚耗。',jiao:'交易不成，落空。'}},
+];
+/* 两宫合断（日加时断）：以"日宫所落"加"时宫所落"，据二宫关系断其结果。
+   30 组经典断语（六宫 × 除本宫外五宫），主断婚姻/失物/办事等。 */
+const HE_RI={
+ '大安':{'留连':'办事不周全，失物西北去，婚姻晚几天。','速喜':'事事自己起，失物当日见，婚姻自己提。','赤口':'办事不顺手，失物不用找，婚姻两分手。','小吉':'事事从己及，失物不出门，婚姻成就地。','空亡':'病人要上床，失物无踪影，事事不顺情。'},
+ '留连':{'大安':'办事两分张，婚姻有喜事，先苦后来甜。','速喜':'事事由自己，婚姻有成意，失物三天里。','赤口':'病者死人口，失物准丢失，婚姻两分手。','小吉':'事事不用提，失物东南去，病者出人齐。','空亡':'病人准死亡，失物不见面，婚姻两分张。'},
+ '速喜':{'赤口':'自己往外走，失物往正北，婚姻得勤走。','小吉':'婚姻有人提，病人当天好，失物在家里。','空亡':'婚姻有分张，病者积极治，失物不久见。','大安':'事事都平安，婚姻成全了，占病都相安。','留连':'婚姻不可言，失物无信息，病人有仙缘。'},
+ '赤口':{'小吉':'办事自己提，婚姻不能成，失物无信息。','空亡':'无病也上床，失物不用找，婚姻不能成。','大安':'办事险和难，失物东北找，婚姻指定难。','留连':'办事有困难，行人在外走，失物不回还。','速喜':'婚姻在自己，失物有着落，办事官事起。'},
+ '小吉':{'空亡':'病人不妥当，失物正东找，婚姻再想想。','大安':'事事两周全，婚姻当日定，失物自己损。','留连':'事事有反还，婚姻有人破，失物上西南。','速喜':'事事从头起，婚姻能成就，失物在院里。','赤口':'办事往外走，婚姻有难处，失物丢了手。'},
+ '空亡':{'大安':'事事不周全，婚姻从和好，失物反复间。','留连':'办事处处难，婚姻重新定，失物永不还。','速喜':'事事怨自己，婚姻有一定，失物在家里。','赤口':'办事官非有，婚姻难定准，失物往远走。','小吉':'事事有猜疑，婚姻有喜事，失物回家里。'}
+};
+/* 六宫颜色与谋事主数（传统小六壬属性） */
+const GONG_COLOR={'大安':'青','留连':'黑','速喜':'红','赤口':'白','小吉':'绿','空亡':'灰'};
+const GONG_NUM={'大安':'1、5、7','留连':'2、8、10','速喜':'3、6、9','赤口':'4、7、10','小吉':'1、5、7','空亡':'5、10'};
+/* 五行生克（小六壬页局部表，供合参合断的三宫五行关系分析） */
+const WX_SH={'木':'火','火':'土','土':'金','金':'水','水':'木'};
+const WX_KE={'木':'土','火':'金','土':'水','金':'木','水':'火'};
+function wxShengKe(a,b){ /* 五行关系：比和/相生/被生/相克/被克 */
+  if(a===b) return '比和';
+  if(WX_SH[a]===b) return '相生';
+  if(WX_SH[b]===a) return '被生';
+  if(WX_KE[a]===b) return '相克';
+  if(WX_KE[b]===a) return '被克';
+  return '';
+}
+function wxRelDesc(a,b,role){
+  const r=wxShengKe(a,b);
+  const as=wxColorSpan(a), bs=wxColorSpan(b);
+  if(r==='比和') return `${role}：${as}与${bs}比和，事体平稳`;
+  if(r==='相生') return `${role}：${as}生${bs}，事机顺延`;
+  if(r==='被生') return `${role}：${bs}生${as}，气得滋养`;
+  if(r==='相克') return `${role}：${as}克${bs}，事有阻滞`;
+  if(r==='被克') return `${role}：${bs}克${as}，事受制约`;
+  return '';
+}
+/* 小六壬各流派：起课掌诀差异（月/日/时起宫偏移），落宫不同即排盘不同；
+   断语六宫为共有文化内容，学派差别主要在起课与侧重。 */
+const SCHOOLS=[
+  {id:'ma',  name:'诸葛马前课',     m0:0,d0:0,t0:0, note:'最通行之法（通法）。月从大安起顺数月数，落宫接数日，再接数时。'},
+  {id:'li',  name:'李淳风六壬时课',     m0:0,d0:0,t0:1, note:'示意性变体：月日时起法同通法，时辰落宫顺移一位，尤重占时之应。'},
+  {id:'dao', name:'道家小六壬',         m0:0,d0:1,t0:1, note:'示意性变体：月日时三宫同参，日宫、时宫各顺移一位。'},
+  {id:'qm',  name:'奇门小六壬',         m0:0,d0:0,t0:0, qiMen:true, note:'示意性变体：合奇门方位，落宫再配八卦方位断吉凶与方位选择。'},
+  {id:'hua', name:'华山小六壬',         m0:1,d0:0,t0:0, note:'示意性变体：华山派掌诀，月从留连起数。'},
+  {id:'jiang',name:'江氏小六壬',        m0:2,d0:0,t0:0, note:'示意性变体：江氏秘传，月从速喜起数，重空亡应期。'},
+  {id:'xian',name:'仙家小六壬',         m0:4,d0:0,t0:0, note:'示意性变体：仙家用法，月从小吉起数，重灵应与感应。'},
+  {id:'si',  name:'四盘小六壬',         m0:0,d0:0,t0:0, four:true, note:'示意性变体：天地人神四盘同参，月日时三盘外加“占事盘”（按时辰序）四宫合断。'}
+];
+function fillSchool(){
+  const sel=document.getElementById('school');
+  sel.innerHTML=SCHOOLS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+fillSchool();
+function fillShichen(){
+  const sel=document.getElementById('shichen');
+  sel.innerHTML=SHI_NAME.map((s,i)=>`<option value="${i}">${s}</option>`).join('');
+}
+fillShichen();
+renderRef();
+xlrApplyFold();
+// 起卦方式切换：时间 / 数字 / 随机 / 汉字笔画
+function switchQiMode(){
+  const mode=document.getElementById('qiMode').value;
+  const showTime = mode==='time';
+  const showNum = mode==='num';
+  const showRand = mode==='rand';
+  const showChar = mode==='char';
+  ['fDate','fShi'].forEach(id=>document.getElementById(id).style.display = showTime?'':'none');
+  ['fNum1','fNum2','fNum3'].forEach(id=>document.getElementById(id).style.display = showNum?'':'none');
+  document.getElementById('fChar').style.display = showChar?'':'none';
+  // 汉字模式：清空预填值并确保可编辑（防被日期选择器预填/只读）
+  if(showChar){
+    const qc=document.getElementById('qChar');
+    qc.value='';
+    qc.readOnly=false;
+    qc.classList.remove('dt-input');
+  }
+  // 随机数：自动填入随机数
+  if(showRand){
+    document.getElementById('qNum1').value = Math.floor(Math.random()*6)+1;
+    document.getElementById('qNum2').value = Math.floor(Math.random()*6)+1;
+    document.getElementById('qNum3').value = Math.floor(Math.random()*6)+1;
+    ['fNum1','fNum2','fNum3'].forEach(id=>document.getElementById(id).style.display='');
+  }
+}
+switchQiMode();
+function setNow(){
+  const n=new Date();
+  document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
+  let h=n.getHours(); let idx=Math.floor(((h+1)%24)/2);
+  document.getElementById('shichen').value=idx;
+  query();
+}
+let LAST=null;
+/* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+function xlrReadFold(){
+  try{
+    let raw=localStorage.getItem('xlrFoldState');
+    if(!raw) raw=sessionStorage.getItem('xlrFoldState');
+    const o=JSON.parse(raw||'{}');
+    return (o&&typeof o==='object')?o:{};
+  }catch(e){ return {}; }
+}
+function xlrSaveFold(){
+  try{
+    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
+       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
+    const o=xlrReadFold();
+    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
+    const v=JSON.stringify(o);
+    try{ localStorage.setItem('xlrFoldState', v); }catch(e){}
+    try{ sessionStorage.setItem('xlrFoldState', v); }catch(e){}
+  }catch(e){}
+}
+function xlrApplyFold(){
+  const o=xlrReadFold();
+  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
+}
+document.addEventListener('toggle',function(e){
+  const t=e.target;
+  if(t && t.tagName==='DETAILS' && t.id) xlrSaveFold();
+},true);
+function renderRef(){
+  // 掌诀指图：三指（食/中/无名）六节，指尖排上、指根排下；每节一张白卡，复用大六壬四课/三传同款样式（lr-ke）
+  const COLS=[
+    {finger:'食指', cells:[{g:1,seg:'指尖'},{g:0,seg:'指根'}]},
+    {finger:'中指', cells:[{g:2,seg:'指尖'},{g:5,seg:'指根'}]},
+    {finger:'无名指', cells:[{g:3,seg:'指尖'},{g:4,seg:'指根'}]}
+  ];
+  let palm='<div class="xlr-palm" role="img" aria-label="小六壬掌诀图"><div class="xlr-palm-fingers">';
+  COLS.forEach(col=>{
+    palm+='<div class="xlr-palm-col"><div class="xlr-palm-finger">'+col.finger+'</div>';
+      col.cells.forEach(c=>{ const g=GONG[c.g]; const luckCls='luck-'+g.luck;
+        palm+='<div class="xlr-palm-cell"><div class="xlr-palm-num">'+(c.g+1)+'</div>'
+          +'<div class="xlr-palm-nm '+luckCls+'">'+g.n+'</div>'
+          +'<div class="xlr-palm-seg">'+c.seg+'</div></div>';
+      });
+    palm+='</div>';
+  });
+  palm+='</div><div class="xlr-palm-cap">大安起 1，顺数至 6 循环</div></div>';
+  const rows=GONG.map((g,i)=>{
+    const wxNote=g.n==='留连'?'<br><small class="xlr-alt-note">水土两说</small>':(g.n==='小吉'?'<br><small class="xlr-alt-note">木水两说</small>':'');
+    const sxNote=g.n==='留连'?'<br><small class="xlr-alt-note">亦作腾蛇</small>':'';
+    const numNote=g.n==='空亡'?'<br><small class="xlr-alt-note">亦作1、5、7</small>':'';
+    return '<tr><td class="luck-'+g.luck+'">'+g.n+'</td><td>'+(i+1)+'</td><td>'+wxColorSpan(g.wx)+wxNote+'</td><td>'+g.sx+sxNote+'</td><td>'+g.fx+'</td><td>'+GONG_COLOR[g.n]+'</td><td>'+GONG_NUM[g.n]+numNote+'</td><td>'+g.ying+'</td><td>'+g.xiang+'</td></tr>';
+  }).join('');
+  document.getElementById('xlrRef').innerHTML=
+    '<details class="mh-ref" id="xlrFold" open><summary>掌诀指图 六宫总览</summary>'+
+    '<div class="xlr-ref-grid"><div class="xlr-palm-wrap">'+palm+'</div>'+
+    '<div class="xlr-table-wrap"><table class="xlr-table xlr-hecan-tbl"><thead><tr><th>宫</th><th>序</th><th>五行</th><th>六神</th><th>方位</th><th>颜色</th><th>主数</th><th>应期</th><th>意象</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '</div></details>';
+}
+function query(){
+ try{
+  const mode=document.getElementById('qiMode').value;
+  let lm, ld, shi, lunarStr, lunar=null, shiIdx=0, srcNote, rawM, rawD, rawS;
+  if(mode==='time'){
+    const v=document.getElementById('dInput').value; if(!v)return;
+    shiIdx=parseInt(document.getElementById('shichen').value,10);
+    const [y,m,d]=v.split('-').map(Number);
+    const solar=Solar.fromYmd(y,m,d); lunar=solar.getLunar();
+    rawM=Math.abs(lunar.getMonth()); rawD=lunar.getDay(); rawS=shiIdx+1;
+    lm=rawM; ld=rawD; shi=rawS;
+    lunarStr=`农历 ${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}　${ZHI[shiIdx]}时`;
+    srcNote=`（月${lm}日${ld}时${shi}）`;
+  } else {
+    // 变通取数：数字/随机/汉字笔画 → 三数代月/日/时
+    let n1,n2,n3;
+    if(mode==='num'||mode==='rand'){
+      n1=parseInt(document.getElementById('qNum1').value,10)||1;
+      n2=parseInt(document.getElementById('qNum2').value,10)||1;
+      n3=parseInt(document.getElementById('qNum3').value,10)||1;
+      srcNote=`（变通取数 月${n1}日${n2}时${n3}）`;
+    } else { // char 汉字笔画
+      const s=(document.getElementById('qChar').value||'').trim();
+      if(!s) return;
+      const chars=[...s];
+      if(chars.length===1){ n1=n2=n3=chars.map(hanziStrokes)[0]; }
+      else if(chars.length===2){ n1=hanziStrokes(chars[0]); n2=hanziStrokes(chars[1]); n3=n1+n2; }
+      else { n1=hanziStrokes(chars[0]); n2=hanziStrokes(chars[1]); n3=hanziStrokes(chars[2]); }
+      srcNote=chars.length===1?`（汉字笔画 ${s}为${n1}画，三数同取${n1}）`:`（汉字笔画 ${chars.join('、')} → ${n1}/${n2}/${n3}）`;
+    }
+    rawM=n1; rawD=n2; rawS=n3;
+    // 取数需先转为 1-6（÷6 余数，0 记 6）
+    const to6=n=>{ const r=n%6; return r===0?6:r; };
+    lm=to6(n1); ld=to6(n2); shi=to6(n3);
+    lunarStr=mode==='char'?`汉字笔画起课：${(document.getElementById('qChar').value||'').trim()}`:`变通取数起课`;
+    lunar=lunar||null;
+  }
+  document.getElementById('lunarLine').textContent = lunarStr+srcNote;
+  // 起课：按所选流派掌诀，月/日/时起宫偏移不同 → 落宫不同（排盘不同）
+  const sch=SCHOOLS.find(s=>s.id===document.getElementById('school').value)||SCHOOLS[0];
+  const gMonth=(sch.m0+(lm-1))%6;
+  const gDay=((sch.m0)+(lm-1)+(ld-1)+sch.d0)%6;
+  const gTime=((sch.m0)+(lm-1)+(ld-1)+sch.d0+(shi-1)+sch.t0)%6;
+  // 占事盘：时宫基础上再叠“时辰序”顺行。时间模式取地支序 shiIdx；
+  // 数字/汉字/随机模式无地支时辰，以第三原始数 rawS 顺行；若结果与时宫重合则再顺移一格，确保占事盘独立。
+  let gFour=null;
+  if(sch.four){
+    const fourExtra=(mode==='time')?shiIdx:rawS;
+    gFour=((sch.m0)+(lm-1)+(ld-1)+(shi-1)+fourExtra)%6;
+    if(mode!=='time'&&gFour===gTime) gFour=(gFour+1)%6;
+  }
+  LAST={lm,ld,shi,shiIdx,gMonth,gDay,gTime,gFour,schId:sch.id,mode,
+    lunarStr: lunar?`${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${ZHI[shiIdx]}时`:lunarStr};
+  const stages=[['月宫',gMonth],['日宫',gDay],['时宫（结果）',gTime]];
+  let flow=stages.map((s,i)=>{
+    const g=GONG[s[1]];
+    return `<div class="xlr-step ${i===2?'final':''}">
+      <div class="xlr-step-lbl">${s[0]}</div>
+      <div class="xlr-gong luck-${g.luck}">
+        <div class="xlr-name">${g.n}</div>
+        <div class="xlr-meta">${g.sx}　${wxColorSpan(g.wx)}　${g.fx}　<b class="luck-${g.luck}">${g.luck}</b></div>
+      </div>
+    </div>${i<2?'<div class="xlr-arrow">→</div>':''}`;
+  }).join('');
+  if(gFour!==null){ flow+=`<div class="xlr-arrow">→</div><div class="xlr-step"><div class="xlr-step-lbl">占事盘</div><div class="xlr-gong luck-${GONG[gFour].luck}"><div class="xlr-name">${GONG[gFour].n}</div><div class="xlr-meta">${GONG[gFour].sx}　${GONG[gFour].luck}</div></div></div>`; }
+  const fg=GONG[gTime];
+  // 合参合断（三宫合参 + 两宫合断 + 五行生克 + 数理刚柔 合一表）
+  const lk=[GONG[gMonth].luck,GONG[gDay].luck,GONG[gTime].luck];
+  let hecan;
+  if(lk.every(l=>l==='吉')) hecan='三宫皆吉，诸事顺遂，大吉之象。';
+  else if(lk.every(l=>l==='凶')) hecan='三宫皆凶，事多阻滞，宜守勿动。';
+  else if(GONG[gTime].luck==='吉') hecan='时宫独吉，结局可成，纵中途有阻终得善果。';
+  else hecan='时宫独凶，结局受阻，宜缓图改期。';
+  const riG=GONG[gDay].n, shiG=GONG[gTime].n;
+  const heTxt=(HE_RI[riG]&&HE_RI[riG][shiG])?HE_RI[riG][shiG]:(riG===shiG?'日时同宫，无两宫组合之断，以时宫单宫吉凶为准。':'本组合无传世断语，以时宫单宫吉凶为准。');
+  // 五行生克：三宫五行两两关系
+  const wMon=GONG[gMonth].wx, wDay=GONG[gDay].wx, wTime=GONG[gTime].wx;
+  const wxSegs=[];
+  wxSegs.push(wxRelDesc(wMon,wDay,'月→日')+'；');
+  wxSegs.push(wxRelDesc(wDay,wTime,'日→时'));
+  // 数理刚柔：原始三数和奇偶
+  const rawSum=(rawM||0)+(rawD||0)+(rawS||0);
+  const gangRou=rawSum%2===0?'偶数（柔），事体缓、宜静观待变':'奇数（刚），事体急、宜主动进取';
+  const hecanRows=[
+    ['三宫合参', hecan],
+    ['两宫合断', heTxt],
+    ['五行生克', wxSegs.join('')],
+    ['数理刚柔', `三数之和 ${rawSum}，为${gangRou}`],
+    ['断语', fg.duan+'（六宫通行断语，各派共用）'],
+    ['白话提要', fg.brief]
+  ];
+  const hecanHtml='<h3 class="rel-title">合参合断</h3><table class="xlr-table xlr-hecan-tbl"><tbody>'+hecanRows.map(r=>`<tr><th>${r[0]}</th><td class="xlr-hecan-td">${r[1]}</td></tr>`).join('')+'</tbody></table>';
+  // 占类专项断：表格化（16 类，四列：类别/五行/关系/说明，五行生克单列显示）
+  const CATS=[['婚姻','hun'],['求财','cai'],['疾病','bing'],['行人','ren'],['失物','shi'],['寻人','xun'],['生产','chan'],['官非','guan'],['出行','chu'],['谋事','mou'],['交易','jiao'],['学业','xue'],['求职','qiu'],['合伙','hehuo'],['家宅','jia'],['开张','kai']];
+  const CAT_WX={'婚姻':'火','求财':'金','疾病':'土','行人':'水','失物':'土','寻人':'水','生产':'金','官非':'金','出行':'火','谋事':'火','交易':'金','学业':'火','求职':'金','合伙':'木','家宅':'土','开张':'金'};
+  const wxRelTxt={'比和':'同气','相生':'得助','被生':'气散','相克':'受制','被克':'不顺'};
+  const catsRows=CATS.map(([lb,k])=>{
+    const cwx=CAT_WX[lb]||'';
+    const rel=wxRelTxt[wxShengKe(fg.wx,cwx)]||'';
+    const wxCls={'木':'wx-mu','火':'wx-huo','土':'wx-tu','金':'wx-jin','水':'wx-shui'}[cwx]||'';
+    const lbCol=wxCls?'<span class="'+wxCls+'">'+lb+'</span>':lb;
+    const wxCol=cwx?wxColorSpan(cwx):'';
+    const relCol=rel?'<span class="xlr-rel-note">'+rel+'</span>':'';
+    return '<tr><td>'+lbCol+'</td><td>'+wxCol+'</td><td>'+relCol+'</td><td class="xlr-hecan-td">'+fg.cats[k]+'</td></tr>';
+  }).join('');
+  let html=`<h3 class="rel-title">三宫掐指流转 ${sch.name}</h3>
+  <div class="xlr-note">${sch.note}</div>
+
+    <div class="xlr-flow">${flow}</div>
+    <div class="today-card"><div class="today-top"><div class="xlr-result-host">
+      <div class="xlr-result-name luck-${fg.luck}">${fg.n}　<span class="xlr-result-luck">（${fg.luck}）</span></div>
+      <div class="zodiac">六神 ${fg.sx}　五行 ${wxColorSpan(fg.wx)}　方位 ${fg.fx}　应期 ${fg.ying}${sch.qiMen?'　奇门方位 '+(['东','东南','南','西南','西','西北','北','东北','东'][(gTime*45)%8]||'中'):''}</div>
+    </div></div></div>
+    ${hecanHtml}
+    <div class="xlr-section"><h3 class="rel-title">占类专项断 ${fg.n}</h3>
+      <table class="xlr-table xlr-hecan-tbl"><thead><tr><th>类别</th><th>五行</th><th>关系</th><th>说明</th></tr></thead><tbody>${catsRows}</tbody></table>
+    </div>
+    `;
+  document.getElementById('out').innerHTML=html;
+ }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起课出错：'+(e.message||e)+'</p>'; }
+}
+setNow();
+mountAI(function(){
+  if(!LAST) return '';
+  const fg=GONG[LAST.gTime];
+  const sch=LAST.schId?SCHOOLS.find(s=>s.id===LAST.schId):null;
+  const aiFour=(LAST.gFour!==null&&LAST.gFour!==undefined)?('\n占事盘：'+GONG[LAST.gFour].n+'（'+GONG[LAST.gFour].luck+'）'):'';
+  const aiMath='\n起课数理（算法）：月'+LAST.lm+'、日'+LAST.ld+'、时'+LAST.shi+'（序号 1 大安 … 6 空亡循环）。月宫='+GONG[LAST.gMonth].n+'，日宫='+GONG[LAST.gDay].n+'，时宫='+fg.n+(LAST.gFour!==null&&LAST.gFour!==undefined?('，占事盘='+GONG[LAST.gFour].n):'')+'。';
+  return `小六壬起课（${sch?sch.name:''}）\n农历：${LAST.lunarStr}（月${LAST.lm}日${LAST.ld}时${LAST.shi}）\n月宫：${GONG[LAST.gMonth].n}\n日宫：${GONG[LAST.gDay].n}\n时宫（结果）：${fg.n}（${fg.luck}）${aiFour}\n六神：${fg.sx}　五行：${fg.wx}　方位：${fg.fx}　主数：${GONG_NUM[fg.n]}　颜色：${GONG_COLOR[fg.n]}\n断语：${fg.duan}\n白话提要：${fg.brief}${aiMath}`;
+}, '小六壬');
+</script>
+<script>
+/* 盘面分享与数据：collect 记录起课方式、三数与流派，restore 回填后按原数重排（不另取随机） */
+shareWait({ page:"xiaoliuren", title:"小六壬在线掐算",
+  collect:function(){
+    const d={m:document.getElementById('qiMode').value};
+    ['dInput','shichen','qNum1','qNum2','qNum3','qChar','school'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
+    return d;
+  },
+  restore:function(d){
+    if(!d||!d.m) return;
+    Object.keys(d).forEach(function(k){
+      if(k==='m') return;
+      const el=document.getElementById(k); if(el) el.value=d[k];
+    });
+    const m=document.getElementById('qiMode'); if(m){ m.value=d.m; }
+    try{ switchQiMode(); }catch(e){}
+    try{ query(); }catch(e){}
+  },
+  /* 刷新重出：全站顶层机制回填输入后按此钩子起重课 */
+  recast:function(){ try{ query(); }catch(e){} }
+});
+</script>
+</body>
+</html>

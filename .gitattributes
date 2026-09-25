@@ -1,0 +1,23 @@
+# 行尾规则随仓库走，不依赖本机的 core.autocrlf。
+# 本机 PortableGit 的 system 级 gitconfig 设了 core.autocrlf=true，检出时会把内容转成 CRLF；
+# 缺本文件时，任何由工具直接写入的文件都不受 git 规范化约束，是什么行尾就一直是什么，
+# 于是同一份内容在仓库里是 LF、在工作区却同时存在 LF 与 CRLF 两种形态。
+# .gitattributes 的优先级高于 core.autocrlf，故以此固化：仓库内与工作区一律 LF。
+* text=auto eol=lf
+
+# Windows 批处理与 PowerShell 脚本按平台要求保持 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 二进制不参与转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
