@@ -63,6 +63,10 @@ python -m http.server 8080
 
 也可以直接双击 `index.html` 打开，脚本按相对路径加载，离线可用。
 
+## 在线部署
+
+Fork 到自己账号后，在仓库 Settings → Pages 开启即可运行，任意域名与子路径都无需改动源码：页面内的 canonical、og:url 与分享图链接由 `assets/meta.js` 按实际访问地址自动生成。
+
 ## 目录结构
 
 ```
