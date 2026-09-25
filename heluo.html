@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>河洛理数 先天命卦 大运流年 邵子神数取卦 玄机排盘</title>
+<meta name="description" content="河洛理数在线排盘：以八字四柱化天数地数，中宫寄卦起先天本命卦，元堂高精度起法（含两至逆表）变出后天卦，阳爻九年阴爻六年排大运，流年、流月、流日、流时逐层变爻，并附元气化工与六十四卦经文检索，为邵子神数取卦之基。">
+<meta name="keywords" content="河洛理数,邵子神数,先天命卦,后天卦,元堂,大运,流年卦,流月卦,流日卦,流时卦,元气,化工">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/heluo.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="河洛理数 先天命卦 大运流年 邵子神数取卦 玄机排盘">
+<meta property="og:description" content="河洛理数在线排盘：以八字四柱化天数地数，中宫寄卦起先天本命卦，元堂高精度起法（含两至逆表）变出后天卦，阳爻九年阴爻六年排大运，流年、流月、流日、流时逐层变爻，并附元气化工与六十四卦经文检索，为邵子神数取卦之基。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/heluo.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap page-hl">
+<main class="page">
+  <h1>河洛理数</h1>
+  <p class="lead">传为陈图南、邵康节一脉：八字化数起先天命卦，变元堂得后天卦，推大运流年。</p>
+  <section class="mod" id="hlmod-qigua">
+    <div class="mod-head" onclick="toggleMod('hlmod-qigua')"><span class="mod-caret">▾</span><span class="mod-title">起卦</span><span class="mod-sub">四柱化数、先天后天命卦与元气化工</span></div>
+    <div class="mod-body">
+    <div class="form-row">
+      <div class="field"><label for="hlDate">公历生日</label><input type="text" class="dt-input" id="hlDate" aria-label="公历生日" placeholder="2026-09-08"></div>
+      <div class="field"><label for="hlHour">出生时辰</label><select id="hlHour" aria-label="出生时辰"><option value="">未知（不立元堂）</option><option value="00:30">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
+      <div class="field"><label for="hlSex">性别</label><select id="hlSex" aria-label="性别"><option value="1">男</option><option value="2">女</option></select></div>
+      <button id="hlBtn" class="btn gold" type="button">排命卦</button>
+    </div>
+    <div id="hlQgOut"></div>
+    </div>
+  </section>
+  <section class="mod collapsed" id="hlmod-dayun">
+    <div class="mod-head" onclick="toggleMod('hlmod-dayun')"><span class="mod-caret">▾</span><span class="mod-title">大运</span><span class="mod-sub">阳爻九年阴爻六年、先后天十二段</span></div>
+    <div class="mod-body">
+    <div id="hlDyOut"></div>
+    </div>
+  </section>
+  <section class="mod collapsed" id="hlmod-nian">
+    <div class="mod-head" onclick="toggleMod('hlmod-nian')"><span class="mod-caret">▾</span><span class="mod-title">流年分析</span><span class="mod-sub">年月日时一次同查、逐层变爻定气数</span></div>
+    <div class="mod-body">
+    <div class="form-row">
+      <div class="field"><label for="hlQDate">查询日期（公历）</label><input type="text" class="dt-input" id="hlQDate" aria-label="查询日期" placeholder="2026-09-08"></div>
+      <div class="field"><label for="hlRiHour">流时（时辰）</label><select id="hlRiHour" aria-label="流时时辰"><option value="">全日十二时</option><option value="00:30">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
+      <button id="hlNianBtn" class="btn gold" type="button">查年月日时卦</button>
+    </div>
+    <div id="hlNianOut"></div>
+    <h4 class="det-h">流月</h4>
+    <div id="hlYueOut"></div>
+    <h4 class="det-h">流日流时</h4>
+    <div id="hlRiOut"></div>
+    </div>
+  </section>
+  <details class="mh-ref" id="hlJwFold">
+    <summary>六十四卦经文检索</summary>
+    <div id="hlJwBody"></div>
+  </details>
+</main>
+</div>
+<footer id="footer"></footer>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script src="assets/lunar.js?v=20260830w1"></script>
+<script src="assets/xuanji-lib.js?v=20260925a"></script>
+<script src="assets/gua.js?v=20260830w1"></script>
+<script src="assets/jingwen.js?v=20260829j1"></script>
+<script src="assets/jingwen-ref.js?v=20260908jw2"></script>
+<script src="assets/heluo-data.js?v=20260918hn"></script>
+<script src="assets/heluo.js?v=20260919d"></script>
+<script>
+/* 页面装配：共享导航与免责声明 */
+renderChrome('heluo.html');
+</script>
+</body>
+</html>

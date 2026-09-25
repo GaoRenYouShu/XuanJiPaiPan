@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>玄机排盘 传统命理排盘工具</title>
+<meta name="description" content="玄机排盘：传统命理、历法与占卜文化研究演示站，涵盖八字、紫微斗数、铁板神数、六爻、梅花易数、奇门遁甲、大六壬、老黄历、皇极经世、七政四余、择日、周公解梦、测字、二十八宿、太岁生肖、河洛理数等 34 个免费在线排盘工具，另附典籍参考、说明文档与算法数据，纯前端打开即用。">
+<meta name="keywords" content="排盘,命理,占卜,八字排盘,紫微斗数,铁板神数,六爻,梅花易数,奇门遁甲,大六壬,老黄历,皇极经世,择日,太岁">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="玄机排盘 传统命理排盘工具">
+<meta property="og:description" content="玄机排盘：传统命理、历法与占卜文化研究演示站，涵盖八字、紫微斗数、铁板神数、六爻、梅花易数、奇门遁甲、大六壬、老黄历、皇极经世、七政四余、择日、周公解梦、测字、二十八宿、太岁生肖、河洛理数等 34 个免费在线排盘工具，另附典籍参考、说明文档与算法数据，纯前端打开即用。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/index.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260913a1">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
+<link rel="stylesheet" href="assets/style.css?v=z280">
+</head>
+<body>
+<div id="topbar"></div>
+
+<div class="page hm-page">
+  <header class="hm-head">
+    <h1 class="hm-sr">玄机排盘 传统命理排盘工具</h1>
+    <div class="hm-motto">玄之又玄 众妙之门</div>
+    <div class="hm-today">
+      <div class="hm-solar" id="tSolar">----年--月--日 星期-</div>
+      <div class="hm-lunar-big" id="tLunar">农历----</div>
+      <div class="hm-gz" id="tPillars"></div>
+      <div class="hm-extra" id="tExtra"></div>
+    </div>
+  </header>
+
+  <div id="cats"></div>
+</div>
+
+<footer id="footer"></footer>
+
+<script src="assets/lunar.js?v=20260826a"></script>
+<script src="assets/app.js?v=20260924i"></script>
+<script src="assets/ai.js?v=20260924a"></script>
+<script>
+renderChrome('index.html');
+
+/* 八卷谱系与顶部导航一致；de 为目录行右端小注 */
+const CATS=[
+ {nm:'历法',en:'CALENDAR',tools:[
+  ['wannianli.html','万年历','公历农历 节气干支'],
+  ['laohuangli.html','老黄历','宜忌 飞星 时辰'],
+  ['foli.html','佛历','佛灭纪元 斋期'],
+  ['daoli.html','道历','黄帝纪元 三会'],
+  ['zangli.html','藏历','时轮历 饶迥纪年'],
+  ['zeri.html','择日','黄历择吉 造命择日'],
+  ['huangji.html','皇极经世','元会运世 卦气年表'],
+ ]},
+ {nm:'命理',en:'DESTINY',tools:[
+  ['bazi.html','八字排盘','四柱 神煞 大运流年'],
+  ['hehun.html','八字合婚','六维评分 喜忌互补'],
+  ['ziwei.html','紫微斗数','十二宫 主辅星 四化'],
+  ['heluo.html','河洛理数','先天命卦 行运流时'],
+  ['tieban.html','铁板神数','考时定刻 六亲条验'],
+  ['xingming.html','姓名学','五格三才 起名联名'],
+  ['xingzhan.html','占星术','本命盘 合盘 印占'],
+  ['qizheng.html','七政四余','十一曜 躔宫入宿'],
+ ]},
+ {nm:'三式',en:'THREE ARTS',tools:[
+  ['qimen.html','奇门遁甲','五家三派 九宫转盘'],
+  ['daliuren.html','大六壬','四课三传 九宗门'],
+  ['taiyi.html','太乙神数','积年十六神 主客算'],
+ ]},
+ {nm:'占卜',en:'DIVINATION',tools:[
+  ['liuyao.html','六爻','铜钱 纳甲 六神断卦'],
+  ['meihua.html','梅花易数','时间起卦 体用生克'],
+  ['xiaoliuren.html','小六壬','诸葛马前课 指占'],
+  ['lingqian.html','灵签','四大签诗 逐项解签'],
+  ['tarot.html','塔罗牌','原版牌图 六种牌阵'],
+  ['lenormand.html','雷诺曼','三十六象 组合成句'],
+ ]},
+ {nm:'民俗',en:'FOLK',tools:[
+  ['minsu.html','民俗占法','称骨 犯月 本命佛'],
+  ['cezi.html','测字','相字十法 拆字断事'],
+  ['zhougong.html','周公解梦','双底本占辞对照'],
+  ['xingxiu.html','二十八宿','值宿 分野 演禽'],
+  ['taisui.html','太岁生肖','六十甲子 犯太岁'],
+ ]},
+ {nm:'运气',en:'MEDICINE',tools:[
+  ['yunqi.html','五运六气','岁运 司天在泉 客主加临'],
+ ]},
+ {nm:'相术',en:'PHYSIOGNOMY',tools:[
+  ['shouxiang.html','手相','三大主线 八丘 掌形指形'],
+  ['mianxiang.html','面相','三停五官 十二宫 气色痣相'],
+  ['fengshui.html','阳宅风水','飞星 八宅 玄空'],
+  ['fengshui-yin.html','阴宅风水','分金 合仙命 排凶'],
+ ]},
+ {nm:'附录',en:'APPENDIX',tools:[
+  ['dianji.html','典籍参考','典籍 版本 渠道'],
+  ['shuoming.html','说明文档','功能介绍 使用说明'],
+  ['opensource.html','算法数据','开源算法 数据来源'],
+ ]},
+];
+const CN_NUM=['卷一','卷二','卷三','卷四','卷五','卷六','卷七','卷八'];
+
+let idx=0;
+document.getElementById('cats').innerHTML=CATS.map((c,i)=>{
+  const rows=c.tools.map(t=>{
+    idx++;
+    const no=String(idx).padStart(2,'0');
+    return `<li><a class="hm-tool" href="${t[0]}">
+      <span class="hm-idx">${no}</span>
+      <span class="hm-nm">${t[1]}</span>
+      <span class="hm-line"></span>
+      <span class="hm-de">${t[2]}</span>
+    </a></li>`;
+  }).join('');
+  return `<section class="hm-cat">
+    <h2 class="hm-cat-h">
+      <span class="num">${CN_NUM[i]}</span>
+      <span class="nm">${c.nm}</span>
+      <span class="en">${c.en}</span>
+      <span class="cnt">${c.tools.length} 目</span>
+    </h2>
+    <ul class="hm-list">${rows}</ul>
+  </section>`;
+}).join('');
+
+(function(){
+  const now=new Date();
+  const solar=Solar.fromDate(now);
+  const lunar=solar.getLunar();
+  document.getElementById('tSolar').textContent=
+    solar.getYear()+'年'+solar.getMonth()+'月'+solar.getDay()+'日 星期'+'日一二三四五六'[solar.getWeek()];
+  document.getElementById('tLunar').textContent=
+    '农历'+lunar.getYearInGanZhi()+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese();
+  const gz=[['年',lunar.getYearInGanZhi()],['月',lunar.getMonthInGanZhi()],['日',lunar.getDayInGanZhi()],['时',lunar.getTimeInGanZhi()]];
+  document.getElementById('tPillars').innerHTML=gz.map(([l,g])=>`<span><i>${l}</i>${g}</span>`).join('');
+  const jq=lunar.getJieQi();
+  const XZ=['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼'];
+  const m2=solar.getMonth(),d2=solar.getDay();
+  const cut=[20,19,21,20,21,22,23,23,23,24,23,22];
+  const xzIdx=(d2<cut[m2-1])?(m2+8)%12:(m2+9)%12;
+  const parts=[lunar.getYearShengXiao()+'年 '+XZ[xzIdx]+'座',
+    '月建 '+(lunar.getMonthInGanZhi()[1]||'')+'月'];
+  const yuexiang=(lunar.getYueXiang?lunar.getYueXiang():'')||'';
+  if(yuexiang&&yuexiang!=='—')parts.push('月相 '+yuexiang);
+  if(jq)parts.push('今日'+jq);
+  document.getElementById('tExtra').textContent=parts.join('　');
+})();
+</script>
+</body>
+</html>
