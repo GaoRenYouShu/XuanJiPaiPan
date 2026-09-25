@@ -1,0 +1,12 @@
+// Cloudflare Workers 静态资产部署：npm i -g wrangler，wrangler login 后在本目录执行 wrangler deploy。
+// 仅托管静态文件，无 Worker 脚本；404 由 not_found_handling 指向仓库内 404.html。
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "xuanji-paipan",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
