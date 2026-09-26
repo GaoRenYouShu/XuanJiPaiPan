@@ -25,6 +25,8 @@
 - Cloudflare Pages：https://xuanjipaipan.pages.dev/
 - Netlify：https://xuanjipaipan.netlify.app/
 
+四条线路同源同步，速度因访问地与线路而异：GitHub Pages 在国内首次加载较慢（样式与字体按需加载，数秒后正常），可自测选最快的镜像使用。
+
 ## 功能总览
 
 涵盖历法、命理、三式、占卜、民俗、运气、相术七大类，共 34 个独立工具。

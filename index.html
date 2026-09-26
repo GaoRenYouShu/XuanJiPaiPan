@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preload" as="script" href="assets/lunar.js?v=20260826a">
+<link rel="preload" as="script" href="assets/app.js?v=20260924i">
 <title>玄机排盘 传统命理排盘工具</title>
 <meta name="description" content="玄机排盘：传统命理、历法与占卜文化研究演示站，涵盖八字、紫微斗数、铁板神数、六爻、梅花易数、奇门遁甲、大六壬、老黄历、皇极经世、七政四余、择日、周公解梦、测字、二十八宿、太岁生肖、河洛理数等 34 个免费在线排盘工具，另附典籍参考、说明文档与算法数据，纯前端打开即用。">
 <meta name="keywords" content="排盘,命理,占卜,八字排盘,紫微斗数,铁板神数,六爻,梅花易数,奇门遁甲,大六壬,老黄历,皇极经世,择日,太岁">
@@ -46,6 +48,10 @@
 
 <footer id="footer"></footer>
 
+<script>
+/* 公历行即时填充：不待农历库就绪，慢路线下首屏占位符先消失；农历行仍由下方脚本待库补齐 */
+(function(){var n=new Date();var el=document.getElementById('tSolar');if(el)el.textContent=n.getFullYear()+'年'+(n.getMonth()+1)+'月'+n.getDate()+'日 星期'+'日一二三四五六'[n.getDay()];})();
+</script>
 <script src="assets/lunar.js?v=20260826a"></script>
 <script src="assets/app.js?v=20260924i"></script>
 <script src="assets/ai.js?v=20260924a"></script>

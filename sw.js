@@ -1,6 +1,6 @@
 /* 玄机排盘 Service Worker：壳预缓存 + 运行时缓存
    策略：
-   - 页面导航（HTML）：网络优先，命中后回写缓存，断网回落缓存、再回落已缓存的首页；
+   - 页面导航（HTML）：缓存优先（SWR），命中即回、网络响应后台回写；无缓存走网络，断网回落已缓存首页；
    - 同源静态资源：缓存优先，未命中才发请求（资源 URL 带 ?v= 版本串，版本升级即自然换键）；
    - 跨域请求（节假日、IP 归属、地磁、AI 接口等外部数据源）一律不拦截，直连网络；
    - 预缓存逐项 cache.add 并容忍单项失败，避免任一资源波动导致安装整体失败。
@@ -42,18 +42,23 @@ self.addEventListener('fetch', function (e) {
   if (req.headers.get('range')) return;                     /* 分段请求不缓存 */
 
   if (req.mode === 'navigate') {
-    /* 页面：网络优先，断网回落缓存，最后回落首页 */
+    /* 页面：缓存优先（SWR），命中立即返回，网络响应后台回写；
+       无缓存走网络；断网回落已缓存的首页。
+       二次访问首屏不再等路线：HTML 本身变化少，资源版本串在 URL 上，
+       后台刷新即可拿到新版，下一访客与下次打开即见最新。 */
     e.respondWith(
-      fetch(req).then(function (res) {
-        if (res.ok) {
-          const cp = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, cp); });
-        }
-        return res;
-      }).catch(function () {
-        return caches.match(req).then(function (hit) {
+      caches.match(req).then(function (hit) {
+        const net = fetch(req).then(function (res) {
+          if (res.ok) {
+            const cp = res.clone();
+            caches.open(CACHE).then(function (c) { c.put(req, cp); });
+          }
+          return res;
+        }).catch(function () {
           return hit || caches.match('./index.html');
         });
+        e.waitUntil(net.catch(function () {}));
+        return hit || net;
       })
     );
     return;
