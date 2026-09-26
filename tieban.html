@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -81,21 +81,20 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/latlng.js?v=20260917a"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/bazi-data.js?v=20260925a"></script>
-<script src="assets/gua.js?v=20260826c"></script>
-<script src="assets/jingwen.js?v=20260904b"></script>
-<script src="assets/jingwen-ref.js?v=20260908jw2"></script>
-<script src="assets/bazi-duanyu.js?v=20260925a"></script>
-<script src="assets/tieban-hegu.js?v=20260917tb5"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/tieban-tiaowen.js?v=20260917tb5"></script>
-<script src="assets/tieban-engine.js?v=20260925a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/latlng.js?v=20260917a"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/bazi-data.js?v=20260925a"></script>
+<script defer src="assets/gua.js?v=20260826c"></script>
+<script defer src="assets/jingwen.js?v=20260904b"></script>
+<script defer src="assets/jingwen-ref.js?v=20260908jw2"></script>
+<script defer src="assets/bazi-duanyu.js?v=20260925a"></script>
+<script defer src="assets/tieban-hegu.js?v=20260917tb5"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/tieban-tiaowen.js?v=20260917tb5"></script>
+<script defer src="assets/tieban-engine.js?v=20260925a"></script>
 <script>
-renderChrome('tieban.html');
     const TB_TERMS = {
     hua:{title:'化数',items:{
     '太玄数':{short:'干支配数的口诀：甲己子午九、乙庚丑未八、丙辛寅申七、丁壬卯酉六、戊癸辰戌五、巳亥单四数。',detail:'太玄经数，铁板类数术最常用的入数元件，每柱干数加支数为柱数。'},
@@ -147,7 +146,6 @@ renderChrome('tieban.html');
     h+='</tbody></table>';
     el.innerHTML=h;
     }
-    renderTermGloss();
 /* ============ 刻分与分金选项 ============ */
 /* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
 function tbReadFold(){
@@ -173,10 +171,6 @@ function tbApplyFold(){
   const o=tbReadFold();
   document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
 }
-document.addEventListener('toggle',function(e){
-  const t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id) tbSaveFold();
-},true);
 function rebuildKeOptions(){
   const zhiH = parseInt(document.getElementById('hInput').value,10);
   const sel = document.getElementById('kInput');
@@ -400,7 +394,6 @@ function fitCiteCols(){
   });
 }
 let _citeT = null;
-window.addEventListener('resize', ()=>{ clearTimeout(_citeT); _citeT = setTimeout(fitCiteCols, 150); });
 /* 手足答卷 1..8 → 条文桶键：1 独生/2/3/4-5/6-7/8 以上 */
 function sibKeyOf(n){ if(n==null) return null; if(n<=1) return '0'; if(n===2) return '1'; if(n===3) return '2'; if(n<=5) return '3'; if(n<=7) return '4'; return '5p'; }
 /* 子女答卷 0..5+ → 条文桶键：0 无或迟得/1/2/3/4/5 以上 */
@@ -677,55 +670,66 @@ function applyLinkParams(){
   if(lng && isFinite(Number(lng))){ document.getElementById('bLng').value = lng; document.getElementById('trueChk').checked = p.get('bTrue')==='1'; }
   return true;
 }
-document.getElementById('trueChk').addEventListener('change', ()=>{ if(LAST) query(); });
-document.getElementById('bLng').addEventListener('change', ()=>{ if(LAST && document.getElementById('trueChk').checked) query(); });
-document.getElementById('sexInput').addEventListener('change', ()=>{ if(LAST) query(); });
-document.getElementById('ziInput').addEventListener('change', ()=>{ if(LAST) query(); });
-document.getElementById('kInput').addEventListener('change', ()=>{ ADOPT=null; if(LAST) query(); });
-document.getElementById('fInput').addEventListener('change', ()=>{ ADOPT=null; if(LAST) query(); });
-document.getElementById('dInput').addEventListener('change', ()=>{ ADOPT=null; query(); });
-buildPlace();
-rebuildKeOptions();
-rebuildFengOptions();
-if(applyLinkParams()){ query(); }
-else { setToday(); }
-tbApplyFold();
-/* ============ AI 解读 ============ */
-mountAI(function(){
-  if(!LAST) return '';
-  const R = LAST;
-  const pick = (cid) => { const t = Tieban.pickText(cid, R.H, keyFor(cid), 1); return t ? (t.catName+'：'+t.t+'，'+t.b) : ''; };
-  const dyLines = (R.dayun&&R.dayun.steps?R.dayun.steps.map(s=>{
-    const tx = Tieban.pickStepText('dayun', s.gz, s.startYear, 1);
-    return s.gz+' 运 '+s.startAge+'-'+s.endAge+' 岁：'+(tx?(tx.t+'，'+tx.b):'');
-  }).join('\n'):'');
-  const thisYear = new Date().getFullYear();
-  const lnLines = (()=>{ let out=[]; for(let i=0;i<8;i++){ const y=thisYear+i; const gz=Solar.fromYmd(y,6,1).getLunar().getYearInGanZhi(); const tx=Tieban.pickStepText('liunian', gz, y, 1); out.push(y+' 年 '+gz+'：'+(tx?(tx.t+'，'+tx.b):'')); } return out.join('\n'); })();
-  return `铁板神数推演
-【出生与四柱】公历 ${R.Y}-${pad2(R.M)}-${pad2(R.D)} ${pad2(R.h)}:${pad2(R.mi)}　${R.zhiName}${R.keName}（${R.keRange}）　分金：${FENG_NAMES[R.feng]}、子时算法：${R.ziMode==='early'?'早子时':'晚子时'}
-四柱：${R.pillars.map(p=>p.gz).join(' ')}
-纳音：${R.pillars.map(p=>p.nayin).join('、')}
-${R.ziNote?('子时口径：'+R.ziNote+'。'):''}${R.usedTrue?'真太阳时：按出生地经度 '+resolveLng()+' 与均时差校正 '+R.adj+' 分钟（均时差 '+R.adjE+'、经度差 '+R.adjLng+'），校正后 '+pad2(R.h)+':'+pad2(R.mi)+'，实际归属 '+R.zhiName+R.keName+'。':'未开启真太阳时。'}
-【化数与皇极总数】太玄数逐柱：${R.pillars.map(p=>p.gz.charAt(0)+'='+p.txGan+'、'+p.gz.charAt(1)+'='+p.txZhi).join('；')}
-天干和 ${R.ganSum}、地支和 ${R.zhiSum}、化数总数 ${R.total}；刻修正数 ${R.keFix}（${R.bagua}）；皇极总数 ${R.H}
-【河洛理数】${(()=>{ if(typeof guaName!=='function'||!window.TIEBAN_HEGU) return '不可用'; const HL=Tieban.heLuoPan(R.ganSum,R.zhiSum); const sn=XT2NAME[HL.xianShang], xn=XT2NAME[HL.xianXia]; const gn=guaName(sn,xn); const b6=TRIGRAMS[xn].bits.concat(TRIGRAMS[sn].bits); const pi=typeof palaceInfo==='function'?palaceInfo(b6):null; const hg=window.TIEBAN_HEGU.gua[gn]||{c:'',b:''}; const yTie=(R.H%6)||6; const yt=(typeof YAO_CI==='object')?(YAO_CI[gn+YAO_POS[yTie-1]]||''):''; const b2=b6.slice(); b2[HL.dong-1]=b2[HL.dong-1]?0:1; const gn2=guaName(trigramName(b2.slice(3,6)),trigramName(b2.slice(0,3))); const bT=b6.slice(); bT[yTie-1]=bT[yTie-1]?0:1; const gTie=guaName(trigramName(bT.slice(3,6)),trigramName(bT.slice(0,3))); return '天数 '+HL.tian+'、地数 '+HL.di+'；先天卦 '+sn+'上'+xn+'下，得'+gn+'（'+hg.c+'）'+(hg.b?('；'+hg.b):'')+'；铁板元堂：皇极总数 '+R.H+' 除六取余在'+YAO_NAME[yTie-1]+'，爻辞：'+(yt||'缺')+'，动而变之得'+gTie+'；梅花参考动爻在'+YAO_NAME[HL.dong-1]+'，变卦'+gn2+'；'+(pi?(pi.palace+'、'+pi.type+'卦、世'+pi.world+'应'+pi.ying+'；'):'')+'洛书数：上'+HL.ls+'、下'+HL.lx;})()}
-【六亲答卷】父母：${ANS.fumu?Tieban.FUMU_LABEL[ANS.fumu]:'未答'}；手足：${ANS.sib!=null?(ANS.sib+' 人'):'未答'}；婚姻：${ANS.marry?Tieban.MARRY_LABEL[ANS.marry]:'未答'}；子女参考：${ANS.child!=null?Tieban.CHILD_LABEL[Math.min(5,Math.max(0,ANS.child))]:'未答'}
-【考刻】${(()=>{const k=(ANS.fumu!=null&&ANS.sib!=null&&ANS.marry!=null)?Tieban.locateKe(Tieban.FUMU_KEYS.indexOf(ANS.fumu),ANS.sib,Tieban.MARRY_KEYS.indexOf(ANS.marry)):null; if(k==null) return '三主问未答齐，未定位正刻'; return '考得正刻 '+R.zhiName+Tieban.KE_NAMES[k]+'（考刻数定位）'+(ADOPT!=null&&ADOPT===k?'，已采用':'，未采用');})()}
-【九类条文】
-${TW_CATS.map(cid=>pick(cid)).filter(Boolean).join('\n')}
-【真典断语】${(()=>{ const sex=document.getElementById('sexInput').value; const ten=_dyTenCounts(R), tier=_dyTierCounts(R); const pool=dyTenPool().filter(e=>dyTenMatch(e,ten,tier,sex)); if(!pool.length) return '本命未命中可全量评估的古法断语'; const picks=[]; for(let n=1;n<=2;n++){ const seed=((R.H%100003)*7919+n*104729+20011)%100003; const it=pool[seed%pool.length]; if(it&&!picks.some(p=>p.say===it.say)) picks.push(it); } return picks.map(p=>p.say+'，出自'+p.src).join('；'); })()}
-【大运条文】起运 ${R.dayun&&R.dayun.ageYears!=null?(R.dayun.ageYears+' 年 '+R.dayun.ageMonths+' 个月 '+R.dayun.ageDays+' 天，'+(R.dayun.forward?'顺排':'逆排')):'不可用'}
-${dyLines}
-【流年条文】
-${lnLines}
-`;
-}, '铁板神数');
-if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
-tbApplyFold();
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-shareWait({ page:'tieban', title:'铁板神数在线排盘', recast:function(){ try{ query(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('tieban.html');
+    renderTermGloss();
+    document.addEventListener('toggle',function(e){
+      const t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id) tbSaveFold();
+    },true);
+    window.addEventListener('resize', ()=>{ clearTimeout(_citeT); _citeT = setTimeout(fitCiteCols, 150); });
+    document.getElementById('trueChk').addEventListener('change', ()=>{ if(LAST) query(); });
+    document.getElementById('bLng').addEventListener('change', ()=>{ if(LAST && document.getElementById('trueChk').checked) query(); });
+    document.getElementById('sexInput').addEventListener('change', ()=>{ if(LAST) query(); });
+    document.getElementById('ziInput').addEventListener('change', ()=>{ if(LAST) query(); });
+    document.getElementById('kInput').addEventListener('change', ()=>{ ADOPT=null; if(LAST) query(); });
+    document.getElementById('fInput').addEventListener('change', ()=>{ ADOPT=null; if(LAST) query(); });
+    document.getElementById('dInput').addEventListener('change', ()=>{ ADOPT=null; query(); });
+    buildPlace();
+    rebuildKeOptions();
+    rebuildFengOptions();
+    if(applyLinkParams()){ query(); }
+    else { setToday(); };
+    tbApplyFold();
+    mountAI(function(){
+      if(!LAST) return '';
+      const R = LAST;
+      const pick = (cid) => { const t = Tieban.pickText(cid, R.H, keyFor(cid), 1); return t ? (t.catName+'：'+t.t+'，'+t.b) : ''; };
+      const dyLines = (R.dayun&&R.dayun.steps?R.dayun.steps.map(s=>{
+        const tx = Tieban.pickStepText('dayun', s.gz, s.startYear, 1);
+        return s.gz+' 运 '+s.startAge+'-'+s.endAge+' 岁：'+(tx?(tx.t+'，'+tx.b):'');
+      }).join('\n'):'');
+      const thisYear = new Date().getFullYear();
+      const lnLines = (()=>{ let out=[]; for(let i=0;i<8;i++){ const y=thisYear+i; const gz=Solar.fromYmd(y,6,1).getLunar().getYearInGanZhi(); const tx=Tieban.pickStepText('liunian', gz, y, 1); out.push(y+' 年 '+gz+'：'+(tx?(tx.t+'，'+tx.b):'')); } return out.join('\n'); })();
+      return `铁板神数推演
+    【出生与四柱】公历 ${R.Y}-${pad2(R.M)}-${pad2(R.D)} ${pad2(R.h)}:${pad2(R.mi)}　${R.zhiName}${R.keName}（${R.keRange}）　分金：${FENG_NAMES[R.feng]}、子时算法：${R.ziMode==='early'?'早子时':'晚子时'}
+    四柱：${R.pillars.map(p=>p.gz).join(' ')}
+    纳音：${R.pillars.map(p=>p.nayin).join('、')}
+    ${R.ziNote?('子时口径：'+R.ziNote+'。'):''}${R.usedTrue?'真太阳时：按出生地经度 '+resolveLng()+' 与均时差校正 '+R.adj+' 分钟（均时差 '+R.adjE+'、经度差 '+R.adjLng+'），校正后 '+pad2(R.h)+':'+pad2(R.mi)+'，实际归属 '+R.zhiName+R.keName+'。':'未开启真太阳时。'}
+    【化数与皇极总数】太玄数逐柱：${R.pillars.map(p=>p.gz.charAt(0)+'='+p.txGan+'、'+p.gz.charAt(1)+'='+p.txZhi).join('；')}
+    天干和 ${R.ganSum}、地支和 ${R.zhiSum}、化数总数 ${R.total}；刻修正数 ${R.keFix}（${R.bagua}）；皇极总数 ${R.H}
+    【河洛理数】${(()=>{ if(typeof guaName!=='function'||!window.TIEBAN_HEGU) return '不可用'; const HL=Tieban.heLuoPan(R.ganSum,R.zhiSum); const sn=XT2NAME[HL.xianShang], xn=XT2NAME[HL.xianXia]; const gn=guaName(sn,xn); const b6=TRIGRAMS[xn].bits.concat(TRIGRAMS[sn].bits); const pi=typeof palaceInfo==='function'?palaceInfo(b6):null; const hg=window.TIEBAN_HEGU.gua[gn]||{c:'',b:''}; const yTie=(R.H%6)||6; const yt=(typeof YAO_CI==='object')?(YAO_CI[gn+YAO_POS[yTie-1]]||''):''; const b2=b6.slice(); b2[HL.dong-1]=b2[HL.dong-1]?0:1; const gn2=guaName(trigramName(b2.slice(3,6)),trigramName(b2.slice(0,3))); const bT=b6.slice(); bT[yTie-1]=bT[yTie-1]?0:1; const gTie=guaName(trigramName(bT.slice(3,6)),trigramName(bT.slice(0,3))); return '天数 '+HL.tian+'、地数 '+HL.di+'；先天卦 '+sn+'上'+xn+'下，得'+gn+'（'+hg.c+'）'+(hg.b?('；'+hg.b):'')+'；铁板元堂：皇极总数 '+R.H+' 除六取余在'+YAO_NAME[yTie-1]+'，爻辞：'+(yt||'缺')+'，动而变之得'+gTie+'；梅花参考动爻在'+YAO_NAME[HL.dong-1]+'，变卦'+gn2+'；'+(pi?(pi.palace+'、'+pi.type+'卦、世'+pi.world+'应'+pi.ying+'；'):'')+'洛书数：上'+HL.ls+'、下'+HL.lx;})()}
+    【六亲答卷】父母：${ANS.fumu?Tieban.FUMU_LABEL[ANS.fumu]:'未答'}；手足：${ANS.sib!=null?(ANS.sib+' 人'):'未答'}；婚姻：${ANS.marry?Tieban.MARRY_LABEL[ANS.marry]:'未答'}；子女参考：${ANS.child!=null?Tieban.CHILD_LABEL[Math.min(5,Math.max(0,ANS.child))]:'未答'}
+    【考刻】${(()=>{const k=(ANS.fumu!=null&&ANS.sib!=null&&ANS.marry!=null)?Tieban.locateKe(Tieban.FUMU_KEYS.indexOf(ANS.fumu),ANS.sib,Tieban.MARRY_KEYS.indexOf(ANS.marry)):null; if(k==null) return '三主问未答齐，未定位正刻'; return '考得正刻 '+R.zhiName+Tieban.KE_NAMES[k]+'（考刻数定位）'+(ADOPT!=null&&ADOPT===k?'，已采用':'，未采用');})()}
+    【九类条文】
+    ${TW_CATS.map(cid=>pick(cid)).filter(Boolean).join('\n')}
+    【真典断语】${(()=>{ const sex=document.getElementById('sexInput').value; const ten=_dyTenCounts(R), tier=_dyTierCounts(R); const pool=dyTenPool().filter(e=>dyTenMatch(e,ten,tier,sex)); if(!pool.length) return '本命未命中可全量评估的古法断语'; const picks=[]; for(let n=1;n<=2;n++){ const seed=((R.H%100003)*7919+n*104729+20011)%100003; const it=pool[seed%pool.length]; if(it&&!picks.some(p=>p.say===it.say)) picks.push(it); } return picks.map(p=>p.say+'，出自'+p.src).join('；'); })()}
+    【大运条文】起运 ${R.dayun&&R.dayun.ageYears!=null?(R.dayun.ageYears+' 年 '+R.dayun.ageMonths+' 个月 '+R.dayun.ageDays+' 天，'+(R.dayun.forward?'顺排':'逆排')):'不可用'}
+    ${dyLines}
+    【流年条文】
+    ${lnLines}
+    `;
+    }, '铁板神数');
+    if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
+    tbApplyFold();
+    shareWait({ page:'tieban', title:'铁板神数在线排盘', recast:function(){ try{ query(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

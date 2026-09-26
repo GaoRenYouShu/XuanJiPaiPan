@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -136,90 +136,9 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/latlng.js?v=20260917da"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/latlng.js?v=20260917da"></script>
 <script>
-/* 计算栈：首屏之后按序取回。
-   页面在载入时只出外壳、表单与出生地级联，一切排盘、字义、名人、成语数据皆待提交时才用，
-   故整栈移出阻塞段；注入时置 async=false，同一批内各件按序执行，与原逐条列于页面时一致，
-   栈内原有的载入时引用照旧成立，如 name-twin 取 NAME_CHARS。
-   取值端一律现取并带空表兜底，字义字源块逐库 || {}、NM_CELEB 查无返回 null、
-   name-twin 的成语库与拆字字典每次调用现取且不缓存空值，故栈未到齐时页面照常可用。
-   注入排在 load 之后：注入的脚本会推迟 load 事件，而全站刷新机制的快照回填在 load 当时跑完，
-   排在 load 之后即让回填与首绘都在原时刻发生，结果与附加功能随后到位。
-   数据表另列一批紧随其后，到齐按同一份输入补算一次；name-celebs.js 列首，
-   现库为唯一策展库，分片只补其查无者，先到先立。 */
-(function(){
-  var STACK=[
-    'assets/lunar.js?v=20260927a',
-    'assets/bazi-data.js?v=20260925a',
-    'assets/bazi-rel.js?v=20260920c',
-    'assets/bazi-shishen.js?v=20260920c',
-    'assets/bazi-duanyu.js?v=20260925a',
-    'assets/gua.js?v=mtwsi229',
-    'assets/xuanji-lib.js?v=20260925a',
-    'assets/wheel.js?v=20260925a',
-    'assets/ai.js?v=20260924a',
-    'assets/bazi-core.js?v=20260923c',
-    'assets/bazi-app.js?v=20260922a',
-    'assets/jianbi.js?v=20260917da',
-    'assets/jianfan.js?v=20260917da',
-    'assets/kangxi.js?v=20260925a',
-    'assets/name-archive-core.js',
-    'assets/name-archive-jianfan.js',
-    'assets/name-archive-surname-reading.js',
-    'assets/name-archive-hand.js',
-    'assets/name-archive-homophone.js',
-    'assets/name-archive-manifest.js',
-    'assets/name-archive-loader.js',
-    'assets/name-jianfan-select.js',
-    'assets/name-hexagram.js',
-    'assets/name-phonetics.js?v=20260917da',
-    'assets/name-data.js?v=20260925a',
-    'assets/name-engine.js?v=20260925a',
-    'assets/name-homophone.js?v=20260919b',
-    'assets/name-chars.js?v=20260917da',
-    'assets/name-generate.js?v=20260925a',
-    'assets/name-yuyi.js?v=20260917da',
-    'assets/name-etym.js?v=20260917da',
-    'assets/name-words.js?v=20260917da',
-    'assets/name-classics.js?v=20260917da',
-    'assets/name-twin.js?v=mtwsi235',
-    'assets/name-surnames.js?v=mtwsi229',
-    'assets/name-heat.js?v=20260925a'
-  ];
-  var DATA=[
-    'assets/name-celebs.js?v=20260920c',
-    'assets/name-celebs-cbdb.js?v=20260923c',
-    'assets/name-synonyms.js?v=20260917da',
-    'assets/link-corpus.js?v=20260917da',
-    'assets/name-idioms.js?v=20260925a',
-    'assets/cezi-data.js?v=mtwsi229'
-  ];
-  var left={s:STACK.length,d:DATA.length}, ok={s:false,d:false}, wait={s:[],d:[]};
-  function arrive(g){
-    if(--left[g]) return;
-    ok[g]=true;
-    var w=wait[g]; wait[g]=[];
-    for(var i=0;i<w.length;i++) w[i]();
-  }
-  function pull(src,g){
-    var s=document.createElement('script');
-    s.async=false;
-    s.src=src;
-    s.onload=function(){ arrive(g); };
-    s.onerror=function(){ arrive(g); };
-    (document.head||document.documentElement).appendChild(s);
-  }
-  function load(list,g){ for(var i=0;i<list.length;i++) pull(list[i],g); }
-  function start(){ load(STACK,'s'); load(DATA,'d'); }
-  if(document.readyState==='complete') setTimeout(start,0);
-  else window.addEventListener('load', function(){ setTimeout(start,0); });
-  /* 计算栈就绪：未就绪即挂起，到齐后按挂起次序一次跑完 */
-  window.nmStackReady=function(fn){ ok.s?fn():wait.s.push(fn); };
-  /* 数据表就绪：到齐后按同一份输入补算一次 */
-  window.nmDataReady=function(fn){ ok.d?fn():wait.d.push(fn); };
-})();
 </script>
 <script>
 /* CBDB 派生名人分片：延迟取回，就地按行首锚点检索，不并入现库、不建索引、不落对象。
@@ -232,11 +151,6 @@
 window.NM_CELEB_CHRON=['夏','商','西周','春秋','战国','秦','秦末','汉','西汉','新','东汉','三国','西晋','东晋','十六国',
   '南北朝','南朝','北朝','隋','隋末','唐','五代','五代十国','辽','西夏','宋','北宋','金','南宋','元','明','清',
   '近现代','晚清','民国','现代','当代','外国'];
-window.NM_CELEB_RK=(function(){
-  var rank={}, c=window.NM_CELEB_CHRON;
-  for(var i=0;i<c.length;i++) rank[c[i]]=i;
-  return function(d){ var v=rank[d]; return v===undefined?c.length:v; };
-})();
 window.NM_CELEB=function(full){
   var base=window.NAME_CELEBS||{}, hit=base[full];
   if(hit) return hit;
@@ -268,25 +182,12 @@ window.NM_GIVEN_LIST=function(ming){
 };
 </script>
 <script>
-renderChrome('xingming.html');
 /* 八字联动参数（fromBazi=1 由 app.js 自动注入顶部横幅），此处读喜用、忌神五行 */
 var LINK_XI=[], LINK_JI=[];
 /* 联名模式第二盘的喜用忌：与单盘 LINK_XI 并行、互不覆盖，只作两命对照之用 */
 var LINK_XI2=[], LINK_JI2=[], NM_XI_NOTE2='';
 var FROM_BAZI=false; /* 本轮载入是否来自八字页联动 */
-var URL_BIRTH=false; /* 联动是否携带出生信息参数（有则表单自动填入并页内直算喜用） */
-(function(){
-  var p=new URLSearchParams(location.search);
-  if(p.get('fromBazi')!=='1') return;
-  FROM_BAZI=true;
-  URL_BIRTH=!!(p.get('bDate')&&p.get('bTime'));
-  if(!URL_BIRTH){
-    /* 旧式联动：仅直传喜忌五行（无出生参数），直接采用不重算 */
-    LINK_XI=(p.get('xi')||'').split(',').filter(Boolean);
-    LINK_JI=(p.get('ji')||'').split(',').filter(Boolean);
-    nmXiRender();
-  }
-})();
+var URL_BIRTH=false;
 /* 数据表与引擎随计算栈在首屏之后取回，故以取值器现取，不在载入时捕获 */
 Object.defineProperty(window,'D',{get:function(){ return window.NAME_DATA; }});
 Object.defineProperty(window,'E',{get:function(){ return window.NAME_ENGINE; }});
@@ -542,24 +443,6 @@ function nmSyncPool(){
   }
   document.getElementById('nmGoBtn').textContent=nmBtnLabel();
 }
-/* 池参数一改，上一批候选即作废：名单随之清空，按钮文案回到“开始推荐”与“生成联名”。
-   免得屏上写着"继续"、点下去却是另起一批，用户以为点错了。 */
-['nmXing','nmSex','nmGenLen','nmAvoid','nmBeizi','nmBzPos',
- 'nmTwinKind','nmTwinMethod','nmTwinFix','nmTwinPos',
- 'nmWx0','nmWx1','nmWx2','nmWx3','nmWx4'].forEach(function(id){
-  var el=document.getElementById(id);
-  if(!el) return;
-  el.addEventListener('input', nmSyncPool);
-  el.addEventListener('change', nmSyncPool);
-});
-/* 推荐数量＝每页条数：只管一页摆几名，不决定候选是谁。改它即照新条数把当前批重排一遍、
-   回到首页，名单原样不重取，用户换的是看法不是候选。单次页数只定下次整批取多少，
-   改它不动当前批，故不绑事件。 */
-document.getElementById('nmGenCnt').addEventListener('change', function(){
-  var out=document.getElementById('out'), m=document.getElementById('nmMode').value;
-  if(m==='gen'&&GEN_LIST.length){ GEN_PAGE=0; renderGen(out); }
-  else if(m==='twin'&&TWIN_LIST.length){ TWIN_PAGE=0; renderTwin(out); }
-});
 /* 联名法的指定字词：五种联名法各有其核心字词，输入框共用一个，随联名法换标签、长度上限与宽度。
  * 切换联名法即清空旧值，免得把“温润如玉”这类四字成语带进只收单字的拆字法。
  * w 为各法宽度（顶层输入框宽度规则：输入类须显式给值，不得随字段铺满）；
@@ -587,7 +470,6 @@ function syncTwinFix(m){
   }
   if(ps) ps.style.display=(m==='shared')?'':'none';
 }
-switchMode();
 /* ---- 历史记录（localStorage，最近 8 条，点击回填） ---- */
 function loadHistory(){
   try{ return JSON.parse(localStorage.getItem('nm_history')||'[]'); }catch(e){ return []; }
@@ -2201,13 +2083,8 @@ function renderLong(out){
   refWrap.open=false; /* 81 表内容长，保持折叠 */
   nmApplyModState();
 }
-/* 打开页面：首次进入用百家姓示例预填姓名，生辰由 defaultToday 预填当天与当前时刻；
-   刷新与重进一律交全站顶层机制在 load 后按快照回填并调用本页钩子重出结果，本页不再自管存档。
-   出生地级联须在 load 之前建好，否则快照回填时下拉尚无选项，省市县会被守卫跳过而丢失 */
-nmBirthInit();
 document.getElementById('nmXing').value='赵钱';
-document.getElementById('nmMing').value='孙李';
-nmBirthFromUrl();/* 刷新重出：输入与出生地级联已由全站顶层机制回填完毕，changed 为本次实际改动的控件；
+document.getElementById('nmMing').value='孙李';/* 刷新重出：输入与出生地级联已由全站顶层机制回填完毕，changed 为本次实际改动的控件；
    无实际回填（首次进入、快照与当前值全同）即不动，免得白重出一次；
    推荐名单的候选池随之新建、页码自首屏起算。
    栈未到齐即挂起，到齐后按回填好的输入重出，与栈早已就位时同一结果 */
@@ -2244,16 +2121,6 @@ function nmApplyModState(){
   document.querySelectorAll('#out section.mod[id]').forEach(function(m){ if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
   document.querySelectorAll('details[id]').forEach(function(d){ if(d.id in s) d.open=!!s[d.id]; });
 }
-document.addEventListener('toggle',function(e){
-  var t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id) nmSaveModState();
-},true);
-document.getElementById('out').addEventListener('click',function(e){
-  var h=e.target.closest?e.target.closest('.mod-head'):null;
-  if(h){ h.parentNode.classList.toggle('collapsed'); nmSaveModState(); }
-});
-switchMode();
-renderHistory();
 /* 计算栈到齐：出生生辰控件挂上喜用重算，页内喜用与首屏演示盘一次跑出。
    喜用重算取八字计算链，随计算栈一同挂载；快照回填派发的变更事件由 nmBoot 统一补算，
    与逐项变更同结果。初始化标记随演示盘一同置起，使折叠态自此刻起才允许写入，
@@ -2266,9 +2133,6 @@ function nmBoot(){
   query();
   window.__nmInitDone=true;
 }
-nmStackReady(nmBoot);
-/* 数据表到齐：按同一份输入补算一次 */
-nmDataReady(nmRefresh);
 /* 附加功能的取文：由 mountAI 调用，正文随结果区重画 */
 function nmAiText(){
   if(!LAST) return '';
@@ -2324,10 +2188,132 @@ function nmAiText(){
   L.push('评分口径：以字义为体，分项满分即上列各项分母；数理配置为五格三才三运打包折算，凶格不除名，按低分沉底；未联动八字时喜用匹配、义五行、数理五行按中位计入。');
   return L.join('\n');
 }
-/* 附加功能与分享控件同由 ai.js 提供，与演示盘同一时点挂载 */
-nmStackReady(function(){
-  mountAI(nmAiText, '姓名学');
-  shareWait({ page:"xingming", title:"姓名学在线测算", recast:function(){ try{ query(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    (function(){
+      var STACK=[
+        'assets/lunar.js?v=20260927a',
+        'assets/bazi-data.js?v=20260925a',
+        'assets/bazi-rel.js?v=20260920c',
+        'assets/bazi-shishen.js?v=20260920c',
+        'assets/bazi-duanyu.js?v=20260925a',
+        'assets/gua.js?v=mtwsi229',
+        'assets/xuanji-lib.js?v=20260925a',
+        'assets/wheel.js?v=20260925a',
+        'assets/ai.js?v=20260924a',
+        'assets/bazi-core.js?v=20260923c',
+        'assets/bazi-app.js?v=20260922a',
+        'assets/jianbi.js?v=20260917da',
+        'assets/jianfan.js?v=20260917da',
+        'assets/kangxi.js?v=20260925a',
+        'assets/name-archive-core.js',
+        'assets/name-archive-jianfan.js',
+        'assets/name-archive-surname-reading.js',
+        'assets/name-archive-hand.js',
+        'assets/name-archive-homophone.js',
+        'assets/name-archive-manifest.js',
+        'assets/name-archive-loader.js',
+        'assets/name-jianfan-select.js',
+        'assets/name-hexagram.js',
+        'assets/name-phonetics.js?v=20260917da',
+        'assets/name-data.js?v=20260925a',
+        'assets/name-engine.js?v=20260925a',
+        'assets/name-homophone.js?v=20260919b',
+        'assets/name-chars.js?v=20260917da',
+        'assets/name-generate.js?v=20260925a',
+        'assets/name-yuyi.js?v=20260917da',
+        'assets/name-etym.js?v=20260917da',
+        'assets/name-words.js?v=20260917da',
+        'assets/name-classics.js?v=20260917da',
+        'assets/name-twin.js?v=mtwsi235',
+        'assets/name-surnames.js?v=mtwsi229',
+        'assets/name-heat.js?v=20260925a'
+      ];
+      var DATA=[
+        'assets/name-celebs.js?v=20260920c',
+        'assets/name-celebs-cbdb.js?v=20260923c',
+        'assets/name-synonyms.js?v=20260917da',
+        'assets/link-corpus.js?v=20260917da',
+        'assets/name-idioms.js?v=20260925a',
+        'assets/cezi-data.js?v=mtwsi229'
+      ];
+      var left={s:STACK.length,d:DATA.length}, ok={s:false,d:false}, wait={s:[],d:[]};
+      function arrive(g){
+        if(--left[g]) return;
+        ok[g]=true;
+        var w=wait[g]; wait[g]=[];
+        for(var i=0;i<w.length;i++) w[i]();
+      }
+      function pull(src,g){
+        var s=document.createElement('script');
+        s.async=false;
+        s.src=src;
+        s.onload=function(){ arrive(g); };
+        s.onerror=function(){ arrive(g); };
+        (document.head||document.documentElement).appendChild(s);
+      }
+      function load(list,g){ for(var i=0;i<list.length;i++) pull(list[i],g); }
+      function start(){ load(STACK,'s'); load(DATA,'d'); }
+      if(document.readyState==='complete') setTimeout(start,0);
+      else window.addEventListener('load', function(){ setTimeout(start,0); });
+      /* 计算栈就绪：未就绪即挂起，到齐后按挂起次序一次跑完 */
+      window.nmStackReady=function(fn){ ok.s?fn():wait.s.push(fn); };
+      /* 数据表就绪：到齐后按同一份输入补算一次 */
+      window.nmDataReady=function(fn){ ok.d?fn():wait.d.push(fn); };
+    })();
+    window.NM_CELEB_RK=(function(){
+      var rank={}, c=window.NM_CELEB_CHRON;
+      for(var i=0;i<c.length;i++) rank[c[i]]=i;
+      return function(d){ var v=rank[d]; return v===undefined?c.length:v; };
+    })();
+    renderChrome('xingming.html');
+    (function(){
+      var p=new URLSearchParams(location.search);
+      if(p.get('fromBazi')!=='1') return;
+      FROM_BAZI=true;
+      URL_BIRTH=!!(p.get('bDate')&&p.get('bTime'));
+      if(!URL_BIRTH){
+        /* 旧式联动：仅直传喜忌五行（无出生参数），直接采用不重算 */
+        LINK_XI=(p.get('xi')||'').split(',').filter(Boolean);
+        LINK_JI=(p.get('ji')||'').split(',').filter(Boolean);
+        nmXiRender();
+      }
+    })();
+    ['nmXing','nmSex','nmGenLen','nmAvoid','nmBeizi','nmBzPos',
+     'nmTwinKind','nmTwinMethod','nmTwinFix','nmTwinPos',
+     'nmWx0','nmWx1','nmWx2','nmWx3','nmWx4'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('input', nmSyncPool);
+      el.addEventListener('change', nmSyncPool);
+    });
+    document.getElementById('nmGenCnt').addEventListener('change', function(){
+      var out=document.getElementById('out'), m=document.getElementById('nmMode').value;
+      if(m==='gen'&&GEN_LIST.length){ GEN_PAGE=0; renderGen(out); }
+      else if(m==='twin'&&TWIN_LIST.length){ TWIN_PAGE=0; renderTwin(out); }
+    });
+    switchMode();
+    nmBirthInit();
+    nmBirthFromUrl();
+    document.addEventListener('toggle',function(e){
+      var t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id) nmSaveModState();
+    },true);
+    document.getElementById('out').addEventListener('click',function(e){
+      var h=e.target.closest?e.target.closest('.mod-head'):null;
+      if(h){ h.parentNode.classList.toggle('collapsed'); nmSaveModState(); }
+    });
+    switchMode();
+    renderHistory();
+    nmStackReady(nmBoot);
+    nmDataReady(nmRefresh);
+    nmStackReady(function(){
+      mountAI(nmAiText, '姓名学');
+      shareWait({ page:"xingming", title:"姓名学在线测算", recast:function(){ try{ query(); }catch(e){} } });
+    });
+  }, 0);
 });
 </script>
 </body>

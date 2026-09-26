@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -74,17 +74,16 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/latlng.js?v=20260917da"></script>
-<script src="assets/bazi-data.js?v=20260925a"></script>
-<script src="assets/bazi-rel.js?v=20260920c"></script>
-<script src="assets/fengshui-engine.js?v=20260924a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/latlng.js?v=20260917da"></script>
+<script defer src="assets/bazi-data.js?v=20260925a"></script>
+<script defer src="assets/bazi-rel.js?v=20260920c"></script>
+<script defer src="assets/fengshui-engine.js?v=20260924a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
 <script>
-renderChrome('hehun.html');
 /* 出生地三级联动 + 经度缓存 + 表单持久化（复用 latlng.js 的 PROV 与 bazi-data.js 的 trueSolarTime，单源）
    刷新后恢复用户上次输入的日期/时间/出生地/经度/真太阳时（保留已填不变）
    无历史时保持页面原有默认：出生地省份默认北京市、日期保留 defaultToday 填的今天 */
@@ -96,49 +95,6 @@ function hhSexChanged(n){
   card.classList.toggle('male',isM); card.classList.toggle('female',!isM);
   const ico=document.getElementById(n===1?'hhIco1':'hhIco2'); if(ico) ico.textContent=isM?'♂':'♀';
 }
-window.hhSexChanged=hhSexChanged;
-(function initHehunBirth(){
-  const SAVE='hehunForm';
-  let saved={}; try{ saved=JSON.parse(localStorage.getItem(SAVE))||{}; }catch(e){ saved={}; }
-  function persist(){ try{ const s={}, g=t=>document.getElementById(t); ['m','f'].forEach(x=>{ s[x+'Date']=g(x+'Date').value; s[x+'Time']=g(x+'Time').value; s[x+'Sex']=g(x+'Sex')?g(x+'Sex').value:''; s[x+'Prov']=g(x+'Prov').value; s[x+'City']=g(x+'City').value; s[x+'Dist']=g(x+'Dist').value; s[x+'Lng']=g(x+'Lng').value; s[x+'True']=g(x+'True').checked; }); localStorage.setItem(SAVE,JSON.stringify(s)); }catch(e){} }
-  function bindPersist(t){ ['Date','Time','Lng'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener(k==='Lng'?'input':'change', persist); }); const ok=document.getElementById(t+'True'); if(ok) ok.addEventListener('change', persist); const sxE=document.getElementById(t+'Sex'); if(sxE) sxE.addEventListener('change', persist); }
-  function buildCity(dId,pId,cId,t){
-    const sp=document.getElementById(pId),sc=document.getElementById(cId),sd=document.getElementById(dId);
-    if(!sp||!sc||!sd) return;
-    sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-    function fillCity(){ const p=sp.value; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-    function fillDist(){
-      const p=sp.value, c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
-      if(!c) return;
-      let html=`<option value="">${c.c}</option>`;
-      distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-      sd.innerHTML=html;
-    }
-    sp.onchange=()=>{ fillCity(); persist(); }; sc.onchange=()=>{ fillDist(); persist(); }; sd.onchange=persist;
-    const sv=saved[t+'Prov'], cv=saved[t+'City'], dv=saved[t+'Dist'];
-    if(sv&&PROV[sv]){                         // 有历史：恢复已填省份
-      sp.value=sv; fillCity();
-      if(cv&&PROV[sv].some(c=>c.c===cv)) sc.value=cv;
-      fillDist();
-      if(cv&&dv) sd.value=dv;
-    } else {                                  // 无历史：保持原默认北京市
-      sp.value='北京市'; fillCity();
-    }
-  }
-  function restoreOther(t){           // 日期/时间/经度/真太阳时/性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）
-    const g=id=>document.getElementById(id), dt=g(t+'Date'), tm=g(t+'Time'), lg=g(t+'Lng'), tr=g(t+'True'), sx=g(t+'Sex');
-    if(saved[t+'Date']) dt.value=saved[t+'Date'];
-    if(saved[t+'Time']) tm.value=saved[t+'Time'];
-    if(saved[t+'Lng']) lg.value=saved[t+'Lng'];
-    if(typeof saved[t+'True']==='boolean') tr.checked=saved[t+'True'];
-    if(sx){ if(saved[t+'Sex']) sx.value=saved[t+'Sex']; hhSexChanged(t==='m'?1:2); }   // 恢复后同步图标与卡片配色
-    bindPersist(t);
-  }
-  buildCity('mDist','mProv','mCity','m');
-  buildCity('fDist','fProv','fCity','f');
-  restoreOther('m');
-  restoreOther('f');
-})();
 /* 经度获取：优先手动输入，其次区县经 findLng 统一取数，最后城市值，兜底 120 */
 function hehunLng(lngId,distId,provId,cityId){
   const v=document.getElementById(lngId).value;
@@ -1371,60 +1327,6 @@ function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv){
   /* 两盘默认落在第一项：盘心、加粗弧与盘下详情须与详情条的初始文本同指一处 */
   hhPick('items',0); hhPick('spec',0);
 }
-/* 八字联动：从 URL 读取命盘参数预填一方（性别+日期+时间+出生地） */
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('fromBazi')!=='1'){ hehun(); return; }
-  const dt=p.get('bDate'), tm=p.get('bTime'), sx=p.get('sex'), dg=p.get('dayGan'), yg=p.get('yearGZ');
-  const xi=(p.get('xi')||'').split(',').filter(Boolean).join('、'), ji=(p.get('ji')||'').split(',').filter(Boolean).join('、');
-  const side=(sx==='女'||sx==='0')?'f':'m';
-  const sxE=document.getElementById(side+'Sex');
-  if(sxE){ sxE.value=(sx==='女'||sx==='0')?'女':'男'; hhSexChanged(side==='f'?2:1); }   // 联动性别写入对应卡并同步图标
-  const de=document.getElementById(side+'Date'), te=document.getElementById(side+'Time');
-  if(de&&dt) de.value=dt;
-  if(te&&tm) te.value=tm;
-  /* 出生地（省市区、经度、真太阳时）：同步级联，禁止 setTimeout */
-  const prov=p.get('bProv'), city=p.get('bCity'), dist=p.get('bDist'), lng=p.get('bLng'), trueV=p.get('bTrue');
-  const provEl=document.getElementById(side+'Prov'), cityEl=document.getElementById(side+'City'), distEl=document.getElementById(side+'Dist');
-  const lngEl=document.getElementById(side+'Lng'), trueEl=document.getElementById(side+'True');
-  if(provEl&&prov){ provEl.value=prov; provEl.onchange(); }
-  if(cityEl&&city){ cityEl.value=city; cityEl.onchange(); }
-  if(distEl&&dist) distEl.value=dist;
-  if(lngEl&&lng) lngEl.value=lng;
-  if(trueEl) trueEl.checked=(trueV==='1');
-  const note=document.createElement('div');
-  note.className='sub-note hh-frombazi';
-  note.textContent='已从八字命盘自动填入'+(sx==='女'||sx==='0'?LB:LA)+'出生信息（含出生地、经度、真太阳时）；请填写另一人资料后点击"开始合婚"。';
-  const host=document.querySelector('.hehun-forms')||document.querySelector('.page');
-  if(host) host.parentNode.insertBefore(note, host.nextSibling);
-})();
-mountAI(function(){
-  const h=window.__hh; if(!h) return '';
-  const M=h.M,F=h.F;
-  function dump(C,who){
-    let s=`【${who} 八字四柱详情】\n`;
-    C.cols.forEach(c=>{
-      s+=`${c.lbl} ${c.gz}　藏干 ${c.hide.join('、')}（${c.ssz.join('、')}）　十神（干） ${c.ssg}　纳音 ${c.ny}　地势 ${c.di}　自坐 ${c.di2}　神煞 ${c.sha.length?c.sha.join('、'):'无'}\n`;
-    });
-    s+=`五行统计：${wxStr(C.wx)}　生肖${C.sx}　年命纳音${C.yearNaYin}\n`;
-    return s;
-  }
-  let s=`${LA}（${M.sex}）八字：${M.pillars.join(' ')}（属${M.sx}，日主${M.dayGan}）\n${LB}（${F.sex}）八字：${F.pillars.join(' ')}（属${F.sx}，日主${F.dayGan}）\n合婚综合分（六维70%+专项加权${Math.round(h.specW*100)}%=100）：得分${h.composite}\n六维核心分：满分100，核心${h.total}；专项参考：满分${h.specMax}，小计${h.specTotal}\n各维度评分：\n`;
-  h.items.forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
-  s+=dump(M,LA)+dump(F,LB);
-  // 专项分析完整输出：六项全部经由 h.spec 逐一列出（含宫位法/方向表法/八宅命卦/喜忌/神煞/财官桃花），保证复制数据与页面模块完整一致
-  s+='专项分析：\n';
-  (h.spec||[]).forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
-  // 综合建议完整输出：等级总结/亮点/短板/相处之道，与页面模块一致（命理依据已并入各维度评分行，不重复输出）
-  if(h.adv){
-    s+=`综合建议（等级总结：${h.adv.level}）\n`;
-    (h.adv.highlights||[]).forEach(x=>{ s+=`亮点（${x.tag}）：${x.text}\n`; });
-    (h.adv.weaknesses||[]).forEach(x=>{ s+=`短板（${x.tag}）：${x.text}\n`; });
-    if(!(h.adv.highlights||[]).length&&!(h.adv.weaknesses||[]).length) s+='亮点：六维与专项未见突出合象，诸维中性。\n短板：各模块均未跌破短板线，中性平过。\n';
-    (h.adv.tips||[]).forEach(x=>{ s+=`相处之道（${x.tag}）：${x.text}\n`; });
-  }
-  return s;
-}, '八字合婚');
 /* 四柱表内十神/纳音/神煞点击说明（与八字排盘页一致） */
 function showTip(key, extra){
   const o=DICT[key];
@@ -1441,14 +1343,116 @@ function showTip(key, extra){
   document.getElementById('modalMask').classList.add('show');
 }
 function closeTip(){ const m=document.getElementById('modalMask'); if(m)m.classList.remove('show'); }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
 </script>
 <div class="modal-mask" id="modalMask" onclick="if(event.target===this)closeTip()">
   <div class="modal"><span class="close" onclick="closeTip()">×</span><div id="modalBody"></div></div>
 </div>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-shareWait({ page:"hehun", title:"在线八字合婚", recast:function(){ try{ hehun(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('hehun.html');
+    window.hhSexChanged=hhSexChanged;
+    (function initHehunBirth(){
+      const SAVE='hehunForm';
+      let saved={}; try{ saved=JSON.parse(localStorage.getItem(SAVE))||{}; }catch(e){ saved={}; }
+      function persist(){ try{ const s={}, g=t=>document.getElementById(t); ['m','f'].forEach(x=>{ s[x+'Date']=g(x+'Date').value; s[x+'Time']=g(x+'Time').value; s[x+'Sex']=g(x+'Sex')?g(x+'Sex').value:''; s[x+'Prov']=g(x+'Prov').value; s[x+'City']=g(x+'City').value; s[x+'Dist']=g(x+'Dist').value; s[x+'Lng']=g(x+'Lng').value; s[x+'True']=g(x+'True').checked; }); localStorage.setItem(SAVE,JSON.stringify(s)); }catch(e){} }
+      function bindPersist(t){ ['Date','Time','Lng'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener(k==='Lng'?'input':'change', persist); }); const ok=document.getElementById(t+'True'); if(ok) ok.addEventListener('change', persist); const sxE=document.getElementById(t+'Sex'); if(sxE) sxE.addEventListener('change', persist); }
+      function buildCity(dId,pId,cId,t){
+        const sp=document.getElementById(pId),sc=document.getElementById(cId),sd=document.getElementById(dId);
+        if(!sp||!sc||!sd) return;
+        sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
+        function fillCity(){ const p=sp.value; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
+        function fillDist(){
+          const p=sp.value, c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
+          if(!c) return;
+          let html=`<option value="">${c.c}</option>`;
+          distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
+          sd.innerHTML=html;
+        }
+        sp.onchange=()=>{ fillCity(); persist(); }; sc.onchange=()=>{ fillDist(); persist(); }; sd.onchange=persist;
+        const sv=saved[t+'Prov'], cv=saved[t+'City'], dv=saved[t+'Dist'];
+        if(sv&&PROV[sv]){                         // 有历史：恢复已填省份
+          sp.value=sv; fillCity();
+          if(cv&&PROV[sv].some(c=>c.c===cv)) sc.value=cv;
+          fillDist();
+          if(cv&&dv) sd.value=dv;
+        } else {                                  // 无历史：保持原默认北京市
+          sp.value='北京市'; fillCity();
+        }
+      }
+      function restoreOther(t){           // 日期/时间/经度/真太阳时/性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）
+        const g=id=>document.getElementById(id), dt=g(t+'Date'), tm=g(t+'Time'), lg=g(t+'Lng'), tr=g(t+'True'), sx=g(t+'Sex');
+        if(saved[t+'Date']) dt.value=saved[t+'Date'];
+        if(saved[t+'Time']) tm.value=saved[t+'Time'];
+        if(saved[t+'Lng']) lg.value=saved[t+'Lng'];
+        if(typeof saved[t+'True']==='boolean') tr.checked=saved[t+'True'];
+        if(sx){ if(saved[t+'Sex']) sx.value=saved[t+'Sex']; hhSexChanged(t==='m'?1:2); }   // 恢复后同步图标与卡片配色
+        bindPersist(t);
+      }
+      buildCity('mDist','mProv','mCity','m');
+      buildCity('fDist','fProv','fCity','f');
+      restoreOther('m');
+      restoreOther('f');
+    })();
+    (function(){
+      const p=new URLSearchParams(window.location.search);
+      if(p.get('fromBazi')!=='1'){ hehun(); return; }
+      const dt=p.get('bDate'), tm=p.get('bTime'), sx=p.get('sex'), dg=p.get('dayGan'), yg=p.get('yearGZ');
+      const xi=(p.get('xi')||'').split(',').filter(Boolean).join('、'), ji=(p.get('ji')||'').split(',').filter(Boolean).join('、');
+      const side=(sx==='女'||sx==='0')?'f':'m';
+      const sxE=document.getElementById(side+'Sex');
+      if(sxE){ sxE.value=(sx==='女'||sx==='0')?'女':'男'; hhSexChanged(side==='f'?2:1); }   // 联动性别写入对应卡并同步图标
+      const de=document.getElementById(side+'Date'), te=document.getElementById(side+'Time');
+      if(de&&dt) de.value=dt;
+      if(te&&tm) te.value=tm;
+      /* 出生地（省市区、经度、真太阳时）：同步级联，禁止 setTimeout */
+      const prov=p.get('bProv'), city=p.get('bCity'), dist=p.get('bDist'), lng=p.get('bLng'), trueV=p.get('bTrue');
+      const provEl=document.getElementById(side+'Prov'), cityEl=document.getElementById(side+'City'), distEl=document.getElementById(side+'Dist');
+      const lngEl=document.getElementById(side+'Lng'), trueEl=document.getElementById(side+'True');
+      if(provEl&&prov){ provEl.value=prov; provEl.onchange(); }
+      if(cityEl&&city){ cityEl.value=city; cityEl.onchange(); }
+      if(distEl&&dist) distEl.value=dist;
+      if(lngEl&&lng) lngEl.value=lng;
+      if(trueEl) trueEl.checked=(trueV==='1');
+      const note=document.createElement('div');
+      note.className='sub-note hh-frombazi';
+      note.textContent='已从八字命盘自动填入'+(sx==='女'||sx==='0'?LB:LA)+'出生信息（含出生地、经度、真太阳时）；请填写另一人资料后点击"开始合婚"。';
+      const host=document.querySelector('.hehun-forms')||document.querySelector('.page');
+      if(host) host.parentNode.insertBefore(note, host.nextSibling);
+    })();
+    mountAI(function(){
+      const h=window.__hh; if(!h) return '';
+      const M=h.M,F=h.F;
+      function dump(C,who){
+        let s=`【${who} 八字四柱详情】\n`;
+        C.cols.forEach(c=>{
+          s+=`${c.lbl} ${c.gz}　藏干 ${c.hide.join('、')}（${c.ssz.join('、')}）　十神（干） ${c.ssg}　纳音 ${c.ny}　地势 ${c.di}　自坐 ${c.di2}　神煞 ${c.sha.length?c.sha.join('、'):'无'}\n`;
+        });
+        s+=`五行统计：${wxStr(C.wx)}　生肖${C.sx}　年命纳音${C.yearNaYin}\n`;
+        return s;
+      }
+      let s=`${LA}（${M.sex}）八字：${M.pillars.join(' ')}（属${M.sx}，日主${M.dayGan}）\n${LB}（${F.sex}）八字：${F.pillars.join(' ')}（属${F.sx}，日主${F.dayGan}）\n合婚综合分（六维70%+专项加权${Math.round(h.specW*100)}%=100）：得分${h.composite}\n六维核心分：满分100，核心${h.total}；专项参考：满分${h.specMax}，小计${h.specTotal}\n各维度评分：\n`;
+      h.items.forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
+      s+=dump(M,LA)+dump(F,LB);
+      // 专项分析完整输出：六项全部经由 h.spec 逐一列出（含宫位法/方向表法/八宅命卦/喜忌/神煞/财官桃花），保证复制数据与页面模块完整一致
+      s+='专项分析：\n';
+      (h.spec||[]).forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
+      // 综合建议完整输出：等级总结/亮点/短板/相处之道，与页面模块一致（命理依据已并入各维度评分行，不重复输出）
+      if(h.adv){
+        s+=`综合建议（等级总结：${h.adv.level}）\n`;
+        (h.adv.highlights||[]).forEach(x=>{ s+=`亮点（${x.tag}）：${x.text}\n`; });
+        (h.adv.weaknesses||[]).forEach(x=>{ s+=`短板（${x.tag}）：${x.text}\n`; });
+        if(!(h.adv.highlights||[]).length&&!(h.adv.weaknesses||[]).length) s+='亮点：六维与专项未见突出合象，诸维中性。\n短板：各模块均未跌破短板线，中性平过。\n';
+        (h.adv.tips||[]).forEach(x=>{ s+=`相处之道（${x.tag}）：${x.text}\n`; });
+      }
+      return s;
+    }, '八字合婚');
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
+    shareWait({ page:"hehun", title:"在线八字合婚", recast:function(){ try{ hehun(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

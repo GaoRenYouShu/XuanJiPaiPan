@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -81,10 +81,9 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
 <script>
-renderChrome('opensource.html');
 
 const DATA=[
  {name:'lunar-javascript( lunar.js )', type:'in', w:11.6,
@@ -406,28 +405,10 @@ const GROUP={
 };
 const ofType=t=>DATA.filter(d=>d.type===t);
 const countOf=t=>ofType(t).length;
-
-/* 统计徽章 */
-document.getElementById('stIn').innerHTML=countOf('in')+'<i> 项</i>';
-document.getElementById('stSelf').innerHTML=countOf('self')+'<i> 项</i>';
 /* 覆盖页面模块数取导航真源（app.js 的 NAV_GROUPS，同页脚本共享同一全局词法环境）：
    首页与附录内的说明文档、算法数据三项非排盘模块，不计 */
 const NON_MODULE=['index.html','shuoming.html','opensource.html'];
-document.getElementById('stMod').innerHTML=NAV_GROUPS.reduce((n,g)=>n+(g.type==='group'?g.items.filter(it=>NON_MODULE.indexOf(it.href)<0).length:0),0)+'<i> 个</i>';
-
-/* 权重概览条：只列算法与数据条目，站外数据服务为运行时取数，不计权重 */
-const weighted=DATA.filter(d=>d.type!=='ext');
 const bar=document.getElementById('osBar');
-weighted.forEach(d=>{
-  const seg=document.createElement('span');
-  seg.style.width=d.w+'%';
-  seg.style.background=GROUP[d.type].color;
-  seg.title=`${d.name}，权重 ${d.w}%`;
-  bar.appendChild(seg);
-});
-document.getElementById('barNote').textContent=`分段宽度即贡献权重，共 ${weighted.length} 项，合计 ${(Math.round(weighted.reduce((a,d)=>a+d.w,0)*10)/10).toFixed(1)}%（站外数据服务不计权重）`;
-document.getElementById('osLegend').innerHTML=['in','self']
-  .map(t=>`<span><i style="background:${GROUP[t].color}"></i>${GROUP[t].label}（${countOf(t)} 项）</span>`).join('');
 
 /* 许可徽章：从说明中提取“许可：…”句 */
 function licChip(note){
@@ -460,20 +441,42 @@ function renderCard(d){
   return card;
 }
 const listOf={in:document.getElementById('osInList'), self:document.getElementById('osSelfList'), ext:document.getElementById('osExtList')};
-Object.keys(listOf).forEach(t=>{
-  ofType(t).forEach(d=>listOf[t].appendChild(renderCard(d)));
-  const cnt=document.getElementById('cnt'+t[0].toUpperCase()+t.slice(1));
-  if(cnt) cnt.textContent='共 '+countOf(t)+' 项';
-});
 
-/* 筛选页签：分组标题与列表同带 data-group，按组整体显隐 */
-document.getElementById('osTabs').addEventListener('click',e=>{
-  const b=e.target.closest('.os-tab'); if(!b) return;
-  const cur=b.dataset.f;
-  document.querySelectorAll('.os-tab').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('[data-group]').forEach(el=>{
-    el.style.display=(cur==='all'||cur===el.dataset.group)?'':'none';
-  });
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('opensource.html');
+    document.getElementById('stIn').innerHTML=countOf('in')+'<i> 项</i>';
+    document.getElementById('stSelf').innerHTML=countOf('self')+'<i> 项</i>';
+    document.getElementById('stMod').innerHTML=NAV_GROUPS.reduce((n,g)=>n+(g.type==='group'?g.items.filter(it=>NON_MODULE.indexOf(it.href)<0).length:0),0)+'<i> 个</i>';
+    (function(){
+      const weighted=DATA.filter(d=>d.type!=='ext');
+      window.weighted = weighted;
+    })();
+    weighted.forEach(d=>{
+      const seg=document.createElement('span');
+      seg.style.width=d.w+'%';
+      seg.style.background=GROUP[d.type].color;
+      seg.title=`${d.name}，权重 ${d.w}%`;
+      bar.appendChild(seg);
+    });
+    document.getElementById('barNote').textContent=`分段宽度即贡献权重，共 ${weighted.length} 项，合计 ${(Math.round(weighted.reduce((a,d)=>a+d.w,0)*10)/10).toFixed(1)}%（站外数据服务不计权重）`;
+    document.getElementById('osLegend').innerHTML=['in','self']
+      .map(t=>`<span><i style="background:${GROUP[t].color}"></i>${GROUP[t].label}（${countOf(t)} 项）</span>`).join('');
+    Object.keys(listOf).forEach(t=>{
+      ofType(t).forEach(d=>listOf[t].appendChild(renderCard(d)));
+      const cnt=document.getElementById('cnt'+t[0].toUpperCase()+t.slice(1));
+      if(cnt) cnt.textContent='共 '+countOf(t)+' 项';
+    });
+    document.getElementById('osTabs').addEventListener('click',e=>{
+      const b=e.target.closest('.os-tab'); if(!b) return;
+      const cur=b.dataset.f;
+      document.querySelectorAll('.os-tab').forEach(x=>x.classList.toggle('on',x===b));
+      document.querySelectorAll('[data-group]').forEach(el=>{
+        el.style.display=(cur==='all'||cur===el.dataset.group)?'':'none';
+      });
+    });
+  }, 0);
 });
 </script>
 </body>

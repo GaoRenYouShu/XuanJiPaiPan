@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -44,27 +44,25 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/kangxi.js?v=20260925a"></script>
-<script src="assets/jianbi.js?v=20260917da"></script>
-<script src="assets/name-data.js?v=20260925a"></script>
-<script src="assets/name-chars.js?v=20260917da"></script>
-<script src="assets/gua.js?v=20260912t5"></script>
-<script src="assets/jingwen.js?v=20260912t5"></script>
-<script src="assets/jingwen-ref.js?v=20260908jw2"></script>
-<script src="assets/cezi-data.js?v=20260912t5"></script>
-<script src="assets/cezi-engine.js?v=20260912t5"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/kangxi.js?v=20260925a"></script>
+<script defer src="assets/jianbi.js?v=20260917da"></script>
+<script defer src="assets/name-data.js?v=20260925a"></script>
+<script defer src="assets/name-chars.js?v=20260917da"></script>
+<script defer src="assets/gua.js?v=20260912t5"></script>
+<script defer src="assets/jingwen.js?v=20260912t5"></script>
+<script defer src="assets/jingwen-ref.js?v=20260908jw2"></script>
+<script defer src="assets/cezi-data.js?v=20260912t5"></script>
+<script defer src="assets/cezi-engine.js?v=20260912t5"></script>
 <script>
-renderChrome('cezi.html');
 const CZ_LUCK_TXT={ji:'吉',ping:'平',xiong:'凶'};
 function czFillCat(){
   const sel=document.getElementById('czCat');
   sel.innerHTML=Object.keys(CEZI_DATA.CATS).map(k=>`<option value="${k}">${CEZI_DATA.CATS[k].name}</option>`).join('');
 }
-czFillCat();
 let LAST=null;
 /* 周易经文速查：首次展开才渲染；重排按上一次折叠态重建 */
 function czRenderJw(){
@@ -252,10 +250,6 @@ function czApplyFold(){
   const o=czReadFold();
   document.querySelectorAll('#out details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
 }
-document.addEventListener('toggle',function(e){
-  const t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) czSaveFold();
-},true);
 function czValidate(){
   const raw=(document.getElementById('czChar').value||'').trim();
   if(!raw) return {err:'请先写下一个字。'};
@@ -292,45 +286,55 @@ function nianzi(){
   document.getElementById('czChar').value=ch;
   draw();
 }
-(function initCz(){
-  let restored=false;
-  try{
-    const saved=JSON.parse(localStorage.getItem('ceziForm')||'null');
-    if(saved&&saved.czCat&&CEZI_DATA.CATS[saved.czCat]) document.getElementById('czCat').value=saved.czCat;
-    if(saved&&saved.czChar){ document.getElementById('czChar').value=saved.czChar; restored=true; }
-  }catch(e){}
-  if(!restored) document.getElementById('czChar').value='玄';
-  try{ draw(); }catch(e){}
-})();
-mountAI(function(){
-  if(!LAST) return '';
-  return CEZI_ENGINE.contextText(LAST)+'\n所问：'+document.getElementById('czCat').value;
-}, '测字');
 </script>
 <script>
-/* 盘面分享：表单快照 + 起测时刻。时刻随盘留档（__date/__hm），对方打开按同一时刻重排，
-   否则外应旺衰与应期值冲将按对方本机时刻另算，同一字所得盘面漂移 */
-shareWait({
-  page:"cezi", title:"在线测字拆字",
-  collect:function(){
-    const t=czNow();
-    return { czChar:document.getElementById('czChar').value, czCat:document.getElementById('czCat').value, __date:t.date, __hm:t.hm };
-  },
-  restore:function(d){
-    d=d||{};
-    const ch=(d.czChar||'').trim(); if(!ch) return;
-    document.getElementById('czChar').value=ch;
-    const cat=(d.czCat&&CEZI_DATA.CATS[d.czCat])?d.czCat:'zong';
-    document.getElementById('czCat').value=cat;
-    try{ localStorage.setItem('ceziForm',JSON.stringify({czChar:ch,czCat:cat})); }catch(e){}
-    czRender(ch, cat, czSolarOf(d.__date, d.__hm));
-  },
-  /* 刷新重出：全站顶层机制回填输入后按此钩子重绘，无字则不动 */
-  recast:function(){
-    const ch=(document.getElementById('czChar').value||'').trim();
-    if(!ch) return;
-    try{ draw(); }catch(e){}
-  }
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('cezi.html');
+    czFillCat();
+    document.addEventListener('toggle',function(e){
+      const t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) czSaveFold();
+    },true);
+    (function initCz(){
+      let restored=false;
+      try{
+        const saved=JSON.parse(localStorage.getItem('ceziForm')||'null');
+        if(saved&&saved.czCat&&CEZI_DATA.CATS[saved.czCat]) document.getElementById('czCat').value=saved.czCat;
+        if(saved&&saved.czChar){ document.getElementById('czChar').value=saved.czChar; restored=true; }
+      }catch(e){}
+      if(!restored) document.getElementById('czChar').value='玄';
+      try{ draw(); }catch(e){}
+    })();
+    mountAI(function(){
+      if(!LAST) return '';
+      return CEZI_ENGINE.contextText(LAST)+'\n所问：'+document.getElementById('czCat').value;
+    }, '测字');
+    shareWait({
+      page:"cezi", title:"在线测字拆字",
+      collect:function(){
+        const t=czNow();
+        return { czChar:document.getElementById('czChar').value, czCat:document.getElementById('czCat').value, __date:t.date, __hm:t.hm };
+      },
+      restore:function(d){
+        d=d||{};
+        const ch=(d.czChar||'').trim(); if(!ch) return;
+        document.getElementById('czChar').value=ch;
+        const cat=(d.czCat&&CEZI_DATA.CATS[d.czCat])?d.czCat:'zong';
+        document.getElementById('czCat').value=cat;
+        try{ localStorage.setItem('ceziForm',JSON.stringify({czChar:ch,czCat:cat})); }catch(e){}
+        czRender(ch, cat, czSolarOf(d.__date, d.__hm));
+      },
+      /* 刷新重出：全站顶层机制回填输入后按此钩子重绘，无字则不动 */
+      recast:function(){
+        const ch=(document.getElementById('czChar').value||'').trim();
+        if(!ch) return;
+        try{ draw(); }catch(e){}
+      }
+    });
+  }, 0);
 });
 </script>
 </body>

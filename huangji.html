@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -84,15 +84,14 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/huangji-engine.js?v=20260917da"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
-<script src="assets/huangji-chronicle.js?v=20260925a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/huangji-engine.js?v=20260917da"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/huangji-chronicle.js?v=20260925a"></script>
 <script>
-renderChrome('huangji.html');
     const HJ_TERMS={
     core:{title:'核心概念',items:{
     '元会运世':{short:'邵雍的大时间单位：元里有会，会里有运，运里有世，一级套一级。',detail:'1元=12会=129600年；1会=30运=10800年；1运=12世=360年；1世=30年。天地一元，周而复始。'},
@@ -128,17 +127,6 @@ renderChrome('huangji.html');
     h+='</tbody></table>';
     el.innerHTML=h;
     }
-    renderTermGloss();
-    /* 十二会辟卦参考表 */
-    (function(){
-    const el=document.getElementById('biguaRef'); if(!el)return;
-    let h='<table class="hj-np"><thead><tr><th>会</th><th>辟卦</th><th>象</th></tr></thead><tbody>';
-    for(let i=0;i<12;i++){
-    const g=HJ.huiGua(i), gi=HJ.guaInfo(HJ.fullGuaName(g));
-    h+='<tr><td>'+HJ.CONST.HUI_ZHI[i]+'会</td><td>'+g+'</td><td>'+(gi?gi.ci:'')+'</td></tr>';
-    }
-    el.innerHTML=h+'</tbody></table>';
-    })();
 /* ============ 工具 ============ */
 function fmtRange(a,b){
   const f=x=>x>=1?('公元'+x+'年'):('公元前'+(1-x)+'年');
@@ -214,10 +202,6 @@ function hjApplyFold(){
   const o=hjReadFold();
   document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
 }
-document.addEventListener('toggle',function(e){
-  const t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id) hjSaveFold();
-},true);
 function query(){
  try{
   const r=(directA!=null)?{A:directA, note:directA<1?'公元前年份按公历口径推演':''}:resolveA();
@@ -508,33 +492,52 @@ function hjWheel(L,anchors){
     +'<svg class="wheel" id="hjWheel" viewBox="0 0 440 440" role="img" aria-label="元会运世定位盘：外环十二会、中环三十运、内环十二世">'+s+'</svg>'
     +'<div class="wheel-detail">三环自外向内：十二会、本会三十运、本运十二世，加粗段即当前所推<br>点任一段跳到该段首年；运刻度内的小圆点示本世藏有大事锚点</div></div>';
 }
-goToday();
-hjApplyFold();
-/* ============ AI 解读 ============ */
-mountAI(function(){
-  if(!LAST) return '';
-  const L=LAST.L;
-  const yunImpl=HJ.yunGua(L), shiImpl=HJ.shiGua(L), yrImpl=HJ.yearGua(L);
-  let s='皇极经世推演（邵雍元会运世体系）\n';
-  s+='【所选年份】'+HJ.fmtYear(L.A)+'（'+L.gz+'岁）'+(LAST.note?'　口径：'+LAST.note:'')+'\n';
-  s+='【元】第'+L.yuanNo+'元（1元=129600年）\n';
-  s+='【会】'+L.hui.zhi+'会，起止'+HJ.fmtYear(L.hui.start)+'至'+HJ.fmtYear(L.hui.end)+'，会内第'+L.hui.inYear+'年\n';
-  s+='【运】全元第'+L.yun.noG+'运（会内第'+L.yun.noH+'运），原书标注经运之'+L.yun.gan+'（十干轮运），起止'+HJ.fmtYear(L.yun.start)+'至'+HJ.fmtYear(L.yun.end)+'，运内第'+L.yun.inYear+'年\n';
-  s+='【世】全元第'+L.shi.noG+'世（运内第'+L.shi.noY+'世），原书标注经世之'+L.shi.zhi+'（十二支轮世），起止'+HJ.fmtYear(L.shi.start)+'至'+HJ.fmtYear(L.shi.end)+'，世内第'+L.shi.inYear+'年\n';
-  s+='【卦气】'+L.hui.zhi+'会直五卦：'+HJ.huiGua5(L.hui.idx).map(n=>HJ.shortGuaName(n)).join('、')
-    +'（各主六运，原书口径）；本运直'+yunImpl.name+'；运卦（后世爻变）'+HJ.shortGuaName(ybImpl.name)+'（直卦第'+ybImpl.yao+'爻变）；世卦（后世爻变）'+HJ.shortGuaName(sbImpl.name)+'（一爻二世六十年）；中卦'+HJ.shortGuaName(HJ.zhongGua(L.hui.idx))+'当会之中；闰卦'+HJ.leapGua(L.hui.idx)+'（四正卦不用直运）';
-  if(yrImpl) s+='；值年卦（民间）：'+yrImpl.name+'（一年一卦顺先天圆图，1984年值火风鼎）';
-  const xA=HJ.xunGuaJia(L);
-  s+='；旬卦：甲说'+xA.name+'（'+HJ.fmtYear(xA.from)+'至'+HJ.fmtYear(xA.to)+'，世卦六爻变一爻十年）';
-  s+='\n【开物闭物】开物于寅会之中（约公元前40017年前后）、闭物于戌会之中（约公元46384年前后）；今在开物之后、闭物之前。\n';
-  s+='【原书逐年表】以运经世原文覆盖前2357至公元959共3316年（有记事1539年）；原书纪年从殷历长纪年，克商店己卯（公元前1122），与断代工程前1046相差76年。\n';
-  s+='\n【锚点校验】唐尧即位（公元前2357，甲辰）值巳会第180运（经运之癸）第2156世（经世之未）第11年；午会起于公元前2217年（甲子）。\n';
-  return s;
-}, '皇极经世');
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块） */
-shareWait({ page:"huangji", title:"皇极经世在线推演", recast:function(){ try{ query(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('huangji.html');
+    renderTermGloss();
+    (function(){
+        const el=document.getElementById('biguaRef'); if(!el)return;
+        let h='<table class="hj-np"><thead><tr><th>会</th><th>辟卦</th><th>象</th></tr></thead><tbody>';
+        for(let i=0;i<12;i++){
+        const g=HJ.huiGua(i), gi=HJ.guaInfo(HJ.fullGuaName(g));
+        h+='<tr><td>'+HJ.CONST.HUI_ZHI[i]+'会</td><td>'+g+'</td><td>'+(gi?gi.ci:'')+'</td></tr>';
+        }
+        el.innerHTML=h+'</tbody></table>';
+        })();
+    document.addEventListener('toggle',function(e){
+      const t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id) hjSaveFold();
+    },true);
+    goToday();
+    hjApplyFold();
+    mountAI(function(){
+      if(!LAST) return '';
+      const L=LAST.L;
+      const yunImpl=HJ.yunGua(L), shiImpl=HJ.shiGua(L), yrImpl=HJ.yearGua(L);
+      let s='皇极经世推演（邵雍元会运世体系）\n';
+      s+='【所选年份】'+HJ.fmtYear(L.A)+'（'+L.gz+'岁）'+(LAST.note?'　口径：'+LAST.note:'')+'\n';
+      s+='【元】第'+L.yuanNo+'元（1元=129600年）\n';
+      s+='【会】'+L.hui.zhi+'会，起止'+HJ.fmtYear(L.hui.start)+'至'+HJ.fmtYear(L.hui.end)+'，会内第'+L.hui.inYear+'年\n';
+      s+='【运】全元第'+L.yun.noG+'运（会内第'+L.yun.noH+'运），原书标注经运之'+L.yun.gan+'（十干轮运），起止'+HJ.fmtYear(L.yun.start)+'至'+HJ.fmtYear(L.yun.end)+'，运内第'+L.yun.inYear+'年\n';
+      s+='【世】全元第'+L.shi.noG+'世（运内第'+L.shi.noY+'世），原书标注经世之'+L.shi.zhi+'（十二支轮世），起止'+HJ.fmtYear(L.shi.start)+'至'+HJ.fmtYear(L.shi.end)+'，世内第'+L.shi.inYear+'年\n';
+      s+='【卦气】'+L.hui.zhi+'会直五卦：'+HJ.huiGua5(L.hui.idx).map(n=>HJ.shortGuaName(n)).join('、')
+        +'（各主六运，原书口径）；本运直'+yunImpl.name+'；运卦（后世爻变）'+HJ.shortGuaName(ybImpl.name)+'（直卦第'+ybImpl.yao+'爻变）；世卦（后世爻变）'+HJ.shortGuaName(sbImpl.name)+'（一爻二世六十年）；中卦'+HJ.shortGuaName(HJ.zhongGua(L.hui.idx))+'当会之中；闰卦'+HJ.leapGua(L.hui.idx)+'（四正卦不用直运）';
+      if(yrImpl) s+='；值年卦（民间）：'+yrImpl.name+'（一年一卦顺先天圆图，1984年值火风鼎）';
+      const xA=HJ.xunGuaJia(L);
+      s+='；旬卦：甲说'+xA.name+'（'+HJ.fmtYear(xA.from)+'至'+HJ.fmtYear(xA.to)+'，世卦六爻变一爻十年）';
+      s+='\n【开物闭物】开物于寅会之中（约公元前40017年前后）、闭物于戌会之中（约公元46384年前后）；今在开物之后、闭物之前。\n';
+      s+='【原书逐年表】以运经世原文覆盖前2357至公元959共3316年（有记事1539年）；原书纪年从殷历长纪年，克商店己卯（公元前1122），与断代工程前1046相差76年。\n';
+      s+='\n【锚点校验】唐尧即位（公元前2357，甲辰）值巳会第180运（经运之癸）第2156世（经世之未）第11年；午会起于公元前2217年（甲子）。\n';
+      return s;
+    }, '皇极经世');
+    shareWait({ page:"huangji", title:"皇极经世在线推演", recast:function(){ try{ query(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

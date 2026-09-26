@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -56,16 +56,15 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/shiling.js?v=20260924a"></script>
-<script src="assets/holiday.js?v=20260917h2"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/taisui-data.js?v=20260917da"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/shiling.js?v=20260924a"></script>
+<script defer src="assets/holiday.js?v=20260917h2"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/taisui-data.js?v=20260917da"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
 <script>
-renderChrome('laohuangli.html');
 /* ---------- 本地计算辅助 ---------- */
 /* 地支方位：DIZHI_CHONG / pairChong / 太岁常量由 assets/xuanji-lib.js、assets/taisui-data.js 共享提供 */
 const ZHI_FANG={子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北'};
@@ -325,11 +324,6 @@ function monthStar(y,zhi,monthZhi){
 }
 const FEI_WX={1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
 const FEI_NAME={1:'一白',2:'二黑',3:'三碧',4:'四绿',5:'五黄',6:'六白',7:'七赤',8:'八白',9:'九紫'};
-/* 日飞星入中宫（日家紫白，据《选择求真》节气阴阳遁）：
-   阳遁（冬至后~夏至前）三元：上(冬至→雨水)甲子一白顺、中(雨水→谷雨)甲子七赤顺、下(谷雨→夏至)甲子四绿顺；
-   阴遁（夏至后~冬至前）三元：上(夏至→处暑)甲子九紫逆、中(处暑→霜降)甲子三碧逆、下(霜降→冬至)甲子六白逆；
-   值日星 = 本元甲子入中星 ± 距最近甲子日天数（阳顺加、阴逆减），按查询日所在节气定元 */
-const JIAZI60=(function(){const G=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],Z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const a=[];for(let i=0;i<60;i++)a.push(G[i%10]+Z[i%12]);return a;})();
 function gzIndex(gz){return JIAZI60.indexOf(gz)+1;}
 /* 取节气公历日期：greater=false 取<=ref 最大者，true 取>ref 最小者 */
 function pickJQ(y,m,d,name,ref,greater){
@@ -536,93 +530,103 @@ function lhApplyFold(){
   const dv=document.querySelector('#out details.fold-block');
   if(dv && s && typeof s.fei==='boolean') dv.open=s.fei;
 }
-document.addEventListener('toggle',function(e){
-  if(e.target && e.target.matches && e.target.matches('#out details.fold-block')) lhSaveFold();
-},true);
-setToday();
-mountAI(function(){
-  const v=document.getElementById('dInput').value; if(!v) return '';
-  const [y,m,d]=v.split('-').map(Number);
-  const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
-  const LU={甲:'寅',乙:'卯',丙:'巳',丁:'午',戊:'巳',己:'午',庚:'申',辛:'酉',壬:'亥',癸:'子'};
-  const OPP={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
-  const CHONG=[['子','午'],['丑','未'],['寅','申'],['卯','酉'],['辰','戌'],['巳','亥']];
-  const isChong=(a,b)=>CHONG.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
-  const yGZ=lunar.getYearInGanZhi(), mGZ=lunar.getMonthInGanZhi(), dGZ=lunar.getDayInGanZhi();
-  const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
-  const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
-  const yearZhi=lunar.getYearZhi(), monthZhi=mGZ[1], dayGan=dGZ[0], dayZhi=dGZ[1];
-  const suiPo=Object.keys(ZHI_FANG).find(k=>pairChong(k,yearZhi))||'';
-  const xing=(XING_TAI[yearZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
-  const hai=ZHI_SHENG[HAI_TAI[yearZhi]]||'无', po=ZHI_SHENG[PO_TAI[yearZhi]]||'无';
-  const yx=lunar.getYueXiang();
-  let chong3=''; const gzs=[yGZ,mGZ,dGZ];
-  for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){ if(isChong(gzs[i][1],gzs[j][1])) chong3+=(i===0?'年':i===1?'月':'日')+(j===0?'年':j===1?'月':'日')+'柱相冲('+gzs[i][1]+gzs[j][1]+')；'; }
-  const shName=curShichen();
-  const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
-  const jqText=(lunar.getJieQi()?('当前：'+lunar.getJieQi()+'  '):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'  下：'+nj.getName()+' '+nj.getSolar().toYmd();
-  function feiText(center){ const g=feiXingGrid(center); const out=[]; for(let r=1;r<=3;r++){ const row=[]; for(let c=1;c<=3;c++){ const n=g[r+','+c]; row.push(FEI_NAME[n]+'('+FEI_WX[n]+')'); } out.push('  '+row.join(' ')); } return out.join('\n'); }
-  let hh='';
-  try{
-    const times=lunar.getTimes();
-    const hmRange=t=>{const h=+t.getMaxHm().slice(0,2)+1; return t.getMinHm()+'-'+(h<24?String(h).padStart(2,'0')+':00':'24:00');};
-    times.forEach((t,i)=>{ const luck=t.getTianShenLuck?t.getTianShenLuck():''; const gz=t.getGanZhi(); const yi=lhlYiText(t.getYi&&t.getYi().slice(0,3)); const zName=i===0?'子时':(i===times.length-1?'夜子时':gz.substring(1)+'时'); hh+=`${zName} ${hmRange(t)}：${luck==='吉'?'吉':'凶'}${t.getTianShen?('、'+t.getTianShen()):''} 宜：${yi}\n`; });
-  }catch(e){ hh='（时辰数据暂不可用）'; }
-  return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}
-农历：${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}
-生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座
-月建：${monthZhi}　月相：${yx}
-宜：${lunar.getDayYi().join('、')||'诸事不宜'}
-忌：${lunar.getDayJi().join('、')||'无'}
-岁煞冲煞：
-太岁 ${yearZhi}（岁破${OPP[yearZhi]||'无'}）
-冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}
-太岁：
-太岁神君：${TAISUI_STAR[yGZ]||'未载'}大将军
-犯太岁：值${ZHI_SHENG[yearZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}
-三柱相冲：
-三柱互冲：${chong3||'无'}
-值神（黄道黑道）：
-值神：${lunar.getDayTianShen()}（${lunar.getDayTianShenType()}）
-建除（建除派黄黑）：
-建除：${lunar.getZhiXing()}日（${jian12Tag(lunar.getZhiXing())}）
-吉神宜趋：${lunar.getDayJiShen().join('、')||'无'}
-凶煞宜忌：${lunar.getDayXiongSha().join('、')||'无'}
-纳音干支五行生肖：
-年 ${lunar.getYearNaYin()} ${yGZ} ${GAN_WX[yGZ[0]]} ${lunar.getYearShengXiao()}
-月 ${lunar.getMonthNaYin()} ${mGZ} ${GAN_WX[mGZ[0]]} ${lunar.getMonthShengXiao()}
-日 ${lunar.getDayNaYin()} ${dGZ} ${GAN_WX[dGZ[0]]} ${lunar.getDayShengXiao()}
-时 ${hTime.getNaYin()} ${hTime.getGanZhi()} ${GAN_WX[hTime.getGanZhi()[0]]} ${hTime.getShengXiao()}
- 节气：${jqText}
-时令：${shilingNote(y,m,d).join('；')||'无'}；物候：${shilingWuHou(lunar)||'无'}；经络当令：${shilingDangLing().text}
- 空亡所值：
-年：${lunar.getYearXunKong()}
-月：${lunar.getMonthXunKong()}
-日：${lunar.getDayXunKong()}
-胎神：
-本月：${taiShen(mGZ[0],monthZhi)}
-今日：${taiShen(dayGan,dayZhi)}
-吉神方位：喜神${lunar.getDayPositionXiDesc()}、福神${lunar.getDayPositionFuDesc()}、财神${lunar.getDayPositionCaiDesc()}
-阳贵${lunar.getDayPositionYangGuiDesc()}、阴贵${lunar.getDayPositionYinGuiDesc()}
-日禄：${lunar.getDayLu()}
-二十八宿：${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）
-彭祖百忌：${lunar.getPengZuGan()}；${lunar.getPengZuZhi()}
-九宫飞星：
-年飞星（${FEI_NAME[yearStar(y)]}入中）：
-${feiText(yearStar(y))}
-月飞星（${FEI_NAME[mStar]}入中）：
-${feiText(mStar)}
-日飞星（${FEI_NAME[dayStar(y,m,d)]}入中）：
-${feiText(dayStar(y,m,d))}
-时飞星（当前${shName}时 ${FEI_NAME[hourStar(y,m,d)]}入中）：
-${feiText(hourStar(y,m,d))}
-时辰吉凶（24小时）：
-${hh}`;
-}, '老黄历');
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：dInput 快照即选中日期，还原时经 onchange→query 恢复该日视图 */
-shareWait({ page:"laohuangli", title:"老黄历每日宜忌查询", recast:function(){ try{ const _d=document.getElementById('dInput'); if(!_d||!_d.value) setToday(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('laohuangli.html');
+    (function(){
+      const JIAZI60=(function(){const G=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],Z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const a=[];for(let i=0;i<60;i++)a.push(G[i%10]+Z[i%12]);return a;})();
+      window.JIAZI60 = JIAZI60;
+    })();
+    document.addEventListener('toggle',function(e){
+      if(e.target && e.target.matches && e.target.matches('#out details.fold-block')) lhSaveFold();
+    },true);
+    setToday();
+    mountAI(function(){
+      const v=document.getElementById('dInput').value; if(!v) return '';
+      const [y,m,d]=v.split('-').map(Number);
+      const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
+      const LU={甲:'寅',乙:'卯',丙:'巳',丁:'午',戊:'巳',己:'午',庚:'申',辛:'酉',壬:'亥',癸:'子'};
+      const OPP={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
+      const CHONG=[['子','午'],['丑','未'],['寅','申'],['卯','酉'],['辰','戌'],['巳','亥']];
+      const isChong=(a,b)=>CHONG.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
+      const yGZ=lunar.getYearInGanZhi(), mGZ=lunar.getMonthInGanZhi(), dGZ=lunar.getDayInGanZhi();
+      const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
+      const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
+      const yearZhi=lunar.getYearZhi(), monthZhi=mGZ[1], dayGan=dGZ[0], dayZhi=dGZ[1];
+      const suiPo=Object.keys(ZHI_FANG).find(k=>pairChong(k,yearZhi))||'';
+      const xing=(XING_TAI[yearZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
+      const hai=ZHI_SHENG[HAI_TAI[yearZhi]]||'无', po=ZHI_SHENG[PO_TAI[yearZhi]]||'无';
+      const yx=lunar.getYueXiang();
+      let chong3=''; const gzs=[yGZ,mGZ,dGZ];
+      for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){ if(isChong(gzs[i][1],gzs[j][1])) chong3+=(i===0?'年':i===1?'月':'日')+(j===0?'年':j===1?'月':'日')+'柱相冲('+gzs[i][1]+gzs[j][1]+')；'; }
+      const shName=curShichen();
+      const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
+      const jqText=(lunar.getJieQi()?('当前：'+lunar.getJieQi()+'  '):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'  下：'+nj.getName()+' '+nj.getSolar().toYmd();
+      function feiText(center){ const g=feiXingGrid(center); const out=[]; for(let r=1;r<=3;r++){ const row=[]; for(let c=1;c<=3;c++){ const n=g[r+','+c]; row.push(FEI_NAME[n]+'('+FEI_WX[n]+')'); } out.push('  '+row.join(' ')); } return out.join('\n'); }
+      let hh='';
+      try{
+        const times=lunar.getTimes();
+        const hmRange=t=>{const h=+t.getMaxHm().slice(0,2)+1; return t.getMinHm()+'-'+(h<24?String(h).padStart(2,'0')+':00':'24:00');};
+        times.forEach((t,i)=>{ const luck=t.getTianShenLuck?t.getTianShenLuck():''; const gz=t.getGanZhi(); const yi=lhlYiText(t.getYi&&t.getYi().slice(0,3)); const zName=i===0?'子时':(i===times.length-1?'夜子时':gz.substring(1)+'时'); hh+=`${zName} ${hmRange(t)}：${luck==='吉'?'吉':'凶'}${t.getTianShen?('、'+t.getTianShen()):''} 宜：${yi}\n`; });
+      }catch(e){ hh='（时辰数据暂不可用）'; }
+      return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}
+    农历：${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}
+    生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座
+    月建：${monthZhi}　月相：${yx}
+    宜：${lunar.getDayYi().join('、')||'诸事不宜'}
+    忌：${lunar.getDayJi().join('、')||'无'}
+    岁煞冲煞：
+    太岁 ${yearZhi}（岁破${OPP[yearZhi]||'无'}）
+    冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}
+    太岁：
+    太岁神君：${TAISUI_STAR[yGZ]||'未载'}大将军
+    犯太岁：值${ZHI_SHENG[yearZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}
+    三柱相冲：
+    三柱互冲：${chong3||'无'}
+    值神（黄道黑道）：
+    值神：${lunar.getDayTianShen()}（${lunar.getDayTianShenType()}）
+    建除（建除派黄黑）：
+    建除：${lunar.getZhiXing()}日（${jian12Tag(lunar.getZhiXing())}）
+    吉神宜趋：${lunar.getDayJiShen().join('、')||'无'}
+    凶煞宜忌：${lunar.getDayXiongSha().join('、')||'无'}
+    纳音干支五行生肖：
+    年 ${lunar.getYearNaYin()} ${yGZ} ${GAN_WX[yGZ[0]]} ${lunar.getYearShengXiao()}
+    月 ${lunar.getMonthNaYin()} ${mGZ} ${GAN_WX[mGZ[0]]} ${lunar.getMonthShengXiao()}
+    日 ${lunar.getDayNaYin()} ${dGZ} ${GAN_WX[dGZ[0]]} ${lunar.getDayShengXiao()}
+    时 ${hTime.getNaYin()} ${hTime.getGanZhi()} ${GAN_WX[hTime.getGanZhi()[0]]} ${hTime.getShengXiao()}
+     节气：${jqText}
+    时令：${shilingNote(y,m,d).join('；')||'无'}；物候：${shilingWuHou(lunar)||'无'}；经络当令：${shilingDangLing().text}
+     空亡所值：
+    年：${lunar.getYearXunKong()}
+    月：${lunar.getMonthXunKong()}
+    日：${lunar.getDayXunKong()}
+    胎神：
+    本月：${taiShen(mGZ[0],monthZhi)}
+    今日：${taiShen(dayGan,dayZhi)}
+    吉神方位：喜神${lunar.getDayPositionXiDesc()}、福神${lunar.getDayPositionFuDesc()}、财神${lunar.getDayPositionCaiDesc()}
+    阳贵${lunar.getDayPositionYangGuiDesc()}、阴贵${lunar.getDayPositionYinGuiDesc()}
+    日禄：${lunar.getDayLu()}
+    二十八宿：${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）
+    彭祖百忌：${lunar.getPengZuGan()}；${lunar.getPengZuZhi()}
+    九宫飞星：
+    年飞星（${FEI_NAME[yearStar(y)]}入中）：
+    ${feiText(yearStar(y))}
+    月飞星（${FEI_NAME[mStar]}入中）：
+    ${feiText(mStar)}
+    日飞星（${FEI_NAME[dayStar(y,m,d)]}入中）：
+    ${feiText(dayStar(y,m,d))}
+    时飞星（当前${shName}时 ${FEI_NAME[hourStar(y,m,d)]}入中）：
+    ${feiText(hourStar(y,m,d))}
+    时辰吉凶（24小时）：
+    ${hh}`;
+    }, '老黄历');
+    shareWait({ page:"laohuangli", title:"老黄历每日宜忌查询", recast:function(){ try{ const _d=document.getElementById('dInput'); if(!_d||!_d.value) setToday(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

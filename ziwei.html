@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -78,13 +78,12 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/iztro.min.js?v=20260826b"></script>
-<script src="assets/latlng.js?v=20260917da"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script>
-renderChrome('ziwei.html');let __zw=null;
+<script defer src="assets/iztro.min.js?v=20260826b"></script>
+<script defer src="assets/latlng.js?v=20260917da"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script>let __zw=null;
 /* 十四主星五行，全页单一真源 */
 const WX_STAR={'紫微':'土','天机':'木','太阳':'火','武曲':'金','天同':'水','廉贞':'火','天府':'土','太阴':'水','贪狼':'木','巨门':'水','天相':'水','天梁':'土','七杀':'金','破军':'水'};
 /* 双人合盘资料块：显隐由勾选态派生，样式表里只有默认态与 is-on 两条 */
@@ -123,10 +122,6 @@ function zwApplyModState(){
   document.querySelectorAll('#out section.mod[id]').forEach(m=>{ if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
   document.querySelectorAll('#out details[id]').forEach(d=>{ if(d.id in s) d.open=!!s[d.id]; });
 }
-document.addEventListener('toggle',function(e){
-  const t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) zwSaveModState();
-},true);
 const POS={巳:[1,1],午:[2,1],未:[3,1],申:[4,1],辰:[1,2],酉:[4,2],卯:[1,3],戌:[4,3],寅:[1,4],丑:[2,4],子:[3,4],亥:[4,4]};
 const SANHE=['命宫','财帛','官禄','迁移']; /* 三方四正（命宫一组） */
 /* 宫位关联：四正=本宫+对宫；三方=再+两个三合宫。按地支三合/对冲动态算，供中宫连线与关联高亮。
@@ -1106,44 +1101,6 @@ function zwTrueSolar(y,m,d,h,mi,lng){
   let dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+dayOff);
   return {y:dt.getFullYear(), m:dt.getMonth()+1, d:dt.getDate(), h:hh, mi:mm, E:Math.round(E*100)/100, lngAdj:Math.round(lngAdj*100)/100, totalAdj:Math.round(total*100)/100};
 }
-/* 紫微页出生地省/市/区级联初始化（复用 latlng.js 唯一经度真源） */
-(function initZwBirth(){
-  const sp=document.getElementById('zProv'); if(!sp||typeof provList!=='function') return;
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  const sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
-  function fillCity(){ const p=sp.value; sc.innerHTML=(PROV[p]||[]).map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-  function fillDist(){
-    const p=sp.value, c=(PROV[p]||[]).find(x=>x.c===sc.value)||(PROV[p]||[])[0];
-    if(!c) return;
-    let html=`<option value="">${c.c}</option>`; distList(p,c.c).forEach(k=>html+=`<option value="${k}">${k}</option>`); sd.innerHTML=html;
-  }
-  sp.onchange=fillCity; sc.onchange=fillDist;
-  sp.value='北京市'; fillCity();
-  document.getElementById('zTrue')&&(document.getElementById('zTrue').checked=true);
-})();
-/* 第二人出生地三级联动（双人合盘，与主盘同一套 latlng.js 坐标真源） */
-(function initZwFBirth(){
-  const sp=document.getElementById('zFProv'); if(!sp||typeof provList!=='function') return;
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  const sc=document.getElementById('zFCity'), sd=document.getElementById('zFDist');
-  function fillCity(){ const p=sp.value; sc.innerHTML=(PROV[p]||[]).map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-  function fillDist(){
-    const p=sp.value, c=(PROV[p]||[]).find(x=>x.c===sc.value)||(PROV[p]||[])[0];
-    if(!c) return;
-    let html=`<option value="">${c.c}</option>`; distList(p,c.c).forEach(k=>html+=`<option value="${k}">${k}</option>`); sd.innerHTML=html;
-  }
-  sp.onchange=fillCity; sc.onchange=fillDist;
-  sp.value='北京市'; fillCity();
-  /* 第二人性别默认取主表单性别的相异项（男盘默认女、女盘默认男）；用户手动改过第二人性别则不再覆盖 */
-  const fse=document.getElementById('zFSex');
-  if(fse){
-    let fsexTouched=false;
-    fse.addEventListener('change',function(){ fsexTouched=true; });
-    const syncFSex=()=>{ const sv=document.getElementById('zSex'); if(!fsexTouched&&sv) fse.value=(sv.value==='男')?'女':'男'; };
-    const se0=document.getElementById('zSex');
-    if(se0){ se0.addEventListener('change',syncFSex); syncFSex(); }
-  }
-})();
 function paipan(){
   const dv=document.getElementById('zDate').value;
   if(!dv){alert('请选择出生日期');return;}
@@ -1596,36 +1553,80 @@ function zwDrawLinks(focusName){
   });
 }
 function zwHover(name){ zwDrawLinks(name); }
-window.addEventListener('resize', ()=>zwDrawLinks(document.querySelector('.zw-focused')?.dataset?.name));
-/* 八字 × 紫微联动：读取 URL 命盘参数自动填表（含出生地）并排盘 */
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('fromBazi')!=='1'){ paipan(); return; }
-  const d=p.get('bDate'), t=p.get('bTime'), s=p.get('sex');
-  const de=document.getElementById('zDate'), te=document.getElementById('zTime'), se=document.getElementById('zSex');
-  if(de&&d) de.value=d;
-  if(te&&t) te.value=t;
-  if(se&&s) se.value=(s==='女')?'女':'男';
-  const sp=document.getElementById('zProv'), sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
-  const lngEl=document.getElementById('zLng'), trEl=document.getElementById('zTrue');
-  if(sp&&p.get('bProv')){ sp.value=p.get('bProv'); if(typeof sp.onchange==='function') sp.onchange(); else sp.dispatchEvent(new Event('change')); }
-  if(sc&&p.get('bCity')){ sc.value=p.get('bCity'); if(typeof sc.onchange==='function') sc.onchange(); else sc.dispatchEvent(new Event('change')); }
-  if(sd&&p.get('bDist')) sd.value=p.get('bDist');
-  if(lngEl&&p.get('bLng')) lngEl.value=p.get('bLng');
-  if(trEl) trEl.checked=(p.get('bTrue')==='1');
-  try{ paipan(); }catch(e){}
-})();
-mountAI(function(){ return __zw||''; }, '紫微斗数');
-/* 双人合盘：刷新恢复勾选态后同步展开第二人资料卡（表单快照只回填 checked，不触发 change） */
-(function(){
-  const apply=zwRelToggle;
-  if(document.readyState==='complete') setTimeout(apply,0);
-  else window.addEventListener('load',function(){ setTimeout(apply,0); });
-})();
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-shareWait({ page:"ziwei", title:"紫微斗数在线排盘", recast:function(){ try{ paipan(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('ziwei.html');
+    document.addEventListener('toggle',function(e){
+      const t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) zwSaveModState();
+    },true);
+    (function initZwBirth(){
+      const sp=document.getElementById('zProv'); if(!sp||typeof provList!=='function') return;
+      sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
+      const sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
+      function fillCity(){ const p=sp.value; sc.innerHTML=(PROV[p]||[]).map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
+      function fillDist(){
+        const p=sp.value, c=(PROV[p]||[]).find(x=>x.c===sc.value)||(PROV[p]||[])[0];
+        if(!c) return;
+        let html=`<option value="">${c.c}</option>`; distList(p,c.c).forEach(k=>html+=`<option value="${k}">${k}</option>`); sd.innerHTML=html;
+      }
+      sp.onchange=fillCity; sc.onchange=fillDist;
+      sp.value='北京市'; fillCity();
+      document.getElementById('zTrue')&&(document.getElementById('zTrue').checked=true);
+    })();
+    (function initZwFBirth(){
+      const sp=document.getElementById('zFProv'); if(!sp||typeof provList!=='function') return;
+      sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
+      const sc=document.getElementById('zFCity'), sd=document.getElementById('zFDist');
+      function fillCity(){ const p=sp.value; sc.innerHTML=(PROV[p]||[]).map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
+      function fillDist(){
+        const p=sp.value, c=(PROV[p]||[]).find(x=>x.c===sc.value)||(PROV[p]||[])[0];
+        if(!c) return;
+        let html=`<option value="">${c.c}</option>`; distList(p,c.c).forEach(k=>html+=`<option value="${k}">${k}</option>`); sd.innerHTML=html;
+      }
+      sp.onchange=fillCity; sc.onchange=fillDist;
+      sp.value='北京市'; fillCity();
+      /* 第二人性别默认取主表单性别的相异项（男盘默认女、女盘默认男）；用户手动改过第二人性别则不再覆盖 */
+      const fse=document.getElementById('zFSex');
+      if(fse){
+        let fsexTouched=false;
+        fse.addEventListener('change',function(){ fsexTouched=true; });
+        const syncFSex=()=>{ const sv=document.getElementById('zSex'); if(!fsexTouched&&sv) fse.value=(sv.value==='男')?'女':'男'; };
+        const se0=document.getElementById('zSex');
+        if(se0){ se0.addEventListener('change',syncFSex); syncFSex(); }
+      }
+    })();
+    window.addEventListener('resize', ()=>zwDrawLinks(document.querySelector('.zw-focused')?.dataset?.name));
+    (function(){
+      const p=new URLSearchParams(window.location.search);
+      if(p.get('fromBazi')!=='1'){ paipan(); return; }
+      const d=p.get('bDate'), t=p.get('bTime'), s=p.get('sex');
+      const de=document.getElementById('zDate'), te=document.getElementById('zTime'), se=document.getElementById('zSex');
+      if(de&&d) de.value=d;
+      if(te&&t) te.value=t;
+      if(se&&s) se.value=(s==='女')?'女':'男';
+      const sp=document.getElementById('zProv'), sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
+      const lngEl=document.getElementById('zLng'), trEl=document.getElementById('zTrue');
+      if(sp&&p.get('bProv')){ sp.value=p.get('bProv'); if(typeof sp.onchange==='function') sp.onchange(); else sp.dispatchEvent(new Event('change')); }
+      if(sc&&p.get('bCity')){ sc.value=p.get('bCity'); if(typeof sc.onchange==='function') sc.onchange(); else sc.dispatchEvent(new Event('change')); }
+      if(sd&&p.get('bDist')) sd.value=p.get('bDist');
+      if(lngEl&&p.get('bLng')) lngEl.value=p.get('bLng');
+      if(trEl) trEl.checked=(p.get('bTrue')==='1');
+      try{ paipan(); }catch(e){}
+    })();
+    mountAI(function(){ return __zw||''; }, '紫微斗数');
+    (function(){
+      const apply=zwRelToggle;
+      if(document.readyState==='complete') setTimeout(apply,0);
+      else window.addEventListener('load',function(){ setTimeout(apply,0); });
+    })();
+    shareWait({ page:"ziwei", title:"紫微斗数在线排盘", recast:function(){ try{ paipan(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

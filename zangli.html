@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -68,14 +68,13 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
-<script src="assets/zangli-core.js?v=20260925a"></script>
-<script src="assets/zangli-data.js?v=20260925a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/zangli-core.js?v=20260925a"></script>
+<script defer src="assets/zangli-data.js?v=20260925a"></script>
 <script>
-renderChrome('zangli.html');
 let cur = new Date();
 let school = 'phugpa';
 let lastKey = '';
@@ -458,47 +457,52 @@ function goToday(){
   render();
   showDay(cur.getFullYear() + '-' + (cur.getMonth() + 1) + '-' + cur.getDate());
 }
-renderDoc();
-render();
-goToday();
-mountAI(function(){
-  if(!lastKey) return '';
-  const p = lastKey.split('-').map(Number);
-  const solar = Solar.fromYmd(p[0], p[1], p[2]), lunar = solar.getLunar();
-  const t = zlFromGregorian(school, p[0], p[1], p[2]);
-  const yn = zlYearName(t.jyear);
-  const cy = zlCycleYearOf(t.jyear);
-  const ss = ZL_SHUSHENG[t.day];
-  const fs = zlFestOf(t);
-  const mf = monthFestList(p[0], p[1]);
-  const st = zlSkipStat();
-  return '公历：' + p[0] + '年' + p[1] + '月' + p[2] + '日 星期' + '日一二三四五六'[solar.getWeek()] + '\n'
-    + '藏历（' + ZL_SCHOOLS[school].name + '）：第' + cy.cycle + '饶迥第' + cy.year + '年 ' + zlMonthName(t.month, t.leapMonth) + zlDayText(t) + '\n'
-    + '年名：' + yn.text + '（' + yn.ganzhi + '年）' + '\n曜：' + zlWeekName(solar.getWeek()) + '\n'
-    + '农历：' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese() + '、' + lunar.getYearInGanZhi() + '年 ' + lunar.getMonthInGanZhi() + '月 ' + lunar.getDayInGanZhi() + '日' + '\n'
-    + '本日殊胜：' + (ss ? ss.name + '，' + ss.desc + (ss.mult !== '无' ? '，传统所说作何善恶成' + ss.mult : '') + (ss.note ? '（' + ss.note + '）' : '') : '非每月固定殊胜日') + '\n'
-    + '年内节日：' + (fs.length ? fs.map(function(f){ return f.name + '（' + f.desc + '）'; }).join('、') : '无') + '\n'
-    + '飞幡日：' + (zlIsFlyFlag(t) ? '是，不宜悬挂风马旗、经幡' : '否') + '\n'
-    + '本月重日：' + (st.leap.length ? st.leap.join('、') : '无') + '\n'
-    + '本月缺日：' + (st.skip.length ? st.skip.join('、') : '无') + '\n'
-    + '当月殊胜日一览：\n' + (mf.length ? mf.map(function(g){ return g.items.join('\n'); }).join('\n') : '本月无');
-}, '藏历');
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：dInput 快照即选中日期，schoolSel 快照即派别 */
-shareWait({ page:"zangli", title:"藏历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } });
 </script>
 <script>
-/* 流派说明折叠框为静态节点：toggle 时记忆、载入时应用；键按页面独立，localStorage 主存、sessionStorage 隐私兜底 */
-(function(){
-  const box=document.getElementById('zlDocFold'); if(!box) return;
-  function save(){ const v=JSON.stringify({doc:box.open});
-    try{ localStorage.setItem('zlFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('zlFoldState', v); }catch(e){} }
-  let s=null; try{ s=JSON.parse(localStorage.getItem('zlFoldState')||sessionStorage.getItem('zlFoldState')||'null'); }catch(e){}
-  if(s && typeof s.doc==='boolean') box.open=s.doc;
-  box.addEventListener('toggle', save);
-})();
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('zangli.html');
+    renderDoc();
+    render();
+    goToday();
+    mountAI(function(){
+      if(!lastKey) return '';
+      const p = lastKey.split('-').map(Number);
+      const solar = Solar.fromYmd(p[0], p[1], p[2]), lunar = solar.getLunar();
+      const t = zlFromGregorian(school, p[0], p[1], p[2]);
+      const yn = zlYearName(t.jyear);
+      const cy = zlCycleYearOf(t.jyear);
+      const ss = ZL_SHUSHENG[t.day];
+      const fs = zlFestOf(t);
+      const mf = monthFestList(p[0], p[1]);
+      const st = zlSkipStat();
+      return '公历：' + p[0] + '年' + p[1] + '月' + p[2] + '日 星期' + '日一二三四五六'[solar.getWeek()] + '\n'
+        + '藏历（' + ZL_SCHOOLS[school].name + '）：第' + cy.cycle + '饶迥第' + cy.year + '年 ' + zlMonthName(t.month, t.leapMonth) + zlDayText(t) + '\n'
+        + '年名：' + yn.text + '（' + yn.ganzhi + '年）' + '\n曜：' + zlWeekName(solar.getWeek()) + '\n'
+        + '农历：' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese() + '、' + lunar.getYearInGanZhi() + '年 ' + lunar.getMonthInGanZhi() + '月 ' + lunar.getDayInGanZhi() + '日' + '\n'
+        + '本日殊胜：' + (ss ? ss.name + '，' + ss.desc + (ss.mult !== '无' ? '，传统所说作何善恶成' + ss.mult : '') + (ss.note ? '（' + ss.note + '）' : '') : '非每月固定殊胜日') + '\n'
+        + '年内节日：' + (fs.length ? fs.map(function(f){ return f.name + '（' + f.desc + '）'; }).join('、') : '无') + '\n'
+        + '飞幡日：' + (zlIsFlyFlag(t) ? '是，不宜悬挂风马旗、经幡' : '否') + '\n'
+        + '本月重日：' + (st.leap.length ? st.leap.join('、') : '无') + '\n'
+        + '本月缺日：' + (st.skip.length ? st.skip.join('、') : '无') + '\n'
+        + '当月殊胜日一览：\n' + (mf.length ? mf.map(function(g){ return g.items.join('\n'); }).join('\n') : '本月无');
+    }, '藏历');
+    shareWait({ page:"zangli", title:"藏历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } });
+    (function(){
+      const box=document.getElementById('zlDocFold'); if(!box) return;
+      function save(){ const v=JSON.stringify({doc:box.open});
+        try{ localStorage.setItem('zlFoldState', v); }catch(e){}
+        try{ sessionStorage.setItem('zlFoldState', v); }catch(e){} }
+      let s=null; try{ s=JSON.parse(localStorage.getItem('zlFoldState')||sessionStorage.getItem('zlFoldState')||'null'); }catch(e){}
+      if(s && typeof s.doc==='boolean') box.open=s.doc;
+      box.addEventListener('toggle', save);
+    })();
+  }, 0);
+});
 </script>
 </body>
 </html>
