@@ -5,7 +5,7 @@
    - 跨域请求（节假日、IP 归属、地磁、AI 接口等外部数据源）一律不拦截，直连网络；
    - 预缓存逐项 cache.add 并容忍单项失败，避免任一资源波动导致安装整体失败。
    版本升级：CACHE 名尾号递增，activate 时清除旧仓。 */
-const CACHE = 'xj-shell-v4';
+const CACHE = 'xj-shell-v5';
 const SHELL = [
   './',
   './index.html',
@@ -15,8 +15,8 @@ const SHELL = [
   './assets/app.js?v=20260924i',
   './assets/style.css?v=z283',
   './assets/lunar.js?v=20260927a',
-  './assets/fonts/noto-serif-sc.css?v=202609275b07',
-  './assets/fonts/nssc-chrome.woff2?v=202609275b07',
+  './assets/fonts/noto-serif-sc.css?v=2026092756f5',
+  './assets/fonts/nssc-chrome.woff2?v=2026092756f5',
   './assets/fonts/site-sym.css?v=20260924a'
 ];
 
