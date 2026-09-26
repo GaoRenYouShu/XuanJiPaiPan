@@ -1,5 +1,6 @@
 /* 全局主题色与排版基线 */
 :root{
+  color-scheme:light;
   /* ── 间距档位（4px 栅格，全站唯一间距真源）──────────────────────────
      字号（--tier1..4）与配色（--zr/--bz/--zw…）之外，间距另立五档 token；
      按"语义层级"取值，不按位置逐条补值，同一类关系全站只有一个值：
@@ -3013,6 +3014,20 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 }
 
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-nm {
+    --nm:#60b9a9;
+    --nm2:#56bba6;
+    --nm-deep:#d5e2df;
+    --nm-ink:#cfd4d2;
+    --nm-ink2:#9ea9a5;
+    --nm-line:#3d524b;
+    --nm-tint:#1e2f28;
+  }
+}
+
 /* ===== 占星术页 午夜蓝、星银 主题（xingzhan.html，.page-xz 作用域） =====
    对齐其余主题页，配色独立换为 午夜蓝（深空星图）主色 + 星银点缀；
    上升点红为占星标准符号色保留，吉凶语义色保留；按钮无彩色晕染 */
@@ -4050,6 +4065,20 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-bazi .notice-bottom{color:var(--bz-ink);background:transparent;border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
 
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-bazi {
+    --bz:#50a27f;
+    --bz2:#4ca080;
+    --bz-deep:#d6e0dc;
+    --bz-ink:#cfd4d1;
+    --bz-ink2:#9fa7a2;
+    --bz-line:#414e48;
+    --bz-tint:#222b28;
+  }
+}
+
 /* ===== 页级样式：cezi（page-cz）===== */
 /* 检索行：下边距收至 8px，与铁板、皇极等排盘页同款节奏 */
 .page-cz .page > .form-row{margin-bottom:var(--sp-2)}
@@ -4159,6 +4188,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .cz-fold>.info-box{margin:0;border:0;border-radius:0;background:transparent;padding:var(--sp-2) 0 0}
 .cz-case-table{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.7}
 .cz-case-table th{text-align:left;color:var(--gold2);font-weight:400;border-bottom:1px solid var(--line);padding:6px 8px;font-size:13px}
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-cz {
+    --cz:#b27d54;
+    --cz2:#af794c;
+    --cz-deep:#e1dbd6;
+    --cz-ink:#d5d1cd;
+    --cz-gold:#d4b97e;
+    --cz-line:#53493b;
+    --cz-tint:#31291c;
+    --cz-ink2:#aba29c;
+  }
+}
+
 /* ===== 页级样式：daliuren（page-dlr）===== */
 /* 大六壬 综合判断表：细边框网格，第一列标签 2 字宽防拆分 */
 .page-dlr .lr-bh-tbl{width:100%;border-collapse:collapse;margin-top:var(--sp-1)}
@@ -4258,6 +4302,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media print{
   .page-dlr .info-box,.page-dlr .lr-jx-tbl,.page-dlr .lr-bh-tbl,.page-dlr .lr-bifa-tbl{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-dlr {
+    --dlr:#a2764d;
+    --dlr2:#a0724c;
+    --dlr-deep:#e1dbd6;
+    --dlr-ink:#d5d1ce;
+    --dlr-brass:#d1a565;
+    --dlr-line:#51493e;
+    --dlr-tint:#2f281e;
+    --dlr-ink2:#aba39c;
+  }
+}
+
 /* ===== 页级样式：daoli（page-daoli）===== */
 /* 页头：卷首式（对齐首页 .hm-head 骨架：上下细线夹题、末尾竖线收束）。
    居中宋体 23px + 上下 88px 细线 + lead 12.5px 宽字距 + lead 下 26px 竖线，与历法其余各页同语言。 */
@@ -4453,6 +4512,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media print{
   .page-daoli .today-card,.page-daoli .ai-block,.page-daoli .fold-block{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
   .page-daoli .cal-grid .wd{border-bottom-color:var(--line)}
+}
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-daoli {
+    --dao:#5c6482;
+    --dao2:#5a6282;
+    --dao-deep:#d9dade;
+    --dao-ink:#ced0d4;
+    --dao-ink2:#9fa1a8;
+    --dao-purple:#9476b3;
+    --dao-line:#44454b;
+    --dao-tint:#22242a;
+  }
 }
 
 /* ===== 页级样式：fengshui（page-fs）===== */
@@ -4734,6 +4808,20 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-fs .fs-room-i{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:12.5px;white-space:nowrap}
 .page-fs .fs-room-i label{color:var(--gold2)}
 .page-fs .fs-room-i input{width:76px;height:30px;padding:0 var(--sp-1);box-sizing:border-box;font-family:inherit;font-size:12px;border:1px solid var(--line);border-radius:0;background:var(--card);color:var(--ink)}
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-fs {
+    --fs:#5686a3;
+    --fs2:#5284a5;
+    --fs-deep:#d6dce0;
+    --fs-ink:#ced1d4;
+    --fs-line:#404b4f;
+    --fs-tint:#20292c;
+    --fs-ink2:#9ca5ab;
+  }
+}
+
 /* ===== 页级样式：fengshui-yin（page-fy）===== */
 /* 风水页共用：正文采用全站正文字体（13.5px）；副注取本页次级字色，与全站各页页级次级字色口径一致，
    同页隔壁 .page-fs 亦同。星曜、五行色标（fei-*、wx-*）按语义色走，不归本页令牌。 */
@@ -4923,6 +5011,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media print{
   .page-fy .mod-head{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-fy {
+    --fy:#6f876c;
+    --fy2:#6c8869;
+    --fy-deep:#dbdfd8;
+    --fy-ink:#d0d3cf;
+    --fy-silver:#7f909e;
+    --fy-line:#454b44;
+    --fy-tint:#242a23;
+    --fy-ink2:#9eab9c;
+  }
+}
+
 /* ===== 页级样式：foli（page-foli）===== */
 /* 页头：卷首式（对齐首页 .hm-head 骨架：上下细线夹题、末尾竖线收束） */
 .page-foli .page h1{color:var(--foli-deep);font-family:var(--foli-serif);font-size:23px;
@@ -5075,6 +5178,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media print{
   .page-foli .cal-grid,.page-foli .today-card{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
   .page-foli .cal-grid .wd{border-bottom-color:var(--line)}
+}
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-foli {
+    --foli:#d39b3f;
+    --foli2:#d19735;
+    --foli-deep:#e3ded3;
+    --foli-ink:#d6d2cd;
+    --foli-ink2:#aea698;
+    --foli-cinnabar:#d2695e;
+    --foli-line:#534c3c;
+    --foli-tint:#322c1a;
+  }
 }
 
 /* ===== 页级样式：hehun（page-hh）===== */
@@ -5230,6 +5348,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 }
 
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-hh {
+    --hh:#c053b9;
+    --hh2:#bd4cb5;
+    --hh-deep:#e2d4e1;
+    --hh-ink:#d5cdd4;
+    --hh-ink2:#ac9bab;
+    --hh-line:#513e50;
+    --hh-tint:#2d1f2c;
+    --hh-alt:#d289cc;
+  }
+}
+
 /* ===== 页级样式：heluo（page-hl）===== */
 /* 卷首式页头：上下各一条八十八像素细线夹题，卷首说明居中宽字距，末尾竖线收束 */
 .page-hl .page h1{color:var(--hl-deep);font-family:var(--hl-serif);font-size:23px;
@@ -5319,6 +5452,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .page-hl .hl-tbl tr.hl-cur td{background:var(--card) !important}
 }
 
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-hl {
+    --hl:#479693;
+    --hl2:#45918f;
+    --hl-deep:#d6e0e0;
+    --hl-ink:#ced4d3;
+    --hl-ink2:#9cabaa;
+    --hl-brass:#d2a331;
+    --hl-line:#424d4b;
+    --hl-tint:#222a29;
+  }
+}
 
 /* ===== 页级样式：huangji（page-hj）===== */
 /* 页头：卷首式（上下细线夹题、末尾竖线收束，与藏历、择日同骨架） */
@@ -5518,6 +5666,20 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .page-hj .hj-np th{background:var(--card) !important;color:var(--ink) !important}
 }
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-hj {
+    --hj:#be546b;
+    --hj2:#bd4c67;
+    --hj-deep:#e2d5d8;
+    --hj-ink:#d4ced1;
+    --hj-ink2:#a89ea2;
+    --hj-line:#4f4044;
+    --hj-tint:#2f1d21;
+  }
+}
+
 /* ===== 页级样式：laohuangli（page-lhl）===== */
 /* 页头：卷首式（对齐首页 .hm-head 骨架：上下细线夹题、末尾竖线收束） */
 .page-lhl .page h1{color:var(--lhl-deep);font-family:var(--lhl-serif);font-size:23px;
@@ -5673,6 +5835,20 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .page-lhl .cal-grid .wd{border-bottom-color:var(--lhl-line)}
 }
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-lhl {
+    --lhl:#d45460;
+    --lhl2:#d34857;
+    --lhl-deep:#e3d4d5;
+    --lhl-ink:#d4cece;
+    --lhl-ink2:#ab9c9d;
+    --lhl-line:#533c3e;
+    --lhl-tint:#321b1c;
+  }
+}
+
 /* ===== 页级样式：lenormand（page-ln）===== */
 .page-ln .btn,.page-ln .btn.gold{background:var(--ln);border-color:var(--ln);color:#fff;box-shadow:none}
 /* 牌阵扩展样式：点击详批、八宫箱阵、大全景宫位盘（基础 leno-* 样式在 style.css） */
@@ -5802,6 +5978,21 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media print{
   .page-ln .leno-card,.page-ln .info-box,.page-ln .page > .form-row{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-ln {
+    --ln:#a0b642;
+    --ln2:#9eba3a;
+    --ln-deep:#e0e3d3;
+    --ln-ink:#d2d5ce;
+    --ln-accent:#c1cc77;
+    --ln-line:#4f523c;
+    --ln-tint:#2e2f1e;
+    --ln-ink2:#a8ab9c;
+  }
+}
+
 /* ===== 页级样式：lingqian（page-lq）===== */
 /* 灵签：签条、签诗、逐项解签与签种典故（本页结构样式的唯一来源） */
 .page-lq .page h1{color:var(--lq-deep);font-family:var(--lq-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
@@ -5888,6 +6079,20 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media print{
   .page-lq .lq-slip,.page-lq .lq-info,.page-lq .lq-i,.page-lq .lq-ref{border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-lq {
+    --lq:#c3a628;
+    --lq2:#c5a625;
+    --lq-deep:#e4e1d2;
+    --lq-ink:#d5d4cd;
+    --lq-line:#544f3a;
+    --lq-tint:#322d1b;
+    --lq-ink2:#aba89c;
+  }
+}
+
 /* ===== 页级样式：liuyao（page-ly）===== */
 /* 六爻页样式：令牌、页头、表单、爻图、标签、表格、动画、弹层（亮暗双主题） */
 .page-ly{--ly:#9c5f24;/* 琥珀铜主色（五帝钱受光面） */
@@ -6142,6 +6347,26 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 @media print{
   .page-ly .ly-cat-tbl th{background:var(--card) !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-ly {
+    --ly:#d3883f;
+    --ly2:#d38231;
+    --ly-deep:#e5dbd2;
+    --ly-ink:#d6d1cc;
+    --ly-brass:#dfac73;
+    --ly-line:#564a39;
+    --ly-tint:#342919;
+    --ly-ink2:#aba39c;
+  }
+  html .page-ly .page {
+    --ly-neutral:#12ae106fe0d;
+    --ly-warn:#a2deb01678;
+    --ly-bad:#86216661870;
+  }
+}
+
 /* ===== 页级样式：meihua（page-mh）===== */
 .page-mh{--mh:#913b58;/* 宫粉梅主色 */
   --mh2:#7a2e48;/* 深梅：hover与强调 */
@@ -6322,6 +6547,21 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 @media print{
   .page-mh .ly-cat-tbl th,.page-mh .mh-wang-tbl th,.page-mh .birth-group{background:var(--card) !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-mh {
+    --mh:#be607f;
+    --mh2:#c0587c;
+    --mh-deep:#e2d5d9;
+    --mh-ink:#d4ced2;
+    --mh-blossom:#d4778f;
+    --mh-line:#513e46;
+    --mh-tint:#311c24;
+    --mh-ink2:#ab9ca1;
+  }
+}
+
 /* ===== 页级样式：minsu（page-ms）===== */
 
 .page-ms .page h1{color:var(--ms-deep);font-family:var(--ms-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规则档第三条） */
@@ -6455,6 +6695,28 @@ to{transform:translateY(-30px) rotateY(180deg)}}
   .ms-page .ms-tbl{min-width:520px}
   .ms-page .ms-judge-k{flex:0 0 4em}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-ms {
+    --ms:#cf6d71;
+    --ms2:#c7484e;
+    --ms-deep:#e2d4d5;
+    --ms-ink:#d3cfd0;
+    --ms-line:#503f41;
+    --ms-tint:#301c1e;
+    --ms-ink2:#ab9c9c;
+  }
+  .page-ms .ms-badge.ms-ok {
+    border-color:#57b873;
+    color:#57b873;
+    background:transparent;
+  }
+  .page-ms .ms-good {
+    color:#57b873;
+  }
+}
+
 /* ===== 页级样式：opensource（page-os）===== */
 /* 开源页：版权页式设计：墨色纸面、文武线、朱砂一点 */
 .page-os .ospage{max-width:920px;margin:0 auto;padding:var(--sp-2) var(--sp-1) 0;--foot-ink:#6f6a63;
@@ -6531,6 +6793,17 @@ to{transform:translateY(-30px) rotateY(180deg)}}
   .page-os .os-card{break-inside:avoid}
 }
 
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-os .ospage {
+    --foot-ink:#6f6a63;
+    --gold:#b03a2e;
+    --gold2:#8f2a20;
+    --gold-brown:#8f2a20;
+  }
+}
 
 /* ===== 页级样式：qimen（page-qm）===== */
 .page-qm .qi-board{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);max-width:560px;margin:var(--sp-4) auto;animation:qiFade .3s ease}
@@ -6728,6 +7001,21 @@ to{opacity:1;transform:none}}
 @media print{
   .page-qm .info-box,.page-qm .qm-tbl{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-qm {
+    --qm:#487e93;
+    --qm2:#457c91;
+    --qm-deep:#d6dee1;
+    --qm-ink:#cdd2d5;
+    --qm-cinnabar:#d3705f;
+    --qm-line:#414b4d;
+    --qm-tint:#212a2b;
+    --qm-ink2:#9ca7ab;
+  }
+}
+
 /* ===== 页级样式：qizheng（page-qz）===== */
 /* 七政四余页规范样式表：每条规则唯一，终值直写 */
 /* 表单行：字段按控件宽度依次流式排布，容器变窄即自然换行，不写死列位与列宽 */
@@ -6883,6 +7171,21 @@ to{opacity:1;transform:none}}
 @media print{
   .page-qz .mod,.page-qz .info-box,.page-qz .qz-tbl{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-qz {
+    --qz:#5f4e88;
+    --qz2:#5f4c88;
+    --qz-deep:#d9d6e0;
+    --qz-ink:#d0ced4;
+    --qz-line:#46404e;
+    --qz-tint:#24202d;
+    --qz-hl:#272334;
+    --qz-ink2:#a09cab;
+  }
+}
+
 /* ===== 页级样式：shuoming（page-sm）===== */
 /* ═══ 文档页：全站纸本谱系（一种红、两级灰、一条线）+ 文档站三段式骨架 ═══ 左：卷/工具/模块树 + 检索；中：正文（980 上限内单栏）；右：本页目录（随滚动高亮）。 */
 .page-sm{--dk-ink:#1c1a17;--dk-body:#2b2825;--dk-mute:#8a8478;--dk-mute2:#6f6a63;--dk-line:#e6dfd0;--dk-line2:#efe9db;--dk-red:#a5321f;--dk-bg:#fff;/* 文档页无 .page 容器：页脚注记与右侧直达箭头的取色桥接都取不到页内变量，故在本页令牌块显式声明 --foot-ink 与全站强调令牌族；取值同首页与开源页的朱砂族 */ --foot-ink:#6f6a63;--gold:#a5321f;--gold2:#8a2a1a;--gold-brown:#8a2a1a;--gold-bg:#fcfaf6}
@@ -6978,6 +7281,32 @@ to{opacity:1;transform:none}}
   .page-sm .df-in table{display:block;overflow-x:auto}
 }
 
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-sm {
+    --dk-ink:#4e1f50f8553d;
+    --dk-body:#ef61018113a;
+    --dk-mute:#39ab3b113ddd;
+    --dk-mute2:#3df53f73418b;
+    --dk-line:#18311a8c1f97;
+    --dk-line2:#e6b13741f33;
+    --dk-red:#5d817d31acc;
+    --dk-bg:#ff0ff0ff0;
+    --foot-ink:#4f9b515553c1;
+    --gold:#5d817d31acc;
+    --gold2:#7bb209824bd;
+    --gold-brown:#5d617b41aae;
+    --gold-bg:#c34eb113ac;
+  }
+  .page-sm .df-hit:hover {
+    background:#232226;
+  }
+  .page-sm .nv-tool.on {
+    background:#232226;
+  }
+}
 
 /* ===== 页级样式：taisui（page-ts）===== */
 /* 检索行：下边距收至 8px，与铁板、皇极等排盘页同款节奏 */
@@ -7103,6 +7432,21 @@ to{opacity:1;transform:none}}
 @media (max-width:420px){
   .page-ts .ts-ritual-grid{grid-template-columns:1fr}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-ts {
+    --ts:#47a761;
+    --ts2:#47a962;
+    --ts-deep:#d6e1d9;
+    --ts-ink:#cfd3d1;
+    --ts-gold:#4aae65;
+    --ts-line:#424d44;
+    --ts-tint:#222b23;
+    --ts-ink2:#9caba0;
+  }
+}
+
 /* ===== 页级样式：taiyi（page-ty）===== */
 /* 信息框与参考折叠卡：去白卡描边，只留一条顶线作分界（口径同 tieban、ziwei、zeri 五页） */
 .page-ty .info-box{background:transparent;border:0;border-top:1px solid var(--ty-line);border-radius:0;box-shadow:none}
@@ -7313,6 +7657,21 @@ to{opacity:1;transform:none}}
 .page-ty .ty-note-inline{color:var(--ink2);font-size:12px}
 .page-ty .ty-np-scale thead th:first-child{width:90px}
 .page-ty .ty-np-gong thead th:first-child{width:64px}
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-ty {
+    --ty:#5b71ad;
+    --ty2:#566cad;
+    --ty-deep:#d6d9e1;
+    --ty-ink:#cecfd4;
+    --ty-silver:#8e9aad;
+    --ty-line:#40444f;
+    --ty-tint:#1f242d;
+    --ty-ink2:#9ca0ab;
+  }
+}
+
 /* ===== 页级样式：tarot（page-tr）===== */
 .page-tr .btn,.page-tr .btn.gold{background:var(--tr);border-color:var(--tr);color:#fff;box-shadow:none}
 /* 牌阵扩展样式：真实牌图卡面、凯尔特十字布局（基础 tr-* 样式在 style.css） */
@@ -7504,6 +7863,24 @@ to{opacity:1;transform:none}}
 .tr-ori{font-size:12px;margin-top:var(--sp-1);font-weight:700}
 .tr-card.rev .tr-ori{color:#8e44ad}.tr-card:not(.rev) .tr-ori{color:var(--green)}
 .tr-mean{padding:var(--sp-3);font-size:13px;line-height:1.7;color:var(--ink)}
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-tr {
+    --tr:#6e5bba;
+    --tr2:#6753b9;
+    --tr-deep:#d7d5e2;
+    --tr-ink:#cfcdd5;
+    --tr-starlight:#9a86c4;
+    --tr-line:#453e50;
+    --tr-tint:#241e2e;
+    --tr-ink2:#9f9cab;
+  }
+  .page-tr .tr-name,.page-tr .tr-sym,.page-tr .tt-name {
+    color:#b9a8d8;
+  }
+}
+
 /* ===== 页级样式：tieban（page-tieban）===== */
 
 /* 铁板神数：卷首式页头、检索行、考刻、条文、大运、河洛卦象、折叠框、附加面板 */
@@ -7650,6 +8027,21 @@ to{opacity:1;transform:none}}
   .page-tieban .tb-tb th,.page-tieban .tb-tb td{background:var(--card);border-color:var(--line);color:var(--ink)}
 }
 
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-tieban {
+    --tie:#5f718d;
+    --tie2:#5d708d;
+    --tie-deep:#d8dbdf;
+    --tie-ink:#cdd1d5;
+    --tie-ink2:#9da4a9;
+    --tie-line:#41474e;
+    --tie-tint:#20252c;
+    --tie-brass:#d1a565;
+  }
+}
 
 /* ===== 页级样式：wannianli（page-wnl）===== */
 /* 页头：卷首式（对齐首页 .hm-head 骨架：上下细线夹题、末尾竖线收束） */
@@ -7801,6 +8193,20 @@ to{opacity:1;transform:none}}
 
 .page-wnl .wnl-yiji{display:flex;gap:var(--sp-2);grid-column:1/-1;margin-top:var(--sp-3)}
 .page-wnl .wnl-yiji .info-box{flex:1;min-width:0}
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-wnl {
+    --wnl:#2696a5;
+    --wnl2:#2199ab;
+    --wnl-deep:#d4e0e3;
+    --wnl-ink:#cbd4d7;
+    --wnl-ink2:#9ba9ac;
+    --wnl-line:#404e4e;
+    --wnl-tint:#212b2b;
+  }
+}
+
 /* ===== 页级样式：xiaoliuren（page-xlr）===== */
 /* 检索行：下边距收至 8px，与铁板、皇极等排盘页同款节奏 */
 .page-xlr .page > .form-row{margin-bottom:var(--sp-2)}
@@ -7909,6 +8315,21 @@ to{opacity:1;transform:none}}
 @media print{
   .page-xlr .xlr-table th,.page-xlr .xlr-hecan-tbl th{background:var(--card) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-xlr {
+    --xlr:#74a069;
+    --xlr2:#6b9e64;
+    --xlr-deep:#d9ded8;
+    --xlr-ink:#d0d3cf;
+    --xlr-blossom:#b5c873;
+    --xlr-line:#434f3f;
+    --xlr-tint:#292d1f;
+    --xlr-ink2:#9fab9c;
+  }
+}
+
 /* ===== 页级样式：xingxiu（page-xx）===== */
 /* 三列以上的数据表不得被压成单字列：最小宽保底，由 .xx-tbl-wrap 横向滚动兜底。两列表不在此列 */
 .page-xx .xx-tbl:has(tr>*:nth-child(3)){min-width:560px}
@@ -8061,6 +8482,20 @@ to{opacity:1;transform:none}}
 /* 打印：恢复素底 */
 @media print{
   .page-xx .xx-tbl th,.page-xx .mh-ref th{background:var(--card) !important;border-color:var(--line) !important}
+}
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-xx {
+    --xx:#466394;
+    --xx2:#415f95;
+    --xx-deep:#d6d9e1;
+    --xx-ink:#cdd0d5;
+    --xx-line:#3e4651;
+    --xx-tint:#1e252e;
+    --xx-ink2:#9ca1ab;
+  }
 }
 
 /* ===== 页级样式：xingzhan（page-xz）===== */
@@ -8271,6 +8706,22 @@ to{opacity:1;transform:none}}
 .xz-tr .hh-total-xz{margin-top:var(--sp-3)}
 /* 排盘前置校验的警示注记：本页强调色，压过 .sub-note 的次级字色 */
 .page-xz .sub-note.xz-warn{color:var(--gold2)}
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-xz {
+    --xz:#466faf;
+    --xz2:#436eaf;
+    --xz-deep:#d5dae2;
+    --xz-ink:#cdd1d5;
+    --xz-silver:#8a97ab;
+    --xz-line:#3e4651;
+    --xz-tint:#1d252f;
+    --xz-hl:#212d35;
+    --xz-ink2:#9ca2ab;
+  }
+}
+
 /* ===== 页级样式：zangli（page-zl）===== */
 /* 页头：卷首式（上下细线夹题、末尾竖线收束，与佛历、道历同骨架） */
 .page-zl .page h1{color:var(--zl-deep);font-family:var(--zl-serif);font-size:23px;
@@ -8444,6 +8895,21 @@ to{opacity:1;transform:none}}
 }
 
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-zl {
+    --zl:#cf4634;
+    --zl2:#cb402c;
+    --zl-deep:#e4d5d3;
+    --zl-ink:#d4d1ce;
+    --zl-ink2:#aaa29c;
+    --zl-gold:#d2a331;
+    --zl-line:#543e3b;
+    --zl-tint:#331c19;
+  }
+}
+
 /* ===== 页级样式：zhougong（page-zg）===== */
 
 .page-zg .page h1{color:var(--zg-deep);font-family:var(--zg-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
@@ -8557,6 +9023,20 @@ to{opacity:1;transform:none}}
   .page-zg .mh-ref,.page-zg .ai-block{
     background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
 }
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-zg {
+    --zg:#5a83a8;
+    --zg2:#4b7197;
+    --zg-deep:#d7dbe0;
+    --zg-ink:#cdd1d5;
+    --zg-ink2:#9ca3aa;
+    --zg-line:#3f4850;
+    --zg-tint:#1f262d;
+  }
+}
+
 /* ===== 页级样式：zeri（page-zeri）===== */
 /* ── 择日页间距 ──────────────────────────────────────────────────────── 档位 --sp-1..5（4/8/12/16/24，4px 栅格）已提升为全站 token，定义在 assets/style.css 的 :root， 此处不再重复定义，全页直接继承。语义分工见 style.css :root 注释。 注：1~2px 的 margin 属行内基线微调（文字对齐），不属布局间距，保留原值不入档。 */
 /* 模式切换（择事、造命）：两模式模块整组显隐。[hidden] 须显式声明，否则 .form-row 的 display:flex 等会压过 UA 默认 */
@@ -8776,6 +9256,20 @@ to{opacity:1;transform:none}}
 }
 
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-zeri {
+    --zr:#d16957;
+    --zr2:#d2604a;
+    --zr-deep:#e3d7d4;
+    --zr-ink:#d5d1cd;
+    --zr-line:#533f3c;
+    --zr-tint:#321e1b;
+    --zr-ink2:#ab9f9c;
+  }
+}
+
 /* ===== 页级样式：ziwei（page-zw）=====
    主色取帝星之紫（色相 268 度），六档同色相派生：深档 hover 与强调、墨档给大标题与表头、
    正文字取紫墨灰、次级字只降饱和不另立色相、浅线与纸淡底提到 86% 与 95% 明度。
@@ -8963,6 +9457,21 @@ to{opacity:1;transform:none}}
 }
 
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-zw {
+    --zw:#8258b2;
+    --zw2:#7f56ae;
+    --zw-deep:#dbd6e0;
+    --zw-ink:#d1ced4;
+    --zw-ink2:#a29ea9;
+    --zw-line:#463e51;
+    --zw-tint:#271f2e;
+    --zw-tint2:#ebe2f2;
+  }
+}
+
 /* ===== 页级样式：dianji（page-dj）===== */
 .page-dj .page{--dj-ink:#3c3630;--dj-ink2:#7a7268;--dj-line:#e8e3da;--dj-red:#a03020;--foot-ink:#7a7268;--gold:#a03020;--gold2:#8a2a1a;--gold-brown:#8a2a1a;--gold-bg:#faf7f1;--red:#a03020}
 .page-dj .dj-hero{padding:calc(var(--sp-5) + 4px) var(--sp-2) var(--sp-4);border-top:3px solid #2b2724;position:relative}
@@ -8994,6 +9503,23 @@ to{opacity:1;transform:none}}
   .page-dj table.dj-tbl th,.page-dj table.dj-tbl td{padding:var(--sp-1) var(--sp-2)}
 }
 
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-dj .page {
+    --dj-ink:#4da551ae55b7;
+    --dj-ink2:#3d403f794240;
+    --dj-line:#19111b151eb7;
+    --dj-red:#61a17f81a86;
+    --foot-ink:#4eca515c5492;
+    --gold:#61a17f81a86;
+    --gold2:#7bb209824bd;
+    --gold-brown:#5d617b41aae;
+    --gold-bg:#c66ec2137a;
+    --red:#61a17f81a86;
+  }
+}
 
 /* ===== 页级样式：yunqi（page-yq）===== */
 /* 页头：卷首式，上下各一条 88px 细线夹题，卷首说明末尾 26px 竖线收束（规则档第三条） */
@@ -9050,6 +9576,20 @@ to{opacity:1;transform:none}}
 @media print{
   .page-yq .yq-tbl th{background:var(--card) !important}
   .page-yq .yq-tbl tr.yq-good td,.page-yq .yq-tbl tr.yq-bad td{background:transparent}
+}
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-yq {
+    --yq:#4faa6a;
+    --yq2:#4aa468;
+    --yq-deep:#d6e1d9;
+    --yq-ink:#cfd3d0;
+    --yq-line:#404f44;
+    --yq-tint:#212b25;
+    --yq-ink2:#9ea8a2;
+  }
 }
 
 /* ===== 页级样式：shouxiang（page-sx）===== */
@@ -9137,6 +9677,20 @@ to{opacity:1;transform:none}}
   .page-sx .qtab th{background:var(--card) !important}
 }
 
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
+@media (prefers-color-scheme: dark){
+  html .page-sx {
+    --sx:#956faa;
+    --sx2:#9268ab;
+    --sx-deep:#dcd7e0;
+    --sx-ink:#d1ced4;
+    --sx-line:#49404f;
+    --sx-tint:#281f2d;
+    --sx-ink2:#a39da9;
+  }
+}
+
 /* ===== 页级样式：mianxiang（page-mian）===== */
 /* 页头：卷首式，与手相页同制式，只换本页令牌 */
 .page-mian .page h1{color:var(--mian-deep);font-family:var(--mian-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
@@ -9207,226 +9761,10 @@ to{opacity:1;transform:none}}
 }
 
 
-/* ===== 深色主题：各页色系令牌（程序化生成：同色相、按角色翻明度，勿手工逐值编辑；调色改上方生成器规则） ===== */
+
+
+  /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
 @media (prefers-color-scheme: dark){
-  html .modal.ai-cfg {
-    --cfg-accent:#dc5944;
-    --cfg-accent-deep:#e5d4d2;
-  }
-  html .wrap .page {
-    --line:#cfcfcf;
-    --ink:#454545;
-  }
-  html .page-wnl {
-    --wnl:#2696a5;
-    --wnl2:#2199ab;
-    --wnl-deep:#d4e0e3;
-    --wnl-ink:#cbd4d7;
-    --wnl-ink2:#9ba9ac;
-    --wnl-line:#404e4e;
-    --wnl-tint:#212b2b;
-  }
-  html .page-zg {
-    --zg:#5a83a8;
-    --zg2:#4b7197;
-    --zg-deep:#d7dbe0;
-    --zg-ink:#cdd1d5;
-    --zg-ink2:#9ca3aa;
-    --zg-line:#3f4850;
-    --zg-tint:#1f262d;
-  }
-  html .page-lhl {
-    --lhl:#d45460;
-    --lhl2:#d34857;
-    --lhl-deep:#e3d4d5;
-    --lhl-ink:#d4cece;
-    --lhl-ink2:#ab9c9d;
-    --lhl-line:#533c3e;
-    --lhl-tint:#321b1c;
-  }
-  html .page-foli {
-    --foli:#d39b3f;
-    --foli2:#d19735;
-    --foli-deep:#e3ded3;
-    --foli-ink:#d6d2cd;
-    --foli-ink2:#aea698;
-    --foli-cinnabar:#d2695e;
-    --foli-line:#534c3c;
-    --foli-tint:#322c1a;
-  }
-  html .page-daoli {
-    --dao:#5c6482;
-    --dao2:#5a6282;
-    --dao-deep:#d9dade;
-    --dao-ink:#ced0d4;
-    --dao-ink2:#9fa1a8;
-    --dao-purple:#9476b3;
-    --dao-line:#44454b;
-    --dao-tint:#22242a;
-  }
-  html .page-zeri {
-    --zr:#d16957;
-    --zr2:#d2604a;
-    --zr-deep:#e3d7d4;
-    --zr-ink:#d5d1cd;
-    --zr-line:#533f3c;
-    --zr-tint:#321e1b;
-    --zr-ink2:#ab9f9c;
-  }
-  html .page-hj {
-    --hj:#be546b;
-    --hj2:#bd4c67;
-    --hj-deep:#e2d5d8;
-    --hj-ink:#d4ced1;
-    --hj-ink2:#a89ea2;
-    --hj-line:#4f4044;
-    --hj-tint:#2f1d21;
-  }
-  html .page-bazi {
-    --bz:#50a27f;
-    --bz2:#4ca080;
-    --bz-deep:#d6e0dc;
-    --bz-ink:#cfd4d1;
-    --bz-ink2:#9fa7a2;
-    --bz-line:#414e48;
-    --bz-tint:#222b28;
-  }
-  html .page-tieban {
-    --tie:#5f718d;
-    --tie2:#5d708d;
-    --tie-deep:#d8dbdf;
-    --tie-ink:#cdd1d5;
-    --tie-ink2:#9da4a9;
-    --tie-line:#41474e;
-    --tie-tint:#20252c;
-    --tie-brass:#d1a565;
-  }
-  html .page-xx {
-    --xx:#466394;
-    --xx2:#415f95;
-    --xx-deep:#d6d9e1;
-    --xx-ink:#cdd0d5;
-    --xx-line:#3e4651;
-    --xx-tint:#1e252e;
-    --xx-ink2:#9ca1ab;
-  }
-  html .page-nm {
-    --nm:#60b9a9;
-    --nm2:#56bba6;
-    --nm-deep:#d5e2df;
-    --nm-ink:#cfd4d2;
-    --nm-ink2:#9ea9a5;
-    --nm-line:#3d524b;
-    --nm-tint:#1e2f28;
-  }
-  html .page-xz {
-    --xz:#466faf;
-    --xz2:#436eaf;
-    --xz-deep:#d5dae2;
-    --xz-ink:#cdd1d5;
-    --xz-silver:#8a97ab;
-    --xz-line:#3e4651;
-    --xz-tint:#1d252f;
-    --xz-hl:#212d35;
-    --xz-ink2:#9ca2ab;
-  }
-  html .page-qz {
-    --qz:#5f4e88;
-    --qz2:#5f4c88;
-    --qz-deep:#d9d6e0;
-    --qz-ink:#d0ced4;
-    --qz-line:#46404e;
-    --qz-tint:#24202d;
-    --qz-hl:#272334;
-    --qz-ink2:#a09cab;
-  }
-  html .page-qm {
-    --qm:#487e93;
-    --qm2:#457c91;
-    --qm-deep:#d6dee1;
-    --qm-ink:#cdd2d5;
-    --qm-cinnabar:#d3705f;
-    --qm-line:#414b4d;
-    --qm-tint:#212a2b;
-    --qm-ink2:#9ca7ab;
-  }
-  html .page-dlr {
-    --dlr:#a2764d;
-    --dlr2:#a0724c;
-    --dlr-deep:#e1dbd6;
-    --dlr-ink:#d5d1ce;
-    --dlr-brass:#d1a565;
-    --dlr-line:#51493e;
-    --dlr-tint:#2f281e;
-    --dlr-ink2:#aba39c;
-  }
-  html .page-cz {
-    --cz:#b27d54;
-    --cz2:#af794c;
-    --cz-deep:#e1dbd6;
-    --cz-ink:#d5d1cd;
-    --cz-gold:#d4b97e;
-    --cz-line:#53493b;
-    --cz-tint:#31291c;
-    --cz-ink2:#aba29c;
-  }
-  html .page-ty {
-    --ty:#5b71ad;
-    --ty2:#566cad;
-    --ty-deep:#d6d9e1;
-    --ty-ink:#cecfd4;
-    --ty-silver:#8e9aad;
-    --ty-line:#40444f;
-    --ty-tint:#1f242d;
-    --ty-ink2:#9ca0ab;
-  }
-  html .page-xlr {
-    --xlr:#74a069;
-    --xlr2:#6b9e64;
-    --xlr-deep:#d9ded8;
-    --xlr-ink:#d0d3cf;
-    --xlr-blossom:#b5c873;
-    --xlr-line:#434f3f;
-    --xlr-tint:#292d1f;
-    --xlr-ink2:#9fab9c;
-  }
-  html .page-lq {
-    --lq:#c3a628;
-    --lq2:#c5a625;
-    --lq-deep:#e4e1d2;
-    --lq-ink:#d5d4cd;
-    --lq-line:#544f3a;
-    --lq-tint:#322d1b;
-    --lq-ink2:#aba89c;
-  }
-  html .page-tr {
-    --tr:#6e5bba;
-    --tr2:#6753b9;
-    --tr-deep:#d7d5e2;
-    --tr-ink:#cfcdd5;
-    --tr-starlight:#9a86c4;
-    --tr-line:#453e50;
-    --tr-tint:#241e2e;
-    --tr-ink2:#9f9cab;
-  }
-  html .page-yq {
-    --yq:#4faa6a;
-    --yq2:#4aa468;
-    --yq-deep:#d6e1d9;
-    --yq-ink:#cfd3d0;
-    --yq-line:#404f44;
-    --yq-tint:#212b25;
-    --yq-ink2:#9ea8a2;
-  }
-  html .page-sx {
-    --sx:#956faa;
-    --sx2:#9268ab;
-    --sx-deep:#dcd7e0;
-    --sx-ink:#d1ced4;
-    --sx-line:#49404f;
-    --sx-tint:#281f2d;
-    --sx-ink2:#a39da9;
-  }
   html .page-mian {
     --mian:#aa6990;
     --mian2:#a7628c;
@@ -9436,472 +9774,24 @@ to{opacity:1;transform:none}}
     --mian-tint:#2c2127;
     --mian-ink2:#ab9ca5;
   }
-  html .page-ln {
-    --ln:#a0b642;
-    --ln2:#9eba3a;
-    --ln-deep:#e0e3d3;
-    --ln-ink:#d2d5ce;
-    --ln-accent:#c1cc77;
-    --ln-line:#4f523c;
-    --ln-tint:#2e2f1e;
-    --ln-ink2:#a8ab9c;
-  }
-  html .page-ms {
-    --ms:#cf6d71;
-    --ms2:#c7484e;
-    --ms-deep:#e2d4d5;
-    --ms-ink:#d3cfd0;
-    --ms-line:#503f41;
-    --ms-tint:#301c1e;
-    --ms-ink2:#ab9c9c;
-  }
-  html .page-ts {
-    --ts:#47a761;
-    --ts2:#47a962;
-    --ts-deep:#d6e1d9;
-    --ts-ink:#cfd3d1;
-    --ts-gold:#4aae65;
-    --ts-line:#424d44;
-    --ts-tint:#222b23;
-    --ts-ink2:#9caba0;
-  }
-  html .page-fs {
-    --fs:#5686a3;
-    --fs2:#5284a5;
-    --fs-deep:#d6dce0;
-    --fs-ink:#ced1d4;
-    --fs-line:#404b4f;
-    --fs-tint:#20292c;
-    --fs-ink2:#9ca5ab;
-  }
-  html .page-fy {
-    --fy:#6f876c;
-    --fy2:#6c8869;
-    --fy-deep:#dbdfd8;
-    --fy-ink:#d0d3cf;
-    --fy-silver:#7f909e;
-    --fy-line:#454b44;
-    --fy-tint:#242a23;
-    --fy-ink2:#9eab9c;
-  }
-  html .page-hl {
-    --hl:#479693;
-    --hl2:#45918f;
-    --hl-deep:#d6e0e0;
-    --hl-ink:#ced4d3;
-    --hl-ink2:#9cabaa;
-    --hl-brass:#d2a331;
-    --hl-line:#424d4b;
-    --hl-tint:#222a29;
-  }
-  html .page-zl {
-    --zl:#cf4634;
-    --zl2:#cb402c;
-    --zl-deep:#e4d5d3;
-    --zl-ink:#d4d1ce;
-    --zl-ink2:#aaa29c;
-    --zl-gold:#d2a331;
-    --zl-line:#543e3b;
-    --zl-tint:#331c19;
-  }
-  html .page-hh {
-    --hh:#c053b9;
-    --hh2:#bd4cb5;
-    --hh-deep:#e2d4e1;
-    --hh-ink:#d5cdd4;
-    --hh-ink2:#ac9bab;
-    --hh-line:#513e50;
-    --hh-tint:#2d1f2c;
-    --hh-alt:#d289cc;
-  }
-  html .page-ly {
-    --ly:#d3883f;
-    --ly2:#d38231;
-    --ly-deep:#e5dbd2;
-    --ly-ink:#d6d1cc;
-    --ly-brass:#dfac73;
-    --ly-line:#564a39;
-    --ly-tint:#342919;
-    --ly-ink2:#aba39c;
-  }
-  html .page-mh {
-    --mh:#be607f;
-    --mh2:#c0587c;
-    --mh-deep:#e2d5d9;
-    --mh-ink:#d4ced2;
-    --mh-blossom:#d4778f;
-    --mh-line:#513e46;
-    --mh-tint:#311c24;
-    --mh-ink2:#ab9ca1;
-  }
-  html .page-os .ospage {
-    --foot-ink:#d2d1d0;
-  }
-  html .page-zw {
-    --zw:#8258b2;
-    --zw2:#7f56ae;
-    --zw-deep:#dbd6e0;
-    --zw-ink:#d1ced4;
-    --zw-ink2:#a29ea9;
-    --zw-line:#463e51;
-    --zw-tint:#271f2e;
-    --zw-tint2:#ebe2f2;
-  }
 }
 
-/* ===== 深色主题补漏：单行与续行令牌规则（.dtm-* 日期选择器主题族、说明/典籍/六爻盘/开源页/奇门弹层） ===== */
-@media (prefers-color-scheme: dark){
-  html .dtm-wnl {
-    --tk:#19a28f66b8;
-    --tk2:#2450b8c7e0;
-    --tk-ink:#5bf84c3c4764;
-    --tk-line:#1e7f19491949;
-    --tk-tint:#10c7d1bd1b;
+/* ===== 页级样式：页面未寻见（page-nf）===== */
+body.p404-page{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#faf9f6;font-family:"Noto Serif SC",serif;color:#1a1a1a}
+  .nf{position:relative;width:min(640px,88vw);border:3px solid #1a1a1a;padding:3.75rem 2.5rem 3.375rem;text-align:center}
+  .nf::after{content:"";position:absolute;inset:6px;border:1px solid rgba(26,26,26,.5);pointer-events:none}
+  .nf-seal{width:88px;height:88px}
+  .nf-code{margin:1.625rem 0 0;font-size:92px;font-weight:700;letter-spacing:.12em;line-height:1.1}
+  .nf-rule{width:64px;height:4px;background:#b84a3a;margin:1.75rem auto}
+  .nf-text{margin:0;font-size:19px;color:#52525a;letter-spacing:.1em}
+  .nf-home{display:inline-block;margin-top:2rem;padding:0.625rem 2.25rem;border:1.5px solid #1a1a1a;color:#1a1a1a;text-decoration:none;font-size:18px;letter-spacing:.28em;transition:border-color .2s,color .2s}
+  .nf-home:hover{border-color:#b84a3a;color:#b84a3a}
+  @media (max-width:480px){.nf-code{font-size:72px}.nf-text{font-size:17px}}
+  @media (prefers-color-scheme:dark){
+    body.p404-page{background:#17171a;color:#e6e1d6}
+    .nf{border-color:#e6e1d6}
+    .nf::after{border-color:rgba(230,225,214,.5)}
+    .nf-text{color:#a39e93}
+    .nf-home{border-color:#e6e1d6;color:#e6e1d6}
+    .nf-home:hover{border-color:#c65a48;color:#c65a48}
   }
-  html .dtm-lhl {
-    --tk:#72b198b17d2;
-    --tk2:#933234c2090;
-    --tk-ink:#4bc957935656;
-    --tk-line:#178520431f41;
-    --tk-tint:#ac213201291;
-  }
-  html .dtm-foli {
-    --tk:#6bddeb19e3;
-    --tk2:#8ea12d02380;
-    --tk-ink:#49f14fe5596b;
-    --tk-line:#177d1a3e204b;
-    --tk-tint:#aa7ccc133b;
-  }
-  html .dtm-daoli {
-    --tk:#12d211bbd9a;
-    --tk2:#1a0a18791236;
-    --tk-ink:#569e53b74cbe;
-    --tk-line:#1d4e1cad1a7a;
-    --tk-tint:#1056fa3d8c;
-  }
-  html .dtm-zeri {
-    --tk:#7991687191d;
-    --tk2:#9661ee6231a;
-    --tk-ink:#4ae9524c5873;
-    --tk-line:#17851eeb2043;
-    --tk-tint:#ac212021320;
-  }
-  html .dtm-hh {
-    --tk:#9401761a0b;
-    --tk2:#c5e200fdc1;
-    --tk-ink:#4b2a58324bc9;
-    --tk-line:#18501f7818a7;
-    --tk-tint:#c6e1174cfd;
-  }
-  html .dtm-bazi {
-    --tk:#1566b1af7d;
-    --tk2:#1daaea61473;
-    --tk-ink:#56104d4c51ae;
-    --tk-line:#1e4119871b98;
-    --tk-tint:#108dd55e68;
-  }
-  html .dtm-hj {
-    --tk:#96917381434;
-    --tk2:#c5e200f1b58;
-    --tk-ink:#4d06565651fd;
-    --tk-line:#18f21ed61d33;
-    --tk-tint:#ba3123f10c7;
-  }
-  html .dtm-zl {
-    --tk:#6de177419b3;
-    --tk2:#887206023d4;
-    --tk-ink:#4ca7523d56b5;
-    --tk-line:#174a1f78207e;
-    --tk-tint:#a33129113af;
-  }
-  html .dtm-zw {
-    --tk:#10a115f4aa4;
-    --tk2:#16c71da7ec1;
-    --tk-ink:#51ae56854cd7;
-    --tk-line:#1c3d1f59186f;
-    --tk-tint:#ea311abc37;
-  }
-  html .dtm-tieban {
-    --tk:#133510d5d45;
-    --tk2:#1a85170611c8;
-    --tk-ink:#5862523d4afa;
-    --tk-line:#1e611c0e1967;
-    --tk-tint:#1116f7accc;
-  }
-  html .dtm-xx {
-    --tk:#15a511a6ac4;
-    --tk2:#1e651899dd5;
-    --tk-ink:#58bd54334a9f;
-    --tk-line:#1f671c481861;
-    --tk-tint:#11d9f86c09;
-  }
-  html .dtm-nm {
-    --tk:#164fa59c7f;
-    --tk2:#1f40d3410eb;
-    --tk-ink:#56154d475008;
-    --tk-line:#1fd417f41a94;
-    --tk-tint:#120abd8e2b;
-  }
-  html .dtm-xz {
-    --tk:#16c611bf9be;
-    --tk2:#1f9d181fcb9;
-    --tk-ink:#588152804adb;
-    --tk-line:#1f6a1c5a185e;
-    --tk-tint:#1247f3fb9b;
-  }
-  html .dtm-qz {
-    --tk:#11cf1457c0d;
-    --tk2:#18391c051033;
-    --tk-ink:#540656f34c69;
-    --tk-line:#1c8b1e821946;
-    --tk-tint:#ff01144c9e;
-  }
-  html .dtm-qm {
-    --tk:#154edecb05;
-    --tk2:#1e151273e16;
-    --tk-ink:#585c4fa54b00;
-    --tk-line:#1e241a7c19a4;
-    --tk-tint:#10c0da6d22;
-  }
-  html .dtm-dlr {
-    --tk:#ad7107015a7;
-    --tk2:#ea616d71daa;
-    --tk-ink:#4b6b51ae57f1;
-    --tk-line:#18461b841f82;
-    --tk-tint:#bd1e381211;
-  }
-  html .dtm-ty {
-    --tk:#156512b8b32;
-    --tk2:#1d8f19cfed8;
-    --tk-ink:#579a54834bc2;
-    --tk-line:#1ed81d1218f0;
-    --tk-tint:#1174fc7c6e;
-  }
-  html .dtm-ly {
-    --tk:#6bd107919e3;
-    --tk2:#872163423f6;
-    --tk-ink:#4966510b59f6;
-    --tk-line:#166a1abd215e;
-    --tk-tint:#9f6df213ec;
-  }
-  html .dtm-mh {
-    --tk:#a0716d61291;
-    --tk2:#c40205519ef;
-    --tk-ink:#4c7e56de5087;
-    --tk-line:#18261fa21c8d;
-    --tk-tint:#b1112d1fb7;
-  }
-  html .dtm-xlr {
-    --tk:#1263cde13b9;
-    --tk2:#19fa11431b23;
-    --tk-ink:#52da4e2b5531;
-    --tk-line:#1b1b18e71ee1;
-    --tk-tint:#e12c54118e;
-  }
-  html .dtm-lq {
-    --tk:#62d9f61a4c;
-    --tk2:#7a4d3c24a9;
-    --tk-ink:#4a4c4d5f5910;
-    --tk-line:#16e418ff20e4;
-    --tk-tint:#ac2c9e1320;
-  }
-  html .dtm-tr {
-    --tk:#14131693a11;
-    --tk2:#1b8e1f1ed51;
-    --tk-ink:#5609585c4b00;
-    --tk-line:#1ca61f4b187d;
-    --tk-tint:#ff011eebf4;
-  }
-  html .dtm-yq {
-    --tk:#15d7ab0128d;
-    --tk2:#1e39e1918d9;
-    --tk-ink:#55794de3534e;
-    --tk-line:#1ed318f51d5c;
-    --tk-tint:#10d8d0af93;
-  }
-  html .dtm-sx {
-    --tk:#f2c1441c66;
-    --tk2:#14a81c431033;
-    --tk-ink:#51ae56de4c7e;
-    --tk-line:#1b611eca18fe;
-    --tk-tint:#e4f117ac68;
-  }
-  html .dtm-mian {
-    --tk:#c0d1495f87;
-    --tk2:#10401c2d14f7;
-    --tk-ink:#4ca956b350cb;
-    --tk-line:#18fe1eca1b61;
-    --tk-tint:#cfd10e5eaa;
-  }
-  html .dtm-ln {
-    --tk:#bd9917176f;
-    --tk2:#fdeb042153;
-    --tk-ink:#4f784bae57ae;
-    --tk-line:#18f017c22006;
-    --tk-tint:#c4cbd11211;
-  }
-  html .dtm-ms {
-    --tk:#891183b1794;
-    --tk2:#b03218c2069;
-    --tk-ink:#4da555b75490;
-    --tk-line:#17db1fed1ea7;
-    --tk-tint:#b4012a211d0;
-  }
-  html .dtm-ts {
-    --tk:#165da201310;
-    --tk2:#1ec3d911a22;
-    --tk-ink:#55c94d93515d;
-    --tk-line:#1e1b19ad1d15;
-    --tk-tint:#108dd551004;
-  }
-  html .dtm-fs {
-    --tk:#14fef2db8a;
-    --tk2:#1d3d14c4f1e;
-    --tk-ink:#577852354be4;
-    --tk-line:#1eca1ab318fe;
-    --tk-tint:#1116ddeccc;
-  }
-  html .dtm-fy {
-    --tk:#1193e8f11f3;
-    --tk2:#184d136018f5;
-    --tk-ink:#52df4eb454a8;
-    --tk-line:#1cad1a7a1d4e;
-    --tk-tint:#fb7da6103c;
-  }
-  html .dtm-hl {
-    --tk:#15a5ac7b36;
-    --tk2:#1d91ea9f13;
-    --tk-ink:#56804cdc4d81;
-    --tk-line:#1dfd19cb1a70;
-    --tk-tint:#1070d72df2;
-  }
-  html .page-ly .page {
-    --ly-neutral:#12ae106fe0d;
-    --ly-warn:#a2deb01678;
-    --ly-bad:#86216661870;
-  }
-  html .page-sm {
-    --dk-ink:#4e1f50f8553d;
-    --dk-body:#ef61018113a;
-    --dk-mute:#39ab3b113ddd;
-    --dk-mute2:#3df53f73418b;
-    --dk-line:#18311a8c1f97;
-    --dk-line2:#e6b13741f33;
-    --dk-red:#5d817d31acc;
-    --dk-bg:#ff0ff0ff0;
-    --foot-ink:#4f9b515553c1;
-    --gold:#5d817d31acc;
-    --gold2:#7bb209824bd;
-    --gold-brown:#5d617b41aae;
-    --gold-bg:#c34eb113ac;
-  }
-  html .page-dj .page {
-    --dj-ink:#4da551ae55b7;
-    --dj-ink2:#3d403f794240;
-    --dj-line:#19111b151eb7;
-    --dj-red:#61a17f81a86;
-    --foot-ink:#4eca515c5492;
-    --gold:#61a17f81a86;
-    --gold2:#7bb209824bd;
-    --gold-brown:#5d617b41aae;
-    --gold-bg:#c66ec2137a;
-    --red:#61a17f81a86;
-  }
-  html .zp-v {
-    --lu:#2c6181a1dfb;
-    --quan:#1d43183c3b7;
-    --ke:#16cb1fa1e62;
-    --ji:#45ba45ba45ba;
-  }
-  html .page-os .ospage {
-    --gold:#75e17b61960;
-    --gold2:#8c5215023be;
-    --gold-brown:#696183a19f9;
-  }
-  html .modal.qi-gong-modal {
-    --qm2:#1d9112cdea9;
-    --qm-ink:#585c4fa54b00;
-    --qm-line:#1e241a7c19a4;
-    --qm-ink2:#44c23d6a3abe;
-  }
-}
-/* ===== 深色主题：全局令牌（跟随系统 prefers-color-scheme；各页色系变体见上方生成块） ===== */
-:root{color-scheme:light}
-@media (prefers-color-scheme: dark){
-  :root{
-    color-scheme:dark;
-    --paper:#17171a;
-    --paper2:#1d1c20;
-    --ink:#e6e1d6;
-    --ink2:#a39e93;
-    --line:#37363c;
-    --gold:#d4a43c;
-    --gold2:#c9a04a;
-    --red:#c65a48;
-    --red2:#d4715f;
-    --card:#222126;
-    --shadow:0 1px 6px rgba(0,0,0,.45);
-    --gold-bg:#262319;
-    --nav:#101012;
-    --nav-text:#e8e4da;
-    --cal-hover:#2a2930;
-    --cal-selected:#34333b;
-    --green:#4caf5e;
-    --brown:#c07a4a;
-    --gold-brown:#c2a04a;
-    --special-bg:#2e2718;
-    --special-text:#d4b06a;
-    --special-border:#8a7440;
-    /* 轮盘缺省：页面未自定义 --wheel-* 时的深色值 */
-    --wheel-line:#6f6e75;
-    --wheel-core:#26252a;
-    --wheel-arc:#8a8990;
-    --wheel-cur:#c9c0ae;
-    --wheel-deep:#e6e1d6;
-    --wheel-ink:#c9c9c9;
-    --wheel-ink2:#8a8990;
-  }
-}
-/* ===== 深色主题：规则级硬编码色覆写 =====
-   对象是不走向页令牌的直写色：首页 .hm- 目录、禄权科与五行关系语义色、民俗吉badge、
-   说明文档悬停、塔罗页底牌名。奶油小签上的深字（签底不动则字不动）保持原值。 */
-@media (prefers-color-scheme: dark){
-  .lq-禄,.dp-cell i.dp-禄,.zp-liunian b.ln-禄,.info-box.lq-禄 h4{color:#4fae7c}
-  .lq-权,.dp-cell i.dp-权,.zp-liunian b.ln-权,.info-box.lq-权 h4{color:#d4a43c}
-  .lq-科,.dp-cell i.dp-科,.zp-liunian b.ln-科,.info-box.lq-科 h4{color:#5f9be0}
-  .lq-禄{border-color:#4fae7c}.lq-权{border-color:#d4a43c}.lq-科{border-color:#5f9be0}
-  .info-box.lq-禄{border-top-color:#4fae7c}.info-box.lq-权{border-top-color:#d4a43c}.info-box.lq-科{border-top-color:#5f9be0}
-  .dp-badge.dp-1{background:#d4a43c}
-  .fei-6,.fei-7{color:#d4a43c}
-  .tip.sha-ji{color:#57b873}
-  .rel.he{background:#1d2b21;border-color:#2f4a38;color:#57b873}
-  .rel.sheng{background:#1c2735;border-color:#31506e;color:#5f9be0}
-  .rel.ke{background:#2f1d1d;border-color:#5a3030}
-  .rel.bihe{background:#2b2519;border-color:#5a4e2e;color:#c2a04a}
-  .sk-block .rel.he{color:#57b873}
-  .sk-block .rel.bihe{color:#c2a04a}
-  .sk-block .rel.chong{color:#c89040}
-  .page-ms .ms-badge.ms-ok{border-color:#57b873;color:#57b873;background:transparent}
-  .page-ms .ms-good{color:#57b873}
-  .page-sm .df-hit:hover{background:#232226}
-  .page-sm .nv-tool.on{background:#232226}
-  .page-tr .tr-name,.page-tr .tr-sym,.page-tr .tt-name{color:#b9a8d8}
-  .hm-motto{color:#a39e93;border-top-color:#3a383c;border-bottom-color:#3a383c}
-  .hm-solar,.hm-extra{color:#a39e93}
-  .hm-lunar-big{color:#e6e1d6}
-  .hm-gz{color:#b5ad9c}
-  .hm-gz i{color:#7f7a70}
-  .hm-head::after{background:#3a383c}
-  .hm-cat-h .num{color:#d06a57;border-right-color:#3a383c}
-  .hm-cat-h .nm{color:#e6e1d6}
-  .hm-cat-h .en{color:#7d7870}
-  .hm-cat-h .cnt{color:#8d887e}
-  .hm-tool{border-bottom-color:#2e2d31}
-  .hm-idx,.hm-de{color:#8d887e}
-  .hm-nm{color:#e6e1d6}
-  .hm-line{color:#55524a}
-  .hm-tool:hover .hm-nm,.hm-tool:hover .hm-line{color:#d06a57}
-  .hm-page::after{background:#3a383c}
-  #footer .os-link{border-bottom-color:#55524a}
-  html .hm-page{--gold:#d06a57;--gold2:#b85c4a;--gold-brown:#b85c4a;--foot-ink:#8d887e}
-}
