@@ -42,10 +42,8 @@ self.addEventListener('fetch', function (e) {
   if (req.headers.get('range')) return;                     /* 分段请求不缓存 */
 
   if (req.mode === 'navigate') {
-    /* 页面：网络优先，命中即取最新，断网回落缓存。
-       HTML 走网络并按 ETag 重验证（cache:'no-cache'，未变更回 304 极轻），
-       在线始终取当前版本；离线回落已缓存页。
-       取缓存优先则回访者先得缓存的 HTML，页面更新须待二次访问方生效。 */
+    /* 页面：网络优先，按 ETag 重验证（cache:'no-cache'，未变更回 304 极轻），
+       在线始终取当前版本；断网回落已缓存页。 */
     e.respondWith(
       fetch(req, { cache: 'no-cache' }).then(function (res) {
         if (res.ok) {
@@ -60,11 +58,8 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  /* 站标资源：网络优先（强制刷新）。
-     页面 ?v= 版本串已按"其他文件零改动"铁律复位为旧值，普通缓存优先会让回访访客
-     一直命中旧 logo 的浏览器/CDN 缓存；此处对 assets/logo/* 走网络优先并 bypass
-     本地 HTTP 缓存（cache:'reload'），在线即取最新字节，网络失败再回落 SW 缓存。
-     仅作用于 logo，不影响其他静态资源的缓存优先策略。 */
+  /* 站标资源：网络优先并 bypass 本地 HTTP 缓存（cache:'reload'），在线即取最新字节，
+     网络失败回落 SW 缓存；仅作用于 assets/logo/*，其余静态资源仍走缓存优先。 */
   if (url.pathname.indexOf('/assets/logo/') !== -1) {
     e.respondWith(
       fetch(req, { cache: 'reload' })

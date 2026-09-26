@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preload" as="script" href="assets/lunar.js?v=20260826a">
 <link rel="preload" as="script" href="assets/app.js?v=20260924i">
+<link rel="preload" as="image" fetchpriority="high" href="assets/logo/xuanji-seal.svg?v=20260914c">
 <title>玄机排盘 传统命理排盘工具</title>
 <meta name="description" content="玄机排盘：传统命理、历法与占卜文化研究演示站，涵盖八字、紫微斗数、铁板神数、六爻、梅花易数、奇门遁甲、大六壬、老黄历、皇极经世、七政四余、择日、周公解梦、测字、二十八宿、太岁生肖、河洛理数等 34 个免费在线排盘工具，另附典籍参考、说明文档与算法数据，纯前端打开即用。">
 <meta name="keywords" content="排盘,命理,占卜,八字排盘,紫微斗数,铁板神数,六爻,梅花易数,奇门遁甲,大六壬,老黄历,皇极经世,择日,太岁">
@@ -128,11 +129,11 @@
 </div></footer>
 
 <script>
-/* 公历行即时填充：不待农历库就绪，慢路线下首屏占位符先消失；农历行仍由下方脚本待库补齐 */
+/* 公历行由本机时钟即时填充，不依赖任何脚本库；农历与干支行待 lunar.js 就绪后由 fillToday 补齐 */
 (function(){var n=new Date();var el=document.getElementById('tSolar');if(el)el.textContent=n.getFullYear()+'年'+(n.getMonth()+1)+'月'+n.getDate()+'日 星期'+'日一二三四五六'[n.getDay()];})();
 </script>
-<script defer src="assets/lunar.js?v=20260826a"></script>
-<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/lunar.js?v=20260826a" onload="window.fillToday&&window.fillToday()"></script>
+<script defer src="assets/app.js?v=20260924i" onload="window.enhanceIndex&&window.enhanceIndex()"></script>
 <script defer src="assets/ai.js?v=20260924a"></script>
 <script>
 /* 八卷谱系与顶部导航一致；de 为目录行右端小注 */
@@ -216,33 +217,32 @@ document.getElementById('cats').innerHTML=CATS.map((c,i)=>{
   </section>`;
 }).join('');
 
-/* 顶栏与页脚已静态预渲染于首屏，无需等待 app.js；此处仅调用首页实际需要的两个增强函数 */
-document.addEventListener('DOMContentLoaded',function(){
+/* 顶栏与页脚已静态预渲染于首屏。以下两个入口分别挂在 app.js 与 lunar.js 的 onload 上，
+   各自的库就绪即执行，不互相等待，也不等 DOMContentLoaded */
+window.enhanceIndex=function(){
   injectScrollJump();
   injectBaziLinkBanner();
-  (function(){
-    const now=new Date();
-    const solar=Solar.fromDate(now);
-    const lunar=solar.getLunar();
-    document.getElementById('tSolar').textContent=
-      solar.getYear()+'年'+solar.getMonth()+'月'+solar.getDay()+'日 星期'+'日一二三四五六'[solar.getWeek()];
-    document.getElementById('tLunar').textContent=
-      '农历'+lunar.getYearInGanZhi()+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese();
-    const gz=[['年',lunar.getYearInGanZhi()],['月',lunar.getMonthInGanZhi()],['日',lunar.getDayInGanZhi()],['时',lunar.getTimeInGanZhi()]];
-    document.getElementById('tPillars').innerHTML=gz.map(([l,g])=>`<span><i>${l}</i>${g}</span>`).join('');
-    const jq=lunar.getJieQi();
-    const XZ=['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼'];
-    const m2=solar.getMonth(),d2=solar.getDay();
-    const cut=[20,19,21,20,21,22,23,23,23,24,23,22];
-    const xzIdx=(d2<cut[m2-1])?(m2+8)%12:(m2+9)%12;
-    const parts=[lunar.getYearShengXiao()+'年 '+XZ[xzIdx]+'座',
-      '月建 '+(lunar.getMonthInGanZhi()[1]||'')+'月'];
-    const yuexiang=(lunar.getYueXiang?lunar.getYueXiang():'')||'';
-    if(yuexiang&&yuexiang!=='—')parts.push('月相 '+yuexiang);
-    if(jq)parts.push('今日'+jq);
-    document.getElementById('tExtra').textContent=parts.join('　');
-  })();
-});
+};
+
+window.fillToday=function(){
+  const solar=Solar.fromDate(new Date());
+  const lunar=solar.getLunar();
+  document.getElementById('tLunar').textContent=
+    '农历'+lunar.getYearInGanZhi()+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese();
+  const gz=[['年',lunar.getYearInGanZhi()],['月',lunar.getMonthInGanZhi()],['日',lunar.getDayInGanZhi()],['时',lunar.getTimeInGanZhi()]];
+  document.getElementById('tPillars').innerHTML=gz.map(([l,g])=>`<span><i>${l}</i>${g}</span>`).join('');
+  const jq=lunar.getJieQi();
+  const XZ=['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼'];
+  const m2=solar.getMonth(),d2=solar.getDay();
+  const cut=[20,19,21,20,21,22,23,23,23,24,23,22];
+  const xzIdx=(d2<cut[m2-1])?(m2+8)%12:(m2+9)%12;
+  const parts=[lunar.getYearShengXiao()+'年 '+XZ[xzIdx]+'座',
+    '月建 '+(lunar.getMonthInGanZhi()[1]||'')+'月'];
+  const yuexiang=(lunar.getYueXiang?lunar.getYueXiang():'')||'';
+  if(yuexiang&&yuexiang!=='—')parts.push('月相 '+yuexiang);
+  if(jq)parts.push('今日'+jq);
+  document.getElementById('tExtra').textContent=parts.join('　');
+};
 </script>
 </body>
 </html>
