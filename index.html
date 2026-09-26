@@ -21,7 +21,6 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -135,6 +134,8 @@
 <script defer src="assets/lunar.js?v=20260826a" onload="window.fillToday&&window.fillToday()"></script>
 <script defer src="assets/app.js?v=20260924i" onload="window.enhanceIndex&&window.enhanceIndex()"></script>
 <script defer src="assets/ai.js?v=20260924a"></script>
+<!-- 部署自适应与 SW 注册：与首屏渲染无依赖，排 defer 组末位，其网络耗时不得阻塞前面脚本的执行 -->
+<script defer src="assets/meta.js?v=20260925b"></script>
 <script>
 /* 八卷谱系与顶部导航一致；de 为目录行右端小注 */
 const CATS=[
