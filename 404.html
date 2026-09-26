@@ -20,14 +20,19 @@
     <a id="nf-home" class="nf-home" href="index.html">回到首页</a>
   </main>
   <script>
-  /* 深层路径下的 404（如 /a/b）相对资源会落空：按实际路径前缀重写首页链接、印章与字体表 */
-  (function () {
-    if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
-    var dir = location.pathname.slice(0, location.pathname.lastIndexOf('/') + 1);
-    document.getElementById('nf-home').href = dir + 'index.html';
-    document.getElementById('nf-seal').src = dir + 'assets/logo/xuanji-seal.svg';
-    document.getElementById('nf-font').href = dir + 'assets/fonts/noto-serif-sc.css?v=202609275b07';
-  })();
-  </script>
+  
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    (function () {
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+        var dir = location.pathname.slice(0, location.pathname.lastIndexOf('/') + 1);
+        document.getElementById('nf-home').href = dir + 'index.html';
+        document.getElementById('nf-seal').src = dir + 'assets/logo/xuanji-seal.svg';
+        document.getElementById('nf-font').href = dir + 'assets/fonts/noto-serif-sc.css?v=202609275b07';
+      })();
+  }, 0);
+});
+</script>
 </body>
 </html>

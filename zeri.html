@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -190,17 +190,16 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/latlng.js?v=20260917da"></script>
-<script src="assets/bazi-data.js?v=20260925a"></script>
-<script src="assets/bazi-rel.js?v=20260920c"></script>
-<script src="assets/zeri-engine.js?v=20260925a"></script>
-<script src="assets/zeri-zaoming.js?v=20260925a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/latlng.js?v=20260917da"></script>
+<script defer src="assets/bazi-data.js?v=20260925a"></script>
+<script defer src="assets/bazi-rel.js?v=20260920c"></script>
+<script defer src="assets/zeri-engine.js?v=20260925a"></script>
+<script defer src="assets/zeri-zaoming.js?v=20260925a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
 <script>
-renderChrome('zeri.html');
 /* ===== 模式切换：择事、造命 =====
    两模式判据不同、口径互斥，故整组显隐、选中哪个就输出哪个：
      择事模式（shishi）＝传统择吉，判据为"日子本身吉凶"（宜忌、丛辰、黄黑道、周堂、坐山）；
@@ -226,34 +225,6 @@ function setZrMode(mode){
 window.xjRefreshHook=function(){
   try{ if(ZR_MODE==='zaoming'){ initZaomingUI(); zmSyncHours(); zmRun(true); } else { query(); } }catch(e){}
 };
-/* 模块展开态由本页记忆（属交互态，顶层不接管），存 localStorage 跨会话保持；滚动位置归全站顶层机制 */
-(function(){
-  const K_OPEN='zeri_mod_open_v2';
-  function saveOpen(){
-    try{
-      const cur=JSON.parse(localStorage.getItem(K_OPEN)||'{}');
-      document.querySelectorAll('details.zr-mod').forEach(function(m){ if(m.id) cur['mod:'+m.id]=!!m.open; });
-      localStorage.setItem(K_OPEN, JSON.stringify(cur));
-    }catch(e){}
-  }
-  function restore(){
-    try{
-      const cur=JSON.parse(localStorage.getItem(K_OPEN)||'{}');
-      document.querySelectorAll('details.zr-mod').forEach(function(m){
-        if(m.id && 'mod:'+m.id in cur) m.open=cur['mod:'+m.id];
-      });
-    }catch(e){}
-  }
-  try{
-    window.addEventListener('beforeunload', saveOpen);
-    window.addEventListener('pagehide', saveOpen);
-    document.querySelectorAll('details.zr-mod').forEach(function(m){
-      m.addEventListener('toggle', saveOpen);
-    });
-    restore();
-    window.addEventListener('pageshow', function(){ saveOpen(); restore(); });
-  }catch(e){}
-})();
 const EVENTS=['嫁娶','订婚','纳采','安床','裁衣','冠笄','祭祀','祈福','求医','出行','入宅','移徙','安香','出火','开市','开业','交易','纳财','求财','立券','签约','置产','动土','安门','上梁','竖柱','安葬','破土','装修','开工','搬家'];
 const EVENT_ALIAS={'订婚':['纳采','嫁娶'],'装修':['修造','动土'],'开工':['开市','动土'],'签约':['立券','交易'],'搬家':['入宅','移徙'],'开业':['开市'],'置产':['纳财','交易'],'安床':['安床']};
 const HUANGDAO=['青龙','明堂','金匮','天德','玉堂','司命']; /* 六黄道吉神 */
@@ -270,19 +241,12 @@ const ZERI_SCHOOLS={
 };
 function fillZrSchool(){document.getElementById('zrSchool').innerHTML=Object.keys(ZERI_SCHOOLS).map(k=>`<option>${k}</option>`).join('');}
 function fillEvents(){document.getElementById('event').innerHTML=EVENTS.map(e=>`<option>${e}</option>`).join('');}
-fillEvents();
-fillZrSchool();
-/* 坐山、用事时辰下拉 */
-document.getElementById('shan').innerHTML='<option value="">不按坐山</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
-document.getElementById('zhongShi').innerHTML='<option value="">不选则只论日柱</option>'+ZHI_HOUR_LIST.map((s,i)=>`<option value="${s}">${s}（${SHI_SPAN[i]}）</option>`).join('');
-document.getElementById('zrSchool').addEventListener('change', query);
 function initDates(){
   const n=new Date();
   document.getElementById('from').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
   const e=new Date(n.getTime()+60*86400000);
   document.getElementById('to').value=`${e.getFullYear()}-${pad2(e.getMonth()+1)}-${pad2(e.getDate())}`;
 }
-initDates();
 /* ============ 模块① 黄道吉日 ============ */
 let LAST=null;
 function query(){
@@ -348,27 +312,8 @@ function query(){
   LAST={ev,top};
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">查询出错：'+(e.message||e)+'</p>'; }
 }
-query();
 /* ============ 模块② 命主喜用神 ============ */
 let CITY_LNG=116.41;
-(function initUserBirth(){
-  const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
-  if(!sp) return;
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  function fillCity(){ const p=sp.value; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-  function fillDist(){
-    const p=sp.value, c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
-    if(!c) return;
-    /* 城市级经度兜底：city.lng 为 null（直辖市等）时回退省级中心，杜绝 null°E */
-    const pc=(typeof provCenter==='function'&&c.lng==null)?provCenter(p):null;
-    CITY_LNG=(c.lng!=null)?c.lng:(pc?pc.lng:null);
-    let html=`<option value="">${c.c}</option>`;
-    distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-    sd.innerHTML=html;
-  }
-  sp.onchange=fillCity; sc.onchange=fillDist;
-  sp.value='北京市'; fillCity();
-})();
 let USER_XI=[], USER_JI=[], USER_USE='', USER_DWX='', USER_NAYIN_WX='', USER_NAYIN='', USER_READY=false;
 function buildUserBZ(){
   const dv=document.getElementById('bDate').value;
@@ -446,13 +391,6 @@ function calcTaisui(){
     </table>
    `;
 }
-document.getElementById('tsMode').addEventListener('change',function(){
-  document.getElementById('tsYear').value='';
-  document.getElementById('tsYear').placeholder=this.value==='liu'?'留空即取当年':'如 1988（出生年）';
-  calcTaisui();
-});
-document.getElementById('tsYear').addEventListener('input',calcTaisui);
-calcTaisui();
 /* ============ 模块④ 精择吉日 ============ */
 function jzGrade(s){
   if(s>=88) return {t:'大吉', k:'v-daji', d:'诸吉汇聚，百事可为'};
@@ -537,24 +475,6 @@ function jingze(){
     <div class="zr-list">${cards}</div>`;
   const mod=document.getElementById('dzMod'); if(mod) mod.open=true;
 }
-/* 八字 × 择日联动：从八字页跳转则自动填出生信息并推算喜用神 */
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('fromBazi')!=='1') return;
-  const dt=p.get('bDate'), tm=p.get('bTime'), sx=p.get('sex');
-  const de=document.getElementById('bDate'), te=document.getElementById('bTime'), se=document.getElementById('bSex');
-  if(de&&dt) de.value=dt;
-  if(te&&tm) te.value=tm;
-  if(se&&sx) se.value=(sx==='女'||sx==='0')?'0':'1';
-  const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
-  const lngEl=document.getElementById('bLng'), trEl=document.getElementById('bTrue');
-  if(sp&&p.get('bProv')){ sp.value=p.get('bProv'); if(typeof sp.onchange==='function') sp.onchange(); else sp.dispatchEvent(new Event('change')); }
-  if(sc&&p.get('bCity')){ sc.value=p.get('bCity'); if(typeof sc.onchange==='function') sc.onchange(); else sc.dispatchEvent(new Event('change')); }
-  if(sd&&p.get('bDist')) sd.value=p.get('bDist');
-  if(lngEl&&p.get('bLng')) lngEl.value=p.get('bLng');
-  if(trEl) trEl.checked=(p.get('bTrue')==='1');
-  try{ calcUserXi(); }catch(e){}
-})();
 /* ============ 造命模式（剖腹产择日）============
    与择事模式判据不同：枚举窗口内全部"日期 × 时辰"，逐个排盘后按四层评分排序。
    四层权重（本站归纳）：八字质量 55 ＋ 大运 20 ＋ 家长缘分 15 ＋ 避凶底线 10。 */
@@ -785,35 +705,116 @@ function renderZm(){
     +'</div>'
     +'<div class="zr-list">'+cards+'</div>';
 }
-mountAI(function(){
-  if(ZR_MODE==='zaoming'){
-    if(!ZM_RES || !ZM_CTX) return '';
-    let s=`造命择日（剖腹产择日）：窗口 ${ZM_CTX.from.y}-${ZM_CTX.from.m}-${ZM_CTX.from.d} 至 ${ZM_CTX.to.y}-${ZM_CTX.to.m}-${ZM_CTX.to.d}，共 ${ZM_RES.count} 个候选（${ZM_RES.days} 天 × ${ZM_CTX.hours.length} 时辰）\n`;
-    s+=`权重：八字质量 55% ＋ 前三步大运 20% ＋ 家长缘分 15% ＋ 避凶底线 10%\n`;
-    ZM_RES.list.slice(0,10).forEach(function(it,i){
-      const r=it.res;
-      s+=`${i+1}. ${it.y}-${it.m}-${it.d} ${ZM_HOURS[it.hourIdx].z}时(${it.clockTime}) ${it.pillars.join(' ')} 日主${it.dayGan}（${it.dayWx}） ${it.strength} ${it.geName||''} 综合${r.total}【${r.grade.t}】\n`;
-    });
-    return s;
-  }
-  if(!LAST) return '';
-  let s=`择日：${LAST.ev}（流派：${document.getElementById('zrSchool').value}）\n候选吉日（共${LAST.top.length}天，按吉度排序）：\n`;
-  LAST.top.forEach(r=>{ s+=`${r.solar.toYmd()} 周${r.wk} 农历${r.lunar.getMonthInChinese()}月${r.lunar.getDayInChinese()} ${r.dayGZ}日 ${r.tShen}${r.huangdao?'黄道':'黑道'} ${r.zhiXing}日 冲${r.chong} 吉度${r.score}\n`; });
-  if(USER_READY) s+=`\n命主喜用神：喜（${USER_XI.join('、')}） 忌（${USER_JI.join('、')}） 首选用神${USER_USE} 年命纳音${USER_NAYIN}（${USER_NAYIN_WX}）`;
-  if(TS_RES) s+=`\n真太岁：${TS_RES.zhi}（${TS_RES.mode==='liu'?'流年':'本命'}） 岁破${TS_RES.cp} 三煞${TS_RES.ss.join('')}`;
-  const shan=document.getElementById('shan').value, zs=document.getElementById('zhongShi').value;
-  if(shan) s+=`\n坐山：${shan}`;
-  if(zs) s+=`\n用事时辰：${zs}时`;
-  return s;
-}, '择日');
 </script>
 <script>
-/* 模式记忆：刷新、重开后保持上次所选模式（择事、造命） */
-(function(){ try{ if(localStorage.getItem('zeri_mode_v1')==='zaoming') setZrMode('zaoming'); }catch(e){} })();
-/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-shareWait({ page:"zeri", title:"择日择吉在线", recast:function(){
-  try{ if(ZR_MODE==='zaoming'){ initZaomingUI(); zmRun(); } else { query(); } }catch(e){}
-} });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('zeri.html');
+    (function(){
+      const K_OPEN='zeri_mod_open_v2';
+      function saveOpen(){
+        try{
+          const cur=JSON.parse(localStorage.getItem(K_OPEN)||'{}');
+          document.querySelectorAll('details.zr-mod').forEach(function(m){ if(m.id) cur['mod:'+m.id]=!!m.open; });
+          localStorage.setItem(K_OPEN, JSON.stringify(cur));
+        }catch(e){}
+      }
+      function restore(){
+        try{
+          const cur=JSON.parse(localStorage.getItem(K_OPEN)||'{}');
+          document.querySelectorAll('details.zr-mod').forEach(function(m){
+            if(m.id && 'mod:'+m.id in cur) m.open=cur['mod:'+m.id];
+          });
+        }catch(e){}
+      }
+      try{
+        window.addEventListener('beforeunload', saveOpen);
+        window.addEventListener('pagehide', saveOpen);
+        document.querySelectorAll('details.zr-mod').forEach(function(m){
+          m.addEventListener('toggle', saveOpen);
+        });
+        restore();
+        window.addEventListener('pageshow', function(){ saveOpen(); restore(); });
+      }catch(e){}
+    })();
+    fillEvents();
+    fillZrSchool();
+    document.getElementById('shan').innerHTML='<option value="">不按坐山</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
+    document.getElementById('zhongShi').innerHTML='<option value="">不选则只论日柱</option>'+ZHI_HOUR_LIST.map((s,i)=>`<option value="${s}">${s}（${SHI_SPAN[i]}）</option>`).join('');
+    document.getElementById('zrSchool').addEventListener('change', query);
+    initDates();
+    query();
+    (function initUserBirth(){
+      const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
+      if(!sp) return;
+      sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
+      function fillCity(){ const p=sp.value; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
+      function fillDist(){
+        const p=sp.value, c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
+        if(!c) return;
+        /* 城市级经度兜底：city.lng 为 null（直辖市等）时回退省级中心，杜绝 null°E */
+        const pc=(typeof provCenter==='function'&&c.lng==null)?provCenter(p):null;
+        CITY_LNG=(c.lng!=null)?c.lng:(pc?pc.lng:null);
+        let html=`<option value="">${c.c}</option>`;
+        distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
+        sd.innerHTML=html;
+      }
+      sp.onchange=fillCity; sc.onchange=fillDist;
+      sp.value='北京市'; fillCity();
+    })();
+    document.getElementById('tsMode').addEventListener('change',function(){
+      document.getElementById('tsYear').value='';
+      document.getElementById('tsYear').placeholder=this.value==='liu'?'留空即取当年':'如 1988（出生年）';
+      calcTaisui();
+    });
+    document.getElementById('tsYear').addEventListener('input',calcTaisui);
+    calcTaisui();
+    (function(){
+      const p=new URLSearchParams(window.location.search);
+      if(p.get('fromBazi')!=='1') return;
+      const dt=p.get('bDate'), tm=p.get('bTime'), sx=p.get('sex');
+      const de=document.getElementById('bDate'), te=document.getElementById('bTime'), se=document.getElementById('bSex');
+      if(de&&dt) de.value=dt;
+      if(te&&tm) te.value=tm;
+      if(se&&sx) se.value=(sx==='女'||sx==='0')?'0':'1';
+      const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
+      const lngEl=document.getElementById('bLng'), trEl=document.getElementById('bTrue');
+      if(sp&&p.get('bProv')){ sp.value=p.get('bProv'); if(typeof sp.onchange==='function') sp.onchange(); else sp.dispatchEvent(new Event('change')); }
+      if(sc&&p.get('bCity')){ sc.value=p.get('bCity'); if(typeof sc.onchange==='function') sc.onchange(); else sc.dispatchEvent(new Event('change')); }
+      if(sd&&p.get('bDist')) sd.value=p.get('bDist');
+      if(lngEl&&p.get('bLng')) lngEl.value=p.get('bLng');
+      if(trEl) trEl.checked=(p.get('bTrue')==='1');
+      try{ calcUserXi(); }catch(e){}
+    })();
+    mountAI(function(){
+      if(ZR_MODE==='zaoming'){
+        if(!ZM_RES || !ZM_CTX) return '';
+        let s=`造命择日（剖腹产择日）：窗口 ${ZM_CTX.from.y}-${ZM_CTX.from.m}-${ZM_CTX.from.d} 至 ${ZM_CTX.to.y}-${ZM_CTX.to.m}-${ZM_CTX.to.d}，共 ${ZM_RES.count} 个候选（${ZM_RES.days} 天 × ${ZM_CTX.hours.length} 时辰）\n`;
+        s+=`权重：八字质量 55% ＋ 前三步大运 20% ＋ 家长缘分 15% ＋ 避凶底线 10%\n`;
+        ZM_RES.list.slice(0,10).forEach(function(it,i){
+          const r=it.res;
+          s+=`${i+1}. ${it.y}-${it.m}-${it.d} ${ZM_HOURS[it.hourIdx].z}时(${it.clockTime}) ${it.pillars.join(' ')} 日主${it.dayGan}（${it.dayWx}） ${it.strength} ${it.geName||''} 综合${r.total}【${r.grade.t}】\n`;
+        });
+        return s;
+      }
+      if(!LAST) return '';
+      let s=`择日：${LAST.ev}（流派：${document.getElementById('zrSchool').value}）\n候选吉日（共${LAST.top.length}天，按吉度排序）：\n`;
+      LAST.top.forEach(r=>{ s+=`${r.solar.toYmd()} 周${r.wk} 农历${r.lunar.getMonthInChinese()}月${r.lunar.getDayInChinese()} ${r.dayGZ}日 ${r.tShen}${r.huangdao?'黄道':'黑道'} ${r.zhiXing}日 冲${r.chong} 吉度${r.score}\n`; });
+      if(USER_READY) s+=`\n命主喜用神：喜（${USER_XI.join('、')}） 忌（${USER_JI.join('、')}） 首选用神${USER_USE} 年命纳音${USER_NAYIN}（${USER_NAYIN_WX}）`;
+      if(TS_RES) s+=`\n真太岁：${TS_RES.zhi}（${TS_RES.mode==='liu'?'流年':'本命'}） 岁破${TS_RES.cp} 三煞${TS_RES.ss.join('')}`;
+      const shan=document.getElementById('shan').value, zs=document.getElementById('zhongShi').value;
+      if(shan) s+=`\n坐山：${shan}`;
+      if(zs) s+=`\n用事时辰：${zs}时`;
+      return s;
+    }, '择日');
+    (function(){ try{ if(localStorage.getItem('zeri_mode_v1')==='zaoming') setZrMode('zaoming'); }catch(e){} })();
+    shareWait({ page:"zeri", title:"择日择吉在线", recast:function(){
+      try{ if(ZR_MODE==='zaoming'){ initZaomingUI(); zmRun(); } else { query(); } }catch(e){}
+    } });
+  }, 0);
+});
 </script>
 </body>
 </html>

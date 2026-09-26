@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -56,15 +56,14 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/shiling.js?v=20260924a"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
-<script src="assets/holiday.js?v=20260917h2"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/shiling.js?v=20260924a"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/holiday.js?v=20260917h2"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
 <script>
-renderChrome('wannianli.html');
 let cur = new Date();
 let lastSel = '';
 /* 三伏/出伏/数九/入梅出梅 时令计算取自公共模块 assets/shiling.js（万年历与老黄历共用单一真源） */
@@ -407,32 +406,39 @@ function move(n){
 function moveYear(n){cur=safeDate(cur.getFullYear()+n,cur.getMonth()+1,1);render(); if(lastSel) showDay(lastSel);}
 function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
 function goToday(){cur=new Date();document.getElementById('dInput').value=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;render();showDay(`${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`);}
-render();goToday();
-mountAI(function(){
-  const str = lastSel || `${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`;
-  const [y,m,d]=str.split('-').map(Number);
-  const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
-  const sf=solar.getFestivals()||[], sOf=solar.getOtherFestivals()||[], lf=lunar.getFestivals()||[], lOf=lunar.getOtherFestivals()||[];
-  const festList=[]; sf.concat(sOf).forEach(f=>festList.push(f)); lf.concat(lOf).forEach(f=>festList.push(f));
-  const festText=festList.length?festList.join('、'):'无';
-  const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
-  const jqText=(lunar.getJieQi()?('当前：'+lunar.getJieQi()+'  '):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'  下：'+nj.getName()+' '+nj.getSolar().toYmd();
-  const ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi(), dgz=lunar.getDayInGanZhi();
-  const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
-  const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
-  const ngw=(lab,ny,gz,wx,sx)=>`${lab} ${ny} ${gz} ${wx} ${sx}`;
-  const ngwText=[
-    ngw('年',lunar.getYearNaYin(),ygz,GAN_WX[ygz[0]],lunar.getYearShengXiao()),
-    ngw('月',lunar.getMonthNaYin(),mgz,GAN_WX[mgz[0]],lunar.getMonthShengXiao()),
-    ngw('日',lunar.getDayNaYin(),dgz,GAN_WX[dgz[0]],lunar.getDayShengXiao()),
-    ngw('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())
-  ].join('\n');
-  return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n农历：${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}\n生肖/星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座\n月建：${lunar.getMonthInGanZhi()[1]}月\n月相：${lunar.getYueXiang()}\n纳音干支五行生肖：\n${ngwText}\n节气：${jqText}\n时令：${shilingNote(y,m,d).join('、')||'无'}；物候：${shilingWuHou(lunar)||'无'}；经络当令：${shilingDangLing().text}\n节日：${festText}\n二十八宿：${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）\n宜：${lunar.getDayYi().join('、')||'诸事不宜'}\n忌：${lunar.getDayJi().join('、')||'无'}`;
-}, '万年历');
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：dInput 快照即选中日期，还原时经 onchange→jumpToDate 恢复该日视图 */
-shareWait({ page:"wannianli", title:"万年历在线查询", recast:function(){ try{ if(!lastSel) goToday(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('wannianli.html');
+    render();
+    goToday();
+    mountAI(function(){
+      const str = lastSel || `${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`;
+      const [y,m,d]=str.split('-').map(Number);
+      const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
+      const sf=solar.getFestivals()||[], sOf=solar.getOtherFestivals()||[], lf=lunar.getFestivals()||[], lOf=lunar.getOtherFestivals()||[];
+      const festList=[]; sf.concat(sOf).forEach(f=>festList.push(f)); lf.concat(lOf).forEach(f=>festList.push(f));
+      const festText=festList.length?festList.join('、'):'无';
+      const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
+      const jqText=(lunar.getJieQi()?('当前：'+lunar.getJieQi()+'  '):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'  下：'+nj.getName()+' '+nj.getSolar().toYmd();
+      const ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi(), dgz=lunar.getDayInGanZhi();
+      const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
+      const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
+      const ngw=(lab,ny,gz,wx,sx)=>`${lab} ${ny} ${gz} ${wx} ${sx}`;
+      const ngwText=[
+        ngw('年',lunar.getYearNaYin(),ygz,GAN_WX[ygz[0]],lunar.getYearShengXiao()),
+        ngw('月',lunar.getMonthNaYin(),mgz,GAN_WX[mgz[0]],lunar.getMonthShengXiao()),
+        ngw('日',lunar.getDayNaYin(),dgz,GAN_WX[dgz[0]],lunar.getDayShengXiao()),
+        ngw('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())
+      ].join('\n');
+      return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n农历：${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}\n生肖/星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座\n月建：${lunar.getMonthInGanZhi()[1]}月\n月相：${lunar.getYueXiang()}\n纳音干支五行生肖：\n${ngwText}\n节气：${jqText}\n时令：${shilingNote(y,m,d).join('、')||'无'}；物候：${shilingWuHou(lunar)||'无'}；经络当令：${shilingDangLing().text}\n节日：${festText}\n二十八宿：${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）\n宜：${lunar.getDayYi().join('、')||'诸事不宜'}\n忌：${lunar.getDayJi().join('、')||'无'}`;
+    }, '万年历');
+    shareWait({ page:"wannianli", title:"万年历在线查询", recast:function(){ try{ if(!lastSel) goToday(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

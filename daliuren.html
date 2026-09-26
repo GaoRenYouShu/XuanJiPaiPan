@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -62,11 +62,10 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
 <script>
-renderChrome('daliuren.html');
 const ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const GAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 const SHI_NAME=['子(23-01)','丑(01-03)','寅(03-05)','卯(05-07)','辰(07-09)','巳(09-11)','午(11-13)','未(13-15)','申(15-17)','酉(17-19)','戌(19-21)','亥(21-23)'];
@@ -314,13 +313,6 @@ function keOf(a,b){ // a克b?
   return WX_KE2[ZHI_WX2[a]]===ZHI_WX2[b];
 }
 function fillShichen(){document.getElementById('shichen').innerHTML=SHI_NAME.map((s,i)=>`<option value="${i}">${s}</option>`).join('');}
-fillShichen();
-fillDlSchool();
-dlrApplySchoolPreset();
-/* 换流派套用该典籍预设口径，昼夜与月将两轴可单独切换 */
-document.getElementById('dlSchool').addEventListener('change', function(){ dlrApplySchoolPreset(); query(); });
-document.getElementById('dlDay').addEventListener('change', query);
-document.getElementById('dlJiang').addEventListener('change', query);
 /* 月将：太阳过宫，一月一将。中气过宫取中气，节气过宫取节（月建六合为将）。
    节气表兼收本年前后各一位，故取占日之前最近一位节气，跨年键名先归一为中文名 */
 function yueJiang(lunar,mode){
@@ -370,10 +362,6 @@ function dlrApplyModState(){
   document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
   document.querySelectorAll('#out details[id]').forEach(d => { if(d.id in s) d.open = !!s[d.id]; });
 }
-document.addEventListener('toggle', function(e){
-  const t = e.target;
-  if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) dlrSaveModState();
-}, true);
 function query(){
  try{
   const v=document.getElementById('dInput').value; if(!v)return;
@@ -773,36 +761,51 @@ function render(o){
     <section class="mod collapsed" id="dlrModSynth"><div class="mod-head" onclick="dlrToggleMod('dlrModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">六、综合判断</span><span class="mod-sub">毕法赋 天将象意</span></div><div class="mod-body">${baihua(o)}<details class="lr-bifa" id="lrBifa" open><summary>毕法赋断语（《六壬大全》卷十，凌福之）</summary>${bifaTable(o)}</details><details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details></div></section>`;
   dlrApplyModState();
 }
-/* 初始化：自动起当前时刻课 */
-(function(){const n=new Date();document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;document.getElementById('shichen').value=Math.floor(((n.getHours()+1)%24)/2);query();window.__dlrInitDone=true;})();
 /* 刷新重出：顶层机制回填输入后按此钩子重排；changed 为空即不动，折叠态与滚动位置保持 */
 window.xjRefreshHook=function(changed){
   if(!changed||!changed.length) return;
   try{ query(); }catch(e){}
 };
-mountAI(function(){
-  if(!LAST||!LAST.tian) return '';
-  const sk=LAST.school, o=LAST.o||{};
-  let td='天地盘（天盘=月将加时，地盘=十二支本位）：\n';
-  ZHI.forEach(dz=>{
-    const tp=LAST.tian[ZHI.indexOf(dz)];
-    const jn=LAST.jiangOnTian[tp]||'';
-    td+=`${dz}（地） → ${tp}（天）${jn?' 、天将'+jn:''}\n`;
-  });
-  const keStr=LAST.ke.map(k=>`${k.lbl}：${k.u}（天）、${k.d}（地）`).join('\n');
-  const c=LAST.chuan;
-  const tj=z=>LAST.jiangOnTian[z]||'';
-  const wx=z=>ZHI_WX2[z]||'';
-  const chuan=`三传（${c.method}）：\n初传 ${c.chu} ${tj(c.chu)}（${wx(c.chu)}）\n中传 ${c.zhong} ${tj(c.zhong)}（${wx(c.zhong)}）\n末传 ${c.mo} ${tj(c.mo)}（${wx(c.mo)}）`;
-  const read = LAST.o ? baihua(LAST.o).replace(/<br>/g,'\n').replace(/<\/p>/g,'\n').replace(/<[^>]+>/g,'').replace(/&[a-z]+;/g,'') : '';
-  const sha=LAST.o&&LAST.o.sha?`\n神煞：驿马${LAST.o.sha.yima||'-'}，天马${LAST.o.sha.tianma||'-'}，天喜${LAST.o.sha.tianxi||'-'}，天医${LAST.o.sha.tianyi||'-'}，劫煞${LAST.o.sha.jiesha||'-'}，灾煞${LAST.o.sha.zaisha||'-'}，亡神${LAST.o.sha.wangshen||'-'}，破碎${LAST.o.sha.posui||'-'}`:'';
-  const benLine = (LAST.o&&LAST.o.benMing&&LAST.o.xingNian)?`\n本命：${LAST.o.benMing.gan}${LAST.o.benMing.zhi}、${LAST.o.sex}、虚岁${LAST.o.xingNian.age}、行年${LAST.o.xingNian.zhi}`:'';
-  return `大六壬起课（流派：${sk}）\n日干支：${LAST.dgz}　占时：${LAST.shiZhi}　月将：${LAST.jiang}（${JIANG_NAME[ZHI.indexOf(LAST.jiang)]||''}，${o.jiangKey||''}）\n起贵口诀：${o.guiMode||''}　昼夜分界：${o.dayKey||''}（贵人${LAST.guiZhi}，${LAST.day?'昼占阳贵':'夜占阴贵'}；贵人临地盘${ZHI[o.guiDiIdx]||''}位，天将${LAST.o&&LAST.o.shun?'顺':'逆'}布）\n发用法则：${o.faYong==='shehai'?'涉害优先':'贼克比用'}\n${td}\n四课：\n${keStr}\n${chuan}${benLine}${sha}\n\n【综合判断】\n${read}`;
-}, '大六壬');
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-shareWait({ page:"daliuren", title:"大六壬在线排盘", recast:function(){ try{ query(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('daliuren.html');
+    fillShichen();
+    fillDlSchool();
+    dlrApplySchoolPreset();
+    document.getElementById('dlSchool').addEventListener('change', function(){ dlrApplySchoolPreset(); query(); });
+    document.getElementById('dlDay').addEventListener('change', query);
+    document.getElementById('dlJiang').addEventListener('change', query);
+    document.addEventListener('toggle', function(e){
+      const t = e.target;
+      if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) dlrSaveModState();
+    }, true);
+    (function(){const n=new Date();document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;document.getElementById('shichen').value=Math.floor(((n.getHours()+1)%24)/2);query();window.__dlrInitDone=true;})();
+    mountAI(function(){
+      if(!LAST||!LAST.tian) return '';
+      const sk=LAST.school, o=LAST.o||{};
+      let td='天地盘（天盘=月将加时，地盘=十二支本位）：\n';
+      ZHI.forEach(dz=>{
+        const tp=LAST.tian[ZHI.indexOf(dz)];
+        const jn=LAST.jiangOnTian[tp]||'';
+        td+=`${dz}（地） → ${tp}（天）${jn?' 、天将'+jn:''}\n`;
+      });
+      const keStr=LAST.ke.map(k=>`${k.lbl}：${k.u}（天）、${k.d}（地）`).join('\n');
+      const c=LAST.chuan;
+      const tj=z=>LAST.jiangOnTian[z]||'';
+      const wx=z=>ZHI_WX2[z]||'';
+      const chuan=`三传（${c.method}）：\n初传 ${c.chu} ${tj(c.chu)}（${wx(c.chu)}）\n中传 ${c.zhong} ${tj(c.zhong)}（${wx(c.zhong)}）\n末传 ${c.mo} ${tj(c.mo)}（${wx(c.mo)}）`;
+      const read = LAST.o ? baihua(LAST.o).replace(/<br>/g,'\n').replace(/<\/p>/g,'\n').replace(/<[^>]+>/g,'').replace(/&[a-z]+;/g,'') : '';
+      const sha=LAST.o&&LAST.o.sha?`\n神煞：驿马${LAST.o.sha.yima||'-'}，天马${LAST.o.sha.tianma||'-'}，天喜${LAST.o.sha.tianxi||'-'}，天医${LAST.o.sha.tianyi||'-'}，劫煞${LAST.o.sha.jiesha||'-'}，灾煞${LAST.o.sha.zaisha||'-'}，亡神${LAST.o.sha.wangshen||'-'}，破碎${LAST.o.sha.posui||'-'}`:'';
+      const benLine = (LAST.o&&LAST.o.benMing&&LAST.o.xingNian)?`\n本命：${LAST.o.benMing.gan}${LAST.o.benMing.zhi}、${LAST.o.sex}、虚岁${LAST.o.xingNian.age}、行年${LAST.o.xingNian.zhi}`:'';
+      return `大六壬起课（流派：${sk}）\n日干支：${LAST.dgz}　占时：${LAST.shiZhi}　月将：${LAST.jiang}（${JIANG_NAME[ZHI.indexOf(LAST.jiang)]||''}，${o.jiangKey||''}）\n起贵口诀：${o.guiMode||''}　昼夜分界：${o.dayKey||''}（贵人${LAST.guiZhi}，${LAST.day?'昼占阳贵':'夜占阴贵'}；贵人临地盘${ZHI[o.guiDiIdx]||''}位，天将${LAST.o&&LAST.o.shun?'顺':'逆'}布）\n发用法则：${o.faYong==='shehai'?'涉害优先':'贼克比用'}\n${td}\n四课：\n${keStr}\n${chuan}${benLine}${sha}\n\n【综合判断】\n${read}`;
+    }, '大六壬');
+    shareWait({ page:"daliuren", title:"大六壬在线排盘", recast:function(){ try{ query(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

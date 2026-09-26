@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -295,40 +295,19 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/latlng.js?v=20260917da"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
-<script src="assets/xuanji-lib.js?v=20260925a"></script>
-<script src="assets/fengshui-engine.js?v=20260924a"></script>
-<script src="assets/fs-luo.js?v=20260923c"></script>
-<script src="assets/fs-mag.js?v=20260923a"></script>
-<script src="assets/bazi-data.js?v=20260925a"></script>
-<script src="assets/bazi-rel.js?v=20260920c"></script>
-<script src="assets/zeri-engine.js?v=20260925a"></script>
-<script src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/latlng.js?v=20260917da"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/fengshui-engine.js?v=20260924a"></script>
+<script defer src="assets/fs-luo.js?v=20260923c"></script>
+<script defer src="assets/fs-mag.js?v=20260923a"></script>
+<script defer src="assets/bazi-data.js?v=20260925a"></script>
+<script defer src="assets/bazi-rel.js?v=20260920c"></script>
+<script defer src="assets/zeri-engine.js?v=20260925a"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
 <script>
-renderChrome('fengshui-yin.html');
-const FS=FENGSHUI;
-/* 洛书九宫方位 */
-const FS_GRID=[4,9,2,3,5,7,8,1,6];
-const FS_GUA_NUM={坎:1,坤:2,震:3,巽:4,乾:6,兑:7,艮:8,离:9};
-const WX_CLS={水:'wx-shui',火:'wx-huo',土:'wx-tu',木:'wx-mu',金:'wx-jin'};
-const ZHI_FANG_Y={子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北',坤:'西南',艮:'东北',巽:'东南',乾:'西北'};
-const CHONG={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
-/* ===== 圆盘：几何走 assets/wheel.js，骨架、取角、点选三件套同全站一例 ===== */
-const FS_ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-/* 八宫屏幕环序：离在正上、顺时针坤兑乾坎艮震巽，与页内九宫格同向 */
-const FS_ZB_ORDER=[9,2,7,6,1,8,3,4];
-/* 八卦宫所辖地支（坎壬子癸、坤未坤申、震甲卯乙、巽辰巽巳、乾戌乾亥、兑庚酉辛、艮丑艮寅、离丙午丁） */
-const FS_PALACE_ZHI={1:['子'],2:['未','申'],3:['卯'],4:['辰','巳'],6:['戌','亥'],7:['酉'],8:['丑','寅'],9:['午']};
-const STAR_NAMES={1:'一白',2:'二黑',3:'三碧',4:'四绿',5:'五黄',6:'六白',7:'七赤',8:'八白',9:'九紫'};
-/* 骨架与取角走引擎共享件，两页同源：440 那套取 FS.GEO440，本页独有者是玄空盘叠盘用的三环内签；
-   共享件里已有各常量与 fwZhiDeg、fwShanDeg、fwJxFill、fwWangFill 四式，本页不再各写一份 */
-const {C:FW_C,OUT:FW_OUT,IN:FW_IN,CORE:FW_CORE,LAB_OUT:FW_LAB_OUT,LAB_IN:FW_LAB_IN,ARC:FW_ARC,
-  HIT1:FW_HIT1,TICK0:FW_TICK0,TICK1:FW_TICK1,P0:FW_P0,P1:FW_P1}=FS.GEO440;
-const {fwZhiDeg,fwShanDeg,fwJxFill,fwWangFill}=FS;
-const FW_IN3=104, FW_LAB_ZW=152, FW_LAB_SX=120, FW_P1_3=100;
 /* 罗经立向盘（三盘三针）骨架 528：圈数多于他盘（周天刻度、正兼向度数带、三盘三针三环、
    百二十分金共六层），440 骨架可用径向仅 104 单位而六层按站内层宽需 183 单位，装不下，
    故另立一套，见规范第七节。骨架常量、取角、盘面绘制与点选三件套走共享件 assets/fs-luo.js
@@ -343,12 +322,6 @@ function fwZhiPos(z){
 }
 /* 盘下详情条：通用件 .wheel-detail 制式（操作 DOM，故留页内，不入引擎） */
 function fwDetail(id,html){ const e=document.getElementById(id); if(e) e.innerHTML=html; }
-/* 所在地与磁偏角：省市区取自 latlng.js 唯一坐标真源，经纬度可手填覆盖（境外或精确定位）；
-   磁偏角按经纬度经 FS_MAG 离线算得（WMM2025），手改即以其值为准，清空回到自动；
-   不选所在地即无磁偏角，按古法直读磁北不折算。
-   🔴 本块各函数的产物一律只写专业结果（已否折算、折算后坐度），取数来源、模型名、
-   经纬度与两源差值均属后端细节，不得出现在页面上。 */
-let FS_DECL_TOUCH=false;
 function fsGeoFillCity(){
   const sp=document.getElementById('fsProv'), sc=document.getElementById('fsCity');
   if(!sp||!sc) return;
@@ -503,84 +476,6 @@ function syncLocalBase(){
   document.querySelectorAll('.fs-lb-deg').forEach(el=>{ el.value=v('baseDeg'); });
   document.querySelectorAll('.fs-lb-year').forEach(el=>{ el.value=v('baseYear2'); });
 }
-/* ===================== 形法四步（1 觅龙 2 察砂 3 观水 4 点穴）：穴场形峦自检 =====================
-   八项自检按行业标准序分派到四步：来龙归觅龙；玄武、朱雀、龙虎归察砂；水口、界水归观水；
-   明堂、土色归点穴。每项档位取自本页所引典籍体系：来龙取龙势八格，界水取五城水形，
-   砂取向我为有情、背我为无情，穴取明堂土色之验；档位权重 w 直接进分，见 sscore 口径。
-   五不葬为实地硬否决，只在点穴步作补充说明（童断石过独犯者弃地），不列为可勾选项。 */
-const XL_ITEMS=[
-  {id:'xl-ll', step:'觅龙', name:'来龙', tip:'龙势八格：进龙最吉，生龙、强龙、顺龙为吉，弱龙、退龙渐衰，逆龙、死龙不可立穴',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'进龙',t:'进龙（由低至高，节节增高）',w:1,d:'最吉，主进益发福，龙真穴的可乘'},
-    {v:'生龙',t:'生龙（星辰起伏，枝脚活动）',w:0.8,d:'吉，气势生机，主生旺福气'},
-    {v:'强龙',t:'强龙（奔走势力，枝脚撑拏）',w:0.8,d:'吉，力量雄盛，须防粗雄无收'},
-    {v:'顺龙',t:'顺龙（枝脚顺出，抱穴如辑）',w:0.6,d:'吉，护卫有情，宜就枝脚环处点穴'},
-    {v:'弱龙',t:'弱龙（懒缓瘦弱，峰峦无骨）',w:-0.2,d:'福力浅薄，纵有穴亦发迟'},
-    {v:'退龙',t:'退龙（由高至低，步步后退）',w:-0.6,d:'主退败，须另寻前进之势'},
-    {v:'逆龙',t:'逆龙（枝脚逆趋，回顾反背）',w:-0.9,d:'背离无情，穴不可立'},
-    {v:'死龙',t:'死龙（直硬呆板，无起伏变易）',w:-1,d:'不可立穴，龙不真则穴亦虚'}
-   ]},
-  {id:'xl-xw', step:'察砂', name:'玄武（穴后）', tip:'穴后主坐后依托：垂头俯就为有情，昂首拒尸为无情',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'垂头俯就',t:'垂头俯就，缓坡有情',w:1,d:'后有真靠，坐后得力，主安稳久远'},
-    {v:'有靠稍陡',t:'有靠而稍陡',w:0.6,d:'依托尚可用，须防压穴，宜退步就缓处'},
-    {v:'平缓无依',t:'平缓无依',w:0,d:'无靠亦无压，须借龙虎与案朝补之'},
-    {v:'昂首拒尸',t:'昂首拒尸，陡峻压穴',w:-1,d:'玄武不垂头，穴后无情，不可立穴'}
-   ]},
-  {id:'xl-zq', step:'察砂', name:'朱雀（案朝）', tip:'堂前主照应：案山端凝、朝山拱揖为有情，反背斜飞为无情',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'案朝拱揖',t:'案山端凝、朝山拱揖',w:1,d:'前有照应，堂气收摄，主贵速'},
-    {v:'有案无朝',t:'有案无朝',w:0.6,d:'近案有情而远朝不足，主安稳不主大贵'},
-    {v:'案朝低远',t:'案朝低远',w:0,d:'照应有而不力，堂气难收，须水城补救'},
-    {v:'反背斜飞',t:'反背斜飞，水走无情',w:-1,d:'朱雀无情的，明堂不聚，改向或另寻'}
-   ]},
-  {id:'xl-lh', step:'察砂', name:'龙虎（左右）', tip:'左右主藏风：环抱相称为吉，缺漏高压反窜为凶；青龙宜蜿蜒，白虎宜驯俯',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'环抱相称',t:'环抱护卫，高低相称',w:1,d:'左右护卫，藏风聚气，全美之局'},
-    {v:'有抱略偏',t:'有抱而略偏',w:0.6,d:'护卫可用而力不均，宜就偏重一侧避让'},
-    {v:'长短不均',t:'一长一短，高低不称',w:0,d:'藏风不足，须借水口与案山补之'},
-    {v:'缺漏反窜',t:'缺漏不全，高压反窜',w:-1,d:'龙虎不全或反窜，风吹气散，不可用'}
-   ]},
-  {id:'xl-sk', step:'观水', name:'水口', tip:'去水主内气关锁：罗星华表塞口为上，直泄无拦为凶',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'罗星华表',t:'华表罗星关锁',w:1,d:'水口有贵砂镇塞，主大贵，内气不泄'},
-    {v:'关锁紧固',t:'关锁紧固，有砂拦截',w:0.6,d:'水口固则内气自聚，财丁可守'},
-    {v:'有拦不紧',t:'有拦而不紧',w:0,d:'关锁不足，财来财去，宜培补或改向'},
-    {v:'直泄无拦',t:'直泄无拦，一泻千里',w:-1,d:'水口无拦，财丁难聚，另寻为要'}
-   ]},
-  {id:'xl-js', step:'观水', name:'界水', tip:'五城水形：金城最吉，水城次之，土城平吉，木城直冲为凶，火城尖斜大凶',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'金城',t:'金城（弯环如带，环抱穴前）',w:1,d:'最吉，屈曲有情，主富贵绵长'},
-    {v:'水城',t:'水城（玄曲徊环）',w:0.6,d:'吉，聪明文秀，与金城并美'},
-    {v:'土城',t:'土城（方正横平）',w:0,d:'平吉，主稳健，须近身有情方可用'},
-    {v:'木城',t:'木城（直急冲射）',w:-0.8,d:'凶，直冲穴前主凶祸，宜砂拦截或改向'},
-    {v:'火城',t:'火城（尖斜反走）',w:-1,d:'大凶，主火灾刑伤、离乡败绝'}
-   ]},
-  {id:'xl-mt', step:'点穴', name:'明堂', tip:'明堂主容气容水：团聚平正为上，倾泻破碎狭逼污塞为凶',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'团聚宽畅',t:'团聚平正，洁净宽畅',w:1,d:'堂局端正，容气容水，穴情真的'},
-    {v:'平正稍窄',t:'平正而稍窄',w:0.6,d:'堂局可容而局促，发福有限'},
-    {v:'宽而不聚',t:'宽而不聚',w:0,d:'堂局散漫，气不凝聚，须界水与案山收束'},
-    {v:'倾泻污塞',t:'倾泻破碎，狭逼污塞',w:-1,d:'明堂倾泻破碎，气散不聚，非真穴'}
-   ]},
-  {id:'xl-ts', step:'点穴', name:'土色', tip:'金井验土：细坚油润、五色俱备为贵，砂砾枯燥、黑湿臭秽无生气',
-   opts:[
-    {v:'',t:'未详',w:null,d:'实地详审后再定'},
-    {v:'五色俱备',t:'细坚油润，五色俱备',w:1,d:'土润有气，金井之验得吉，生气所聚'},
-    {v:'细润色正',t:'细坚润而色正',w:0.6,d:'土有生气而气未全，可用'},
-    {v:'土色一般',t:'土色一般',w:0,d:'土无验可凭，须以龙穴砂水四证互参'},
-    {v:'枯燥臭秽',t:'砂砾枯燥，黑湿臭秽',w:-1,d:'土无生气，非真穴所在'}
-   ]}
-];
-const XL_HOST_IN={'觅龙':'xlLlIn','察砂':'xlShaIn','观水':'xlShuiIn','点穴':'xlXueIn'};
-const XL_HOST_OUT={'觅龙':'xlLlOut','察砂':'xlShaOut','观水':'xlShuiOut','点穴':'xlXueOut'};
 function renderXlInput(){
   Object.keys(XL_HOST_IN).forEach(k=>{
     const el=document.getElementById(XL_HOST_IN[k]); if(!el) return;
@@ -786,10 +681,6 @@ function drawXuanKong(){
     </div>`;
   fsXkDetail();
 }
-/* 玄空飞星山向盘（三环同格）：外圈八宫方位，内两圈为运星与山向星（山在左、向在右），
-   字色按各自旺衰档（旺生绿、死煞红、退墨），一眼可见哪一路得令、哪一路失令；
-   盘心放大字恒为中宫入中之星＝当运之星，选中之宫退到第三行；盘下三格与两张表是逐宫明细，二者并存不互替 */
-let FS_XK_SEL=0, FS_XK_DATA=null;
 function fsXkRow(i){
   const d=FS_XK_DATA, n=FS_ZB_ORDER[i];
   return {palace:n,
@@ -932,8 +823,6 @@ function drawShan(){
     +`<div class="wheel-detail" id="fsYShanDetail"></div></div>`;
   fsYShanDetail();
 }
-/* 二十四山坐山立极盘：外签二十四山、内签双山配支，犯煞之支着凶色；骨架与取角照通用件一例 */
-let FS_YSHAN_SEL=0;
 /* 断语取度：实测坐度只对坐山生效，他山按该山正向的山心度立极，免得拿同一度数去判别的山而误断兼向空亡 */
 function fsYSitDegOf(i){
   const b=getBase();
@@ -1046,19 +935,6 @@ function fsPickYShan(i){
   fsYShanCore(i);
   fsYShanDetail();
 }
-/* ===================== 穿山七十二龙盘 / 透地六十龙盘 ===================== */
-/* 穿山七十二龙（格龙）：二十四山每山三龙、每龙五度，全盘七十二龙。甲子龙起壬山末格，
-   依双山五子局顺布；地支山三格取本组二三四子，八干四维山三格取前组末子与本组首子，
-   正中一格无干支所配，为十二大空亡龙。
-   透地六十龙（坐度落龙）：每龙六度，甲子龙起壬山之初，每双山三十度下依次布本组五子，
-   即穿山七十二龙去十二大空亡龙重布；本山列出与之相交之龙，边界相交者为半交。
-   两盘同形：外圈二十四山环布，内圈龙格走放射。龙之吉凶按孤虚旺相（丙丁庚辛珠宝可取，
-   甲乙为孤、壬癸为虚、戊己龟甲火坑、八干四维正中大空亡皆不可用），字色只分可取与不可取
-   两支，不逐龙着色到满；某龙度数、纳音与半交走盘下详情条。
-   内圈七十二格每格五度，半径一四八处弧长约十三单位，故字号取十号（格宽的四分之三），
-   两字干支走放射，横向只占一字高，不叠。大空亡龙无干支可取，与地支山正中戊子龟甲空亡
-   同法标注，走凶色加长刻度。 */
-let FS_CT_SEL=0, FS_TD_SEL=0;
 function fsCtRows(shan){ return FS.chuanShan72(shan); }
 function fsTdRows(shan){ return FS.touDi60(shan); }
 function fsLongFill(jx){ return (jx==='大吉'||jx==='吉')?'var(--wheel-good)':'var(--wheel-bad)'; }
@@ -1247,9 +1123,6 @@ function drawXianMing(){
     </tbody></table></div>`;
   fsXmDetail();
 }
-/* 仙命禄马贵人方位盘：外签十二支、内签该支于仙命所任之角色（命、坐、禄、马、贵、冲）；
-   吉位着吉色、冲位着凶色、无涉之支书平字。盘心放大字恒为仙命年干支，点选只动第二三行 */
-let FS_XM_SEL=0, FS_XM_DATA=null;
 function fsXmData(){
   const b=getBase(), gz=FS.yearGZ(b.xianMingYear), zhi=gz[1];
   const sz=FS.SHAN_SHUANGZHI[b.sitShan]||b.sitShan;
@@ -1387,10 +1260,6 @@ function drawNianSha(){
   document.getElementById('nianshaOut').innerHTML=html;
   fsNsDetail();
 }
-/* 流年太岁方位煞盘：十二支方位天然成环，太岁、岁破、三煞、五黄、岁害、岁合（本命已填者并标真太岁）
-   各标所犯之支与所合之方；坐标系与二十四山盘同，坐山与向首双山所配之支刻度加重，盘上自成一条坐向轴；
-   盘心两行：流年干支（不随点选变）与所选之方所犯之煞，随点选只动第二行 */
-let FS_NS_SEL=0, FS_NS_HIT={}, FS_NS_GZ='';
 /* 所犯之煞与所合之方分计：镇煞（太岁、岁破、三煞、五黄、真太岁、岁害）入煞，岁合不入煞。
    判定的轻重只看煞数，只有岁合之方不以煞论。 */
 function fsNsBad(z){ return (FS_NS_HIT[z]||[]).filter(h=>!h.good); }
@@ -1991,11 +1860,6 @@ function drawKeCe(){
     <div class="sub-note">期限内首推：<b class="fs-badge-g">${best.solar.getFullYear()}-${String(best.solar.getMonth()+1).padStart(2,'0')}-${String(best.solar.getDate()).padStart(2,'0')} ${best.dayGZ}日</b>，综合 ${best.s} 分${best.ges.length?'，成'+best.ges[0].name:''}；三纲 ${'补龙'+best.bl.zong+'、扶山'+best.fs.zong+'、相主'+best.xz.zong}。${bestYb}日课明细：${best.zj.reasons.join('、')}。</div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>日期</th><th>日柱</th><th>综合分</th><th>三纲</th><th>课格</th><th>主要扣分</th><th>年家提示</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
-/* ===================== 第五层 收水坐线 ===================== */
-/* 三合水法（长生十二宫） */
-/* 十二宫来去取用：长生冠带临官帝旺宜来水朝堂，沐浴衰病死墓绝宜去水，绝宜去不宜来，胎养其方宜静 */
-/* 十二宫来去取用：与阳宅页同一水法口径，常量收进引擎 FS.SH_USE，两页不再各写一份 */
-const SH_USE=FS.SH_USE;
 function drawSanHe(){
   const b=getBase(), shan=b.sitShan;
   const sw=FS.sanHeWater(shan);
@@ -2017,14 +1881,6 @@ function drawSanHe(){
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>十二宫</th><th>方位</th><th>吉凶</th><th>断水</th><th>来去取用</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   fsShDetail();
 }
-/* 三合水法长生十二宫盘：外签十二宫名、内签地支方位，吉凶二值着色；
-   取角按天盘缝针双山：三合纳水乃于地盘定坐向后换用天盘测水之来去（指南 5.5、第 9 层），
-   十二宫即缝针二十四山两两合成之双山，缝针整体顺偏半山，双山中心正落地盘本支山心
-   （乙辰宫含缝针乙、缝针辰两山，中心落周天一百二十度，即地盘辰山之心），
-   故宫位与地支同轴，与页内按正针的诸盘并读无须错位；
-   阳局顺行、阴局逆行由盘面自见，宫名绕圈的方向本身就是答案；
-   盘心两行：所选之宫名与其吉凶取用，随点选只动第二行 */
-let FS_SH_SEL=0, FS_SH_DATA=null;
 function fsShDeg(i){
   const d=FS_SH_DATA; if(!d) return 0;
   return fwZhiDeg(FS_ZHI.indexOf(d.gong[i].zhi));
@@ -2122,21 +1978,6 @@ function fsPickSh(i){
   fsShCore(i);
   fsShDetail();
 }
-/* ===================== 阴宅综合罗经盘 ===================== */
-/* 阴宅综合罗经盘（五层罗经，制式同阳宅综合罗盘）：自外向内为二十四山（环布）、周天刻度、
-   三合长生十二宫（按双山支轴，放射）、十二支位（单字取字角），盘心为天池四行；盘心外出天心十道与坐向轴。
-   骨架仍守全站 440 那套：外圈 182、盘心 78、外签 206 三处不动，弧带 192、刻度 168 至 176、热区外沿 198 照旧；
-   本盘圈数多于他盘，只把内界圈由 120 收到 108、内签由 148 一路拆成 148 与 120 两圈，其余不动。
-   取层之由：阴宅定线以向上十二长生收水与流年方煞到山避忌为两要（指南 5.5、第 9 层、附录二第六步），
-   故内两圈取十二宫与十二支。十二宫即缝针二十四山两两合成之双山，缝针顺偏半山而双山宽三十度，
-   两山取中，宫心恒等于地盘本支山心，故十二宫与十二支同轴，与页内按正针诸盘并读无须错位；
-   十二宫按本设坐山所属三合局布，点选他山时读的是该山双山配支在本局中所落之宫，口径随盘下详情条给出。
-   与三合专盘分工：三合盘按宫细读断水与来去取用，本盘按山合参坐度、双山、宫位与到山煞，是总览；
-   与立向盘分工：三针落山与分金线位在立向盘详情条，本盘详情条不重出。
-   径向分配与阳宅综合罗盘逐值相同，同取共享件 FS.GEOFC，故两页同一制式、改一处两页同改 */
-const {OUT:FC_OUT,IN:FC_IN,CORE:FC_CORE,ARC:FC_ARC,TICK0:FC_TICK0,TICK1:FC_TICK1,
-  LAB_SHAN:FC_LAB_SHAN,LAB_ZW:FC_LAB_ZW,LAB_GUA:FC_LAB_GUA,HIT0:FC_HIT0,HIT1:FC_HIT1,P0:FC_P0,P1:FC_P1}=FS.GEOFC;
-let FS_ZH_SEL=0, FS_ZH_DATA=null;
 function fsZhData(){
   const b=getBase(), y=b.flowYear;
   return {b, y, gz:FS.yearGZ(y), ns:FS.nianSha(y), sw:FS.sanHeWater(b.sitShan)};
@@ -2392,21 +2233,6 @@ const bestFen=fj.map(f=>({f, z:FS.fenJinZong(f, xmInfo, yq.yun, '仙命')})).sor
         }).join('')}</tbody></table></div>
     </div>`;
 }
-/* 点击荐向卡：同步页顶基础设定并全页联动重算 */
-/* 成课表复用 drawKeCe 的全量扫描：同一套 ckEvalDay 逻辑，按当前设定扫默认窗口取前三。
-   为避免重复计算拖慢页面，仅在用户展开成课表或重扫时重算，页面联动时同步刷新。 */
-/* ===================== 综合判定：两分制（位置分 + 择日分 → 最终分） =====================
-   【定源体例】择日页范式：每步基线60分、小项按典籍凶度语言加减分；否决仅限典籍“断不可用”之项，
-   其余凶项只扣分不打回重来。全站评分一律“基线60、满100、0为底、否决归零”，故各步俱优者可达100。
-   【两分制】前七步（1觅龙 2察砂 3观水 4点穴 5立向 6定线 7配仙命）合成位置分，判地、向、人；
-   第八步（择日）独立成择日分，判时。两分互不否决，最终分＝位置分×0.80＋择日分×0.20。
-   层权重沿站内五层归纳（相地0.30、立向0.22、定人0.13、择日0.20、坐线0.15），
-   其中相地0.30 拆入形法四步：觅龙0.09、察砂0.06、观水0.06、点穴0.09；
-   故位置分权重和 0.80、择日分 0.20，合计 1.00。缺输入之步剔除后权重归一。
-   综合等级：88以上上格、76以上中格、60以上平、40以上慎用、不足另择（与择日页同尺）。 */
-let FINAL_ITEMS=[], FINAL_SCORE=null;
-const YIN_W={'1 觅龙':0.09,'2 察砂':0.06,'3 观水':0.06,'4 点穴':0.09,'5 立向':0.22,'6 定线':0.15,'7 配仙命':0.13,'8 择日':0.20};
-const YIN_POS_W=0.80, YIN_ZE_W=0.20;
 function yinGrade(s){ return s>=88?'上格':(s>=76?'中格':(s>=60?'平':(s>=40?'慎用':'另择'))); }
 /* 择日分用日课量纲的档名（与成课择吉、择日页同语言），位置分与最终分用地宅量纲档名 */
 function zeGradeName(s){ return ckGrade(s).t; }
@@ -2791,26 +2617,6 @@ function drawFinal(){
   /* 逐项明细已并入页末综合判定分组表，此处不再重复列表 */
   document.getElementById('finalOut').innerHTML='';
 }
-/* 初始化 */
-renderXlInput();
-fillBase();
-fsGeoInit();
-fillBuLong();
-(function(){
-  const n=new Date();
-  const de=document.getElementById('baseYear2');
-  if(de) de.value=n.getFullYear();
-  const zd=document.getElementById('zrDate');
-  if(zd) zd.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-  /* 成课默认窗口：今天起一个月 */
-  const ckf=document.getElementById('ckFrom'), ckt=document.getElementById('ckTo');
-  if(ckf) ckf.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-  if(ckt){
-    const e=new Date(n.getTime()+30*86400000);
-    ckt.value=e.getFullYear()+'-'+String(e.getMonth()+1).padStart(2,'0')+'-'+String(e.getDate()).padStart(2,'0');
-  }
-  fsApplyBase();
-})();
 /* 折叠态属交互态：模块与折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底。
    存的是收起与否，'1' 为收起、'0' 为展开 */
 function fsReadModState(){
@@ -2842,64 +2648,277 @@ function fsRestoreModState(){
   document.querySelectorAll('section.fs-mod').forEach(mm=>{ if(st[mm.id]==='1') mm.classList.add('collapsed'); });
   document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in st) d.open=(st[d.id]==='0'); });
 }
-document.addEventListener('toggle',function(e){
-  const t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id) fsSaveModState();
-},true);
 function jumpMod(id){
   const el=document.getElementById(id); if(!el) return;
   el.classList.remove('collapsed');
   el.scrollIntoView({behavior:'smooth', block:'start'});
 }
-fsRestoreModState();
-/* 刷新后回到原滚动位置：已由全站顶层机制统一恢复，此处仅作未加载顶层时的兜底 */
-window.addEventListener("beforeunload", function(){ if(window.xjRefreshTakeover) return; try{ localStorage.setItem("fsy_scroll", String(window.scrollY)); }catch(e){} });
-try{
-  if(!window.xjRefreshTakeover){
-    const sy=parseInt(localStorage.getItem("fsy_scroll")||"0",10);
-    if(sy>0) setTimeout(function(){ window.scrollTo(0, sy); }, 0);
-  }
-}catch(e){}
-mountAI(function(){
-  const b=getBase();
-  let s='阴宅风水';
-  const xk=FS.xuanKong(b.sitShan,b.faceShan,b.flowYear,b.deg,b.faceDeg);
-  if(xk) s+=`\n玄空（坐${b.sitShan}向${b.faceShan} ${b.flowYear}年）：${xk.yun.yuan}${xk.yun.yun}运，格局${xk.geju}。`;
-  try{
-    const si=FS.shanInfo(b.sitShan,b.flowYear,b.deg);
-    if(si) s+=`\n坐山${b.sitShan}山（${si.bagua}卦${si.wx}）${si.kongWang?'（空亡）':''}${si.jian?'（兼向）':''}。`;
-  }catch(e){}
-  try{
-    const ns=FS.nianSha(b.flowYear); s+=`\n安葬流年（${b.flowYear}年）：太岁${ns.taiSui.zhi}、岁破${ns.suiPo.zhi}、三煞${ns.sanSha.map(x=>x.name+x.zhi).join('、')}、五黄${ns.wuHuang.dir}。`;
-  }catch(e){}
-  try{
-    const xmGz=FS.yearGZ(b.xianMingYear);
-    const sz=FS.SHAN_SHUANGZHI[b.sitShan];
-    const rel=FS.zhiGuanXi(xmGz[1], sz);
-    const lmg=FS.luMaGui(xmGz);
-    s+=`\n仙命：${xmGz}（纳音${FS.nayin(xmGz).name}），配坐山双山支${sz}：${rel.name}（${rel.jx}）；禄${lmg.lu}、马${lmg.ma}、贵人${lmg.guiren.join('、')}。`;
-  }catch(e){}
-  try{
-    const bs=FS.baSha(b.sitShan), tq=FS.huangQuan(b.faceShan), th=FS.taoHuaShui(b.sitShan);
-    s+=`\n煞法：八煞${bs.gua}山忌${bs.zhi}方；${tq.none?'立'+b.faceShan+'向黄泉口诀未列':'立'+b.faceShan+'向黄泉在'+tq.zhi}方；桃花水在${th.zhi}方。`;
-  }catch(e){}
-  try{
-    const tg=FS.tianXingGui(b.sitShan);
-    s+=`\n天星立向：${tg.gui?('坐山应'+tg.star+'（'+tg.mean+'）'):'坐山无催官核心贵星，立向以玄空三合为主'}`;
-  }catch(e){}
-  try{
-    const dv=document.getElementById('zrDate').value;
-    if(dv){
-      const [zy,zm,zd2]=dv.split('-').map(Number);
-      const ctx=YIN_CTX(zy,zm,zd2);
-      s+=`\n安葬择日（${dv}）：日课${ctx.yGz}年${ctx.mGz}月${ctx.dayGz}日，节气月建${ctx.mGz[1]}。`;
-    }
-  }catch(e){}
-  return s;
-}, '阴宅风水');
 </script>
 <script>
-shareWait({ page:"fengshui-yin", title:"阴宅风水", recast:function(){ try{ fsApplyBase(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('fengshui-yin.html');
+    (function(){
+      const FS=FENGSHUI;
+      window.FS = FS;
+    })();
+    (function(){
+      const FS_GRID=[4,9,2,3,5,7,8,1,6];
+      window.FS_GRID = FS_GRID;
+    })();
+    (function(){
+      const FS_GUA_NUM={坎:1,坤:2,震:3,巽:4,乾:6,兑:7,艮:8,离:9};
+      window.FS_GUA_NUM = FS_GUA_NUM;
+    })();
+    (function(){
+      const WX_CLS={水:'wx-shui',火:'wx-huo',土:'wx-tu',木:'wx-mu',金:'wx-jin'};
+      window.WX_CLS = WX_CLS;
+    })();
+    (function(){
+      const ZHI_FANG_Y={子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北',坤:'西南',艮:'东北',巽:'东南',乾:'西北'};
+      window.ZHI_FANG_Y = ZHI_FANG_Y;
+    })();
+    (function(){
+      const CHONG={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
+      window.CHONG = CHONG;
+    })();
+    (function(){
+      const FS_ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+      window.FS_ZHI = FS_ZHI;
+    })();
+    (function(){
+      const FS_ZB_ORDER=[9,2,7,6,1,8,3,4];
+      window.FS_ZB_ORDER = FS_ZB_ORDER;
+    })();
+    (function(){
+      const FS_PALACE_ZHI={1:['子'],2:['未','申'],3:['卯'],4:['辰','巳'],6:['戌','亥'],7:['酉'],8:['丑','寅'],9:['午']};
+      window.FS_PALACE_ZHI = FS_PALACE_ZHI;
+    })();
+    (function(){
+      const STAR_NAMES={1:'一白',2:'二黑',3:'三碧',4:'四绿',5:'五黄',6:'六白',7:'七赤',8:'八白',9:'九紫'};
+      window.STAR_NAMES = STAR_NAMES;
+    })();
+    (function(){
+      const {C:FW_C,OUT:FW_OUT,IN:FW_IN,CORE:FW_CORE,LAB_OUT:FW_LAB_OUT,LAB_IN:FW_LAB_IN,ARC:FW_ARC,
+      HIT1:FW_HIT1,TICK0:FW_TICK0,TICK1:FW_TICK1,P0:FW_P0,P1:FW_P1}=FS.GEO440;
+      window.FW_C = FW_C; window.FW_OUT = FW_OUT; window.FW_IN = FW_IN; window.FW_CORE = FW_CORE; window.FW_LAB_OUT = FW_LAB_OUT; window.FW_LAB_IN = FW_LAB_IN; window.FW_ARC = FW_ARC; window.FW_HIT1 = FW_HIT1; window.FW_TICK0 = FW_TICK0; window.FW_TICK1 = FW_TICK1; window.FW_P0 = FW_P0; window.FW_P1 = FW_P1;
+    })();
+    (function(){
+      const {fwZhiDeg,fwShanDeg,fwJxFill,fwWangFill}=FS;
+      window.fwZhiDeg = fwZhiDeg; window.fwShanDeg = fwShanDeg; window.fwJxFill = fwJxFill; window.fwWangFill = fwWangFill;
+    })();
+    (function(){
+      const FW_IN3=104, FW_LAB_ZW=152, FW_LAB_SX=120, FW_P1_3=100;
+      window.FW_IN3 = FW_IN3; window.FW_LAB_ZW = FW_LAB_ZW; window.FW_LAB_SX = FW_LAB_SX; window.FW_P1_3 = FW_P1_3;
+    })();
+    (function(){
+      let FS_DECL_TOUCH=false;
+      window.FS_DECL_TOUCH = FS_DECL_TOUCH;
+    })();
+    (function(){
+      const XL_ITEMS=[
+      {id:'xl-ll', step:'觅龙', name:'来龙', tip:'龙势八格：进龙最吉，生龙、强龙、顺龙为吉，弱龙、退龙渐衰，逆龙、死龙不可立穴',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'进龙',t:'进龙（由低至高，节节增高）',w:1,d:'最吉，主进益发福，龙真穴的可乘'},
+        {v:'生龙',t:'生龙（星辰起伏，枝脚活动）',w:0.8,d:'吉，气势生机，主生旺福气'},
+        {v:'强龙',t:'强龙（奔走势力，枝脚撑拏）',w:0.8,d:'吉，力量雄盛，须防粗雄无收'},
+        {v:'顺龙',t:'顺龙（枝脚顺出，抱穴如辑）',w:0.6,d:'吉，护卫有情，宜就枝脚环处点穴'},
+        {v:'弱龙',t:'弱龙（懒缓瘦弱，峰峦无骨）',w:-0.2,d:'福力浅薄，纵有穴亦发迟'},
+        {v:'退龙',t:'退龙（由高至低，步步后退）',w:-0.6,d:'主退败，须另寻前进之势'},
+        {v:'逆龙',t:'逆龙（枝脚逆趋，回顾反背）',w:-0.9,d:'背离无情，穴不可立'},
+        {v:'死龙',t:'死龙（直硬呆板，无起伏变易）',w:-1,d:'不可立穴，龙不真则穴亦虚'}
+       ]},
+      {id:'xl-xw', step:'察砂', name:'玄武（穴后）', tip:'穴后主坐后依托：垂头俯就为有情，昂首拒尸为无情',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'垂头俯就',t:'垂头俯就，缓坡有情',w:1,d:'后有真靠，坐后得力，主安稳久远'},
+        {v:'有靠稍陡',t:'有靠而稍陡',w:0.6,d:'依托尚可用，须防压穴，宜退步就缓处'},
+        {v:'平缓无依',t:'平缓无依',w:0,d:'无靠亦无压，须借龙虎与案朝补之'},
+        {v:'昂首拒尸',t:'昂首拒尸，陡峻压穴',w:-1,d:'玄武不垂头，穴后无情，不可立穴'}
+       ]},
+      {id:'xl-zq', step:'察砂', name:'朱雀（案朝）', tip:'堂前主照应：案山端凝、朝山拱揖为有情，反背斜飞为无情',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'案朝拱揖',t:'案山端凝、朝山拱揖',w:1,d:'前有照应，堂气收摄，主贵速'},
+        {v:'有案无朝',t:'有案无朝',w:0.6,d:'近案有情而远朝不足，主安稳不主大贵'},
+        {v:'案朝低远',t:'案朝低远',w:0,d:'照应有而不力，堂气难收，须水城补救'},
+        {v:'反背斜飞',t:'反背斜飞，水走无情',w:-1,d:'朱雀无情的，明堂不聚，改向或另寻'}
+       ]},
+      {id:'xl-lh', step:'察砂', name:'龙虎（左右）', tip:'左右主藏风：环抱相称为吉，缺漏高压反窜为凶；青龙宜蜿蜒，白虎宜驯俯',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'环抱相称',t:'环抱护卫，高低相称',w:1,d:'左右护卫，藏风聚气，全美之局'},
+        {v:'有抱略偏',t:'有抱而略偏',w:0.6,d:'护卫可用而力不均，宜就偏重一侧避让'},
+        {v:'长短不均',t:'一长一短，高低不称',w:0,d:'藏风不足，须借水口与案山补之'},
+        {v:'缺漏反窜',t:'缺漏不全，高压反窜',w:-1,d:'龙虎不全或反窜，风吹气散，不可用'}
+       ]},
+      {id:'xl-sk', step:'观水', name:'水口', tip:'去水主内气关锁：罗星华表塞口为上，直泄无拦为凶',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'罗星华表',t:'华表罗星关锁',w:1,d:'水口有贵砂镇塞，主大贵，内气不泄'},
+        {v:'关锁紧固',t:'关锁紧固，有砂拦截',w:0.6,d:'水口固则内气自聚，财丁可守'},
+        {v:'有拦不紧',t:'有拦而不紧',w:0,d:'关锁不足，财来财去，宜培补或改向'},
+        {v:'直泄无拦',t:'直泄无拦，一泻千里',w:-1,d:'水口无拦，财丁难聚，另寻为要'}
+       ]},
+      {id:'xl-js', step:'观水', name:'界水', tip:'五城水形：金城最吉，水城次之，土城平吉，木城直冲为凶，火城尖斜大凶',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'金城',t:'金城（弯环如带，环抱穴前）',w:1,d:'最吉，屈曲有情，主富贵绵长'},
+        {v:'水城',t:'水城（玄曲徊环）',w:0.6,d:'吉，聪明文秀，与金城并美'},
+        {v:'土城',t:'土城（方正横平）',w:0,d:'平吉，主稳健，须近身有情方可用'},
+        {v:'木城',t:'木城（直急冲射）',w:-0.8,d:'凶，直冲穴前主凶祸，宜砂拦截或改向'},
+        {v:'火城',t:'火城（尖斜反走）',w:-1,d:'大凶，主火灾刑伤、离乡败绝'}
+       ]},
+      {id:'xl-mt', step:'点穴', name:'明堂', tip:'明堂主容气容水：团聚平正为上，倾泻破碎狭逼污塞为凶',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'团聚宽畅',t:'团聚平正，洁净宽畅',w:1,d:'堂局端正，容气容水，穴情真的'},
+        {v:'平正稍窄',t:'平正而稍窄',w:0.6,d:'堂局可容而局促，发福有限'},
+        {v:'宽而不聚',t:'宽而不聚',w:0,d:'堂局散漫，气不凝聚，须界水与案山收束'},
+        {v:'倾泻污塞',t:'倾泻破碎，狭逼污塞',w:-1,d:'明堂倾泻破碎，气散不聚，非真穴'}
+       ]},
+      {id:'xl-ts', step:'点穴', name:'土色', tip:'金井验土：细坚油润、五色俱备为贵，砂砾枯燥、黑湿臭秽无生气',
+       opts:[
+        {v:'',t:'未详',w:null,d:'实地详审后再定'},
+        {v:'五色俱备',t:'细坚油润，五色俱备',w:1,d:'土润有气，金井之验得吉，生气所聚'},
+        {v:'细润色正',t:'细坚润而色正',w:0.6,d:'土有生气而气未全，可用'},
+        {v:'土色一般',t:'土色一般',w:0,d:'土无验可凭，须以龙穴砂水四证互参'},
+        {v:'枯燥臭秽',t:'砂砾枯燥，黑湿臭秽',w:-1,d:'土无生气，非真穴所在'}
+       ]}
+    ];
+      window.XL_ITEMS = XL_ITEMS;
+    })();
+    (function(){
+      const XL_HOST_IN={'觅龙':'xlLlIn','察砂':'xlShaIn','观水':'xlShuiIn','点穴':'xlXueIn'};
+      window.XL_HOST_IN = XL_HOST_IN;
+    })();
+    (function(){
+      const XL_HOST_OUT={'觅龙':'xlLlOut','察砂':'xlShaOut','观水':'xlShuiOut','点穴':'xlXueOut'};
+      window.XL_HOST_OUT = XL_HOST_OUT;
+    })();
+    (function(){
+      let FS_XK_SEL=0, FS_XK_DATA=null;
+      window.FS_XK_SEL = FS_XK_SEL; window.FS_XK_DATA = FS_XK_DATA;
+    })();
+    (function(){
+      let FS_YSHAN_SEL=0;
+      window.FS_YSHAN_SEL = FS_YSHAN_SEL;
+    })();
+    (function(){
+      let FS_CT_SEL=0, FS_TD_SEL=0;
+      window.FS_CT_SEL = FS_CT_SEL; window.FS_TD_SEL = FS_TD_SEL;
+    })();
+    (function(){
+      let FS_XM_SEL=0, FS_XM_DATA=null;
+      window.FS_XM_SEL = FS_XM_SEL; window.FS_XM_DATA = FS_XM_DATA;
+    })();
+    (function(){
+      let FS_NS_SEL=0, FS_NS_HIT={}, FS_NS_GZ='';
+      window.FS_NS_SEL = FS_NS_SEL; window.FS_NS_HIT = FS_NS_HIT; window.FS_NS_GZ = FS_NS_GZ;
+    })();
+    (function(){
+      const SH_USE=FS.SH_USE;
+      window.SH_USE = SH_USE;
+    })();
+    (function(){
+      let FS_SH_SEL=0, FS_SH_DATA=null;
+      window.FS_SH_SEL = FS_SH_SEL; window.FS_SH_DATA = FS_SH_DATA;
+    })();
+    (function(){
+      const {OUT:FC_OUT,IN:FC_IN,CORE:FC_CORE,ARC:FC_ARC,TICK0:FC_TICK0,TICK1:FC_TICK1,
+      LAB_SHAN:FC_LAB_SHAN,LAB_ZW:FC_LAB_ZW,LAB_GUA:FC_LAB_GUA,HIT0:FC_HIT0,HIT1:FC_HIT1,P0:FC_P0,P1:FC_P1}=FS.GEOFC;
+      window.FC_OUT = FC_OUT; window.FC_IN = FC_IN; window.FC_CORE = FC_CORE; window.FC_ARC = FC_ARC; window.FC_TICK0 = FC_TICK0; window.FC_TICK1 = FC_TICK1; window.FC_LAB_SHAN = FC_LAB_SHAN; window.FC_LAB_ZW = FC_LAB_ZW; window.FC_LAB_GUA = FC_LAB_GUA; window.FC_HIT0 = FC_HIT0; window.FC_HIT1 = FC_HIT1; window.FC_P0 = FC_P0; window.FC_P1 = FC_P1;
+    })();
+    (function(){
+      let FS_ZH_SEL=0, FS_ZH_DATA=null;
+      window.FS_ZH_SEL = FS_ZH_SEL; window.FS_ZH_DATA = FS_ZH_DATA;
+    })();
+    (function(){
+      let FINAL_ITEMS=[], FINAL_SCORE=null;
+      window.FINAL_ITEMS = FINAL_ITEMS; window.FINAL_SCORE = FINAL_SCORE;
+    })();
+    (function(){
+      const YIN_W={'1 觅龙':0.09,'2 察砂':0.06,'3 观水':0.06,'4 点穴':0.09,'5 立向':0.22,'6 定线':0.15,'7 配仙命':0.13,'8 择日':0.20};
+      window.YIN_W = YIN_W;
+    })();
+    (function(){
+      const YIN_POS_W=0.80, YIN_ZE_W=0.20;
+      window.YIN_POS_W = YIN_POS_W; window.YIN_ZE_W = YIN_ZE_W;
+    })();
+    renderXlInput();
+    fillBase();
+    fsGeoInit();
+    fillBuLong();
+    (function(){
+      const n=new Date();
+      const de=document.getElementById('baseYear2');
+      if(de) de.value=n.getFullYear();
+      const zd=document.getElementById('zrDate');
+      if(zd) zd.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+      /* 成课默认窗口：今天起一个月 */
+      const ckf=document.getElementById('ckFrom'), ckt=document.getElementById('ckTo');
+      if(ckf) ckf.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+      if(ckt){
+        const e=new Date(n.getTime()+30*86400000);
+        ckt.value=e.getFullYear()+'-'+String(e.getMonth()+1).padStart(2,'0')+'-'+String(e.getDate()).padStart(2,'0');
+      }
+      fsApplyBase();
+    })();
+    document.addEventListener('toggle',function(e){
+      const t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id) fsSaveModState();
+    },true);
+    fsRestoreModState();
+    window.addEventListener("beforeunload", function(){ if(window.xjRefreshTakeover) return; try{ localStorage.setItem("fsy_scroll", String(window.scrollY)); }catch(e){} });
+    try{
+      if(!window.xjRefreshTakeover){
+        const sy=parseInt(localStorage.getItem("fsy_scroll")||"0",10);
+        if(sy>0) setTimeout(function(){ window.scrollTo(0, sy); }, 0);
+      }
+    }catch(e){};
+    mountAI(function(){
+      const b=getBase();
+      let s='阴宅风水';
+      const xk=FS.xuanKong(b.sitShan,b.faceShan,b.flowYear,b.deg,b.faceDeg);
+      if(xk) s+=`\n玄空（坐${b.sitShan}向${b.faceShan} ${b.flowYear}年）：${xk.yun.yuan}${xk.yun.yun}运，格局${xk.geju}。`;
+      try{
+        const si=FS.shanInfo(b.sitShan,b.flowYear,b.deg);
+        if(si) s+=`\n坐山${b.sitShan}山（${si.bagua}卦${si.wx}）${si.kongWang?'（空亡）':''}${si.jian?'（兼向）':''}。`;
+      }catch(e){}
+      try{
+        const ns=FS.nianSha(b.flowYear); s+=`\n安葬流年（${b.flowYear}年）：太岁${ns.taiSui.zhi}、岁破${ns.suiPo.zhi}、三煞${ns.sanSha.map(x=>x.name+x.zhi).join('、')}、五黄${ns.wuHuang.dir}。`;
+      }catch(e){}
+      try{
+        const xmGz=FS.yearGZ(b.xianMingYear);
+        const sz=FS.SHAN_SHUANGZHI[b.sitShan];
+        const rel=FS.zhiGuanXi(xmGz[1], sz);
+        const lmg=FS.luMaGui(xmGz);
+        s+=`\n仙命：${xmGz}（纳音${FS.nayin(xmGz).name}），配坐山双山支${sz}：${rel.name}（${rel.jx}）；禄${lmg.lu}、马${lmg.ma}、贵人${lmg.guiren.join('、')}。`;
+      }catch(e){}
+      try{
+        const bs=FS.baSha(b.sitShan), tq=FS.huangQuan(b.faceShan), th=FS.taoHuaShui(b.sitShan);
+        s+=`\n煞法：八煞${bs.gua}山忌${bs.zhi}方；${tq.none?'立'+b.faceShan+'向黄泉口诀未列':'立'+b.faceShan+'向黄泉在'+tq.zhi}方；桃花水在${th.zhi}方。`;
+      }catch(e){}
+      try{
+        const tg=FS.tianXingGui(b.sitShan);
+        s+=`\n天星立向：${tg.gui?('坐山应'+tg.star+'（'+tg.mean+'）'):'坐山无催官核心贵星，立向以玄空三合为主'}`;
+      }catch(e){}
+      try{
+        const dv=document.getElementById('zrDate').value;
+        if(dv){
+          const [zy,zm,zd2]=dv.split('-').map(Number);
+          const ctx=YIN_CTX(zy,zm,zd2);
+          s+=`\n安葬择日（${dv}）：日课${ctx.yGz}年${ctx.mGz}月${ctx.dayGz}日，节气月建${ctx.mGz[1]}。`;
+        }
+      }catch(e){}
+      return s;
+    }, '阴宅风水');
+    shareWait({ page:"fengshui-yin", title:"阴宅风水", recast:function(){ try{ fsApplyBase(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>

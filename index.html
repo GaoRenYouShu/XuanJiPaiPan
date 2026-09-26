@@ -197,27 +197,6 @@ const CATS=[
 const CN_NUM=['卷一','卷二','卷三','卷四','卷五','卷六','卷七','卷八'];
 
 let idx=0;
-document.getElementById('cats').innerHTML=CATS.map((c,i)=>{
-  const rows=c.tools.map(t=>{
-    idx++;
-    const no=String(idx).padStart(2,'0');
-    return `<li><a class="hm-tool" href="${t[0]}">
-      <span class="hm-idx">${no}</span>
-      <span class="hm-nm">${t[1]}</span>
-      <span class="hm-line"></span>
-      <span class="hm-de">${t[2]}</span>
-    </a></li>`;
-  }).join('');
-  return `<section class="hm-cat">
-    <h2 class="hm-cat-h">
-      <span class="num">${CN_NUM[i]}</span>
-      <span class="nm">${c.nm}</span>
-      <span class="en">${c.en}</span>
-      <span class="cnt">${c.tools.length} 目</span>
-    </h2>
-    <ul class="hm-list">${rows}</ul>
-  </section>`;
-}).join('');
 
 /* 顶栏与页脚已静态预渲染于首屏。以下两个入口分别挂在 app.js 与 lunar.js 的 onload 上，
    各自的库就绪即执行，不互相等待，也不等 DOMContentLoaded */
@@ -245,6 +224,33 @@ window.fillToday=function(){
   if(jq)parts.push('今日'+jq);
   document.getElementById('tExtra').textContent=parts.join('　');
 };
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    document.getElementById('cats').innerHTML=CATS.map((c,i)=>{
+      const rows=c.tools.map(t=>{
+        idx++;
+        const no=String(idx).padStart(2,'0');
+        return `<li><a class="hm-tool" href="${t[0]}">
+          <span class="hm-idx">${no}</span>
+          <span class="hm-nm">${t[1]}</span>
+          <span class="hm-line"></span>
+          <span class="hm-de">${t[2]}</span>
+        </a></li>`;
+      }).join('');
+      return `<section class="hm-cat">
+        <h2 class="hm-cat-h">
+          <span class="num">${CN_NUM[i]}</span>
+          <span class="nm">${c.nm}</span>
+          <span class="en">${c.en}</span>
+          <span class="cnt">${c.tools.length} 目</span>
+        </h2>
+        <ul class="hm-list">${rows}</ul>
+      </section>`;
+    }).join('');
+  }, 0);
+});
 </script>
 </body>
 </html>

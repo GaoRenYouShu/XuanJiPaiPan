@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -136,12 +136,12 @@
 </main>
 </div>
 <footer id="footer"></footer>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/wheel.js?v=20260925a"></script>
-<script src="assets/xingxiu-data.js?v=20260925a"></script>
-<script src="assets/xingxiu.js?v=20260925a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/xingxiu-data.js?v=20260925a"></script>
+<script defer src="assets/xingxiu.js?v=20260925a"></script>
 <script>
 /* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
 function xxReadFold(){
@@ -167,13 +167,18 @@ function xxApplyFold(){
   const o=xxReadFold();
   document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
 }
-document.addEventListener('toggle',function(e){
-  const t=e.target;
-  if(t && t.tagName==='DETAILS' && t.id) xxSaveFold();
-},true);
-/* 页面装配：共享导航与免责声明 */
-renderChrome('xingxiu.html');
-xxApplyFold();
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    document.addEventListener('toggle',function(e){
+      const t=e.target;
+      if(t && t.tagName==='DETAILS' && t.id) xxSaveFold();
+    },true);
+    renderChrome('xingxiu.html');
+    xxApplyFold();
+  }, 0);
+});
 </script>
 </body>
 </html>

@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script src="assets/meta.js?v=20260925b"></script>
+<script defer src="assets/meta.js?v=20260925b"></script>
 <link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
 <link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
@@ -118,12 +118,11 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script src="assets/lunar.js?v=20260927a"></script>
-<script src="assets/app.js?v=20260924i"></script>
-<script src="assets/ai.js?v=20260924a"></script>
-<script src="assets/taiyi-engine.js?v=20260917da"></script>
+<script defer src="assets/lunar.js?v=20260927a"></script>
+<script defer src="assets/app.js?v=20260924i"></script>
+<script defer src="assets/ai.js?v=20260924a"></script>
+<script defer src="assets/taiyi-engine.js?v=20260917da"></script>
 <script>
-renderChrome('taiyi.html');
 const SIXTEEN = '子丑艮寅卯辰巽巳午未坤申酉戌乾亥'.split('');
 const GONG_NAME = {子:'子',丑:'丑',艮:'艮',寅:'寅',卯:'卯',辰:'辰',巽:'巽',巳:'巳',午:'午',未:'未',坤:'坤',申:'申',酉:'酉',戌:'戌',乾:'乾',亥:'亥',中:'中'};
 /* 十六宫名→九宫卦名：太乙落宫用子/卯/午/酉，九宫分野表用坎/震/离/兑，查表前先换算 */
@@ -217,7 +216,6 @@ const DOOR_LAYOUT=[['巽','午','坤'],['卯','中','酉'],['艮','子','乾']];
     h+='</tbody></table>';
     el.innerHTML=h;
     }
-    renderTermGloss();
 
 /* ============ 白话解读（对齐奇门：普通小节，置于全部专业术语之后） ============ */
 function genPlainReading(R,Rshi){
@@ -282,10 +280,6 @@ function tyApplyModState(){
   document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
   document.querySelectorAll('details[id]').forEach(d => { if(d.id in s) d.open = !!s[d.id]; });
 }
-document.addEventListener('toggle', function(e){
-  const t = e.target;
-  if(t && t.tagName === 'DETAILS' && t.id) tySaveModState();
-}, true);
 function query(){
  try{
   const v=document.getElementById('dInput').value; if(!v)return;
@@ -464,35 +458,46 @@ function boardHTML(s){
   LAST={ly, R, Rshi, taishui:lunar.getYearInGanZhi()[1], tahun};
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起局出错：'+(e.message||e)+'</p>'; }
 }
-setToday();
-mountAI(function(){
-  if(!LAST) return '';
-  const ct=(s,label)=>{
-    const hd=calDes(s.homeCal), ad=calDes(s.awayCal);
-    return `【${label}】${s.wen}
-太乙（主）居${GONG_NAME[s.tyGong]}宫　文昌（天目）居${GONG_NAME[s.wc]}宫　始击（客目）居${GONG_NAME[s.sh]}宫
-计神${s.ji}　太岁${s.taishui}
-主算${s.homeCal}（${hd.join('；')}）　客算${s.awayCal}（${ad.join('；')}）　定算${s.dingCal}（偏助客）
-八门值使${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　八门分布：${Taiyi.DOOR_ORDER.map(n=>NUM2GONG[n]+(s.doors[NUM2GONG[n]]||'')+'门').join('、')}
-主大将${s.shen.主大}宫、主参将${s.shen.主参}宫　客大将${s.shen.客大}宫、客参将${s.shen.客参}宫
-十神：君基${s.shen.君基} 臣基${s.shen.臣基} 民基${s.shen.民基} 四神${s.shen.四神} 天乙${s.shen.天乙} 地乙${s.shen.地乙} 直符${s.shen.直符} 飞符${s.shen.飞符} 五福${s.shen.五福}
-格局：${s.pattern||'无显明囚杜塞迫击格对'}
-五行生克：${Taiyi.wuxingShengFu(s).text}
-八门值使：${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　主大将临${s.shen.主大==='中'?'中宫八门杜塞':s.shen.主大+'宫'+s.doors[s.shen.主大]+'门'}　客大将临${s.shen.客大==='中'?'中宫八门杜塞':s.shen.客大+'宫'+s.doors[s.shen.客大]+'门'}
-占断：${s.tyGong===s.wc?'囚（太乙与文昌同宫，君臣被困，宜静守）；':''}主算${s.homeCal>s.awayCal?'盛、主占先':(s.homeCal<s.awayCal?'客算盛、客占先':'主客相埒')}；定算${s.dingCal}（偏助客）；主大将${s.shen.主大}宫、客大将${s.shen.客大}宫、计神${s.ji}。`;
-  };
-  return `太乙神数推演（${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}体系，年、月、日计阳遁）
-【推算信息】${LAST.ly}　太岁${LAST.taishui}
-${ct(LAST.R.year,'岁计　值年太乙')}
-${ct(LAST.R.month,'月计　值月太乙')}
-${ct(LAST.R.day,'日计　值日太乙')}
-${LAST.Rshi?ct(LAST.Rshi,'时计　值时太乙'):''}
-【占断总纲】太乙为主、始击为客，文昌佐主；依局数对七十二取余的权威表查得主客算、十神、格局；囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫击掩挟关对、计神所值，综合论岁气灾祥、兵谋胜负、水旱丰歉。太乙积年体系繁多，本页采${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}一系整理，属研究交流性质，仅供参考。`;
-}, '太乙神数');
 </script>
 <script>
-/* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-shareWait({ page:"taiyi", title:"太乙神数在线排盘", recast:function(){ try{ query(); }catch(e){} } });
+
+
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    renderChrome('taiyi.html');
+    renderTermGloss();
+    document.addEventListener('toggle', function(e){
+      const t = e.target;
+      if(t && t.tagName === 'DETAILS' && t.id) tySaveModState();
+    }, true);
+    setToday();
+    mountAI(function(){
+      if(!LAST) return '';
+      const ct=(s,label)=>{
+        const hd=calDes(s.homeCal), ad=calDes(s.awayCal);
+        return `【${label}】${s.wen}
+    太乙（主）居${GONG_NAME[s.tyGong]}宫　文昌（天目）居${GONG_NAME[s.wc]}宫　始击（客目）居${GONG_NAME[s.sh]}宫
+    计神${s.ji}　太岁${s.taishui}
+    主算${s.homeCal}（${hd.join('；')}）　客算${s.awayCal}（${ad.join('；')}）　定算${s.dingCal}（偏助客）
+    八门值使${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　八门分布：${Taiyi.DOOR_ORDER.map(n=>NUM2GONG[n]+(s.doors[NUM2GONG[n]]||'')+'门').join('、')}
+    主大将${s.shen.主大}宫、主参将${s.shen.主参}宫　客大将${s.shen.客大}宫、客参将${s.shen.客参}宫
+    十神：君基${s.shen.君基} 臣基${s.shen.臣基} 民基${s.shen.民基} 四神${s.shen.四神} 天乙${s.shen.天乙} 地乙${s.shen.地乙} 直符${s.shen.直符} 飞符${s.shen.飞符} 五福${s.shen.五福}
+    格局：${s.pattern||'无显明囚杜塞迫击格对'}
+    五行生克：${Taiyi.wuxingShengFu(s).text}
+    八门值使：${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　主大将临${s.shen.主大==='中'?'中宫八门杜塞':s.shen.主大+'宫'+s.doors[s.shen.主大]+'门'}　客大将临${s.shen.客大==='中'?'中宫八门杜塞':s.shen.客大+'宫'+s.doors[s.shen.客大]+'门'}
+    占断：${s.tyGong===s.wc?'囚（太乙与文昌同宫，君臣被困，宜静守）；':''}主算${s.homeCal>s.awayCal?'盛、主占先':(s.homeCal<s.awayCal?'客算盛、客占先':'主客相埒')}；定算${s.dingCal}（偏助客）；主大将${s.shen.主大}宫、客大将${s.shen.客大}宫、计神${s.ji}。`;
+      };
+      return `太乙神数推演（${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}体系，年、月、日计阳遁）
+    【推算信息】${LAST.ly}　太岁${LAST.taishui}
+    ${ct(LAST.R.year,'岁计　值年太乙')}
+    ${ct(LAST.R.month,'月计　值月太乙')}
+    ${ct(LAST.R.day,'日计　值日太乙')}
+    ${LAST.Rshi?ct(LAST.Rshi,'时计　值时太乙'):''}
+    【占断总纲】太乙为主、始击为客，文昌佐主；依局数对七十二取余的权威表查得主客算、十神、格局；囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫击掩挟关对、计神所值，综合论岁气灾祥、兵谋胜负、水旱丰歉。太乙积年体系繁多，本页采${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}一系整理，属研究交流性质，仅供参考。`;
+    }, '太乙神数');
+    shareWait({ page:"taiyi", title:"太乙神数在线排盘", recast:function(){ try{ query(); }catch(e){} } });
+  }, 0);
+});
 </script>
 </body>
 </html>
