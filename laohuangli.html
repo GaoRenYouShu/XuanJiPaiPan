@@ -82,27 +82,27 @@ function taiSuiText(ygz,yZhi,suiPo){
 /* ---------- 双圆盘（几何走 assets/wheel.js，样式走 style.css 圆盘通用件段） ----------
    制式逐项照抄万年历经络圆盘，不另创一格。经络圆盘的环带自外向内是：
      外圈字 210 ｜ 弧带 192 ｜ 外圈线 182 ｜ 刻度 168 至 176 ｜ 内圈字 148 ｜ 内界线 120 ｜ 盘心 78
-   其分法是「外圈放该盘的方位标记（地支，单字、14px、正文墨色），内圈放该盘的内容（经名，着色）」，
+   其分法是“外圈放该盘的方位标记（地支，单字、14px、正文墨色），内圈放该盘的内容（经名，着色）”，
    刻度落在每格中点，正好把外圈字与内圈字连成一条辐条。本页两盘照此：
      时辰盘：外圈＝十二时辰名（单字，按吉凶着色）；内圈＝该时辰干支（两字，正文墨色）。
      宿盘：外圈＝四象方位（东南西北，单字，取节气盘四季名的同一组降调色）；
            内圈＝二十八宿名（单字，按吉凶着色）。
-   弧带一律细（3px）、低透明（.22）、主体色，整圈看去是一条淡环；只有「当前查看」那一段转实色加粗
+   弧带一律细（3px）、低透明（.22）、主体色，整圈看去是一条淡环；只有“当前查看”那一段转实色加粗
    （4px、不透明），全盘仅此一段抢眼。外圈只放单字，不用两字以上的词：多字沿半径排开就成了长辐条，
-   既挤到画布外，也失了经络圆盘那种「外圈一圈单字」的整饬。
+   既挤到画布外，也失了经络圆盘那种“外圈一圈单字”的整饬。
 🔴 取字角全站一例：**最外圈**环名一律沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向——
    正上横排、右半圈顺时针转向、正下倒排，整圈读作一条环带；单字两字同法，两字一前一后落于切线。
    内侧各圈照旧：单字走 WHEEL.dir（四正正立、其余沿半径散射），两字走 WHEEL.radial（全圈放射聚焦盘心）。
-   🔴 全盘只有一套标记：加粗弧、指针、圆点、内侧字高亮、盘心、下方详情，统统指向同一个「当前查看」
+   🔴 全盘只有一套标记：加粗弧、指针、圆点、内侧字高亮、盘心、下方详情，统统指向同一个“当前查看”
    的格。首屏那一格就是当令，故首屏与万年历两盘同貌；此后点哪一格，整套标记跟到哪一格。
    盘内不铺选中色块：经络圆盘靠加粗弧与加粗字示选中，铺色块会盖住刻度与弧带，也显脏。 */
 const W_C=220, W_ARC=192, W_OUT=182, W_IN=120, W_CORE=78,
   W_LAB_IN=148, W_LAB_OUT=206, W_TICK0=168, W_TICK1=176, W_P0=82, W_P1=116,
   /* 🔴 热区外沿（198，即弧带外沿再外扩 6）只此一处定义，命中区与悬停着色同取此值，
-     与万年历两盘的「悬停覆盖与命中区同沿」一致。 */
+     与万年历两盘的“悬停覆盖与命中区同沿”一致。 */
   W_HIT1=W_ARC+6;
 let LHL_SC=null, LHL_SC_CUR=0, LHL_SC_SEL=0;
-/* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为「诸事不宜」，与当日宜同口径 */
+/* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为“诸事不宜”，与当日宜同口径 */
 function lhlYiText(a){const s=(a||[]).join('、');return(!s||s==='无')?'诸事不宜':s;}
 /* 建除十二神自有一套黄黑，口诀：建满平收黑，除危定执黄，成开皆可用，破闭不可当；与值神的黄道黑道是两派，并列同存不合并 */
 const JIAN12_HUANG=['除','危','定','执'], JIAN12_HEI=['建','满','平','收'], JIAN12_KAI=['成','开'];
@@ -174,7 +174,7 @@ function shichenWheel(lunar){
       +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${nm}</text>`;
   });
   /* 内圈：该宫干支，两字、**一律径向散射**（聚焦向盘心）。环布只给最外圈，
-     内圈全圈同一种放射排法才整齐；给内圈也套环布，整盘就失了「外圈一条环带」的层次。 */
+     内圈全圈同一种放射排法才整齐；给内圈也套环布，整盘就失了“外圈一条环带”的层次。 */
   for(let i=0;i<12;i++){
     const dg=i*30, tp=WHEEL.px(W_LAB_IN,dg), gz=LHL_SC[i]?LHL_SC[i].gz:'';
     s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg"`
@@ -201,7 +201,7 @@ function lhlPickShichen(i){
   LHL_SC_SEL=i;
   const x=LHL_SC[i], sp=scSpan(i);
   WHEEL.pick('lhlScWheel',i);
-  /* 早子时与夜子时共用一个「子」字，夜子（序号 12）要落到 0 号字上，否则无字可高亮 */
+  /* 早子时与夜子时共用一个“子”字，夜子（序号 12）要落到 0 号字上，否则无字可高亮 */
   WHEEL.lab('lhlScWheel',i===12?0:i);
   wheelSpot(SC_IDS,scMid(i),sp[0],sp[1]);
   WHEEL.text('lhlScC1',x.name);
@@ -214,7 +214,7 @@ function lhlPickShichen(i){
    顺此序绕行正合逆时针，于是东方青龙落正右（东）、北方玄武落正上（北）、
    西方白虎落正左（西）、南方朱雀落正下（南）。若改顺时针，四象会全部错到对角上。
    外圈放四象方位单字（东 北 西 南），正与经络圆盘外圈排地支同制式；
-   四象全名（如「北方玄武」）在盘心第三行与详情条给出。 */
+   四象全名（如“北方玄武”）在盘心第三行与详情条给出。 */
 const XIU_28=['角','亢','氐','房','心','尾','箕','斗','牛','女','虚','危','室','壁',
   '奎','娄','胃','昴','毕','觜','参','井','鬼','柳','星','张','翼','轸'];
 /* 象序：名、全名、起宿、止宿、外圈单字、方位色。
@@ -450,7 +450,7 @@ function query(){
   const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
   const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
   /* 节日取数与万年历同一口径：公历节日、公历其他节日、农历节日、农历其他节日四项并集，
-     含国家重大纪念日（九一八、烈士纪念日等）；无节日写「无」，不留空。 */
+     含国家重大纪念日（九一八、烈士纪念日等）；无节日写“无”，不留空。 */
   const sf=solar.getFestivals()||[], sOf=solar.getOtherFestivals()||[], lf=lunar.getFestivals()||[], lOf=lunar.getOtherFestivals()||[];
   const festList=[]; sf.concat(sOf).forEach(f=>festList.push(f)); lf.concat(lOf).forEach(f=>festList.push(f));
   const festText=festList.length?festList.join('、'):'无';
@@ -502,7 +502,7 @@ function query(){
     <div class="lhl-i"><span class="k">彭祖百忌</span><span class="v">${lunar.getPengZuGan()}<span class="lhl-br"></span>${lunar.getPengZuZhi()}</span></div>
   </div>`;
 
-  /* 双圆盘：时辰盘紧随「时辰吉凶」格阵，是同一份数据的图形化，看的是全天吉凶分布与当前所在；
+  /* 双圆盘：时辰盘紧随“时辰吉凶”格阵，是同一份数据的图形化，看的是全天吉凶分布与当前所在；
      宿盘同排，看的是二十八宿的吉凶分布与当日之宿。两盘盘心默认显示当前项，点扇区改看别项。 */
   html+=`<div class="wheel-wheels">
     <div class="wheel-block"><h4>十二时辰吉凶盘</h4>${shichenWheel(lunar)}<div class="wheel-detail" id="lhlScDetail">${lhlScDetailHTML(LHL_SC[LHL_SC_CUR])}</div></div>

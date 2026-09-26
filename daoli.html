@@ -167,20 +167,20 @@ function feiGridHTML(center){
 /* ===== 双圆盘：十二时辰吉凶盘 + 圣诞圆盘 =====
    与老黄历、万年历、佛历同一套通用件（assets/wheel.js 的 WHEEL ＋ style.css 的 .wheel/.w-*），
    此处只给本页数据与令牌（--wheel-* 在 .page-daoli 段定义，主体色取玄青）。
-   第二盘为本页专属的圣诞圆盘（道历当月神仙圣诞），不照搬别页的盘：照搬即与本页「二十八宿」条重复。
+   第二盘为本页专属的圣诞圆盘（道历当月神仙圣诞），不照搬别页的盘：照搬即与本页“二十八宿”条重复。
 🔴 取字角全站一例：**最外圈**环名一律沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向——
    正上横排、右半圈顺时针转向、正下倒排，整圈读作一条环带；单字两字同法，两字一前一后落于切线。
    内侧各圈照旧：单字走 WHEEL.dir（四正正立、其余沿半径散射），两字走 WHEEL.radial（全圈放射聚焦盘心）。
    🔴 热区外沿 198（＝弧带外沿 192 再外扩 6），命中区与悬停着色同取此值，与另三页同沿。
    🔴 一色两重：弧带＝主体色 .22 淡线（3px）、加粗弧＝主体色实色（4px）；--wheel-cur 恒等于本页主体色。
-   **本页两盘都只有「选中那一段」是实色，其余一律淡线**，时辰盘与圣诞圆盘都不预标实色。
+   **本页两盘都只有“选中那一段”是实色，其余一律淡线**，时辰盘与圣诞圆盘都不预标实色。
    🔴 盘内只有热区接事件（.wheel{pointer-events:none} ＋ .w-hit{pointer-events:all}），
    否则文字包围盒会吞掉落在字上的点击。 */
 const DL_C=220, DL_ARC=192, DL_OUT=182, DL_IN=120, DL_CORE=78,
   DL_LAB_IN=148, DL_LAB_OUT=206, DL_TICK0=168, DL_TICK1=176, DL_P0=82, DL_P1=116,
   DL_HIT1=DL_ARC+6;
 let DL_SC=null, DL_SC_CUR=0, DL_SC_SEL=0;
-/* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为「诸事不宜」，与当日宜同口径 */
+/* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为“诸事不宜”，与当日宜同口径 */
 function dlYiText(a){const s=(a||[]).join('、');return(!s||s==='无')?'诸事不宜':s;}
 /* 建除十二神自有一套黄黑，口诀：建满平收黑，除危定执黄，成开皆可用，破闭不可当；与值神的黄道黑道是两派，并列同存不合并 */
 const JIAN12_HUANG=['除','危','定','执'], JIAN12_HEI=['建','满','平','收'], JIAN12_KAI=['成','开'];
@@ -280,7 +280,7 @@ function daoPickShichen(i){
   DL_SC_SEL=i;
   const x=DL_SC[i], sp=dlScSpan(i);
   WHEEL.pick('daoScWheel',i);
-  /* 早子时与夜子时共用一个「子」字，夜子（序号 12）要落到 0 号字上，否则无字可高亮 */
+  /* 早子时与夜子时共用一个“子”字，夜子（序号 12）要落到 0 号字上，否则无字可高亮 */
   WHEEL.lab('daoScWheel',i===12?0:i);
   dlWheelSpot(DL_SC_IDS,dlScMid(i),sp[0],sp[1]);
   WHEEL.text('daoScC1',x.name);
@@ -293,17 +293,17 @@ function daoPickShichen(i){
    格宽 360/当月天数（29 或 30）。用农历月而非公历月，与佛历斋日盘同法，公历月会横跨两个农历月，
    盘心与内圈日名就落不到同一个历法上；空槽在整圈弧上就是一段缺口，看去像画坏了。
    🔴 外圈只放单字（多字沿半径排开会顶出画布），故一日兼逢圣诞与道教吉日时只标优先级最高的一个：
-   有圣诞给「诞」，否则有道教吉日给「吉」；全部名目在盘下详情条里列全。
-   🔴 「诞」的判据＝**节日名含「诞」**（照佛历 .mk-d），不是「节日表非空」：本库 getFestivals() 是
+   有圣诞给“诞”，否则有道教吉日给“吉”；全部名目在盘下详情条里列全。
+   🔴 “诞”的判据＝**节日名含“诞”**（照佛历 .mk-d），不是“节日表非空”：本库 getFestivals() 是
    道教节日总表，除真圣诞外还有三会日的会名（天会、地会、人会）、神仙下降与成道日、巡天祭灶等，
-   一律标「诞」是假语义。非圣诞而属道教节日的日子另存 isFest，不带「诞」字。
+   一律标“诞”是假语义。非圣诞而属道教节日的日子另存 isFest，不带“诞”字。
    内圈农历日名两字，**一律径向散射**（与斋日盘、经络盘内圈同制式）；最外圈环名沿圆周环布（WHEEL.ring）。
    弧带：全圈一律淡色（.w-arc），**不预标实色**，主体色只给选中的那一段（.w-arc-cur），
    未点之前不冒主体色，选中才高亮。
    盘心三行：农历月日（大）、圣诞、吉日或道教节日（中，属圣诞取主体色）、该日公历（小）。
-   盘心只给「圣诞、吉日、道教节日」这类**类目**、不给神仙名：本库最长的一条是「西方太妙至极天尊同白帝七炁天君下降」
+   盘心只给“圣诞、吉日、道教节日”这类**类目**、不给神仙名：本库最长的一条是“西方太妙至极天尊同白帝七炁天君下降”
    十六字，盘心圆只有 156 宽，全名会撑出圆外；全名一律留给盘下详情条（与佛历斋日盘盘心只给
-   「朔望、六斋」同一取舍）。 */
+   “朔望、六斋”同一取舍）。 */
 const DL_DAN_C=220, DL_DAN_ARC=192, DL_DAN_OUT=182, DL_DAN_IN=120, DL_DAN_CORE=78,
   DL_DAN_LAB_IN=148, DL_DAN_LAB_OUT=206, DL_DAN_TICK0=168, DL_DAN_TICK1=176,
   DL_DAN_P0=82, DL_DAN_P1=116, DL_DAN_HIT1=DL_DAN_ARC+6;
@@ -313,7 +313,7 @@ let DL_DAN=null, DL_DAN_N=30, DL_DAN_W=12, DL_DAN_LABEL='', DL_DAN_SEL=0;
 function dlDanSpan(i){return [i*DL_DAN_W-DL_DAN_W/2, i*DL_DAN_W+DL_DAN_W/2];}
 function dlDanMid(i){return i*DL_DAN_W;}
 /* 取该农历月逐日的道教节日与道教吉日，逐日数据落在 DL_DAN。
-   names 为节日全名（含备注）、isFest 为「有节日」、isDan 为「名含诞即真圣诞」、sp 为道教吉日。 */
+   names 为节日全名（含备注）、isFest 为“有节日”、isDan 为“名含诞即真圣诞”、sp 为道教吉日。 */
 function dlDanBuild(lunar){
   const ly=lunar.getYear(), lm=lunar.getMonth();
   const mObj=LunarMonth.fromYm(ly,lm);
@@ -333,9 +333,9 @@ function dlDanBuild(lunar){
   DL_DAN_SEL=Math.min(DL_DAN_N,Math.max(1,lunar.getDay()))-1;
   return DL_DAN_LABEL;
 }
-/* 外圈单字标记：有圣诞给「诞」，否则有道教吉日给「吉」；两者皆无留空（非圣诞的道教节日不带字） */
+/* 外圈单字标记：有圣诞给“诞”，否则有道教吉日给“吉”；两者皆无留空（非圣诞的道教节日不带字） */
 function dlDanMark(x){ return x.isDan?'诞':(x.sp.length?'吉':''); }
-/* 盘心类目：只写「圣诞、吉日、道教节日」这一档，不写神仙名（见盘首注） */
+/* 盘心类目：只写“圣诞、吉日、道教节日”这一档，不写神仙名（见盘首注） */
 function dlDanCore(x){
   if(x.isDan) return x.sp.length?'圣诞、吉日':'圣诞';
   if(x.sp.length) return '吉日';
@@ -346,7 +346,7 @@ function daoDanWheel(lunar){
   const curSp=dlDanSpan(DL_DAN_SEL), curX=DL_DAN[DL_DAN_SEL];
   let s='';
   /* 逐格弧：全圈一律淡色（.w-arc），不预标实色，主体色只留给选中的那一段（.w-arc-cur，随选中走）。
-     淡环本身已是完整的盘：哪几天有内容由外圈「诞」与「吉」字、内圈日名点出，
+     淡环本身已是完整的盘：哪几天有内容由外圈“诞”与“吉”字、内圈日名点出，
      盘心与加粗弧才代表当前项；预标实色会让盘在未点之前就冒出多处主体色，与选中态争焦点。 */
   DL_DAN.forEach(function(x,i){
     const sp=dlDanSpan(i);
@@ -391,8 +391,8 @@ function daoDanWheel(lunar){
   return `<svg class="wheel" id="daoDanWheel" viewBox="0 0 440 440" role="img" aria-label="圣诞圆盘">${s}</svg>`;
 }
 /* 盘下详情条：该日圣诞与道教吉日全列（不与盘心重复，盘心只给类目）；非圣诞日给下一个圣诞，
-   好顺着盘找下去（与佛历斋日盘给「下一个斋日」同法）。非圣诞而属道教节日者照样列名，只是冠以
-   「道教节日」而非直接冠在「逢」后，免得把下降、成道日读成圣诞。 */
+   好顺着盘找下去（与佛历斋日盘给“下一个斋日”同法）。非圣诞而属道教节日者照样列名，只是冠以
+   “道教节日”而非直接冠在“逢”后，免得把下降、成道日读成圣诞。 */
 function dlDanDetailHTML(i){
   const x=DL_DAN&&DL_DAN[i]; if(!x) return '';
   const head=`农历${DL_DAN_LABEL}月${x.name}，`;
@@ -431,15 +431,15 @@ function render(){
   document.getElementById('calGrid').innerHTML=cells.join('');
 }
 /* 日期格：角标与色块照佛历（foli.html）同一套设计。
-   🔴 两个单字角标，落左上与右上，与圣诞圆盘外圈同一套「诞」与「吉」两字：
-   左上「吉」＝道教吉日（三会、三元、八节、八会、五腊、天赦），右上「诞」＝神仙圣诞。
-   🔴 「诞」的判据照佛历 .mk-d：**节日名含「诞」者**，不是「节日表非空」。
-   本库 getFestivals() 是「道教节日」总表，里面既有真圣诞（太上老君圣诞、九天司命灶君诞…），
+   🔴 两个单字角标，落左上与右上，与圣诞圆盘外圈同一套“诞”与“吉”两字：
+   左上“吉”＝道教吉日（三会、三元、八节、八会、五腊、天赦），右上“诞”＝神仙圣诞。
+   🔴 “诞”的判据照佛历 .mk-d：**节日名含“诞”者**，不是“节日表非空”。
+   本库 getFestivals() 是“道教节日”总表，里面既有真圣诞（太上老君圣诞、九天司命灶君诞…），
    也有三会日的会名（天会、地会、人会）、神仙下降与成道日（…下降、…成道）、巡天祭灶等，
-   凡名不含「诞」者标「诞」即是假语义。会名那一类同日还属吉日，本来就有左角标「吉」，不必再补右角标。
-   与佛历的「斋」与「诞」同构：佛历左标持戒之日，本页左标宜行之日。
+   凡名不含“诞”者标“诞”即是假语义。会名那一类同日还属吉日，本来就有左角标“吉”，不必再补右角标。
+   与佛历的“斋”与“诞”同构：佛历左标持戒之日，本页左标宜行之日。
    🔴 格不铺底色（.cal-cell.zhai 归零，见 style.css 道历段）：节庆日不靠面积抢眼，
-   改由角标逐日点出，与「去框改线」的线、字优先一致。
+   改由角标逐日点出，与“去框改线”的线、字优先一致。
    底色只留给三种态：今日（主体色实色）、选中（主体色淡染 + 细描）、悬停。 */
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), tao=lunar.getTao();
@@ -525,10 +525,10 @@ function showDay(str, el){
   else if(anWu) wuHtml='<span class="ji">暗戊日（按支暗戊），道观停止焚香、诵经、上表</span>';
   else wuHtml='可行斋醮科仪';
   const lqHtml = (lunar.getJieQi()?('当前：'+lunar.getJieQi()+'<span class="dao-br"></span>'):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'<span class="dao-br"></span>下：'+nj.getName()+' '+nj.getSolar().toYmd();
-  /* 「当月道历圣诞一览」改由「圣诞圆盘」承担，两者同存即是重复（盘即该清单的图形化，
+  /* “当月道历圣诞一览”改由“圣诞圆盘”承担，两者同存即是重复（盘即该清单的图形化，
      且能一眼看出分布与当前所在）。
-     取数函数 monthTaoList() 保留，AI 提词的「当月道历圣诞一览」一段仍用它，导出的文本比页面全。 */
-  /* 时辰吉凶由「十二时辰吉凶盘」承担：同一份数据在盘上按真实时长分角（1 小时 15 度），
+     取数函数 monthTaoList() 保留，AI 提词的“当月道历圣诞一览”一段仍用它，导出的文本比页面全。 */
+  /* 时辰吉凶由“十二时辰吉凶盘”承担：同一份数据在盘上按真实时长分角（1 小时 15 度），
      点扇区看该时辰的吉凶、值神与宜事，宜事列在盘下详情条里给。
      AI 导出用的是独立的 shichenCopy。 */
   const yStar=yearStar(y), mStar=monthStar(y,yZhi,mZhi), dStar=dayStar(y,m,d), hStar=hourStar(y,m,d), shName=curShichen();
@@ -563,9 +563,9 @@ function showDay(str, el){
     <div class="dao-i"><span class="k">物候</span><span class="v">${shilingWuHou(lunar)}</span></div>
     <div class="dao-i"><span class="k">彭祖百忌</span><span class="v">${lunar.getPengZuGan()}<span class="dao-br"></span>${lunar.getPengZuZhi()}</span></div>
     <div class="dao-i"><span class="k">当日卦象</span><span class="v">京房纳甲重卦：${dayGuaName(dyGan,dyZhi)} ${GUA_CI[dayGuaName(dyGan,dyZhi)]||''}<span class="dao-br"></span>先天值日卦：${dayGuaXiantian(dyGZ)} ${GUA_CI[dayGuaXiantian(dyGZ)]||''}</span></div>
-    <!-- 「神仙圣诞」「道教吉日」不入字段流：同一份数据由圣诞圆盘承担，两项与盘重复，
+    <!-- “神仙圣诞”“道教吉日”不入字段流：同一份数据由圣诞圆盘承担，两项与盘重复，
          盘下详情条逐日给全名，比字段流更全。取数函数 collectFests/collectSpecial
-         保留给 AI 提词的「神仙圣诞/道教节庆」「道教吉日/忌日」两段。 -->
+         保留给 AI 提词的“神仙圣诞/道教节庆”“道教吉日/忌日”两段。 -->
     <div class="dao-i"><span class="k">戊日</span><span class="v">${wuHtml}</span></div>
     <div class="dao-i"><span class="k">道历文书</span><span class="v">${daoFullText(tao,lunar)}</span></div>
   </div>

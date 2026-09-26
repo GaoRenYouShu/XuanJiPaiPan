@@ -107,8 +107,8 @@ function zlIsFlyFlag(t){
 }
 /* ===== 殊胜日盘、重日缺日盘 =====
    两盘同取一份日序档 ZL_SLOTS（逐日排布取自 zlMonthDays 真源：重日出两格、缺日留空位），
-   盘面分工在语义层：殊胜日盘标宗教内容（外圈「殊」、内圈藏历日名），
-   重日缺日盘标历法机制（外圈「闰」「重」「缺」、内圈公历日期）。
+   盘面分工在语义层：殊胜日盘标宗教内容（外圈“殊”、内圈藏历日名），
+   重日缺日盘标历法机制（外圈“闰”“重”“缺”、内圈公历日期）。
    🔴 两盘都是选中态盘，弧带一律不预标实色，主体色只给随选中走的加粗弧。 */
 const ZW_C=220, ZW_ARC=192, ZW_OUT=182, ZW_IN=120, ZW_CORE=78,
   ZW_LAB_IN=148, ZW_LAB_OUT=206, ZW_TICK0=168, ZW_TICK1=176, ZW_P0=82, ZW_P1=116,
@@ -187,7 +187,7 @@ function zlSsWheel(){
     s += `<path d="${WHEEL.band(ZW_IN,ZW_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
   });
   s += `<path id="zlSsArc" d="${WHEEL.arc(ZW_ARC,zwSpan(ZL_SS_SEL,n)[0],zwSpan(ZL_SS_SEL,n)[1])}" class="w-arc w-arc-cur"/>`;
-  /* 外圈：殊胜日单字「殊」，沿圆周环布（WHEEL.ring）；非殊胜日留空 */
+  /* 外圈：殊胜日单字“殊”，沿圆周环布（WHEEL.ring）；非殊胜日留空 */
   ZL_SLOTS.forEach(function(x,i){
     if(!x.ss) return;
     const dg = zwMid(i,n), tp = WHEEL.px(ZW_LAB_OUT,dg);

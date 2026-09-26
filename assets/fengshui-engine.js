@@ -1194,9 +1194,9 @@
     const ny=nayin(yunGZ);
     return {shan, wx, muZhi, yunGZ, yunWx:ny.wx, yunNayin:ny.name, yearGZ, afterDongZhi:!!afterDongZhi&&wx==='金'};
   }
-  /* 年克山家（《選擇紀要·神殺義例》原文定式）：『年克者，本年納音克洪範山運納音也。修造最凶。
+  /* 年克山家（《選擇紀要·神殺義例》原文定式）：“年克者，本年納音克洪範山運納音也。修造最凶。
      如甲子年作水土山，當取火月日時生旺兼主火命祿馬貴人制之……安葬則月日納音制之。制者當令，克者休囚，乃穩。
-     子葬父不忌年克，葬母不忌月克。』
+     子葬父不忌年克，葬母不忌月克。”
      判定：年干支纳音五行克山运纳音五行=犯；月柱/日柱纳音克年纳音五行=有制（葬课以月日制年克）。
      锚点：甲子年水土山（山运戊辰木）：甲子海中金克木=犯年克；月柱纳音火制金=有制。 */
   function nianKeShan(shan, yearGZ, monthGZ, dayGZ, afterDongZhi){

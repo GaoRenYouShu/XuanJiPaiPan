@@ -80,15 +80,15 @@ function render(){
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), foto=lunar.getFoto();
   /* 杨公忌为风水择日忌日，非佛菩萨圣诞、节庆，本页不列（与 collectFests、monthFestList 同口径）；
-     缺此过滤时日期格会独独冒出「杨公忌」，而一览表与 AI 提词里都没有，三处不一致。 */
+     缺此过滤时日期格会独独冒出“杨公忌”，而一览表与 AI 提词里都没有，三处不一致。 */
   const fest=foto.getFestivals().filter(f=>f.getName()!=='杨公忌');
   const alt=foto.getOtherFestivals().filter(n=>n!=='杨公忌');
   /* 格内文字只留给节日：斋期由四角角标承担，不占文字行，故不设斋期兜底。
      节日表为空时再取附表（龙树菩萨圣诞、月光菩萨圣诞等真佛诞只在附表里，缺此兜底这些日子会全空）。 */
   const tag=fest.length?fest[0].toString():(alt.length?alt[0]:'');
-  /* 角标只有两个单字：五类斋期统一一个「斋」，名含「诞」者统一一个「诞」。
+  /* 角标只有两个单字：五类斋期统一一个“斋”，名含“诞”者统一一个“诞”。
      斋只认日斋（朔望斋、六斋日、十斋日、观音斋）；三长斋月是整月斋期，不逐日打标，
-     否则正、五、九三个月天天带字，角标就从「今日斋否」退化成「本月斋月否」。 */
+     否则正、五、九三个月天天带字，角标就从“今日斋否”退化成“本月斋月否”。 */
   const zhaiDay=foto.isDayZhaiShuoWang()||foto.isDayZhaiSix()||foto.isDayZhaiTen()||foto.isDayZhaiGuanYin();
   const danDay=fest.some(f=>f.getName().indexOf('诞')>=0)||alt.some(n=>n.indexOf('诞')>=0);
   const isToday=d.toDateString()===todayStr;
@@ -173,7 +173,7 @@ function foliDateText(foto){
    环向与取字角一律照老黄历二十八宿盘：角宿起于 135 度、逆时针绕行，
    于是东方青龙落正右（东）、北方玄武落正上（北）、西方白虎落正左（西）、南方朱雀落正下（南）。
    四方归属不另立一说，直接取本站数据源 LunarUtil.GONG（角亢氐房心尾箕属东、斗女虚危室壁属北、
-   奎娄胃昴毕觜参属西、井鬼柳星张翼轸属南），与盘下详情条的「X方」同源，改一处两处同改。
+   奎娄胃昴毕觜参属西、井鬼柳星张翼轸属南），与盘下详情条的“X方”同源，改一处两处同改。
    🔴 外圈四方单字钉在四正（东右、北上、西左、南下），不随各象扇区中心：
    二十七宿不是四的整数倍，各象中心角会偏出四正（北象偏 1.7 度、西象偏 5 度），
    钉四正既合罗盘方位之例，四象名落象带时也只取整圈一致的环布读法。
@@ -294,13 +294,13 @@ function foliPickXiu(i){
 }
 /* ===== 斋日盘（按农历月的逐日排布） =====
    佛历斋期共五类：朔望斋、六斋日、十斋日、观音斋都落在固定的农历日上，
-   故以「农历月的每一天」为天然成环的序列：外圈标斋期单字，内圈排农历日名，
+   故以“农历月的每一天”为天然成环的序列：外圈标斋期单字，内圈排农历日名，
    弧带全圈淡色，实色只给所查之日与选中之日两天，指针指向选中之日。
    🔴 三长斋月（正月、五月、九月）不逐日打标，与日期格角标同口径：
-   逐日打标会让这三个月天天满格，盘就从「今日斋否」退化成「本月斋月否」。
-   月一级的事实（本月为三长斋月）由基础信息表「斋期」条承担，盘面仍只回答「哪几天斋」。
-   🔴 盘题只写「斋日盘」四字、不带月名：盘心首行已作「八月廿四」，
-   标题再挂「（农历八月）」是同屏重复。
+   逐日打标会让这三个月天天满格，盘就从“今日斋否”退化成“本月斋月否”。
+   月一级的事实（本月为三长斋月）由基础信息表“斋期”条承担，盘面仍只回答“哪几天斋”。
+   🔴 盘题只写“斋日盘”四字、不带月名：盘心首行已作“八月廿四”，
+   标题再挂“（农历八月）”是同屏重复。
    🔴 格数按该农历月的实际天数等分（大月三十格 12 度、小月廿九格 12.41 度），不固定三十格留空槽：
    空槽在整圈弧上就是一段缺口，看去像画坏了。代价是十五在小月略偏约 6 度，可接受。
    🔴 外圈只放单字（多字沿半径排开会顶出画布，见老黄历盘首注），故一日兼逢数斋时
@@ -323,14 +323,14 @@ const FZ_ORDER=['朔望斋','六斋日','十斋日','观音斋','三长斋月'];
 /* 盘心用的短名：盘心只有 156 宽的圆心，一日兼逢四类时全名（十六字）会撑出圆外，故取两字简称；
    全名与判定说明留给盘下详情条。 */
 const FZ_SHORT={'朔望斋':'朔望','六斋日':'六斋','十斋日':'十斋','观音斋':'观音','三长斋月':'三长'};
-/* 外圈单字标记：朔望斋在初一给「朔」、十五给「望」，其余各取首字 */
+/* 外圈单字标记：朔望斋在初一给“朔”、十五给“望”，其余各取首字 */
 const FZ_MARK={'朔望斋':'朔','六斋日':'六','十斋日':'十','观音斋':'观'};
 let FZ_ITEMS=null, FZ_N=30, FZ_W=12, FZ_LABEL='', FZ_MONTH_ZHAI=false, FZ_SEL=0, FZ_CUR=0;
 /* 第 i 格的角度区间：自 a0 顺时针到 a1（a0 小于 a1）；初一在正上（0 度）、顺时针排 */
 function fzSpan(i){return [i*FZ_W-FZ_W/2, i*FZ_W+FZ_W/2];}
 function fzMid(i){return i*FZ_W;}
 /* 取该农历月逐日的斋期。返回月一级的两项（月名、是否三长斋月），逐日数据落在 FZ_ITEMS。
-   types 已按 FZ_ORDER 排好；dayZhai 是其中属「日斋」的四类（决定弧带与标记，三长斋月不计入）。 */
+   types 已按 FZ_ORDER 排好；dayZhai 是其中属“日斋”的四类（决定弧带与标记，三长斋月不计入）。 */
 function foliZhaiBuild(lunar){
   const ly=lunar.getYear(), lm=lunar.getMonth();
   const mObj=LunarMonth.fromYm(ly,lm);
@@ -419,7 +419,7 @@ function foliZhaiWheel(){
   return `<svg class="wheel" id="foliZhaiWheel" viewBox="0 0 440 440" role="img" aria-label="斋日盘">${s}</svg>`;
 }
 /* 盘下详情条：该日斋期全列 + 每一类的判定说明（不与盘心重复；判定说明是新增信息，
-   页内「斋期」条只说今日斋否、不说判据）。非斋日给下一个斋日，好顺着盘找下去。 */
+   页内“斋期”条只说今日斋否、不说判据）。非斋日给下一个斋日，好顺着盘找下去。 */
 function foliZhaiDetailHTML(i){
   const x=FZ_ITEMS&&FZ_ITEMS[i]; if(!x) return '';
   const head=`农历${FZ_LABEL}月${x.name}，`+(x.types.length?`逢${x.types.join('、')}，属斋期`:'非斋期');
@@ -459,7 +459,7 @@ function showDay(str, el){
   const zhaiText = zt.length
     ? `本日逢${zt.join('、')}，属斋期。<span class="foli-br"></span>佛子宜茹素、持戒、诵经、礼忏，不杀生、不荤腥。`
     : '本日非斋期，饮食起居无特别禁戒。';
-  /* 节气项：无内容的小项不输出，不留「无」占位 */
+  /* 节气项：无内容的小项不输出，不留“无”占位 */
   const jqText = (lunar.getJieQi()?('当前：'+lunar.getJieQi()+'<span class="foli-br"></span>'):'')
     + '上：'+pj.getName()+' '+pj.getSolar().toYmd()
     + '<span class="foli-br"></span>下：'+nj.getName()+' '+nj.getSolar().toYmd();
