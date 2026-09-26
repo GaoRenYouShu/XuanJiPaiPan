@@ -64,6 +64,26 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
+  /* 站标资源：网络优先（强制刷新）。
+     页面 ?v= 版本串已按"其他文件零改动"铁律复位为旧值，普通缓存优先会让回访访客
+     一直命中旧 logo 的浏览器/CDN 缓存；此处对 assets/logo/* 走网络优先并 bypass
+     本地 HTTP 缓存（cache:'reload'），在线即取最新字节，网络失败再回落 SW 缓存。
+     仅作用于 logo，不影响其他静态资源的缓存优先策略。 */
+  if (url.pathname.indexOf('/assets/logo/') !== -1) {
+    e.respondWith(
+      fetch(req, { cache: 'reload' })
+        .then(function (res) {
+          if (res.ok && res.type === 'basic') {
+            const cp = res.clone();
+            caches.open(CACHE).then(function (c) { c.put(req, cp); });
+          }
+          return res;
+        })
+        .catch(function () { return caches.match(req); })
+    );
+    return;
+  }
+
   /* 静态资源：缓存优先 */
   e.respondWith(
     caches.match(req).then(function (hit) {
