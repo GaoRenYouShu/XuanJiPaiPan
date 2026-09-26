@@ -688,7 +688,7 @@ function pad2(n){return (n<10?'0':'')+n;}
    而 Windows 自带中文字体（雅黑、等线、宋体、楷体、仿宋、黑体）都是商业字体，不可免费商用
    （雅黑著作权归北大方正，微软只拿到系统内嵌授权，方正维权积极）。
    自绘下拉不动 DOM、不复制控件样式：隐藏的（offsetParent 为 null）、动态新增的 select 一律自动生效，
-        不存在「尺寸为 0 仍被接管」的脏状态。
+        不存在“尺寸为 0 仍被接管”的脏状态。
    逃生开关：给 select 加 data-native 即保持原生。 */
 (function(){
   var cur = null;
@@ -712,7 +712,7 @@ function pad2(n){return (n<10?'0':'')+n;}
     if(e && e.target && cur.list.contains(e.target)) return;
     /* 弹框内的 select 锚点不会随窗口滚动而位移（弹框是 position:fixed 居中），
        在弹框里再做重定位会把 maxHeight 清零重设，把列表 scrollTop 抹掉——
-       这是用户反馈「月份下拉无法滚动选择」的另一条根因 */
+       这是用户反馈“月份下拉无法滚动选择”的另一条根因 */
     if(cur.inModal) return;
     /* 滚动/缩放只重定位，不关闭：列表是 position:fixed，跟着视口走；
        弹框打开瞬间 Chrome 会派发 scroll（scrollbar 出现/消失），
@@ -750,7 +750,7 @@ function pad2(n){return (n<10?'0':'')+n;}
     list.style.left = left + 'px';
     list.style.top = top + 'px';
   }
-  /* 只取「身份类」外观（字体、字色、底色、边框、圆角），让列表与它所属的控件同貌 */
+  /* 只取“身份类”外观（字体、字色、底色、边框、圆角），让列表与它所属的控件同貌 */
   var PROPS = ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','color','backgroundColor',
     'borderTopWidth','borderTopStyle','borderTopColor',
     'borderTopLeftRadius','borderTopRightRadius','borderBottomLeftRadius','borderBottomRightRadius'];
@@ -811,7 +811,7 @@ function pad2(n){return (n<10?'0':'')+n;}
     open(sel);
   }
   document.addEventListener('mousedown', onDown, true);
-  /* 键盘：聚焦到 select 后按空格、回车展开（不含下箭头，保留原生「上下键改值」） */
+  /* 键盘：聚焦到 select 后按空格、回车展开（不含下箭头，保留原生“上下键改值”） */
   document.addEventListener('keydown', function(e){
     if(cur) return;
     var sel = document.activeElement;
