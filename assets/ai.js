@@ -719,7 +719,7 @@ function refreshAiStatus(el){
   if (!el) return;
   const models = aiModels();
   if (models.length){ el.textContent = '已配置：' + models.filter(m => m.enabled !== false).length + '/' + models.length + ' 个模型'; el.classList.add('is-configured'); }
-  else { el.textContent = '未配置（点 ⚙ AI 设置）'; el.classList.remove('is-configured'); }
+  else { el.textContent = '未配置（点 ⚙AI 设置）'; el.classList.remove('is-configured'); }
 }
 
 /* ---- 访问者地理位置（页脚免责声明之下，居中） ----
