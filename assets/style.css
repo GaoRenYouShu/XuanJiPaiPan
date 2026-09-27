@@ -125,15 +125,18 @@ select option{font-family:inherit}
 .nav-menu a.active{background:none;color:#cf6a4d;font-weight:400}
 /* 顶栏两枚按钮同款同形：同高 30px、直角、无描边（⚙ AI 与 ☰ 只留字形与满填态），宽度随内容。
    无描边必须写 border:0 终值：button 不写 border 会回落浏览器默认的 2px outset 边框。 */
-.ai-gear{display:inline-flex;align-items:center;height:30px;padding:0 12px;background:none;
+.ai-gear{display:inline-flex;align-items:center;height:30px;padding:0 var(--sp-2);background:none;
   color:#c6c0b2;border:0;border-radius:0;
   font-size:12.5px;letter-spacing:.1em;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .15s}
 .ai-gear:hover{background:#a5321f;color:#f5efe2}
 
 /* 外部链接：GitHub 与 Telegram 图标（顶栏 AI 按钮右侧，联系与仓库入口） */
-.ext-link{display:inline-flex;align-items:center;height:30px;padding:0 var(--sp-3);background:none;color:#c6c0b2;text-decoration:none;transition:all .15s}
+.ext-link{display:inline-flex;align-items:center;height:30px;padding:0 var(--sp-2);background:none;color:#c6c0b2;text-decoration:none;transition:all .15s}
 .ext-link:hover{background:#a5321f;color:#f5efe2}
 .ext-link svg{width:16px;height:16px;fill:currentColor;flex:none}
+/* 两枚图标收进一簇，簇内零 gap：间距只由 padding 承担，不再与 .nav 的 gap 叠加
+   （叠加时图标间可见空隙达 36px，是左侧导航项间距的两倍余）。 */
+.nav-tools{display:inline-flex;align-items:center;gap:0}
 .menu-btn{display:none;align-items:center;justify-content:center;height:30px;padding:0 12px;background:none;
   color:#c6c0b2;border:0;border-radius:0;font-size:14px;line-height:1;
   cursor:pointer;transition:all .15s}
@@ -1725,10 +1728,12 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   .nav-group:hover .nav-menu{display:none}
   .nav-group.open .nav-menu{display:grid}
   .nav-menu a{padding:6px var(--sp-2)}
-  /* AI 入口与导航同列一条：满宽、左对齐，不另占顶栏一位 */
-  .ai-gear{grid-column:1/-1;justify-content:flex-start;height:auto;min-height:36px;
-    margin-top:var(--sp-1);padding:0 var(--sp-2);border:0;font-size:14px}
+  /* AI 入口随两列网格自然流排：附录后一格即 ⚙AI，不强制整行（满宽整行费一行）；
+     高度与一级条目同 36px 触屏目标。 */
+  .ai-gear{height:auto;min-height:36px;padding:0 var(--sp-2);border:0;font-size:14px}
   .menu-btn{display:inline-flex;margin-left:auto}
+  /* 折叠菜单为网格布局：图标簇退化为 display:contents，两枚图标仍是网格直格项，与改簇前同排布 */
+  .nav-tools{display:contents}
   .ext-link{height:var(--sp-5);padding:0 var(--sp-2)}
   .big-date .d{font-size:48px}
   .zp-v .zw-board{font-size:13px;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);width:100%;max-width:580px}
