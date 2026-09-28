@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
-<link rel="stylesheet" href="assets/style.css?v=z289">
+<link rel="stylesheet" href="assets/style.css?v=z290">
 </head>
 <body>
 <div id="topbar"></div>
@@ -59,6 +59,7 @@
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20260927d"></script>
 <script defer src="assets/shiling.js?v=20260928n"></script>
+<script defer src="assets/tongshu-terms.js?v=20260928a"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/holiday.js?v=20260917h2"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
@@ -199,6 +200,18 @@ function showShilingTip(item){
   const key=(typeof shilingRuleKeyOf==='function')?shilingRuleKeyOf(item):'';
   const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
   _wnlShow(item, txt||'（暂无说明）');
+}
+/* 通书术语弹窗（宜忌诸名）：释义取 tongshu-terms.js 单一真源，与老黄历页同一张表 */
+function showTongshuTip(name){
+  const o=(typeof tongshuMean==='function')?tongshuMean(name):null;
+  if(!o){ _wnlShow(name,'（暂无说明）'); return; }
+  _wnlShow(o.t, o.d);
+}
+/* 宜忌名目可点 span：名在释义表内才包可点，未收者原样输出（点了弹空窗反是误导） */
+function tipSpan(name){
+  if(!name || name==='无') return name;
+  if(typeof TONGSHU_DICT==='undefined' || !TONGSHU_DICT[name]) return name;
+  return '<span class="tip" onclick="showTongshuTip(\''+name+'\')">'+name+'</span>';
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeWnlTip(); });
 /* 点选两盘：加粗弧、指针、圆点、盘心、盘下详情一并跟过去（全盘只留一套标记） */
@@ -437,8 +450,8 @@ function showDay(str, el){
   </div>
   <h3 class="rel-title">基础信息</h3>
   <div class="wnl-info">
-    <div class="wnl-i wide"><span class="k">宜</span><span class="v yi">${lunar.getDayYi().join('、')||'诸事不宜'}</span></div>
-    <div class="wnl-i wide"><span class="k">忌</span><span class="v ji">${lunar.getDayJi().join('、')||'无'}</span></div>
+    <div class="wnl-i wide"><span class="k">宜</span><span class="v yi">${lunar.getDayYi().map(tipSpan).join('、')||'诸事不宜'}</span></div>
+    <div class="wnl-i wide"><span class="k">忌</span><span class="v ji">${lunar.getDayJi().map(tipSpan).join('、')||'无'}</span></div>
     <div class="wnl-i"><span class="k">纳音</span><span class="v">${ngwRow('年',lunar.getYearNaYin(),ygz,yWx,ySx)}<span class="wnl-br"></span>${ngwRow('月',lunar.getMonthNaYin(),mgz,mWx,mSx)}<span class="wnl-br"></span>${ngwRow('日',lunar.getDayNaYin(),dgz,dWx,dSx)}<span class="wnl-br"></span>${ngwRow('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())}</span></div>
     <div class="wnl-i"><span class="k">节气</span><span class="v">${lunar.getJieQi()?('当前：'+lunar.getJieQi()+'<span class="wnl-br"></span>'):''}上：${pj.getName()} ${pj.getSolar().toYmd()}<span class="wnl-br"></span>下：${nj.getName()} ${nj.getSolar().toYmd()}</span></div>
     <div class="wnl-i"><span class="k">时令</span><span class="v">${shilingLines.join('<span class="wnl-br"></span>')}</span></div>
