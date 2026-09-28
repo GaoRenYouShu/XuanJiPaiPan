@@ -78,7 +78,7 @@
 <script defer src="assets/app.js?v=20260927d"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/latlng.js?v=20260917da"></script>
-<script defer src="assets/bazi-data.js?v=20260925a"></script>
+<script defer src="assets/bazi-data.js?v=20260928d"></script>
 <script defer src="assets/bazi-rel.js?v=20260920c"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
 <script defer src="assets/ai.js?v=20260927c"></script>
@@ -605,11 +605,11 @@ function hehun(){
     if(sxSan) sxDesc.push('生肖三合，情投意合');
     if(sxS.he6) sxDesc.push('生肖六合，天作之合');
     if(hasXing) sxDesc.push('但'+mSx+fSx+'为合中带相刑（'+sxS.xingName+'），合中有伤，情深易生磨');
-    if(hasPo) sxDesc.push('且合中带破（'+mSx+fSx+'相破），合中有损，情好易生裂痕');
-  } else if(sxS.chong){ sxScore=6; sxDesc.push('生肖相冲，易生口角，需相互包容'); }
-  else if(sxS.xing){ sxScore=7; sxDesc.push('生肖相刑：'+mSx+fSx+'为'+sxS.xingName+'，相处易生暗怨，宜多体谅'); }
-  else if(sxS.hai){ sxScore=8; sxDesc.push('生肖相害，宜多沟通'); }
-  else if(sxS.po){ sxScore=9; sxDesc.push('生肖相破，情谊易受外事扰动，须同心护持'); }
+    if(hasPo) sxDesc.push('且合中带破（'+hhPairSpan('__PO__',mSx,fSx)+'），合中有损，情好易生裂痕');
+  } else if(sxS.chong){ sxScore=6; sxDesc.push('生肖相冲（'+hhPairSpan('__CHONG__',mSx,fSx)+'），易生口角，需相互包容'); }
+  else if(sxS.xing){ sxScore=7; sxDesc.push('生肖相刑：'+hhPairSpan('__XING__',mSx,fSx)+'为'+sxS.xingName+'，相处易生暗怨，宜多体谅'); }
+  else if(sxS.hai){ sxScore=8; sxDesc.push('生肖相害（'+hhPairSpan('__HAI__',mSx,fSx)+'），宜多沟通'); }
+  else if(sxS.po){ sxScore=9; sxDesc.push('生肖相破（'+hhPairSpan('__PO__',mSx,fSx)+'），情谊易受外事扰动，须同心护持'); }
   else if(mSx===fSx){ sxScore=sxS.selfXing?11:13; sxDesc.push('生肖相同'+(sxS.selfXing?'，且为自刑（辰午酉亥），同气相斥、易固执互不相让':'，同属相处，性情相近、习惯相类')); }
   else { sxScore=13; sxDesc.push('生肖平和，无冲无合'); }
   items.push(['生肖相配',sxScore,20,`${LA}属${M.sx}、${LB}属${F.sx}。${sxDesc.join('；')}`]); total+=sxScore;
@@ -637,10 +637,10 @@ function hehun(){
     zD=yz.sanheKind==='gong'?0.5:(yz.sanheKind==='wangmu'?1:1.5);   // 拱虚待发/旺墓力半/生旺力全（引擎 sanheKind 分级）
     zrNotes.push(yz.sanhe);
   }
-  else if(yz.chong){ zD=-2; zrNotes.push('年支相冲，祖辈门户相争，婚事早年多波折'); }
-  else if(yz.xing){ zD=-2; zrNotes.push('年支相刑：'+M.yearZhi+F.yearZhi+yz.xingName+'，两族暗怨宜礼让'); }
-  else if(yz.po){ zD=-1; zrNotes.push('年支相破，两族旧谊易破，婚约事宜早定'); }
-  else if(yz.hai){ zD=-1; zrNotes.push('年支相害，长辈暗损，提亲诸事防生枝节'); }
+  else if(yz.chong){ zD=-2; zrNotes.push('年支相冲（'+hhPairSpan('__CHONG__',M.yearZhi,F.yearZhi)+'），祖辈门户相争，婚事早年多波折'); }
+  else if(yz.xing){ zD=-2; zrNotes.push('年支相刑：'+hhPairSpan('__XING__',M.yearZhi,F.yearZhi)+'为'+yz.xingName+'，两族暗怨宜礼让'); }
+  else if(yz.po){ zD=-1; zrNotes.push('年支相破（'+hhPairSpan('__PO__',M.yearZhi,F.yearZhi)+'），两族旧谊易破，婚约事宜早定'); }
+  else if(yz.hai){ zD=-1; zrNotes.push('年支相害（'+hhPairSpan('__HAI__',M.yearZhi,F.yearZhi)+'），长辈暗损，提亲诸事防生枝节'); }
   else if(yz.anhe){ zD=1; zrNotes.push('年支暗合，两族情分暗中相投'); }
   else { zD=0; zrNotes.push('年支平和'); }
   ypScore=Math.max(0,Math.min(10,Math.round(6+0.4*gD+0.6*zD)));
@@ -697,10 +697,10 @@ function hehun(){
     zhiScore=dzS.sanheKind==='gong'?14:(dzS.sanheKind==='wangmu'?16:18);   // 拱虚14/旺墓半合16/生旺半合力全18
     zhiDesc.push(dzS.sanhe+'，同心同德'+(dzS.sanheKind==='gong'?'，虚而有待':''));
   }
-  else if(dzS.chong){zhiScore=6;zhiDesc.push('日支相冲，夫妻宫动荡，聚少离多需留意');}
-  else if(dzS.xing){zhiScore=8;zhiDesc.push('日支相刑：'+M.dayZhi+F.dayZhi+'为'+dzS.xingName+'，家内易生暗怨，忌翻旧账');}
-  else if(dzS.hai){zhiScore=9;zhiDesc.push('日支相害，易因小事生隙，忌外人拨弄');}
-  else if(dzS.po){zhiScore=10;zhiDesc.push('日支相破，家计起居易受外事破坏，同心可解');}
+  else if(dzS.chong){zhiScore=6;zhiDesc.push('日支相冲（'+hhPairSpan('__CHONG__',M.dayZhi,F.dayZhi)+'），夫妻宫动荡，聚少离多需留意');}
+  else if(dzS.xing){zhiScore=8;zhiDesc.push('日支相刑：'+hhPairSpan('__XING__',M.dayZhi,F.dayZhi)+'为'+dzS.xingName+'，家内易生暗怨，忌翻旧账');}
+  else if(dzS.hai){zhiScore=9;zhiDesc.push('日支相害（'+hhPairSpan('__HAI__',M.dayZhi,F.dayZhi)+'），易因小事生隙，忌外人拨弄');}
+  else if(dzS.po){zhiScore=10;zhiDesc.push('日支相破（'+hhPairSpan('__PO__',M.dayZhi,F.dayZhi)+'），家计起居易受外事破坏，同心可解');}
   else if(dzS.anhe){zhiScore=14;zhiDesc.push('日支暗合，情分内蕴不形于外，默契深而外人难知');}
   else if(M.dayZhi===F.dayZhi){zhiScore=15;zhiDesc.push('日支相同'+(['辰','午','酉','亥'].indexOf(M.dayZhi)>=0?'，且为自刑（辰午酉亥），习性相类亦相斥，各让一步':'，性情相似'));}  // 自刑支并见提示
   else{zhiScore=12;zhiDesc.push('日支平和');}
@@ -1326,6 +1326,13 @@ function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv){
   </div>`;
   /* 两盘默认落在第一项：盘心、加粗弧与盘下详情须与详情条的初始文本同指一处 */
   hhPick('items',0); hhPick('spec',0);
+}
+/* 冲刑害破逐对释义弹窗 span：键由 bazi-data.js 的 pairTipKey 归一（正反序），未收对回落通用释义。
+   a、b 为两支固定字集（十二地支），拼接结果不含全角括号，可被外层括号安全包裹 */
+function hhPairSpan(base, a, b){
+  const word={'__HAI__':'相害','__PO__':'相破','__CHONG__':'相冲','__XING__':'相刑'}[base]||'';
+  const t=a+b+word;
+  return '<span class="tip" onclick="showTip(\'' + pairTipKey(base,a,b) + '\')">' + t + '</span>';
 }
 /* 四柱表内十神/纳音/神煞点击说明（与八字排盘页一致） */
 function showTip(key, extra){
