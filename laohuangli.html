@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
-<link rel="stylesheet" href="assets/style.css?v=z288">
+<link rel="stylesheet" href="assets/style.css?v=z289">
 </head>
 <body>
 <div id="topbar"></div>
@@ -59,6 +59,7 @@
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20260927d"></script>
 <script defer src="assets/shiling.js?v=20260928n"></script>
+<script defer src="assets/tongshu-terms.js?v=20260928a"></script>
 <script defer src="assets/holiday.js?v=20260917h2"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/taisui-data.js?v=20260917da"></script>
@@ -111,6 +112,59 @@ function jian12Tag(zx){
   if(JIAN12_HEI.indexOf(zx)>=0) return '建除派黑';
   return JIAN12_KAI.indexOf(zx)>=0?'成开皆可用':'破闭不可当';
 }
+/* 通书术语可点 span：术语在释义表（tongshu-terms.js）内即可点，未收者与“无”原样输出（不误导） */
+function tipSpan(name){
+  if(!name || name==='无') return name;
+  if(typeof TONGSHU_DICT==='undefined' || !TONGSHU_DICT[name]) return name;
+  return '<span class="tip" onclick="showTongshuTip(\''+name+'\')">'+name+'</span>';
+}
+/* 弹窗（术语释义、物候、时令、宿诗共用）：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
+   点遮罩或右上角关闭，ESC 亦可关 */
+function _lhlMask(){
+  let mask=document.getElementById('lhlMask');
+  if(!mask){
+    mask=document.createElement('div'); mask.id='lhlMask'; mask.className='modal-mask';
+    mask.setAttribute('role','dialog');
+    mask.innerHTML='<div class="modal"><span class="close" onclick="closeLhlTip()" aria-label="关闭">×</span><div id="lhlTipBody"></div></div>';
+    mask.addEventListener('click',function(e){ if(e.target===mask) closeLhlTip(); });
+    document.body.appendChild(mask);
+  }
+  return mask;
+}
+function closeLhlTip(){ const m=document.getElementById('lhlMask'); if(m) m.classList.remove('show'); }
+function _lhlShow(title, body){
+  _lhlMask();
+  document.getElementById('lhlTipBody').innerHTML='<h3 class="tip-title">'+title+'</h3><div class="tip-body">'+body+'</div>';
+  document.getElementById('lhlMask').classList.add('show');
+}
+/* 通书术语弹窗：宜忌、吉神凶煞、值神、建除、彭祖百忌、方位概念等，释义取 tongshu-terms.js 单一真源 */
+function showTongshuTip(name){
+  const o=(typeof tongshuMean==='function')?tongshuMean(name):null;
+  if(!o){ _lhlShow(name,'（暂无说明）'); return; }
+  _lhlShow(o.t, o.d);
+}
+/* 候名弹窗：标题为“节气 候序 候名”，正文为释义（与万年历同源） */
+function showHouTip(wu){
+  const info=(typeof shilingHouInfo==='function')?shilingHouInfo(wu):null;
+  if(!info){ _lhlShow(wu,'（暂无说明）'); return; }
+  _lhlShow(info.jq+' '+info.hou+' '+info.wu, info.mean);
+}
+/* 时令项弹窗：三伏、数九、入梅出梅的规则说明（取 shiling.js 单一真源） */
+function showShilingTip(item){
+  const key=(typeof shilingRuleKeyOf==='function')?shilingRuleKeyOf(item):'';
+  const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
+  _lhlShow(item, txt||'（暂无说明）');
+}
+/* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗；与宿盘详情同一文案，不另起一套 */
+function showXiuTip(){
+  try{
+    if(!LHL_XIU||!LHL_XIU[LHL_XIU_CUR]) return;
+    const x=LHL_XIU[LHL_XIU_CUR];
+    const song=(typeof LunarUtil!=='undefined'&&LunarUtil.XIU_SONG&&LunarUtil.XIU_SONG[x.nm])||'';
+    _lhlShow(x.full+'（'+x.luck+'）', lhlXiuDetailHTML(LHL_XIU_CUR,x,song));
+  }catch(e){}
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLhlTip(); });
 function lhlScData(t,i,last){
   const luck=(t.getTianShenLuck&&t.getTianShenLuck())||'';
   const h=+t.getMaxHm().slice(0,2)+1;
@@ -458,8 +512,12 @@ function query(){
   let html='';
   /* 时令单元格：无内容的小项不输出（不留“无”占位），其后的项自动上移 */
   const slText=shilingNote(y,m,d).join('；');
-  const shilingParts=slText?[slText]:[];
-  shilingParts.push('物候：'+(shilingWuHou(lunar)||'无'));
+  /* 时令各项可点：三伏、数九、入梅出梅按名取规则说明（shiling.js 单一真源） */
+  const slClick=slText?slText.split('；').map(s=>`<span class="tip" onclick="showShilingTip('${s}')">${s}</span>`).join('；'):'';
+  const shilingParts=slClick?[slClick]:[];
+  const wuHou=(typeof shilingWuHouInfo==='function')?shilingWuHouInfo(lunar):null;
+  /* 物候行：全名“节气 候序 候名”，候名可点取释义；无候可查时整行不点，免得点了弹空窗 */
+  shilingParts.push('物候：'+(wuHou?`${wuHou.jq} ${wuHou.hou} <span class="tip" onclick="showHouTip('${wuHou.wu}')">${wuHou.wu}</span>`:(shilingWuHou(lunar)||'无')));
   shilingParts.push('经络当令：'+shilingDangLing().text);
   renderGrid();
   /* 今日卡 */
@@ -476,25 +534,30 @@ function query(){
   /* 老黄历核心字段：分栏字段流，宜忌通栏、余项双栏；模块名置于表前；
      值神与建除分列两栏：黄道黑道是值神的分类（getDayTianShenType()），随值神同行；建除另标本派黄黑；
      分段符 .lhl-br：电脑端呈空格间隙，移动端呈换行 */
+  /* 宜忌与神煞诸名：凡释义表收录者做成可点，点开取该名的释义；未收者原样输出（见 tipSpan） */
+  const yiTxt=lunar.getDayYi().map(tipSpan).join('、')||'诸事不宜';
+  const jiTxt=lunar.getDayJi().map(tipSpan).join('、')||'无';
+  const jsTxt=lunar.getDayJiShen().map(tipSpan).join('、')||'无';
+  const xsTxt=lunar.getDayXiongSha().map(tipSpan).join('、')||'无';
   html+=`<h3 class="rel-title">基础信息</h3><div class="lhl-info">
-    <div class="lhl-i wide"><span class="k">宜</span><span class="v yi">${lunar.getDayYi().join('、')||'诸事不宜'}</span></div>
-    <div class="lhl-i wide"><span class="k">忌</span><span class="v ji">${lunar.getDayJi().join('、')||'无'}</span></div>
-    <div class="lhl-i lhl-oneline"><span class="k">岁煞冲煞</span><span class="v"><span class="lhl-s">太岁 ${yZhi}（${ZHI_FANG[yZhi]}）</span><span class="lhl-br"></span><span class="lhl-s">岁破 ${suiPo}（${ZHI_FANG[suiPo]}）</span><span class="lhl-br"></span><span class="lhl-s">冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}</span></span></div>
+    <div class="lhl-i wide"><span class="k">宜</span><span class="v yi">${yiTxt}</span></div>
+    <div class="lhl-i wide"><span class="k">忌</span><span class="v ji">${jiTxt}</span></div>
+    <div class="lhl-i lhl-oneline"><span class="k">岁煞冲煞</span><span class="v"><span class="lhl-s">太岁 ${yZhi}（${ZHI_FANG[yZhi]}）</span><span class="lhl-br"></span><span class="lhl-s">岁破 ${suiPo}（${ZHI_FANG[suiPo]}）</span><span class="lhl-br"></span><span class="lhl-s">${tipSpan('冲煞')} 冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}</span></span></div>
     <div class="lhl-i"><span class="k">太岁</span><span class="v">${taiSuiText(ygz,yZhi,suiPo)}</span></div>
     <div class="lhl-i"><span class="k">三柱相冲</span><span class="v">${chong.length?chong.join('；'):'三柱无互冲'}</span></div>
-    <div class="lhl-i"><span class="k">值神</span><span class="v">${lunar.getDayTianShen()}（${lunar.getDayTianShenType()}）</span></div>
-    <div class="lhl-i"><span class="k">建除</span><span class="v">${lunar.getZhiXing()}日（${jian12Tag(lunar.getZhiXing())}）</span></div>
-    <div class="lhl-i"><span class="k">吉神宜趋</span><span class="v yi">${lunar.getDayJiShen().join('、')||'无'}</span></div>
-    <div class="lhl-i"><span class="k">凶煞宜忌</span><span class="v ji">${lunar.getDayXiongSha().join('、')||'无'}</span></div>
+    <div class="lhl-i"><span class="k">值神</span><span class="v">${tipSpan(lunar.getDayTianShen())}（${lunar.getDayTianShenType()}）</span></div>
+    <div class="lhl-i"><span class="k">建除</span><span class="v">${tipSpan(lunar.getZhiXing())}日（${jian12Tag(lunar.getZhiXing())}）</span></div>
+    <div class="lhl-i"><span class="k">吉神宜趋</span><span class="v yi">${jsTxt}</span></div>
+    <div class="lhl-i"><span class="k">凶煞宜忌</span><span class="v ji">${xsTxt}</span></div>
     <div class="lhl-i"><span class="k">纳音</span><span class="v">${ngwRow('年',lunar.getYearNaYin(),ygz,GAN_WX[ygz[0]],lunar.getYearShengXiao())}<span class="lhl-br"></span>${ngwRow('月',lunar.getMonthNaYin(),mgz,GAN_WX[mgz[0]],lunar.getMonthShengXiao())}<span class="lhl-br"></span>${ngwRow('日',lunar.getDayNaYin(),dgz,GAN_WX[dgz[0]],lunar.getDayShengXiao())}<span class="lhl-br"></span>${ngwRow('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())}</span></div>
     <div class="lhl-i"><span class="k">节气</span><span class="v">${lunar.getJieQi()?('当前：'+lunar.getJieQi()+'<span class="lhl-br"></span>'):''}上：${pj.getName()} ${pj.getSolar().toYmd()}<span class="lhl-br"></span>下：${nj.getName()} ${nj.getSolar().toYmd()}</span></div>
     <div class="lhl-i"><span class="k">时令</span><span class="v">${shilingParts.join('<span class="lhl-br"></span>')}</span></div>
     <div class="lhl-i"><span class="k">节日</span><span class="v">${festText}</span></div>
-    <div class="lhl-i lhl-oneline"><span class="k">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}<span class="lhl-br"></span>月：${lunar.getMonthXunKong()}<span class="lhl-br"></span>日：${lunar.getDayXunKong()}</span></div>
-    <div class="lhl-i lhl-oneline"><span class="k">胎神</span><span class="v"><span class="lhl-s">本月：${taiShen(mgz[0],mZhi)}</span><span class="lhl-br"></span><span class="lhl-s">今日：${taiShen(dyGan,dyZhi)}</span></span></div>
-    <div class="lhl-i"><span class="k">吉神方位</span><span class="v">喜神${lunar.getDayPositionXiDesc()}、福神${lunar.getDayPositionFuDesc()}、财神${lunar.getDayPositionCaiDesc()}<span class="lhl-br"></span>阳贵${lunar.getDayPositionYangGuiDesc()}、阴贵${lunar.getDayPositionYinGuiDesc()}<span class="lhl-br"></span>日禄：${lunar.getDayLu()}</span></div>
-    <div class="lhl-i"><span class="k">二十八宿</span><span class="v">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></div>
-    <div class="lhl-i"><span class="k">彭祖百忌</span><span class="v">${lunar.getPengZuGan()}<span class="lhl-br"></span>${lunar.getPengZuZhi()}</span></div>
+    <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('旬空')">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}<span class="lhl-br"></span>月：${lunar.getMonthXunKong()}<span class="lhl-br"></span>日：${lunar.getDayXunKong()}</span></div>
+    <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('胎神')">胎神</span><span class="v"><span class="lhl-s">本月：${taiShen(mgz[0],mZhi)}</span><span class="lhl-br"></span><span class="lhl-s">今日：${taiShen(dyGan,dyZhi)}</span></span></div>
+    <div class="lhl-i"><span class="k">吉神方位</span><span class="v">${tipSpan('喜神')}${lunar.getDayPositionXiDesc()}、${tipSpan('福神')}${lunar.getDayPositionFuDesc()}、${tipSpan('财神')}${lunar.getDayPositionCaiDesc()}<span class="lhl-br"></span>${tipSpan('阳贵')}${lunar.getDayPositionYangGuiDesc()}、${tipSpan('阴贵')}${lunar.getDayPositionYinGuiDesc()}<span class="lhl-br"></span>${tipSpan('日禄')}：${lunar.getDayLu()}</span></div>
+    <div class="lhl-i"><span class="k tip" onclick="showTongshuTip('二十八宿')">二十八宿</span><span class="v"><span class="tip" onclick="showXiuTip()">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></span></div>
+    <div class="lhl-i"><span class="k">彭祖百忌</span><span class="v">${tipSpan(lunar.getPengZuGan())}<span class="lhl-br"></span>${tipSpan(lunar.getPengZuZhi())}</span></div>
   </div>`;
 
   /* 双圆盘：时辰盘紧随“时辰吉凶”格阵，是同一份数据的图形化，看的是全天吉凶分布与当前所在；
@@ -510,7 +573,12 @@ function query(){
     <div class="fei-block"><div class="fei-cap">月飞星（${m}月 ${FEI_NAME[mStar]}入中）</div>${feiGridHTML(mStar)}</div>
     <div class="fei-block"><div class="fei-cap">日飞星（${m}月${d}日 ${FEI_NAME[dStar]}入中）</div>${feiGridHTML(dStar)}</div>
     <div class="fei-block"><div class="fei-cap">时飞星（当前${shName}时 ${FEI_NAME[hStar]}入中）</div>${feiGridHTML(hStar)}</div>
-  </div></details>`;
+  </div>
+  <div class="sub-note">年家紫白以三元九运入中，上元甲子一白、中元四绿、下元七赤起，逐年逆推；月家按年支分三组（子午卯酉八白、辰戌丑未五黄、寅申巳亥二黑）起正月，逐月逆减；日家按冬至夏至分阴阳两造，冬至后甲子日一白顺行、夏至后九紫逆行，各分三元；时家按日支分三组（子午卯酉、辰戌丑未、寅申巳亥），冬至后一白四绿七赤起子时顺行、夏至后九紫六白三碧起子时逆行。四家各自成例、互不相干，不叠加论吉凶；飞星只言方位宜忌，不并入当日宜忌之数。</div>
+  </details>`;
+  /* 口径注置于全部模块之后：宜忌、神煞、值神、建除、宿、飞星的取值口径与派别差异都在此交代，
+     页内条目只出结论。术语释义另由点选弹窗给出，两处不重复。 */
+  html+=`<div class="sub-note">宜忌、吉神凶煞、彭祖百忌、建除十二神与二十八宿吉凶取自通书通行本，诸本互有出入，本页采一说；值神黄道黑道与建除黄黑是两套并行的黄黑划分，同日可得一黄一黑，取用时各依本派，不合并论断。时辰吉凶为当日干支起例的十二时辰黄黑，与值神、建除同为一日之内的三层判据。本页内容为民俗历法整理，仅供参考，婚丧动土等大事仍以现实条件与专业意见为准。</div>`;
   document.getElementById('out').innerHTML=html;
   lhApplyFold();
  }catch(e){
