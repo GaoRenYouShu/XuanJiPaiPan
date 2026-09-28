@@ -248,6 +248,22 @@
   var GONG_W = {0:3, 1:6, 2:8, 3:5};   // 年、月、日、时
   var GONG_NAME = ['年','月','日','时'];
 
+  /* 十干体象歌摘句（通行本十干体象歌）：供"同类异性透干"条目按日主引本干诗句。
+     仅摘与"得地力足 / 失令无根"两档相应之句；讲同类相夺者唯丁火诗一句
+     （"太阳相见夺光明"），余干不硬套，诗无相应句者（丙、癸之失令档）不引。 */
+  var TX_GE = {
+    '甲':{de:'欲存天地千年久，直向泥沙万丈埋'},
+    '乙':{de:'乙木根荄种得深', shi:'漂浮最怕多逢水'},
+    '丙':{de:'洪光不独窥千里，巨魄尤能遍八荒'},
+    '丁':{de:'得时能铸千斤铁', shi:'太阳相见夺光明，失令难熔一寸金'},
+    '戊':{de:'振江河海要根重', shi:'日下乘虚势必崩'},
+    '己':{de:'得时方可用镃基', shi:'失令岂能埋剑戟'},
+    '庚':{de:'秋生西北亦光芒', shi:'木旺能令我自伤'},
+    '辛':{de:'坐禄通根身旺地，何愁厚土没其形', shi:'水冷金寒要丙丁'},
+    '壬':{de:'漫流天下总无边', shi:'火土重逢涸本源'},
+    '癸':{de:'根通亥子即江河'}
+  };
+
   function baziQuality(BZ, A){
     var items = [], s = 60;
     function push(name, delta, kind){ items.push({name:name, delta:delta, kind:kind}); }
@@ -432,13 +448,13 @@
       var mLing = ZHI_WX[BZ.zhis[1]];
       var deLing = (mLing===dgWx) || (WX_SHENG[mLing]===dgWx);
       var youGen = BZ.zhis.some(function(zz){ return (HIDE[zz]||[]).some(function(x){ return GAN_WX[x]===dgWx; }); });
-      /* 丁火口诀只归丁日主（该歌诀本为丁火作）；余干走通用劫财分夺表述，不冒用他干歌诀 */
-      var dingCite = (BZ.dayGan==='丁');
-      if(deLing||youGen){ push('同类异性透干（'+sameTouStr+'，劫财）：日主得时得地、力足自任，不惧分夺'+(dingCite?'（丁火口诀"得时能铸千斤铁"，十干体象歌）':''), 0, 'neutral'); }
-      else { s-=4; push('同类异性透干（'+sameTouStr+'，劫财）：日主失令无根、被同类分夺，主竞争耗散、劳而少成'+(dingCite?'（丁见丙"太阳相见夺光明"，十干体象歌）':''), -4, 'xiong'); }
+      /* 口诀按日主引本干体象歌句（见 TX_GE 表注）；两档判据通用，诗句各归其干 */
+      var tx = TX_GE[BZ.dayGan] || {};
+      if(deLing||youGen){ push('同类异性透干（'+sameTouStr+'，劫财）：日主得时得地、力足自任，不惧分夺'+(tx.de?'（'+tx.de+'，十干体象歌）':''), 0, 'neutral'); }
+      else { s-=4; push('同类异性透干（'+sameTouStr+'，劫财）：日主失令无根、被同类分夺，主竞争耗散、劳而少成'+(tx.shi?'（'+tx.shi+'，十干体象歌）':''), -4, 'xiong'); }
     }
 
-    /* 十神星现否（透干＋藏干，日主本身不计）：供男女命视角与十神结构两用 */
+    /* 十神星现否（透干＋藏干，日主本身不计）：供十神结构与男女命视角两用 */
     var starHit = function(names){
       var tou=[], cang=[];
       BZ.gans.forEach(function(g,i){ if(i===2) return; if(names.indexOf(tenGod(BZ.dayGan,g))>=0) tou.push(g); });
@@ -446,7 +462,16 @@
       return {tou:tou, cang:cang, hit:(tou.length+cang.length)>0};
     };
 
-    /* ⑩ 男女命视角（女命官杀混杂 −4、男命财星混杂 −3；视角行不计分）：
+    /* ⑩ 十神结构完整性（中性提示，不加减分）：比劫、食伤、财星、官杀、印星五类有无缺门。
+       民间择日重"财官印全"，此处只作提示，不计分，避免模板化加分。
+       先述结构（客观有无），后作男女命解读（男女命视角条在其后），描述在前、解读在后。 */
+    var CAT5=[['比劫',['比肩','劫财']],['食伤',['食神','伤官']],['财星',['正财','偏财']],['官杀',['正官','七杀']],['印星',['正印','偏印']]];
+    var missCat=[];
+    CAT5.forEach(function(pair){ if(!starHit(pair[1]).hit) missCat.push(pair[0]); });
+    if(missCat.length) push('十神结构：缺'+missCat.join('、')+'（中性提示，民间择日重五类俱全，引擎不据此加减分）', 0, 'neutral');
+    else push('十神结构：比劫、食伤、财星、官杀、印星五类俱全', 0, 'neutral');
+
+    /* ⑪ 男女命视角（女命官杀混杂 −4、男命财星混杂 −3；视角行不计分）：
        男命财为妻财、官杀为功名子女；女命官杀为夫星、食伤为子女（子平通行）。
        混杂检查：女命官杀混杂主婚姻波折、男命财星混杂主婚财起落。 */
     var guanS = starHit(['正官','七杀']), caiS = starHit(['正财','偏财']), shiS = starHit(['食神','伤官']);
@@ -457,14 +482,6 @@
       push('男命视角：财为妻财、官杀为功名子女；本命财星'+(caiS.hit?('见'+dedupChars(caiS.tou.concat(caiS.cang))):'不现')+'、官杀'+(guanS.hit?('见'+dedupChars(guanS.tou.concat(guanS.cang))):'不现'), 0, 'neutral');
       if(starHit(['正财']).hit && starHit(['偏财']).hit){ s-=3; push('男命财星混杂：正财偏财并见，婚财起落、宜专一持家', -3, 'xiong'); }
     }
-
-    /* ⑪ 十神结构完整性（中性提示，不加减分）：比劫、食伤、财星、官杀、印星五类有无缺门。
-       民间择日重"财官印全"，此处只作提示，不计分，避免模板化加分。 */
-    var CAT5=[['比劫',['比肩','劫财']],['食伤',['食神','伤官']],['财星',['正财','偏财']],['官杀',['正官','七杀']],['印星',['正印','偏印']]];
-    var missCat=[];
-    CAT5.forEach(function(pair){ if(!starHit(pair[1]).hit) missCat.push(pair[0]); });
-    if(missCat.length) push('十神结构：缺'+missCat.join('、')+'（中性提示，民间择日重五类俱全，引擎不据此加减分）', 0, 'neutral');
-    else push('十神结构：比劫、食伤、财星、官杀、印星五类俱全', 0, 'neutral');
 
     return {score: clamp(Math.round(s), 0, 100), items: items, raw: s};
   }
@@ -547,8 +564,8 @@
       var badTxt = flags.filter(function(f){ return f.bad; }).map(function(f){ return f.gz+'（'+f.age+'岁起 '+f.year+'）'; });
       var cons = false;
       for(var fi=0; fi<flags.length-1; fi++){ if(flags[fi].bad && flags[fi+1].bad) cons = true; }
-      if(cons) items.push({name:'中晚年粗筛：第4-6步大运有连续不利（'+badTxt.join('、')+'），宜留意（不计权重）', delta:0, kind:'xiong'});
-      else if(badTxt.length) items.push({name:'中晚年粗筛：第4-6步大运有单步波折（'+badTxt.join('、')+'），余运平顺（不计权重）', delta:0, kind:'neutral'});
+      if(cons) items.push({name:'中晚年粗筛：第4-6步大运有连续不利，涉 '+badTxt.join('、')+'，宜留意（不计权重）', delta:0, kind:'xiong'});
+      else if(badTxt.length) items.push({name:'中晚年粗筛：第4-6步大运有单步波折，涉 '+badTxt.join('、')+'，余运平顺（不计权重）', delta:0, kind:'neutral'});
       else items.push({name:'中晚年粗筛：第4-6步大运无连续不利（不计权重）', delta:0, kind:'neutral'});
     }
     return {score: clamp(Math.round(s), 0, 100), items: items, steps: steps, start: start, raw: s};

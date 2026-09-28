@@ -197,7 +197,7 @@
 <script defer src="assets/bazi-data.js?v=20260928d"></script>
 <script defer src="assets/bazi-rel.js?v=20260920c"></script>
 <script defer src="assets/zeri-engine.js?v=20260925a"></script>
-<script defer src="assets/zeri-zaoming.js?v=20260928i"></script>
+<script defer src="assets/zeri-zaoming.js?v=20260928k"></script>
 <script defer src="assets/ai.js?v=20260927c"></script>
 <script>
 /* ===== 模式切换：择事、造命 =====
@@ -414,7 +414,7 @@ function jingze(){
   const shanZhi=document.getElementById('shan').value||null;
   const timeZhi=document.getElementById('zhongShi').value||null;
   if(fam.fangSha){
-    if(shanZhi) notes.push(`已纳入坐山 ${shanZhi}（补龙扶山（山方煞到山判定））`);
+    if(shanZhi) notes.push(`已纳入坐山 ${shanZhi}（补龙扶山，山方煞到山判定）`);
     else notes.push('未填坐山（造葬动土建议填坐山）');
   } else {
     if(shanZhi) notes.push(`已纳入坐山 ${shanZhi}（本事事类不参坐山吉凶，仅供参考）`);
@@ -445,7 +445,7 @@ function jingze(){
         ${d.jiuyao?`<p class="ly-zh-p"><span class="zr-k">九曜</span>：${d.jiuyao}</p>`:''}
         ${d.najia?`<p class="ly-zh-p"><span class="zr-k">纳甲</span>：${d.najia}</p>`:''}
         ${(d.tsJi||d.tsXiong)?`<p class="ly-zh-p"><span class="zr-k">通书全录</span>（展示参考，不计分）：${d.tsJi?`<span class="zr-good">吉神</span>：${d.tsJi}`:''}${(d.tsJi&&d.tsXiong)?'；':''}${d.tsXiong?`<span class="zr-bad">凶神</span>：${d.tsXiong}`:''}</p>`:''}
-        ${(d.pz||d.fzXi||d.fzCai||d.fzFu)?`<p class="ly-zh-p"><span class="zr-k">民俗参考</span>（不计分）：${d.pz?`彭祖百忌：${d.pz}`:''}${d.pz&&(d.fzXi||d.fzCai||d.fzFu)?'；':''}${(d.fzXi||d.fzCai||d.fzFu)?`喜神${d.fzXi||'—'}、财神${d.fzCai||'—'}、福神${d.fzFu||'—'}`:''}</p>`:''}
+        ${(d.pz||d.fzXi||d.fzCai||d.fzFu)?`<p class="ly-zh-p"><span class="zr-k">民俗参考</span>（不计分）：${d.pz?`彭祖百忌：${d.pz}`:''}${d.pz&&(d.fzXi||d.fzCai||d.fzFu)?'；':''}${(d.fzXi||d.fzCai||d.fzFu)?`喜神${d.fzXi||'-'}、财神${d.fzCai||'-'}、福神${d.fzFu||'-'}`:''}</p>`:''}
       </div>`:'';
     const verdict = (d.zr.ji.concat(d.shensha.ji)).slice(0,3).join('、');
     const bad = (d.zr.xiong.concat(d.shensha.xiong)).slice(0,3).join('、');
