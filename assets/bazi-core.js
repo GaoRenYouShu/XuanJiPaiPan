@@ -2329,7 +2329,7 @@ function renderBaziPage(R, BZ = window.BZ){
     const gr=REL.gz.ganPairs(BZ.gans, BZ, GAN_LAB), zr=REL.gz.zhiPairs(BZ.zhis, BZ, ZHI_LAB);
     html+=`<details class="zr-mod zr-quant" id="zr-ganzhi"><summary>干支关系</summary><div class="zr-mod-b">`;
     html+=`<div class="gz-sec">天干关系</div><div class="rel-wrap">`;
-    html+= gr.length? gr.map(r=>`<span class="rel ${r.cls}" onclick="showTip('${relKeyGan(r.cls)}')">${r.text}</span>`).join('') : '<span class="sub-note">无明显合化生克</span>';
+    html+= gr.length? gr.map(r=>`<span class="rel ${r.cls}" onclick="showTip('${relKeyGan(r.cls, r.text)}')">${r.text}</span>`).join('') : '<span class="sub-note">无明显合化生克</span>';
     html+=`</div>`;
     html+=`<div class="gz-sec gz-sec-2">地支关系</div><div class="rel-wrap">`;
     html+= zr.length? zr.map(r=>`<span class="rel ${r.cls}${r.cls==='xing'?' long':''}" onclick="showTip('${relKey(r.cls,r.text)}')">${r.text}</span>`).join('') : '<span class="sub-note">无明显合化刑冲</span>';
@@ -2722,13 +2722,29 @@ const PILLAR_KEY='bazi_pillar_sel_v1';
    仅记录三个模块的 collapsed 布尔（内部 <details> 小节不持久化）。 */
 const BAZI_MOD_KEY='bazi_mod_state_v1';
 
-function relKeyGan(cls){
+/* 干关系 chip 逐对弹出：合化与干冲从 chip 文本尾部取两干（柱位标签字皆非天干字），
+   键由 bazi-data.js pairTipKey 归一，未收对回落通用释义 */
+function relKeyGan(cls, text){
+  if((cls==='he'||cls==='gchong') && typeof pairTipKey==='function'){
+    const m=String(text||'').match(/([甲乙丙丁戊己庚辛壬癸]{2})(?=合化|合而不化)/) || String(text||'').match(/([甲乙丙丁戊己庚辛壬癸]{2})相冲$/);
+    if(m){
+      const k=pairTipKey(cls==='he'?'__HE__':'__GANCHONG__', m[1][0], m[1][1]);
+      if(k!==(cls==='he'?'__HE__':'__GANCHONG__')) return k;
+    }
+  }
+  if(cls==='bihe') return String(text||'').indexOf('比肩')>=0 ? '__BIJIAN__' : '__BIHE__';
+  if(cls==='sheng' || cls==='ke'){
+    /* 五行生克按五行对出专条：文本首两干即（生者克者、受者被克），干五行查 GAN_WX 真源 */
+    const mg=String(text||'').match(/([甲乙丙丁戊己庚辛壬癸])([甲乙丙丁戊己庚辛壬癸])/);
+    if(mg){
+      const key=(cls==='sheng'?'__SHENG_':'__KE_')+(GAN_WX[mg[1]]||'')+(GAN_WX[mg[2]]||'')+'__';
+      if(DICT[key]) return key;
+    }
+    return cls==='sheng'?'__SHENG__':'__KE__';
+  }
   if(cls==='he') return '__HE__';
-  if(cls==='sheng') return '__SHENG__';
-  if(cls==='ke') return '__KE__';
   if(cls==='gchong') return '__GANCHONG__';
   if(cls==='zheng') return '__ZHENGHE__';
-  if(cls==='bihe') return '__BIHE__';
   return '__HE__';
 }
 /* 运势列构造（与命局四柱 cols 同构）：大运/流年/流月/流日任一干支 → 完整 col 对象
@@ -2757,14 +2773,37 @@ function mkYunCol(lbl, gz, BZ){
   };
 }
 function relKey(cls, text){
-  if(cls==='he'){ if(text.indexOf('三合')>=0) return '__SANHE__'; if(text.indexOf('三会')>=0) return '__SANHUI__'; if(text.indexOf('合而不化')>=0) return '__HEBUHUA__'; return '__HE6__'; }
+  if(cls==='he'){
+    const m3=String(text||'').match(/([子丑寅卯辰巳午未申酉戌亥]{3})三合/);
+    if(m3) return DICT['__SANHE_'+m3[1]+'__'] ? '__SANHE_'+m3[1]+'__' : '__SANHE__';
+    const mh3=String(text||'').match(/([子丑寅卯辰巳午未申酉戌亥]{3})三会/);
+    if(mh3) return DICT['__SANHUI_'+mh3[1]+'__'] ? '__SANHUI_'+mh3[1]+'__' : '__SANHUI__';
+    if(text.indexOf('合而不化')>=0) return '__HEBUHUA__';
+    const mban=String(text||'').match(/([子丑寅卯辰巳午未申酉戌亥]{2})半合/);
+    if(mban && typeof pairTipKey==='function'){ const kb=pairTipKey('__BANHE__', mban[1][0], mban[1][1]); if(kb!=='__BANHE__') return kb; }
+    if(text.indexOf('半合')>=0) return '__BANHE__';
+    const mgong=String(text||'').match(/([子丑寅卯辰巳午未申酉戌亥]{2})拱/);
+    if(mgong && typeof pairTipKey==='function'){ const kg=pairTipKey('__GONG__', mgong[1][0], mgong[1][1]); if(kg!=='__GONG__') return kg; }
+    if(text.indexOf('拱')>=0) return '__GONG__';
+    if(typeof pairTipKey==='function'){
+      const mh=String(text||'').match(/([子丑寅卯辰巳午未申酉戌亥]{2})合化/);
+      if(mh){ const kh=pairTipKey('__HE6__', mh[1][0], mh[1][1]); if(kh!=='__HE6__') return kh; }
+    }
+    return '__HE6__';
+  }
   if(cls==='sheng') return '__SHENG__';
   if(cls==='ke') return '__KE__';
-  if(cls==='chong') return '__CHONG__';
-  if(cls==='xing') return '__XING__';
-  if(cls==='hai') return '__HAI__';
-  if(cls==='po') return '__PO__';
-  if(cls==='anhe') return '__ANHE__';
+  /* 害破冲刑暗合逐对弹出：chip 文本取两支（柱位标签字皆非地支字，关系词前两字即对子；
+     刑 chip 文本可带刑名后缀，故不锚行尾），键由 bazi-data.js pairTipKey 归一，未收对回落通用释义 */
+  if(['hai','po','chong','xing','anhe'].indexOf(cls)>=0){
+    const base={hai:'__HAI__',po:'__PO__',chong:'__CHONG__',xing:'__XING__',anhe:'__ANHE__'}[cls];
+    const m=String(text||'').match(/([子丑寅卯辰巳午未申酉戌亥]{2})(?:相害|相破|相冲|相刑|暗合|自刑)/);
+    if(m && typeof pairTipKey==='function'){
+      const k=pairTipKey(base, m[1][0], m[1][1]);
+      if(k!==base) return k;
+    }
+    return base;
+  }
   if(cls==='gchong') return '__GANCHONG__';
   if(cls==='zheng') return '__ZHENGHE__';
   return '__HE__';
@@ -3454,7 +3493,24 @@ function zhiPairText(z1,z2,labs){
   });
   return out;
 }
-function zhiRelKey(w){ return ({'冲':'__CHONG__','合':'__HE6__','暗合':'__ANHE__','害':'__HAI__','破':'__PO__','刑':'__XING__','半合':'__HE6__'})[w]||'__HE__'; }
+function zhiRelKey(w, z1, z2){
+  if(z1 && z2 && typeof pairTipKey==='function'){
+    if(w==='半合' || w==='拱'){
+      /* 半合、拱按三合局定位组别：生旺力全、旺墓力半、生墓虚拱，各自专条，严禁落入六合 */
+      const g=(DIZHI_SANHE||[]).find(g=>g.slice(0,3).indexOf(z1)>=0 && g.slice(0,3).indexOf(z2)>=0);
+      const kind=g?sanheKind(g,[z1,z2]):null;
+      const base=kind==='gong'?'__GONG__':'__BANHE__';
+      const k=pairTipKey(base, z1, z2);
+      return k!==base ? k : base;
+    }
+    const base={'害':'__HAI__','破':'__PO__','冲':'__CHONG__','合':'__HE6__','刑':'__XING__','暗合':'__ANHE__'}[w];
+    if(base){
+      const k=pairTipKey(base, z1, z2);
+      if(k!==base) return k;
+    }
+  }
+  return ({'冲':'__CHONG__','合':'__HE6__','暗合':'__ANHE__','害':'__HAI__','破':'__PO__','刑':'__XING__','半合':'__BANHE__'})[w]||'__HE__';
+}
 function relCls(w){ return ({'冲':'ke','破':'ke','刑':'ke','害':'hai','合':'he','暗合':'anhe','生':'sheng','半合':'he'})[w]||''; }
 /* 两个干支之间的干生克合化 + 支冲合害破刑，返回可点击 span 串；la/lb 为两柱层级标签（如 大运、流年） */
 function relHTML(a,b,la,lb){
@@ -3464,8 +3520,8 @@ function relHTML(a,b,la,lb){
   const zr=zhiPairText(a[1],b[1], labs);
   let s='<span class="rel-row"><span class="rel-g">干 ';
   /* 干、支两组各自的多条关系一律以顿号分隔：仅靠 chip 的 4px 外边距，两条四字关系会连读成一串 */
-  s+= gr.length? gr.map(r=>`<span class="rel ${r.cls}" onclick="showTip('${relKeyGan(r.cls)}')">${r.text.replace(pre,'')}</span>`).join('、') : '<span class="sub-note">无生克合化</span>';
-  s+='</span><span class="rel-sep"></span><span class="rel-z">支 '+(zr.length? zr.map(x=>`<span class="rel ${relCls(x.w)}" onclick="showTip('${zhiRelKey(x.w)}')">${x.t.replace(pre,'')}</span>`).join('、') : '无冲合害破刑')+'</span></span>';
+  s+= gr.length? gr.map(r=>`<span class="rel ${r.cls}" onclick="showTip('${relKeyGan(r.cls, r.text)}')">${r.text.replace(pre,'')}</span>`).join('、') : '<span class="sub-note">无生克合化</span>';
+  s+='</span><span class="rel-sep"></span><span class="rel-z">支 '+(zr.length? zr.map(x=>`<span class="rel ${relCls(x.w)}" onclick="showTip('${zhiRelKey(x.w, a[1], b[1])}')">${x.t.replace(pre,'')}</span>`).join('、') : '无冲合害破刑')+'</span></span>';
   return s;
 }
 
@@ -3480,15 +3536,15 @@ function relMingSpecial(gz, lvl){
     const heZ=pairIn(gz[1],pz,DIZHI_HE6);
     const chongG=pairIn(gz[0],pg,TIANGAN_CHONG);
     const chongZ=pairIn(gz[1],pz,DIZHI_CHONG);
-    if(heG && heZ) out.push(`<span class="rel spec-he" onclick="showTip('__HE6__')">与${lab}柱（${pg}${pz}）天合地合</span>`);
-    if(chongG && chongZ) out.push(`<span class="rel spec-chong" onclick="showTip('__CHONG__')">与${lab}柱（${pg}${pz}）天克地冲</span>`);
+    if(heG && heZ) out.push(`<span class="rel spec-he" onclick="showTip('__TIANHE__')">与${lab}柱（${pg}${pz}）天合地合</span>`);
+    if(chongG && chongZ) out.push(`<span class="rel spec-chong" onclick="showTip('__TIANCHONG__')">与${lab}柱（${pg}${pz}）天克地冲</span>`);
   }
   // 本步地支参与的 三合/三会 全局（本步支 + 命局两支，跨柱关系故列于特殊行；半合/拱已在单元格列出）
   if(lvl){
     try{
       REL.gz.zhiPairs([gz[1]].concat(BZ.zhis), BZ, [lvl].concat(labels)).forEach(x=>{
         if(x.cls==='he' && x.text.indexOf(lvl)>=0 && /三合|三会/.test(x.text)){
-          out.push(`<span class="rel spec-he" onclick="showTip('__HE__')">${x.text}</span>`);
+          out.push(`<span class="rel spec-he" onclick="showTip('${relKey('he', x.text)}')">${x.text}</span>`);
         }
       });
     }catch(e){}
