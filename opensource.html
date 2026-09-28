@@ -38,7 +38,7 @@
       <div class="os-lead">
         本站“玄机排盘”为传统文化研究演示项目，全部排盘结果由下列<b>开源算法库</b>与<b>项目自研算法</b>共同生成；
         引入开源一栏另列牌图与字体两项不参与计算的素材，一并计入权重。
-        按各条目对本站的<b>贡献权重</b>列出（算法库与引擎按功能核心度、数据按体量与权威性、图片与字体按件数分档估定；各条基础分由页面按全体动态归一，合计恒为 100.0，属编辑口径的近似值）。
+        按各条目对本站的<b>贡献权重</b>列出（算法库与引擎按功能核心度、数据按体量与权威性、样式与框架按覆盖面、图片与字体按件数分档估定；各条基础分由页面按全体动态归一，合计恒为 100.0，属编辑口径的近似值）。
         所有引入的开源项目均保留原作者版权与许可，链接直达其仓库与文档。
         法定节假日与调休补班、页脚来访归属地、风水页磁偏角在线校验三项数据于运行时取自<b>站外数据服务</b>，与算法库分列于后，不计权重。
       </div>
@@ -89,11 +89,11 @@
    新增条目只加 s 即可、总和恒为 100，各条权重随全体自动调整；组内降序由页面渲染保证，
    源数据整理工具为 _tools/os_weights.js（归一写回）与 _tools/os_sort.js（组内重排）。 */
 const DATA=[
- {name:'lunar-javascript( lunar.js )', type:'in', s:12.2,
+ {name:'lunar-javascript( lunar.js )', type:'in', s:10.2,
   link:'https://github.com/6tail/lunar-javascript',
   fn:'核心历法引擎。提供公历⇄农历、干支转换、四柱八字、老黄历宜忌、建除十二值、黄黑道十二神、二十八宿、纳音、生肖、节气、彭祖百忌、吉神凶煞等。本站八字、老黄历、择日、万年历、九宫飞星等均以其为数据底座。',
   note:'许可：MIT。作者 6tail。文档 https://6tail.cn/ 。为全站权重最高、被最多模块依赖的基础库。许可全文见 <a class="os-link" href="https://github.com/6tail/lunar-javascript?tab=MIT-1-ov-file" target="_blank" rel="noopener">lunar-javascript 许可</a>'},
- {name:'iztro( iztro.min.js )', type:'in', s:4.7,
+ {name:'iztro( iztro.min.js )', type:'in', s:4.6,
   link:'https://github.com/SylarLong/iztro',
   fn:'紫微斗数排盘引擎。依据生辰干支与出生时辰索引，输出十二宫、主星辅星四化（禄权科忌）、命身宫、五行局、三方四正等完整斗数结构。',
   note:'许可：MIT。作者 SylarLong。文档 https://iztro.com/ 。紫微斗数模块唯一依赖。许可全文见 <a class="os-link" href="https://github.com/SylarLong/iztro?tab=MIT-1-ov-file" target="_blank" rel="noopener">iztro 许可</a>'},
@@ -185,11 +185,11 @@ const DATA=[
   link:'https://commons.wikimedia.org/wiki/Category:%E9%BA%BB%E8%A1%A3%E7%9B%B8%E6%B3%95',
   fn:'手相掌图与面相十二宫图三帧：手紋之圖录自《手相學》第十三圖、掌丘分布之图录自同书第十二圖（民国八年刊本），十二宫分之图录自《麻衣相法》卷一民国十四年（一九二五）刊本，三帧均取自中国国家图书馆数字化扫描本，按原图边界整幅裁切、去底灰后供手相页与面相页直接呈现。',
   note:'许可：公有领域（PD China，扫描件 PD-scan）。原刊本藏中国国家图书馆，取自 Wikimedia Commons，shouxiang.html 与 mianxiang.html 使用，页内已标注底本与藏地。'},
- {name:'八字排盘核心( bazi-core.js )', type:'self', s:3.9,
+ {name:'八字排盘核心( bazi-core.js )', type:'self', s:3.8,
   link:'assets/bazi-core.js',
   fn:'四柱结构解析、十神、宫位、五行流转，命局断事（婚姻、健康、家庭、事业四模块表格化），大运流年起法，与 bazi-data、bazi-rel、bazi-shishen 协同完成整张八字盘的断语输出。',
   note:'源码 bazi-core.js（八字、姓名学两页加载）。与 bazi-rel.js 的 REL.tenCombo 断语引擎、bazi-shishen.js 定向句真源联动。'},
- {name:'八字旺衰、喜用神判定、合婚', type:'self', s:3.2,
+ {name:'八字旺衰、喜用神判定、合婚', type:'self', s:3.1,
   link:'assets/bazi-data.js',
   fn:'基于日主五行与四柱干支（含藏干、十神、禄刃）统计五行生克得分，判定身强身弱、喜用神（喜与忌）类别，并据此做八字合婚之喜用互补、五行冲合、十神互补等专项比对。',
   note:'源码 bazi-data.js（八字、合婚、民俗、太岁、铁板神数、姓名学、择日、阴宅八页加载；旺衰喜用与合婚判定为八字、合婚两页所用）。为经验性旺衰打分法，存在流派争议，仅供参考。'},
@@ -213,6 +213,10 @@ const DATA=[
   link:'assets/fengshui-engine.js',
   fn:'年月日时紫白飞星、八宅游年、流年方位煞、玄空飞星、三合水法、分金龙例的确定性计算；各算法块以【定源】注明典籍依据与可校验锚点，流派分歧处注明本页取舍，FS.selfTest() 集中校验全部锚点。阳宅、阴宅、合婚、八字四页共用。',
   note:'源码 fengshui-engine.js。锚点即回归基线，改动锚点须先给出典籍出处，防止改对改错。'},
+ {name:'style.css 全站样式', type:'self', s:1.9,
+  link:'assets/style.css',
+  fn:'全站设计系统：CSS 变量配色、响应式布局（电脑、平板、手机三端适配）、日历网格、表格与卡片样式。全站 39 页统一加载，为视觉系统与三端适配的唯一真源，覆盖面为自研资产之最。',
+  note:'源码 style.css。'},
  {name:'六爻纳甲', type:'self', s:1.6,
   link:'liuyao.html',
   fn:'铜钱摇卦得六爻阴阳与老变，安世应、装六亲（父母、官鬼、妻财、子孙、兄弟）、纳甲、排六神，并依流派给出不同断卦要点。',
@@ -337,6 +341,10 @@ const DATA=[
   link:'cezi.html',
   fn:'精编拆字字典（2517 字、615 字随问取拆多拆法、934 字六书标注、108 条加笔减笔活拆变象、部件释义表 312 项），叠以康熙数理（复用姓名学 NAME81）、梅花字占起卦（与梅花易数字占完全同源，附 64 卦义、周易卦辞、24 动爻白话爻解与九类事断语，起卦全空间覆盖，互变事类参断为九类乘三态插槽），经文复用 jingwen.js，加以时辰外应与值日冲日应期、九类事综合断语，四项加权得五档评级；未收录字按结构与数理兜底。',
   note:'源码 cezi-engine.js 与 cezi-data.js(cezi.html)。相字十法全收，八卦归象依《说卦传》；卷三取格断语 828 条照录《测字秘牒》（维基文库全文，CC BY-SA 4.0，本页以相同方式共享），卷五散格骨格 64 部件、卷七至理测法 18 案例照录底本，心易谐声、假借、转注三通道，经文照录《周易》，其余拆语自撰演绎。'},
+ {name:'app.js 框架、共享日期选择器', type:'self', s:0.8,
+  link:'assets/app.js?v=20260927d',
+  fn:'统一导航栏与页脚渲染、全站共享的自定义日期时间选择器（解决移动端原生日历无法弹出的问题）、默认当日时间、通用工具函数。',
+  note:'源码 app.js，被全站页面统一加载。'},
  {name:'盲派命理数据层（ bazi-mangpai.js ）', type:'self', s:0.6,
   link:'assets/bazi-mangpai.js',
   fn:'盲派专属数据与判定真源，按理法（做功五法、宾主、墓库开闭）、象法（十神类象、纳音象）、技法（口诀神煞链、犯太岁、空亡落宫、虚透、借势）归集，供各流派解读格局与各流派解读运势的盲派视角调用；不以日主旺衰论命，以财官本位、做功效率立论。',
@@ -373,14 +381,6 @@ const DATA=[
   link:'assets/meta.js',
   fn:'按实际访问地址生成 canonical、og:url 与 og:image 三个标签，仓库可 fork、可绑任意域名与子路径部署，全站页面统一装载。',
   note:'源码 meta.js。'},
- {name:'app.js 框架、共享日期选择器', type:'self', s:0.2,
-  link:'assets/app.js?v=20260927d',
-  fn:'统一导航栏与页脚渲染、全站共享的自定义日期时间选择器（解决移动端原生日历无法弹出的问题）、默认当日时间、通用工具函数。',
-  note:'源码 app.js，被全站页面统一加载。'},
- {name:'style.css 全站样式', type:'self', s:0.2,
-  link:'assets/style.css',
-  fn:'全站设计系统：CSS 变量配色、响应式布局（电脑、平板、手机三端适配）、日历网格、表格与卡片样式。',
-  note:'源码 style.css。'},
  {name:'法定节假日与调休补班数据（ holiday.js ）', type:'ext', link:'https://github.com/NateScarlet/holiday-cn',
   fn:'运行时联网取数。万年历与老黄历日历格的休、班标与调休补班判定取自国务院公告整理数据：isOffDay 为真即放假，为假即调休补班，周末遇补班亦算上班日。lunar.js 内置的节假日表止于 2026-10-10，其后日期由此数据补足。',
   note:'许可：MIT。作者 NateScarlet；该社区库由 CI 每日抓取国务院公告自动生成。主源经 jsDelivr 分发 GitHub 社区库 holiday-cn，取不到时依次回落备源 timor.tech、再回落按星期（周六周日为休），不报错不提示。结果缓存 localStorage 七天，同一页面不重复外发请求。'},
