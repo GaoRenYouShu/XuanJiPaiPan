@@ -58,7 +58,7 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20260927d"></script>
-<script defer src="assets/shiling.js?v=20260928m"></script>
+<script defer src="assets/shiling.js?v=20260928n"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/holiday.js?v=20260917h2"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
@@ -152,13 +152,22 @@ function wnlJqDetailHTML(i){
 }
 /* 盘下详情：时段已在盘心第三行，此处不再重复；只说当令与否，不再补一句当令为某经
    （那是绕话，看别经时只给非当令三字即可）。首行由全名、五行、当令状态合成一句，
-   与节气圆盘同为三行（名属一行、宜做一行、循行属络一行），免得散成四行 */
+   与节气圆盘同为三行（名属一行、宜做一行、循行概要一行）；
+   循行概要须与宜做行同宽，完整循行与属络点第三行弹窗看（行数固定三行，不随文字长短涨落）。 */
 function wnlJlDetailHTML(i){
   const x = WNL_JL[i];
+  const xingLine = x.xing
+    ? `<span class="tip" onclick="showJingluoTip(${i})">循行 ${x.xing}${x.shu?'；'+x.shu:''}</span>`
+    : '';
   return `${x.full}，<span style="color:${x.color}">五行属${x.wx}</span>，`
     + (i === WNL_JL_DANG ? '当令' : '非当令')
     + `<span class="wd-br"></span>宜 ${x.yi||'未载'}`
-    + (x.xing ? `<span class="wd-br"></span>循行 ${x.xing}${x.shu?'；'+x.shu:''}` : '');
+    + (xingLine ? `<span class="wd-br"></span>${xingLine}` : '');
+}
+/* 循行属络弹窗：完整循行与属络（数据取 shiling.js JINGLUO 的 xingFull 与 shu） */
+function showJingluoTip(i){
+  const x=WNL_JL[i]; if(!x) return;
+  _wnlShow(x.full+' 循行与属络', '循行 '+x.xingFull+'；'+x.shu+'。');
 }
 /* 弹窗（物候释义、时令规则共用）：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
    点遮罩或右上角关闭，ESC 亦可关。 */
@@ -328,11 +337,11 @@ function jingluoWheel(){
   const cur = shilingDangLing();
   const curIdx = SHILING_JINGLUO.findIndex(function(j){ return j.zhi === cur.zhi; });
   const ci = curIdx < 0 ? 0 : curIdx;
-  /* 可点数据：全名、时段、宜做（宜做取 shiling.js 表里的当令宜做）、循行属络与五行色 */
+  /* 可点数据：全名、时段、宜做（宜做取 shiling.js 表里的当令宜做）、循行概要与全述、五行色 */
   WNL_JL = SHILING_JINGLUO.map(function(j){
     const wx = JING_WX[j.jing] || '';
     return { jing: j.jing, full: j.full, zhi: j.zhi, range: j.range, yi: j.yi || '',
-      xing: j.xing || '', shu: j.shu || '',
+      xing: j.xing || '', xingFull: j.xingFull || '', shu: j.shu || '',
       wx: wx, color: WX_COLOR[wx] || '#2b454d' };
   });
   WNL_JL_SEL = ci;
