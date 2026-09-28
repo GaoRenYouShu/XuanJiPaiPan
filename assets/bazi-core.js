@@ -2250,28 +2250,31 @@ function renderBaziPage(R, BZ = window.BZ){
   let _Ayd=null, _yd=null;
   try{ if(BZ && BZ.ec){ _Ayd=getAnalysis(BZ); const _dy=baziDaYunSteps(BZ); _yd=baziYunDong(BZ,_Ayd,_dy); } }catch(e){ _Ayd=null; _yd=null; }
   // 当前时间所处的大运/流年/流月/流日 → 与命局四柱同构的 cols（每行齐全：主星/藏干/纳音/空亡/地势/自坐/神煞；kong 按日柱旬空同口径）
+  // 岁运四列恒在：未上运、四柱模式未确认日期、公元前等取不到内容的列一律以 - 占位（dash 列），
+  // 基础信息表恒为 4 柱加大运流年流月流日共 8 列，表头不随数据可用性漂移。
+  const _mkDash=lbl=>({lbl, g:'', z:'', hide:[], ssz:[], ssg:'', ny:'', di:'', di2:'', kong:[], flags:{}, yun:true, sha:[], dash:true});
   const _yunCols=[];
   try{
-    if(_yd){
-      const _now=new Date(), _cy=_now.getFullYear(), _cm=_now.getMonth()+1, _cd=_now.getDate();
+    if(_yd && _yd.steps){
+      const _now=new Date(), _cy=_now.getFullYear();
       let _bestDy=null;
-      if(_yd.steps){ for(const s of _yd.steps){ if(!s.empty && s.year<=_cy && (!_bestDy || s.year>=_bestDy.year)) _bestDy=s; } }
-      if(_bestDy && _bestDy.gz) _yunCols.push(mkYunCol('大运', _bestDy.gz, BZ));
-      if(_yd.liuNian){
-        const _lnGz=liunianGZ(_cy);
-        if(_lnGz) _yunCols.push(mkYunCol('流年', _lnGz, BZ));
-        const _lu=Solar.fromYmd(_cy,_cm,_cd).getLunar();
-        if(_lu){
-          const _lmGz=_lu.getEightChar().getMonth();
-          const _lrGz=_lu.getDayInGanZhi();
-          if(_lmGz) _yunCols.push(mkYunCol('流月', _lmGz, BZ));
-          if(_lrGz) _yunCols.push(mkYunCol('流日', _lrGz, BZ));
-        }
-      }
-    }
-  }catch(e){}
-  // 四柱表：4 柱 + 当前 4 运势列合并（表头第一格="四柱"；equal8=8 列等宽；日主格带性别"元男/元女"）
-  html+=renderTable(_yunCols.length?[...cols, ..._yunCols]:cols, '四柱', 'equal8');
+      for(const s of _yd.steps){ if(!s.empty && s.year<=_cy && (!_bestDy || s.year>=_bestDy.year)) _bestDy=s; }
+      _yunCols.push((_bestDy && _bestDy.gz) ? mkYunCol('大运', _bestDy.gz, BZ) : _mkDash('大运'));
+    } else _yunCols.push(_mkDash('大运'));   // 未上运（如新生儿未起运）或岁运时间线不可算：大运列以 - 占位
+    // 流年流月流日只依赖当前时间与日主，不依赖出生数据：能算则算（四柱模式未确认日期也算），异常才落 - 占位
+    const _nown=new Date(), _cyn=_nown.getFullYear(), _cmn=_nown.getMonth()+1, _cdn=_nown.getDate();
+    let _lnGz='', _lmGz='', _lrGz='';
+    try{
+      _lnGz=liunianGZ(_cyn)||'';
+      const _lu=Solar.fromYmd(_cyn,_cmn,_cdn).getLunar();
+      if(_lu){ const _ecn=_lu.getEightChar(); _lmGz=_ecn.getMonth()||''; _lrGz=_lu.getDayInGanZhi()||''; }
+    }catch(e){}
+    _yunCols.push(_lnGz?mkYunCol('流年',_lnGz,BZ):_mkDash('流年'));
+    _yunCols.push(_lmGz?mkYunCol('流月',_lmGz,BZ):_mkDash('流月'));
+    _yunCols.push(_lrGz?mkYunCol('流日',_lrGz,BZ):_mkDash('流日'));
+  }catch(e){ /* 兜底：任何异常仍保证四列齐全，表头稳定 */ _yunCols.length=0; _yunCols.push(_mkDash('大运'),_mkDash('流年'),_mkDash('流月'),_mkDash('流日')); }
+  // 四柱表：4 柱 + 岁运四列恒 8 列（表头第一格="四柱"；equal8=8 列等宽；日主格带性别"元男/元女"）
+  html+=renderTable([...cols, ..._yunCols], '四柱', 'equal8');
   const shenshaSummary=renderShenshaSummary(cols, '四柱基础信息表');
   // 基础信息字段流：农历、生肖、星座、二十八宿、三垣、命卦、节气
   // 与命局速览（日主、格局、喜用、身强身弱、旺衰评分）并为一条双栏字段流（与老黄历、道历同构）。
@@ -2823,27 +2826,30 @@ function stripParens(x){ return x.replace(/[（(）)]/g,' ').replace(/\s+/g,' ')
 function renderTable(cols, head, cls){
   const _h=head||'四柱';
   const _cls=cls?' '+cls:'';
+  // 占位列（岁运列取不到内容时恒以 - 占位，保证表头列稳定）：dash 标记的列每行一律输出 -
+  const _td=c=> c.dash ? '<td class="small">-</td>' : '';
   // 性别置顶模式：表头第一格直接显示性别值（"男"/"女"）时，主星行日主格不显示性别（八字页 8 列版）；
   // 其他页面传"四柱"保持原样（日主格仍显示"元男/元女"）
   const _sexTop=(_h==='男'||_h==='女');
   const headTpl=`<tr><th>${_h}</th>${cols.map(c=>`<th class="zhu">${c.lbl}</th>`).join('')}</tr>`;
   const xing=`<tr><td class="small">主星</td>${cols.map(c=>{
+    if(c.dash) return '<td class="small">-</td>';
     if(c.ssg==='日主'){ const dc=WX_CLASS[GAN_WX[c.g]]||''; return `<td class="small"><b class="${dc}">元</b>${_sexTop?'':`<span class="sex-${BZ&&BZ.sex?'m':'f'}">${BZ&&BZ.sex?'男':'女'}</span>`}</td>`; }
     const cls2=WX_CLASS[GAN_WX[c.g]]||''; const full=c.ssg; const ab=tgAbbr(c.ssg);
     return `<td class="small"><span class="tip ${cls2}" onclick="showTip('${full}')">${ab}</span></td>`;
   }).join('')}</tr>`;
-  const gan=`<tr><td class="small">天干</td>${cols.map(c=>`<td>${wxSpan(c.g)}</td>`).join('')}</tr>`;
-  const zhi=`<tr><td class="small">地支</td>${cols.map(c=>`<td>${wxSpan(c.z)}</td>`).join('')}</tr>`;
-  const hide=`<tr><td class="small">藏干</td>${cols.map(c=>`<td class="small">${c.hide.map((k,i)=>`${wxSpan(k)}<span class="tip ${WX_CLASS[GAN_WX[k]]||''}" onclick="showTip('${c.ssz[i]}')">${tgAbbr(c.ssz[i])}</span>`).join('<br>')}</td>`).join('')}</tr>`;
-  const nayin=`<tr><td class="small">纳音</td>${cols.map(c=>`<td class="small"><span class="tip" onclick="showTip('__NAYIN__','${c.ny}')">${nayinColorSpan(c.ny)}</span></td>`).join('')}</tr>`;
-  const kong=`<tr><td class="small">空亡</td>${cols.map(c=>`<td class="small kong-cell">${c.kong.join(' ')||'无'}</td>`).join('')}</tr>`;
-  const dishi=`<tr><td class="small">地势</td>${cols.map(c=>`<td class="small">${c.di?`<span class="tip ${WX_CLASS[ZHI_WX[c.z]]||''}" onclick="showTip('${csKey(c.di)}')">${c.di}</span>`:'无'}</td>`).join('')}</tr>`;
-  const zizuo=`<tr><td class="small">自坐</td>${cols.map(c=>`<td class="small">${c.di2?`<span class="tip ${WX_CLASS[ZHI_WX[c.z]]||''}" onclick="showTip('${csKey(c.di2)}')">${c.di2}</span>`:'无'}</td>`).join('')}</tr>`;
+  const gan=`<tr><td class="small">天干</td>${cols.map(c=>_td(c)||`<td>${wxSpan(c.g)}</td>`).join('')}</tr>`;
+  const zhi=`<tr><td class="small">地支</td>${cols.map(c=>_td(c)||`<td>${wxSpan(c.z)}</td>`).join('')}</tr>`;
+  const hide=`<tr><td class="small">藏干</td>${cols.map(c=>_td(c)||`<td class="small">${c.hide.map((k,i)=>`${wxSpan(k)}<span class="tip ${WX_CLASS[GAN_WX[k]]||''}" onclick="showTip('${c.ssz[i]}')">${tgAbbr(c.ssz[i])}</span>`).join('<br>')}</td>`).join('')}</tr>`;
+  const nayin=`<tr><td class="small">纳音</td>${cols.map(c=>_td(c)||`<td class="small"><span class="tip" onclick="showTip('__NAYIN__','${c.ny}')">${nayinColorSpan(c.ny)}</span></td>`).join('')}</tr>`;
+  const kong=`<tr><td class="small">空亡</td>${cols.map(c=>_td(c)||`<td class="small kong-cell">${c.kong.join(' ')||'无'}</td>`).join('')}</tr>`;
+  const dishi=`<tr><td class="small">地势</td>${cols.map(c=>_td(c)||`<td class="small">${c.di?`<span class="tip ${WX_CLASS[ZHI_WX[c.z]]||''}" onclick="showTip('${csKey(c.di)}')">${c.di}</span>`:'无'}</td>`).join('')}</tr>`;
+  const zizuo=`<tr><td class="small">自坐</td>${cols.map(c=>_td(c)||`<td class="small">${c.di2?`<span class="tip ${WX_CLASS[ZHI_WX[c.z]]||''}" onclick="showTip('${csKey(c.di2)}')">${c.di2}</span>`:'无'}</td>`).join('')}</tr>`;
   // 墓库行：该柱地支若为辰戌丑未则标库名（水库/火库/金库/木库），否则 -；库名首字按所藏五行着色，尾字"库"取金色；库名点击弹出释义（showTip 读 DICT['水库'/'火库'/'金库'/'木库']）
   const _muMap={辰:'水库',戌:'火库',丑:'金库',未:'木库'};
   const _kuWx={辰:'水',戌:'火',丑:'金',未:'木'};
-  const muku=`<tr><td class="small">墓库</td>${cols.map(c=>{ const _m=_muMap[c.z]; return `<td class="small">${_m?`<span class="tip ${WX_CLASS[_kuWx[c.z]]||''}" onclick="showTip('${_m}')">${_m[0]}</span><span style="color:var(--gold2);font-weight:400">${_m[1]}</span>`:'-'}</td>`; }).join('')}</tr>`;
-  const sha=`<tr><td class="small">神煞</td>${cols.map(c=>`<td class="small">${c.sha.length?shaSpans(c.sha):'无'}</td>`).join('')}</tr>`;
+  const muku=`<tr><td class="small">墓库</td>${cols.map(c=>{ if(c.dash) return '<td class="small">-</td>'; const _m=_muMap[c.z]; return `<td class="small">${_m?`<span class="tip ${WX_CLASS[_kuWx[c.z]]||''}" onclick="showTip('${_m}')">${_m[0]}</span><span style="color:var(--gold2);font-weight:400">${_m[1]}</span>`:'-'}</td>`; }).join('')}</tr>`;
+  const sha=`<tr><td class="small">神煞</td>${cols.map(c=>_td(c)||`<td class="small">${c.sha.length?shaSpans(c.sha):'无'}</td>`).join('')}</tr>`;
   return `<table class="bazi-table${_cls}">${headTpl}${xing}${gan}${zhi}${hide}${nayin}${kong}${dishi}${zizuo}${muku}${sha}</table>`;
 }
 /* 神煞信息过载治理：四柱表逐柱罗列全部神煞易过载。此处聚合全命局神煞，按“吉凶权重”排序，
