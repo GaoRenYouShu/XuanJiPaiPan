@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
-<link rel="stylesheet" href="assets/style.css?v=z290">
+<link rel="stylesheet" href="assets/style.css?v=z291">
 </head>
 <body>
 <div id="topbar"></div>
@@ -155,13 +155,18 @@ function showShilingTip(item){
   const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
   _lhlShow(item, txt||'（暂无说明）');
 }
-/* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗；与宿盘详情同一文案，不另起一套 */
-function showXiuTip(){
+/* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗。按宿名直取（不依赖盘内选中态），
+   详情条与基础信息表二十八宿条两处共用；宿诗只在此弹窗出一份，详情条不再重复。 */
+function showXiuTipByName(nm){
   try{
-    if(!LHL_XIU||!LHL_XIU[LHL_XIU_CUR]) return;
-    const x=LHL_XIU[LHL_XIU_CUR];
-    const song=(typeof LunarUtil!=='undefined'&&LunarUtil.XIU_SONG&&LunarUtil.XIU_SONG[x.nm])||'';
-    _lhlShow(x.full+'（'+x.luck+'）', lhlXiuDetailHTML(LHL_XIU_CUR,x,song));
+    if(typeof LunarUtil==='undefined'||!LunarUtil.XIU_SONG) return;
+    const i=XIU_28.indexOf(nm); if(i<0) return;
+    const x=(LHL_XIU&&LHL_XIU[i])||{nm:nm,full:nm+((LunarUtil.ZHENG&&LunarUtil.ZHENG[nm])||'')+((LunarUtil.ANIMAL&&LunarUtil.ANIMAL[nm])||''),
+      luck:LunarUtil.XIU_LUCK[nm]||'',good:(LunarUtil.XIU_LUCK[nm]||'')==='吉',
+      xiang:(function(){const g=LunarUtil.GONG[nm]||'';return g?g+'方'+LunarUtil.SHOU[g]:'';})()};
+    const song=LunarUtil.XIU_SONG[nm]||'';
+    _lhlShow(x.full+'（'+x.luck+'）', `第 ${i+1} 宿，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`
+      +(song?`<span class="wd-br"></span>${song}`:''));
   }catch(e){}
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLhlTip(); });
@@ -338,9 +343,10 @@ function xiuWheel(lunar){
   s+=`<text x="${W_C}" y="${W_C+34}" class="w-c3" id="lhlXiuC3">${curX.xiang}</text>`;
   return `<svg class="wheel" id="lhlXiuWheel" viewBox="0 0 440 440" role="img" aria-label="二十八宿盘">${s}</svg>`;
 }
-function lhlXiuDetailHTML(i,x,song){
-  return `第 ${i+1} 宿，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`
-    +(song?`<span class="wd-br"></span>${song}`:'');
+/* 盘下详情条：第几宿、四象、吉凶一行；宿曜全名可点弹宿诗（避免内容堆积，歌诀只留弹窗一份）。
+   一律不加粗，强调走色（.wd-g / .wd-x），与万年历、佛历圆盘详情同一口径。 */
+function lhlXiuDetailHTML(i,x){
+  return `第 ${i+1} 宿，<span class="tip" onclick="showXiuTipByName('${x.nm}')">${x.full}</span>，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`;
 }
 function lhlPickXiu(i){
   if(!LHL_XIU||!LHL_XIU[i]) return;
@@ -353,7 +359,7 @@ function lhlPickXiu(i){
   WHEEL.text('lhlXiuC2',x.luck,x.good?'var(--wheel-good)':'var(--wheel-bad)');
   WHEEL.text('lhlXiuC3',x.xiang);
   const d=document.getElementById('lhlXiuDetail');
-  if(d) d.innerHTML=lhlXiuDetailHTML(i,x,(LunarUtil.XIU_SONG&&LunarUtil.XIU_SONG[x.nm])||'');
+  if(d) d.innerHTML=lhlXiuDetailHTML(i,x);
 }
 /* 九宫飞星：洛书顺飞，年家/月家/日家/时家紫白共用一图 */
 function feiXingGrid(center){
@@ -556,7 +562,7 @@ function query(){
     <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('旬空')">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}<span class="lhl-br"></span>月：${lunar.getMonthXunKong()}<span class="lhl-br"></span>日：${lunar.getDayXunKong()}</span></div>
     <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('胎神')">胎神</span><span class="v"><span class="lhl-s">本月：${taiShen(mgz[0],mZhi)}</span><span class="lhl-br"></span><span class="lhl-s">今日：${taiShen(dyGan,dyZhi)}</span></span></div>
     <div class="lhl-i"><span class="k">吉神方位</span><span class="v">${tipSpan('喜神')}${lunar.getDayPositionXiDesc()}、${tipSpan('福神')}${lunar.getDayPositionFuDesc()}、${tipSpan('财神')}${lunar.getDayPositionCaiDesc()}<span class="lhl-br"></span>${tipSpan('阳贵')}${lunar.getDayPositionYangGuiDesc()}、${tipSpan('阴贵')}${lunar.getDayPositionYinGuiDesc()}<span class="lhl-br"></span>${tipSpan('日禄')}：${lunar.getDayLu()}</span></div>
-    <div class="lhl-i"><span class="k tip" onclick="showTongshuTip('二十八宿')">二十八宿</span><span class="v"><span class="tip" onclick="showXiuTip()">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></span></div>
+    <div class="lhl-i"><span class="k tip" onclick="showTongshuTip('二十八宿')">二十八宿</span><span class="v"><span class="tip" onclick="showXiuTipByName('${lunar.getXiu()}')">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></span></div>
     <div class="lhl-i"><span class="k">彭祖百忌</span><span class="v">${tipSpan(lunar.getPengZuGan())}<span class="lhl-br"></span>${tipSpan(lunar.getPengZuZhi())}</span></div>
   </div>`;
 
@@ -564,7 +570,7 @@ function query(){
      宿盘同排，看的是二十八宿的吉凶分布与当日之宿。两盘盘心默认显示当前项，点扇区改看别项。 */
   html+=`<div class="wheel-wheels">
     <div class="wheel-block"><h4>十二时辰吉凶盘</h4>${shichenWheel(lunar)}<div class="wheel-detail" id="lhlScDetail">${lhlScDetailHTML(LHL_SC[LHL_SC_CUR])}</div></div>
-    <div class="wheel-block"><h4>二十八宿盘</h4>${xiuWheel(lunar)}<div class="wheel-detail" id="lhlXiuDetail">${lhlXiuDetailHTML(LHL_XIU_CUR,LHL_XIU[LHL_XIU_CUR],(LunarUtil.XIU_SONG&&LunarUtil.XIU_SONG[LHL_XIU[LHL_XIU_CUR].nm])||'')}</div></div>
+    <div class="wheel-block"><h4>二十八宿盘</h4>${xiuWheel(lunar)}<div class="wheel-detail" id="lhlXiuDetail">${lhlXiuDetailHTML(LHL_XIU_CUR,LHL_XIU[LHL_XIU_CUR])}</div></div>
   </div>`;
   /* 九宫飞星（置于双盘下方） */
   const dStar=dayStar(y,m,d), hStar=hourStar(y,m,d), shName=curShichen();
