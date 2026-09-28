@@ -58,7 +58,7 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20260927d"></script>
-<script defer src="assets/shiling.js?v=20260924a"></script>
+<script defer src="assets/shiling.js?v=20260928m"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/holiday.js?v=20260917h2"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
@@ -138,22 +138,60 @@ function wnlJqGapText(i){
   return x.gap > 0 ? ('尚有 ' + x.gap + ' 天') : ('已过 ' + (-x.gap) + ' 天');
 }
 /* 盘下详情：只写盘上没有的。交节日期与本日在气第几天已在盘心，此处不再重复一遍；
-   宜做表取自 shiling.js 的 JIEQI_YANG，统一以“宜 ”起头，表内文案不出现“宜”字。
+   宜做表取自 shiling.js 的 JIEQI_YANG，统一以“宜 ”起头，表内文案不出现“宜”字；
+   三候取自 shiling.js 的 HOU_TABLE（本节气三候），候名可点、弹出释义。
    🔴 详情条一律不加粗：加粗只留给盘内的“节”与选中态，说明文字用粗体压不住、反破页面克制 */
 function wnlJqDetailHTML(i){
   const x = WNL_JQ[i];
+  const hou = (x.hou && x.hou.length)
+    ? x.hou.map(function(w){ return `<span class="tip" onclick="showHouTip('${w}')">${w}</span>`; }).join('、')
+    : '';
   return `${x.name}，<span style="color:${x.seaColor}">${x.sea}季</span>，${x.isJie?'节':'气'}`
-    + `<span class="wd-br"></span>宜 ${x.yi||'未载'}`;
+    + `<span class="wd-br"></span>宜 ${x.yi||'未载'}`
+    + (hou ? `<span class="wd-br"></span>三候 ${hou}` : '');
 }
 /* 盘下详情：时段已在盘心第三行，此处不再重复；只说当令与否，不再补一句当令为某经
    （那是绕话，看别经时只给非当令三字即可）。首行由全名、五行、当令状态合成一句，
-   与节气圆盘同为两行（名属一行、宜做一行），免得散成三行 */
+   与节气圆盘同为三行（名属一行、宜做一行、循行属络一行），免得散成四行 */
 function wnlJlDetailHTML(i){
   const x = WNL_JL[i];
   return `${x.full}，<span style="color:${x.color}">五行属${x.wx}</span>，`
     + (i === WNL_JL_DANG ? '当令' : '非当令')
-    + `<span class="wd-br"></span>宜 ${x.yi||'未载'}`;
+    + `<span class="wd-br"></span>宜 ${x.yi||'未载'}`
+    + (x.xing ? `<span class="wd-br"></span>循行 ${x.xing}${x.shu?'；'+x.shu:''}` : '');
 }
+/* 弹窗（物候释义、时令规则共用）：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
+   点遮罩或右上角关闭，ESC 亦可关。 */
+function _wnlMask(){
+  let mask=document.getElementById('wnlMask');
+  if(!mask){
+    mask=document.createElement('div'); mask.id='wnlMask'; mask.className='modal-mask';
+    mask.setAttribute('role','dialog');
+    mask.innerHTML='<div class="modal"><span class="close" onclick="closeWnlTip()" aria-label="关闭">×</span><div id="wnlTipBody"></div></div>';
+    mask.addEventListener('click',function(e){ if(e.target===mask) closeWnlTip(); });
+    document.body.appendChild(mask);
+  }
+  return mask;
+}
+function closeWnlTip(){ const m=document.getElementById('wnlMask'); if(m) m.classList.remove('show'); }
+function _wnlShow(title, body){
+  _wnlMask();
+  document.getElementById('wnlTipBody').innerHTML='<h3 class="tip-title">'+title+'</h3><div class="tip-body">'+body+'</div>';
+  document.getElementById('wnlMask').classList.add('show');
+}
+/* 候名弹窗：标题为“节气 候序 候名”，正文为释义（出处与释义性质见说明页口径注） */
+function showHouTip(wu){
+  const info=(typeof shilingHouInfo==='function')?shilingHouInfo(wu):null;
+  if(!info){ _wnlShow(wu,'（暂无说明）'); return; }
+  _wnlShow(info.jq+' '+info.hou+' '+info.wu, info.mean);
+}
+/* 时令项弹窗：三伏、数九、入梅出梅的规则说明（取 shiling.js 单一真源） */
+function showShilingTip(item){
+  const key=(typeof shilingRuleKeyOf==='function')?shilingRuleKeyOf(item):'';
+  const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
+  _wnlShow(item, txt||'（暂无说明）');
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeWnlTip(); });
 /* 点选两盘：加粗弧、指针、圆点、盘心、盘下详情一并跟过去（全盘只留一套标记） */
 function wnlPickJq(i){
   if(!WNL_JQ||!WNL_JQ[i]) return;
@@ -223,7 +261,8 @@ function jieqiWheel(solar, lunar){
     return { name: nm, sea: sea[0], seaColor: sea[2], isJie: i % 2 === 0,
       md: dt ? (dt.getMonth() + 1) + '月' + dt.getDate() + '日' + ('0' + dt.getHours()).slice(-2) + ':' + ('0' + dt.getMinutes()).slice(-2) : '未载',
       gap: gap, ord: -gap + 1,
-      yi: (typeof shilingJieQiYang === 'function') ? shilingJieQiYang(nm) : '' };
+      yi: (typeof shilingJieQiYang === 'function') ? shilingJieQiYang(nm) : '',
+      hou: (typeof shilingHouList === 'function') ? shilingHouList(nm) : [] };
   });
   WNL_JQ_SEL = curIdx;
   WNL_JQ_DAY = curIdx;
@@ -289,10 +328,11 @@ function jingluoWheel(){
   const cur = shilingDangLing();
   const curIdx = SHILING_JINGLUO.findIndex(function(j){ return j.zhi === cur.zhi; });
   const ci = curIdx < 0 ? 0 : curIdx;
-  /* 可点数据：全名、时段、宜做（宜做取 shiling.js 表里的当令宜做）与五行色 */
+  /* 可点数据：全名、时段、宜做（宜做取 shiling.js 表里的当令宜做）、循行属络与五行色 */
   WNL_JL = SHILING_JINGLUO.map(function(j){
     const wx = JING_WX[j.jing] || '';
     return { jing: j.jing, full: j.full, zhi: j.zhi, range: j.range, yi: j.yi || '',
+      xing: j.xing || '', shu: j.shu || '',
       wx: wx, color: WX_COLOR[wx] || '#2b454d' };
   });
   WNL_JL_SEL = ci;
@@ -364,9 +404,16 @@ function showDay(str, el){
   /* 时柱取当前时辰：库 getTimes() 以 00:00 起两小时一辰、末项 23:00 为夜子时，按当前钟点定位该项 */
   const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
   const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
-  /* 时令项：无内容的小项不输出（不留“无”占位），其后的项自动上移 */
-  const shilingLines=shilingNote(y,m,d).slice();
-  shilingLines.push('物候：'+(shilingWuHou(lunar)||'无'));
+  /* 时令项：无内容的小项不输出（不留“无”占位），其后的项自动上移；
+     伏日、数九、梅日点击弹出规则说明。物候行输出“节气 候序 候名”，候名可点、弹出释义。 */
+  const shilingLines=shilingNote(y,m,d).map(function(t){
+    const key=shilingRuleKeyOf(t);
+    return key?('<span class="tip" onclick="showShilingTip(\''+t+'\')">'+t+'</span>'):t;
+  });
+  const wuInfo=shilingWuHouInfo(lunar);
+  shilingLines.push(wuInfo.wu
+    ? ('物候：'+[wuInfo.jq,wuInfo.hou].filter(Boolean).join(' ')+' <span class="tip" onclick="showHouTip(\''+wuInfo.wu+'\')">'+wuInfo.wu+'</span>')
+    : '物候：无');
   shilingLines.push('经络当令：'+shilingDangLing().text);
   document.getElementById('dayDetail').innerHTML = `
   <div class="today-card">
