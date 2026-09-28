@@ -346,7 +346,7 @@
         } else if(pairIn(a,b,DIZHI_XING) && a!==b){
           s-=5; push(pairTxt+'支相刑（'+a+b+'刑）', -5, 'xiong');
         } else if(a===b && '辰午酉亥'.indexOf(a)>=0){
-          s-=3; push(GONG_NAME[i]+'支自刑（'+a+a+'）', -3, 'xiong');
+          s-=3; push(pairTxt+'支自刑（'+a+a+'）', -3, 'xiong');
         } else if(pairIn(a,b,DIZHI_HAI)){
           s-=3; push(pairTxt+'支相害（'+a+b+'害）', -3, 'xiong');
         } else if(pairIn(a,b,DIZHI_PO)){
@@ -399,6 +399,72 @@
     var xk = xunKong(BZ.gans[2]+BZ.zhis[2]);
     if(xk.indexOf(z[2])>=0){ s-=4; push('日支旬空（婚姻宫空）', -4, 'xiong'); }
     if(xk.indexOf(z[3])>=0){ s-=3; push('时支旬空（子女宫空）', -3, 'xiong'); }
+
+    /* ⑧ 天干互动（五合、干冲、争合）：真源复用 bazi-data.js ganRelations（与命局断语同一引擎）。
+       五合按化神喜忌判：化喜为助、化忌为损、合而不化主牵绊；干冲主动荡；争合主分夺。
+       只取 he / gchong / zheng 三类，生克比和归五行流通层，不重复计。 */
+    var grel = [];
+    try{ if(typeof ganRelations==='function') grel = ganRelations(BZ.gans, BZ, null); }catch(e){}
+    grel.forEach(function(r){
+      if(r.cls==='he'){
+        var mh = String(r.text).match(/合化([金木水火土])/);
+        if(mh){
+          var hw = mh[1];
+          if((A.xiWx||[]).indexOf(hw)>=0){ s+=4; push('天干合化'+hw+'（喜用）：'+r.text, 4, 'ji'); }
+          else if((A.jiWx||[]).indexOf(hw)>=0){ s-=4; push('天干合化'+hw+'（忌神）：'+r.text, -4, 'xiong'); }
+          else push('天干合化'+hw+'（中性）：'+r.text, 0, 'neutral');
+        } else { s-=2; push('天干合而不化（合绊）：'+r.text, -2, 'xiong'); }
+      } else if(r.cls==='gchong'){ s-=4; push('天干相冲：'+r.text, -4, 'xiong'); }
+      else if(r.cls==='zheng'){ s-=3; push('争合：'+r.text, -3, 'xiong'); }
+    });
+
+    /* ⑨ 同类异性透干（劫财）：夺光之通例，不设年月特例。
+       日主见同类异性天干透出（丁见丙为典例，余干同此理）：日主得时得地则不惧分夺
+       （丁火口诀"得时能铸千斤铁"），失令无根则被夺，主竞争耗散、劳而少成。 */
+    var dgWx = GAN_WX[BZ.dayGan];
+    var sameTou = BZ.gans.filter(function(g,i){
+      if(i===2 || g===BZ.dayGan) return false;
+      if(GAN_WX[g]!==dgWx) return false;
+      return (YANG.indexOf(g)>=0) !== (YANG.indexOf(BZ.dayGan)>=0);
+    });
+    if(sameTou.length){
+      var sameTouStr = dedupChars(sameTou);
+      var mLing = ZHI_WX[BZ.zhis[1]];
+      var deLing = (mLing===dgWx) || (WX_SHENG[mLing]===dgWx);
+      var youGen = BZ.zhis.some(function(zz){ return (HIDE[zz]||[]).some(function(x){ return GAN_WX[x]===dgWx; }); });
+      /* 丁火口诀只归丁日主（该歌诀本为丁火作）；余干走通用劫财分夺表述，不冒用他干歌诀 */
+      var dingCite = (BZ.dayGan==='丁');
+      if(deLing||youGen){ push('同类异性透干（'+sameTouStr+'，劫财）：日主得时得地、力足自任，不惧分夺'+(dingCite?'（丁火口诀"得时能铸千斤铁"，十干体象歌）':''), 0, 'neutral'); }
+      else { s-=4; push('同类异性透干（'+sameTouStr+'，劫财）：日主失令无根、被同类分夺，主竞争耗散、劳而少成'+(dingCite?'（丁见丙"太阳相见夺光明"，十干体象歌）':''), -4, 'xiong'); }
+    }
+
+    /* 十神星现否（透干＋藏干，日主本身不计）：供男女命视角与十神结构两用 */
+    var starHit = function(names){
+      var tou=[], cang=[];
+      BZ.gans.forEach(function(g,i){ if(i===2) return; if(names.indexOf(tenGod(BZ.dayGan,g))>=0) tou.push(g); });
+      BZ.zhis.forEach(function(zz){ (HIDE[zz]||[]).forEach(function(x){ if(names.indexOf(tenGod(BZ.dayGan,x))>=0) cang.push(x); }); });
+      return {tou:tou, cang:cang, hit:(tou.length+cang.length)>0};
+    };
+
+    /* ⑩ 男女命视角（女命官杀混杂 −4、男命财星混杂 −3；视角行不计分）：
+       男命财为妻财、官杀为功名子女；女命官杀为夫星、食伤为子女（子平通行）。
+       混杂检查：女命官杀混杂主婚姻波折、男命财星混杂主婚财起落。 */
+    var guanS = starHit(['正官','七杀']), caiS = starHit(['正财','偏财']), shiS = starHit(['食神','伤官']);
+    if(BZ.sex===0){
+      push('女命视角：官杀为夫星、食伤为子女；本命官杀'+(guanS.hit?('见'+dedupChars(guanS.tou.concat(guanS.cang))):'不现')+'、食伤'+(shiS.hit?('见'+dedupChars(shiS.tou.concat(shiS.cang))):'不现'), 0, 'neutral');
+      if(starHit(['正官']).hit && starHit(['七杀']).hit){ s-=4; push('女命官杀混杂：正官七杀并见，婚姻宜晚、宜专一，感情多波折', -4, 'xiong'); }
+    } else {
+      push('男命视角：财为妻财、官杀为功名子女；本命财星'+(caiS.hit?('见'+dedupChars(caiS.tou.concat(caiS.cang))):'不现')+'、官杀'+(guanS.hit?('见'+dedupChars(guanS.tou.concat(guanS.cang))):'不现'), 0, 'neutral');
+      if(starHit(['正财']).hit && starHit(['偏财']).hit){ s-=3; push('男命财星混杂：正财偏财并见，婚财起落、宜专一持家', -3, 'xiong'); }
+    }
+
+    /* ⑪ 十神结构完整性（中性提示，不加减分）：比劫、食伤、财星、官杀、印星五类有无缺门。
+       民间择日重"财官印全"，此处只作提示，不计分，避免模板化加分。 */
+    var CAT5=[['比劫',['比肩','劫财']],['食伤',['食神','伤官']],['财星',['正财','偏财']],['官杀',['正官','七杀']],['印星',['正印','偏印']]];
+    var missCat=[];
+    CAT5.forEach(function(pair){ if(!starHit(pair[1]).hit) missCat.push(pair[0]); });
+    if(missCat.length) push('十神结构：缺'+missCat.join('、')+'（中性提示，民间择日重五类俱全，引擎不据此加减分）', 0, 'neutral');
+    else push('十神结构：比劫、食伤、财星、官杀、印星五类俱全', 0, 'neutral');
 
     return {score: clamp(Math.round(s), 0, 100), items: items, raw: s};
   }
@@ -469,6 +535,22 @@
     });
     /* 起运岁数：1–10 岁为常，过晚（>10）童限无运可依，略减 */
     if(start && start.age>10){ s-=3; items.push({name:'起运偏晚（'+start.age+'岁）', delta:-3, kind:'xiong'}); }
+    /* 中晚年粗筛（第 4-6 步，约 30-60 岁）：只报有无连续不利，不计权重。
+       "一生平顺"诉求下补一段远景提示，但不参与打分，避免长跨度稀释候选区分度。 */
+    var real6 = dy.steps.filter(function(x){ return x.kind==='大运'; }).slice(3,6);
+    if(real6.length){
+      var flags = real6.map(function(st){
+        var r6='平', d6=0;
+        try{ var ev6 = evalGZ(BZ, AG, st); r6 = ev6.rating||'平'; d6 = (ev6.xiHits||0)-(ev6.jiHits||0); }catch(e){}
+        return {gz:st.gz, age:st.age, year:st.year, bad:(r6==='凶'||d6<=-2)};
+      });
+      var badTxt = flags.filter(function(f){ return f.bad; }).map(function(f){ return f.gz+'（'+f.age+'岁起 '+f.year+'）'; });
+      var cons = false;
+      for(var fi=0; fi<flags.length-1; fi++){ if(flags[fi].bad && flags[fi+1].bad) cons = true; }
+      if(cons) items.push({name:'中晚年粗筛：第4-6步大运有连续不利（'+badTxt.join('、')+'），宜留意（不计权重）', delta:0, kind:'xiong'});
+      else if(badTxt.length) items.push({name:'中晚年粗筛：第4-6步大运有单步波折（'+badTxt.join('、')+'），余运平顺（不计权重）', delta:0, kind:'neutral'});
+      else items.push({name:'中晚年粗筛：第4-6步大运无连续不利（不计权重）', delta:0, kind:'neutral'});
+    }
     return {score: clamp(Math.round(s), 0, 100), items: items, steps: steps, start: start, raw: s};
   }
 
