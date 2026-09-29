@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
-<link rel="stylesheet" href="assets/style.css?v=z291">
+<link rel="stylesheet" href="assets/style.css?v=z297">
 </head>
 <body>
 <div id="topbar"></div>
@@ -59,7 +59,7 @@
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20260927d"></script>
 <script defer src="assets/shiling.js?v=20260928n"></script>
-<script defer src="assets/tongshu-terms.js?v=20260928a"></script>
+<script defer src="assets/tongshu-terms.js?v=20260929c"></script>
 <script defer src="assets/holiday.js?v=20260917h2"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/taisui-data.js?v=20260917da"></script>
@@ -156,7 +156,10 @@ function showShilingTip(item){
   _lhlShow(item, txt||'（暂无说明）');
 }
 /* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗。按宿名直取（不依赖盘内选中态），
-   详情条与基础信息表二十八宿条两处共用；宿诗只在此弹窗出一份，详情条不再重复。 */
+   详情条与基础信息表二十八宿条两处共用；宿诗只在此弹窗出一份，详情条不再重复。
+   两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名。旧写法靠 .wd-br 折行，
+   而 .wd-br 只在 .wheel-detail 作用域下有规则，弹窗内塌成零宽，
+   吉与宿诗连读成 "吉毕星造作主光前"，断句误导。 */
 function showXiuTipByName(nm){
   try{
     if(typeof LunarUtil==='undefined'||!LunarUtil.XIU_SONG) return;
@@ -165,8 +168,8 @@ function showXiuTipByName(nm){
       luck:LunarUtil.XIU_LUCK[nm]||'',good:(LunarUtil.XIU_LUCK[nm]||'')==='吉',
       xiang:(function(){const g=LunarUtil.GONG[nm]||'';return g?g+'方'+LunarUtil.SHOU[g]:'';})()};
     const song=LunarUtil.XIU_SONG[nm]||'';
-    _lhlShow(x.full+'（'+x.luck+'）', `第 ${i+1} 宿，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`
-      +(song?`<span class="wd-br"></span>${song}`:''));
+    _lhlShow(x.full+'（'+x.luck+'）', `<p style="margin:0 0 8px">第 ${i+1} 宿，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>。</p>`
+      +(song?`<p style="margin:0">吉凶歌：${song}</p>`:''));
   }catch(e){}
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLhlTip(); });
@@ -579,8 +582,7 @@ function query(){
     <div class="fei-block"><div class="fei-cap">月飞星（${m}月 ${FEI_NAME[mStar]}入中）</div>${feiGridHTML(mStar)}</div>
     <div class="fei-block"><div class="fei-cap">日飞星（${m}月${d}日 ${FEI_NAME[dStar]}入中）</div>${feiGridHTML(dStar)}</div>
     <div class="fei-block"><div class="fei-cap">时飞星（当前${shName}时 ${FEI_NAME[hStar]}入中）</div>${feiGridHTML(hStar)}</div>
-  </div>
-  </details>`;
+  </div></details>`;
   document.getElementById('out').innerHTML=html;
   lhApplyFold();
  }catch(e){
