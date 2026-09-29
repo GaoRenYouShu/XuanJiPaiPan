@@ -85,9 +85,57 @@ function zlTrueDate(sch,n,d){
   return meanDate+moonEqu/60-sunEqu/60;
 }
 
-/* 饶迥 ↔ 公历年：第 1 饶迥第 1 年为公元 1027 年 */
+/* 真太阳黄经（nyi dag）：Janson 第 7 节式 7.23，以周为单位 */
+function zlTrueSun(sch,n,d){
+  let meanSun=n*sch.S1+d*sch.S2+sch.S0; meanSun-=Math.floor(meanSun);
+  let anomalySun=meanSun-1/4; anomalySun-=Math.floor(anomalySun);
+  return meanSun-zlInterp(12*anomalySun,ZL_SUN_TAB,3,12)/(27*60);
+}
+/* 历日之始的月黄经（res 'grogs zla skar）：Janson 第 10 节式 10.1 与 10.2。
+   式 10.1 取太阴日之末的月黄经，即真太阳黄经加太阴日序的三十分之一（月日相距）；
+   式 10.2 再减去自历日之始至太阴日之末那段时辰的月行，按二十七日一周天折算 */
+function zlMoonAtDayStart(sch,n,d){
+  const td=zlTrueDate(sch,n,d);
+  return zlTrueSun(sch,n,d)+d/30-(td-Math.floor(td))/27;
+}
+/* 星宿序：Janson 第 10 节式 10.3，取 27 乘月黄经的整数部分，得 0 至 26，第 0 宿为娄宿 */
+function zlMansionIdx(sch,n,d){
+  const v=Math.floor(27*zlMoonAtDayStart(sch,n,d));
+  return ((v%27)+27)%27;
+}
+/* 会合序：Janson 第 10 节式 10.4 与 10.5，取 27 乘日月黄经之和的整数部分，得 0 至 26 */
+function zlYogaIdx(sch,n,d){
+  let v=zlMoonAtDayStart(sch,n,d)+zlTrueSun(sch,n,d); v-=Math.floor(v);
+  const i=Math.floor(27*v);
+  return ((i%27)+27)%27;
+}
+/* 作用序：太阴日分前后两半，历日之始所落的那一半定当日作用。
+   太阴日序 d 占 2d−1 与 2d 两个半日；半日号 1、58、59、60 四种为固定，
+   余五十六个半日按七种循环，取半日号减一除七的余数。
+   返回 0 至 6 为轮转七种，7 至 10 为固定四种。
+   两半的分界时刻，Janson 第 10 节注明诸本未定，Henning 2007 取等长两分，本页从之 */
+function zlKaranaIdx(sch,n,d){
+  const td=zlTrueDate(sch,n,d), frac=td-Math.floor(td);
+  const len=zlTrueDate(sch,n,d+1)-td;
+  const H=2*d-1+(((len-frac)/len<0.5)?0:1);
+  if(H===1) return 7;
+  if(H===58) return 8;
+  if(H===59) return 9;
+  if(H===60) return 10;
+  return ((H-1)%7+7)%7;
+}
+/* 五要素后三项一次算齐：入参为派别键、真月计数、太阴日序 */
+function zlFiveExtra(schoolKey,n,d){
+  const sch=zlSchool(schoolKey);
+  return {'xiu':zlMansionIdx(sch,n,d),'yoga':zlYogaIdx(sch,n,d),'karana':zlKaranaIdx(sch,n,d)};
+}
+
+/* 饶迥 ↔ 公历年：第 1 饶迥第 1 年为公元 1027 年。
+   年份取非负模，1027 年以前为第 0 饶迥与负序饶迥；负余数会把 1026 年记作第 0 年，
+   经 zlCountFromMonth 反查时整体错位一甲子，故此处必须归正 */
 function zlCycleYearOf(gyear){
-  return {'cycle':Math.floor((gyear-1027)/60)+1,'year':((gyear-1027)%60)+1};
+  const k=gyear-1027;
+  return {'cycle':Math.floor(k/60)+1,'year':((k%60)+60)%60+1};
 }
 /* 岁首月：常例为正月，迥孜为虎月即十一月 */
 function zlNewYearMonth(sch){ return sch.newYearMonth||1; }
@@ -208,3 +256,4 @@ window.zlJdnToGreg=zlJdnToGreg;
 window.zlLosar=zlLosar;
 window.zlYearOf=zlYearOf;
 window.zlCycleYearOf=zlCycleYearOf;
+window.zlFiveExtra=zlFiveExtra;
