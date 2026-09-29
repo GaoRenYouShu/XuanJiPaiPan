@@ -8802,11 +8802,13 @@ to{opacity:1;transform:none}}
 .page-zl .cal-cell.selected:not(.today){background:var(--zl-tint);border-color:var(--zl)}
 .page-zl .cal-cell:hover:not(.today){background:#f3e8dc}
 .page-zl .cal-cell.today:hover{background:var(--zl2)}
-/* 角标：殊（每月固定殊胜日）居左上、节（年内固定节日）居右上。
-   全站角标同制式（9px 粗体、只给字色不给底色），本页亦然——不铺底不描边，
-   殊胜日与节日由角标逐日点出，比整格淡赭底更合"线、字优先"。 */
+/* 角标：殊（每月固定殊胜日）居左上、节（年内固定节日）居右上、重与缺居左下、闰居右下。
+   全站角标同制式（9px 粗体、只给字色不给底色），本页亦然：不铺底不描边，
+   日历结构由角标逐日点出，比整格淡赭底更合"线、字优先"。 */
 .page-zl .cal-cell .mk-s{left:var(--sp-1);color:var(--zl)}
 .page-zl .cal-cell .mk-f{right:var(--sp-1);color:var(--zl-gold)}
+.page-zl .cal-cell .mk-c,.page-zl .cal-cell .mk-q{left:var(--sp-1);top:auto;bottom:var(--sp-1);color:var(--zl-deep)}
+.page-zl .cal-cell .mk-r{right:var(--sp-1);top:auto;bottom:var(--sp-1);color:var(--zl-gold)}
 .page-zl .cal-cell .festival{color:var(--zl2);font-weight:400}
 /* 藏历日恒显（对齐佛历口径：节日与藏历日并存，不互相顶掉） */
 .page-zl .cal-cell .festival+.ld{display:block}
@@ -8857,8 +8859,8 @@ to{opacity:1;transform:none}}
 .page-zl .zl-tbl th{background:var(--zl-tint);color:var(--zl-deep);white-space:nowrap}
 .page-zl .zl-tbl td{color:var(--zl-ink)}
 .page-zl .zl-note{color:var(--zl-ink);margin:var(--sp-3) 0 0}
-/* 流派说明块内间距：只由上一元素的下边距提供，块内首元素不带 上边距 */
-.page-zl #zlDocBody > :first-child{margin-top:0}
+/* 流派说明块内间距：块内首元素留组间档上距，与折叠题名拉开，不由上一元素的下边距承担 */
+.page-zl #zlDocBody > :first-child{margin-top:var(--sp-3)}
 .page-zl #zlDocBody .sub-note{margin:0 0 var(--sp-2)}
 .page-zl .zl-yanlag-tbl th:nth-child(1),.page-zl .zl-yanlag-tbl td:nth-child(1){width:6em;white-space:nowrap}
 .page-zl .zl-doc-tbl th:nth-child(1),.page-zl .zl-doc-tbl td:nth-child(1){width:7em}

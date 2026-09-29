@@ -24,15 +24,15 @@ const ZL_YUE=[
 /* 每月殊胜日：本尊与纪念日诸本一致；倍数为藏传传统说法，诸本所传略有出入 */
 const ZL_SHUSHENG={
   1:{'short':'禅定胜王佛','name':'禅定胜王佛节日','desc':'等持如来纪念日','mult':'百倍','note':''},
-  8:{'short':'药师佛','name':'药师佛节日','desc':'药师琉璃光如来纪念日，亦为十斋日','mult':'千倍','note':''},
+  8:{'short':'药师佛','name':'药师佛节日','desc':'药师琉璃光如来纪念日，十斋日之一','mult':'千倍','note':''},
   10:{'short':'莲师','name':'莲师荟供日','desc':'莲花生大士纪念日、千劫佛节日，勇士聚集之时','mult':'十万倍','note':'一说万倍'},
   11:{'short':'贤劫千佛','name':'贤劫千佛节日','desc':'千劫佛纪念日','mult':'十万倍','note':''},
   15:{'short':'阿弥陀佛','name':'阿弥陀佛节日','desc':'无量光佛纪念日，藏历十五当值望日','mult':'百万倍','note':'一说千万倍'},
-  18:{'short':'观世音','name':'观世音菩萨节日','desc':'观音菩萨纪念日，亦为十斋日','mult':'千万倍','note':'一说亿倍'},
+  18:{'short':'观世音','name':'观世音菩萨节日','desc':'观音菩萨纪念日，十斋日之一','mult':'千万倍','note':'一说亿倍'},
   21:{'short':'地藏','name':'地藏王菩萨节日','desc':'地藏菩萨纪念日','mult':'亿倍','note':''},
   25:{'short':'空行母','name':'空行母荟供日','desc':'一切女性本尊及空行母会集荟供日、供养龙王日、烟供火供吉祥日','mult':'十万倍','note':'一说十亿倍'},
   29:{'short':'护法','name':'护法荟供日','desc':'大护法及一切勇父护法会集荟供日、供养龙王日','mult':'无','note':'诸本多不列倍数'},
-  30:{'short':'释迦牟尼佛','name':'释迦牟尼佛节日','desc':'布萨诵戒日、烟供火供吉祥日，亦为十斋日','mult':'九亿倍','note':''}
+  30:{'short':'释迦牟尼佛','name':'释迦牟尼佛节日','desc':'布萨诵戒日、烟供火供吉祥日，十斋日之一','mult':'九亿倍','note':''}
 };
 /* 年内固定节日：四大节日加流通较广的纪念日。日期用藏历月日。 */
 const ZL_FEST=[
@@ -53,13 +53,6 @@ const ZL_FLYFLAG=[
   {'months':[2,6,10],'days':[7,19]},
   {'months':[3,7,11],'days':[4,16]},
   {'months':[4,8,12],'days':[1,13]}
-];
-/* 岁首对照：浦派、楚尔派各依本派历元实算，不丹多同浦派，迥孜为年界差异，岁首虎月故落在上一公历年末 */
-const ZL_LOSAR_REF=[
-  {'gyear':2027,'phugpa':'2027-02-07','tsurphu':'2027-02-07','bhutan':'2027-02-07','jungtsi':'2026-12-09'},
-  {'gyear':2026,'phugpa':'2026-02-18','tsurphu':'2026-02-18','bhutan':'2026-02-18','jungtsi':'2025-12-20'},
-  {'gyear':2025,'phugpa':'2025-02-28','tsurphu':'2025-03-01','bhutan':'2025-02-28','jungtsi':'2024-12-31'},
-  {'gyear':2024,'phugpa':'2024-02-10','tsurphu':'2024-02-10','bhutan':'2024-02-10','jungtsi':'2023-12-13'}
 ];
 /* 流派谱系：两层结构（印度时轮历两派、藏地传承诸派），差异性质分算法、年界、参数三类 */
 const ZL_SCHOOL_DOC=[
@@ -108,11 +101,51 @@ const ZL_SCHOOL_DOC=[
 ];
 /* 五要素（yan lag lnga）：曜、日期、星宿、会合、作用 */
 const ZL_YANLAG=[
-  {'name':'曜','en':"gza'",'desc':'星期序数，日曜起于星期日，本页可算'},
-  {'name':'日期','en':'tshes','desc':'太阴日序，一至三十，重日则两日同一日序、缺日则某日序不现，本页可算'},
-  {'name':'星宿','en':'skar','desc':'伴曜月宿，二十七宿，本页未列（宿界与岁差口径诸本不一）'},
-  {'name':'会合','en':'sbyor ba','desc':'二十七种，占星所用，本页未列'},
-  {'name':'作用','en':'byed pa','desc':'太阴日前分后分，本页未列'}
+  {'name':'曜','en':"gza'",'desc':'星期序数，日曜起于星期日'},
+  {'name':'日期','en':'tshes','desc':'太阴日序，一至三十，重日则两日同一日序、缺日则某日序不现'},
+  {'name':'星宿','en':'skar','desc':'伴曜月宿，二十七宿，自娄宿起数'},
+  {'name':'会合','en':'sbyor ba','desc':'日月黄经之和所定，二十七种'},
+  {'name':'作用','en':'byed pa','desc':'太阴日前分后分，半日各一种，共十一种'}
+];
+/* 二十七宿：自娄宿（Aśvinī）起，与 zlMansionIdx 的 0 至 26 一一对应。
+   中文宿名取通行名，与佛历页二十七宿同一套名，彼自角宿起、本页自娄宿起，同为一套去牛宿的二十七宿；
+   梵名照《Tibetan Calendar Mathematics》第 10 节所列体系与通行梵文名录注。
+   编号起点以该论文表 4 的十二月名为锚点实证：月名取满月所在宿，十二个月名逐月回算，
+   偏差以零为中心对称分布，故第 0 宿为娄宿成立 */
+const ZL_XIU27=[
+  {'n':'娄','sa':'Aśvinī'},{'n':'胃','sa':'Bharaṇī'},{'n':'昴','sa':'Kṛttikā'},
+  {'n':'毕','sa':'Rohiṇī'},{'n':'觜','sa':'Mṛgaśiras'},{'n':'参','sa':'Ārdrā'},
+  {'n':'井','sa':'Punarvasu'},{'n':'鬼','sa':'Puṣya'},{'n':'柳','sa':'Āśleṣā'},
+  {'n':'星','sa':'Maghā'},{'n':'张','sa':'Pūrvaphalgunī'},{'n':'翼','sa':'Uttaraphalgunī'},
+  {'n':'轸','sa':'Hasta'},{'n':'角','sa':'Citrā'},{'n':'亢','sa':'Svātī'},
+  {'n':'氐','sa':'Viśākhā'},{'n':'房','sa':'Anurādhā'},{'n':'心','sa':'Jyeṣṭhā'},
+  {'n':'尾','sa':'Mūla'},{'n':'箕','sa':'Pūrvāṣāḍhā'},{'n':'斗','sa':'Uttarāṣāḍhā'},
+  {'n':'女','sa':'Śravaṇa'},{'n':'虚','sa':'Dhaniṣṭhā'},{'n':'危','sa':'Śatabhiṣaj'},
+  {'n':'室','sa':'Pūrvabhādrapadā'},{'n':'壁','sa':'Uttarabhādrapadā'},{'n':'奎','sa':'Revatī'}
+];
+/* 二十七会合：日月黄经之和所定，与 zlYogaIdx 的 0 至 26 一一对应。
+   汉传无通行译名，故 sa 为梵文罗马字转写，cn 为本站按梵文原义所拟的释名（湿婆、梵天、
+   帝释、金刚为通行译名，余为按义直译），页面上释名在前、梵名括注在后 */
+const ZL_YOGA27=[
+  {'sa':'Viṣkambha','cn':'障'},{'sa':'Prīti','cn':'喜'},{'sa':'Āyuṣmān','cn':'寿'},
+  {'sa':'Saubhāgya','cn':'吉'},{'sa':'Śobhana','cn':'美'},{'sa':'Atigaṇḍa','cn':'大结'},
+  {'sa':'Sukarmā','cn':'善业'},{'sa':'Dhṛti','cn':'坚'},{'sa':'Śūla','cn':'刺'},
+  {'sa':'Gaṇḍa','cn':'结'},{'sa':'Vṛddhi','cn':'增'},{'sa':'Dhruva','cn':'恒'},
+  {'sa':'Vyāghāta','cn':'击'},{'sa':'Harṣaṇa','cn':'欢'},{'sa':'Vajra','cn':'金刚'},
+  {'sa':'Siddhi','cn':'成就'},{'sa':'Vyatipāta','cn':'逆'},{'sa':'Varīyān','cn':'最胜'},
+  {'sa':'Parigha','cn':'栅'},{'sa':'Śiva','cn':'湿婆'},{'sa':'Siddha','cn':'成就者'},
+  {'sa':'Sādhya','cn':'可成'},{'sa':'Śubha','cn':'善'},{'sa':'Śukla','cn':'白净'},
+  {'sa':'Brahma','cn':'梵天'},{'sa':'Indra','cn':'帝释'},{'sa':'Vaidhṛti','cn':'大逆'}
+];
+/* 十一作用：0 至 6 为轮转七种，7 至 10 为固定四种，与 zlKaranaIdx 的返回值一一对应。
+   固定四种占每月第 1、58、59、60 半日，即初一前分、廿九后分与三十日两分；
+   余五十六个半日按轮转七种循环，半日号 H 取 (H−1) 除七取余。
+   诸名多为名号而无实义，故不拟释名，cn 只给该半日的落位 */
+const ZL_KARANA11=[
+  {'sa':'Vṛṣṭi','cn':'轮转'},{'sa':'Bava','cn':'轮转'},{'sa':'Bālava','cn':'轮转'},
+  {'sa':'Kaulava','cn':'轮转'},{'sa':'Taitila','cn':'轮转'},{'sa':'Gara','cn':'轮转'},
+  {'sa':'Vaṇij','cn':'轮转'},{'sa':'Kimstughna','cn':'初一前分'},{'sa':'Śakuni','cn':'廿九后分'},
+  {'sa':'Catuṣpāda','cn':'三十前分'},{'sa':'Nāga','cn':'三十后分'}
 ];
 window.ZL_WX=ZL_WX;
 window.ZL_SX=ZL_SX;
@@ -121,6 +154,8 @@ window.ZL_YUE=ZL_YUE;
 window.ZL_SHUSHENG=ZL_SHUSHENG;
 window.ZL_FEST=ZL_FEST;
 window.ZL_FLYFLAG=ZL_FLYFLAG;
-window.ZL_LOSAR_REF=ZL_LOSAR_REF;
 window.ZL_SCHOOL_DOC=ZL_SCHOOL_DOC;
 window.ZL_YANLAG=ZL_YANLAG;
+window.ZL_XIU27=ZL_XIU27;
+window.ZL_YOGA27=ZL_YOGA27;
+window.ZL_KARANA11=ZL_KARANA11;

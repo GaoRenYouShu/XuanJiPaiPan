@@ -5,7 +5,7 @@
    - 跨域请求（节假日、IP 归属、地磁、AI 接口等外部数据源）一律不拦截，直连网络；
    - 预缓存逐项 cache.add 并容忍单项失败，避免任一资源波动导致安装整体失败。
    版本升级：CACHE 名尾号递增，activate 时清除旧仓。 */
-const CACHE = 'xj-shell-v18';
+const CACHE = 'xj-shell-v19';
 const SHELL = [
   './',
   './index.html',
@@ -13,13 +13,15 @@ const SHELL = [
   './manifest.webmanifest',
   './assets/meta.js?v=20260925b',
   './assets/app.js?v=20260927d',
-  './assets/style.css?v=z297',
+  './assets/style.css?v=z298',
   './assets/lunar.js?v=20260927a',
   './assets/foli-terms.js?v=20260928b',
   './assets/daoli-terms.js?v=20260929d',
   './assets/fonts/noto-serif-sc.css?v=20260927995e',
   './assets/fonts/nssc-chrome.woff2?v=20260927995e',
-  './assets/fonts/site-sym.css?v=20260924a'
+  './assets/fonts/site-sym.css?v=20260929f',
+  './assets/zangli-terms.js?v=20260929h',
+  './assets/zangli-eclipse.js?v=20260929g'
 ];
 
 self.addEventListener('install', function (e) {
