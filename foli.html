@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260924a">
-<link rel="stylesheet" href="assets/style.css?v=z291">
+<link rel="stylesheet" href="assets/style.css?v=z297">
 </head>
 <body>
 <div id="topbar"></div>
@@ -150,17 +150,21 @@ function showFoliTip(name){
   _foliShow(o.t, o.d);
 }
 /* 当日值宿弹窗：宿曜全名＋逐宿释义＋宿曜吉凶歌；与宿盘详情同一文案，不另起一套。
-   按宿名直取（不依赖盘内选中态），详情行与宿盘详情条两处共用。 */
+   按宿名直取（不依赖盘内选中态），详情行与宿盘详情条两处共用。
+   两段制：上段逐宿释义（foli-terms.js 单一真源，已含七曜、方位、吉凶、禀性、宜忌），
+   下段吉凶歌另起一段并冠名。旧写法在歌诀前重出方位与吉凶，与释义段各说一遍；
+   且靠 .wd-br 折行，而 .wd-br 只在 .wheel-detail 作用域下有规则，弹窗内塌成零宽，
+   吉与歌诀连读成 "吉毕星造作主光前"，断句误导。 */
 function showXiuTipByName(nm){
   try{
     const luck=LunarUtil.XIU_LUCK[nm]||'', full=nm+(LunarUtil.ZHENG[nm]||'')+(LunarUtil.ANIMAL[nm]||'');
     const g=LunarUtil.GONG[nm]||'', xiang=g?g+'方'+LunarUtil.SHOU[g]:'';
     const song=LunarUtil.XIU_SONG[nm]||'';
     const note=(typeof foliXiuMean==='function')?foliXiuMean(nm,full):null;
-    const good=luck==='吉';
-    _foliShow(full+'（'+luck+'）', (note?'<p class="df-p" style="margin:0 0 8px">'+note.d+'</p>':'')
-      +`<p class="df-p" style="margin:0">${xiang}，<span class="${good?'wd-g':'wd-x'}">${luck}</span>`
-      +(song?`<span class="wd-br"></span>${song}`:'')+'</p>');
+    /* 释义缺条时退回方位与吉凶一行，不留空段 */
+    const head=note?note.d:(xiang?xiang+'，'+luck+'。':luck+'。');
+    _foliShow(full+'（'+luck+'）', '<p style="margin:0 0 8px">'+head+'</p>'
+      +(song?'<p style="margin:0">宿曜吉凶歌：'+song+'</p>':''));
   }catch(e){}
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeFoliTip(); });
@@ -203,6 +207,28 @@ function monthZhaiList(y,m){
 /* 佛历文书：只出纪年（佛菩萨圣诞、节庆另占一项，不在此重复） */
 function foliDateText(foto){
   return foto.getYearInChinese()+'年'+foto.getMonthInChinese()+'月'+foto.getDayInChinese();
+}
+/* 南传布萨：上座部每半月（四相）僧团诵戒、信众持八戒之制，依农历日推朔、上弦、望、下弦四布萨日
+   （初一、初八、十五、廿三）。与汉传斋日盘（朔望斋等）部分重叠而分属两系（foli-terms.js 布萨 条已注），
+   故单列一条、不混入汉传斋期；本页斋日依汉传农历，不作南传历法换算。 */
+const FOLI_BOSAT=[1,8,15,23];
+const FOLI_BOSAT_NAME={1:'朔',8:'上弦',15:'望',23:'下弦'};
+function foliBusha(lunar){
+  const day=lunar.getDay(), isB=FOLI_BOSAT.indexOf(day)>=0;
+  let y=lunar.getYear(), m=lunar.getMonth(), d=day, nx=null, g=0;
+  while(!nx && g<40){
+    d++;
+    const mo=LunarMonth.fromYm(y,m), dim=mo?mo.getDayCount():30;
+    if(d>dim){ d=1; m++; if(m>12){m=1;y++;} }
+    if(FOLI_BOSAT.indexOf(d)>=0) nx={y:y,m:m,d:d};
+    g++;
+  }
+  let s = isB ? ('今日为南传布萨日：'+FOLI_BOSAT_NAME[day]+'，宜持八戒、净心') : '今日非南传布萨日；南传上座部半月布萨为朔、上弦、望、下弦四相';
+  if(nx){
+    const nl=Lunar.fromYmd(nx.y,nx.m,nx.d);
+    s += '<span class="foli-br"></span>下次布萨：农历'+nl.getMonthInChinese()+'月'+nl.getDayInChinese()+'，'+FOLI_BOSAT_NAME[nx.d]+'，公历'+nl.getSolar().toYmd();
+  }
+  return s;
 }
 /* ===== 二十七宿盘（佛历宿曜） =====
    宿曜二十七宿＝二十八宿去牛宿，故四象作 7/6/7/7，排成圆环。
@@ -508,6 +534,7 @@ function showDay(str, el){
     <div class="foli-i"><span class="k">佛历文书</span><span class="v">${foliDateText(foto)}</span></div>
     <div class="foli-i"><span class="k">宿曜</span><span class="v"><span class="tip" onclick="showXiuTipByName('${foto.getXiu()}')">${foto.getXiu()}${foto.getZheng()}${foto.getAnimal()}（${foto.getXiuLuck()}）</span></span></div>
     <div class="foli-i"><span class="k">圣诞节庆</span><span class="v">${fests.length?fests.join('、'):'无'}</span></div>
+    <div class="foli-i"><span class="k tip" onclick="showFoliTip('布萨')">南传布萨</span><span class="v">${foliBusha(lunar)}</span></div>
   </div>
   <div class="wheel-wheels">
     <div class="wheel-block"><h4>二十七宿盘</h4>${foliXiuWheel(foto)}<div class="wheel-detail" id="foliXiuDetail">${foliXiuDetailHTML(FOLI_XIU_SEL)}</div></div>
@@ -542,7 +569,8 @@ window.addEventListener('load', function () {
       const monthZhai=monthZhaiList(y,m);
       const zhText=monthZhai.length?monthZhai.join('\n'):'本月无';
       const foText=foliDateText(foto);
-      return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n佛历：${foto.getYearInChinese()}年${foto.getMonthInChinese()}月${foto.getDayInChinese()}\n农历：${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}、${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日\n生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座、月建 ${lunar.getMonthInGanZhi().slice(-1)}月、月相${lunar.getYueXiang()}\n${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}\n佛历文书：${foText}\n宿曜二十七宿：${foto.getXiu()}${foto.getZheng()}${foto.getAnimal()}（${foto.getXiuLuck()}）\n佛菩萨圣诞、节庆：${fests}\n本日斋期综合判定：${zhai}\n宿曜吉凶歌：${foto.getXiuSong()}\n当月佛菩萨圣诞一览：\n${mfText}\n当月斋日一览（六斋、十斋等汉传斋日，非南传布萨）：\n${zhText}`;
+      const busha = FOLI_BOSAT.indexOf(lunar.getDay())>=0 ? ('今日为南传布萨日：'+FOLI_BOSAT_NAME[lunar.getDay()]+'，宜持八戒、净心') : '今日非南传布萨日；南传上座部半月布萨为朔、上弦、望、下弦四相';
+      return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n佛历：${foto.getYearInChinese()}年${foto.getMonthInChinese()}月${foto.getDayInChinese()}\n农历：${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}、${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日\n生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座、月建 ${lunar.getMonthInGanZhi().slice(-1)}月、月相${lunar.getYueXiang()}\n${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}\n佛历文书：${foText}\n宿曜二十七宿：${foto.getXiu()}${foto.getZheng()}${foto.getAnimal()}（${foto.getXiuLuck()}）\n佛菩萨圣诞、节庆：${fests}\n佛吉祥日即南传卫塞节，与汉传四月初八佛诞分列\n本日斋期综合判定：${zhai}\n宿曜吉凶歌：${foto.getXiuSong()}\n南传布萨：${busha}\n当月佛菩萨圣诞一览：\n${mfText}\n当月斋日一览：\n${zhText}`;
     }, '佛历');
     shareWait({ page:"foli", title:"佛历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } });
   }, 0);
