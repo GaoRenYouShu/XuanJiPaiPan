@@ -251,6 +251,7 @@ select option{font-family:inherit}
 /* form-row内字段紧凑自适应，min-width限制最小宽度，max-width防止过宽 */
 .form-row .field{flex:0 0 auto;width:auto;min-width:70px}
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+.form-row .field.field-off{display:none}
 /* 日期文本输入：宽 96px 按顶层规范第 1 条，去除浏览器 size=20 默认内在宽度带来的右侧空白 */
 .form-row .field input[type="text"].dt-input{width:96px}
 /* 万年历等日历页：字段固定155px；日期框按内容自适应（96px，见上条 .dt-input），其余 input 随字段铺满 */
@@ -710,6 +711,9 @@ footer .ref a:hover{color:var(--red)}
 .field.chk{flex-direction:row;align-items:center;gap:var(--sp-1);min-width:auto}
 /* 勾选框回原生尺寸：排除 .field input 的 30px 等高与内距，与"真太阳时校正"同款 13×13 */
 .field.chk input{width:auto;height:auto;padding:0}
+/* 勾选块随主体色：原生复选框的填充与勾一律取本页主色。各页的 --gold 已在主题段重指到本页
+   主色族（规范 1.3），故此处一条通配即覆盖全站，页面段不必逐页再写 accent-color */
+input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
 /* info-box 内 .info-box p{color:var(--ink)} 特异性(0,1,1)高于 .sub-note(0,1,0)，此处提级保证补充说明浅色不被覆盖 */
 .info-box .sub-note{color:var(--ink2)}
@@ -1663,8 +1667,6 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .zr-tag.jz-good{color:var(--green)}
 .zr-tag.jz-bad{color:var(--red)}
 .zr-tag.jz-strong{color:var(--gold-brown)}
-/* 坐山字段：180px（电脑端与移动端统一） */
-#shan,select#shan{min-width:180px;width:180px}
 .zr-w{display:inline-block;margin-top:var(--sp-2);font-size:12px;color:var(--gold2)}
 
 /* 精择吉日：可折叠模块（.zr-mod 亦被 bazi / xingming 页复用，故间距调整一律走 .page-zeri 作用域） */
@@ -2038,9 +2040,6 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
   .jz-detail{grid-column:1/-1;grid-row:3;margin-top:var(--sp-1);padding:var(--sp-1) var(--sp-2)}
   .jz-detail .ly-zh-p{font-size:11.5px;margin:0 0 var(--sp-1)}
   .jz-h{font-size:var(--tier4);margin:0 0 var(--sp-2)}
-  /* 坐山 180px 在移动端与电脑端一致（窄屏自动换行） */
-  #shan{min-width:180px;width:180px}
-  .form-row .field:has(#shan){flex:0 0 180px;min-width:180px;width:180px}
 }
 /* ===== 命局断事表（stab-ds，仅八字页命局断事卡使用，类名唯一不影响其他页面）=====
  * 项目列宽由 bazi-core.js setupMingJuCol 按真实汉字渲染宽测量后 inline !important 覆盖，
@@ -9089,9 +9088,9 @@ to{opacity:1;transform:none}}
 /* 可用时辰题头：标签取本页主体色并缩至 12.5px，避免落回全站金字；同时覆盖 .zm-hours-head 内同名标签（该处无自有规则，会随继承放大） */
 .page-zeri .group-label{color:var(--zr2);font-size:12.5px}
 .page-zeri .zm-hours{display:flex;flex-wrap:wrap;gap:var(--sp-1) var(--sp-3)}
-/* 时辰勾选：纯复选框加文字，无外框无底色。选中态由文字主题色与原生勾选表达，字重保持常规（12 项同时加粗会撑动字宽致整排抖动）；未选中淡化至 .55，靠亮度区分；项间距 12px，整块高约 34px。accent-color 取本页主题色 */
+/* 时辰勾选：纯复选框加文字，无外框无底色。选中态由文字主题色与原生勾选表达，字重保持常规（12 项同时加粗会撑动字宽致整排抖动）；未选中淡化至 .55，靠亮度区分；项间距 12px，整块高约 34px */
 .page-zeri .zm-hr{display:inline-flex;align-items:center;gap:var(--sp-1);padding:2px 0;font-size:12.5px;line-height:1.4;color:var(--zr-ink);opacity:.55;cursor:pointer;user-select:none;transition:opacity .15s}
-.page-zeri .zm-hr input{margin:0;accent-color:var(--zr)}
+.page-zeri .zm-hr input{margin:0}
 .page-zeri .zm-hr:hover{opacity:.85}
 /* 勾选高亮的真源是 checkbox 的 checked：:has() 供现代内核，.on 供不认 :has() 的旧内核，两者同出 checked */
 .page-zeri .zm-hr:has(input:checked),
@@ -9115,6 +9114,9 @@ to{opacity:1;transform:none}}
 .page-zeri .zm-parent .form-row .field input[type="number"]{width:96px}
 /* 家长出生地三级下拉定宽 115px：select 固有宽由最宽 option 撑定（省份长名恒 150px，城市区县随所选省在 85 至 189px 浮动），三者参差故定宽取齐；select 自然宽约为 59 + 13×(字数-1) */
 .page-zeri .zm-parent .form-row .field select{width:115px;align-self:flex-start}
+/* 坐山与入首龙下拉：115px（与页内 zm-parent 下拉同档），外壳随标签一行自适应不压缩 */
+#shan,#laiLong{min-width:115px;width:115px}
+.page-zeri .form-row .field:has(#shan),.page-zeri .form-row .field:has(#laiLong){flex:0 0 auto}
 /* 造命排盘行与上方宝宝出生地框的间距由统一样式承担：模块内直接子元素一律 margin-bottom:var(--sp-3)，出生地框的下边距即排盘行的上间距，不另补值 */
 /* 造命排盘行：桌面端（≥641px）太岁勾选与排盘按钮同排一行、标签不折行。 移动端不设任何规则，保持 .form-row 既有换行排布 */
 @media(min-width:641px){
@@ -9286,6 +9288,7 @@ to{opacity:1;transform:none}}
   .page-zeri .form-row{gap:var(--sp-2)}
   .page-zeri .zr-mode-switch{gap:var(--sp-2)}
   .page-zeri .birth-group.compact{gap:var(--sp-2)}
+  .page-zeri .form-row .field:has(#shan),.page-zeri .form-row .field:has(#laiLong){flex:0 0 auto}
 }
 
 /* 打印：细线与纸底转中性灰 */
@@ -9366,7 +9369,7 @@ to{opacity:1;transform:none}}
 /* 双人合盘：勾选行随正文，第二人资料块的显隐走类切换 */
 .page-zw .zw-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
   margin:var(--sp-1) 0 var(--sp-2);font-size:13px;color:var(--zw-ink);cursor:pointer;user-select:none}
-.page-zw .zw-rel-chk input{width:auto;margin:0;accent-color:var(--zw)}
+.page-zw .zw-rel-chk input{width:auto;margin:0}
 .page-zw .zw-rel2{display:none}
 .page-zw .zw-rel2.is-on{display:block}
 /* 结果区首块＝十二宫盘。排盘页不以单日为轴，不设卷首带，由盘的上下细线承担与表单区的分界 */

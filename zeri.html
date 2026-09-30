@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z298">
+<link rel="stylesheet" href="assets/style.css?v=z305">
 
 </head>
 <body>
@@ -99,8 +99,23 @@
       <summary><span class="zr-mod-n">④</span> 精择吉日</summary>
       <div class="zr-mod-b">
         <div class="form-row">
-          <div class="field"><label>坐山（造葬动土填，通用留空）</label>
+          <div class="field"><label>坐山（造葬动土填）</label>
             <select id="shan"><option value="">不按坐山</option></select>
+          </div>
+          <div class="field"><label>入首龙（造葬选填）</label>
+            <select id="laiLong"><option value="">不按来龙</option></select>
+          </div>
+          <div class="field"><label>分金（安葬填）</label>
+            <select id="fenJin"><option value="">不辨分金</option></select>
+          </div>
+          <div class="field"><label>仙命年（安葬填）</label>
+            <input type="number" id="xmYear" min="1900" max="2100" />
+          </div>
+          <div class="field field-off" data-school="玄空紫白派"><label>建造元运（玄空填）</label>
+            <select id="yuanYun"><option value="">不按宅盘</option><option>一运</option><option>二运</option><option>三运</option><option>四运</option><option>五运</option><option>六运</option><option>七运</option><option>八运</option><option>九运</option></select>
+          </div>
+          <div class="field field-off" data-school="玄空紫白派"><label>向方（玄空填）</label>
+            <select id="xiangShan"><option value="">不按向方</option></select>
           </div>
           <div class="field"><label>用事时辰（可选）</label>
             <select id="zhongShi"><option value="">不选则只论日柱</option></select>
@@ -119,6 +134,9 @@
           <div class="field"><label>窗口结束</label><input type="text" class="dt-input" placeholder="yyyy-mm-dd" id="zmTo"></div>
           <div class="field"><label>宝宝性别</label>
             <select id="zmSex"><option value="1">男</option><option value="0">女</option></select>
+          </div>
+          <div class="field"><label>早晚子时</label>
+            <select id="zmZi"><option value="early">早子时（23点归当日）</option><option value="late">晚子时（23点归次日）</option></select>
           </div>
         </div>
         <div class="zm-hours-wrap">
@@ -161,7 +179,7 @@
               <div class="field"><label>省份</label><select id="zmP1Prov"></select></div>
               <div class="field"><label>城市</label><select id="zmP1City"></select></div>
               <div class="field"><label>区县</label><select id="zmP1Dist"></select></div>
-              <div class="field"><label>手动经度</label><input type="number" id="zmP1Lng" step="0.01" placeholder="留空" title="留空则按下方省份/城市/区县查表得经度作真太阳时校正"></div>
+              <div class="field"><label>手动经度</label><input type="number" id="zmP1Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
               <div class="field chk"><input type="checkbox" id="zmP1True" checked><label for="zmP1True">真太阳时校正</label></div>
             </div>
           </div>
@@ -174,7 +192,7 @@
               <div class="field"><label>省份</label><select id="zmP2Prov"></select></div>
               <div class="field"><label>城市</label><select id="zmP2City"></select></div>
               <div class="field"><label>区县</label><select id="zmP2Dist"></select></div>
-              <div class="field"><label>手动经度</label><input type="number" id="zmP2Lng" step="0.01" placeholder="留空" title="留空则按下方省份/城市/区县查表得经度作真太阳时校正"></div>
+              <div class="field"><label>手动经度</label><input type="number" id="zmP2Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
               <div class="field chk"><input type="checkbox" id="zmP2True" checked><label for="zmP2True">真太阳时校正</label></div>
             </div>
           </div>
@@ -196,9 +214,37 @@
 <script defer src="assets/latlng.js?v=20260917da"></script>
 <script defer src="assets/bazi-data.js?v=20260928d"></script>
 <script defer src="assets/bazi-rel.js?v=20260920c"></script>
-<script defer src="assets/zeri-engine.js?v=20260925a"></script>
+<script defer src="assets/fengshui-engine.js?v=20260924a"></script>
+<script defer src="assets/zeri-engine.js?v=20260929a"></script>
 <script defer src="assets/zeri-zaoming.js?v=20260928k"></script>
 <script defer src="assets/ai.js?v=20260927c"></script>
+<script>
+(function(){
+  function syncZaozang(){
+    var ev=(document.getElementById('event')||{}).value||'';
+    var zao=['动土','安葬','破土','装修','修造','安门','上梁','竖柱'].indexOf(ev)>=0;
+    var yin=['安葬','破土'].indexOf(ev)>=0;
+    var map={shan:zao,laiLong:yin,fenJin:ev==='安葬',xmYear:ev==='安葬'};
+    Object.keys(map).forEach(function(id){
+      var el=document.getElementById(id); if(el) el.closest('.field').classList.toggle('field-off',!map[id]);
+    });
+  }
+  window.addEventListener('load',function(){
+    syncZaozang();
+    var ev=document.getElementById('event'); if(ev) ev.addEventListener('change',syncZaozang);
+    var sc=document.getElementById('zrSchool');
+    if(sc) sc.addEventListener('change',function(){ document.querySelectorAll('[data-school]').forEach(function(el){ el.classList.toggle('field-off', sc.value!==el.getAttribute('data-school')); }); });
+    if(sc) sc.dispatchEvent(new Event('change'));
+    var shan=document.getElementById('shan');
+    if(shan) shan.addEventListener('change',function(){
+      if(!window.FENGSHUI) return;
+      var v=shan.value, fj=document.getElementById('fenJin');
+      if(v){ fj.innerHTML='<option value="">不辨分金</option>'+FENGSHUI.fenJin(v).map(function(x){return '<option value="'+x.gz+'">'+x.gz+'（'+x.wang+'）</option>';}).join(''); fj.setAttribute('data-shan',v); }
+      else { fj.innerHTML='<option value="">不辨分金</option>'; fj.removeAttribute('data-shan'); }
+    });
+  });
+})();
+</script>
 <script>
 /* ===== 模式切换：择事、造命 =====
    两模式判据不同、口径互斥，故整组显隐、选中哪个就输出哪个：
@@ -314,7 +360,7 @@ function query(){
 }
 /* ============ 模块② 命主喜用神 ============ */
 let CITY_LNG=116.41;
-let USER_XI=[], USER_JI=[], USER_USE='', USER_DWX='', USER_NAYIN_WX='', USER_NAYIN='', USER_READY=false;
+let USER_XI=[], USER_JI=[], USER_USE='', USER_DWX='', USER_NAYIN_WX='', USER_NAYIN='', USER_READY=false, USER_MING_GZ='';
 function buildUserBZ(){
   const dv=document.getElementById('bDate').value;
   const tv=document.getElementById('bTime').value||'12:00';
@@ -356,13 +402,14 @@ function calcUserXi(){
   USER_XI=A.xiWx.slice(); USER_JI=A.jiWx.slice();
   USER_USE=A.synthesis.primary.wx; USER_DWX=GAN_WX[BZ.dayGan]; USER_READY=true;
   const ny=nayinOf(BZ.yearGZ); USER_NAYIN=ny; USER_NAYIN_WX=(NAYIN_INFO[ny]||{}).wx||'';
+  USER_MING_GZ=BZ.yearGZ;
   const xiStr=USER_XI.join('、')||'无';
   const jiStr=USER_JI.join('、')||'无';
   out.innerHTML=`<div class="info-box">
     <p class="ly-zh-p">日主 <span class="zr-k">${BZ.dayGan}（${USER_DWX}）</span>　首选用神：<span class="zr-k">${USER_USE}</span></p>
     <p class="ly-zh-p">喜神（生扶用神）：<span class="zr-good">${xiStr}</span>　忌神：<span class="zr-bad">${jiStr}</span></p>
     <p class="ly-zh-p">本命年命纳音：<span class="zr-k">${USER_NAYIN}（${USER_NAYIN_WX||'无'}）</span></p>
-    <p class="ly-zh-p zr-mini">（扶抑法，含调候/通关/病药/格局综合；日主${A.strength}）</p>
+    <p class="ly-zh-p zr-mini">（扶抑法，含调候、通关、病药、格局综合；日主${A.strength}）</p>
   </div>`;
 }
 /* ============ 模块③ 真太岁方位 ============ */
@@ -412,7 +459,24 @@ function jingze(){
   if(tsRes) notes.push(`已纳入真太岁方位（${tsRes.mode==='liu'?'流年':'本命'}太岁在 ${tsRes.zhi}）`);
   else notes.push('已关闭真太岁方位校正');
   const shanZhi=document.getElementById('shan').value||null;
+  let fenJin=null, XIANMING_GZ=null;
+  if(window.FENGSHUI && shanZhi){
+    const fj=document.getElementById('fenJin');
+    if(!fj.options.length || fj.getAttribute('data-shan')!==shanZhi){
+      fj.innerHTML='<option value="">不辨分金</option>'+FENGSHUI.fenJin(shanZhi).map(x=>`<option value="${x.gz}">${x.gz}（${x.wang}）</option>`).join('');
+      fj.setAttribute('data-shan',shanZhi);
+    }
+    fenJin=fj.value||null;
+    if(fenJin){ const fg=fenJin[0], fz=fenJin[1]; fj.setAttribute('data-chong', fg+CHONG[fz]); }
+    else if(fj.hasAttribute('data-chong')) fj.removeAttribute('data-chong');
+    const ym=document.getElementById('xmYear').value;
+    XIANMING_GZ=ym?Solar.fromYmd(parseInt(ym,10),7,1).getLunar().getYearInGanZhiByLiChun():null;
+  }
+  const laiLong=document.getElementById('laiLong') ? (document.getElementById('laiLong').value||null) : null;
   const timeZhi=document.getElementById('zhongShi').value||null;
+  const yunSel=document.getElementById('yuanYun'), xsSel=document.getElementById('xiangShan');
+  const yunN=({'一运':1,'二运':2,'三运':3,'四运':4,'五运':5,'六运':6,'七运':7,'八运':8,'九运':9})[yunSel.value]||null;
+  const xiangShan=xsSel.value||null;
   if(fam.fangSha){
     if(shanZhi) notes.push(`已纳入坐山 ${shanZhi}（补龙扶山，山方煞到山判定）`);
     else notes.push('未填坐山（造葬动土建议填坐山）');
@@ -423,11 +487,20 @@ function jingze(){
   if(timeZhi) notes.push(`已选用事时辰 ${timeZhi}时（日课格局：日时干支合参）`);
   else notes.push('未选时辰（选按时辰可启用日课格局与贵人驿马判定）');
   if(school==='玄空紫白派') notes.push('已启用玄空紫白飞星（日家紫白中宫及坐山宫星曜）');
+  if(laiLong) notes.push('已纳入入首龙 '+laiLong+'（来龙三煞参断，永远真煞）');
+  else notes.push('未填入首龙（来龙三煞不参，城市阳宅难定来龙者免参）');
+  if(ev==='安葬' && fenJin) notes.push('已辨坐山分金 '+fenJin+'（此分金冲丁日＝'+(document.getElementById('fenJin').getAttribute('data-chong')||'')+'，选日须避）');
+  if(fenJin&&XIANMING_GZ&&ev==='安葬') notes.push('已辨坐山分金 '+fenJin+'，仙命 '+XIANMING_GZ+'（分金合仙命参断；仙命为亡者年命，与事主命主分列）');
+  else if(fenJin||XIANMING_GZ) notes.push('分金与仙命须同填且事类为安葬方参分金合仙命');
+  if(USER_MING_GZ) notes.push('已纳入本命年干支 '+USER_MING_GZ+'（人元三煞即本命真三煞参断）');
+  else notes.push('未填命主八字（人元三煞不参）');
   const list=LAST.top.map(r=>{
-    const res=ZERI.jingzeScore(r, ev, {USER_XI, USER_JI, USER_DWX, USER_READY, TS_RES: tsRes, USER_NAYIN_WX, shanZhi, timeZhi, school});
+    const res=ZERI.jingzeScore(r, ev, {USER_XI, USER_JI, USER_DWX, USER_READY, TS_RES: tsRes, USER_NAYIN_WX, USER_MING_GZ, shanZhi, laiLong, fenJin, XIANMING_GZ, timeZhi, school, LIANZHU:(yunN&&xiangShan&&school==='玄空紫白派')?{yun:yunN,xiang:xiangShan}:null});
     return Object.assign({}, r, {jscore:res.score, reasons:res.reasons, res});
   });
   list.sort((a,b)=> b.jscore-a.jscore || (a.solar.toYmd()<b.solar.toYmd()?-1:1));
+  LAST.peer={best:list[0]?list[0].jscore:null, worst:list.length?list[list.length-1].jscore:null,
+    avg:list.length?Math.round(list.reduce((a,x)=>a+x.jscore,0)/list.length*10)/10:null, n:list.length};
   const cards=list.map((r,i)=>{
     const d=r.res;
     const g = jzGrade(r.jscore);
@@ -441,7 +514,7 @@ function jingze(){
         ${d.zhoutang?`<p class="ly-zh-p"><span class="zr-k">${d.zhoutang.title}</span>：落“${d.zhoutang.pos}” ${d.zhoutang.good?'（吉位）':'（凶位）'}</p>`:''}
         ${d.zhiNote?`<p class="ly-zh-p"><span class="zr-k">坐山</span>：${d.zhiNote}</p>`:''}
         ${(d.kongwang&&d.kongwang.length)?`<p class="ly-zh-p"><span class="zr-k">日柱空亡</span>：${d.kongwang.join('、')}（诸吉减力）</p>`:''}
-        ${d.xiu?`<p class="ly-zh-p"><span class="zr-k">二十八宿</span>：${d.xiu}</p>`:''}
+        ${d.xiu?`<p class="ly-zh-p"><span class="zr-k">二十八宿</span>：${d.xiu}${d.xiuZhu?`<span class="sub-note">　${d.xiuZhu}</span>`:""}</p>`:''}
         ${d.jiuyao?`<p class="ly-zh-p"><span class="zr-k">九曜</span>：${d.jiuyao}</p>`:''}
         ${d.najia?`<p class="ly-zh-p"><span class="zr-k">纳甲</span>：${d.najia}</p>`:''}
         ${(d.tsJi||d.tsXiong)?`<p class="ly-zh-p"><span class="zr-k">通书全录</span>（展示参考，不计分）：${d.tsJi?`<span class="zr-good">吉神</span>：${d.tsJi}`:''}${(d.tsJi&&d.tsXiong)?'；':''}${d.tsXiong?`<span class="zr-bad">凶神</span>：${d.tsXiong}`:''}</p>`:''}
@@ -595,6 +668,7 @@ function zmRun(quiet){
   if(d1>d2){ out.innerHTML='<p class="notice">窗口起始不能晚于结束日期。</p>'; return; }
   var span=Math.round((d2-d1)/86400000)+1;
   if(span>60){ out.innerHTML='<p class="notice">窗口 '+span+' 天，超过上限 60 天。枚举量为"天数 × 时辰数"，请缩小范围。</p>'; return; }
+  var lateZi=document.getElementById('zmZi').value==='late';
   var hours=zmSelectedHours();
   if(!hours.length){ out.innerHTML='<p class="notice">请至少勾选一个可用时辰。</p>'; return; }
   var total=span*hours.length;
@@ -617,7 +691,7 @@ function zmRun(quiet){
   out.innerHTML='<p class="notice">正在枚举 '+total+' 个候选（'+span+' 天 × '+hours.length+' 时辰）并逐个排盘评分，请稍候…</p>';
   setTimeout(function(){
     var res;
-    try{ res=ZAOMING.enumerate({from:from,to:to,hours:hours,sex:sex,lng:lng,useTrue:useTrue,parent1:parent1,parent2:parent2,TS:TS}); }
+    try{ res=ZAOMING.enumerate({from:from,to:to,hours:hours,sex:sex,lng:lng,useTrue:useTrue,parent1:parent1,parent2:parent2,TS:TS,lateZi:lateZi}); }
     catch(e){ out.innerHTML='<p class="notice">排盘出错：'+(e.message||e)+'</p>'; return; }
     ZM_RES=res;
     ZM_CTX={from:from,to:to,hours:hours,sex:sex,parent1:parent1,parent2:parent2,TS:TS,lng:lng,useTrue:useTrue};
@@ -646,13 +720,27 @@ function renderZm(){
   var res=ZM_RES, ctx=ZM_CTX;
   if(!res || !res.count){ out.innerHTML='<p class="notice">窗口内无可用候选。</p>'; return; }
   var list = (ZM_VIEW==='day') ? ZAOMING.bestPerDay(res.list) : res.list;
+  var byDay={};
+  list.forEach(function(it){ var k=it.y+'-'+it.m+'-'+it.d; (byDay[k]=byDay[k]||[]).push(it); });
+  var diffNotes={};
+  Object.keys(byDay).forEach(function(k){
+    var arr=byDay[k]; if(arr.length<2) return;
+    var hi=arr[0], lo=arr[arr.length-1];
+    var hiH=ZM_HOURS[hi.hourIdx].z, loH=ZM_HOURS[lo.hourIdx].z;
+    var dr=(hi.res.total-lo.res.total).toFixed(1);
+    diffNotes[k]=hiH+'时优于'+loH+'时（差 '+dr+' 分），主因：'+((hi.res.Q.score!==lo.res.Q.score)?'八字质量不同':'同八字而家长缘分或避凶底线有别');
+  });
+  var hasTop=list.some(function(it){ return it.res.total>=88; });
+  var degradeNote=hasTop?'':(list.length?('窗口内未出上吉之选（无 88 分以上），可扩大日期范围；若工期所限，取排序最前者并重点核对避凶底线明细。'):'');
   var top=list.slice(0,30);
   var hasParent = !!(ctx.parent1||ctx.parent2);
+  var degradeHtml = degradeNote ? ('<div class="zm-degrade"><span class="zr-k">择配说明</span>：'+degradeNote+'</div>') : '';
   var pInfo = hasParent
-    ? ('已纳入家长缘分（'+[(ctx.parent1?ctx.parent1.label:''),(ctx.parent2?ctx.parent2.label:'')].filter(Boolean).join('、')+'完整八字）')
+    ? degradeHtml+'已纳入家长缘分（'+[(ctx.parent1?ctx.parent1.label:''),(ctx.parent2?ctx.parent2.label:'')].filter(Boolean).join('、')+'完整八字）'
     : '未填家长信息，家长缘分层不参与（其余三层按剩余权重等比放大）';
   var cards=top.map(function(it,i){
-    var r=it.res, g=r.grade;
+    var r=it.res, g=r.grade; var dKey=it.y+'-'+it.m+'-'+it.d; var dNote=diffNotes[dKey]||'';
+    var diffHtml = dNote ? ('<div class="zm-diff">'+dNote+'</div>') : '';
     var layers='<div class="zm-layers">'
       +'<span class="zm-layer">八字质量 '+r.Q.score+'</span>'
       +'<span class="zm-layer">前三步大运 '+(r.Y.score==null?'无':r.Y.score)+'</span>'
@@ -682,6 +770,7 @@ function renderZm(){
       +'<div class="zr-date">'
       +'<div class="zr-sol">'+it.y+'年'+it.m+'月'+it.d+'日 '+ZM_HOURS[it.hourIdx].z+'时（'+it.clockTime+'）'+(it.trueNote?(' <span>真太阳时 '+it.trueTime+'</span>'):'')+'</div>'
       +'<div class="zr-lun">农历'+it.lunarText+'　'+it.pillars.join(' ')+'</div>'
+      +(diffHtml?'<div class="zr-diff">'+diffHtml+'</div>':'')
       +'</div>'
       +'<div class="zr-tags">'
       +'<span class="zr-tag">日主'+it.dayGan+'（'+it.dayWx+'）</span>'
@@ -743,6 +832,8 @@ window.addEventListener('load', function () {
     fillEvents();
     fillZrSchool();
     document.getElementById('shan').innerHTML='<option value="">不按坐山</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
+    document.getElementById('laiLong').innerHTML='<option value="">不按来龙</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
+    document.getElementById('xiangShan').innerHTML='<option value="">不按向方</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
     document.getElementById('zhongShi').innerHTML='<option value="">不选则只论日柱</option>'+ZHI_HOUR_LIST.map((s,i)=>`<option value="${s}">${s}（${SHI_SPAN[i]}）</option>`).join('');
     document.getElementById('zrSchool').addEventListener('change', query);
     initDates();
