@@ -351,6 +351,28 @@
     else if(miss.length===2){ s-=5; push('缺'+miss.join('、')+'两行（偏枯）', -5, 'xiong'); }
     else { s-=10; push('五行缺'+miss.length+'行（严重偏枯）', -10, 'xiong'); }
 
+    /* 流通路径文字注：按旺衰五行排出相生链，断处即病处。 */
+    try{
+      var present=WX5.filter(function(w){ return cnt[w]>0; });
+      if(present.length>=3){
+        var seq=[]; var curW=present[0]; var seen={};
+        for(var st=0;st<present.length;st++){
+          var w0=present[st]; if(seen[w0]) continue;
+          var chain=[w0]; seen[w0]=1; var wCur=w0;
+          for(var hop=0;hop<5;hop++){
+            var nxt=WX_SHENG[wCur];
+            if(present.indexOf(nxt)<0 || seen[nxt]){ break; }
+            chain.push(nxt); seen[nxt]=1; wCur=nxt;
+          }
+          if(chain.length>seq.length) seq=chain;
+        }
+        var note=(seq.length===present.length)
+          ? ('五行流通：'+seq.join('→')+'，生生不息')
+          : ('五行流通：'+seq.join('→')+'，'+(present.length-seq.length>0?('断于'+present.filter(function(w){return seq.indexOf(w)<0;}).join('、')+'，断处即病处'):''));
+        push(note, 0, 'neutral');
+      }
+    }catch(e){}
+
     /* ⑤ 地支刑冲合害破（±18）：宫位分轻重 */
     var z = BZ.zhis;
     for(var i=0;i<4;i++){
@@ -475,6 +497,27 @@
        男命财为妻财、官杀为功名子女；女命官杀为夫星、食伤为子女（子平通行）。
        混杂检查：女命官杀混杂主婚姻波折、男命财星混杂主婚财起落。 */
     var guanS = starHit(['正官','七杀']), caiS = starHit(['正财','偏财']), shiS = starHit(['食神','伤官']);
+    /* 纯阳纯阴（注）：四柱干支全阳或全阴，民间谓性刚孤行之象，择产传统上避，
+       本页注而不扣（子平不以纯阴纯阳直接论吉凶）。 */
+    try{
+      var allYang=BZ.gans.every(function(g){return '甲丙戊庚壬'.indexOf(g)>=0;}) && BZ.zhis.every(function(z){return '子寅辰午申戌'.indexOf(z)>=0;});
+      var allYin=BZ.gans.every(function(g){return '乙丁己辛癸'.indexOf(g)>=0;}) && BZ.zhis.every(function(z){return '丑卯巳未酉亥'.indexOf(z)>=0;});
+      if(allYang) push('四柱纯阳（民间谓性刚之象，传统择产多避，注而不扣）', 0, 'neutral');
+      else if(allYin) push('四柱纯阴（民间谓孤柔之象，传统择产多避，注而不扣）', 0, 'neutral');
+    }catch(e){}
+
+    /* 胎元命宫（±4）：胎元补四柱五行之缺、命宫为一生格局之枢，俱子平法常例。 */
+    try{
+      var ec=BZ.ec;
+      if(ec && ec.getTaiYuan){
+        var ty2=ec.getTaiYuan(), mg2=ec.getMingGong();
+        var tyWx=GAN_WX[ty2[0]], missTy=(A.cnt&&A.cnt[tyWx])?0:1;
+        if(tyWx && missTy){ s+=3; push('胎元'+ty2+'补四柱所缺之'+tyWx, 3, 'ji'); }
+        else { push('胎元'+ty2, 0, 'neutral'); }
+        push('命宫'+(mg2||'无'), 0, 'neutral');
+      }
+    }catch(e){}
+
     if(BZ.sex===0){
       push('女命视角：官杀为夫星、食伤为子女；本命官杀'+(guanS.hit?('见'+dedupChars(guanS.tou.concat(guanS.cang))):'不现')+'、食伤'+(shiS.hit?('见'+dedupChars(shiS.tou.concat(shiS.cang))):'不现'), 0, 'neutral');
       if(starHit(['正官']).hit && starHit(['七杀']).hit){ s-=4; push('女命官杀混杂：正官七杀并见，婚姻宜晚、宜专一，感情多波折', -4, 'xiong'); }
@@ -620,8 +663,24 @@
       if(babyBZ.gans.indexOf(gname)>=0) found = true;
       else found = babyBZ.zhis.some(function(zz){ return (HIDE[zz]||[]).indexOf(gname)>=0; });
     }
-    if(found){ s+=4; push(want+'现于命局（'+gname+'）', 4, 'ji'); }
-    else { push(want+'未现于命局', 0, 'neutral'); }
+    if(found){
+      /* 星现而论被夺：父星怕比劫（劫财夺财）、母星怕财星（财星坏印），
+         同柱或它柱多见皆象；星旺无破为大吉，星被夺减为平。 */
+      var isFather=(want==='偏财');
+      var robber=isFather?'比劫':'财星';
+      var robCnt=0;
+      [0,1,2,3].forEach(function(ci){
+        var g2=babyBZ.gans[ci]; if(!g2||g2===gname) return;
+        var t2=typeof tenGod==='function'?tenGod(babyBZ.dayGan,g2):null;
+        if(t2==='劫财'||t2==='比肩') robCnt+= (robber==='比劫')?1:0;
+        if(t2==='正财'||t2==='偏财') robCnt+= (robber==='财星')?1:0;
+      });
+      if(robCnt>=2){ s-=6; push(want+'现而受夺（'+robber+'叠见，'+(isFather?'克父':'克母')+'之象，宜认亲化解）', -6, 'xiong'); }
+      else if(robCnt===1){ s-=2; push(want+'现而近夺（'+robber+'一见，'+(isFather?'父缘':'母缘')+'有损）', -2, 'xiong'); }
+      else { s+=4; push(want+'现于命局且无破（'+gname+'）', 4, 'ji'); }
+    } else {
+      push(want+'不现（六亲无靠之象，传统有宜认亲之说，注而不扣）', 0, 'neutral');
+    }
 
     /* ⑤ 年命纳音：宝宝年命 vs 家长年命（造葬嫁娶之"相主"同源） */
     var bny = p.babyNayinWx, pny = p.nayinWx;
@@ -647,6 +706,19 @@
         items.push({name:it.name, delta:it.delta, kind:it.kind, grp:sb.label, grpHead:(i===0)});
       });
     });
+    /* 复合相主语境：两位家长对宝宝一冲一合、双冲、双合的复合判语。 */
+    if(subs.length===2){
+      var chong=0, he=0;
+      subs.forEach(function(sb){
+        sb.items.forEach(function(it){
+          if(it.name.indexOf('宝宝生肖相冲')===0||it.name.indexOf('宝宝日支相冲')===0) chong++;
+          if(it.name.indexOf('宝宝生肖六合')===0||it.name.indexOf('宝宝生肖三合')===0||it.name.indexOf('宝宝日支六合')===0) he++;
+        });
+      });
+      if(chong>=2) items.push({name:'复合语境：两位家长生肖皆与宝宝相冲，取合局通关之日时尤要', delta:0, kind:'xiong'});
+      else if(chong===1 && he>=1) items.push({name:'复合语境：一冲一合，冲者取六合日时解之，合者为根基', delta:0, kind:'neutral'});
+      else if(he>=2) items.push({name:'复合语境：两位家长生肖皆与宝宝相合，家风和顺之象', delta:0, kind:'ji'});
+    }
     return {score: Math.round(avg), items: items, subs: subs};
   }
 
@@ -669,6 +741,31 @@
     if(ld===5||ld===14||ld===23){ s-=4; push('月忌日（初五、十四、廿三）', -4); }
     if(ld===1){ s-=3; push('朔日', -3); }
     if(ld===15){ s-=3; push('望日', -3); }
+
+    /* 桥接择事引擎时间凶煞（四废四离四绝杨公忌红沙月厌往亡劫灾月三煞日支）：
+       均为出生时间所系之凶，与空间方位煞无关；权重按底线层量级折半。 */
+    try{
+      const zr=window.ZERI;
+      if(zr && typeof zr.zeriSha==='function'){
+        const dayGZ0=BZ.gans[2]+BZ.zhis[2];
+        const fake={dayGZ:dayGZ0, dayGan:dayGZ0[0], dayZhi:dayGZ0[1], lunar:BZ.lunar};
+        const zs=zr.zeriSha(fake);
+        ['四废','四离','四绝','杨公忌','红沙','月厌','往亡','劫煞','灾煞','月煞'].forEach(function(nm){
+          if(zs.xiong.indexOf(nm)>=0){
+            const d={ '四废':-6,'四离':-5,'四绝':-5,'杨公忌':-6,'红沙':-5,'月厌':-4,'往亡':-4,'劫煞':-4,'灾煞':-4,'月煞':-3 }[nm]||-3;
+            s+=d; push(nm+'日（出生逢之，时间凶煞）', d, 'xiong');
+          }
+        });
+      }
+    }catch(e){}
+
+    /* 五不遇时（时干克日干，即子平七杀攻身之于时柱）：《烟波钓叟歌》所列，百事不宜。 */
+    try{
+      var tg0=BZ.gans[3], dg0=BZ.dayGan;
+      if(tg0 && dg0 && WX_KE[GAN_WX[tg0]]===GAN_WX[dg0]){
+        s-=6; push('五不遇时（时干'+tg0+'克日干'+dg0+'）', -6, 'xiong');
+      }
+    }catch(e){}
 
     var gs = guanShaOf(BZ, ctx);
     gs.forEach(function(g){
@@ -729,7 +826,17 @@
         trueNote = '真太阳时';
       }catch(e){}
     }
+    /* 早晚子时口径：默认早子时（23 至 24 时日柱归当日、时柱子）；勾晚子时 23 时起日柱换次日（月柱年柱亦随次日换界，时柱取次日子时）。 */
     var solar = Solar.fromYmdHms(ty,tm,td,th,tmi,0);
+    if(opts && opts.lateZi && th>=23){
+      try{
+        var nxLunar=solar.next(1).getLunar(); var nxTian=nxLunar.getEightChar().getDay();
+        var lunar0=solar.getLunar(); var ec0=lunar0.getEightChar();
+        var yGZ=nxLunar.getYearInGanZhi(), mGZ=nxLunar.getMonthInGanZhi();
+        var BZ0={sex:opts.sex, dayGan:nxTian[0], gans:[yGZ[0],mGZ[0],nxTian[0],ec0.getTime()[0]], zhis:[yGZ[1],mGZ[1],nxTian[1],ec0.getTime()[1]], monthZ:mGZ[1], yearGZ:yGZ, ec:ec0, lunar:lunar0, birthYear:ty, solar:solar};
+        return {BZ:BZ0, lunar:lunar0, solar:solar, trueNote:trueNote, y:ty, m:tm, d:td, h:th, mi:tmi};
+      }catch(e){}
+    }    var solar = Solar.fromYmdHms(ty,tm,td,th,tmi,0);
     var lunar = solar.getLunar();
     var ec = lunar.getEightChar();
     var yearGZ=ec.getYear(), monthGZ=ec.getMonth(), dayGZ=ec.getDay(), timeGZ=ec.getTime();
@@ -794,8 +901,9 @@
         var hIdx = hours[hi];
         /* 时辰中点（钟表时）：子时取 0:30（早子时口径，日柱归当日），其余取整点 */
         var clockH = (hIdx*2)%24, clockMi = (hIdx===0) ? 30 : 0;
+        if(hIdx===0 && opts.lateZi){ clockH = 23; clockMi = 30; } /* 晚子时口径：取当月当日 23:30，日柱归次日 */
         var r;
-        try{ r = paiPan(y,m,d,clockH,clockMi,{sex:opts.sex, lng:opts.lng, useTrue:opts.useTrue}); }catch(e){ continue; }
+        try{ r = paiPan(y,m,d,clockH,clockMi,{sex:opts.sex, lng:opts.lng, useTrue:opts.useTrue, lateZi:opts.lateZi}); }catch(e){ continue; }
         var A;
         try{ A = baziAnalysis(r.BZ); }catch(e){ continue; }
         var babyNayin = nayinOf(r.BZ.gans[0]+r.BZ.zhis[0]);
