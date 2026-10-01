@@ -266,6 +266,8 @@ select option{font-family:inherit}
 .btn:hover{background:var(--red2)}
 .btn.gold{background:var(--red)}
 .btn.gold:hover{background:var(--red2)}
+/* 按钮式链接：锚点取 .btn 的外形，另补内联盒以居中文字，站内不写行内样式 */
+a.btn{display:inline-flex;align-items:center}
 
 /* 历法页：今天按钮与年月标题改用红色。盒尺寸由通用段 .btn 给出，本页只改色 */
 .cal-page .btn.gold{background:var(--red)}
@@ -2449,6 +2451,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   --hj-ink2:#6f5a62;     /* 次级字色：绛族暖灰（降饱和，不另立色相） */
   --hj-line:#e3d1d6;     /* 绛浅线：主色同色相，明度 86% */
   --hj-tint:#faf1f3;     /* 绛纸淡底：主色同色相，明度 95% */
+  --hj-tint2:#f7edf0;    /* 绛纸淡底沉一档：大事锚点表本运行，比本世行再沉一档 */
   --hj-serif:var(--font-serif);
 
   /* 全站强调令牌在本页一律落到绛族：表格加粗、折叠框标题、圆盘字色等共享规则
@@ -2458,6 +2461,13 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   --gold-brown:var(--hj2);
   --gold-bg:var(--hj-tint);
   --foot-ink:var(--hj2);
+
+  /* 全站中性族与次级字令牌在本页一并重指：--line 管表格边框、细线与控件描边，
+     --ink 管正文与说明，--ink2 管字段标签与检索计数一类次级字。
+     三条不重指即回落全站棕褐、纯黑与冷灰，共享件逐条漏色 */
+  --ink2:var(--hj-ink2);
+  --line:var(--hj-line);
+  --ink:var(--hj-ink);
 
   /* 圆盘令牌（元会运世定位盘）：骨架、尺寸、字号走通用件 .wheel，此处只绑本页色。
      三环的弧、刻度、圈线一律绛族；当前三段的加粗弧与盘心字取绛墨，盘心淡底取绛纸，
@@ -2472,7 +2482,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   --wheel-deep:var(--hj-deep);
   --wheel-h4:var(--hj2);
   --wheel-good:var(--green);
-  --wheel-bad:var(--red);--line:var(--hj-line);--ink:var(--hj-ink)}
+  --wheel-bad:var(--red)}
 
 /* ===== 八字排盘页：松青、命木 主题（仅 bazi.html 的 .wrap.page-bazi 作用域）=====
    一支松青（154 度色相）走全页，六档同色相派生：主色 31% 明度、深档 hover 与强调、
@@ -3261,7 +3271,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* ===== 周易经文速查共享组件（六爻、梅花、测字、铁板四处共用，jingwen-ref.js 渲染） =====
    六十四卦卡：卦画、卦名、宫位、卦辞，展开见彖传、大象与六爻爻辞（含小象）；顶部按卦名与经文关键字检索 */
 .jw-search{display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-2)}
-.jw-input{flex:1;min-width:0;padding:var(--sp-1) var(--sp-2);border:1px solid var(--line);border-radius:0;background:var(--card,#fff);color:var(--ink);font-size:13px;font-family:inherit;line-height:1.35}
+.jw-input{flex:1;min-width:0;height:30px;padding:0 var(--sp-2);border:1px solid var(--line);border-radius:0;background:var(--card,#fff);color:var(--ink);font-size:13px;font-family:inherit;line-height:1.35}
 .jw-input:focus{border-color:var(--gold2);outline:none}
 .jw-count{font-size:12px;color:var(--ink2);white-space:nowrap}
 .jw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--sp-2);margin-top:var(--sp-2)}
@@ -3584,6 +3594,195 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 /* 日期弹框主题（字面量） */
 .dtm-fy{--tk:#4a5a48;--tk2:#3a4938;--tk-ink:#3b4238;--tk-line:#d6ddd4;--tk-tint:#f0f4ef}
+.dtm-lp{--tk:#3f4a5a;--tk2:#2f3a48;--tk-ink:#3a4049;--tk-line:#d4dae1;--tk-tint:#eef1f4}
+
+/* ===== 罗经仪页 玄墨罗盘 主题（luopan.html，.page-lp 作用域） =====
+   罗经仪以盘为器：主题取玄墨罗盘主色（盘墨青，与阳宅蓝、阴宅玄壤墨青各不同族），
+   金点缀取其器之雅；内联副注纯黑陷阱同风水页，覆盖升特异性处理；吉煞红、义绿语义色保留。 */
+.page-lp{
+  --lp:#3f4a5a;          /* 玄墨罗盘主色 */
+  --lp2:#2f3a48;         /* 深玄墨：hover与强调 */
+  --lp-deep:#232b36;     /* 玄墨：大标题字色 */
+  --lp-ink:#3a4049;      /* 墨灰：正文字色 */
+  --lp-ink2:#566075;     /* 次级字色：卷首说明、副注、标注 */
+  --lp-line:#d4dae1;     /* 盘线浅灰 */
+  --lp-tint:#eef1f4;     /* 雾淡底 */
+  --lp-serif:var(--font-serif);  /* 卷首宋体 */
+  --gold2:var(--lp2); --gold:var(--lp); --gold-brown:var(--lp2); --gold-bg:var(--lp-tint);
+  /* 圆盘令牌（诸盘）：骨架与尺寸走通用件 .wheel，此处只绑本页色 */
+  --wheel-serif:var(--lp-serif);
+  --wheel-line:var(--lp-line);
+  --wheel-arc:var(--lp);
+  --wheel-ink:var(--lp-ink);
+  --wheel-deep:var(--lp-deep);
+  --wheel-ink2:var(--lp-ink2);
+  --wheel-cur:var(--lp);
+  --wheel-core:var(--lp-tint);
+  --wheel-h4:var(--lp2);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);
+  --line:var(--lp-line);--ink:var(--lp-ink)
+}
+
+/* 页级段：罗经仪（page-lp）。页级样式须含本页标识串。 */
+/* ===== 页级样式：luopan（page-lp）===== */
+.page-lp .page h1{color:var(--lp-deep);font-family:var(--lp-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+.page-lp .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--lp-line);margin:0 auto var(--sp-3)}
+.page-lp .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--lp-line);margin:var(--sp-3) auto 0}
+.page-lp .page .lead{color:var(--lp-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+.page-lp .page .lead::after{background:var(--lp-line)}
+.page-lp .rel-title{color:var(--lp2);font-family:var(--lp-serif)}
+.page-lp .lp-tip{margin:var(--sp-3) 0 0;padding:var(--sp-2) 0;border-bottom:1px solid var(--lp-line);
+  font-size:12.5px;line-height:1.8;letter-spacing:.04em;color:var(--lp-ink2);text-align:center}
+/* 模式切换条：仿择日页 zr-mode-switch，无框无底、常态主色字、选中实底白字、控件高 30px */
+.lp-mode-switch{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-4);margin:var(--sp-4) 0 var(--sp-2)}
+.lp-mode-btn{font:inherit;font-size:13px;line-height:1.2;height:30px;cursor:pointer;padding:0 var(--sp-3);
+  border:0;border-radius:0;background:transparent;color:var(--lp);transition:.15s}
+.lp-mode-btn:hover{background:var(--lp-tint);color:var(--lp2)}
+.lp-mode-btn.active{background:var(--lp);color:#fff}
+.lp-mode-btn.active:hover{background:var(--lp2);color:#fff}
+/* 盘径按功能定档：层多之盘（528 立向总盘与三盘三针）取 460px，其余各盘回归通用件 400px 上限 */
+.page-lp .wheel-luo{max-width:400px}
+.page-lp #lpZong svg,.page-lp #lpZhen svg{max-width:460px}
+/* 磁偏角框：标签六字实测 117px，框取同宽使字段列无空白，与风水两页同终值 */
+.page-lp #baseDecl{width:117px}
+.page-lp .wheel-block h4{font-family:var(--lp-serif);color:var(--lp2)}
+.page-lp .lp-block{margin-top:var(--sp-4);text-align:center}
+/* 层白话卡：同组连排，卡间不留距不画线，只末卡一条下线收组；挂载容器不作卡（线源唯一） */
+.page-lp .lp-card{display:block;text-align:left;padding:var(--sp-1) 0;
+  font-size:12px;line-height:1.8;letter-spacing:.03em;color:var(--lp-ink2)}
+.page-lp .lp-card:last-child{border-bottom:1px solid var(--lp-line);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2)}
+#lpZongCard,#lpYunCard,#lpXiuCard,#lpTxCard,#lpDeclCard{margin-top:var(--sp-3)}
+.page-lp .lp-card b{color:var(--lp2);margin-right:.4em}
+.page-lp .lp-guide{text-align:left;margin:var(--sp-3) auto 0;max-width:560px}
+.page-lp .lp-guide-step{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-2) 0;border-top:1px solid var(--lp-line)}
+.page-lp .lp-guide-step:first-child{border-top:0}
+.page-lp .lp-guide-no{flex:0 0 auto;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;
+  background:var(--lp);color:#fff;font-size:12px;font-family:var(--lp-serif)}
+.page-lp .lp-guide-body{font-size:12.5px;line-height:1.8;letter-spacing:.03em;color:var(--lp-ink)}
+.page-lp .lp-guide-body b{color:var(--lp2);margin-right:.4em}
+.page-lp .lp-guide-inline{max-width:560px;margin:0 auto}
+.page-lp .lp-compass{margin-top:var(--sp-3);text-align:center}
+.page-lp .lp-compass-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em}
+.page-lp .lp-compass-note{margin-top:var(--sp-1);font-size:11.5px;color:var(--lp-ink2);letter-spacing:.03em}
+.page-lp .lp-yun-tbl{margin-top:var(--sp-3)}
+.page-lp .lp-decl-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em;text-align:center}
+/* 用法与须知：与前邻区块取区块间档 --sp-4，上下对称；段间同组档 --sp-2 */
+/* 线到题由通用段 rel-title 自带上边距独任（16px，与线前 16px 对称），容器不再叠加内距 */
+.page-lp .lp-usage{margin-top:var(--sp-4);border-top:1px solid var(--lp-line);text-align:left}
+.page-lp .lp-usage-body p{font-size:13px;line-height:1.9;letter-spacing:.04em;color:var(--lp-ink);margin:0 0 var(--sp-2)}
+.page-lp .lp-usage-body p:last-child{margin-bottom:0}
+/* 字段与按钮：本页表单描边、聚焦兜底与按钮色，页面段只定线色 */
+.page-lp .field label{color:var(--lp2);font-weight:400}
+.page-lp .field select,.page-lp .field input{border-color:var(--lp-line);background:var(--card);color:var(--lp-deep)}
+.page-lp .field select:focus,.page-lp .field input:focus{border-color:var(--lp);outline:none}
+.page-lp .btn{background:var(--lp);border-color:var(--lp);color:#fff;box-shadow:none}
+.page-lp .btn:hover{background:var(--lp2);border-color:var(--lp2);color:#fff;box-shadow:none}
+.page-lp .ai-block .btn{background:var(--lp);color:#fff;box-shadow:none}
+.page-lp .ai-block .btn:hover{background:var(--lp2)}
+.page-lp .ai-block .btn.gold,.page-lp .ai-block .btn.soft{background:var(--lp-tint);border-color:var(--lp-line);color:var(--lp-ink);box-shadow:none}
+.page-lp .ai-block .btn.gold:hover,.page-lp .ai-block .btn.soft:hover{background:var(--card);border-color:var(--lp);color:var(--lp2)}
+/* 基础设定区：fs-row 与题头、提示、定宽输入族，终值同风水两页（此族不进通用段，各页自持） */
+.page-lp .fs-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end}
+.page-lp .fs-board-title{color:var(--gold2);text-align:center;font-size:14px;line-height:1.7;margin-bottom:var(--sp-2)}
+.page-lp .fs-title-left{text-align:left}
+.page-lp .fs-inp-w100{width:100px}
+.page-lp .fs-inp-w90{width:90px}
+.page-lp .fs-hint{font-size:12px;color:var(--lp-ink2);line-height:1.6;margin-top:var(--sp-2)}
+/* 表格：去框改线，行线取本页浅线 */
+.page-lp .fs-mean-tbl{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--lp-line)}
+.page-lp .fs-mean-tbl th,.page-lp .fs-mean-tbl td{border:0;border-bottom:1px solid var(--lp-line);padding:var(--sp-2) var(--sp-2);text-align:left;vertical-align:top;color:var(--lp-ink)}
+.page-lp .fs-mean-tbl th{background:var(--lp-tint);font-weight:400;color:var(--lp2);white-space:nowrap}
+.page-lp .fs-mean-tbl .lbl-1{white-space:nowrap;color:var(--lp-ink2)}
+/* 分金三盘：奇数末盘照皇极组内末卡制式单独成行居中，宽度与其余各盘相同 */
+.page-lp [data-mode-block="fen"] .wheel-block:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;width:calc(50% - var(--sp-2)/2)}
+.page-lp .fs-tbl-scroll{overflow-x:auto}
+/* 出生地组：透明底、上下细线、直角无投影，题头到上线留 --sp-3（窄屏收 --sp-2），与风水页同形制 */
+.page-lp .birth-group,.page-lp .birth-group.compact{background:transparent;border:0;border-top:1px solid var(--lp-line);padding:var(--sp-3) 0;margin-top:var(--sp-3)}
+@media(max-width:640px){.page-lp .birth-group,.page-lp .birth-group.compact{padding-top:var(--sp-2)}}
+@media print{
+  .page-lp .fs-mean-tbl th{background:var(--card) !important}
+}
+/* 真实罗盘（rd-）：仪器形制件。三底色走 rd-skin-black/gold/white 三组令牌，
+   黑电木金字、黄铜黑字、白底黑字皆罗经实物本色；红为阳山格与天心十道专色，
+   属仪器本色例外口径，页内纸本区域不取。盘旁工具钮与读数栏同此例外。 */
+.rd-skin-black{
+  --rd-face:#151515; --rd-rim:#000; --rd-band:#1d1d1d; --rd-cell:#111; --rd-cell-yang:#9e2b22;
+  --rd-line:#4a4234; --rd-grid:#3a352a; --rd-grid-j:#5a5240;
+  --rd-gold:#e6c26a; --rd-ink:#d8d2c0; --rd-dim:#9a927e;
+  --rd-red:#d04a3a; --rd-tick:#6a614c; --rd-num:#cdbf94;
+  --rd-chi:#fbf8ef; --rd-chi-rim:#b8933e; --rd-haixian:#c0392b;
+  --rd-needle-n:#222; --rd-needle-s:#c0392b;
+}
+.rd-skin-gold{
+  --rd-face:#c9a84c; --rd-rim:#8a6d2c; --rd-band:#c2a045; --rd-cell:#c9a84c; --rd-cell-yang:#a02c20;
+  --rd-line:#7a5f24; --rd-grid:#6e5620; --rd-grid-j:#4a3a12;
+  --rd-gold:#1c1c1c; --rd-ink:#1c1c1c; --rd-dim:#4a3a12;
+  --rd-red:#e8dcc0; --rd-tick:#5a4816; --rd-num:#1c1c1c;
+  --rd-chi:#fbf8ef; --rd-chi-rim:#8a6d2c; --rd-haixian:#c0392b;
+  --rd-needle-n:#222; --rd-needle-s:#c0392b;
+}
+.rd-skin-white{
+  --rd-face:#f6f1e4; --rd-rim:#b8ad92; --rd-band:#efe8d6; --rd-cell:#f6f1e4; --rd-cell-yang:#a02c20;
+  --rd-line:#a89d82; --rd-grid:#9c9178; --rd-grid-j:#6a5f48;
+  --rd-gold:#2a2a2a; --rd-ink:#2a2a2a; --rd-dim:#6a5f48;
+  --rd-red:#e8dcc0; --rd-tick:#6a5f48; --rd-num:#2a2a2a;
+  --rd-chi:#ffffff; --rd-chi-rim:#8a6d2c; --rd-haixian:#c0392b;
+  --rd-needle-n:#222; --rd-needle-s:#c0392b;
+}
+.rd-wheel{width:min(88vw,560px);max-width:none;touch-action:none;cursor:grab}
+.rd-wheel .rd-face{fill:var(--rd-face);stroke:var(--rd-rim);stroke-width:6}
+.rd-wheel .rd-rim{fill:none;stroke:var(--rd-rim);stroke-width:10}
+.rd-wheel .rd-band{fill:var(--rd-band)}
+.rd-wheel .rd-cell{fill:var(--rd-cell)}
+.rd-wheel .rd-cell.rd-yang{fill:var(--rd-cell-yang)}
+.rd-wheel .rd-ring{fill:none;stroke:var(--rd-line);stroke-width:1.6}
+.rd-wheel .rd-grid{stroke:var(--rd-grid);stroke-width:1}
+.rd-wheel .rd-grid-j{stroke:var(--rd-grid-j);stroke-width:2}
+.rd-wheel .rd-tick{stroke:var(--rd-tick);stroke-width:1.4}
+.rd-wheel .rd-tick-j{stroke:var(--rd-num);stroke-width:2.2}
+.rd-wheel .rd-num,.rd-wheel .rd-lab-gold{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-lab-dim{fill:var(--rd-dim);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-lab-red{fill:var(--rd-red);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-shan-yang{fill:#ffe9a8;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-shan-yin{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-gua-big{fill:var(--rd-gold);font-weight:700;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-yao{stroke:var(--rd-gold);stroke-width:2.4}
+.rd-wheel .rd-yao-b{stroke:var(--rd-gold);stroke-width:3.4}
+.rd-wheel .rd-chi{fill:var(--rd-chi);stroke:var(--rd-chi-rim);stroke-width:5}
+.rd-wheel .rd-chi-rim{fill:none;stroke:var(--rd-chi-rim);stroke-width:9}
+.rd-wheel .rd-haixian{stroke:var(--rd-haixian);stroke-width:2.4}
+.rd-wheel .rd-nesw{fill:#333;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-zh{fill:#333;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-needle-n{fill:var(--rd-needle-n)}
+.rd-wheel .rd-needle-s{fill:var(--rd-needle-s)}
+.rd-wheel .rd-pin{fill:#c0392b;stroke:#fff;stroke-width:2}
+.rd-wheel .rd-cross{stroke:#c0392b;stroke-width:2.6;stroke-opacity:.85}
+.rd-wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all}
+.rd-wheel .w-hit:focus{outline:none}
+.rd-wheel .w-sel{fill:none;pointer-events:none}
+/* 读数栏：坐向度数实时联动（问真制式：坐向、大号度数、横竖、锁钮） */
+.lp-readbar{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);flex-wrap:wrap;margin:var(--sp-3) 0 0}
+.lp-readbar .lp-read{font-size:14px;color:var(--lp-ink);letter-spacing:.04em;line-height:1.7}
+.lp-readbar .lp-read b{color:var(--lp2);font-weight:700}
+.lp-readbar .lp-deg{font-size:21px;color:var(--lp-deep);font-weight:700;letter-spacing:.02em;background:var(--lp-tint);padding:var(--sp-1) var(--sp-3)}
+.lp-readbar .lp-lvl{font-size:12px;color:var(--lp-ink2);line-height:1.7}
+.lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
+.lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
+  border:0;border-radius:0;background:transparent;color:var(--lp);transition:.15s}
+.lp-real-tools .lp-tool:hover{background:var(--lp-tint);color:var(--lp2)}
+.lp-real-tools .lp-tool.active{background:var(--lp);color:#fff}
+.lp-zoom-note{font-size:11.5px;color:var(--lp-ink2);text-align:center;margin-top:var(--sp-1);letter-spacing:.03em}
+@media print{
+  .rd-wheel .rd-face{fill:#fff;stroke:#888}
+}
+@media(max-width:640px){
+  .lp-mode-switch{gap:var(--sp-2);justify-content:center}
+  .page-lp [data-mode-block="fen"] .wheel-block:last-child:nth-child(odd){grid-column:auto;justify-self:stretch;width:auto}
+  .page-lp .fs-row{gap:var(--sp-2)}
+  .page-lp .wheel-luo{max-width:340px}
+  .page-lp #lpZong svg,.page-lp #lpZhen svg{max-width:390px}
+}
 
 
 /* ===== 河洛理数页 墨玉青、古铜金 主题（heluo.html，.page-hl 作用域） =====
@@ -4658,6 +4857,9 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-fs .fs-inp-w120{width:120px}
 .page-fs .fs-inp-w100{width:100px}
 .page-fs .fs-inp-w90{width:90px}
+/* 磁偏角标签即磁偏角（东正西负）六字，实测 117px，框取同宽使字段列无空白；
+   与同类的流年框（四位 29px 取 61px）内容长度不同，故按 id 另给终值 */
+.page-fs #baseDecl,.page-fy #baseDecl{width:117px}
 /* 上边距档位原子类：按 4px 栅格分四档，与 :root 的 --sp-1..4 一一对应 */
 .page-fs .fs-mt-1{margin-top:var(--sp-1)}
 .page-fs .fs-mt-2{margin-top:var(--sp-2)}
@@ -5525,6 +5727,9 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 /* 小节标题：随墨绛色、宋体宽字距。缺此规则时本页 .rel-title 会回落到全站默认的鎏金 700 粗 */
 .page-hj .rel-title{color:var(--hj-deep)}
+/* 子块标题随墨绛：通用段 .det-h 取 var(--title)，而 --title 在 :root 已把 var(--gold2) 算成鎏金定值
+   后再往下继承，本页重指 --gold2 改不动它，故此处显式覆写，与八字、姓名、河洛、太乙、灵签五页同口径 */
+.page-hj .det-h{color:var(--hj-deep)}
 
 /* 定位总览：上下细线夹出的卷首带（与藏历详情带同款），大行为宋体绛墨定位句 */
 .page-hj .hj-over{
@@ -5582,6 +5787,20 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-hj .hj-yao .y.yang{width:46px}
 .page-hj .hj-yao .y.yin{width:21.5px}
 
+/* 解卦层：解卦块以子块题领起、经文入数据表，与本页各表同制式，不另立卡片样式 */
+.page-hj .hj-jie{margin-top:var(--sp-3)}
+.page-hj .hj-jie h4{font-size:14px;font-weight:400;color:var(--hj2);margin:0 0 var(--sp-1);letter-spacing:1px}
+
+/* 先天六十四卦方图：八八六十四格，形制同本页数据表（绛纸淡底表头、绛浅线描格、正文墨灰），
+   不另起卡片语言。行首列与表头列标八卦，是方图的行列标尺而非数据，故取淡底以别于格内卦名；
+   本运所值之卦与四正卦各以淡底、绛字标出，标注只走色不走字重 */
+.page-hj .hj-ft{margin-top:var(--sp-3)}
+.page-hj .hj-ft th,.page-hj .hj-ft td{text-align:center;white-space:nowrap;font-size:12.5px}
+.page-hj .hj-ft th{font-weight:400}
+.page-hj .hj-ft .hj-ft-h{background:var(--hj-tint);color:var(--hj2)}
+.page-hj .hj-ft td.hj-ft-on{background:var(--hj-tint);color:var(--hj-deep)}
+.page-hj .hj-ft td.hj-ft-zs{color:var(--hj2)}
+
 /* 数据表（元会运世表、术语速查、白话解读、大事锚点、原书逐年表共用一套制式）：
    表头绛纸淡底配墨绛字，正文墨灰，绛浅线描格；首列收窄不折行，正文列可折行 */
 .page-hj .hj-np{width:100%;border-collapse:collapse;margin-top:var(--sp-2);font-size:13px}
@@ -5609,13 +5828,26 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 /* 大事锚点三档着色：本世绛纸淡底、本运淡绛、同会绛字；图例字取深绛 */
 .page-hj .hj-np tr.hj-row-shi td{background:var(--hj-tint)}
-.page-hj .hj-np tr.hj-row-yun td{background:#f7edf0}
+.page-hj .hj-np tr.hj-row-yun td{background:var(--hj-tint2)}
 .page-hj .hj-np tr.hj-row-hui td{color:var(--hj2)}
 .page-hj .hj-mark{color:var(--hj2)}
+/* 声音唱和全表：十六列字格，字位居中；○□位淡化、●■位衬淡底 */
+.page-hj .sy-grid th{text-align:center;padding:5px 6px}
+.page-hj .sy-grid td{text-align:center;padding:5px 6px;white-space:nowrap;overflow-wrap:normal}
+.page-hj .sy-grid td.sy-n{color:var(--hj-ink2)}
+.page-hj .sy-grid td.sy-b{background:var(--hj-tint);color:var(--hj-ink2)}
 
 /* 按钮行（原书逐年表的翻运与过滤） */
 .page-hj .hj-nav{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin:var(--sp-2) 0}
 .page-hj .hj-nav .btn{padding:0 12px;font-size:12.5px}
+
+/* 本页年份框（年份直达、年份互查、起年、讫年、八字联动出生年）：最长内容按本页年份口径取六位数字，
+   内容宽 43.45px，按内容宽加 54px 得 97.45px，取 96px，左右余量 13.27px 至 15.27px，落全站统一七验收档内；
+   年份直达框的占位提示 2026前2357 实测 70.89px，96px 下内容区 74px 容得下。
+   关键词检索框属规则六整行族，走共享件 .jw-search 与 .jw-input（flex:1、min-width:0），本页不给宽度 */
+.page-hj #yInput,.page-hj #hjLookQ,.page-hj #hjSpanA,.page-hj #hjSpanB,.page-hj #hjBzYear{width:96px}
+/* 命中词高亮取本页绛纸淡底，与表内绛底一系，不引第二色相 */
+.page-hj .hj-np mark{background:var(--hj-tint);color:var(--hj-deep);padding:0 1px}
 
 /* 正文说明与小注：次级字统一绛族暖灰 */
 .page-hj .ly-zh-p,.page-hj .notice{color:var(--hj-ink)}
@@ -5625,17 +5857,18 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-hj .hj-hint-line{margin:var(--sp-2) 2px 0}
 .page-hj .hj-info-line{margin:var(--sp-1) 2px var(--sp-2)}
 
-/* 年份直达框：按"内容 + 左右对称间距"定 104px（占位提示 2026 前2357 字形约 77px，左右各约 13px） */
-.page-hj #yInput{width:104px}
+/* 结果区数字框：月、日与会内运序各两位数字，内容宽 14.5px，按内容宽加 54px 得 68.5px，
+   取 70px（同时是 .form-row .field 的列宽下限，控件与字段等宽，不留右侧空档）；
+   世序四位数字，内容宽 29px，同法得 83px，取 85px */
+.page-hj #hjQfM,.page-hj #hjQfD,.page-hj #hjYjhYun{width:70px}
+.page-hj #hjYjhN{width:85px}
 
 /* 附加功能面板：去框改线，上下各一条线夹出（与卷首带 .hj-over 同款）；
-   面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省 */
-.page-hj .ai-block{
-  border:0;border-top:1px solid var(--hj-line);border-bottom:1px solid var(--hj-line);border-radius:0;
-  background:transparent;color:var(--hj-ink);box-shadow:none;
-}
-.page-hj .ai-head{background:transparent;border-bottom-color:var(--hj-line)}
-.page-hj .ai-head h3{color:var(--hj2);font-family:var(--hj-serif);font-weight:400}
+   面板是页尾元素，下边线承担内容到免责声明的收束，不可省。
+   形制与上距由通用段 .ai-block 定终值，此处只写线色与题色 */
+.page-hj .ai-block{border-top-color:var(--hj-line);border-bottom-color:var(--hj-line);color:var(--hj-ink)}
+.page-hj .ai-head{border-bottom-color:var(--hj-line)}
+.page-hj .ai-head h3{color:var(--hj2);font-family:var(--hj-serif)}
 .page-hj .ai-head .ai-status{color:var(--hj-ink2)}
 /* 按钮两档：AI 解析＝绛色实底主按钮，全面板唯一强调色；配置模型与 soft 同档＝绛纸淡底描边次按钮 */
 .page-hj .ai-block .btn{border-radius:0}
@@ -5695,6 +5928,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
     --hj-ink2:#a89ea2;
     --hj-line:#4f4044;
     --hj-tint:#2f1d21;
+    --hj-tint2:#392328;
   }
 }
 
@@ -6765,7 +6999,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 .page-os .os-sec span{font-size:12px;color:var(--ink2)}
 .page-os .os-sec::after{content:'';flex:1;border-top:1px solid #e8e3da}
 .page-os .os-bar{display:flex;height:12px;gap:2px;margin:0 0 var(--sp-2)}
-.page-os .os-bar span{height:100%;min-width:3px;border-radius:0;transition:filter .15s}
+.page-os .os-bar span{height:100%;border-radius:0;transition:filter .15s}
 .page-os .os-bar span:hover{filter:brightness(1.15)}
 .page-os .os-legend{display:flex;flex-wrap:wrap;gap:2px var(--sp-4);font-size:12px;color:var(--ink2);margin:0 0 var(--sp-1)}
 .page-os .os-legend i{display:inline-block;width:8px;height:8px;border-radius:0;margin-right:6px;vertical-align:0}
@@ -7246,7 +7480,9 @@ to{opacity:1;transform:none}}
 .page-sm .nv-mods a:hover{color:var(--dk-red)}
 .page-sm .nv-mods a.on{color:var(--dk-red)}
 /* ── 正文 ── */
-.page-sm .df-main{padding:22px 0 60px 46px;min-width:0}
+/* 正文栏左右内距须对称：左右各留一道与本栏外侧竖线（左为侧栏 border-right、右为右栏 border-left）的间隔。
+   只给左侧留距会让正文右端顶死在右栏竖线上，两端一宽一窄不成对 */
+.page-sm .df-main{padding:22px var(--sp-5) 60px;min-width:0}
 .page-sm .df-top h1{font-family:var(--font-serif);font-size:23px;font-weight:400;letter-spacing:.24em;text-indent:.24em;color:var(--dk-ink)}
 .page-sm .df-top .df-why{font-size:12.5px;line-height:1.95;color:var(--dk-mute2);margin-top:10px;max-width:720px;text-align:justify}
 .page-sm .df-top::after{content:'';display:block;width:100%;height:1px;background:var(--dk-line);margin:20px 0 6px}

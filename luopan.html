@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>罗经仪 玄机排盘</title>
+<meta name="description" content="罗经仪在线排盘：三盘三针立向盘、百二十分金、穿山七十二龙、透地六十龙、先天后天八卦、洛书九宫、三元九运紫白飞星、二十八宿、三合水法、八宅游年、天星消砂纳水与磁偏角校准，附新手引导与实时指南针，供传统文化研究参考。">
+<meta name="keywords" content="罗经仪,罗盘,三盘三针,分金,穿山七十二龙,透地六十龙,三元九运,二十八宿,三合水法,八宅,天星,磁偏角">
+<link rel="canonical" href="https://gaorenyoushu.github.io/XuanJiPaiPan/luopan.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="玄机排盘">
+<meta property="og:title" content="罗经仪 玄机排盘">
+<meta property="og:description" content="罗经仪在线排盘：三盘三针立向盘、分金、穿山透地、八卦九宫、三元九运、二十八宿、三合水法、八宅游年、天星消砂纳水与磁偏角校准，附新手引导与实时指南针。">
+<meta property="og:url" content="https://gaorenyoushu.github.io/XuanJiPaiPan/luopan.html">
+<meta property="og:image" content="https://gaorenyoushu.github.io/XuanJiPaiPan/assets/logo/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="玄机排盘">
+<meta name="twitter:card" content="summary_large_image">
+<script defer src="assets/meta.js?v=20260925b"></script>
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
+<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
+<link rel="stylesheet" href="assets/style.css?v=z318">
+</head>
+<body>
+<div id="topbar"></div>
+<div class="wrap page-lp">
+  <div class="page">
+    <h1>罗经仪</h1>
+    <div class="lead">集三盘三针、分金、卦运、星宿诸层于一盘的在线罗经，照真实罗经形制可转可读。</div>
+
+    <div class="fs-base">
+      <div class="fs-board-title fs-title-left">基础设定（全页共用，改后自动联动）</div>
+      <div class="fs-row">
+        <div class="field"><label>坐山</label><select id="baseSit" onchange="lpApplyBase()"></select></div>
+        <div class="field"><label>向首</label><select id="baseFace" onchange="lpApplyBase()"></select></div>
+        <div class="field"><label>流年</label><input type="number" id="baseYear" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="lpApplyBase()"></div>
+        <div class="field"><label>罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="lpApplyBase()"></div>
+      </div>
+      <div class="birth-group compact">
+        <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
+        <div class="field"><label>省份</label><select id="lpProv" onchange="lpGeoProv()"></select></div>
+        <div class="field"><label>城市</label><select id="lpCity" onchange="lpGeoCity()"></select></div>
+        <div class="field"><label>区县</label><select id="lpDist" onchange="lpGeoPick()"></select></div>
+        <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="lpLng" step="0.01" placeholder="所在地" onchange="lpGeoPick()"></div>
+        <div class="field hh-lng"><label>纬度（可选）</label><input type="number" id="lpLat" step="0.01" placeholder="所在地" onchange="lpGeoPick()"></div>
+      </div>
+      <div class="fs-row">
+        <div class="field"><label>磁偏角（东正西负）</label><input type="number" id="baseDecl" step="0.01" class="fs-inp-w90" placeholder="选所在地自动取" oninput="lpDeclTouch()" onchange="lpApplyBase()"></div>
+        <button class="btn" id="lpMagBtn" onclick="lpMagOnline()">重新取当地磁偏角</button>
+      </div>
+      <div class="fs-hint" id="lpMagNote"></div>
+    </div>
+
+    <div class="lp-mode-switch" id="lpModeSwitch">
+      <button type="button" class="lp-mode-btn active" data-mode="zong" onclick="LUOPAN.setMode('zong')">真实罗盘</button>
+      <button type="button" class="lp-mode-btn" data-mode="zhen" onclick="LUOPAN.setMode('zhen')">三盘三针</button>
+      <button type="button" class="lp-mode-btn" data-mode="fen" onclick="LUOPAN.setMode('fen')">分金体系</button>
+      <button type="button" class="lp-mode-btn" data-mode="sanhe" onclick="LUOPAN.setMode('sanhe')">三合水法</button>
+      <button type="button" class="lp-mode-btn" data-mode="tianxing" onclick="LUOPAN.setMode('tianxing')">天星消砂</button>
+      <button type="button" class="lp-mode-btn" data-mode="bazhai" onclick="LUOPAN.setMode('bazhai')">八宅游年</button>
+      <button type="button" class="lp-mode-btn" data-mode="bagua" onclick="LUOPAN.setMode('bagua')">八卦九宫</button>
+      <button type="button" class="lp-mode-btn" data-mode="yun" onclick="LUOPAN.setMode('yun')">三元九运</button>
+      <button type="button" class="lp-mode-btn" data-mode="xiu" onclick="LUOPAN.setMode('xiu')">二十八宿</button>
+      <button type="button" class="lp-mode-btn" data-mode="decl" onclick="LUOPAN.setMode('decl')">磁偏角校准</button>
+    </div>
+
+    <section data-mode-block="zong">
+      <div class="lp-block">
+        <h3 class="rel-title">真实罗盘</h3>
+        <div class="lp-readbar">
+          <div class="lp-read">坐 <b id="lpRSit">子</b>山　向 <b id="lpRFace">午</b>山</div>
+          <div class="lp-deg" id="lpRDeg">0.0°</div>
+          <div class="lp-lvl">横 <span id="lpRLvlX">0.0</span>　竖 <span id="lpRLvlY">0.0</span></div>
+          <button class="lp-tool" id="lpRLock" onclick="lpRealLock()" aria-label="锁定读数">锁定</button>
+        </div>
+        <div class="lp-real-tools">
+          <button class="lp-tool active" data-rdset="zonghe" onclick="lpRealSet('zonghe')">综合罗盘</button>
+          <button class="lp-tool" data-rdset="sanyuan" onclick="lpRealSet('sanyuan')">三元罗盘</button>
+          <button class="lp-tool" data-rdset="sanhe" onclick="lpRealSet('sanhe')">三合罗盘</button>
+          <button class="lp-tool" data-rdset="rumen" onclick="lpRealSet('rumen')">入门罗盘</button>
+          <button class="lp-tool active" data-rdskin="black" onclick="lpRealSkin('black')">黑底</button>
+          <button class="lp-tool" data-rdskin="gold" onclick="lpRealSkin('gold')">金底</button>
+          <button class="lp-tool" data-rdskin="white" onclick="lpRealSkin('white')">白底</button>
+          <button class="lp-tool active" id="lpCrossBtn" onclick="lpRealCross()">天心十道</button>
+          <button class="btn" id="lpCompassBtn" onclick="lpStartCompass()">启动指南针</button>
+        </div>
+        <div class="lp-compass-read" id="lpCompassRead"></div>
+        <div class="wheel-block" id="lpRealWrap"><div id="lpReal"></div></div>
+        <div class="lp-zoom-note">单指拖移、双指捏合缩放（桌面滚轮），双击复位；点选任一山读其落山，度数随盘联动。</div>
+        <div class="wheel-detail" id="lpRealDetail"></div>
+        <div class="lp-compass-note">电子罗盘读数为磁北，已按所在地磁偏角折真北；仅供参研，不取代传统格龙定针。</div>
+        <div class="lp-compass" id="lpZong" style="display:none"></div>
+        <div class="wheel-detail" id="lpZongDetail" style="display:none"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="zhen">
+      <div class="lp-block">
+        <h3 class="rel-title">三盘三针</h3>
+        <div class="lp-guide-inline" id="lpZhenGuide"></div>
+        <div class="wheel-block" id="lpZhen"></div>
+        <div class="wheel-detail" id="lpZhenDetail"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="fen" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">分金体系</h3>
+        <div class="wheel-wheels">
+          <div class="wheel-block" id="lpFenBlock"><div id="lpFen"></div><div class="wheel-detail" id="lpFenDetail"></div></div>
+          <div class="wheel-block" id="lpChuanBlock"><div id="lpChuan"></div><div class="wheel-detail" id="lpChuanDetail"></div></div>
+          <div class="wheel-block" id="lpTouBlock"><div id="lpTou"></div><div class="wheel-detail" id="lpTouDetail"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section data-mode-block="sanhe" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">三合水法</h3>
+        <div class="wheel-block" id="lpSanhe"></div>
+        <div class="wheel-detail" id="lpSanheDetail"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="tianxing" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">天星与消砂纳水</h3>
+        <div id="lpTxCard"></div>
+        <div class="wheel-block" id="lpTianxing"></div>
+        <div class="wheel-detail" id="lpTianxingDetail"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="bazhai" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">八宅游年</h3>
+        <div class="wheel-block" id="lpBazhai"></div>
+        <div class="wheel-detail" id="lpBazhaiDetail"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="bagua" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">八卦与九宫</h3>
+        <div class="wheel-wheels">
+          <div class="wheel-block" id="lpBaguaBlock"><div id="lpBagua"></div><div class="wheel-detail" id="lpBaguaDetail"></div></div>
+          <div class="wheel-block" id="lpLuoshuBlock"><div id="lpLuoshu"></div><div class="wheel-detail" id="lpLuoshuDetail"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section data-mode-block="yun" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">三元九运与紫白飞星</h3>
+        <div id="lpYunCard"></div>
+        <div class="wheel-block" id="lpYun"></div>
+        <div class="wheel-detail" id="lpYunDetail"></div>
+        <div class="lp-yun-tbl" id="lpYunTbl"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="xiu" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">二十八宿</h3>
+        <div id="lpXiuCard"></div>
+        <div class="wheel-block" id="lpXiu"></div>
+        <div class="wheel-detail" id="lpXiuDetail"></div>
+      </div>
+    </section>
+
+    <section data-mode-block="decl" hidden>
+      <div class="lp-block">
+        <h3 class="rel-title">磁偏角校准</h3>
+        <div id="lpDeclCard"></div>
+        <div class="wheel-block" id="lpDecl"></div>
+        <div class="lp-decl-read" id="lpDeclRead"></div>
+        <div class="wheel-detail" id="lpDeclDetail"></div>
+      </div>
+    </section>
+
+    <section class="lp-usage">
+      <h3 class="rel-title">用法与须知</h3>
+      <div class="lp-usage-body">
+        <p>罗盘以方位测向，盘面三层同向、子午对齐：地盘正针定坐向、立极格龙，人盘中针消砂，天盘缝针纳水，三盘不可混用，同一读数在三盘下落作不同山名。三盘子山中心相差七点五度，故立向必以正针为准。</p>
+        <p>测前先排净身边铁磁与电器，罗盘须双手托平；电子罗盘所读为磁北，须按所在地磁偏角折为地理真北（东偏为正、西偏为负）。同一坐向宜多次复测取稳，勿以一次读数为据。</p>
+        <p>各法并陈、由所用主线自裁：玄空以当元运星入中逆飞，八宅以东西四命论游年九星，三合以长生十二宫定水局生旺墓，天星以催官贵向论贵贱。二十八宿仅作宿位展示，不参与吉凶裁断。</p>
+      </div>
+    </section>
+  </div>
+</div>
+<footer id="footer"></footer>
+<script defer src="assets/app.js?v=20260927d"></script>
+<script defer src="assets/wheel.js?v=20260925a"></script>
+<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
+<script defer src="assets/fengshui-engine.js?v=20260924a"></script>
+<script defer src="assets/luopan.js?v=20260930a"></script>
+<script defer src="assets/fs-luo.js?v=20260923c"></script>
+<script defer src="assets/fs-mag.js?v=20260923a"></script>
+<script defer src="assets/latlng.js?v=20260925a"></script>
+<script defer src="assets/ai.js?v=20260927c"></script>
+<script>
+/* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
+   引擎以 global.FENGSHUI 暴露；FLAT 别名 FS 须在 load 之后取（defer 脚本于解析后执行，
+   故置 DOMContentLoaded 内取，确保 fengshui-engine 已挂 FENGSHUI），其余页面级别量由本页自管。 */
+var LP_DECL_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null;
+var FS=null;
+function lpGeoFillCity(){
+  var sp=document.getElementById('lpProv'), sc=document.getElementById('lpCity');
+  if(!sp||!sc) return;
+  sc.innerHTML=(PROV[sp.value]||[]).map(c=>'<option value="'+c.c+'">'+c.c+'</option>').join('');
+  lpGeoFillDist();
+}
+function lpGeoFillDist(){
+  var sp=document.getElementById('lpProv'), sc=document.getElementById('lpCity'), sd=document.getElementById('lpDist');
+  if(!sd) return;
+  var c=(PROV[sp.value]||[]).find(x=>x.c===sc.value);
+  if(!c){ sd.innerHTML=''; return; }
+  var html='<option value="">'+c.c+'</option>';
+  distList(sp.value, c.c).forEach(k=>{ html+='<option value="'+k+'">'+k+'</option>'; });
+  sd.innerHTML=html;
+}
+function lpGeoProv(){ lpGeoFillCity(); lpGeoPick(); }
+function lpGeoCity(){ lpGeoFillDist(); lpGeoPick(); }
+function lpGeoCoord(){
+  var lo=parseFloat((document.getElementById('lpLng')||{}).value);
+  var la=parseFloat((document.getElementById('lpLat')||{}).value);
+  if(isFinite(lo)&&isFinite(la)) return {lng:lo, lat:la};
+  var sp=document.getElementById('lpProv'); if(!sp||!sp.value) return null;
+  var sc=document.getElementById('lpCity'), sd=document.getElementById('lpDist');
+  var lng=findLng(sp.value, sc&&sc.value, sd&&sd.value);
+  var lat=findLat(sp.value, sc&&sc.value, sd&&sd.value);
+  if(lng==null||lat==null) return null;
+  return {lng, lat};
+}
+function lpDeclTouch(){ LP_DECL_TOUCH=document.getElementById('baseDecl').value!==''; lpMagNote(); }
+function lpGeoPick(){
+  var el=document.getElementById('baseDecl');
+  if(el && !LP_DECL_TOUCH){
+    var c=lpGeoCoord();
+    el.value=c?FS_MAG.decl(c.lat, c.lng, new Date()).toFixed(2):'';
+  }
+  lpMagNote();
+}
+function lpMagTrue(deg){
+  if(deg==null||!isFinite(deg)) return undefined;
+  var d=parseFloat((document.getElementById('baseDecl')||{}).value);
+  if(!isFinite(d)) return deg;
+  return ((deg+d)%360+360)%360;
+}
+function lpSitFromDeg(){
+  var dv=document.getElementById('baseDeg').value;
+  var deg=lpMagTrue(dv===''?null:parseFloat(dv));
+  if(deg===undefined) return;
+  var z=FS.zhenShan(deg, 'zheng'); if(!z) return;
+  var sitEl=document.getElementById('baseSit'), faceEl=document.getElementById('baseFace');
+  if(!sitEl) return;
+  sitEl.value=z.shan;
+  if(faceEl) faceEl.selectedIndex=(FS.SHAN_LIST.indexOf(z.shan)+12)%24;
+}
+function lpMagNote(){
+  var el=document.getElementById('lpMagNote'); if(!el) return;
+  var t=lpMagTrue(parseFloat(document.getElementById('baseDeg').value));
+  if(t===undefined){ el.textContent=''; return; }
+  var d=parseFloat(document.getElementById('baseDecl').value);
+  el.textContent=isFinite(d)
+    ? '已按当地磁偏角折算真北，折算后坐度 '+t.toFixed(1)+'°'
+    : '所填坐度按真北论，未作折算';
+}
+function lpMagOnline(){
+  var btn=document.getElementById('lpMagBtn');
+  var c=lpGeoCoord(); if(!c) return;
+  if(btn){ btn.disabled=true; btn.textContent='取数中'; }
+  var got=false;
+  FS_MAG.online(c.lat, c.lng, new Date()).then(v=>{
+    if(v==null) return;
+    document.getElementById('baseDecl').value=v.toFixed(2);
+    LP_DECL_TOUCH=true; got=true;
+  }).catch(()=>{}).then(()=>{
+    if(btn){ btn.disabled=false; btn.textContent='重新取当地磁偏角'; }
+    if(got) lpApplyBase(); else lpMagNote();
+  });
+}
+function lpGeoInit(){
+  var sp=document.getElementById('lpProv'); if(!sp) return;
+  sp.innerHTML=provList().map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  sp.value='北京市';
+  lpGeoFillCity(); lpGeoPick();
+}
+function lpFillBase(){
+  var sitEl=document.getElementById('baseSit'), faceEl=document.getElementById('baseFace');
+  if(!sitEl||!faceEl) return;
+  sitEl.innerHTML=FS.SHAN_LIST.map(s=>'<option value="'+s+'">'+s+'山</option>').join('');
+  faceEl.innerHTML=FS.SHAN_LIST.map(s=>'<option value="'+s+'"'+(s==='午'?' selected':'')+'>'+s+'山</option>').join('');
+  sitEl.value=LP_SIT; faceEl.value=LP_FACE;
+  sitEl.onchange=function(){ faceEl.selectedIndex=(FS.SHAN_LIST.indexOf(this.value)+12)%24; lpApplyBase(); };
+}
+function lpGetBase(){
+  LP_YEAR=parseInt(document.getElementById('baseYear').value,10)||2026;
+  LP_SIT=document.getElementById('baseSit').value||'子';
+  LP_FACE=document.getElementById('baseFace').value||'午';
+  var dv=document.getElementById('baseDeg').value;
+  LP_DEG=lpMagTrue(dv===''?null:parseFloat(dv));
+}
+function lpApplyBase(){
+  lpSitFromDeg();
+  lpGetBase();
+  lpRenderAll();
+  lpMagNote();
+}
+/* 各盘点选：落山、内圈读数、盘下详情 */
+var LP_SEL={real:0,zhen:0,fen:0,chuan:0,tou:0,bagua:0,luoshu:0,yun:0,xiu:0,sanhe:0,bazhai:0,tianxing:0,decl:0};
+function lpPickZhen(i){ LP_SEL.zhen=i; LUOPAN.pick({id:'lpZhen',curId:'lpZhenCur',i:i,degOf:j=>FS.fwShanDeg(j)}); lpZhenDetail(); }
+function lpPickFen(i){ LP_SEL.fen=i; LUOPAN.pick({id:'lpFen',curId:'lpFenCur',i:i}); lpFenDetail(); }
+function lpPickChuan(i){ LP_SEL.chuan=i; LUOPAN.pick({id:'lpChuan',curId:'lpChuanCur',i:i}); lpChuanDetail(); }
+function lpPickTou(i){ LP_SEL.tou=i; LUOPAN.pick({id:'lpTou',curId:'lpTouCur',i:i}); lpTouDetail(); }
+function lpPickBagua(i){ LP_SEL.bagua=i; LUOPAN.pick({id:'lpBagua',curId:'lpBaguaCur',i:i}); lpBaguaDetail(); }
+function lpPickLuoshu(i){ LP_SEL.luoshu=i; LUOPAN.pick({id:'lpLuoshu',curId:'lpLuoshuCur',i:i}); lpLuoshuDetail(); }
+function lpPickYun(i){ LP_SEL.yun=i; LUOPAN.pick({id:'lpYun',curId:'lpYunCur',i:i}); lpYunDetail(); }
+function lpPickXiu(i){ LP_SEL.xiu=i; LUOPAN.pick({id:'lpXiu',curId:'lpXiuCur',i:i,degOf:j=>lpXiuMid(j)}); lpXiuDetail(); }
+function lpPickSanhe(i){ LP_SEL.sanhe=i; LUOPAN.pick({id:'lpSanhe',curId:'lpSanheCur',i:i}); lpSanheDetail(); }
+function lpPickBazhai(i){ LP_SEL.bazhai=i; LUOPAN.pick({id:'lpBazhai',curId:'lpBazhaiCur',i:i}); lpBazhaiDetail(); }
+function lpPickTianxing(i){ LP_SEL.tianxing=i; LUOPAN.pick({id:'lpTianxing',curId:'lpTianxingCur',i:i}); lpTianxingDetail(); }
+function lpPickDecl(i){ LP_SEL.decl=i; LUOPAN.pick({id:'lpDecl',curId:'lpDeclCur',i:i,degOf:j=>FS.fwShanDeg(j)}); lpDeclDetail(); }
+
+function lpXiuMid(i){
+  var xs=FS.XIU_28, du=FS.XIU_DU_SHU, total=0;
+  for(var k=0;k<xs.length;k++) total+=du[xs[k]];
+  var cum=0, mid={};
+  for(var j=0;j<xs.length;j++){ var w=du[xs[j]]/total*360; mid[j]=cum+w/2; cum+=w; }
+  return mid[i];
+}
+
+/* 真实罗盘：渲染、读数栏联动、锁定、盘制与底色切换、缩放拖移。
+   盘面为转盘（整盘随传感器或拖移旋转。照真实罗经用法：转内盘对针，针恒指南北，故旋转作用于 svg 本体，读数取旋转角）。 */
+var LP_REAL={set:'zonghe', skin:'black', cross:true, deg:0, lock:false, lockedDeg:0, rot:0};
+function lpRealRender(){
+  var sel=LP_SEL.real;
+  document.getElementById('lpReal').innerHTML=LUOPAN.realDisk({
+    id:'lpRealWheel', sel:sel, mode:LP_REAL.set, cross:LP_REAL.cross, pick:'lpPickReal'
+  });
+  lpRealApplyTransform();
+  lpRealReadout();
+}
+function lpPickReal(i){
+  LP_SEL.real=i;
+  var w=document.getElementById('lpRealWheel');
+  if(w){
+    w.querySelectorAll('.w-hit').forEach(function(h,idx){ h.classList.toggle('is-on', idx===i); });
+  }
+  lpRealReadout();
+}
+function lpRealDegOfSel(){
+  /* 实测坐度优先（已折真北），否则取选中山中心 */
+  if(LP_REAL.lock) return LP_REAL.lockedDeg;
+  if(LP_DEG!=null) return LP_DEG;
+  return FS.fwShanDeg(LP_SEL.real);
+}
+function lpRealReadout(){
+  var deg=lpRealDegOfSel();
+  var z=FS.zhenShan(deg,'zheng');
+  var sit=z?z.shan:'未定';
+  var face=FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24];
+  document.getElementById('lpRSit').textContent=sit;
+  document.getElementById('lpRFace').textContent=face;
+  document.getElementById('lpRDeg').textContent=deg.toFixed(1)+'°';
+  var info=FS.shanInfo(sit, LP_YEAR, LP_DEG);
+  var zx=info&&info.measured? (info.measured.zheng?'正向':(info.measured.jian?'兼'+info.measured.jianTo+'山':'骑缝空亡')) : '';
+  var zhen=FS.zhenShan(deg,'zheng'), zhong=FS.zhenShan(deg,'zhong'), feng=FS.zhenShan(deg,'feng');
+  LUOPAN.detail('lpRealDetail',
+    '坐 '+sit+'山 周天 '+deg.toFixed(1)+'° '+zx
+    +'<span class="wd-br"></span>'
+    +'正针落'+zhen.shan+'山（立向） 中针落'+zhong.shan+'山（消砂） 缝针落'+feng.shan+'山（纳水）'
+    +'<span class="wd-br"></span>'
+    +LUOPAN.RD_SETS[LP_REAL.set].name+'：环序自外向内为'+Object.keys(LUOPAN.RD_RING_NAME).filter(function(k){
+      return LP_REAL.set!=='rumen'||LUOPAN.realDisk!==undefined;
+    }).length+'层制，点选盘面任一山换读数。');
+}
+function lpRealLock(){
+  LP_REAL.lock=!LP_REAL.lock;
+  if(LP_REAL.lock) LP_REAL.lockedDeg=lpRealDegOfSel();
+  var b=document.getElementById('lpRLock');
+  b.textContent=LP_REAL.lock?'解锁':'锁定';
+  b.classList.toggle('active', LP_REAL.lock);
+  lpRealReadout();
+}
+function lpRealSet(m){
+  LP_REAL.set=m;
+  document.querySelectorAll('[data-rdset]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-rdset')===m); });
+  try{ localStorage.setItem('lp_real_set', m); }catch(e){}
+  lpRealRender();
+}
+function lpRealSkin(k){
+  LP_REAL.skin=k;
+  document.querySelectorAll('[data-rdskin]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-rdskin')===k); });
+  var w=document.getElementById('lpReal');
+  w.classList.remove('rd-skin-black','rd-skin-gold','rd-skin-white');
+  w.classList.add('rd-skin-'+k);
+  try{ localStorage.setItem('lp_real_skin', k); }catch(e){}
+}
+function lpRealCross(){
+  LP_REAL.cross=!LP_REAL.cross;
+  var b=document.getElementById('lpCrossBtn');
+  b.classList.toggle('active', LP_REAL.cross);
+  lpRealRender();
+}
+/* 缩放拖移：单指拖移旋转盘面（真实罗经对针即转盘），双指捏合缩放，双击复位。
+   transform 作用于 svg 元素，缩放与旋转叠加；指南针联动时旋转由传感器接管。 */
+function lpRealApplyTransform(){
+  var w=document.getElementById('lpRealWheel');
+  if(w) w.style.transform='rotate('+LP_REAL.rot+'deg)';
+}
+function lpRealBindZoom(){
+  var wrap=document.getElementById('lpRealWrap');
+  if(!wrap) return;
+  var scale=1, tx=0, ty=0, pinch=null;
+  function apply(){
+    var w=document.getElementById('lpRealWheel');
+    if(w) w.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+') rotate('+LP_REAL.rot+'deg)';
+  }
+  function dist(t){ var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY; return Math.hypot(dx,dy); }
+  wrap.addEventListener('touchstart', function(e){
+    if(e.touches.length===2){ pinch={d:dist(e.touches), s:scale}; e.preventDefault(); }
+  }, {passive:false});
+  wrap.addEventListener('touchmove', function(e){
+    if(e.touches.length===2&&pinch){
+      var k=dist(e.touches)/pinch.d;
+      scale=Math.min(8, Math.max(0.5, pinch.s*k));
+      e.preventDefault(); apply();
+    }
+  }, {passive:false});
+  wrap.addEventListener('touchend', function(){ pinch=null; });
+  wrap.addEventListener('wheel', function(e){
+    e.preventDefault();
+    scale=Math.min(8, Math.max(0.5, scale*(e.deltaY<0?1.12:0.89)));
+    apply();
+  }, {passive:false});
+  wrap.addEventListener('dblclick', function(){ scale=1; tx=0; ty=0; LP_REAL.rot=0; apply(); lpRealReadout(); });
+  wrap.__lpApply=apply;
+}
+/* 三盘三针立向盘（528 骨架，走 FS_LUO） */
+function lpZhenSvg(){
+  var sel=LP_SEL.zhen;
+  var s=LUOPAN.wheelSvg({
+    id:'lpZhen', curId:'lpZhenCur', pick:'lpPickZhen', sel:sel,
+    degOf:function(i){ return FS.fwShanDeg(i); },
+    bad:function(){ return false; },
+    core:function(sel){
+      var z=FS.ZHEN_LIST[sel%3];
+      return ['三针', z? z.name : '正针'];
+    },
+    label:'三盘三针：地盘正针（立向格龙）、人盘中针（消砂）、天盘缝针（纳水）同刻二十四山，子山中心各差七点五度。'
+  });
+  document.getElementById('lpZhen').innerHTML=s;
+}
+function lpZhenDetail(){
+  var sel=LP_SEL.zhen, z=FS.ZHEN_LIST[sel%3];
+  LUOPAN.detail('lpZhenDetail',
+    z.full+'（'+z.name+'）：'+z.use+'，子山中心为周天'+z.c0+'°。'
+    +'<span class="wd-br"></span>'
+    +'三盘同刻二十四山，唯子山中心各异；同一实测读数在三盘下落作不同山名，立向必以正针为准，消砂方用中针，纳水方用缝针。');
+}
+/* 分金盘：每山五分金 */
+function lpFenSvg(){
+  var sel=LP_SEL.fen;
+  document.getElementById('lpFen').innerHTML=LUOPAN.layerDisk({
+    id:'lpFen', curId:'lpFenCur', pick:'lpPickFen', sel:sel,
+    inner:function(i,shan){
+      return FS.fenJin(shan).map(function(f){
+        var d=FS.fwShanDeg(i)-7.5+3*(FS.fenJin(shan).indexOf(f));
+        return {text:f.gz, deg:((d%360)+360)%360, color:(f.wang==='龟甲'?'var(--wheel-bad)':(f.wang==='旺'||f.wang==='相')?'var(--wheel-ink)':'var(--wheel-ink2)'), kong:(f.wang==='龟甲')};
+      });
+    },
+    core:function(sel){ return ['分金', FS.SHAN_LIST[sel]+'山']; },
+    label:'百二十分金盘：二十四山每山五分金、每分三度，丙丁庚辛为珠宝旺相可取，戊己龟甲空亡、甲乙壬癸孤虚不用。'
+  });
+}
+function lpFenDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.fen], list=FS.fenJin(shan);
+  var seg=list.map(function(f){
+    var cls=(f.wang==='旺'||f.wang==='相')?'wd-g':'wd-x';
+    return f.gz+'（'+f.wang+' '+f.nayin+' <span class="'+cls+'">'+(f.wang==='龟甲'?'空亡':f.wang)+'</span>）';
+  }).join(' ');
+  LUOPAN.detail('lpFenDetail', shan+'山 五分金 '+seg
+    +'<span class="wd-br"></span>'
+    +'丙丁庚辛为珠宝旺相可取，戊己龟甲空亡、甲乙壬癸孤虚不用；兼向取线须落在下卦九度之内。');
+}
+/* 穿山七十二龙 */
+function lpChuanSvg(){
+  var sel=LP_SEL.chuan;
+  document.getElementById('lpChuan').innerHTML=LUOPAN.layerDisk({
+    id:'lpChuan', curId:'lpChuanCur', pick:'lpPickChuan', sel:sel,
+    inner:function(i,shan){
+      return FS.chuanShan72(shan).map(function(r){
+        var d=r.start+2.5-180;
+        return {text:r.gz||'空', deg:((d%360)+360)%360, color:r.kong?'var(--wheel-bad)':'var(--wheel-ink)', kong:r.kong};
+      });
+    },
+    core:function(sel){ return ['穿山', FS.SHAN_LIST[sel]+'山']; },
+    label:'穿山七十二龙盘：每龙五度，每山三龙，丙丁庚辛旺相为珠宝，戊己龟甲与八干四维正中大空亡皆不可用，用于格龙。'
+  });
+}
+function lpChuanDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.chuan], rs=FS.chuanShan72(shan);
+  var seg=rs.map(function(r){
+    if(r.kong) return '<span class="wd-x">大空亡龙（八干四维正中，无干支所配）</span>';
+    var jx=FS.longJx(r), cls=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x';
+    return r.gz+'（'+r.start+'°至'+r.end+'° '+r.nayin+' <span class="'+cls+'">'+r.wang+' '+jx.jx+'</span>）';
+  }).join(' ');
+  LUOPAN.detail('lpChuanDetail', shan+'山 本山三龙 '+seg
+    +'<span class="wd-br"></span>'
+    +'穿山七十二龙 每山三龙、每龙五度；丙丁庚辛为珠宝可取，甲乙为孤、壬癸为虚、戊己龟甲火坑、八干四维正中大空亡皆不可用。');
+}
+/* 透地六十龙 */
+function lpTouSvg(){
+  var sel=LP_SEL.tou;
+  document.getElementById('lpTou').innerHTML=LUOPAN.layerDisk({
+    id:'lpTou', curId:'lpTouCur', pick:'lpPickTou', sel:sel,
+    inner:function(i,shan){
+      return FS.touDi60(shan).map(function(r){
+        var d=((r.start+3+180)%360+360)%360;
+        return {text:r.gz, deg:d, color:(r.wang==='旺'||r.wang==='相')?'var(--wheel-ink)':'var(--wheel-ink)', kong:false};
+      });
+    },
+    core:function(sel){ return ['透地', FS.SHAN_LIST[sel]+'山']; },
+    label:'透地六十龙盘：每龙六度，甲子起壬山之初，去十二大空亡重布，用于穿山之下定穴内之龙。'
+  });
+}
+function lpTouDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.tou], rs=FS.touDi60(shan);
+  var seg=rs.map(function(r){
+    var jx=FS.longJx(r), cls=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x';
+    var half=r.half?'（半交）':'';
+    return r.gz+'（'+r.start+'°至'+r.end+'°'+half+' '+r.nayin+' <span class="'+cls+'">'+r.wang+' '+jx.jx+'</span>）';
+  }).join(' ');
+  LUOPAN.detail('lpTouDetail', shan+'山 相交之龙 '+seg
+    +'<span class="wd-br"></span>'
+    +'透地六十龙 每龙六度，去十二大空亡重布；旺相珠宝可用，孤虚空亡差错不可用。');
+}
+/* 八卦盘 */
+function lpBaguaSvg(){
+  var sel=LP_SEL.bagua;
+  document.getElementById('lpBagua').innerHTML=LUOPAN.layerDisk({
+    id:'lpBagua', curId:'lpBaguaCur', pick:'lpPickBagua', sel:sel,
+    inner:function(i,shan){ return [{text:FS.SHAN_BAGUA[shan], deg:FS.fwShanDeg(i)}]; },
+    core:function(sel){ return ['八卦', FS.SHAN_LIST[sel]+'山']; },
+    label:'八卦盘：外圈二十四山，内圈其所属后天八卦（坎离震巽乾坤艮兑）。'
+  });
+}
+function lpBaguaDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.bagua], g=FS.SHAN_BAGUA[shan], wx=FS.SHAN_WX[shan];
+  LUOPAN.detail('lpBaguaDetail', shan+'山 属后天八卦'+g+' 五行'+wx
+    +'<span class="wd-br"></span>'
+    +'先天八卦（乾一兑二离三震四巽五坎六艮七坤八）定体，后天八卦（坎北离南震东兑西）布用，方位合说卦。');
+}
+/* 洛书九宫盘（二十四山配洛书宫） */
+function lpLuoshuSvg(){
+  var sel=LP_SEL.luoshu;
+  document.getElementById('lpLuoshu').innerHTML=LUOPAN.layerDisk({
+    id:'lpLuoshu', curId:'lpLuoshuCur', pick:'lpPickLuoshu', sel:sel,
+    inner:function(i,shan){
+      var g=FS.SHAN_BAZI[shan]||1;
+      return [{text:String(g), deg:FS.fwShanDeg(i)}];
+    },
+    core:function(sel){ return ['九宫', FS.SHAN_LIST[sel]+'山']; },
+    label:'洛书九宫盘：外圈二十四山，内圈其所属洛书宫数（戴九履一左三右七二四肩六八足五居中），为玄空飞星与紫白之本。'
+  });
+}
+function lpLuoshuDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.luoshu], g=FS.SHAN_BAZI[shan]||1, gua=FS.NINE_BAGUA[g];
+  LUOPAN.detail('lpLuoshuDetail', shan+'山 属洛书第'+g+'宫（'+gua+'）'
+    +'<span class="wd-br"></span>'
+    +'洛书 戴九履一、左三右七、二四为肩、六八为足、五居中；合后天八卦方位，为玄空飞星与紫白飞星之本。');
+}
+/* 三元九运盘 */
+function lpYunSvg(){
+  var sel=LP_SEL.yun;
+  var yq=FS.yunQi(LP_YEAR);
+  var b=FS.yearZiBai(LP_YEAR).board;
+  document.getElementById('lpYun').innerHTML=LUOPAN.layerDisk({
+    id:'lpYun', curId:'lpYunCur', pick:'lpPickYun', sel:sel,
+    inner:function(i,shan){
+      var g=FS.SHAN_BAZI[shan]||5;
+      var r=b.filter(function(x){ return x.palace===g; })[0]||{};
+      return [{text:r.star!=null?String(r.star):'', deg:FS.fwShanDeg(i)}];
+    },
+    core:function(sel){ return [yq.yuan+yq.yun+'运', yq.name]; },
+    label:'三元九运与紫白飞星盘：外圈二十四山，内圈当年年紫白飞星数（各山所临之飞星，一八六四甲子起上元一运，每运二十年；二〇二四至二〇四三为下元九运）。'
+  });
+}
+function lpYunDetail(){
+  var yq=FS.yunQi(LP_YEAR);
+  var zb=FS.yearZiBai(LP_YEAR);
+  var center=zb.board.filter(function(x){ return x.palace===5; })[0].star;
+  LUOPAN.detail('lpYunDetail', LP_YEAR+'年 属'+yq.yuan+yq.yun+'运（'+yq.name+'），起于'+yq.start+'终于'+yq.end+'年'
+    +'<span class="wd-br"></span>'
+    +'三元九运：一八六四甲子起上元一运，每运二十年，一百八十年一周；下元九运二〇二四至二〇四三为九紫离。'
+    +'当年紫白：'+FS.STAR_NAMES_CN[center]+'入中');
+}
+function lpYunTbl(){
+  var yq=FS.yunQi(LP_YEAR), b=FS.yearZiBai(LP_YEAR).board;
+  var rows=FS.NINE_ORDER.map(function(n){
+    var r=b.filter(function(x){ return x.palace===n; })[0]||{};
+    var cls=(r.jx==='吉'||r.jx==='大吉')?'wd-g':(r.jx==='凶'||r.jx==='大凶')?'wd-x':'';
+    return '<tr><td class="lbl-1">'+r.gua+'宫'+(n===5?'（中）':'（'+r.dir+'）')+'</td><td>'+FS.STAR_NAMES_CN[r.star]+'</td><td class="'+cls+'">'+r.jx+'</td><td>'+r.mean+'</td></tr>';
+  }).join('');
+  document.getElementById('lpYunTbl').innerHTML='<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>宫</th><th>飞星</th><th>吉凶</th><th>象义</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+/* 二十八宿盘：照老黄历宿盘同制式（四象外圈、宿名内圈、盘心三行）。宿曜全名与吉凶由页面拼。 */
+function lpXiuSvg(){
+  var sel=LP_SEL.xiu;
+  var xiu=FS.XIU_28[sel];
+  var luck=(typeof LunarUtil!=='undefined'&&LunarUtil.XIU_LUCK&&LunarUtil.XIU_LUCK[xiu])||'';
+  var full=xiu+((typeof LunarUtil!=='undefined'&&LunarUtil.ZHENG&&LunarUtil.ZHENG[xiu])||'')+((typeof LunarUtil!=='undefined'&&LunarUtil.ANIMAL&&LunarUtil.ANIMAL[xiu])||'');
+  var xg=LUOPAN.XIU_XIANG.filter(function(x){ return sel>=x.from&&sel<x.to; })[0]||{};
+  document.getElementById('lpXiu').innerHTML=LUOPAN.xiuDisk({
+    id:'lpXiu', curId:'lpXiuCur', pick:'lpPickXiu', sel:sel,
+    core:function(){
+      var good=luck==='吉';
+      return [full, luck||'未载', good?'var(--wheel-good)':'var(--wheel-bad)', xg.full||''];
+    },
+    label:'二十八宿盘：外圈四象方位，内圈二十八宿名，环向逆时针角宿起于东南；宿曜吉凶依通书值宿，罗盘此层只作周天宿位对应。'
+  });
+}
+function lpXiuDetail(){
+  var xs=FS.XIU_28, xiu=xs[LP_SEL.xiu], du=FS.XIU_DU_SHU[xiu];
+  var shans=Object.keys(FS.SHAN_XIU).filter(function(s){ return FS.SHAN_XIU[s].indexOf(xiu)>=0; });
+  var xg=LUOPAN.XIU_XIANG.filter(function(x){ return LP_SEL.xiu>=x.from&&LP_SEL.xiu<x.to; })[0]||{};
+  LUOPAN.detail('lpXiuDetail', '第'+(LP_SEL.xiu+1)+'宿 '+xiu+'宿 '+(xg.full||'')+' 周天'+du+'度 配'+shans.join('、')+'山'
+    +'<span class="wd-br"></span>'
+    +'二十八宿为罗盘周天度数层，外环二十八宿、内环三百六十度分金度数，察星宿度数以正针缝针之用；仅作宿位展示，不参与吉凶裁断。');
+}
+/* 三合水法盘 */
+function lpSanheSvg(){
+  var sel=LP_SEL.sanhe;
+  document.getElementById('lpSanhe').innerHTML=LUOPAN.layerDisk({
+    id:'lpSanhe', curId:'lpSanheCur', pick:'lpPickSanhe', sel:sel,
+    inner:function(i,shan){
+      var key=FS.SHAN_SANHE[shan], ju=FS.SANHE_JU[key];
+      return [{text:(ju.ju||'局').charAt(0), deg:FS.fwShanDeg(i)}];
+    },
+    core:function(sel){ return ['三合', FS.SHAN_LIST[sel]+'山']; },
+    label:'三合水法盘：外圈二十四山，内圈所属水局（金木水火四大局），长生十二宫配双山五行以定水口生旺墓。'
+  });
+}
+function lpSanheDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.sanhe], key=FS.SHAN_SANHE[shan], ju=FS.SANHE_JU[key];
+  var info=FS.sanHeWater(shan);
+  LUOPAN.detail('lpSanheDetail', shan+'山 属'+ju.ju+'（'+ju.zs+'、'+ju.miao+'、'+ju.mu+'三山同局）'
+    +'<span class="wd-br"></span>'
+    +'三合水法：长生十二宫配双山五行，定水局生旺墓；'+info.long+'，以水口在生旺墓何宫断吉凶。');
+}
+/* 八宅游年盘 */
+function lpBazhaiSvg(){
+  var sel=LP_SEL.bazhai;
+  document.getElementById('lpBazhai').innerHTML=LUOPAN.layerDisk({
+    id:'lpBazhai', curId:'lpBazhaiCur', pick:'lpPickBazhai', sel:sel,
+    inner:function(i,shan){
+      var g=FS.SHAN_BAGUA[shan], b=FS.baZhai(g);
+      return [{text:b?b.group.charAt(0):'中', deg:FS.fwShanDeg(i)}];
+    },
+    core:function(sel){ return ['八宅', FS.SHAN_LIST[sel]+'山']; },
+    label:'八宅游年盘：外圈二十四山，内圈所属宅卦之东西四命，游年九星生气延年天医伏位为吉、绝命五鬼祸害六煞为凶。'
+  });
+}
+function lpBazhaiDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.bazhai], g=FS.SHAN_BAGUA[shan], b=FS.baZhai(g);
+  if(!b){ LUOPAN.detail('lpBazhaiDetail',''); return; }
+  var ji=b.ji.map(function(o){ return o.name+'（'+o.gua+o.dir+'）'; }).join('、');
+  var xiong=b.xiong.map(function(o){ return o.name+'（'+o.gua+o.dir+'）'; }).join('、');
+  LUOPAN.detail('lpBazhaiDetail', shan+'山 属'+g+'卦 '+b.group
+    +'<span class="wd-br"></span>'
+    +'吉方：'+ji+'<span class="wd-br"></span>凶方：'+xiong);
+}
+/* 天星盘 */
+function lpTianxingSvg(){
+  var sel=LP_SEL.tianxing;
+  document.getElementById('lpTianxing').innerHTML=LUOPAN.layerDisk({
+    id:'lpTianxing', curId:'lpTianxingCur', pick:'lpPickTianxing', sel:sel,
+    inner:function(i,shan){
+      var g=FS.tianXingGui(shan);
+      return [{text:g.gui?g.star.charAt(0):'平', deg:FS.fwShanDeg(i)}];
+    },
+    core:function(sel){ return ['天星', FS.SHAN_LIST[sel]+'山']; },
+    label:'天星盘：依赖公《催官篇》以二十四山配天星论贵贱（亥应紫微、艮应天市等）；赖公五行与宿度五行诸家不一，本库依师传口径，不臆造。'
+  });
+}
+function lpTianxingDetail(){
+  var shan=FS.SHAN_LIST[LP_SEL.tianxing], g=FS.tianXingGui(shan);
+  if(!g.gui){ LUOPAN.detail('lpTianxingDetail', shan+'山 无特定催官贵向记载，按所用主线自裁。'); return; }
+  LUOPAN.detail('lpTianxingDetail', shan+'山 应'+g.star+'<span class="wd-br"></span>'+g.mean);
+}
+/* 磁偏角校准盘（以正针落山示意，重在读数说明） */
+function lpDeclSvg(){
+  var sel=LP_SEL.decl;
+  document.getElementById('lpDecl').innerHTML=LUOPAN.layerDisk({
+    id:'lpDecl', curId:'lpDeclCur', pick:'lpPickDecl', sel:sel,
+    inner:function(i,shan){ return [{text:shan, deg:FS.fwShanDeg(i)}]; },
+    core:function(sel){ return ['校准', FS.SHAN_LIST[sel]+'山']; },
+    label:'磁偏角校准盘：盘面所读为磁北，须按所在地磁偏角折真北（东偏为正、西偏为负）；真方位等于磁方位加磁偏角。'
+  });
+}
+function lpDeclDetail(){
+  var c=lpGeoCoord();
+  var decl=c?FS_MAG.decl(c.lat,c.lng,new Date()).toFixed(2):'未取所在地';
+  LUOPAN.detail('lpDeclDetail', '所在地'+(c?('（北纬'+c.lat.toFixed(2)+'° 东经'+c.lng.toFixed(2)+'°）'):'未填')
+    +' 当地磁偏角约 '+decl+'°（东正西负）'
+    +'<span class="wd-br"></span>'
+    +'真方位＝磁方位＋磁偏角；电子罗盘读数为磁北，须依此折为地理真北方可与罗盘盘面方位对应。');
+}
+function lpDeclRead(){
+  var c=lpGeoCoord();
+  var decl=c?FS_MAG.decl(c.lat,c.lng,new Date()).toFixed(2):'未取';
+  document.getElementById('lpDeclRead').textContent='当前地磁偏角（离线估算，东正西负）：'+decl+'°；取数结果仅供参研。';
+}
+function lpStartCompass(){
+  var btn=document.getElementById('lpCompassBtn'), read=document.getElementById('lpCompassRead');
+  if(LP_COMPASS){ LP_COMPASS.stop(); LP_COMPASS=null; btn.textContent='启动指南针'; read.textContent='已停止'; return; }
+  LP_COMPASS=LUOPAN.Compass({
+    wheelId:'lpRealWheel',
+    rotate:false,
+    getDecl:function(){ var d=parseFloat(document.getElementById('baseDecl').value); return isFinite(d)?d:null; },
+    onRead:function(deg,shan,decl){
+      /* 传感器指向＝真北方位；盘面读数即该方位落在何山。旋转盘面使所指之山对准磁针（真实罗经对针用法）：
+         盘面角＝地理度加一百八十，故盘转角 rot ＝ −(deg+180)。 */
+      if(!LP_REAL.lock){
+        LP_REAL.rot=-((((deg)+180)%360)+360)%360;
+        var wrap=document.getElementById('lpRealWrap');
+        if(wrap&&wrap.__lpApply) wrap.__lpApply();
+      }
+      var lvl=document.getElementById('lpRLvlX'), lvy=document.getElementById('lpRLvlY');
+      LP_COMPASS.__lvl=null;
+      read.innerHTML='指向 '+deg.toFixed(1)+'° 落'+shan+'山 磁偏角'+(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取');
+    }
+  });
+  LP_COMPASS.start().then(function(ok){
+    btn.textContent=ok?'停止指南针':'启动指南针';
+    if(!ok) read.textContent='未能取得传感器权限，可手拨盘面对针或填实测坐度。';
+  });
+}
+function lpRenderAll(){
+  lpRealRender();
+  lpZhenSvg(); lpZhenDetail();
+  lpFenSvg(); lpFenDetail();
+  lpChuanSvg(); lpChuanDetail();
+  lpTouSvg(); lpTouDetail();
+  lpBaguaSvg(); lpBaguaDetail();
+  lpLuoshuSvg(); lpLuoshuDetail();
+  lpYunSvg(); lpYunDetail(); lpYunTbl();
+  lpXiuSvg(); lpXiuDetail();
+  lpSanheSvg(); lpSanheDetail();
+  lpBazhaiSvg(); lpBazhaiDetail();
+  lpTianxingSvg(); lpTianxingDetail();
+  lpDeclSvg(); lpDeclDetail(); lpDeclRead();
+  document.getElementById('lpZhenGuide').innerHTML=LUOPAN.guide();
+  document.getElementById('lpYunCard').innerHTML=LUOPAN.layerCard('yun');
+  document.getElementById('lpXiuCard').innerHTML=LUOPAN.layerCard('xiu');
+  document.getElementById('lpTxCard').innerHTML=LUOPAN.layerCard('tianxing');
+  document.getElementById('lpDeclCard').innerHTML=LUOPAN.layerCard('decl');
+}
+function lpInit(){
+  var sv=null, sk=null;
+  try{ sv=localStorage.getItem('lp_real_set'); sk=localStorage.getItem('lp_real_skin'); }catch(e){}
+  if(sv&&LUOPAN.RD_SETS[sv]) LP_REAL.set=sv;
+  if(sk==='gold'||sk==='white'||sk==='black') LP_REAL.skin=sk;
+  lpGeoInit();
+  lpFillBase();
+  lpGetBase();
+  lpRealBindZoom();
+  lpRealSkin(LP_REAL.skin);
+  document.querySelectorAll('[data-rdset]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-rdset')===LP_REAL.set); });
+  lpRenderAll();
+  LP_MODE='zong';
+  LUOPAN.restoreMode();
+  lpMagNote();
+}
+window.lpInit=lpInit;
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    renderChrome('luopan.html');
+    mountAI(function(){
+      var s='罗经仪';
+      var sit=LP_SIT||'子', face=LP_FACE||'午', year=LP_YEAR||2026;
+      s+='\n坐'+sit+'山向'+face+'山，'+year+'年。';
+      try{
+        var info=FS.shanInfo(sit, year, LP_DEG);
+        if(info) s+='\n坐山'+sit+'山（周天'+info.center+'°，'+info.bagua+'卦'+info.wx+'）'+(info.kongWang?'（空亡）':'')+(info.jian?'（兼向）':'')+'。';
+      }catch(e){}
+      try{
+        var yq=FS.yunQi(year);
+        s+='\n'+year+'年属'+yq.yuan+yq.yun+'运（'+yq.name+'）。';
+      }catch(e){}
+      try{
+        var c=lpGeoCoord();
+        if(c){
+          var d=FS_MAG.decl(c.lat,c.lng,new Date());
+          s+='\n所在地磁偏角约'+d.toFixed(2)+'°（东正西负）。';
+        }
+      }catch(e){}
+      return s;
+    }, '罗经仪');
+    shareWait({ page:"luopan", title:"罗经仪", recast:function(){ try{ lpApplyBase(); }catch(e){} } });
+  }, 0);
+});
+window.addEventListener('DOMContentLoaded', function(){ FS=window.FENGSHUI; window.FS=FS; if(FS&&window.LUOPAN) lpInit(); else setTimeout(function(){ FS=window.FENGSHUI; window.FS=FS; if(FS&&window.LUOPAN) lpInit(); },0); });
+</script>
+</body>
+</html>

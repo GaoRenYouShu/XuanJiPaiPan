@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z305">
+<link rel="stylesheet" href="assets/style.css?v=z318">
 </head>
 <body>
 <div id="topbar"></div>
@@ -34,8 +34,8 @@
     <h1>皇极经世</h1>
     <div class="lead">邵雍元会运世推演任意公历年（含公元前）的卦气归属，附皇极尺。</div>
     <div class="form-row hj-query-row">
-      <div class="field"><label>选择日期（公历）</label><input type="text" class="dt-input" placeholder="yyyy-mm-dd" id="dInput" aria-label="选择日期" onchange="onDateChange()"></div>
-      <div class="field"><label>年份直达（支持公元前）</label><input type="text" id="yInput" placeholder="2026 前2357" aria-label="年份直达" onkeydown="if(event.key==='Enter')jumpYear()"></div>
+      <div class="field"><label>选择日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="选择日期" onchange="onDateChange()"></div>
+      <div class="field"><label>年份直达（支持公元前）</label><input type="text" id="yInput" placeholder="2026前2357" aria-label="年份直达" onkeydown="if(event.key==='Enter')jumpYear()"></div>
       <div class="field"><label>年界口径</label><select id="yBound" aria-label="年界口径" onchange="onBoundChange()">
         <option value="greg">公历1月1日</option>
         <option value="lunar">农历正月初一</option>
@@ -49,14 +49,63 @@
     <details class="hj-ref" id="hjQiliRef"><summary>起例说明（本页锚点与算式）</summary>
       <table class="hj-np"><thead><tr><th>项目</th><th>本页口径</th></tr></thead>
       <tbody>
-        <tr><td>原书逐年表</td><td>据四库本卷五、卷六以运经世原文逐字录出：起帝尧甲辰（前2357）讫后周显德六年己未(959)，凡3316年，有记事之年1539条；逐年干支即原书所载。原书纪年从殷历长纪年（如克商店己卯，前1122），与夏商周断代工程（前1046）相差七十六年，两者并观，览者自辨。</td></tr>
+        <tr><td>原书逐年表</td><td>《皇极经世书》以运经世编年：起帝尧甲辰（前2357）讫后周显德六年己未(959)，凡3316年，有记事之年1539条；逐年干支即原书所载。原书纪年从殷历长纪年（如克商店己卯，前1122），与夏商周断代工程（前1046）相差七十六年，两者并观，览者自辨。</td></tr>
         <tr><td>元始</td><td>以元 1 年为公元前 67017 年（天文纪年编号 -67016，本页纪年含 0 年，公元前 n 年即 1-n）。</td></tr>
-        <tr><td>校验</td><td>唐尧即位（公元前 2357 年，甲辰）落巳会第 180 运（癸亥运）第 2156 世（己未世），与邵雍原书以运经世自尧年起、值巳会 180 运之记载一致；午会起点即公元前 2217 年。</td></tr>
-        <tr><td>干支</td><td>年干支 = 甲子起 （天文年-4） 对 60 取余；运干支以元内全局运序 (1..360) 对 60 取余；世干支以元内全局世序 (1..4320) 对 60 取余，皆甲子起。</td></tr>
+        <tr><td>校验</td><td>唐尧即位（公元前 2357 年，甲辰）落巳会第 180 运第 2156 世，与邵雍原书以运经世自尧年起、值巳会 180 运之记载一致；午会起点即公元前 2217 年。</td></tr>
+        <tr><td>干支</td><td>年干支 = 甲子起 （天文年-4） 对 60 取余。运、世两条独立小循环，各标其一而不合成甲子：运标十干，即十干轮运，元内全局运序 (1..360) 对 10 取余；世标十二支，即十二支轮世，元内全局世序 (1..4320) 对 12 取余。故第 180 运为癸运、第 2156 世为未世，原书卷五即作經運之癸一百八十、經世之未二千一百五十六。</td></tr>
         <tr><td>纪年源</td><td>大事锚点之年为史学通行纪年（含夏商周断代工程结论），皇极原书编年（自尧起）与通行史年或有出入，本页并存标注。</td></tr>
-        <tr><td>配卦</td><td>会直五卦各主六运为《皇极经世书》以元经会篇原文口径（子会复颐屯益震、丑会噬嗑随无妄明夷贲、寅会既济家人丰革同人、卯会临损节中孚归妹、辰会睽兑履泰大畜、巳会需小畜大壮大有夬、午会姤大过鼎恒巽、未会井蛊升讼困、申会未济解涣蒙师、酉会遁咸旅小过渐、戌会蹇艮谦否萃、亥会晋豫观比剥）；中卦当会之中（屯当子会之中、鼎当午会之中）；乾坤坎离四正卦不用直运、各闰三会。运卦（直卦六爻变、一爻一运）与世卦（运卦六爻变、一爻二世六十年）为后世传承口径，原书年表不逐运世配卦；世卦核验：1984至2043值火风鼎，与通行嵌套表相合。值年卦为民间体系：六十卦一年一卦顺先天圆图，主流以公元1984年（甲子）值火风鼎起，与本页锚点逐年等价（2020明夷、2025泽火革、2026天火同人）。十二辟卦配会经查无邵雍原文，属后世移配，页内仅作参照并列。</td></tr>
+        <tr><td>三百六十爻</td><td>去四正卦的缘由即在此：先天六十四卦圆盘，乾坤坎离居四正、为天地日月之体而不主时用，四正不用则余六十卦；六十卦各六爻，六乘六十得三百六十爻，一爻配一元内一运，故一元恰三百六十运。此数与一运三百六十年、一期三百六十日同构，非巧合，乃邵子以数相配之定法。故每卦主六运，第一爻至第六爻依次主该卦六运：复卦初爻主运一、剥卦上爻主运三百六十。</td></tr>
+        <tr><td>值年卦推算</td><td>可照此手算，三步即得。一、列六十卦序：先天圆图去乾坤坎离四正不用，余六十卦自复起、顺圆图而行、至剥而终。二、定锚点：本页取公元 2012 年值复卦（与通行值年表相合）。三、取余定位：以所推之年减锚点年，对六十取余，所得余数为自复卦起顺推之位数，复卦自身为零位，故序位即余数加一。例：2026 减 2012 得十四，自复顺推十四位（序第十五）为天火同人，故 2026 年值天火同人；2023 减 2012 得十一，序第十二为风火家人，2024 得十二、序第十三为雷火丰，逐年相衔，一览可验。<br>异流派并记：值年卦诸本锚点不一，另有甲子年起坤、甲子年起复两派，起卦一改则逐年全异，故同一年诸本所载值年卦往往不同，览者须先问其锚点。本页取与通行表相合之一说，并在卦气盘内逐年标明所值。</td></tr>
+        <tr><td>配卦</td><td>会值五卦各主六运为《皇极经世书》以元经会篇原文口径（子会复颐屯益震、丑会噬嗑随无妄明夷贲、寅会既济家人丰革同人、卯会临损节中孚归妹、辰会睽兑履泰大畜、巳会需小畜大壮大有夬、午会姤大过鼎恒巽、未会井蛊升讼困、申会未济解涣蒙师、酉会遁咸旅小过渐、戌会蹇艮谦否萃、亥会晋豫观比剥）；中卦当会之中（屯当子会之中、鼎当午会之中）；乾坤坎离四正卦不用值运、各闰三会。运卦（值卦六爻变、一爻一运）与世卦（运卦六爻变、一爻二世六十年）为后世传承口径，原书年表不逐运世配卦；世卦核验：1984至2043值火风鼎，与通行嵌套表相合。值年卦为民间体系：六十卦一年一卦顺先天圆图，主流以公元1984年（甲子）值火风鼎起，与本页锚点逐年等价（2020明夷、2025泽火革、2026天火同人）。十二辟卦配会经查无邵雍原文，属后世移配，页内仅作参照并列。</td></tr>
       </tbody></table>
       <div class="sub-note">皇极经世体系历代推步多有分歧（元始之年、运世干支起例、配卦之法诸家不一），本页采一说整理，属研究交流性质，非古籍校勘定本，结果仅供参考。</div>
+    </details>
+    <details class="hj-ref" id="hjShuRef"><summary>观物篇数表（十六位数、大小运、声音律吕数）</summary>
+      <div class="sub-note">下表三数表分见《皇极经世书》观物篇六十、六十一与观物外篇上。原书用上数制，億为十之八次方、兆为十之十六次方，与今通用之万亿进位不同，读数时须留意。</div>
+      <table class="hj-np"><thead><tr><th>十六位数</th><th>日</th><th>月</th><th>星</th><th>辰</th></tr></thead>
+      <tbody>
+        <tr><td>元</td><td>一</td><td>十二</td><td>三百六十</td><td>四千三百二十</td></tr>
+        <tr><td>会</td><td>十二</td><td>一百四十四</td><td>四千三百二十</td><td>五万一千八百四十</td></tr>
+        <tr><td>运</td><td>三百六十</td><td>四千三百二十</td><td>一十二万九千六百</td><td>一百五十五万五千二百</td></tr>
+        <tr><td>世</td><td>四千三百二十</td><td>五万一千八百四十</td><td>一百五十五万五千二百</td><td>一千八百六十六万二千四百</td></tr>
+      </tbody></table>
+      <div class="sub-note">十六位数出观物篇六十：日经天之元，月经天之会，星经天之运，辰经天之世；以日经日则元之元可知之矣，以日经月则元之会可知之矣，余皆仿此。故横列与纵列皆依日月星辰之次，行主天之元会运世、列主经天之日月星辰，两两相乘得十六位。其中运之运一十二万九千六百，即一元之年数。原文此下又有十六位各配一时之文（元之元以春行春之时也，元之会以春行夏之时也），与皇帝王伯十六事相配，可参原书。</div>
+      <table class="hj-np"><thead><tr><th>大小运</th><th>数</th><th>所以立</th></tr></thead>
+      <tbody>
+        <tr><td>时</td><td>三百六十</td><td>小运之本</td></tr>
+        <tr><td>日</td><td>一十二万九千六百</td><td>三百六十自乘</td></tr>
+        <tr><td>月</td><td>一百六十七亿九千六百一十六万</td><td>一十二万九千六百自乘</td></tr>
+        <tr><td>年</td><td>二万八千二百一十一兆九百九十万七千四百五十六亿</td><td>一百六十七亿九千六百一十六万自乘</td></tr>
+      </tbody></table>
+      <div class="sub-note">大小运出观物外篇上：三百六十变为一十二万九千六百，一十二万九千六百变为一百六十七亿九千六百一十六万，一百六十七亿九千六百一十六万变为二万八千二百一十一兆九百九十万七千四百五十六亿；以三百六十为时，以十二万九千六百为日，以一百六十七亿九千六百一十六万为月，以二万八千二百一十一兆九百九十万七千四百五十六亿为年，则大小运之数立矣。四层逐层自乘，层与层之间恰为平方。原文又以此年数分而为十二（当一年十二月）、月数分而为三十（当一月三十日）、日数分而为十二（当一日十二时）、时数为三百六十，四层各成一岁之制，是其数与历法相配处。</div>
+      <table class="hj-np"><thead><tr><th>声音律吕数</th><th>数</th><th>所以得</th></tr></thead>
+      <tbody>
+        <tr><td>太阳少阳太刚少刚之体数</td><td>一百六十</td><td>原文所定</td></tr>
+        <tr><td>太阴少阴太柔少柔之体数</td><td>一百九十二</td><td>原文所定</td></tr>
+        <tr><td>太阳少阳太刚少刚之用数</td><td>一百一十二</td><td>一百六十减四十八</td></tr>
+        <tr><td>太阴少阴太柔少柔之用数</td><td>一百五十二</td><td>一百九十二减四十</td></tr>
+        <tr><td>日月星辰之变数（动数）</td><td>一万七千二十四</td><td>一百一十二乘一百五十二</td></tr>
+        <tr><td>水火土石之化数（植数）</td><td>一万七千二十四</td><td>一百五十二乘一百一十二</td></tr>
+        <tr><td>动植通数</td><td>二万八千九百八十一万六千五百七十六</td><td>一万七千二十四自乘</td></tr>
+      </tbody></table>
+      <div class="sub-note">声音律吕数出观物篇六十一，是全书中与元会运世并列的另一套推数：以太阳、少阳、太刚、少刚之体数进退太阴、少阴、太柔、少柔之体数，得用数一百一十二与一百五十二；两用数相唱和，得日月星辰之变数一万七千二十四，是为动数；水火土石之化数一万七千二十四，是为植数；再唱和而自乘，得动植通数二万八千九百八十一万六千五百七十六。体数减对方四位之体数即得用数（一百六十减四乘十二得一百一十二，一百九十二减四乘十得一百五十二），是其数自相为用之处。原书声音律吕别有四卷十六篇，以天声十、地音十二唱和成表；声表、音表全帙已录于本页声音唱和全表一节，唱和矩阵即由该两表逐位合成，总纲之数与全表互为表里。<br>一元之辰数五亿五千九百八十七万二千，是把一元折算到最小时间单位的全量：十二万九千六百年，乘一岁三百六十日，再乘一日十二辰，即得此数。亦可由十六位数之世之世一千八百六十六万二千四百乘三十得之，与一元之年数乘一元之世数四千三百二十所得相同。外篇云易之数穷天地终始，易之生数一十二万九千六百，总为四千三百二十，演三十年之辰数即其数也；一元之年数本页已见，此辰数即由该数再折一日十二辰而来，二者本一，只所计单位不同。</div>
+      <h4 class="det-h">十六位数时序配属与皇帝王伯</h4>
+      <div class="sub-note">观物篇六十以元会运世配春夏秋冬、以皇帝王伯配道德功力，两系交叉得十六格。原文：元之元以春行春之时也，元之会以春行夏之时也，余皆仿此；皇之皇以道行道之事也，皇之帝以道行德之事也，余皆仿此。</div>
+      <div id="hjShixuTable"></div>
+    </details>
+    <details class="hj-ref" id="hjSyRef"><summary>声音唱和全表（十声十二音、声律检索）</summary>
+      <div class="sub-note">原书声音唱和见观物篇三十五起十六篇：声之开日、翕月、开星、翕辰四组与音之清水、浊火、清土、浊石四组相配成图，声为韵、音为声母，相唱和而成音节。本节录声表、音表全帙，唱和矩阵由两表逐位合成。○为有声无字、计用声；□为有音无字、计用音；●、■为黑方不用。检索收单字直查，简体输入自动比对其繁体。</div>
+      <div class="sub-note" id="hjSyStats"></div>
+      <h4 class="det-h">天声图（十声）</h4>
+      <div id="hjSySheng"></div>
+      <h4 class="det-h">地音图（十二音）</h4>
+      <div id="hjSyYin"></div>
+      <h4 class="det-h">声律检索</h4>
+      <div class="jw-search"><input class="jw-input" id="hjSyQ" type="text" placeholder="输入单字，如 多、龍、皃" aria-label="声律检索"><button class="btn gold" type="button" id="hjSyGo">检索</button></div>
+      <div id="hjSyHits"></div>
+      <h4 class="det-h">唱和矩阵（分声组音组浏览）</h4>
+      <div class="form-row"><div class="field"><label>声组</label><select id="hjSySb" aria-label="声组"></select></div><div class="field"><label>音组</label><select id="hjSyYb" aria-label="音组"></select></div></div>
+      <div id="hjSyBlock"></div>
     </details>
     <details class="hj-ref" id="hjTermRef"><summary>术语速查与白话解读</summary><div id="plainRef"></div>
     <table class="hj-np"><thead><tr><th>层</th><th>别名</th><th>长度</th><th>含义</th></tr></thead>
@@ -67,18 +116,39 @@
     <tr><td>世</td><td>辰</td><td>30 年</td><td>一世三十年，如一时辰八刻之余，为最小时间单位。</td></tr>
     </tbody></table>
     <div class="sub-note">《皇极经世书》以先天易学推演天地终始之数：一元之数即 12×30×12×30=129600 年。天地亦有一元，一元既尽，又一元始。据《观物内篇》及通行邵子历表。</div>
+    <table class="hj-np"><thead><tr><th>天时四层</th><th>配天象</th><th>配人身</th><th>配物类</th></tr></thead>
+    <tbody>
+    <tr><td>元</td><td>日</td><td>心</td><td>性</td></tr>
+    <tr><td>会</td><td>月</td><td>胆</td><td>情</td></tr>
+    <tr><td>运</td><td>星</td><td>脾</td><td>形</td></tr>
+    <tr><td>世</td><td>辰</td><td>肾</td><td>体</td></tr>
+    </tbody></table>
+    <div class="sub-note">邵子以四层配四类，是皇极经世读原书的钥匙：日为元、月为会、星为运、辰为世，天时四层与天象四等一一相配；人副天数，故又配人身之脏与物之性情形体。性情形体者，物之四等：性者天之所赋、情者心之所发、形者成于地、体者具于物。见《观物内篇》之日月星辰与性情形体诸条，诸本所记配属不一，此表并列备考。</div>
+    <table class="hj-np"><thead><tr><th>世运四等</th><th>所尚</th><th>治道</th></tr></thead>
+    <tbody>
+    <tr><td>皇</td><td>尚自然</td><td>以道化民，民亦以道归之，如三皇之世</td></tr>
+    <tr><td>帝</td><td>尚让</td><td>以德教民，民亦以德归之，如五帝之世</td></tr>
+    <tr><td>王</td><td>尚政</td><td>以功劝民，民亦以功归之，如三王之世</td></tr>
+    <tr><td>伯</td><td>尚争</td><td>以力率民，民亦以力归之，如五伯之世</td></tr>
+    </tbody></table>
+    <div class="sub-note">皇帝王伯是邵雍判史的四等标尺：三皇尚自然、五帝尚让、三王尚政、五伯尚争，一代不如一代，此即《观物内篇》以运经世编年所寓之褒贬。原书年表自唐尧起讫五代，正是以这把尺子量历代治乱，故读年表须并观此四等，方知邵子记事之取舍。</div>
     <div id="biguaRef"></div><div class="sub-note">十二辟卦又称十二消息卦：复一阳生（子）、临二阳（丑）、泰三阳（寅）、大壮四阳（卯）、夬五阳（辰）、乾六阳（巳）为息卦；姤一阴生（午）、遁二阴（未）、否三阴（申）、观四阴（酉）、剥五阴（戌）、坤六阴（亥）为消卦。阳息自子至巳，阴消自午至亥，与十二会相配，为卦气说之骨干。</div>
     <div id="termGloss"></div>
     </details>
     <details class="hj-ref" id="hjMeaningRef"><summary>皇极经世的意义详说</summary>
       <table class="hj-np"><thead><tr><th>层面</th><th>详说</th></tr></thead>
       <tbody>
+        <tr><td>以物观物</td><td>这是邵雍全部学问的立脚处，也是读皇极经世绕不开的第一义。《观物内篇》说：以我观物，情也；以物观物，性也。前一句指人凭一己好恶去看外物，所见皆染上喜怒，故只见其偏；后一句指把我这一层滤镜去掉，就物本身看物，所见方是物之本来。邵子所谓反观，即反身自照而不以己意加于物，公而明，是循理；任情则偏向而暗。以元会运世这套大尺度历法去排比历代治乱，正是要把我在此时的私见一层层剥掉，让兴衰起落自呈其理。元会运世是器，以物观物才是用：只算定位不用此法，等于得尺而忘度。</td></tr>
         <tr><td>时间尺度感</td><td>人的一生不过八九十年，放在一世（三十年）里是两三格，放在一运（三百六十年）里只是四分之一段，放在一元（十二万九千六百年）里几乎不可见。邵雍制此大历，本意正是让人把光阴放进足够大的尺度里去看：一时之得失、一岁之顺逆，在大尺度下自会显出它的分量。这不是教人消极，而是古人养见识、养胸襟的功夫，所谓以大观小、以久观暂。</td></tr>
         <tr><td>历史坐标感</td><td>本页给出人人可查的定位：今在午会、第几运、第几世，等于在时间长卷上标出自己所在的位置。午会是一元中阳气极盛而转消的一段，如一日之正午。知道坐标，读史时便多一层参照：见某事距今几运几世，兴衰起落的周期感自然浮现。邵雍原书正是以运经世，把尧以来的治乱兴废排进时间坐标，以天时而验人事。</td></tr>
         <tr><td>世与运</td><td>一世三十年，约当一代人，祖父、父亲、自己恰是三世；一运十二世三百六十年，约当一个大朝代的寿命（唐二百八十九年、明二百七十六年、清二百六十八年，皆不出一运之数）。用这套层级去理解家族三代人的变迁、或历史分期的长短，跨度感非常直观，是皇极经世在今日最实用的读法之一。</td></tr>
-        <tr><td>观物之学</td><td>邵雍讲观物，以时势观人事：时如水，人如舟，顺流逆流各有其宜。本页各会各卦只言时段气象（如姤卦一阴始生、盛极而变），不断吉凶、不落祸福；取其意味，是顺势而为、修身待时：大势可参，进退在己。古人读皇极，多半取这种自省与规划的文化引子，而非求一卦定休咎。</td></tr>
-        <tr><td>治学入门</td><td>皇极经世一头连着先天易学与卦气说（十二辟卦、六十卦直运），一头连着历法推步（元会运世、干支纪年），中间还挂着一部编年史学（以运经世的年表），是进入邵雍象数之学与宋代理学的一扇总门。本页的十二会表、运世表、大事锚点表，皆可作读原书前的地图：先有全局骨架，再读《观物内篇》，难度会低许多。</td></tr>
-        <tr><td>边界提醒</td><td>以上为文化视角的整理，仅供研习参考。皇极经世原书本不为个人占命而作，后世以之推国运流年，亦属一家之说；本页不为个人命运与流年吉凶下断语，重大决策请以现实与专业意见为准。</td></tr>
+        <tr><td>观物之学</td><td>邵雍讲观物，以时势观人事：时如水，人如舟，顺流逆流各有其宜。本页各会各卦只言时段气象（如姤卦一阴始生、盛极而变），断语另见吉凶判语一节，只就卦象立论而不落一人之祸福；取其意味，是顺势而为、修身待时：大势可参，进退在己。古人读皇极，多半取这种自省与规划的文化引子，而非求一卦定休咎。</td></tr>
+        <tr><td>治学入门</td><td>皇极经世一头连着先天易学与卦气说（十二辟卦、六十卦值运），一头连着历法推步（元会运世、干支纪年），中间还挂着一部编年史学（以运经世的年表），是进入邵雍象数之学与宋代理学的一扇总门。本页的十二会表、运世表、大事锚点表，皆可作读原书前的地图，先有全局骨架，入原书便不致迷路。<br>入手次第宜由浅入深：先看《以元经会》《以会经运》两层历表，把元会运世的骨架与十二会、三百六十运的排布认清；次读《观物外篇》，其文随笔札记、散说象数，逐条可解，最宜初学；再回头看《以运经世》的年表，此时已有坐标，读历代治乱方知邵子取舍之所在；末了才攻《观物内篇》。内篇是全书义理最难的一篇，以物观物、性情形体诸义皆萃于此，无前三层铺垫而径读，往往望文生义。若只求大略，读罢历表与外篇，于邵子之学已得其半。</td></tr>
+        <tr><td>注本与入门</td><td>原书文辞简奥，历代注家各有疏解，读原书宜先得一注本为梯。宋人张行成《皇极经世索隐》《观物外篇衍义》《易通变》，去邵子未远，为最早一批疏解，长于推步算数；明人徐必达《皇极经世书解》，逐段疏释原文，便于通读；清人王植《皇极经世全书解》，蒐辑诸家之说而折其中，最便查考。初读宜从徐、王两家入手，欲究算数再参张氏。<br>值年卦速查表一类，坊本多有，或附于注本之末，或单行成册，逐年一卦一览即得，可省推算之力；惟各家锚点不一（说见起例说明值年卦条），用表前须先认明其以何年为起。</td></tr>
+        <tr><td>非宿命论</td><td>邵子之学，其要在观物而不在定命。原书以元会运世排比历代治乱，是就大势立论，非为一人一世推休咎；所谓物物而不物于物，正谓人当主宰外物而不为外物所役，知其时而不为其时所拘。故读皇极者，取其大尺度以养见识、取其卦象以观气象则可，据之以断一己之祸福、并以之自限，则失邵子本意。时势有其大略，人事仍有可为，知命而不委命，方是此书的正当读法。</td></tr>
+        <tr><td>加一倍法</td><td>先天六十四卦是怎么生出来的，原书外篇有一句最简的交代：太极既分，两仪立矣；阳下交于阴，阴上交于阳，四象生矣；阳交于阴、阴交于阳而生天之四象，刚交于柔、柔交于刚而生地之四象，于是八卦成矣；八卦相错，然后万物生焉。是故一分为二，二分四，四分八，八分十六，十六分三十二，三十二分六十四。朱熹称此法为加一倍法：每进一层，数即倍之，六层得六十四，恰合六爻之卦数。本页先天方圆二图所以能一格一卦、序不乱者，根柢即在此。<br>外篇又有一句与此相表里：一变而二，二变而四，三变而八卦成矣，四变而有十六，五变而三十有二，六变而六十四卦备矣。两处所记层数相同，可互证。</td></tr>
+        <tr><td>体数与用数</td><td>邵子论数，每分体用两层：全体之数为一，实际致用者又为一，两者之差即所去之数。卦有六十四，爻三百八十四，此为体数之策；去乾坤坎离四正之策二十四，余三百六十，此为用数。此数与圆图去四正卦余六十卦、六十卦乘六爻得三百六十爻恰相印证，是本页值运层去四正卦的又一处根柢。天有四时，体数四而用者三，不用者一，亦是此理；故邵子屡言体数常偶、用数常奇，体四用三、体八用六一类。读原书凡见体用并举，皆可照此例去看：先问全体是几，再问实致用者去掉了哪一部分。</td></tr>
+        <tr><td>边界提醒</td><td>以上为文化视角的整理，仅供研习参考。皇极经世原书本不为个人占命而作，后世以之推国运流年，亦属一家之说；本页吉凶判语一节只就卦象立论，不为个人命运与流年休咎下断语，重大决策请以现实与专业意见为准。</td></tr>
       </tbody></table>
     </details>
   </div>
@@ -88,9 +158,13 @@
 <script defer src="assets/app.js?v=20260927d"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/ai.js?v=20260927c"></script>
-<script defer src="assets/huangji-engine.js?v=20260917da"></script>
+<script defer src="assets/huangji-engine.js?v=20261001a"></script>
+<script defer src="assets/jingwen.js?v=20260912t5"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/huangji-chronicle.js?v=20260925a"></script>
+<script defer src="assets/huangji-yjh.js?v=20261001a"></script>
+<script defer src="assets/jianfan.js?v=20260917da"></script>
+<script defer src="assets/huangji-shengyin.js?v=20261001a"></script>
 <script>
     const HJ_TERMS={
     core:{title:'核心概念',items:{
@@ -101,18 +175,23 @@
     }},
     bigua:{title:'辟卦与卦气',items:{
     '十二辟卦':{short:'十二个代表月份的卦，从复卦到坤卦，显示一年阴阳消长。',detail:'复（子）、临（丑）、泰（寅）、大壮（卯）、夬（辰）、乾（巳）、姤（午）、遁（未）、否（申）、观（酉）、剥（戌）、坤（亥），又称十二消息卦。'},
-    '直卦':{short:'原书每会选五个卦轮流管运，这五个卦就叫该会的直卦。',detail:'据《皇极经世书》以元经会篇：每会直五卦、各主六运，如子会直复、颐、屯、益、震，午会直姤、大过、鼎、恒、巽。'},
-    '中卦':{short:'每会五个直卦中间的那一个，正当会的一半。',detail:'原书云屯当子会之中、鼎当午会之中；中卦前后各主一半会的时间。'},
+    '值卦':{short:'原书每会选五个卦轮流管运，这五个卦就叫该会的值卦。',detail:'据《皇极经世书》以元经会篇：每会值五卦、各主六运，如子会值复、颐、屯、益、震，午会值姤、大过、鼎、恒、巽。'},
+    '中卦':{short:'每会五个值卦中间的那一个，正当会的一半。',detail:'原书云屯当子会之中、鼎当午会之中；中卦前后各主一半会的时间。'},
     '闰卦':{short:'乾坤坎离四个正卦不直接管运，而是当闰卦，各自闰三个会。',detail:'原书：离闰子丑寅、乾闰卯辰巳、坎闰午未申、坤闰酉戌亥；闰卦初二等爻变所生之卦亦分主时段。'},
-    '运卦世卦':{short:'后世在直卦之上加的爻变层：直卦六爻变生运卦，运卦六爻变生世卦。',detail:'原书年表不逐运世配卦；传承口径为直卦一爻主一运（360年），运卦一爻主二世（60年），通行嵌套表1984至2043世卦值火风鼎。'},
+    '运卦世卦':{short:'后世在值卦之上加的爻变层：值卦六爻变生运卦，运卦六爻变生世卦。',detail:'原书年表不逐运世配卦；传承口径为值卦一爻主一运（360年），运卦一爻主二世（60年），通行嵌套表1984至2043世卦值火风鼎。'},
     '值年卦':{short:'民间流传的一年一卦，六十年转一圈，用来看每年的大气候。',detail:'六十卦一年一卦顺先天圆图，主流以公元1984年（甲子）值火风鼎起：2020年明夷、2025年泽火革、2026年天火同人；另有甲子起坤、甲子起复两种变体传承。'},
-    '旬卦':{short:'十年一卦的更细分层，有两说并存待考。',detail:'甲说：世卦六爻变一爻主十年；乙说：通行表以段首年值卦。两说在世卦中段互不相容，页内以甲说展示并注明分歧。'},
+    '旬卦':{short:'十年一卦的更细分层，由世卦逐爻变出，一爻主十年。',detail:'世卦六爻变，一爻主十年，六爻共六十年，恰合一世卦所主之段，故旬卦段首须自世卦所主六十年段起算，与世卦同源。如1984至2043世卦火风鼎，六爻段依次得大有、旅、未济、蛊、姤、恒。'},
     '开物闭物':{short:'一元之中天地开合的两个标记点：开物于寅会之中，闭物于戌会之中。',detail:'据原书以会经运层開物始月寅之中等语衍伸；开物约公元前四万零一十七年前后，闭物约公元四万六千三百八十四年前后；开物之前人物未生，闭物之后归于闭塞。'},
     '卦气':{short:'以卦配时令的学说，四时十二月皆有其卦。',detail:'起于西汉孟喜，邵雍先天易学进一步以六十四卦配元会运世，为皇极经世卦气之本。'},
-    '先天圆图':{short:'邵雍排出的六十四卦圆形图，左半阳右半阴。',detail:'先天六十四卦方圆图：圆图象天，卦以二进制次序环列；乾尽午中，坤尽子中。'}
+    '先天圆图':{short:'邵雍排出的六十四卦圆形图，左半阳右半阴。',detail:'先天六十四卦方圆图：圆图象天，卦以二进制次序环列；乾尽午中，坤尽子中。自乾起顺时针行，复、姤当正下为阴阳初生之枢纽，去乾坤坎离四正卦余六十卦值运，即本页会值五卦之所本。'},
+    '先天方图':{short:'与圆图并称的六十四卦方形图，八八六十四格，象地。',detail:'方圆二图并称，圆图象天、方图象地：方图八八六十四格，行列各配八卦，行主下卦（内卦）、列主上卦（外卦），逐行自左而右读之即圆图之序；对角八格为八纯卦，乾坤坎离四正居对角之四，正是不用值运之四卦。'},
+    '错卦':{short:'六爻阴阳全反所得之卦，是原卦的对待，观之以见事之反面。',detail:'一卦六爻阴变阳、阳变阴即得错卦，如天风姤错地雷复。错者对待之义，与综卦、互体合称错综复杂三变。'},
+    '综卦':{short:'六爻倒转所得之卦，是原卦的反易，观之以见换个立场看。',detail:'一卦倒置即得综卦，如火风鼎综泽火革，犹同一事换个立场看。颐、大过、中孚、小过与乾坤坎离等八卦倒转仍是自身，其综卦即本卦。'},
+    '以物观物':{short:'邵雍学问的立脚处：去掉一己好恶，就物本身看物。',detail:'《观物内篇》云：以我观物，情也；以物观物，性也。以我观物则所见染于喜怒而偏，以物观物则所见得其本来。邵子所谓反观，即反身自照而不以己意加于物。元会运世这套大尺度历法，正是为剥掉一时一己之私见而设。'},
+    '皇帝王伯':{short:'邵雍判史的四等标尺：三皇、五帝、三王、五伯。',detail:'三皇尚自然、五帝尚让、三王尚政、五伯尚争，一代不如一代。此即原书以运经世编年所寓之褒贬，读年表须并观此四等，方知邵子记事取舍之所在。'}
     }},
     dangan:{title:'大事锚点',items:{
-    '锚点':{short:'历史上可考的大事年份，用来校对元会运世的位置。',detail:'本页列尧即位、武王克商、共和元年等约四十条，各标注其元会运世定位。'},
+    '锚点':{short:'历史上可考的大事年份，用来校对元会运世的位置。',detail:'本页列尧即位、武王克商、共和元年等六十条，各标注其元会运世定位；唐尧一条依原书纪年，余依史学通行纪年。'},
     '断代工程':{short:'夏商周断代工程的简称，给出夏商周年份的学术参考值。',detail:'如武王克商定为公元前1046年、夏朝始于约公元前2070年，本页从之。'}
     }}
     };
@@ -225,11 +304,11 @@ function query(){
   const yunImpl=HJ.yunGua(L), yrImpl=HJ.yearGua(L), ybImpl=HJ.yunGuaBian(L), sbImpl=HJ.shiGuaBian(L);
   /* --- 定位总览：卷首带给出四级定位句，字段流给出各级起止与内部位置 --- */
   const yuanIn=L.hui.idx*HJ.CONST.HUI+L.hui.inYear;
-  const bigLine='<b>'+L.hui.zhi+'会</b> 第<b>'+L.yun.noG+'</b>运（'+L.yun.gan+'，直'+HJ.shortGuaName(yunImpl.name)+'） 第<b>'+L.shi.noG+'</b>世（'+L.shi.zhi+'） '+yinShiTxt(L.shi.inYear);
+  const bigLine='<b>'+L.hui.zhi+'会</b> 第<b>'+L.yun.noG+'</b>运（'+L.yun.gan+'，值'+HJ.shortGuaName(yunImpl.name)+'） 第<b>'+L.shi.noG+'</b>世（'+L.shi.zhi+'） '+yinShiTxt(L.shi.inYear);
   const ovRows=[
     ['元','第'+L.yuanNo+'元　一元十二万九千六百年，本元已过'+yuanIn+'年，余'+(HJ.CONST.YUAN-yuanIn)+'年'],
     ['会',L.hui.zhi+'会　'+HJ.huiGua(L.hui.idx)+'　'+fmtRange(L.hui.start,L.hui.end)+'　会内第'+L.hui.inYear+'年，余'+(HJ.CONST.HUI-L.hui.inYear)+'年'],
-    ['运','全元第'+L.yun.noG+'运（'+L.yun.gan+'，会内第'+L.yun.noH+'运）　直'+HJ.shortGuaName(yunImpl.name)+'　'+fmtRange(L.yun.start,L.yun.end)+'　运内第'+L.yun.inYear+'年'],
+    ['运','全元第'+L.yun.noG+'运（'+L.yun.gan+'，会内第'+L.yun.noH+'运）　值'+HJ.shortGuaName(yunImpl.name)+'　'+fmtRange(L.yun.start,L.yun.end)+'　运内第'+L.yun.inYear+'年'],
     ['世','全元第'+L.shi.noG+'世（'+L.shi.zhi+'，运内第'+L.shi.noY+'世）　'+fmtRange(L.shi.start,L.shi.end)+'　世内第'+L.shi.inYear+'年']
   ];
   if(yrImpl) ovRows.push(['值年卦',yrImpl.name+'　六十卦一年一卦顺先天圆图，主流以公元1984年值火风鼎起']);
@@ -255,10 +334,10 @@ function query(){
   /* --- 元会运世定位盘：三层同心环，几何与样式见 hjWheel --- */
   const yunStart=L.yun.start;
   const anchors=HJ.anchors().filter(a=>a.A>=yunStart&&a.A<=yunStart+HJ.CONST.YUN-1);
-  const wheelHtml=hjWheel(L,anchors);
-  const anchorRows=anchors.map(a=>'<tr><td>'+a.fmt+'（'+a.gz+'）</td><td>'+a.label+'</td><td>'+a.note+'</td></tr>').join('');
-  /* --- 卦气盘（据《皇极经世书》以元经会篇：每会直五卦各主六运，中卦当会之中，
-         闰卦乾坤坎离四正；运卦即当运所直之卦，一卦主六运七十二世；值年卦六十卦一年一卦） --- */
+  const wheelHtml=hjWheels(L,anchors);
+  const anchorRows=anchors.map(a=>'<tr><td>'+a.fmt+'（'+a.gz+'）</td><td>'+a.srcTxt+'</td><td>'+a.label+'</td><td>'+a.note+'</td></tr>').join('');
+  /* --- 卦气盘（据《皇极经世书》以元经会篇：每会值五卦各主六运，中卦当会之中，
+         闰卦乾坤坎离四正；运卦即当运所值之卦，一卦主六运七十二世；值年卦六十卦一年一卦） --- */
   function yaoHtml(bits6){
     let h='';
     for(let i=5;i>=0;i--){
@@ -285,24 +364,92 @@ function query(){
     return guaCol(nm,'第'+(k*6+1)+'至'+(k*6+6)+'运',isCur?'big':'',isMid?'中卦当会之中':'',isCur?'当运':'');
   });
   guaZhi.push(guaCol(HJ.leapGua(L.hui.idx),'闰卦','',''+HJ.CONST.HUI_ZHI[L.hui.idx]+'会所闰：离闰子丑寅、乾闰卯辰巳、坎闰午未申、坤闰酉戌亥',''));
-  /* 爻变推演：直卦变运卦、运卦变世卦、世卦变旬卦，一脉相承 */
+  /* 爻变推演：值卦变运卦、运卦变世卦、世卦变旬卦，一脉相承 */
   const guaBian=[
-    guaCol(ybImpl.name,'运卦','','直卦'+HJ.shortGuaName(ybImpl.zhiGua)+'第'+ybImpl.yao+'爻所变'),
+    guaCol(ybImpl.name,'运卦','','值卦'+HJ.shortGuaName(ybImpl.zhiGua)+'第'+ybImpl.yao+'爻所变'),
     guaCol(sbImpl.name,'世卦','','运卦'+HJ.shortGuaName(sbImpl.yunGua)+'第'+sbImpl.yao+'爻所变；通行嵌套表以1984至2043值此卦'),
-    guaCol(xunA.name,'旬卦（甲说）','','世卦'+HJ.shortGuaName(xunA.base)+'六爻变，今处第'+xunA.yao+'爻段（'+HJ.fmtYear(xunA.from)+'至'+HJ.fmtYear(xunA.to)+'）；通行表乙说并载他卦（如2014至2023蛊、2024至2033丰），与甲说互不相容，待考')
+    guaCol(xunA.name,'旬卦','','世卦'+HJ.shortGuaName(xunA.base)+'六爻变，今处第'+xunA.yao+'爻段（'+HJ.fmtYear(xunA.from)+'至'+HJ.fmtYear(xunA.to)+'）；段首自世卦所主六十年段起算，与世卦同源')
   ];
   /* 民间通行：十二辟卦配会与六十卦值年，两条并行之说 */
   const guaMin=[
-    guaCol(HJ.huiGua(L.hui.idx),'辟卦','',''),
+    guaCol(HJ.huiGua(L.hui.idx),'辟卦','','十二消息卦配十二月、移配十二会，与值五卦分属两序列，十二会中仅子、午两会同名，彼此不可互推'),
     guaCol(yrImpl.name,'值年卦','',''+HJ.fmtYear(L.A)+'所值；主流以1984年值火风鼎起，与本页锚点逐年等价')
   ];
-  const guaHtml=guaGroup('原书直运','每会五卦各主六运，中卦当会之中；四正卦不用直运，闰卦单列',guaZhi)
-    +guaGroup('爻变推演','直卦逐爻变出：一爻主一运为运卦，一爻主二世为世卦，一爻主十年为旬卦；此三层属后世传承，原书年表不逐运配卦',guaBian)
-    +guaGroup('民间通行','十二辟卦配会与六十卦值年，皆民间通行之说，与原书直运体系并存',guaMin);
+  const guaHtml=guaGroup('原书值运','每会五卦各主六运，中卦当会之中；四正卦不用值运，闰卦单列',guaZhi)
+    +guaGroup('爻变推演','值卦逐爻变出：一爻主一运为运卦，一爻主二世为世卦，一爻主十年为旬卦；此三层属后世传承，原书年表不逐运配卦',guaBian)
+    +guaGroup('民间通行','十二辟卦配会与六十卦值年，皆民间通行之说，与原书值运体系并存；两套序列各自成说，不可互推',guaMin);
+  /* --- 解卦层：卦既定，则观其象、玩其辞。上下体为观象之先，互体见卦中蕴藏，
+         卦辞定一卦之总纲、爻辞定一爻之时位；经文取自全站通用经文库，与他页同源。 --- */
+  const YAO_POS=['初','二','三','四','五','上'];
+  /* 爻题通例：初、上两位位名在前（初九、上六），二三四五四位九六在前（九二、六五） */
+  const yaoName=(p,b)=>(p==='初'||p==='上')?(p+(b?'九':'六')):((b?'九':'六')+p);
+  /* 取经文：卦辞、大象、爻辞、小象，键名与全站经文库一致 */
+  function jw(g,pos){
+    if(typeof GUA_CI==='undefined') return {ci:'',dax:'',yao:'',xiaoxiang:''};
+    return {ci:GUA_CI[g]||'', dax:(typeof GUA_DAXIANG!=='undefined'?GUA_DAXIANG[g]:'')||'',
+            yao:pos&&typeof YAO_CI!=='undefined'?(YAO_CI[g+pos]||''):'',
+            xiaoxiang:pos&&typeof YAO_XIAOXIANG!=='undefined'?(YAO_XIAOXIANG[g+pos]||''):''};
+  }
+  /* 解卦一行：卦名（上下体 + 互体）+ 卦辞 + 所主爻位之爻辞 */
+  function jieBlock(nm,lab,yaoIdx,yaoDesc){
+    if(!nm) return '';
+    const gi=HJ.guaInfo(HJ.fullGuaName(nm)); if(!gi) return '';
+    const hu=gi.hu;
+    const j=jw(gi.name, yaoIdx?YAO_POS[yaoIdx-1]:'');
+    const bit=yaoIdx?gi.bits6[yaoIdx-1]:0;
+    let rows='<tr><td>上下体</td><td>'+gi.lsym+'　'+gi.lower+'下'+gi.upper+'上，即'+gi.lower+'为下体、'+gi.upper+'为上体。上下二体是观象之先：下体主内、主始、主己，上体主外、主终、主人。</td></tr>';
+    if(hu) rows+='<tr><td>互体</td><td>'+hu.lowSym+'　'+hu.low+'下'+hu.up+'上，二三四爻成'+hu.low+'、三四五爻成'+hu.up+'，两互相重得'+hu.name+'。互体是卦中蕴藏之象，京房以来解卦通例，主事情中途的转折与内含之机。</td></tr>';
+    /* 错卦与综卦：错者六爻阴阳全反，综者六爻倒转，与互体合称错综复杂三变。
+       颐、大过、中孚、小过四卦倒转仍是自身（综同本卦），乾、坤、坎、离等八卦亦然，表中直书本卦。 */
+    const cz=HJ.cuoZong(gi.name);
+    if(cz){
+      const cg=HJ.guaInfo(cz.cuo), zg=HJ.guaInfo(cz.zong);
+      const same=cz.zong===gi.name?'倒转仍是自身，故综卦即本卦':'倒转成'+cz.zong;
+      rows+='<tr><td>错卦</td><td>'+cz.cuo+'（'+(cg?cg.lsym+'　'+cg.lower+'下'+cg.upper+'上':'')+'）：六爻阴阳全反，是一卦之对待，观之以见事之反面。</td></tr>';
+      rows+='<tr><td>综卦</td><td>'+cz.zong+'（'+(zg?zg.lsym+'　'+zg.lower+'下'+zg.upper+'上':'')+'）：'+same+'，是一卦之反易，观之以见换个立场看。</td></tr>';
+    }
+    if(j.dax) rows+='<tr><td>大象</td><td>'+j.dax+'</td></tr>';
+    if(yaoIdx&&j.yao) rows+='<tr><td>'+yaoName(YAO_POS[yaoIdx-1],bit)+'爻辞</td><td>'+j.yao+(j.xiaoxiang?('　小象：'+j.xiaoxiang):'')+'（'+yaoDesc+'）</td></tr>';
+    return '<div class="hj-jie"><h4>'+lab+'　'+gi.name+'</h4>'
+      +'<table class="hj-np"><tbody>'+rows+'</tbody></table></div>';
+  }
+  /* 吉凶判语：只判卦象之刚柔消息与宜忌之理，不断个人祸福。辞必依卦爻辞与象义，不作凭空断语 */
+  function panYu(nm){
+    if(!nm) return '';
+    const gi=HJ.guaInfo(HJ.fullGuaName(nm)); if(!gi) return '';
+    const b=gi.bits6;
+    const yang=b.reduce((s,x)=>s+x,0);
+    /* 刚柔消息：以六爻阴阳多少与当位与否立论，此邵子观物之本法 */
+    const dang=b.map((x,i)=>((i%2===0)===(x===1))).filter(Boolean).length;
+    let qixiang;
+    if(yang===6) qixiang='六爻纯阳，刚健之极';
+    else if(yang===0) qixiang='六爻纯阴，柔顺之极';
+    else if(yang>=4) qixiang='阳爻'+yang+'、阴爻'+(6-yang)+'，刚盛于柔';
+    else if(yang<=2) qixiang='阳爻'+yang+'、阴爻'+(6-yang)+'，柔盛于刚';
+    else qixiang='阳爻'+yang+'、阴爻'+(6-yang)+'，刚柔相均';
+    const j=jw(gi.name,'');
+    const yiJi=/凶|咎|厉|吝|悔/.test(j.ci)?'卦辞见戒辞，宜守正慎动'
+      :(/吉|亨|利/.test(j.ci)?'卦辞见亨利，宜顺势有为':'卦辞平实，宜静观其变');
+    return '<tr><td>'+gi.name+'</td><td>'+qixiang+'，六爻中当位者'+dang+'爻；'+yiJi+'。</td></tr>';
+  }
+  const jieHtml=
+    '<h3 class="rel-title">解卦：观象玩辞</h3>'
+    +'<div class="sub-note">卦既定，次第有四：先看上下二体，次看互体，再看错卦与综卦，末玩卦爻辞。上下体定内外始终，互体见其中藏，错卦见事之反面、综卦见换个立场看（错综与互体合称错综复杂三变），卦辞总断一卦之德（卦辞已见卦气盘各卡内，此处不重出），爻辞分断一爻之时位。卦爻辞皆《周易》本经原文。</div>'
+    +jieBlock(yg.name,'本运值卦',(L.yun.noG-1)%6+1,'值卦每爻主一运，本运即此爻所主，故取此爻')
+    +jieBlock(ybImpl.name,'运卦',ybImpl.yao,'运卦由值卦逐爻变出，本运正当其第'+ybImpl.yao+'爻')
+    +jieBlock(sbImpl.name,'世卦',sbImpl.yao,'世卦一爻主二世六十年，本世正当其第'+sbImpl.yao+'爻')
+    +jieBlock(xunA.name,'旬卦',xunA.yao,'旬卦一爻主十年，本段正当其第'+xunA.yao+'爻（'+HJ.fmtYear(xunA.from)+'至'+HJ.fmtYear(xunA.to)+'）')
+    +jieBlock(yrImpl.name,'值年卦','','值年卦一年一卦，不别爻位')
+    +'<h3 class="rel-title">吉凶判语</h3>'
+    +'<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>卦</th><th>判语</th></tr></thead><tbody>'
+    +panYu(yg.name)+panYu(yrImpl.name)
+    +'</tbody></table></div>'
+    +'<div class="sub-note">以上卦爻辞皆《周易》本经原文，与本页卦象分属两事：皇极经世以卦配时段，周易以卦爻辞断人事，相参是后世读法而非邵子本旨。故判语只就卦象刚柔消息与卦爻辞立论，言时段气象之宜忌，不断个人祸福、不主休咎；人事进退仍当以现实情势与专业意见为准。</div>';
   /* --- 原书逐年表（折叠框） --- */
   let chronHtml='';
   if(window.HJ_CHRONICLE && window.HJ_CHRONICLE.length){
     const span=HJ.chronSpan();
+    const CHRON_LAST_YUN=span.maxYun;
     const filterOn=window.__hjChronFilter||false;
     if(L.A>=span.minA&&L.A<=span.maxA){
       const rows=HJ.chronYun(L.yun.noG);
@@ -317,10 +464,11 @@ function query(){
         }).join('')
         +'</tbody></table>'
         +(evRows.length?'':'<div class="sub-note">本运原书无记事。</div>')
+        +(L.yun.noG===CHRON_LAST_YUN?'<div class="sub-note">本运为原书年表之末运。原书成于宋，以运经世止于后周显德六年己未（公元959），即本运第296年；本运余下六十余年原书未载，非缺漏。邵雍生于公元1011、卒于1077，已在年表之外，故年表中查不到邵雍本人。</div>':'')
         +'</details>';
     }else{
       chronHtml='<details class="hj-ref" id="hjChronFold"><summary>原书逐年表（以运经世）</summary>'
-        +'<div class="sub-note">所推年份（'+HJ.fmtYear(L.A)+'）在年表范围外，已代显原书首运。原书年表起帝尧甲辰（公元前2357，巳会第180运）讫后周显德六年（公元959），可点下方按钮在年表范围内浏览。</div>'
+        +'<div class="sub-note">所推年份（'+HJ.fmtYear(L.A)+'）在年表范围外，已代显原书首运。原书年表起帝尧甲辰（公元前2357，巳会第180运）讫后周显德六年己未（公元959，第'+span.maxYun+'运）；书成于宋，止于五代，宋初以后原书不载，故邵雍本人（1011至1077）亦在表外。可点下方按钮在年表范围内浏览。</div>'
         +'<div class="hj-nav"><button class="btn" onclick="jumpYearTo('+span.minA+')">跳到年表首年（前2357）</button><button class="btn" onclick="jumpYearTo('+span.maxA+')">跳到年表末年(959)</button></div>'
         +chronYunTable(span.minYun)
         +'</details>';
@@ -328,11 +476,18 @@ function query(){
   }
   /* --- 大事锚点总表（三档着色与推演年份挂钩：本世绛底、本运浅绛底、同会绛字） --- */
   const allA=HJ.anchors();
-  const anchorTable='<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份</th><th>大事</th><th>备注</th><th>元会运世定位</th></tr></thead><tbody>'
+  const anchorTable='<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份</th><th>纪年所本</th><th>大事</th><th>备注</th><th>元会运世定位</th></tr></thead><tbody>'
     +allA.map(a=>{
       const tier=(a.A>=L.shi.start&&a.A<=L.shi.end)?'hj-row-shi':((a.A>=L.yun.start&&a.A<=L.yun.end)?'hj-row-yun':((a.huiZhi===L.hui.zhi)?'hj-row-hui':''));
-      return '<tr'+(tier?' class="'+tier+'"':'')+'><td>'+a.fmt+'（'+a.gz+'）</td><td>'+a.label+'</td><td>'+a.note+'</td><td>'+a.huiZhi+'会 第'+a.yunNoG+'运（'+a.yunGan+'） 第'+a.shiNoG+'世（'+a.shiZhi+'）</td></tr>';
-    }).join('')+'</tbody></table></div>';
+      return '<tr'+(tier?' class="'+tier+'"':'')+'><td>'+a.fmt+'（'+a.gz+'）</td><td>'+a.srcTxt+'</td><td>'+a.label+'</td><td>'+a.note+'</td><td>'+a.huiZhi+'会 第'+a.yunNoG+'运（'+a.yunGan+'） 第'+a.shiNoG+'世（'+a.shiZhi+'）</td></tr>';
+    }).join('')+'</tbody></table></div>'
+    +'<div class="sub-note">纪年所本一列辨两套纪年：标原书纪年者，依《皇极经世》以运经世所载之年；标通行史年者，依后世史学与夏商周断代工程之年。原书从殷历长纪年，与断代工程所定相差非一，故同一史事在两套纪年下所落之世可差数世，览者并观自辨。两套之差逐条列下，以见其概。</div>'
+    +'<table class="hj-np"><thead><tr><th>史事</th><th>原书纪年</th><th>通行史年</th><th>相差</th></tr></thead><tbody>'
+    +HJ.jiNianDuiZhao().map(function(r){
+      return '<tr><td>'+r.label+'</td><td>'+r.sj+'</td><td>'+r.hx+'</td><td>'+r.gap+'</td></tr>';
+    }).join('')
+    +'</tbody></table>'
+    +'<div class="sub-note">原书纪年一列为《皇极经世》以运经世所载之年，通行史年一列即本页锚点表所用之年。差数随史事而不同，非一条固定年差：克商相差七十六年，商汤建国相差一百六十六年，可见两套纪年并非整体平移，故不可用单一差数互推，唯逐年对读方准。</div>';
   
   const HUI_PLAIN={
   '子':'一元开天之时，如同一天的儿子夜，天地初分、万物未生，对应复卦一阳初动。',
@@ -349,18 +504,18 @@ function query(){
   '亥':'一元将终之会，如亥时人定，对应坤卦六阴纯静，贞下起元、另开新元。'
   };
   const huiP=HUI_PLAIN[L.hui.zhi];
-  const yunP='本运为'+L.hui.zhi+'会三十运中的第'+L.yun.noH+'运（全元第'+L.yun.noG+'运，原书经运之'+L.yun.gan+'），直'+yunImpl.name+'卦，覆盖'+fmtRangeShort(L.yun.start,L.yun.end)+'这三百六十年，现处运内第'+L.yun.inYear+'年。';
+  const yunP='本运为'+L.hui.zhi+'会三十运中的第'+L.yun.noH+'运（全元第'+L.yun.noG+'运，原书经运之'+L.yun.gan+'），值'+yunImpl.name+'卦，覆盖'+fmtRangeShort(L.yun.start,L.yun.end)+'这三百六十年，现处运内第'+L.yun.inYear+'年。';
   const shiP='本世为该运十二世中的第'+L.shi.noY+'世（全元第'+L.shi.noG+'世，原书经世之'+L.shi.zhi+'），覆盖'+fmtRangeShort(L.shi.start,L.shi.end)+'这三十年，现处世内第'+L.shi.inYear+'年。';
   let yrP='';
   if(yrImpl) yrP='值年卦（民间）'+yrImpl.name+'（六十卦一年一卦，1984年值火风鼎）。';
   const xunPlain=HJ.xunGuaJia(L);
-  const xunP='旬卦（甲说 爻变）'+xunPlain.name+'（世卦'+HJ.shortGuaName(xunPlain.base)+'第'+xunPlain.yao+'爻变，一爻主十年）；通行表乙说此段并载他卦，两说互不相容待考。';
+  const xunP='旬卦'+xunPlain.name+'（世卦'+HJ.shortGuaName(xunPlain.base)+'第'+xunPlain.yao+'爻变，一爻主十年，段为'+fmtRangeShort(xunPlain.from,xunPlain.to)+'）。';
   const plain='<h3 class="det-h">白话解读</h3><div class="sub-note">皇极经世是古人给天地计时的大尺子：一元如一日，会如时辰，运如月份，世如日期。本段把盘面定位翻成现代白话，只述体系位置与卦象气象，不作吉凶断言。</div>'
   +'<table class="hj-np"><tbody>'
   +'<tr><td>大周期</td><td>现处第'+L.yuanNo+'元。一元十二万九千六百年，如一日之十二时辰；本元已行至'+L.hui.zhi+'会，合全元第'+L.hui.inYear+'年。'+huiP+'</td></tr>'
   +'<tr><td>本会</td><td>'+L.hui.zhi+'会共一万零八百年，配辟卦'+HJ.huiGua(L.hui.idx)+'，起'+fmtRangeShort(L.hui.start,L.hui.end)+'。'+yunP+'</td></tr>'
   +'<tr><td>本运本世</td><td>'+shiP+(yrP||'')+(xunP||'')+'</td></tr>'
-  +'<tr><td>如何读</td><td>原书以元经会：每会直五卦、各主六运，其中卦当会之中，乾坤坎离四正卦为闰不用；本运所直之卦主六运七十二世，气象基调由此卦而定。运卦、世卦的六爻变与值年卦为后世传承与民间体系，本页分层注明出处。把本页与万年历、老黄历对照，可体会邵子以数观物、以卦记时的思路。</td></tr>'
+  +'<tr><td>如何读</td><td>原书以元经会：每会值五卦、各主六运，其中卦当会之中，乾坤坎离四正卦为闰不用；本运所值之卦主六运七十二世，气象基调由此卦而定。运卦、世卦的六爻变与值年卦为后世传承与民间体系，本页分层注明出处。把本页与万年历、老黄历对照，可体会邵子以数观物、以卦记时的思路。</td></tr>'
   +'</tbody></table>';
 /* 定位盘置首：盘上点任一段即跳年重排，盘若排在长文之后，每次点选都把人甩回页首，
    看不到盘面上的变化。盘在页首，点选后原地留在视野内（见 jumpYearTo 的 keep），无视觉切换。 */
@@ -372,13 +527,70 @@ document.getElementById('out').innerHTML=
     +'<h3 class="rel-title">皇极尺</h3>'
     +'<div class="hj-ruler">'+ruler+'</div>'
     +'<h3 class="rel-title">卦气盘</h3>'+guaHtml
-    +(anchorRows?('<h3 class="rel-title">本运大事锚点</h3><div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份干支</th><th>事件</th><th>备注</th></tr></thead><tbody>'+anchorRows+'</tbody></table></div>'):'')
+    +'<h3 class="rel-title">先天六十四卦方图</h3>'
+    +'<div class="hj-np-wrap">'+hjFangtu(yg.name)+'</div>'
+    +'<div class="sub-note">方圆二图并称，圆图象天、方图象地，此其方图：行自上而下依次主下卦（内卦）乾兑离震巽坎艮坤，列自左而右依次主上卦（外卦）乾兑离震巽坎艮坤，逐行自左而右读之即圆图之序；对角八格为八纯卦，其中绛字标出者即乾坤坎离四正，正是不用值运之四卦，余六十卦各主六运。淡底一格为本运所值之卦。</div>'
+    +jieHtml
+    +'<h3 class="rel-title">值年卦六十年速查表</h3>'
+    +'<div class="hj-nav"><button class="btn" onclick="navYear(-1)">上一年</button><button class="btn" onclick="navYear(1)">下一年</button><button class="btn" onclick="navToYun()">跳到本运首年</button><button class="btn" onclick="navToShi()">跳到本世首年</button></div>'
+    +'<div class="sub-note">六十卦一年一卦，自复起、顺先天圆图、至剥而终，终则复始；本表随所推年份走，排其所在的一整轮，淡底一行即本年。锚点与算式见起例说明值年卦条，诸本锚点不一故逐年全异，用表前须先认明其以何年为起。</div>'
+    +'<div class="hj-np-wrap">'+hjYearTable(L)+'</div>'
+    +hjLiuNian(L)
+    +(anchorRows?('<h3 class="rel-title">本运大事锚点</h3><div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份干支</th><th>纪年所本</th><th>事件</th><th>备注</th></tr></thead><tbody>'+anchorRows+'</tbody></table></div>'):'')
     +'<h3 class="rel-title">大事锚点表</h3>'
-    +'<div class="sub-note">约四十条历代大事，各自标注元会运世定位。<span class="hj-mark">绛底</span>为本世（'+fmtRangeShort(L.shi.start,L.shi.end)+'）内、<span class="hj-mark">浅绛底</span>为本运（'+fmtRangeShort(L.yun.start,L.yun.end)+'）内、<span class="hj-mark">绛字</span>为同会（'+L.hui.zhi+'会）其余各条。</div>'
+    +'<div class="sub-note">本表凡'+allA.length+'条，历代大事各标注元会运世定位。<span class="hj-mark">绛底</span>为本世（'+fmtRangeShort(L.shi.start,L.shi.end)+'）内、<span class="hj-mark">浅绛底</span>为本运（'+fmtRangeShort(L.yun.start,L.yun.end)+'）内、<span class="hj-mark">绛字</span>为同会（'+L.hui.zhi+'会）其余各条。锚点止于民国，当代不作锚点。</div>'
     +anchorTable
+    +'<h3 class="rel-title">六日七分法</h3>'
+        +'<div class="sub-note">孟喜卦气说：去坎离震兑四正，余六十卦各主六日七分（365.25÷60≈6.0875日），以冬至为历元、复卦当值，逐卦顺先天圆图推日。此系汉易卦气说，与邵雍以元经会的值卦分属两系，并列参照。输入月日即得当日卦气归属。</div>'
+        +'<div class="form-row"><div class="field"><label>月</label><input id="hjQfM" type="number" min="1" max="12" value="12" aria-label="月"></div><div class="field"><label>日</label><input id="hjQfD" type="number" min="1" max="31" value="22" aria-label="日"></div><button class="btn gold" type="button" onclick="hjQiFen()">推算</button></div>'
+        +'<div id="hjQfOut"></div>'
+        +'<h3 class="rel-title">八字联动</h3>'
+        +'<div class="sub-note">皇极经世以元会运世观天地大局，八字以四柱五行观个人命局，两系对象不同、尺度悬殊，本页不代作吉凶互断。填入出生年，即出该年的元会运世定位与值年卦，可与八字排盘页的流年大运互参。</div>'
+        +'<div class="form-row"><div class="field"><label>出生年（公历）</label><input id="hjBzYear" type="text" placeholder="2026" aria-label="出生年（格式同年份直达，如 2026 或 前2357）"></div><button class="btn gold" type="button" onclick="hjBzLink()">查定位</button><a class="btn" href="bazi.html">打开八字排盘</a></div>'
+        +'<div id="hjBzOut"></div>'
+        +'<h3 class="rel-title">原书年表检索</h3>'
+    +'<div class="sub-note">原书以运经世一千五百三十九条记事，跨运一次检索：输入人名、地名或事类关键词，即列其全部年份、干支与元会运世定位，并出原书记事。检索词简繁互通，所列记事一律转写简体。年表止于后周显德六年己未（公元959），宋初以后原书不载。</div>'
+    +'<div class="jw-search"><input class="jw-input" id="hjChronQ" type="text" placeholder="输入人名、地名或事类关键词，如 孔子、牧野、決河" aria-label="原书年表检索" onkeydown="if(event.key===\'Enter\')hjChronSearch()"><button class="btn gold" type="button" onclick="hjChronSearch()">检索</button><span class="jw-count" id="hjChronN"></span></div>'
+    +'<div id="hjChronHits"></div>'
+    +'<h3 class="rel-title">年份互查</h3>'
+    +'<div class="sub-note">填一个年份，出该年的元会运世定位、原书年表本年记事、本世三十年的原书全部记事，以及前后最近的两条大事锚点。原书纪年与通行史年之差随史事而不同、非整体平移，故此处不设换算系数，只把两套并列在同年之下供对读。</div>'
+    +'<div class="form-row"><div class="field"><label>年份</label><input id="hjLookQ" type="text" placeholder="618 前1122" autocomplete="off" aria-label="互查年份" onkeydown="if(event.key===\'Enter\')hjYearLook()"></div><button class="btn gold" type="button" onclick="hjYearLook()">互查</button></div>'
+    +'<div id="hjLookOut"></div>'
+    +'<h3 class="rel-title">时间跨度计算</h3>'
+    +'<div class="sub-note">填起讫两年，出相距年数、折合几世几运、两端的元会运世定位与所值之卦，并报本段在原书年表中的记事条数。世以三十年、运以三百六十年为单位，故唐二百八十九年不出一运一类跨度感可在此逐段验算。</div>'
+    +'<div class="form-row"><div class="field"><label>起年</label><input id="hjSpanA" type="text" placeholder="618 前2357" autocomplete="off" aria-label="起年" onkeydown="if(event.key===\'Enter\')hjSpan()"></div><div class="field"><label>讫年</label><input id="hjSpanB" type="text" placeholder="618 前2357" autocomplete="off" aria-label="讫年" onkeydown="if(event.key===\'Enter\')hjSpan()"></div><button class="btn gold" type="button" onclick="hjSpan()">计算</button></div>'
+    +'<div id="hjSpanOut"></div>'
+    +'<h3 class="rel-title">以元经会（逐世干支方阵，一元 4320 世）</h3>'
+    +'<div class="sub-note">以元经会逐世定位：一元十二会、每会三十运、每运十二世，合四千三百二十世。世序 N 自 1 至 4320，会内运序自 1 至 30。可按世序 N 直达，或选会支、填会内运序、选世支三项定位；整会一览列该会三十运三百六十世，整运一览列该运十二世。</div>'
+    +'<div class="form-row">'
+    +'<div class="field"><label>世序 N</label><input id="hjYjhN" type="number" min="1" max="4320" placeholder="1" aria-label="世序N"></div>'
+    +'<div class="field"><label>会支</label><select id="hjYjhHui" aria-label="会支"></select></div>'
+    +'<div class="field"><label>会内运序</label><input id="hjYjhYun" type="number" min="1" max="30" placeholder="1" aria-label="会内运序"></div>'
+    +'<div class="field"><label>世支</label><select id="hjYjhShi" aria-label="世支"></select></div>'
+    +'<button class="btn gold" type="button" onclick="hjYjhGo()">定位</button>'
+    +'<button class="btn" type="button" onclick="hjYjhHuiAll()">整会一览</button>'
+    +'<button class="btn" type="button" onclick="hjYjhYunAll()">整运一览</button>'
+    +'</div>'
+    +'<div id="hjYjhOut"></div>'
+    +'<details class="hj-ref" id="hjYunAllFold"><summary>元会运世总表（一元三百六十运）</summary>'
+    +'<div class="sub-note">一元十二会、每会三十运，合三百六十运；每运值一卦之爻（六十卦各六爻），故每卦主六运。绛底一运即本运，绛字各运即同会。</div>'
+    +'<div class="hj-np-wrap">'+hjYunTable(L)+'</div>'
+    +'</details>'
     +chronHtml;
   
+  /* 三件查询工具随整页重排复原：工具在结果区内，重排会重建其 DOM，
+     故输入值存于 window，重排后回填并重算，读者换年份时工具结果不丢 */
+  const qEl=document.getElementById('hjChronQ');
+  if(qEl && window.__hjChronQ){ qEl.value=window.__hjChronQ; hjChronSearch(); }
+  const lEl=document.getElementById('hjLookQ');
+  if(lEl && window.__hjLookQ){ lEl.value=window.__hjLookQ; hjYearLook(); }
+  const saEl=document.getElementById('hjSpanA'), sbEl=document.getElementById('hjSpanB');
+  if(saEl && window.__hjSpanA){ saEl.value=window.__hjSpanA; sbEl.value=window.__hjSpanB||''; hjSpan(); }
   const prPlain=document.getElementById('plainRef'); if(prPlain) prPlain.innerHTML=plain;
+  ['hjYjhHui','hjYjhShi'].forEach(function(id){
+    var sel=document.getElementById(id); if(!sel) return;
+    sel.innerHTML=HJ_YJH_ZHI.map(function(z){return '<option value="'+z+'">'+z+'</option>';}).join('');
+  });
   hjApplyFold();
 LAST={A:L.A, L:L, guaqi:HJ.GUAQI_READY(), note:r.note};
  }catch(e){
@@ -409,6 +621,250 @@ function navChron(d){
 function toggleChronFilter(){
   window.__hjChronFilter=!window.__hjChronFilter;
   query();
+}
+/* 逐年翻阅：值年卦一年一卦，前后年切换即换卦，与年份直达共用 jumpYearTo。
+   翻年只改年份不动口径，故直接改 directA，不经输入框。 */
+function navYear(d){
+  if(!LAST) return;
+  jumpYearTo(LAST.A+d);
+}
+/* 运世快速跳转：跳到本运或本世的首年，定位盘已能点选，此二钮给不便点盘时用（如窄屏盘小） */
+function navToYun(){ if(!LAST) return; jumpYearTo(LAST.L.yun.start); }
+function navToShi(){ if(!LAST) return; jumpYearTo(LAST.L.shi.start); }
+/* 检索词简繁互通：年表原文为繁体，用户多按简体输入，故两形并检。
+   简繁表取站内既有 jianfan.js（OpenCC 简→繁），逐码点遍历，兼收扩展区单字；
+   该表只用于比对，原文显示另经 hjJianti 转简体。 */
+function hjFan(t){
+  if(typeof JIANFAN==='undefined') return t;
+  let s='';
+  for(const c of t) s+=JIANFAN[c]||c;
+  return s;
+}
+/* 繁→简：jianfan.js 是简→繁表，倒排得繁→简（一繁对多简时取首个；乾等表外字原样保留，
+   年表卦名与人名用字不受影响）。年表原文为四库本繁体，页面显示一律转简体。 */
+let _FTS=null;
+function hjJianti(t){
+  if(typeof JIANFAN==='undefined') return t;
+  if(!_FTS){ _FTS={}; Object.keys(JIANFAN).forEach(function(k){ const v=JIANFAN[k]; if(!_FTS[v]) _FTS[v]=k; }); }
+  let s='';
+  for(const c of t) s+=_FTS[c]||c;
+  return s;
+}
+/* 原书年表全文检索：以运经世一千五百三十九条记事跨运检索，命中即列其元会运世定位与原文，
+   点年份跳到该年。检索只重写结果区，不触发整页重排，故输入焦点与折叠态都不动。 */
+function hjChronSearch(){
+  const box=document.getElementById('hjChronHits'); if(!box) return;
+  const el=document.getElementById('hjChronQ'); const q=(el?el.value:'').trim();
+  const cnt=document.getElementById('hjChronN');
+  window.__hjChronQ=q;
+  if(!q){ box.innerHTML=''; if(cnt) cnt.textContent=''; return; }
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fan=hjFan(q);
+  const forms=fan===q?[q]:[q,fan];
+  const all=HJ.chronAll();
+  const hit=all.filter(r=>forms.some(f=>r.t.indexOf(f)>=0));
+  if(cnt) cnt.textContent=hit.length?('检得 '+hit.length+' 条'):'未检得';
+  if(!hit.length){
+    box.innerHTML='<div class="sub-note">原书年表（前2357至公元959）内未检得含“'+esc(q)+'”的记事。年表为原书所载，书成于宋、止于五代，宋初以后不在表内；检索已兼收简体与繁体两种写法。</div>';
+    return;
+  }
+  /* 命中上限：年表记事最长者百余字，一次全列会过长，故截前二百条并注明 */
+  const LIMIT=200, show=hit.slice(0,LIMIT);
+  const mark=s=>{
+    let h=esc(s);
+    forms.forEach(f=>{ h=h.split(esc(f)).join('<mark>'+esc(f)+'</mark>'); });
+    return h;
+  };
+  box.innerHTML='<div class="sub-note">检得 <b>'+hit.length+'</b> 条'
+    +(hit.length>LIMIT?('，下表列前 '+LIMIT+' 条，请再添字缩小范围'):'')
+    +'。点年份跳到该年，全页定位随之重排。</div>'
+    +'<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份</th><th>干支</th><th>元会运世定位</th><th>原书记事</th></tr></thead><tbody>'
+    +show.map(r=>'<tr><td class="hj-go" onclick="jumpYearTo('+r.A+')">'+r.fmt+'</td><td>'+r.gz+'</td>'
+      +'<td>'+r.huiZhi+'会 第'+r.yunNoG+'运（'+r.yunGan+'） 第'+r.shiNoG+'世（'+r.shiZhi+'）</td>'
+      +'<td>'+hjJianti(mark(r.t))+'</td></tr>').join('')
+    +'</tbody></table></div>';
+}
+/* 值年卦配五行、配方位、配人事：民间流年家以值年卦配五行、方位、人事者各有其法，诸本互异。
+   本页所列为经典通行之配属，皆取卦所属之宫（先天八卦宫，即页首圆图外圈八宫）：
+   五行取八卦五行（乾兑金、震巽木、坎水、离火、艮坤土）；
+   方位两存，后天取《说卦传》帝出乎震一节，先天取天地定位一节；
+   人事取《说卦传》乾称父、坤称母、震长男、巽长女、坎中男、离中女、艮少男、兑少女一节。
+   此非某一家流年之说，读者若从某家，须先认其配法。 */
+const HZ_WX={'乾':'金','兑':'金','离':'火','震':'木','巽':'木','坎':'水','艮':'土','坤':'土'};
+const HZ_FANG_HOU={'坎':'北','艮':'东北','震':'东','巽':'东南','离':'南','坤':'西南','兑':'西','乾':'西北'};
+const HZ_FANG_XIAN={'乾':'南','坤':'北','离':'东','坎':'西','兑':'东南','震':'东北','巽':'西南','艮':'西北'};
+const HZ_REN={'乾':'父','坤':'母','震':'长男','巽':'长女','坎':'中男','离':'中女','艮':'少男','兑':'少女'};
+/* 值年卦流年：民间一年一卦观年景之说。判语只就卦象刚柔消息与卦辞字面立论，
+   不作命理推演、不涉个人八字、不落一人之祸福。
+   🔴 口径冲突须并出：本页解卦层与吉凶判语两节声明不断个人祸福，此节按民间流年之说出宜忌，
+   两处口径不同，故节首与节尾各注一次，读者自辨。 */
+function hjLiuNian(L){
+  const yg=HJ.yearGua(L); if(!yg) return '';
+  const one=A=>{
+    const g=HJ.yearGuaCalc(A), gi=HJ.guaInfo(HJ.fullGuaName(g.name));
+    const yang=gi.bits6.reduce((s,x)=>s+x,0);
+    const dang=gi.bits6.map((x,i)=>((i%2===0)===(x===1))).filter(Boolean).length;
+    const ci=gi.ci||'';
+    const jie=/凶|咎|厉|吝|悔/.test(ci)?'宜守正慎动'
+      :(/吉|亨|利/.test(ci)?'宜顺势有为':'宜静观其变');
+    return {A:A, name:g.name, seq:g.seq, yang:yang, dang:dang, ci:ci, jie:jie, cur:A===L.A};
+  };
+  const cur=one(L.A), prev=one(L.A-1), next=one(L.A+1);
+  const yi=[], ji=[];
+  if(cur.yang>=4) yi.push('刚盛之岁，宜进取有为、宜开新局');
+  else if(cur.yang<=2) ji.push('柔盛之岁，宜守成待时、忌强行进取');
+  if(cur.dang>=4) yi.push('当位者众，宜循正轨行事');
+  else if(cur.dang<=2) ji.push('当位者寡，宜审势而后动');
+  if(/元|亨/.test(cur.ci)) yi.push('卦辞见元亨，宜举大事、宜会众');
+  if(/利/.test(cur.ci)) yi.push('卦辞见利，宜谋为、宜涉远');
+  if(/凶|咎|厉|吝|悔/.test(cur.ci)) ji.push('卦辞见戒辞，忌躁进、忌轻诺');
+  if(!yi.length) yi.push('卦辞平实，宜循常守分');
+  if(!ji.length) ji.push('卦无显戒，仍忌恃势妄动');
+  const gA=HJ.guaInfo(HJ.fullGuaName(cur.name));
+  const gong=hjXtGong(cur.name);
+  const row=r=>'<tr'+(r.cur?' class="hj-row-shi"':'')+'><td>'+HJ.fmtYear(r.A)+'</td><td>第'+r.seq+'卦</td><td>'+r.name+'</td>'
+    +'<td>'+r.yang+'阳'+(6-r.yang)+'阴，当位'+r.dang+'爻</td><td>'+r.jie+'</td></tr>';
+  return '<h3 class="rel-title">值年卦流年</h3>'
+    +'<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份</th><th>序</th><th>值年卦</th><th>卦象</th><th>流年判语</th></tr></thead><tbody>'
+    +row(prev)+row(cur)+row(next)
+    +'</tbody></table></div>'
+    +'<table class="hj-np"><tbody>'
+    +'<tr><td>本年气象</td><td>'+gA.lsym+'　'+cur.name+'：'+cur.yang+'阳'+(6-cur.yang)+'阴，六爻中当位者'+cur.dang+'爻；卦辞'+cur.ci+'</td></tr>'
+    +'<tr><td>本年之宜</td><td>'+yi.join('；')+'。</td></tr>'
+    +'<tr><td>本年之忌</td><td>'+ji.join('；')+'。</td></tr>'
+    +'</tbody></table>'
+    +'<h4 class="det-h">本年值年卦的五行、方位与人事</h4>'
+    +'<table class="hj-np"><thead><tr><th>配属</th><th>所据</th><th>本卦之属</th></tr></thead><tbody>'
+    +'<tr><td>五行</td><td>八卦五行，乾兑金、震巽木、坎水、离火、艮坤土</td><td>'+cur.name+'属'+gong+'宫，宫之五行为'+(HZ_WX[gong]||'')+'</td></tr>'
+    +'<tr><td>方位（后天）</td><td>《说卦传》帝出乎震一节</td><td>'+(HZ_FANG_HOU[gong]||'')+'方</td></tr>'
+    +'<tr><td>方位（先天）</td><td>《说卦传》天地定位一节</td><td>'+(HZ_FANG_XIAN[gong]||'')+'方</td></tr>'
+    +'<tr><td>人事</td><td>《说卦传》乾称父、坤称母、震长男、巽长女、坎中男、离中女、艮少男、兑少女</td><td>'+gong+'宫，于六子之列为'+(HZ_REN[gong]||'')+'</td></tr>'
+    +'</tbody></table>'
+    +'<div class="sub-note">值年卦为民间体系，原书以卦配时段而不逐年配卦。本节判语只就卦象刚柔消息与卦辞立论；五行、方位、人事三项配属自本卦所属之宫推出，五行取八卦五行，方位先后天两说并列，人事取《说卦传》六子之列。宫之取法有两系，本页用先天圆图八宫（页首圆盘外圈），另有京房八宫，两系分组不同则五行随之而异，如风天小畜先天圆图在乾宫属金、京房八宫在巽宫属木；民间流年家以值年卦配五行、方位、人事者各有其法，诸本互异，若从某家须先认其配法。本页解卦层与吉凶判语两节不断个人祸福，本节出宜忌与配属，口径不同，并列供辨。</div>';
+}
+/* 十六位数时序配属与皇帝王伯：渲染 4×4 表，行主元会运世、列主元会运世，
+   每格出四时配属（春行春等）与皇帝王伯配属（道行道等）。 */
+function hjShixuRender(){
+  const el=document.getElementById('hjShixuTable'); if(!el||!HJ.SHIXU16) return;
+  const S=HJ.SHIXU_SEASONS,E=HJ.SHIXU_EMPERORS,A=HJ.SHIXU_ACTIONS,V=HJ.SHIXU_VERBS;
+  let h='<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th></th>'+S.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>';
+  HJ.SHIXU16.forEach(function(row,i){
+    h+='<tr><th>'+['元','会','运','世'][i]+'</th>';
+    row.forEach(function(c,j){
+      h+='<td>'+c.season+'<br><span class="hj-mark">'+c.emperor+'（'+c.action+'行'+A[j]+'）</span></td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div class="sub-note">十六格以元会运世配春夏秋冬（元春、会夏、运秋、世冬），以皇帝王伯配道德功力（皇道、帝德、王功、伯力）。行主天（元会运世），列主时（春夏秋冬），每格即一行一时之交会。原文又以十六格配三皇五帝三王五伯十六人事，此处不重出，可参原书。</div>';
+  el.innerHTML=h;
+}
+/* 六日七分法：去坎离震兑四正，余六十卦各主六日七分（365.25/60≈6.0875日），以冬至为历元。 */
+function hjQiFen(){
+  const box=document.getElementById('hjQfOut'); if(!box) return;
+  const m=parseInt(document.getElementById('hjQfM').value,10);
+  const d=parseInt(document.getElementById('hjQfD').value,10);
+  if(!m||!d||m<1||m>12||d<1||d>31){ box.innerHTML='<div class="sub-note">请填月（1至12）与日（1至31）。</div>'; return; }
+  const r=HJ.liuRiQiFen(m,d);
+  const gi=HJ.guaInfo(HJ.fullGuaName(r.gua));
+  const ci=gi?gi.ci:'';
+  box.innerHTML='<div class="hj-np-wrap"><table class="hj-np"><tbody>'
+    +'<tr><td>月日</td><td>'+m+' 月 '+d+' 日</td></tr>'
+    +'<tr><td>卦气卦</td><td>'+r.gua+'（六十卦序第 '+r.seq+' 卦）</td></tr>'
+    +'<tr><td>距冬至</td><td>'+r.daysSinceWS+' 日（冬至复卦当值起算）</td></tr>'
+    +'<tr><td>卦辞</td><td>'+(ci||'未载')+'</td></tr>'
+    +'</tbody></table></div>'
+    +'<div class="sub-note">六日七分出孟喜卦气说，去坎离震兑四正，余六十卦各主六日七分，合三百六十五日四分之一日。此系与邵雍以元经会的值卦分属两系：前者配日（一日一卦气时段），后者配年月运世（一卦主数年数十年）。并列参照，不可互推。</div>';
+}
+/* 八字联动：输入出生年，出元会运世定位与值年卦，并出跳转八字排盘页的链接 */
+function hjBzLink(){
+  const box=document.getElementById('hjBzOut'); if(!box) return;
+  const raw=(document.getElementById('hjBzYear').value||'').trim();
+  const A=HJ.parseYearInput(raw);
+  if(A==null){ box.innerHTML='<div class="sub-note">请填出生年，如 1984 或 前2357。</div>'; return; }
+  const L=HJ.locate(A); if(!L){ box.innerHTML='<div class="sub-note">年份超出可推算范围。</div>'; return; }
+  const yg=HJ.yearGua(L), yg2=HJ.yunGua(L), sg=HJ.shiGuaBian(L);
+  const huiP=HJ.CONST.HUI_ZHI[L.hui.idx];
+  const gz=HJ.gzOf(A);
+  box.innerHTML='<div class="hj-np-wrap"><table class="hj-np"><tbody>'
+    +'<tr><td>出生年</td><td>'+HJ.fmtYear(A)+'（'+gz+'年）</td></tr>'
+    +'<tr><td>元会运世</td><td>'+huiP+'会 第'+L.yun.noG+'运（'+L.yun.gan+'） 第'+L.shi.noG+'世（'+L.shi.zhi+'）</td></tr>'
+    +'<tr><td>本运值卦</td><td>'+yg2.name+'（主六运七十二世）</td></tr>'
+    +'<tr><td>值年卦</td><td>'+(yg?yg.name:'（该年在可推算范围外）')+'</td></tr>'
+    +'</tbody></table></div>'
+    +'<div class="sub-note">皇极经世以元会运世观天地大势，八字以四柱五行观个人命局，两系尺度悬殊、对象不同，并列参照即可，不可互代。八字排盘页可看四柱十神与大运流年的个人层面分析。</div>';
+}
+/* 时间跨度计算：起讫两年 → 相距年数、折合世与运、两端定位与值卦、期间年表记事条数。
+   一世三十年约当一代人、一运三百六十年约当一个大朝代，此说本页原只作话说，此处做成可算的。 */
+function hjSpan(){
+  const box=document.getElementById('hjSpanOut'); if(!box) return;
+  window.__hjSpanA=(document.getElementById('hjSpanA').value||'').trim();
+  window.__hjSpanB=(document.getElementById('hjSpanB').value||'').trim();
+  const A=HJ.parseYearInput(window.__hjSpanA);
+  const B=HJ.parseYearInput(window.__hjSpanB);
+  if(A==null||B==null){ box.innerHTML='<div class="sub-note">请填起讫两年，格式同年份直达（如 618、前2357、-2357）。</div>'; return; }
+  const lo=Math.min(A,B), hi=Math.max(A,B);
+  const La=HJ.locate(lo), Lb=HJ.locate(hi);
+  if(!La||!Lb){ box.innerHTML='<div class="sub-note">年份超出可推算范围。</div>'; return; }
+  const span=hi-lo;
+  const shiN=Math.floor(span/HJ.CONST.SHI), shiR=span%HJ.CONST.SHI;
+  const yunN=Math.floor(span/HJ.CONST.YUN);
+  const gA=HJ.yunGua(La), gB=HJ.yunGua(Lb);
+  const spanTxt='相距 '+span+' 年，合 '+shiN+' 世'+(shiR?('零 '+shiR+' 年'):'')
+    +'；'+(yunN?(yunN+' 运'+(span%HJ.CONST.YUN?('零 '+(span%HJ.CONST.YUN)+' 年'):'')):'不出一运');
+  const guaTxt=(gA&&gB&&gA.name===gB.name)
+    ? ('期间值卦未更替，终始皆 '+gA.name+'（该卦主六运共二千一百六十年）')
+    : ('期间值卦更替：起 '+gA.name+'，讫 '+gB.name);
+  const cs=HJ.chronSpan();
+  let chronTxt='';
+  if(HJ.chronHas() && hi>=cs.minA && lo<=cs.maxA){
+    const s=Math.max(lo,cs.minA), e=Math.min(hi,cs.maxA);
+    const n=HJ.chronAll().filter(r=>r.A>=s&&r.A<=e).length;
+    chronTxt='本段落在原书年表范围内（'+HJ.fmtYear(s)+' 至 '+HJ.fmtYear(e)+'），原书有记事 '+n+' 条。'
+      +((lo<cs.minA||hi>cs.maxA)?'（表外部分不计：原书年表起帝尧甲辰、讫后周显德六年己未）':'');
+  }else{
+    chronTxt='本段与原书年表（前2357 至公元959）不相交，原书无记事可比。';
+  }
+  const pos=r=>r.hui.zhi+'会 第'+r.yun.noG+'运（'+r.yun.gan+'） 第'+r.shi.noG+'世（'+r.shi.zhi+'）　'+r.gz+'年';
+  box.innerHTML='<div class="sub-note">'+spanTxt+'。</div>'
+    +'<div class="hj-np-wrap"><table class="hj-np"><tbody>'
+    +'<tr><td>起点</td><td>'+HJ.fmtYear(lo)+'　'+pos(La)+'　值'+HJ.shortGuaName(gA.name)+'</td></tr>'
+    +'<tr><td>终点</td><td>'+HJ.fmtYear(hi)+'　'+pos(Lb)+'　值'+HJ.shortGuaName(gB.name)+'</td></tr>'
+    +'<tr><td>值卦</td><td>'+guaTxt+'</td></tr>'
+    +'<tr><td>年表</td><td>'+chronTxt+'</td></tr>'
+    +'</tbody></table></div>';
+}
+/* 年份互查：给一个年份，出该年定位、该世原书记事、原书年表该年记事，与前后最近的大事锚点。
+   两套纪年之差随史事而不同、非整体平移，故不设换算系数，只把两套并列在同年之下供对读。 */
+function hjYearLook(){
+  const box=document.getElementById('hjLookOut'); if(!box) return;
+  const raw=(document.getElementById('hjLookQ').value||'').trim(); window.__hjLookQ=raw;
+  const A=HJ.parseYearInput(raw);
+  if(A==null){ box.innerHTML='<div class="sub-note">请填一个年份，格式同年份直达（如 618、前2357、-2357）。</div>'; return; }
+  const L=HJ.locate(A);
+  if(!L){ box.innerHTML='<div class="sub-note">年份超出可推算范围。</div>'; return; }
+  const all=HJ.chronAll();
+  const cur=all.find(r=>r.A===A);
+  const shiRows=all.filter(r=>r.A>=L.shi.start&&r.A<=L.shi.end);
+  const anch=HJ.anchors();
+  const prev=anch.filter(x=>x.A<=A).slice(-1)[0], next=anch.find(x=>x.A>A);
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const pos='元第'+L.yuanNo+'元　'+L.hui.zhi+'会 第'+L.yun.noG+'运（'+L.yun.gan+'） 第'+L.shi.noG+'世（'+L.shi.zhi+'）　'+L.gz+'年';
+  let h='<div class="sub-note">'+HJ.fmtYear(A)+'　'+pos+'</div>';
+  h+='<div class="hj-np-wrap"><table class="hj-np"><tbody>'
+    +'<tr><td>原书本年</td><td>'+(cur?hjJianti(esc(cur.t)):'原书年表本年无记事'+(HJ.chronHas()&&(A<HJ.chronSpan().minA||A>HJ.chronSpan().maxA)?'（本年在年表范围外）':''))+'</td></tr>'
+    +'<tr><td>前最近锚点</td><td>'+(prev?(prev.fmt+'（'+prev.gz+'，'+prev.srcTxt+'）　'+esc(prev.label)):'无')+'</td></tr>'
+    +'<tr><td>后最近锚点</td><td>'+(next?(next.fmt+'（'+next.gz+'，'+next.srcTxt+'）　'+esc(next.label)):'无')+'</td></tr>'
+    +'</tbody></table></div>';
+  if(shiRows.length){
+    h+='<div class="sub-note">本世（'+fmtRangeShort(L.shi.start,L.shi.end)+'）原书记事 '+shiRows.length+' 条：</div>'
+      +'<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>年份</th><th>干支</th><th>原书记事</th></tr></thead><tbody>'
+      +shiRows.map(r=>'<tr'+(r.A===A?' class="hj-row-shi"':'')+'><td class="hj-go" onclick="jumpYearTo('+r.A+')">'+r.fmt+'</td><td>'+r.gz+'</td><td>'+hjJianti(esc(r.t))+'</td></tr>').join('')
+      +'</tbody></table></div>';
+  }else if(HJ.chronHas()){
+    h+='<div class="sub-note">本世（'+fmtRangeShort(L.shi.start,L.shi.end)+'）在原书年表范围内无记事。</div>';
+  }
+  box.innerHTML=h;
 }
 /* 年表范围内某运的表体（供范围外提示复用） */
 function chronYunTable(yunNo){
@@ -492,6 +948,235 @@ function hjWheel(L,anchors){
     +'<svg class="wheel" id="hjWheel" viewBox="0 0 440 440" role="img" aria-label="元会运世定位盘：外环十二会、中环三十运、内环十二世">'+s+'</svg>'
     +'<div class="wheel-detail">三环自外向内：十二会、本会三十运、本运十二世，加粗段即当前所推<br>点任一段跳到该段首年；运刻度内的小圆点示本世藏有大事锚点</div></div>';
 }
+/* 双盘同排：定位盘示所推之年在元会运世中的位置，先天圆图示本运所值之卦在六十四卦中的位次，
+   一者读其时、一者读其卦，两盘并观方见邵子以卦记时之意。容器走通用件 .wheel-wheels（两列网格，
+   窄屏堆叠），与老黄历时辰宿盘、万年历节气经络盘、佛历宿盘斋日盘同制。 */
+function hjWheels(L,anchors){
+  return '<div class="wheel-wheels">'+hjWheel(L,anchors)+hjXiantuWheel(L)+'</div>';
+}
+/* 先天六十四卦圆盘：骨架与半径一律照全站通用件（同老黄历十二时辰盘、二十八宿盘、
+   道历时辰盘与圣诞斋日盘），不另立一套：viewBox 440、盘心 220、外圈 182、内界 120、
+   盘心圆 78、外签 206、内签 148、弧 192、刻度 168 至 176、指针 82 至 116、热区 120 至 198。
+   卦序自正上乾起顺时针行，至坤而复；复、姤当正下，即阴阳初生之处，为圆图两枢纽。
+   六十四卦各占 5.625 度，弧上不书名（格窄不足容字），故外圈只环布八卦宫名，
+   内签不铺六十四名，改由指针指出本运所值之卦、盘心三行载卦名宫位与值运位次，点选另格则随之改写。
+   取字角同全站：最外圈环名沿圆周环布 WHEEL.ring，内签两字走 WHEEL.radial 径向散射。
+   几何走 assets/wheel.js 的 WHEEL，颜色只绑 --wheel-* 令牌，本函数不写死任何颜色。 */
+const XT_C=220, XT_ARC=192, XT_OUT=182, XT_IN=120, XT_CORE=78,
+  XT_LAB_IN=148, XT_LAB_OUT=206, XT_TICK0=168, XT_TICK1=176, XT_P0=82, XT_P1=116,
+  XT_HIT1=XT_ARC+6;
+const XT_GONG=['乾','兑','离','震','巽','坎','艮','坤'];
+function hjXiantuWheel(L){
+  const n=WHEEL.n, px=WHEEL.px, arc=WHEEL.arc, band=WHEEL.band;
+  const N=64, STEP=360/N;
+  const yg=HJ.yunGua(L);
+  const curIdx=Math.max(0,HJ.XT_ROUND.indexOf(yg?yg.name:''));
+  const curDg=(curIdx+0.5)*STEP;
+  let s='';
+  /* 六十四格底弧：段间不留缝，整圈是一条淡环；加粗那段另出一条，随本运值卦走 */
+  for(let i=0;i<N;i++) s+='<path d="'+arc(XT_ARC,i*STEP,i*STEP+STEP)+'" class="w-arc"/>';
+  /* 刻度落在每格中点，与外圈宫名同轴，连成辐条 */
+  for(let i=0;i<N;i++){
+    const dg=(i+0.5)*STEP, ta=px(XT_TICK0,dg), tb=px(XT_TICK1,dg);
+    s+='<line x1="'+n(ta[0])+'" y1="'+n(ta[1])+'" x2="'+n(tb[0])+'" y2="'+n(tb[1])+'" class="w-tick"/>';
+  }
+  /* 热区只取环带，不盖盘心 */
+  for(let i=0;i<N;i++){
+    s+='<path d="'+band(XT_IN,XT_HIT1,i*STEP,i*STEP+STEP)+'" class="w-hit'+(i===curIdx?' is-on':'')+'" data-i="'+i+'" onclick="hjPickGua('+i+')"/>';
+    s+='<path d="'+band(XT_IN,XT_HIT1,i*STEP,i*STEP+STEP)+'" class="w-sel"/>';
+  }
+  s+='<path id="hjXtArc" d="'+arc(XT_ARC,curIdx*STEP,curIdx*STEP+STEP)+'" class="w-arc w-arc-cur"/>';
+  /* 外圈：八卦宫名，沿圆周环布（WHEEL.ring），整圈读作一条环带 */
+  for(let g=0;g<8;g++){
+    const dg=g*45+22.5, tp=px(XT_LAB_OUT,dg);
+    s+='<text x="'+n(tp[0])+'" y="'+n(tp[1])+'" class="w-lab w-lab-xl"'
+      +' transform="rotate('+WHEEL.ring(dg)+' '+n(tp[0])+' '+n(tp[1])+')">'+XT_GONG[g]+'</text>';
+  }
+  /* 内签：不复铺六十四名（格窄不足容字），只标圆图两枢纽复、姤，两字径向散射（WHEEL.radial） */
+  [[31,'复'],[32,'姤']].forEach(function(pair){
+    const dg=(pair[0]+0.5)*STEP, tp=px(XT_LAB_IN,dg);
+    s+='<text x="'+n(tp[0])+'" y="'+n(tp[1])+'" class="w-lab w-lab-lg"'
+      +' transform="rotate('+WHEEL.radial(dg)+' '+n(tp[0])+' '+n(tp[1])+')">'+pair[1]+'</text>';
+  });
+  s+='<circle cx="'+XT_C+'" cy="'+XT_C+'" r="'+XT_OUT+'" class="w-ring"/>';
+  s+='<circle cx="'+XT_C+'" cy="'+XT_C+'" r="'+XT_IN+'" class="w-ring"/>';
+  s+='<circle cx="'+XT_C+'" cy="'+XT_C+'" r="'+XT_CORE+'" class="w-core"/>';
+  /* 指针只走盘心与内界圈之间，不穿过盘心文字 */
+  const q0=px(XT_P0,curDg), q1=px(XT_P1,curDg);
+  s+='<line id="hjXtNeedle" x1="'+n(q0[0])+'" y1="'+n(q0[1])+'" x2="'+n(q1[0])+'" y2="'+n(q1[1])+'" class="w-needle"/>';
+  s+='<circle id="hjXtDot" cx="'+n(q1[0])+'" cy="'+n(q1[1])+'" r="3.5" class="w-dot"/>';
+  s+=hjXtCore(HJ.XT_ROUND[curIdx],curIdx,true);
+  return '<div class="wheel-block"><h4>先天六十四卦圆盘</h4>'
+    +'<svg class="wheel" id="hjXiantu" viewBox="0 0 440 440" role="img" aria-label="先天六十四卦圆盘：外圈八卦宫名，六十四卦刻度，指针示本运所值之卦">'+s+'</svg>'
+    +'<div class="wheel-detail" id="hjXtDetail">'+hjXtDetail(HJ.XT_ROUND[curIdx],curIdx,true)+'</div></div>';
+}
+/* 盘心三行：本盘无中宫概念，w-c1 取所选之卦名、随点选变（与长生十二宫盘取所选之宫同义）。
+   🔴 盘心只负责立极读数，卦辞与序次一律交给盘下详情条出一遍，盘心不重复；
+   三行各守盘心弦宽（半径 78 下 y=C-16 处 152.7、C+14 处 153.5、C+34 处 140.4），卦名最长四字。
+   c3 同各盘一律载实质内容（老黄历载干支与钟点、宿盘载其象、风水各盘载判定），
+   此处载该卦在六十卦值运中的序次，不写点选状态一类自指之词。 */
+function hjXtCore(nm,idx,isCur){
+  return '<text x="'+XT_C+'" y="'+(XT_C-16)+'" class="w-c1" id="hjXtC1">'+nm+'</text>'
+    +'<text x="'+XT_C+'" y="'+(XT_C+14)+'" class="w-c2" id="hjXtC2">'+hjXtGong(nm)+'宫</text>'
+    +'<text x="'+XT_C+'" y="'+(XT_C+34)+'" class="w-c3" id="hjXtC3">'+hjXtYunWei(nm,isCur)+'</text>';
+}
+/* 该卦在六十卦值运中的位次：四正卦不值运，余六十卦各主六运 */
+function hjXtYunWei(nm,isCur){
+  const k=HJ.GUA60.indexOf(nm);
+  if(k<0) return isCur?'本会所闰':'四正不用值运';
+  return isCur?'值本运第'+((k%6)+1)+'爻':'主第'+(k*6+1)+'至'+(k*6+6)+'运';
+}
+/* 卦属何宫：先天圆图八卦各统八卦，宫名即外圈环名之一 */
+function hjXtGong(nm){ return XT_GONG[Math.floor(HJ.XT_ROUND.indexOf(nm)/8)]||''; }
+/* 盘下详情条：卦名、序次、卦辞在此出一遍，盘心不载 */
+function hjXtDetail(nm,idx,isCur){
+  const gi=HJ.guaInfo(nm);
+  return (isCur?'本运所值之卦　':'')+nm+'，圆图第'+(idx+1)+'卦，属'+hjXtGong(nm)+'宫'
+    +'<span class="wd-br"></span>卦辞：'+(gi&&gi.ci?gi.ci:'未载');
+}
+/* 值年卦六十年速查表：自本运首年所在的六十年轮起排，逐年一列，锚点与算式见起例说明。
+   表随所推年份走，本年在表中自见位置，不必逐年试算。 */
+function hjYearTable(L){
+  const AN=HJ.ZHINIAN_ANCHOR, span=60;
+  /* 轮首对齐甲子一轮：与民间流传的六十年表同起同止，故逐年干支与卦序可自相校验 */
+  const start=Math.floor((L.A-AN)/span)*span+AN;
+  let h='<table class="hj-np"><thead><tr><th>公元年</th><th>干支</th><th>序</th><th>值年卦</th><th>公元年</th><th>干支</th><th>序</th><th>值年卦</th></tr></thead><tbody>';
+  for(let k=0;k<span/2;k++){
+    const a=start+k, b=start+k+span/2;
+    /* 绛底标在行上（本页着色规则即 .hj-np tr.hj-row-shi td），标在单元格上取不到底色 */
+    const cls=(a===L.A||b===L.A)?' class="hj-row-shi"':'';
+    h+='<tr'+cls+'>';
+    [a,b].forEach(function(A){
+      const g=HJ.yearGuaCalc(A);
+      h+='<td>'+HJ.fmtYear(A)+'</td><td>'+HJ.gzOf(A)+'</td><td>第'+g.seq+'卦</td><td>'+g.name+'</td>';
+    });
+    h+='</tr>';
+  }
+  return h+'</tbody></table>';
+}
+/* 元会运世总表：一元三百六十运全景，逐运一列，会序、会内运序、十干、所值之卦与起止年。
+   本页别处只出本运一张，此表补全景，数据自 yunTableAll 出，不另造。 */
+function hjYunTable(L){
+  const rows=HJ.yunTableAll(L.yuanNo);
+  let h='<table class="hj-np"><thead><tr><th>会</th><th>运</th><th>干</th><th>值卦</th><th>起止</th><th>会</th><th>运</th><th>干</th><th>值卦</th><th>起止</th></tr></thead><tbody>';
+  for(let k=0;k<180;k++){
+    const p=rows[k], q=rows[k+180];
+    /* 本运先判、同会次之：同会条款不得压过本运，故两项同真时只留绛底 */
+    const cls=(p.noG===L.yun.noG||q.noG===L.yun.noG)?' class="hj-row-shi"'
+      :((p.huiIdx===L.hui.idx||q.huiIdx===L.hui.idx)?' class="hj-row-hui"':'');
+    h+='<tr'+cls+'>';
+    [p,q].forEach(function(r){
+      h+='<td>'+r.huiZhi+'</td><td>'+r.noG+'（'+r.noH+'）</td><td>'+r.gan+'</td><td>'+HJ.shortGuaName(r.gua)+'</td><td>'+fmtRangeShort(r.start,r.end)+'</td>';
+    });
+    h+='</tr>';
+  }
+  return h+'</tbody></table>';
+}
+/* 先天六十四卦方图：方圆二图并称，圆图象天、方图象地，缺方图则邵子先天之学只讲了一半。
+   八八六十四格，横八行自右而左、纵八列自上而下，行主下卦（内卦）、列主上卦（外卦），
+   逐行读之即圆图之序；对角八格为八纯卦，乾坤坎离四正居对角之四，即去四正不用之所指。
+   形制走本页数据表（表头绛纸淡底、绛浅线描格），不另起卡片：格内只书名，本运所值之卦淡底标出，
+   四正卦以绛字别之。方图只示卦位，不承担跳年，与圆图同属只读之图。 */
+function hjFangtu(curGua){
+  const G8=['乾','兑','离','震','巽','坎','艮','坤'];
+  const FOUR=['乾为天','坤为地','坎为水','离为火'];
+  let h='<table class="hj-np hj-ft"><thead><tr><th></th>';
+  G8.forEach(g=>{ h+='<th class="hj-ft-h">'+g+'</th>'; });
+  h+='</tr></thead><tbody>';
+  HJ.GUA_SQUARE.forEach(function(row,r){
+    h+='<tr><th class="hj-ft-h">'+G8[r]+'</th>';
+    row.forEach(function(nm){
+      const cls=nm===curGua?'hj-ft-on':(FOUR.indexOf(nm)>=0?'hj-ft-zs':'');
+      h+='<td'+(cls?' class="'+cls+'"':'')+'>'+HJ.shortGuaName(nm)+'</td>';
+    });
+    h+='</tr>';
+  });
+  return h+'</tbody></table>';
+}
+/* 点选圆图一格：指针、加粗弧、盘心三行与盘下详情条随之改写，不改年份（本盘只读卦位，不承担跳年） */
+function hjPickGua(i){
+  const root=document.getElementById('hjXiantu'); if(!root) return;
+  const nm=HJ.XT_ROUND[i]; if(!nm) return;
+  const STEP=360/64, dg=(i+0.5)*STEP;
+  WHEEL.pick('hjXiantu',i);
+  const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
+  const cur=document.getElementById('hjXtArc');
+  if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
+  const q0=WHEEL.px(XT_P0,dg), q1=WHEEL.px(XT_P1,dg);
+  const nd=document.getElementById('hjXtNeedle'), dt=document.getElementById('hjXtDot');
+  if(nd){ nd.setAttribute('x1',WHEEL.n(q0[0])); nd.setAttribute('y1',WHEEL.n(q0[1]));
+          nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1])); }
+  if(dt){ dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1])); }
+  const gi=HJ.guaInfo(nm);
+  WHEEL.text('hjXtC1',nm);
+  WHEEL.text('hjXtC2',hjXtGong(nm)+'宫');
+  WHEEL.text('hjXtC3',hjXtYunWei(nm,false));
+  const det=document.getElementById('hjXtDetail');
+  if(det) det.innerHTML=hjXtDetail(nm,i,false);
+}
+/* 以元经会：纯干支方阵逐世定位。1元为12会、30运、12世之乘积，共4320世。
+   引擎 HuangJiYJH 由维基文库四库本卷01、卷02 反验生成，坐标由世序 N 确定性推出，
+   与 HJ.locate 的世序映射同构。本模块把抽象世序落到公历年份范围并显示。 */
+var HJ_YJH_ZHI='子丑寅卯辰巳午未申酉戌亥'.split('');
+function hjYjhYears(n){
+  var Y0=HJ.CONST.Y0, SHI=HJ.CONST.SHI;
+  return { start:Y0+(n-1)*SHI, end:Y0+n*SHI-1 };
+}
+function hjYjhSingle(s){
+  var y=hjYjhYears(s.n);
+  var yunArr=HuangJiYJH.yjhYun(s.yunXu), a=yunArr[0], b=yunArr[yunArr.length-1];
+  var huiArr=HuangJiYJH.yjhHui(s.huiXu), ha=huiArr[0], hb=huiArr[huiArr.length-1];
+  return '<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>项</th><th>定位</th><th>公历年份</th></tr></thead><tbody>'
+    +'<tr><td>世序</td><td>第'+s.n+'世（1元4320世之第'+s.n+'）</td><td>'+HJ.fmtYear(y.start)+' 至 '+HJ.fmtYear(y.end)+'</td></tr>'
+    +'<tr><td>元</td><td>'+s.yuan+'元（本元）</td><td></td></tr>'
+    +'<tr><td>会</td><td>'+s.hui+'会（第'+s.huiXu+'会，全元第'+ha.n+'至'+hb.n+'世）</td><td></td></tr>'
+    +'<tr><td>运</td><td>'+s.yun+'（全元第'+s.yunXu+'运，会内第'+s.yunXuHui+'运，第'+a.n+'至'+b.n+'世）</td><td></td></tr>'
+    +'<tr><td>世支</td><td>'+s.shi+'（运内第'+s.shiXu+'世）</td><td></td></tr>'
+    +'</tbody></table></div>';
+}
+function hjYjhHuiView(huiXu){
+  var zhi=HJ_YJH_ZHI[huiXu-1], rows='';
+  for(var yh=1;yh<=30;yh++){
+    var yunXu=(huiXu-1)*30+yh, arr=HuangJiYJH.yjhYun(yunXu);
+    var s0=arr[0], s1=arr[arr.length-1], y0=hjYjhYears(s0.n), y1=hjYjhYears(s1.n);
+    rows+='<tr><td>第'+yh+'运</td><td>'+s0.yun+'</td><td>第'+s0.n+'至'+s1.n+'世</td><td>'+HJ.fmtYear(y0.start)+' 至 '+HJ.fmtYear(y1.end)+'</td></tr>';
+  }
+  return '<div class="sub-note">'+zhi+'会（第'+huiXu+'会）含三十运三百六十世，下表逐运列出其运干、世序区间与公历年份范围。</div>'
+    +'<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>会内运序</th><th>运干</th><th>世序区间</th><th>公历年份</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function hjYjhGo(){
+  var box=document.getElementById('hjYjhOut'); if(!box) return;
+  var nEl=document.getElementById('hjYjhN'), n=parseInt(nEl?nEl.value:'',10);
+  if(n>=1&&n<=4320){ box.innerHTML=hjYjhSingle(HuangJiYJH.yjhShi(n)); return; }
+  var huiZhi=(document.getElementById('hjYjhHui')||{}).value;
+  var yunEl=document.getElementById('hjYjhYun'), yunInHui=parseInt(yunEl?yunEl.value:'',10);
+  var shiZhi=(document.getElementById('hjYjhShi')||{}).value;
+  var hi=HJ_YJH_ZHI.indexOf(huiZhi);
+  if(hi<0){ box.innerHTML='<div class="sub-note">请选择会支。</div>'; return; }
+  if(!(yunInHui>=1&&yunInHui<=30)){ box.innerHTML='<div class="sub-note">会内运序须为 1 至 30 的整数。</div>'; return; }
+  var si=HJ_YJH_ZHI.indexOf(shiZhi);
+  if(si<0){ box.innerHTML='<div class="sub-note">请选择世支。</div>'; return; }
+  box.innerHTML=hjYjhSingle(HuangJiYJH.yjhShi((hi*30+yunInHui-1)*12+si+1));
+}
+function hjYjhHuiAll(){
+  var box=document.getElementById('hjYjhOut'); if(!box) return;
+  var huiZhi=(document.getElementById('hjYjhHui')||{}).value, hi=HJ_YJH_ZHI.indexOf(huiZhi);
+  if(hi<0){ box.innerHTML='<div class="sub-note">请选择会支。</div>'; return; }
+  box.innerHTML=hjYjhHuiView(hi+1);
+}
+function hjYjhYunAll(){
+  var box=document.getElementById('hjYjhOut'); if(!box) return;
+  var huiZhi=(document.getElementById('hjYjhHui')||{}).value, hi=HJ_YJH_ZHI.indexOf(huiZhi);
+  var yunEl=document.getElementById('hjYjhYun'), yunInHui=parseInt(yunEl?yunEl.value:'',10);
+  if(hi<0){ box.innerHTML='<div class="sub-note">请选择会支。</div>'; return; }
+  if(!(yunInHui>=1&&yunInHui<=30)){ box.innerHTML='<div class="sub-note">会内运序须为 1 至 30 的整数。</div>'; return; }
+  var arr=HuangJiYJH.yjhYun(hi*30+yunInHui), rows=arr.map(function(s){
+    var y=hjYjhYears(s.n);
+    return '<tr><td>第'+s.n+'世</td><td>'+s.shi+'（运内第'+s.shiXu+'世）</td><td>'+HJ.fmtYear(y.start)+' 至 '+HJ.fmtYear(y.end)+'</td></tr>';
+  }).join('');
+  box.innerHTML='<div class="sub-note">'+HJ_YJH_ZHI[hi]+'会第'+yunInHui+'运（'+arr[0].yun+'，全元第'+(hi*30+yunInHui)+'运）含十二世，下表逐世列出其世支与公历年份范围。</div>'
+    +'<div class="hj-np-wrap"><table class="hj-np"><thead><tr><th>世序</th><th>世支</th><th>公历年份</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
 </script>
 <script>
 
@@ -500,14 +1185,17 @@ window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('huangji.html');
     renderTermGloss();
+    hjShixuRender();
     (function(){
         const el=document.getElementById('biguaRef'); if(!el)return;
-        let h='<table class="hj-np"><thead><tr><th>会</th><th>辟卦</th><th>象</th></tr></thead><tbody>';
+        let h='<table class="hj-np"><thead><tr><th>会</th><th>辟卦（民间移配）</th><th>原书值五卦</th><th>象</th></tr></thead><tbody>';
         for(let i=0;i<12;i++){
         const g=HJ.huiGua(i), gi=HJ.guaInfo(HJ.fullGuaName(g));
-        h+='<tr><td>'+HJ.CONST.HUI_ZHI[i]+'会</td><td>'+g+'</td><td>'+(gi?gi.ci:'')+'</td></tr>';
+        const five=HJ.huiGua5(i).map(n=>HJ.shortGuaName(n)).join('、');
+        h+='<tr><td>'+HJ.CONST.HUI_ZHI[i]+'会</td><td>'+g+'</td><td>'+five+'</td><td>'+(gi?gi.ci:'')+'</td></tr>';
         }
-        el.innerHTML=h+'</tbody></table>';
+        el.innerHTML=h+'</tbody></table>'
+          +'<div class="sub-note">辟卦与值五卦分属两序列：辟卦本配十二月、言阴阳消息，后世移配十二会；值五卦出先天圆图去乾坤坎离，各主六运。十二会中仅子会之复、午会之姤两会同名，其余十会各异，故见同名不可径以为同卦，两序列彼此不可互推。</div>';
         })();
     document.addEventListener('toggle',function(e){
       const t=e.target;
@@ -525,11 +1213,11 @@ window.addEventListener('load', function () {
       s+='【会】'+L.hui.zhi+'会，起止'+HJ.fmtYear(L.hui.start)+'至'+HJ.fmtYear(L.hui.end)+'，会内第'+L.hui.inYear+'年\n';
       s+='【运】全元第'+L.yun.noG+'运（会内第'+L.yun.noH+'运），原书标注经运之'+L.yun.gan+'（十干轮运），起止'+HJ.fmtYear(L.yun.start)+'至'+HJ.fmtYear(L.yun.end)+'，运内第'+L.yun.inYear+'年\n';
       s+='【世】全元第'+L.shi.noG+'世（运内第'+L.shi.noY+'世），原书标注经世之'+L.shi.zhi+'（十二支轮世），起止'+HJ.fmtYear(L.shi.start)+'至'+HJ.fmtYear(L.shi.end)+'，世内第'+L.shi.inYear+'年\n';
-      s+='【卦气】'+L.hui.zhi+'会直五卦：'+HJ.huiGua5(L.hui.idx).map(n=>HJ.shortGuaName(n)).join('、')
-        +'（各主六运，原书口径）；本运直'+yunImpl.name+'；运卦（后世爻变）'+HJ.shortGuaName(ybImpl.name)+'（直卦第'+ybImpl.yao+'爻变）；世卦（后世爻变）'+HJ.shortGuaName(sbImpl.name)+'（一爻二世六十年）；中卦'+HJ.shortGuaName(HJ.zhongGua(L.hui.idx))+'当会之中；闰卦'+HJ.leapGua(L.hui.idx)+'（四正卦不用直运）';
+      s+='【卦气】'+L.hui.zhi+'会值五卦：'+HJ.huiGua5(L.hui.idx).map(n=>HJ.shortGuaName(n)).join('、')
+        +'（各主六运，原书口径）；本运值'+yunImpl.name+'；运卦（后世爻变）'+HJ.shortGuaName(ybImpl.name)+'（值卦第'+ybImpl.yao+'爻变）；世卦（后世爻变）'+HJ.shortGuaName(sbImpl.name)+'（一爻二世六十年）；中卦'+HJ.shortGuaName(HJ.zhongGua(L.hui.idx))+'当会之中；闰卦'+HJ.leapGua(L.hui.idx)+'（四正卦不用值运）';
       if(yrImpl) s+='；值年卦（民间）：'+yrImpl.name+'（一年一卦顺先天圆图，1984年值火风鼎）';
       const xA=HJ.xunGuaJia(L);
-      s+='；旬卦：甲说'+xA.name+'（'+HJ.fmtYear(xA.from)+'至'+HJ.fmtYear(xA.to)+'，世卦六爻变一爻十年）';
+      s+='；旬卦'+xA.name+'（'+HJ.fmtYear(xA.from)+'至'+HJ.fmtYear(xA.to)+'，世卦'+HJ.shortGuaName(xA.base)+'第'+xA.yao+'爻变，一爻主十年）';
       s+='\n【开物闭物】开物于寅会之中（约公元前40017年前后）、闭物于戌会之中（约公元46384年前后）；今在开物之后、闭物之前。\n';
       s+='【原书逐年表】以运经世原文覆盖前2357至公元959共3316年（有记事1539年）；原书纪年从殷历长纪年，克商店己卯（公元前1122），与断代工程前1046相差76年。\n';
       s+='\n【锚点校验】唐尧即位（公元前2357，甲辰）值巳会第180运（经运之癸）第2156世（经世之未）第11年；午会起于公元前2217年（甲子）。\n';
