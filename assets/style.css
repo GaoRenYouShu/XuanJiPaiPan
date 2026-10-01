@@ -3647,7 +3647,9 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 磁偏角框：标签六字实测 117px，框取同宽使字段列无空白，与风水两页同终值 */
 .page-lp #baseDecl{width:117px}
 .page-lp .wheel-block h4{font-family:var(--lp-serif);color:var(--lp2)}
-.page-lp .lp-block{margin-top:var(--sp-4);text-align:center}
+/* 盘区块上下取页面级档，盘与前后内容拉开 */
+.page-lp .lp-block{margin-top:var(--sp-5);text-align:center}
+.page-lp .lp-zoom-note{margin-top:var(--sp-3)}
 /* 层白话卡：同组连排，卡间不留距不画线，只末卡一条下线收组；挂载容器不作卡（线源唯一） */
 .page-lp .lp-card{display:block;text-align:left;padding:var(--sp-1) 0;
   font-size:12px;line-height:1.8;letter-spacing:.03em;color:var(--lp-ink2)}
@@ -3707,28 +3709,31 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
    黑电木金字、黄铜黑字、白底黑字皆罗经实物本色；红为阳山格与天心十道专色，
    属仪器本色例外口径，页内纸本区域不取。盘旁工具钮与读数栏同此例外。 */
 .rd-skin-black{
-  --rd-face:#151515; --rd-rim:#000; --rd-band:#1d1d1d; --rd-cell:#111; --rd-cell-yang:#9e2b22;
-  --rd-line:#4a4234; --rd-grid:#3a352a; --rd-grid-j:#5a5240;
-  --rd-gold:#e6c26a; --rd-ink:#d8d2c0; --rd-dim:#9a927e;
-  --rd-red:#d04a3a; --rd-tick:#6a614c; --rd-num:#cdbf94;
-  --rd-chi:#fbf8ef; --rd-chi-rim:#b8933e; --rd-haixian:#c0392b;
-  --rd-needle-n:#222; --rd-needle-s:#c0392b;
+  --rd-face:#0d0d0d; --rd-rim:#000; --rd-band:#161616; --rd-cell:#0d0d0d; --rd-cell-yang:#a3241a;
+  --rd-cell-kong:#5a1410;
+  --rd-line:#3d372a; --rd-grid:#33302a; --rd-grid-j:#55503f;
+  --rd-gold:#f0c75e; --rd-dim:#b3a877;
+  --rd-red:#e05038; --rd-tick:#7a6f52; --rd-num:#f0c75e;
+  --rd-shan-yang:#ffe9b0; --rd-shan-yin:#f0c75e;
+  --rd-chi:#f8f4e8; --rd-chi-rim:#c29a3a; --rd-haixian:#c0392b;
 }
 .rd-skin-gold{
-  --rd-face:#c9a84c; --rd-rim:#8a6d2c; --rd-band:#c2a045; --rd-cell:#c9a84c; --rd-cell-yang:#a02c20;
-  --rd-line:#7a5f24; --rd-grid:#6e5620; --rd-grid-j:#4a3a12;
-  --rd-gold:#1c1c1c; --rd-ink:#1c1c1c; --rd-dim:#4a3a12;
-  --rd-red:#e8dcc0; --rd-tick:#5a4816; --rd-num:#1c1c1c;
-  --rd-chi:#fbf8ef; --rd-chi-rim:#8a6d2c; --rd-haixian:#c0392b;
-  --rd-needle-n:#222; --rd-needle-s:#c0392b;
+  --rd-face:#d2b158; --rd-rim:#7c6320; --rd-band:#c8a54a; --rd-cell:#d2b158; --rd-cell-yang:#9e2418;
+  --rd-cell-kong:#6a1a12;
+  --rd-line:#8a7130; --rd-grid:#8a7130; --rd-grid-j:#5c4a16;
+  --rd-gold:#201a10; --rd-dim:#5c4a16;
+  --rd-red:#f3ead0; --rd-tick:#4a3c12; --rd-num:#201a10;
+  --rd-shan-yang:#ffe9b0; --rd-shan-yin:#201a10;
+  --rd-chi:#f8f4e8; --rd-chi-rim:#7c6320; --rd-haixian:#c0392b;
 }
 .rd-skin-white{
-  --rd-face:#f6f1e4; --rd-rim:#b8ad92; --rd-band:#efe8d6; --rd-cell:#f6f1e4; --rd-cell-yang:#a02c20;
-  --rd-line:#a89d82; --rd-grid:#9c9178; --rd-grid-j:#6a5f48;
-  --rd-gold:#2a2a2a; --rd-ink:#2a2a2a; --rd-dim:#6a5f48;
-  --rd-red:#e8dcc0; --rd-tick:#6a5f48; --rd-num:#2a2a2a;
+  --rd-face:#f7f2e5; --rd-rim:#b3a88c; --rd-band:#efe9d8; --rd-cell:#f7f2e5; --rd-cell-yang:#9e2418;
+  --rd-cell-kong:#c9beb0;
+  --rd-line:#a89d82; --rd-grid:#a89d82; --rd-grid-j:#6f6448;
+  --rd-gold:#26221a; --rd-dim:#6f6448;
+  --rd-red:#f3ead0; --rd-tick:#6f6448; --rd-num:#26221a;
+  --rd-shan-yang:#ffe9b0; --rd-shan-yin:#26221a;
   --rd-chi:#ffffff; --rd-chi-rim:#8a6d2c; --rd-haixian:#c0392b;
-  --rd-needle-n:#222; --rd-needle-s:#c0392b;
 }
 .rd-wheel{width:min(88vw,560px);max-width:none;touch-action:none;cursor:grab}
 .rd-wheel .rd-face{fill:var(--rd-face);stroke:var(--rd-rim);stroke-width:6}
@@ -3736,36 +3741,40 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .rd-wheel .rd-band{fill:var(--rd-band)}
 .rd-wheel .rd-cell{fill:var(--rd-cell)}
 .rd-wheel .rd-cell.rd-yang{fill:var(--rd-cell-yang)}
+.rd-wheel .rd-cell.rd-kong{fill:var(--rd-cell-kong)}
 .rd-wheel .rd-ring{fill:none;stroke:var(--rd-line);stroke-width:1.6}
 .rd-wheel .rd-grid{stroke:var(--rd-grid);stroke-width:1}
 .rd-wheel .rd-grid-j{stroke:var(--rd-grid-j);stroke-width:2}
 .rd-wheel .rd-tick{stroke:var(--rd-tick);stroke-width:1.4}
-.rd-wheel .rd-tick-j{stroke:var(--rd-num);stroke-width:2.2}
-.rd-wheel .rd-num,.rd-wheel .rd-lab-gold{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-tick-j{stroke:var(--rd-num);stroke-width:2.4}
+.rd-wheel .rd-num{fill:var(--rd-num);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-lab-gold{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-lab-dim{fill:var(--rd-dim);text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-lab-red{fill:var(--rd-red);text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-shan-yang{fill:#ffe9a8;font-weight:700;text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-shan-yin{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-lab-sm{fill:var(--rd-gold);font-size:17px;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-lab-xs{fill:var(--rd-gold);font-size:14px;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-shan-yang{fill:var(--rd-shan-yang);font-weight:700;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-shan-yin{fill:var(--rd-shan-yin);text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-gua-big{fill:var(--rd-gold);font-weight:700;text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-yao{stroke:var(--rd-gold);stroke-width:2.4}
-.rd-wheel .rd-yao-b{stroke:var(--rd-gold);stroke-width:3.4}
+.rd-wheel .rd-yao{stroke:var(--rd-gold);stroke-width:2.6}
+.rd-wheel .rd-yao-b{stroke:var(--rd-gold);stroke-width:3.6}
 .rd-wheel .rd-chi{fill:var(--rd-chi);stroke:var(--rd-chi-rim);stroke-width:5}
 .rd-wheel .rd-chi-rim{fill:none;stroke:var(--rd-chi-rim);stroke-width:9}
 .rd-wheel .rd-haixian{stroke:var(--rd-haixian);stroke-width:2.4}
 .rd-wheel .rd-nesw{fill:#333;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-zh{fill:#333;text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-needle-n{fill:var(--rd-needle-n)}
-.rd-wheel .rd-needle-s{fill:var(--rd-needle-s)}
+.rd-wheel .rd-needle-n{fill:#1c1c1c}
+.rd-wheel .rd-needle-s{fill:#c0392b}
 .rd-wheel .rd-pin{fill:#c0392b;stroke:#fff;stroke-width:2}
 .rd-wheel .rd-cross{stroke:#c0392b;stroke-width:2.6;stroke-opacity:.85}
 .rd-wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all}
 .rd-wheel .w-hit:focus{outline:none}
 .rd-wheel .w-sel{fill:none;pointer-events:none}
-/* 读数栏：坐向度数实时联动（问真制式：坐向、大号度数、横竖、锁钮） */
+/* 读数栏：坐向度数实时联动（问真制式：坐向、度数、横竖、锁钮），坐向写八方位字 */
 .lp-readbar{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);flex-wrap:wrap;margin:var(--sp-3) 0 0}
 .lp-readbar .lp-read{font-size:14px;color:var(--lp-ink);letter-spacing:.04em;line-height:1.7}
-.lp-readbar .lp-read b{color:var(--lp2);font-weight:700}
-.lp-readbar .lp-deg{font-size:21px;color:var(--lp-deep);font-weight:700;letter-spacing:.02em;background:var(--lp-tint);padding:var(--sp-1) var(--sp-3)}
+.lp-readbar .lp-read b{color:var(--lp2);font-weight:400}
+.lp-readbar .lp-deg{font-size:14px;color:var(--lp-deep);letter-spacing:.02em;background:var(--lp-tint);padding:0 var(--sp-2);height:30px;display:inline-flex;align-items:center}
 .lp-readbar .lp-lvl{font-size:12px;color:var(--lp-ink2);line-height:1.7}
 .lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
 .lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
@@ -3776,6 +3785,11 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 @media print{
   .rd-wheel .rd-face{fill:#fff;stroke:#888}
 }
+/* 洛书九宫数环大字 */
+.rd-wheel .rd-luoshu-num{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
+/* 八方位注记环红块白字（问真制） */
+.rd-wheel .rd-zhu-txt{fill:#fff;text-anchor:middle;dominant-baseline:central}
+
 @media(max-width:640px){
   .lp-mode-switch{gap:var(--sp-2);justify-content:center}
   .page-lp [data-mode-block="fen"] .wheel-block:last-child:nth-child(odd){grid-column:auto;justify-self:stretch;width:auto}
