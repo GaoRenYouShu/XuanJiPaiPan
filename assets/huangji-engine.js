@@ -72,6 +72,18 @@ const HJ = (function () {
     '天水讼', '泽水困', '火水未济', '雷水解', '风水涣', '坎为水', '山水蒙', '地水师',
     '天山遁', '泽山咸', '火山旅', '雷山小过', '风山渐', '水山蹇', '艮为山', '地山谦',
     '天地否', '泽地萃', '火地晋', '雷地豫', '风地观', '水地比', '山地剥', '坤为地'];
+  /* 先天六十四卦方图（方圆二图之方）：圆图象天、方图象地。八八六十四格，
+     横八行自乾起、纵八列自乾起，行主下卦（内卦）、列主上卦（外卦）；
+     逐行自左而右读之即圆图之序，对角八格为八纯卦，乾坤坎离四正即居对角之四位。 */
+  var GUA_SQUARE = (function () {
+    var a = [];
+    for (var r = 0; r < 8; r++) {
+      var row = [];
+      for (var c = 0; c < 8; c++) row.push(GUA64[TRI_ORDER[c]][r]);
+      a.push(row);
+    }
+    return a;
+  })();
   /* bits 串 → 卦名（供爻变后反查卦名） */
   var NAME_BY_BITS = (function () {
     var m = {};
@@ -191,7 +203,7 @@ const HJ = (function () {
   function jiazi(i) { return JIAZI[((i % 60) + 60) % 60]; }
 
   /* ---------------- 卦气层（据《皇极经世书》以元经会篇原文定稿） ----------------
-     原文（观物篇一至十一）：每会直五卦（子会复颐屯益震、丑会噬嗑随无妄明夷贲、
+     原文（观物篇一至十一）：每会值五卦（子会复颐屯益震、丑会噬嗑随无妄明夷贲、
      寅会既济家人丰革同人、卯会临损节中孚归妹、辰会睽兑履泰大畜、巳会需小畜大壮大有夬、
      午会姤大过鼎恒巽、未会井蛊升讼困、申会未济解涣蒙师、酉会遁咸旅小过渐、
      戌会蹇艮谦否萃、亥会晋豫观比剥），每卦主六运；中卦当会之中；
@@ -218,7 +230,7 @@ const HJ = (function () {
   var ZHINIAN_ANCHOR = 2012;
   /* 会卦 = 十二辟卦（民间通行参照层，与六十卦体系并存展示） */
   function huiGua(huiI) { return BIGUA[((huiI % 12) + 12) % 12]; }
-  /* 某会直五卦（原书以元经会口径） */
+  /* 某会值五卦（原书以元经会口径） */
   function huiGua5(huiI) {
     var base = (((huiI % 12) + 12) % 12) * 5;
     return GUA60.slice(base, base + 5);
@@ -227,23 +239,23 @@ const HJ = (function () {
   function zhongGua(huiI) { return huiGua5(huiI)[2]; }
   /* 某会闰卦（乾坤坎离） */
   function leapGua(huiI) { return LEAP_GUA[((huiI % 12) + 12) % 12]; }
-  /* 直卦（原书《以元经会》口径）：运 n（元内全元序 1..360）所属之卦，每卦主六运 */
+  /* 值卦（原书《以元经会》口径）：运 n（元内全元序 1..360）所属之卦，每卦主六运 */
   function yunGuaOf(noG) {
     var off = ((((noG - 1) % 360) + 360) % 360);
     var idx = Math.floor(off / 6);
     return { name: GUA60[idx], seqIdx: idx, from: idx * 6 + 1, to: idx * 6 + 6 };
   }
-  /* 定位结果 → 直卦信息（原书口径：本运所直之卦，主六运七十二世） */
+  /* 定位结果 → 值卦信息（原书口径：本运所值之卦，主六运七十二世） */
   function yunGua(l) {
     if (!l) return null;
     var g = yunGuaOf(l.yun.noG);
     return { name: g.name, seqIdx: g.seqIdx, from: g.from, to: g.to };
   }
-  /* 爻变运卦（后世传承 A/C 口径，非原书年表原文）：直卦六爻变，一爻主一运 */
+  /* 爻变运卦（后世传承 A/C 口径，非原书年表原文）：值卦六爻变，一爻主一运 */
   function yunGuaBian(l) {
     if (!l) return null;
     var g = yunGuaOf(l.yun.noG);
-    var yao = ((l.yun.noG - 1) % 6) + 1;             /* 直卦内第几运 → 第几爻 */
+    var yao = ((l.yun.noG - 1) % 6) + 1;             /* 值卦内第几运 → 第几爻 */
     var bits = BITS_BY_NAME[g.name].slice();
     bits[yao - 1] = bits[yao - 1] ? 0 : 1;
     return { name: NAME_BY_BITS[bits.join('')], zhiGua: g.name, yao: yao };
@@ -264,20 +276,100 @@ const HJ = (function () {
     var idx = (((l.A - ZHINIAN_ANCHOR) % 60) + 60) % 60;
     return { name: GUA60[idx], seqIdx: idx };
   }
-  /* 旬卦两说（后世传承，分歧待考）：
-     甲说（爻变顺推）：世卦六爻变，一爻主十年，段序由世卦起自初爻顺数；
-     乙说（通行表并载）：以段首年即值该卦（壬水居士表 2014-2023 蛊、2024-2033 丰）。
-     两说在世卦中段互不相容，页内以甲说展示并注明分歧；乙说接口保留备考。 */
+  /* 旬卦（后世传承）：世卦六爻变，一爻主十年。
+     段首须自世卦所主之六十年段起算（与 shiGuaBian 的六十年单位同源），不可以世首三十年起算：
+     世卦一爻主二世即六十年，世卦六爻共三百六十年，旬卦六爻共六十年，三层单位必须逐层对齐。
+     核验：1984 至 2043 世卦火风鼎，六爻段依次得大有、旅、未济、蛊、姤、恒。 */
   function xunGuaJia(l) {
     if (!l) return null;
     var sg = shiGuaBian(l);
-    var yao = (Math.floor((l.A - l.shi.start) / 10) % 6) + 1;
+    var baseA = l.yun.start + (sg.yao - 1) * 60;        /* 世卦本爻所主六十年段之首年 */
+    var seg = Math.floor((l.A - baseA) / 10);           /* 段内第几个十年，0..5 */
+    if (seg < 0) seg = 0; else if (seg > 5) seg = 5;
     var bits = BITS_BY_NAME[sg.name].slice();
-    bits[yao - 1] = bits[yao - 1] ? 0 : 1;
-    var segStart = l.shi.start + Math.floor((l.A - l.shi.start) / 10) * 10;
-    return { name: NAME_BY_BITS[bits.join('')], base: sg.name, yao: yao, from: segStart, to: segStart + 9 };
+    bits[seg] = bits[seg] ? 0 : 1;
+    var segStart = baseA + seg * 10;
+    return { name: NAME_BY_BITS[bits.join('')], base: sg.name, yao: seg + 1, from: segStart, to: segStart + 9 };
   }
+  /* 乙说接口保留备考：通行表以段首年值卦。经核，乙说所列 2014 至 2023 蛊与甲说自合，
+     其 2024 至 2033 丰一条与甲说姤不同，且乙说两条互不同源（蛊须父卦鼎、丰须父卦革），
+     故乙说非一套自洽爻变体系，页内不复列。 */
   function xunGuaYi(l) { return xunGuaJia(l); }
+
+  /* ---------------- 卦象解构（解卦层用） ----------------
+     上下体：下卦即初至三爻，上卦即四至六爻，卦之两体，观象之先。
+     互体：二三四爻成下互、三四五爻成上互，两互相重得互卦（京房以来之通例）。
+     值年卦推算：六十卦一年一卦顺先天圆图，去乾坤坎离四正卦不用。 */
+  var TRI_BY_BITS = {};
+  (function () {
+    for (var k in TRI_BITS) if (TRI_BITS.hasOwnProperty(k)) TRI_BY_BITS[TRI_BITS[k].join('')] = k;
+  })();
+  var TRI_SYM = { '乾': '☰', '兑': '☱', '离': '☲', '震': '☳', '巽': '☴', '坎': '☵', '艮': '☶', '坤': '☷' };
+  /* 三爻位串（1 阳 0 阴）转卦名 */
+  function triName(b0, b1, b2) { return TRI_BY_BITS[b0 + '' + b1 + '' + b2] || ''; }
+  /* 互卦：二三四爻成下互、三四五爻成上互，两互相重得互卦。
+     鼎六爻 011101，下互取 111 得乾、上互取 110 得兑，兑上乾下即泽天夬，与易例相合。 */
+  function huGua(nm) {
+    var b = BITS_BY_NAME[nm];
+    if (!b) return null;
+    var low = triName(b[1], b[2], b[3]), up = triName(b[2], b[3], b[4]);
+    if (!low || !up) return null;
+    return { name: NAME_BY_BITS[TRI_BITS[low].concat(TRI_BITS[up]).join('')],
+             low: low, up: up, lowSym: TRI_SYM[low], upSym: TRI_SYM[up] };
+  }
+  /* 错卦与综卦（与互体合称错综复杂三变，梅花页同此算法）：
+     错卦者阴阳全反，一卦之对待，见事之反面；综卦者六爻倒转，一卦之反易，见换个立场看。
+     颐与大过、中孚与小过四者错而综皆其偶，乾坤坎离等八卦错而不综（倒转仍自身），学者所当知。 */
+  function cuoZong(nm) {
+    var b = BITS_BY_NAME[nm];
+    if (!b) return null;
+    return {
+      cuo: NAME_BY_BITS[b.map(function (x) { return x ? 0 : 1; }).join('')],
+      zong: NAME_BY_BITS[b.slice().reverse().join('')]
+    };
+  }
+  /* 三百六十运全景：一元十二会、每会三十运，运序 1..360 各自的值卦、十干与会内起止。
+     值卦即每卦主六运，故运序除六即得六十卦序之位；元内起止自元始年顺推。 */
+  function yunTableAll(yuanNo) {
+    var base = Y0 + (((yuanNo || 1) - 1) * YUAN), a = [];
+    for (var n = 1; n <= 360; n++) {
+      var g = yunGuaOf(n), huiI = Math.floor((n - 1) / 30);
+      a.push({
+        noG: n, huiIdx: huiI, huiZhi: HUI_ZHI[huiI], noH: n - huiI * 30, gan: yunGan(n),
+        gua: g.name, from: g.from, to: g.to,
+        start: base + (n - 1) * YUN, end: base + n * YUN - 1
+      });
+    }
+    return a;
+  }
+  /* 值年卦推算（可照此手算）：一、先天六十四卦圆图去乾坤坎离四正不用，余六十卦；
+     二、六十卦自复起顺圆图一年一卦、至剥而终、终则复始；三、以所推之年减锚点年、对六十取余，
+     余数即该年在六十卦序中之位。本页锚点取公元 2012 年值复卦（与通行值年表相合），
+     另有甲子年起坤、甲子年起复诸派，起卦不同则逐年全异，诸本所记不一，页内另注。 */
+  function yearGuaCalc(A) {
+    var off = (((A - ZHINIAN_ANCHOR) % 60) + 60) % 60;
+    return { name: GUA60[off], seq: off + 1, idx: off, offset: off };
+  }
+
+  /* 两套纪年对照：原书以运经世所载之年与史学通行纪年逐事对读。
+     原书纪年一列之年取自原书逐年表，故须先注入年表数据，该年无记事时另注；
+     通行史年一列即本页锚点表所用之年。差数随史事而不同，非一条固定年差，
+     故不可用单一差数在两套之间互推。 */
+  var JINIAN_PAIRS = [
+    { label: '商汤灭夏、商朝建立', sjA: -1765, hxA: -1599 },
+    { label: '武王克商、西周建立', sjA: -1121, hxA: -1045 }
+  ];
+  function jiNianDuiZhao() {
+    return JINIAN_PAIRS.map(function (p) {
+      var sj = fmtYear(p.sjA) + '（' + gzOf(p.sjA) + '）';
+      if (_chron && !_chron[p.sjA]) sj += '，本年原书无记事';
+      return {
+        label: p.label, sj: sj,
+        hx: fmtYear(p.hxA) + '（' + gzOf(p.hxA) + '）',
+        gap: (p.hxA - p.sjA) + ' 年'
+      };
+    });
+  }
 
   /* 辟卦短名（复、临…）与八卦单名（乾、离…）转六十四卦全名；其余原样返回 */
   var TRI_FULL = { '乾': '乾为天', '兑': '兑为泽', '离': '离为火', '震': '震为雷', '巽': '巽为风', '坎': '坎为水', '艮': '艮为山', '坤': '坤为地' };
@@ -286,10 +378,12 @@ const HJ = (function () {
     if (i >= 0) return BIGUA_FULL[i];
     return TRI_FULL[nm] || nm;
   }
-  /* 六十四卦全名转短名：天风姤→姤、震为雷→震、泽风大过→大过、火雷噬嗑→噬嗑 */
+  /* 六十四卦全名转短名：天风姤→姤、震为雷→震、泽风大过→大过、火雷噬嗑→噬嗑。
+     通例是去上卦之名（水雷屯→屯、天泽履→履），八纯卦去"为某"二字（震为雷→震、乾为天→乾）。 */
   function shortGuaName(nm) {
     if (!nm) return '';
-    return nm.indexOf('为') >= 0 ? nm.charAt(0) : nm.slice(-2);
+    if (nm.length <= 2) return nm;
+    return nm.indexOf('为') >= 0 ? nm.charAt(0) : nm.slice(2);
   }
   /* 卦名 → {name, bits6, upper, lower, sym, ci} */
   function guaInfo(nm) {
@@ -307,7 +401,8 @@ const HJ = (function () {
     return {
       name: nm, bits6: bits, upper: up, lower: low,
       usym: SYM[up], lsym: SYM[low],
-      xt: XT_INDEX[nm], ci: GUACI[nm] || ''
+      xt: XT_INDEX[nm], ci: GUACI[nm] || '',
+      hu: huGua(nm)
     };
   }
 
@@ -348,8 +443,31 @@ const HJ = (function () {
     { A: 1644, label: '明亡清入关', note: '甲申之变', src: 'hx' },
     { A: 1662, label: '康熙即位', note: '壬寅', src: 'hx' },
     { A: 1840, label: '鸦片战争', note: '庚子，近代之始', src: 'hx' },
+    { A: 1842, label: '中英《南京条约》', note: '壬寅，第一次鸦片战争结束', src: 'hx' },
+    { A: 1851, label: '太平天国建立', note: '辛亥，洪秀全起事', src: 'hx' },
+    { A: 1856, label: '第二次鸦片战争', note: '丙辰，英法联军入侵', src: 'hx' },
+    { A: 1860, label: '英法联军入北京', note: '庚申，圆明园被焚', src: 'hx' },
+    { A: 1861, label: '洋务运动开始', note: '辛酉，设总理各国事务衙门', src: 'hx' },
+    { A: 1864, label: '太平天国亡', note: '甲子，天京陷落', src: 'hx' },
+    { A: 1894, label: '中日甲午战争', note: '甲午，兴中会同年成立', src: 'hx' },
+    { A: 1895, label: '中日《马关条约》', note: '乙未，洋务运动告终', src: 'hx' },
+    { A: 1898, label: '戊戌变法', note: '戊戌，百日维新', src: 'hx' },
+    { A: 1900, label: '义和团事变、八国联军入京', note: '庚子', src: 'hx' },
+    { A: 1901, label: '《辛丑条约》', note: '辛丑', src: 'hx' },
+    { A: 1906, label: '废科举', note: '丙午，行千三百年之制至此终结', src: 'hx' },
     { A: 1911, label: '辛亥革命', note: '辛亥，帝制终结', src: 'hx' },
-    { A: 1912, label: '中华民国建立', note: '壬子', src: 'hx' },
+    { A: 1912, label: '中华民国建立、清帝退位', note: '壬子', src: 'hx' },
+    { A: 1915, label: '护国战争起', note: '乙卯，《青年杂志》创刊', src: 'hx' },
+    { A: 1919, label: '五四运动', note: '己未', src: 'hx' },
+    { A: 1921, label: '中国共产党成立', note: '辛酉', src: 'hx' },
+    { A: 1924, label: '第一次国共合作、黄埔建军', note: '甲子', src: 'hx' },
+    { A: 1926, label: '北伐誓师', note: '丙寅', src: 'hx' },
+    { A: 1928, label: '东北易帜、北伐完成', note: '戊辰，国民政府初步统一', src: 'hx' },
+    { A: 1931, label: '九一八事变', note: '辛未，东北沦陷', src: 'hx' },
+    { A: 1934, label: '长征开始', note: '甲戌，自瑞金转移', src: 'hx' },
+    { A: 1936, label: '西安事变', note: '丙子', src: 'hx' },
+    { A: 1937, label: '卢沟桥事变', note: '丁丑，抗日战争全面爆发', src: 'hx' },
+    { A: 1945, label: '抗日战争胜利', note: '乙酉，日本投降', src: 'hx' },
     { A: 1949, label: '中华人民共和国成立', note: '己丑', src: 'hx' },
     { A: 1978, label: '改革开放', note: '戊午', src: 'hx' }
   ];
@@ -360,7 +478,9 @@ const HJ = (function () {
     _anchorLoc = ANCHORS.map(function (a) {
       var l = locate(a.A);
       return {
-        A: a.A, label: a.label, note: a.note, src: a.src, fmt: fmtYear(a.A),
+        A: a.A, label: a.label, note: a.note, src: a.src,
+        srcTxt: a.src === 'sj' ? '原书纪年' : '通行史年',
+        fmt: fmtYear(a.A),
         huiZhi: l.hui.zhi, yunNoG: l.yun.noG, yunGan: l.yun.gan,
         shiNoG: l.shi.noG, shiZhi: l.shi.zhi, gz: l.gz
       };
@@ -379,7 +499,23 @@ const HJ = (function () {
     d.forEach(function (r) { if (r && r.length >= 2) m[r[0]] = r[1]; });
     return m;
   }
-  function setChronicle(d) { _chron = _normChron(d); }
+  function setChronicle(d) { _chron = _normChron(d); _chronAll = null; }
+  /* 年表全量：逐条记事附其元会运世定位，供跨运检索用。按年序排，首次取用后缓存。 */
+  var _chronAll = null;
+  function chronAll() {
+    if (!_chron) return [];
+    if (_chronAll) return _chronAll;
+    var As = Object.keys(_chron).map(Number).sort(function (a, b) { return a - b; });
+    _chronAll = As.map(function (A) {
+      var l = locate(A);
+      return {
+        A: A, fmt: fmtYear(A), gz: gzOf(A), t: _chron[A],
+        huiZhi: l.hui.zhi, yunNoG: l.yun.noG, yunGan: l.yun.gan,
+        shiNoG: l.shi.noG, shiZhi: l.shi.zhi
+      };
+    });
+    return _chronAll;
+  }
   if (typeof window !== 'undefined' && window.HJ_CHRONICLE) setChronicle(window.HJ_CHRONICLE);
   function chronYun(noG) {
     if (!_chron) return [];
@@ -408,6 +544,51 @@ const HJ = (function () {
      一会 10800 年，会中即会内第 5401 年。 */
   function kaiwuA() { return Y0 + 2 * HUI + HUI / 2; }        /* 寅会之中 */
   function biwuA() { return Y0 + 10 * HUI + HUI / 2; }        /* 戌会之中 */
+
+  /* ---------------- 六日七分法（孟喜卦气，与邵雍体系并行参照） ----------------
+     去坎离震兑四正，余六十卦各主六日七分（365.25/60 ≈ 6.0875 日）。
+     以冬至为历元，复卦当值，逐卦顺先天圆图次序推日。
+     此系汉易卦气说，与邵雍以元经会的值卦分属两系，并列参照。 */
+  var QI_FEN_DAYS = 365.25 / 60;
+  /* 冬至约在 12 月 22 日（年积日 356，平年近似） */
+  function dayOfYear(month, day) {
+    var md = [31,28,31,30,31,30,31,31,30,31,30,31], d = 0;
+    for (var m = 1; m < month; m++) d += md[m-1];
+    return d + day;
+  }
+  function liuRiQiFen(month, day) {
+    var doy = dayOfYear(month, day);
+    var doyWS = 356;   /* 12 月 22 日 */
+    var daysSince = doy - doyWS;
+    if (daysSince < 0) daysSince += 365;
+    var idx = Math.floor(daysSince / QI_FEN_DAYS) % 60;
+    return { gua: GUA60[idx], seq: idx + 1, daysSinceWS: daysSince };
+  }
+
+  /* ---------------- 观物篇六十十六位数时序配属与皇帝王伯 ----------------
+     元会运世配春夏秋冬，皇帝王伯配道德功力，两系交叉成十六格。
+     原文：元之元以春行春之时也，元之会以春行夏之时也……世之世以冬行冬之时也；
+           皇之皇以道行道之事也，皇之帝以道行德之事也……伯之伯以力行力之事也。 */
+  var SHIXU_SEASONS = ['春', '夏', '秋', '冬'];
+  var SHIXU_EMPERORS = ['皇', '帝', '王', '伯'];
+  var SHIXU_ACTIONS = ['道', '德', '功', '力'];
+  var SHIXU_VERBS = ['化', '教', '劝', '率'];
+  var SHIXU16 = (function () {
+    var a = [];
+    for (var i = 0; i < 4; i++) {
+      var row = [];
+      for (var j = 0; j < 4; j++) {
+        row.push({
+          name: ['元','会','运','世'][i] + '之' + ['元','会','运','世'][j],
+          season: SHIXU_SEASONS[i] + '行' + SHIXU_SEASONS[j],
+          emperor: SHIXU_EMPERORS[i] + '之' + SHIXU_EMPERORS[j],
+          action: SHIXU_ACTIONS[i] + '行' + SHIXU_ACTIONS[j]
+        });
+      }
+      a.push(row);
+    }
+    return a;
+  })();
   const HJ_API = {
     CONST: { YUAN: YUAN, HUI: HUI, YUN: YUN, SHI: SHI, Y0: Y0, HUI_ZHI: HUI_ZHI, BIGUA: BIGUA, JIAZI: JIAZI },
     gzOf: gzOf, fmtYear: fmtYear, parseYearInput: parseYearInput,
@@ -415,9 +596,14 @@ const HJ = (function () {
     huiGua: huiGua, yunGua: yunGua, yearGua: yearGua,
     yunGuaBian: yunGuaBian, shiGuaBian: shiGuaBian, xunGuaJia: xunGuaJia, xunGuaYi: xunGuaYi,
     huiGua5: huiGua5, zhongGua: zhongGua, leapGua: leapGua, yunGuaOf: yunGuaOf,
-    chronYun: chronYun, chronSpan: chronSpan, chronHas: chronHas, setChronicle: setChronicle,
+    chronYun: chronYun, chronAll: chronAll, chronSpan: chronSpan, chronHas: chronHas, setChronicle: setChronicle,
+    liuRiQiFen: liuRiQiFen, QI_FEN_DAYS: QI_FEN_DAYS,
+    SHIXU16: SHIXU16, SHIXU_SEASONS: SHIXU_SEASONS, SHIXU_EMPERORS: SHIXU_EMPERORS, SHIXU_ACTIONS: SHIXU_ACTIONS, SHIXU_VERBS: SHIXU_VERBS,
     kaiwuA: kaiwuA, biwuA: biwuA,
     guaInfo: guaInfo, guaCi: GUACI, fullGuaName: fullGuaName, shortGuaName: shortGuaName, BIGUA_FULL: BIGUA_FULL,
+    huGua: huGua, cuoZong: cuoZong, yearGuaCalc: yearGuaCalc,
+    GUA_SQUARE: GUA_SQUARE, yunTableAll: yunTableAll,
+    jiNianDuiZhao: jiNianDuiZhao,
     GUA60: GUA60, LEAP_GUA: LEAP_GUA, ZHINIAN_ANCHOR: ZHINIAN_ANCHOR,
     XT_ROUND: XT_ROUND, BITS_BY_NAME: BITS_BY_NAME,
     anchors: anchors, GUAQI_READY: function () { return true; }
