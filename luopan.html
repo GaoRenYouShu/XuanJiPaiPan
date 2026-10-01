@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z318">
+<link rel="stylesheet" href="assets/style.css?v=z322">
 </head>
 <body>
 <div id="topbar"></div>
@@ -74,7 +74,7 @@
       <div class="lp-block">
         <h3 class="rel-title">真实罗盘</h3>
         <div class="lp-readbar">
-          <div class="lp-read">坐 <b id="lpRSit">子</b>山　向 <b id="lpRFace">午</b>山</div>
+          <div class="lp-read">坐 <b id="lpRSit">北</b>　朝 <b id="lpRFace">南</b></div>
           <div class="lp-deg" id="lpRDeg">0.0°</div>
           <div class="lp-lvl">横 <span id="lpRLvlX">0.0</span>　竖 <span id="lpRLvlY">0.0</span></div>
           <button class="lp-tool" id="lpRLock" onclick="lpRealLock()" aria-label="锁定读数">锁定</button>
@@ -366,8 +366,9 @@ function lpRealReadout(){
   var z=FS.zhenShan(deg,'zheng');
   var sit=z?z.shan:'未定';
   var face=FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24];
-  document.getElementById('lpRSit').textContent=sit;
-  document.getElementById('lpRFace').textContent=face;
+  var DIR8={子:'北',艮:'东北',寅:'东北',甲:'东',卯:'东',乙:'东',辰:'东南',巽:'东南',巳:'东南',丙:'南',午:'南',丁:'南',未:'西南',坤:'西南',申:'西南',庚:'西',酉:'西',辛:'西',戌:'西北',乾:'西北',亥:'西北',壬:'北'};
+  document.getElementById('lpRSit').textContent=DIR8[sit]||sit;
+  document.getElementById('lpRFace').textContent=DIR8[face]||face;
   document.getElementById('lpRDeg').textContent=deg.toFixed(1)+'°';
   var info=FS.shanInfo(sit, LP_YEAR, LP_DEG);
   var zx=info&&info.measured? (info.measured.zheng?'正向':(info.measured.jian?'兼'+info.measured.jianTo+'山':'骑缝空亡')) : '';
@@ -377,9 +378,8 @@ function lpRealReadout(){
     +'<span class="wd-br"></span>'
     +'正针落'+zhen.shan+'山（立向） 中针落'+zhong.shan+'山（消砂） 缝针落'+feng.shan+'山（纳水）'
     +'<span class="wd-br"></span>'
-    +LUOPAN.RD_SETS[LP_REAL.set].name+'：环序自外向内为'+Object.keys(LUOPAN.RD_RING_NAME).filter(function(k){
-      return LP_REAL.set!=='rumen'||LUOPAN.realDisk!==undefined;
-    }).length+'层制，点选盘面任一山换读数。');
+    +LUOPAN.RD_SETS[LP_REAL.set].name+'（'+LUOPAN.RD_SETS[LP_REAL.set].n+'层）：自外向内依次为'
+      +LUOPAN.RD_SETS[LP_REAL.set].rings.map(function(k){ return LUOPAN.RD_RING_NAME[k]; }).join('、')+'。');
 }
 function lpRealLock(){
   LP_REAL.lock=!LP_REAL.lock;
@@ -476,7 +476,7 @@ function lpFenSvg(){
         return {text:f.gz, deg:((d%360)+360)%360, color:(f.wang==='龟甲'?'var(--wheel-bad)':(f.wang==='旺'||f.wang==='相')?'var(--wheel-ink)':'var(--wheel-ink2)'), kong:(f.wang==='龟甲')};
       });
     },
-    core:function(sel){ return ['分金', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ return ['分金', FS.SHAN_LIST[sel]+'山', '每山五分金']; },
     label:'百二十分金盘：二十四山每山五分金、每分三度，丙丁庚辛为珠宝旺相可取，戊己龟甲空亡、甲乙壬癸孤虚不用。'
   });
 }
@@ -501,7 +501,7 @@ function lpChuanSvg(){
         return {text:r.gz||'空', deg:((d%360)+360)%360, color:r.kong?'var(--wheel-bad)':'var(--wheel-ink)', kong:r.kong};
       });
     },
-    core:function(sel){ return ['穿山', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ return ['穿山', FS.SHAN_LIST[sel]+'山', '每山三龙']; },
     label:'穿山七十二龙盘：每龙五度，每山三龙，丙丁庚辛旺相为珠宝，戊己龟甲与八干四维正中大空亡皆不可用，用于格龙。'
   });
 }
@@ -527,7 +527,7 @@ function lpTouSvg(){
         return {text:r.gz, deg:d, color:(r.wang==='旺'||r.wang==='相')?'var(--wheel-ink)':'var(--wheel-ink)', kong:false};
       });
     },
-    core:function(sel){ return ['透地', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ return ['透地', FS.SHAN_LIST[sel]+'山', '每龙六度']; },
     label:'透地六十龙盘：每龙六度，甲子起壬山之初，去十二大空亡重布，用于穿山之下定穴内之龙。'
   });
 }
@@ -548,7 +548,7 @@ function lpBaguaSvg(){
   document.getElementById('lpBagua').innerHTML=LUOPAN.layerDisk({
     id:'lpBagua', curId:'lpBaguaCur', pick:'lpPickBagua', sel:sel,
     inner:function(i,shan){ return [{text:FS.SHAN_BAGUA[shan], deg:FS.fwShanDeg(i)}]; },
-    core:function(sel){ return ['八卦', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ return ['八卦', FS.SHAN_LIST[sel]+'山', FS.SHAN_BAGUA[FS.SHAN_LIST[sel]]+'卦']; },
     label:'八卦盘：外圈二十四山，内圈其所属后天八卦（坎离震巽乾坤艮兑）。'
   });
 }
@@ -567,7 +567,7 @@ function lpLuoshuSvg(){
       var g=FS.SHAN_BAZI[shan]||1;
       return [{text:String(g), deg:FS.fwShanDeg(i)}];
     },
-    core:function(sel){ return ['九宫', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ var g=FS.SHAN_BAZI[FS.SHAN_LIST[sel]]||1; return ['九宫', FS.SHAN_LIST[sel]+'山', '第'+g+'宫']; },
     label:'洛书九宫盘：外圈二十四山，内圈其所属洛书宫数（戴九履一左三右七二四肩六八足五居中），为玄空飞星与紫白之本。'
   });
 }
@@ -589,7 +589,7 @@ function lpYunSvg(){
       var r=b.filter(function(x){ return x.palace===g; })[0]||{};
       return [{text:r.star!=null?String(r.star):'', deg:FS.fwShanDeg(i)}];
     },
-    core:function(sel){ return [yq.yuan+yq.yun+'运', yq.name]; },
+    core:function(sel){ var zb=FS.yearZiBai(LP_YEAR); return [yq.yuan+yq.yun+'运', yq.name, FS.STAR_NAMES_CN[zb.board.filter(function(x){return x.palace===5;})[0].star]+'入中']; },
     label:'三元九运与紫白飞星盘：外圈二十四山，内圈当年年紫白飞星数（各山所临之飞星，一八六四甲子起上元一运，每运二十年；二〇二四至二〇四三为下元九运）。'
   });
 }
@@ -644,7 +644,7 @@ function lpSanheSvg(){
       var key=FS.SHAN_SANHE[shan], ju=FS.SANHE_JU[key];
       return [{text:(ju.ju||'局').charAt(0), deg:FS.fwShanDeg(i)}];
     },
-    core:function(sel){ return ['三合', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ var ju=FS.SANHE_JU[FS.SHAN_SANHE[FS.SHAN_LIST[sel]]]; return ['三合', FS.SHAN_LIST[sel]+'山', ju?ju.ju:'']; },
     label:'三合水法盘：外圈二十四山，内圈所属水局（金木水火四大局），长生十二宫配双山五行以定水口生旺墓。'
   });
 }
@@ -664,7 +664,7 @@ function lpBazhaiSvg(){
       var g=FS.SHAN_BAGUA[shan], b=FS.baZhai(g);
       return [{text:b?b.group.charAt(0):'中', deg:FS.fwShanDeg(i)}];
     },
-    core:function(sel){ return ['八宅', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ var b=FS.baZhai(FS.SHAN_BAGUA[FS.SHAN_LIST[sel]]); return ['八宅', FS.SHAN_LIST[sel]+'山', b?b.group:'']; },
     label:'八宅游年盘：外圈二十四山，内圈所属宅卦之东西四命，游年九星生气延年天医伏位为吉、绝命五鬼祸害六煞为凶。'
   });
 }
@@ -686,7 +686,7 @@ function lpTianxingSvg(){
       var g=FS.tianXingGui(shan);
       return [{text:g.gui?g.star.charAt(0):'平', deg:FS.fwShanDeg(i)}];
     },
-    core:function(sel){ return ['天星', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ var g=FS.tianXingGui(FS.SHAN_LIST[sel]); return ['天星', FS.SHAN_LIST[sel]+'山', g.gui?g.star.charAt(0):'平']; },
     label:'天星盘：依赖公《催官篇》以二十四山配天星论贵贱（亥应紫微、艮应天市等）；赖公五行与宿度五行诸家不一，本库依师传口径，不臆造。'
   });
 }
@@ -701,7 +701,7 @@ function lpDeclSvg(){
   document.getElementById('lpDecl').innerHTML=LUOPAN.layerDisk({
     id:'lpDecl', curId:'lpDeclCur', pick:'lpPickDecl', sel:sel,
     inner:function(i,shan){ return [{text:shan, deg:FS.fwShanDeg(i)}]; },
-    core:function(sel){ return ['校准', FS.SHAN_LIST[sel]+'山']; },
+    core:function(sel){ return ['校准', FS.SHAN_LIST[sel]+'山', '真北读数']; },
     label:'磁偏角校准盘：盘面所读为磁北，须按所在地磁偏角折真北（东偏为正、西偏为负）；真方位等于磁方位加磁偏角。'
   });
 }

@@ -7,6 +7,8 @@
  * 音表十二行：每音清水、濁火、清土、濁石四组，每组開發收閉四位；□为有音无字、计用音，■为黑方不用。
  * 自校验：声一百六十位去黑四十八用一百一十二；音一百九十二位去黑四十用一百五十二；
  * 用声乘用音一万七千零二十四，即观物篇六十一动数，不符即拒载。
+ * 表文数据留四库本繁体为单一真源，显示一律转简体（与年表同制，倒排站内简繁表，
+ * 乾等表外用字原样保留），检索简繁两形并收。
  */
 (function (global) {
   'use strict';
@@ -100,6 +102,13 @@
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  /* 显示层繁转简：复用年表的 hjJianti（倒排站内简繁表，一繁对多简取首个，表外字原样），
+   * 仅在 innerHTML 落点整体转换，数据层仍为四库本繁体；无 hjJianti 的环境（单测）原样返回。 */
+  function disp(t) {
+    var f = global.hjJianti;
+    return typeof f === 'function' ? f(t) : t;
+  }
+
   /* 源表（声表或音表）：组头两行＋逐位格 */
   function sourceTable(kind) {
     var isS = kind === 's';
@@ -109,7 +118,7 @@
     var names = isS ? SG_NAMES : YN_NAMES;
     var src = isS ? SHENG : YIN;
     var h1 = '<tr><th rowspan="2">' + (isS ? '声' : '音') + '</th>';
-    var h2 = '<tr><th></th>';
+    var h2 = '<tr>';
     for (var g = 0; g < 4; g++) {
       h1 += '<th colspan="4">' + groups[g] + '</th>';
       for (var t = 0; t < 4; t++) h2 += '<th>' + cols[t] + '</th>';
@@ -140,7 +149,7 @@
     var cols = fixS ? YN_DEGS : SG_TONES;
     var fixName = posName(fixS ? 's' : 'y', p);
     var h1 = '<tr><th rowspan="2">' + (fixS ? '声' : '音') + '与' + (fixS ? '音' : '声') + '</th>';
-    var h2 = '<tr><th>' + esc(fixName) + '</th>';
+    var h2 = '<tr>';
     for (var g = 0; g < 4; g++) {
       h1 += '<th colspan="4">' + groups[g] + '</th>';
       for (var t = 0; t < 4; t++) h2 += '<th>' + cols[t] + '</th>';
@@ -195,8 +204,8 @@
 
   /* 矩阵分块：声之一组（十六位）乘音之一组（十六位），黑方格不入用数 */
   function block(si, yi) {
-    var h1 = '<tr><th rowspan="2">' + SG_NAMES[si] + '与' + YN_NAMES[yi] + '</th>';
-    var h2 = '<tr><th>声与音</th>';
+    var h1 = '<tr><th rowspan="2">' + SG_NAMES[si] + '与' + YN_NAMES[yi] + '</th><th rowspan="2">声与音</th>';
+    var h2 = '<tr>';
     for (var g = 0; g < 4; g++) {
       h1 += '<th colspan="4">' + YN_GROUPS[g] + '</th>';
       for (var t = 0; t < 4; t++) h2 += '<th>' + YN_DEGS[t] + '</th>';
@@ -239,8 +248,8 @@
         '音一百九十二位：黑方四十，用音一百五十二，内有音无字二十位；' +
         '用声乘用音得 ' + TOTAL + '，即观物篇六十一动数（植数同），再自乘得动植通数二万八千九百八十一万六千五百七十六，与观物篇数表同口径。';
     }
-    var sh = el('hjSySheng'); if (sh) sh.innerHTML = sourceTable('s');
-    var yn = el('hjSyYin'); if (yn) yn.innerHTML = sourceTable('y');
+    var sh = el('hjSySheng'); if (sh) sh.innerHTML = disp(sourceTable('s'));
+    var yn = el('hjSyYin'); if (yn) yn.innerHTML = disp(sourceTable('y'));
 
     var q = el('hjSyQ');
     if (q) {
@@ -255,7 +264,7 @@
       oh = '';
       for (j = 0; j < 12; j++) oh += '<option value="' + j + '">' + YN_NAMES[j] + '</option>';
       yb.innerHTML = oh;
-      var re = function () { el('hjSyBlock').innerHTML = block(+sb.value, +yb.value); };
+      var re = function () { el('hjSyBlock').innerHTML = disp(block(+sb.value, +yb.value)); };
       sb.addEventListener('change', re);
       yb.addEventListener('change', re);
       re();
@@ -265,7 +274,7 @@
   function runSearch() {
     var q = el('hjSyQ'), out = el('hjSyHits');
     if (!q || !out) return;
-    out.innerHTML = search(q.value);
+    out.innerHTML = disp(search(q.value));
   }
 
   global.HUANGJI_SY = {
