@@ -3687,10 +3687,10 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .fs-title-left{text-align:left}
 .page-lp .fs-inp-w100{width:100px}
 .page-lp .fs-inp-w90{width:90px}
-/* 窄屏输入框自适应：固定宽在手机端会截断占位文案，改满栏且限宽，字号 16px 免 iOS 聚焦缩放跳变 */
+/* 窄屏输入框：宽仍取定宽档（占位文案已精简为“正针坐度°”，定宽即足显），
+   字号 16px 免 iOS 聚焦时自动放大致页面缩放跳变 */
 @media (max-width:560px){
-  .page-lp .fs-inp-w100,.page-lp .fs-inp-w90{width:100%;max-width:160px;font-size:16px}
-  .page-lp #baseDecl{width:100%;max-width:160px;font-size:16px}
+  .page-lp .fs-inp-w100,.page-lp .fs-inp-w90,.page-lp #baseDecl{font-size:16px}
   .page-lp .field input,.page-lp .field select{font-size:16px}
 }
 .page-lp .fs-hint{font-size:12px;color:var(--lp-ink2);line-height:1.6;margin-top:var(--sp-2)}
@@ -3815,6 +3815,14 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   letter-spacing:.06em;transition:.15s}
 .lp-readbar .lp-lock:hover{border-color:var(--lp);color:var(--lp2)}
 .lp-readbar .lp-lock.active{background:var(--lp);border-color:var(--lp);color:#fff}
+/* 窄屏读数栏：坐向、度数、横竖三者字长随读数变动，若与锁钮同处一行，
+   数值一变长即把锁钮挤到下一行而使整页跳动。故此断点下锁钮独占一行居中，
+   读数三件自成一组固定一行，读数变动不牵动行高。 */
+@media (max-width:560px){
+  .lp-readbar{gap:var(--sp-2)}
+  .lp-readbar .lp-read,.lp-readbar .lp-deg,.lp-readbar .lp-lvl{flex:0 0 auto;white-space:nowrap}
+  .lp-readbar .lp-lock{flex:1 0 100%;width:100%}
+}
 .lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
 .lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
   border:0;border-radius:0;background:transparent;color:var(--lp);transition:.15s}
