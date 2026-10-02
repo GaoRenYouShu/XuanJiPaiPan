@@ -285,7 +285,7 @@
     const FS = global.FENGSHUI;
     const wheel = opts.wheelId ? document.getElementById(opts.wheelId) : null;
     const R = opts.read || {};
-    let raf = null, last = null, heading = 0, running = false;
+    let raf = null, last = null, heading = 0, running = false, hasAbsolute = false, accMsg = '', lastBeta = 0, lastGamma = 0;
     function read(id) { return id ? document.getElementById(id) : null; }
     function frame() {
       if (!running) return;
@@ -312,19 +312,31 @@
       const dc = read(R.decl); if (dc) dc.textContent = (decl != null && isFinite(decl)) ? decl.toFixed(2) : '未取';
       const tr = read(R.true); if (tr) tr.textContent = trueDeg.toFixed(1);
       const lv = read(R.lvl); if (lv) lv.textContent = lvMsg;
-      if (typeof opts.onRead === 'function') opts.onRead(trueDeg, shan, decl, screenDeg);
+      if (typeof opts.onRead === 'function') opts.onRead(trueDeg, shan, decl, screenDeg, lastBeta, lastGamma);
     }
     let lvMsg = '已水平';
     /* 方位角：苹果给 webkitCompassHeading（顺时针自北，即真方位角）；
        其余按设备方位规范取三百六十减 alpha（alpha 绕竖轴逆时针为正，绝对与相对同一轴向、同一符号，
        故绝对事件不得直取 alpha，否则东西相反而成镜像）。 */
     function onOrient(e) {
-      let h = (typeof e.webkitCompassHeading === 'number') ? e.webkitCompassHeading
-        : (typeof e.alpha === 'number' ? (360 - e.alpha) % 360 : null);
+      /* 绝对方位优先：iOS 走 deviceorientation 带 webkitCompassHeading；安卓走 deviceorientationabsolute，
+         e.absolute 为真时 alpha 即 0=N 顺时针之绝对角；纯相对 deviceorientation 无罗盘按 360-alpha 折算。
+         一旦取得绝对读数即弃用相对流，免双流互 lerp 致抖、免安卓绝对角被当相对而东西镜像。 */
+      let h;
+      if (typeof e.webkitCompassHeading === 'number') { h = e.webkitCompassHeading; hasAbsolute = true; }
+      else if (e.absolute) { h = (e.alpha || 0); hasAbsolute = true; }
+      else { if (hasAbsolute) return; h = (360 - (e.alpha || 0)) % 360; }
       if (h == null) return;
-      if (last == null) heading = h; else heading = lerpAngle(heading, h, 0.2);
-      last = h;
-      const beta = Math.abs(e.beta || 0), gamma = Math.abs(e.gamma || 0);
+      /* 磁偏角精度门：iOS 低精度读数不可靠，仅给校准提示而不更新方位，免漂。 */
+      if (typeof e.webkitCompassAccuracy === 'number' && (!isFinite(e.webkitCompassAccuracy) || e.webkitCompassAccuracy > 20)) {
+        accMsg = '请做横8字校准';
+      } else {
+        accMsg = '';
+        if (last == null) heading = h; else heading = lerpAngle(heading, h, 0.2);
+        last = h;
+      }
+      lastBeta = e.beta || 0; lastGamma = e.gamma || 0;
+      const beta = Math.abs(lastBeta), gamma = Math.abs(lastGamma);
       lvMsg = (beta > 30 || gamma > 30) ? '请将罗盘放平' : '已水平';
       if (!raf) frame();
     }
@@ -369,7 +381,7 @@
       window.removeEventListener('deviceorientation', onOrient, true);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);
     }
-    return { start: start, stop: stop, getHeading: function () { return heading; } };
+    return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; } };
   }
 
   let LP_MODE = 'zong';
@@ -1329,7 +1341,7 @@
     if (has.cuiGuan) s += rdCuiGuan('cuiGuan');
 
         /* 天池：白圆（0至12%）、NESW 贴池沿、海底线、菱形磁针。 */
-    if (has.chi) {
+    if (has.chi && o.overlay !== true) {
       const [r0, r1] = RB.chi;
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + r1 + '" class="rd-chi-rim"/>';
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + (r1 - 4) + '" class="rd-chi"/>';
@@ -1352,8 +1364,8 @@
       if (!has[k]) continue;
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + RB[k][0] + '" class="rd-ring"/>';
     }
-    /* 天心十道 */
-    if (o.cross !== false) {
+    /* 天心十道：随盘转则失其固定瞄准之意，故 overlay 模式下不绘于此旋转 svg，改由 realDiskOverlay 固定层出 */
+    if (o.cross !== false && o.overlay !== true) {
       s += '<line x1="' + (C - ROUT) + '" y1="' + C + '" x2="' + (C + ROUT) + '" y2="' + C + '" class="rd-cross"/>';
       s += '<line x1="' + C + '" y1="' + (C - ROUT) + '" x2="' + C + '" y2="' + (C + ROUT) + '" class="rd-cross"/>';
     }
@@ -1370,6 +1382,35 @@
     const label = RD_SETS[mode].name + '共' + rings.length + '层：自天池向外依次为' + rings.map(function (k) { return RD_RING_NAME_OF(mode, JU_KEY)[k]; }).join('、') + '。';
     return '<svg class="wheel rd-wheel" id="' + o.id + '" viewBox="0 0 2000 2000" role="img" aria-label="' + label + '">' + s + '</svg>';
   }
+  /* 固定层（不随盘转）：天池磁针与天心十道。真实罗经用法，针恒指北、十道为固定瞄准线，
+     故与旋转之内盘分离，由页面以绝对定位覆盖层渲染，转盘旋转不带动此层。 */
+  function realDiskOverlay(o) {
+    const mode = RD_SETS[o.mode] ? o.mode : 'zonghe';
+    const C = RD_C, ROUT = 985;
+    const RB = rdBandsOf(mode);
+    let s = '';
+    if (RB.chi) {
+      const r1 = RB.chi[1];
+      s += '<circle cx="' + C + '" cy="' + C + '" r="' + r1 + '" class="rd-chi-rim"/>';
+      s += '<circle cx="' + C + '" cy="' + C + '" r="' + (r1 - 4) + '" class="rd-chi"/>';
+      s += '<line x1="' + C + '" y1="' + (C - r1 + 8) + '" x2="' + C + '" y2="' + (C + r1 - 8) + '" class="rd-haixian"/>';
+      const labs = [['N', 0], ['E', 90], ['S', 180], ['W', 270]];
+      for (const [t2, d] of labs) {
+        const p = rdPx(r1 - 14, d);
+        s += '<text x="' + WHEEL.n(p[0]) + '" y="' + WHEEL.n(p[1]) + '" class="rd-nesw" style="font-size:22px"'
+          + ' transform="rotate(' + WHEEL.ring(d) + ' ' + WHEEL.n(p[0]) + ' ' + WHEEL.n(p[1]) + ')">' + t2 + '</text>';
+      }
+      const half = (r1 - 12), wid = half * 0.16;
+      s += '<path d="M' + C + ' ' + (C - half) + 'L' + (C + wid) + ' ' + C + 'L' + C + ' ' + C + 'L' + (C - wid) + ' ' + C + 'Z" class="rd-needle-n"/>';
+      s += '<path d="M' + C + ' ' + (C + half) + 'L' + (C + wid) + ' ' + C + 'L' + C + ' ' + C + 'L' + (C - wid) + ' ' + C + 'Z" class="rd-needle-s"/>';
+      s += '<circle cx="' + C + '" cy="' + C + '" r="6" class="rd-pin"/>';
+    }
+    if (o.cross !== false) {
+      s += '<line x1="' + (C - ROUT) + '" y1="' + C + '" x2="' + (C + ROUT) + '" y2="' + C + '" class="rd-cross"/>';
+      s += '<line x1="' + C + '" y1="' + (C - ROUT) + '" x2="' + C + '" y2="' + (C + ROUT) + '" class="rd-cross"/>';
+    }
+    return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixed') + '" viewBox="0 0 2000 2000" aria-hidden="true">' + s + '</svg>';
+  }
 
   global.LUOPAN = {
     GUIDE_STEPS: GUIDE_STEPS,
@@ -1380,6 +1421,7 @@
     xiuDisk: xiuDisk,
     XIU_XIANG: XIU_XIANG,
     realDisk: realDisk,
+    realDiskOverlay: realDiskOverlay,
     RD_SETS: RD_SETS,
     RD_RING_NAME_OF: RD_RING_NAME_OF,
     rdBandsOf: rdBandsOf,

@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z337">
+<link rel="stylesheet" href="assets/style.css?v=z339">
 </head>
 <body>
 <div id="topbar"></div>
@@ -176,7 +176,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20260930a"></script>
+<script defer src="assets/luopan.js?v=20260930c"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
@@ -361,10 +361,18 @@ function lpRealRender(){
   var sel=LP_SEL.real;
   document.getElementById('lpReal').innerHTML=LUOPAN.realDisk({
     id:'lpRealWheel', sel:sel, mode:LP_REAL.set, cross:LP_REAL.cross, pick:'lpPickReal',
-    sit:LP_SIT
+    sit:LP_SIT, overlay:true
   });
+  lpRealRenderOverlay();
   lpRealApplyTransform();
   lpRealReadout();
+}
+/* 固定层（天池磁针 + 天心十道）：绝对定位覆盖于转盘之上，永不被旋转带动。 */
+function lpRealRenderOverlay(){
+  var host=document.getElementById('lpReal'); if(!host) return;
+  var ov=host.querySelector('#lpCrossFixed');
+  if(!ov){ ov=document.createElement('div'); ov.id='lpCrossFixed'; host.appendChild(ov); }
+  ov.innerHTML=LUOPAN.realDiskOverlay({ mode:LP_REAL.set, cross:LP_REAL.cross });
 }
 function lpPickReal(i){
   LP_SEL.real=i;
@@ -425,6 +433,17 @@ function lpRealReadout(){
     +'<span class="wd-br"></span>'
     +'指南针开启时盘面随所指向自动转，使盘面零度对准真北；未开指南针时可双指旋盘自行对针，或填实测坐度。');
 }
+/* 指南针实时读数：未锁时随所指向实时写坐向度数（与 lpRealReadout 取同一引擎口径，只写栏不重排详情条）。 */
+function lpRealLiveRead(deg, shan){
+  if(LP_REAL.lock) return;
+  var z=FS.zhenShan(deg,'zheng');
+  var sit=z?z.shan:'未定';
+  var face=FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24];
+  var eS=document.getElementById('lpRSit'), eF=document.getElementById('lpRFace'), eD=document.getElementById('lpRDeg');
+  if(eS) eS.textContent=lpShanDir(sit);
+  if(eF) eF.textContent=lpShanDir(face);
+  if(eD) eD.textContent=deg.toFixed(1)+'°';
+}
 function lpRealLock(){
   LP_REAL.lock=!LP_REAL.lock;
   if(LP_REAL.lock) LP_REAL.lockedDeg=lpRealDegOfSel();
@@ -453,7 +472,7 @@ function lpRealCross(){
   LP_REAL.cross=!LP_REAL.cross;
   var b=document.getElementById('lpCrossBtn');
   b.classList.toggle('active', LP_REAL.cross);
-  lpRealRender();
+  lpRealRenderOverlay();
 }
 /* 缩放拖移：单指拖移旋转盘面（真实罗经对针即转盘），双指捏合缩放，双击复位。
    transform 作用于 svg 元素，缩放与旋转叠加；指南针联动时旋转由传感器接管。 */
@@ -869,14 +888,19 @@ function lpCompassMake(){
       var btn=document.getElementById('lpCompassBtn');
       if(btn&&LP_COMPASS) btn.textContent=ok?'停止指南针':'启动指南针';
     },
-    onRead:function(deg,shan,decl,screenDeg){
+    onRead:function(deg,shan,decl,screenDeg,beta,gamma){
       if(!LP_REAL.lock){
         LP_REAL.rot=-(((screenDeg%360)+360)%360);
         var wrap=document.getElementById('lpRealWrap');
         if(wrap&&wrap.__lpApply) wrap.__lpApply();
+        lpRealLiveRead(deg, shan);
       }
+      var lx=document.getElementById('lpRLvlX'), ly=document.getElementById('lpRLvlY');
+      if(lx) lx.textContent=(gamma!=null?gamma:0).toFixed(1);
+      if(ly) ly.textContent=(beta!=null?beta:0).toFixed(1);
+      var am=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
       var read=document.getElementById('lpCompassRead');
-      read.innerHTML='指向 '+deg.toFixed(1)+'° 落'+shan+'山 磁偏角'+(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取');
+      read.innerHTML='指向 '+deg.toFixed(1)+'° 落'+shan+'山 磁偏角'+(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取')+(am?'　'+am:'');
     }
   });
 }
