@@ -277,8 +277,9 @@
 
 
   /* 实时指南针外壳：旋转给定罗盘 svg（使子恒指物理北），读数走调用页提供的元素。
-     opts：{wheelId, read:{deg,shan,decl,true,lvl}, getDecl, onRead}
-     getDecl 返回当地磁偏角（东正西负）或 null；onRead(deg,shan,trueDeg) 于每帧回调。
+     opts：{wheelId, read:{deg,shan,decl,true}, getDecl, onRead}
+     getDecl 返回当地磁偏角（东正西负）或 null；onRead(deg,shan,decl,screenDeg,beta,gamma) 于每帧回调，
+     末二参即水平仪横竖两向倾角（度），由调用页自行上屏。
      电子罗盘仅作参考，不取代传统格龙定针。 */
   function Compass(opts) {
     opts = opts || {};
@@ -311,11 +312,10 @@
       const sn = read(R.shan); if (sn) sn.textContent = shan + '山';
       const dc = read(R.decl); if (dc) dc.textContent = (decl != null && isFinite(decl)) ? decl.toFixed(2) : '未取';
       const tr = read(R.true); if (tr) tr.textContent = trueDeg.toFixed(1);
-      const lv = read(R.lvl); if (lv) lv.textContent = lvMsg;
       if (typeof opts.onRead === 'function') opts.onRead(trueDeg, shan, decl, screenDeg, lastBeta, lastGamma);
     }
-    let lvMsg = '已水平';
-    let lvPitch = 0, lvRoll = 0;
+    let lvHeng = 0, lvShu = 0;
+    let gotEvent = false, sensorTimer = null;
     /* 方位角：苹果给 webkitCompassHeading（顺时针自北，即真方位角）；
        其余按设备方位规范取三百六十减 alpha（alpha 绕竖轴逆时针为正，绝对与相对同一轴向、同一符号，
        故绝对事件不得直取 alpha，否则东西相反而成镜像）。 */
@@ -330,6 +330,7 @@
       else if (e.absolute) { h = (360 - (e.alpha || 0)) % 360; hasAbsolute = true; }
       else { if (hasAbsolute) return; h = (360 - (e.alpha || 0)) % 360; }
       if (h == null) return;
+      gotEvent = true;
       /* 磁偏角精度门：iOS 低精度读数不可靠，仅给校准提示而不更新方位，免漂。 */
       if (typeof e.webkitCompassAccuracy === 'number' && (!isFinite(e.webkitCompassAccuracy) || e.webkitCompassAccuracy > 20)) {
         accMsg = '请做横8字校准';
@@ -339,12 +340,9 @@
         last = h;
       }
       lastBeta = e.beta || 0; lastGamma = e.gamma || 0;
-      /* 水平判定：beta 为前后俯仰、gamma 为左右横滚，二者皆以度计，八度以内为平（照风水罗盘惯例）。
-         真实罗盘读磁针，手机稍倾即读数漂，故阈值取八度而非宽限。 */
-      const beta = Math.abs(lastBeta), gamma = Math.abs(lastGamma);
-      const FLAT = 8;
-      lvMsg = (beta > FLAT || gamma > FLAT) ? '请将罗盘放平' : '已水平';
-      lvPitch = beta; lvRoll = gamma;
+      /* 水平仪两向倾角：beta 为前后俯仰（竖），gamma 为左右横滚（横），
+         皆以度如实上报，零度即绝对水平，是否放平由读数人自判，库内不作阈值定夺。 */
+      lvShu = lastBeta; lvHeng = lastGamma;
       if (!raf) frame();
     }
     /* 未获授权者挂一次性手势监听：用户任何一次触屏、按键或滚动即再试一次，不必去找按钮 */
@@ -362,6 +360,13 @@
       window.addEventListener('deviceorientation', onOrient, true);
       window.addEventListener('deviceorientationabsolute', onOrient, true);
       frame();
+      /* 无磁力计之机（部分安卓机型与桌面）三秒内必无一件方位事件，此时明言无传感器并指往
+         手动两途（手拨盘面对针、手填实测坐度），免读数栏恒零而人以为已对准。 */
+      sensorTimer = setTimeout(function () {
+        if (gotEvent) return;
+        accMsg = '本机无方位传感器';
+        if (typeof opts.onState === 'function') opts.onState(false);
+      }, 3000);
     }
     /* 开启：凡平台不设权限门者（安卓浏览器、桌面）即时启用，开页即用；
        苹果须由用户手势授权，故页面载入即试启一次，未获授权则挂一次性手势监听，
@@ -384,13 +389,14 @@
     function stop() {
       running = false;
       if (raf) cancelAnimationFrame(raf);
+      if (sensorTimer) clearTimeout(sensorTimer);
+      sensorTimer = null;
       raf = null; last = null;
       window.removeEventListener('deviceorientation', onOrient, true);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);
     }
     return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; },
-             getLvMsg: function () { return lvMsg; },
-             getLv: function () { return { pitch: lvPitch, roll: lvRoll, msg: lvMsg }; } };
+             getLv: function () { return { heng: lvHeng, shu: lvShu }; } };
   }
 
   let LP_MODE = 'zong';
