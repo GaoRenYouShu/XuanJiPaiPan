@@ -381,7 +381,8 @@
       window.removeEventListener('deviceorientation', onOrient, true);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);
     }
-    return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; } };
+    return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; },
+             getLvMsg: function () { return lvMsg; } };
   }
 
   let LP_MODE = 'zong';

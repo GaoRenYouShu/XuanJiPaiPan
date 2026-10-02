@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z339">
+<link rel="stylesheet" href="assets/style.css?v=z340">
 </head>
 <body>
 <div id="topbar"></div>
@@ -40,7 +40,7 @@
         <div class="field"><label>坐山</label><select id="baseSit" onchange="lpApplyBase()"></select></div>
         <div class="field"><label>向首</label><select id="baseFace" onchange="lpApplyBase()"></select></div>
         <div class="field"><label>流年</label><input type="number" id="baseYear" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="lpApplyBase()"></div>
-        <div class="field"><label>罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="lpApplyBase()"></div>
+        <div class="field"><label>罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°" onchange="lpApplyBase()"></div>
       </div>
       <div class="birth-group compact">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
@@ -91,7 +91,8 @@
         <div class="lp-compass-read" id="lpCompassRead"></div>
         <div class="wheel-block" id="lpRealWrap"><h4 id="lpRealTitle">三元三合综合盘</h4><div id="lpReal"></div></div>
         <div class="wheel-detail" id="lpRealDetail"></div>
-        <div class="lp-compass-note">电子罗盘读数为磁北，已按所在地磁偏角折真北；仅供参研，不取代传统格龙定针。</div>
+        <div class="lp-compass-note">电子罗盘读数为磁北，已按所在地磁偏角折真北；仅供参研，不取代传统格龙定针。<br>
+        校验方向是否准确：先取当地磁偏角（默认北京市），再以已知朝向核对（如面朝正午太阳方位、面向建筑正门或路牌）。差值即为本机误差，可手填磁偏角反向微调至吻合。读数栏“指向”为人所面向，“坐度”为人背后（相差一百八十度）。手机壳磁吸、金属支架与车内会致磁偏，须移除后再校。读数不稳或提示“请做横8字校准”时，取出手机做横8字晃动数次再平放。</div>
         <div class="lp-compass" id="lpZong" style="display:none"></div>
         <div class="wheel-detail" id="lpZongDetail" style="display:none"></div>
       </div>
@@ -176,7 +177,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20260930c"></script>
+<script defer src="assets/luopan.js?v=20261002a"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
@@ -484,9 +485,30 @@ function lpRealBindZoom(){
   var wrap=document.getElementById('lpRealWrap');
   if(!wrap) return;
   var scale=1, tx=0, ty=0, pinch=null;
+  /* 盘面基准尺寸取 svg 自然宽（未缩放时），放大时按倍数同步撑开容器，
+     使放大的盘面完整可见而不被容器裁切；容器随之变高，页面纵向可滚查看。
+     容器仍 overflow:hidden，盘面不越其外，故不产生横向滚动。 */
   function apply(){
     var w=document.getElementById('lpRealWheel');
-    if(w) w.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+') rotate('+LP_REAL.rot+'deg)';
+    var host=document.getElementById('lpReal');
+    if(w){
+      w.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+') rotate('+LP_REAL.rot+'deg)';
+      if(host&&scale>1){
+        /* 复原基准：以 scale=1 量得的自然宽高为基数，按当前倍数放大容器 */
+        var bw=w.dataset.baseW?parseFloat(w.dataset.baseW):0;
+        var bh=w.dataset.baseH?parseFloat(w.dataset.baseH):0;
+        if(!bw||!bh){
+          var r=w.getBoundingClientRect();
+          bw=r.width/scale; bh=r.height/scale;
+          w.dataset.baseW=bw; w.dataset.baseH=bh;
+        }
+        host.style.width=(bw*scale)+'px';
+        host.style.height=(bh*scale)+'px';
+      }else if(host){
+        host.style.width=''; host.style.height='';
+        w.dataset.baseW=''; w.dataset.baseH='';
+      }
+    }
   }
   function dist(t){ var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY; return Math.hypot(dx,dy); }
   /* 双指夹角：手拨转盘用。传感器不可用时（或欲自行对针时）以双指旋动盘面，与指南针自动转盘同取一角 */
@@ -893,14 +915,21 @@ function lpCompassMake(){
         LP_REAL.rot=-(((screenDeg%360)+360)%360);
         var wrap=document.getElementById('lpRealWrap');
         if(wrap&&wrap.__lpApply) wrap.__lpApply();
-        lpRealLiveRead(deg, shan);
+        /* deg 为手机顶边所指的面向角（人面向之处）；罗盘坐山在人背后，
+           故坐度取面向加一百八十度，跨零度归一。此处若直取面向即成坐向颠倒。 */
+        var sitDeg=((deg+180)%360+360)%360;
+        var zS=FS.zhenShan(sitDeg,'zheng');
+        lpRealLiveRead(sitDeg, zS?zS.shan:shan);
       }
       var lx=document.getElementById('lpRLvlX'), ly=document.getElementById('lpRLvlY');
       if(lx) lx.textContent=(gamma!=null?gamma:0).toFixed(1);
       if(ly) ly.textContent=(beta!=null?beta:0).toFixed(1);
       var am=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
+      var lm=(LP_COMPASS&&LP_COMPASS.getLvMsg)?LP_COMPASS.getLvMsg():'';
       var read=document.getElementById('lpCompassRead');
-      read.innerHTML='指向 '+deg.toFixed(1)+'° 落'+shan+'山 磁偏角'+(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取')+(am?'　'+am:'');
+      /* 读数行分列两义：指向为面向角（照罗盘针路），坐度为坐山（在人背后），二者相差一百八十度 */
+      read.innerHTML='指向 '+deg.toFixed(1)+'°（人面向） 坐度 '+((((deg+180)%360)+360)%360).toFixed(1)+'° 磁偏角'
+        +(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取')+(lm?'　'+lm:'')+(am?'　'+am:'');
     }
   });
 }
