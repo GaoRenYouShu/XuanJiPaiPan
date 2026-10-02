@@ -315,7 +315,6 @@
       if (typeof opts.onRead === 'function') opts.onRead(trueDeg, shan, decl, screenDeg, lastBeta, lastGamma);
     }
     let lvHeng = 0, lvShu = 0;
-    let gotEvent = false, sensorTimer = null;
     /* 方位角：苹果给 webkitCompassHeading（顺时针自北，即真方位角）；
        其余按设备方位规范取三百六十减 alpha（alpha 绕竖轴逆时针为正，绝对与相对同一轴向、同一符号，
        故绝对事件不得直取 alpha，否则东西相反而成镜像）。 */
@@ -330,7 +329,6 @@
       else if (e.absolute) { h = (360 - (e.alpha || 0)) % 360; hasAbsolute = true; }
       else { if (hasAbsolute) return; h = (360 - (e.alpha || 0)) % 360; }
       if (h == null) return;
-      gotEvent = true;
       /* 磁偏角精度门：iOS 低精度读数不可靠，仅给校准提示而不更新方位，免漂。 */
       if (typeof e.webkitCompassAccuracy === 'number' && (!isFinite(e.webkitCompassAccuracy) || e.webkitCompassAccuracy > 20)) {
         accMsg = '请做横8字校准';
@@ -360,13 +358,6 @@
       window.addEventListener('deviceorientation', onOrient, true);
       window.addEventListener('deviceorientationabsolute', onOrient, true);
       frame();
-      /* 无磁力计之机（部分安卓机型与桌面）三秒内必无一件方位事件，此时明言无传感器并指往
-         手动两途（手拨盘面对针、手填实测坐度），免读数栏恒零而人以为已对准。 */
-      sensorTimer = setTimeout(function () {
-        if (gotEvent) return;
-        accMsg = '本机无方位传感器';
-        if (typeof opts.onState === 'function') opts.onState(false);
-      }, 3000);
     }
     /* 开启：凡平台不设权限门者（安卓浏览器、桌面）即时启用，开页即用；
        苹果须由用户手势授权，故页面载入即试启一次，未获授权则挂一次性手势监听，
@@ -389,8 +380,6 @@
     function stop() {
       running = false;
       if (raf) cancelAnimationFrame(raf);
-      if (sensorTimer) clearTimeout(sensorTimer);
-      sensorTimer = null;
       raf = null; last = null;
       window.removeEventListener('deviceorientation', onOrient, true);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);

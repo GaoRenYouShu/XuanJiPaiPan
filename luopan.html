@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z342">
+<link rel="stylesheet" href="assets/style.css?v=z343">
 </head>
 <body>
 <div id="topbar"></div>
@@ -94,8 +94,6 @@
         <div class="lp-compass-read" id="lpCompassRead"></div>
         <div class="wheel-block" id="lpRealWrap"><h4 id="lpRealTitle">三元三合综合盘</h4><div id="lpRealZoom"><div id="lpRealHost"><div id="lpReal"></div></div></div></div>
         <div class="wheel-detail" id="lpRealDetail"></div>
-        <div class="lp-compass-note">电子罗盘读数为磁北，已按所在地磁偏角折真北；仅供参研，不取代传统格龙定针。<br>
-        校验方向是否准确：先取当地磁偏角（默认北京市），再以已知朝向核对（如面朝正午太阳方位、面向建筑正门或路牌）。差值即为本机误差，可手填磁偏角反向微调至吻合；亦可开手机自带指南针同址同向并读，两读数之差即本机误差（网页无权调用系统指南针，只能读浏览器方位传感器，故以此法比对）。传感器不可靠时改用手动两途：双指拨盘对针，或填实测坐度。读数栏“指向”为人所面向，“坐度”为人背后（相差一百八十度）。手机壳磁吸、金属支架与车内会致磁偏，须移除后再校。读数栏“横”为左右横滚倾角、“竖”为前后俯仰倾角，两向皆零度方为绝对水平，取数前先把手机放平。读数不稳或提示“请做横8字校准”时，取出手机做横8字晃动数次再平放。</div>
         <div class="lp-compass" id="lpZong" style="display:none"></div>
         <div class="wheel-detail" id="lpZongDetail" style="display:none"></div>
       </div>
@@ -180,7 +178,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261003b"></script>
+<script defer src="assets/luopan.js?v=20261003c"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
@@ -934,11 +932,6 @@ function lpCompassMake(){
     onState:function(ok){
       var btn=document.getElementById('lpCompassBtn');
       if(btn&&LP_COMPASS) btn.textContent=ok?'停止指南针':'启动指南针';
-      if(ok) return;
-      var am=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
-      if(!am) return;
-      var read=document.getElementById('lpCompassRead');
-      if(read) read.textContent=am+'，请用双指拨盘对针或填实测坐度。';
     },
     onRead:function(deg,shan,decl,screenDeg,beta,gamma){
       if(!LP_REAL.lock){
