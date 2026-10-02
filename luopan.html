@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z341">
+<link rel="stylesheet" href="assets/style.css?v=z342">
 </head>
 <body>
 <div id="topbar"></div>
@@ -75,10 +75,9 @@
         <div class="lp-readbar">
           <div class="lp-read">坐<b id="lpRSit">北</b>朝<b id="lpRFace">南</b></div>
           <div class="lp-deg" id="lpRDeg">0.0°</div>
-          <div class="lp-level" id="lpLevelBox" title="垂直为手机前后俯仰，水平为左右横滚；两向皆在八度内为平">
-            <span class="lp-level-dir" title="垂直倾角（手机前后俯仰）">俯 <b id="lpLvPitch">0</b>°</span>
-            <span class="lp-level-dir" title="水平倾角（手机左右横滚）">横 <b id="lpLvRoll">0</b>°</span>
-            <span class="lp-level-state" id="lpLvState" title="垂直与水平两向倾角皆在八度内为已水平，否则请将罗盘放平">平</span>
+          <div class="lp-level" id="lpLevelBox" title="横为左右横滚倾角，竖为前后俯仰倾角；两向皆为零度方为绝对水平">
+            <span class="lp-level-dir">横 <b id="lpRLvlX">0.0</b>°</span>
+            <span class="lp-level-dir">竖 <b id="lpRLvlY">0.0</b>°</span>
           </div>
           <button type="button" class="lp-lock" id="lpRLock" onclick="lpRealLock()" aria-label="锁定当前读数">锁定</button>
         </div>
@@ -96,7 +95,7 @@
         <div class="wheel-block" id="lpRealWrap"><h4 id="lpRealTitle">三元三合综合盘</h4><div id="lpRealZoom"><div id="lpRealHost"><div id="lpReal"></div></div></div></div>
         <div class="wheel-detail" id="lpRealDetail"></div>
         <div class="lp-compass-note">电子罗盘读数为磁北，已按所在地磁偏角折真北；仅供参研，不取代传统格龙定针。<br>
-        校验方向是否准确：先取当地磁偏角（默认北京市），再以已知朝向核对（如面朝正午太阳方位、面向建筑正门或路牌）。差值即为本机误差，可手填磁偏角反向微调至吻合。读数栏“指向”为人所面向，“坐度”为人背后（相差一百八十度）。手机壳磁吸、金属支架与车内会致磁偏，须移除后再校。读数不稳或提示“请做横8字校准”时，取出手机做横8字晃动数次再平放。</div>
+        校验方向是否准确：先取当地磁偏角（默认北京市），再以已知朝向核对（如面朝正午太阳方位、面向建筑正门或路牌）。差值即为本机误差，可手填磁偏角反向微调至吻合；亦可开手机自带指南针同址同向并读，两读数之差即本机误差（网页无权调用系统指南针，只能读浏览器方位传感器，故以此法比对）。传感器不可靠时改用手动两途：双指拨盘对针，或填实测坐度。读数栏“指向”为人所面向，“坐度”为人背后（相差一百八十度）。手机壳磁吸、金属支架与车内会致磁偏，须移除后再校。读数栏“横”为左右横滚倾角、“竖”为前后俯仰倾角，两向皆零度方为绝对水平，取数前先把手机放平。读数不稳或提示“请做横8字校准”时，取出手机做横8字晃动数次再平放。</div>
         <div class="lp-compass" id="lpZong" style="display:none"></div>
         <div class="wheel-detail" id="lpZongDetail" style="display:none"></div>
       </div>
@@ -181,7 +180,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261003a"></script>
+<script defer src="assets/luopan.js?v=20261003b"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
@@ -370,6 +369,8 @@ function lpRealRender(){
     id:'lpRealWheel', sel:sel, mode:LP_REAL.set, cross:LP_REAL.cross, pick:'lpPickReal',
     sit:LP_SIT, overlay:true
   });
+  /* 底色令牌挂在盘面容器上，容器由本函数重建，故每次重建后须重新落类，否则令牌失其所依而成全黑 */
+  lpRealPaintSkin();
   lpRealRenderOverlay();
   lpRealApplyTransform();
   lpRealReadout();
@@ -472,10 +473,13 @@ function lpRealSet(m){
 function lpRealSkin(k){
   LP_REAL.skin=k;
   document.querySelectorAll('[data-rdskin]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-rdskin')===k); });
-  var w=document.getElementById('lpReal');
-  w.classList.remove('rd-skin-black','rd-skin-gold','rd-skin-white');
-  w.classList.add('rd-skin-'+k);
   try{ localStorage.setItem('lp_real_skin', k); }catch(e){}
+  lpRealPaintSkin();
+}
+function lpRealPaintSkin(){
+  var w=document.getElementById('lpReal'); if(!w) return;
+  w.classList.remove('rd-skin-black','rd-skin-gold','rd-skin-white');
+  w.classList.add('rd-skin-'+LP_REAL.skin);
 }
 function lpRealCross(){
   LP_REAL.cross=!LP_REAL.cross;
@@ -930,6 +934,11 @@ function lpCompassMake(){
     onState:function(ok){
       var btn=document.getElementById('lpCompassBtn');
       if(btn&&LP_COMPASS) btn.textContent=ok?'停止指南针':'启动指南针';
+      if(ok) return;
+      var am=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
+      if(!am) return;
+      var read=document.getElementById('lpCompassRead');
+      if(read) read.textContent=am+'，请用双指拨盘对针或填实测坐度。';
     },
     onRead:function(deg,shan,decl,screenDeg,beta,gamma){
       if(!LP_REAL.lock){
@@ -942,18 +951,10 @@ function lpCompassMake(){
         var zS=FS.zhenShan(sitDeg,'zheng');
         lpRealLiveRead(sitDeg, zS?zS.shan:shan);
       }
-      var lv=document.getElementById('lpLvPitch'), lr=document.getElementById('lpLvRoll'), ls=document.getElementById('lpLvState');
-      var pitch=beta!=null?beta:0, roll=gamma!=null?gamma:0;
-      /* 倾角取一位小数，整数则不显示小数点（省宽且合仪表读法） */
-      var fmt=function(v){ return (Math.round(v*10)/10).toString(); };
-      if(lv) lv.textContent=fmt(pitch);
-      if(lr) lr.textContent=fmt(roll);
-      if(ls){
-        var flat=(Math.abs(pitch)<=8 && Math.abs(roll)<=8);
-        ls.textContent=flat?'平':'倾';
-        ls.className='lp-level-state'+(flat?' is-flat':' is-tilt');
-        ls.title=flat?'两向倾角皆在八度内，已水平':'两向倾角超出八度，请将罗盘放平';
-      }
+      /* 水平仪两向读数：横为左右横滚（gamma），竖为前后俯仰（beta），皆以度计，两向皆零度方为绝对水平 */
+      var lx=document.getElementById('lpRLvlX'), ly=document.getElementById('lpRLvlY');
+      if(lx) lx.textContent=(gamma!=null?gamma:0).toFixed(1);
+      if(ly) ly.textContent=(beta!=null?beta:0).toFixed(1);
       var am=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
       var read=document.getElementById('lpCompassRead');
       /* 读数行分列两义：指向为面向角（照罗盘针路），坐度为坐山（在人背后），二者相差一百八十度；
