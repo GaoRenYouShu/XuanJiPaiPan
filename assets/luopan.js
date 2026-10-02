@@ -315,16 +315,19 @@
       if (typeof opts.onRead === 'function') opts.onRead(trueDeg, shan, decl, screenDeg, lastBeta, lastGamma);
     }
     let lvMsg = '已水平';
+    let lvPitch = 0, lvRoll = 0;
     /* 方位角：苹果给 webkitCompassHeading（顺时针自北，即真方位角）；
        其余按设备方位规范取三百六十减 alpha（alpha 绕竖轴逆时针为正，绝对与相对同一轴向、同一符号，
        故绝对事件不得直取 alpha，否则东西相反而成镜像）。 */
     function onOrient(e) {
-      /* 绝对方位优先：iOS 走 deviceorientation 带 webkitCompassHeading；安卓走 deviceorientationabsolute，
-         e.absolute 为真时 alpha 即 0=N 顺时针之绝对角；纯相对 deviceorientation 无罗盘按 360-alpha 折算。
-         一旦取得绝对读数即弃用相对流，免双流互 lerp 致抖、免安卓绝对角被当相对而东西镜像。 */
+      /* 绝对方位优先：iOS 走 deviceorientation 带 webkitCompassHeading（已是以北顺时针的真方位角）。
+         其余一律按设备方位规范取三百六十减 alpha：alpha 绕竖轴逆时针为正，故手机平放、
+         屏幕朝西时 alpha 为九十，而其罗盘方位为西即二百七十，正是三百六十减九十。
+         absolute 只表明读数是否绝对于地磁轴，不改变 alpha 的旋向，故绝对方位流亦须折算，
+         直取 alpha 会使安卓机型东西镜像，与真方位差达一百八十度。 */
       let h;
-      if (typeof e.webkitCompassHeading === 'number') { h = e.webkitCompassHeading; hasAbsolute = true; }
-      else if (e.absolute) { h = (e.alpha || 0); hasAbsolute = true; }
+      if (typeof e.webkitCompassHeading === 'number') { h = e.webkitCompassHeading; if (e.absolute) hasAbsolute = true; }
+      else if (e.absolute) { h = (360 - (e.alpha || 0)) % 360; hasAbsolute = true; }
       else { if (hasAbsolute) return; h = (360 - (e.alpha || 0)) % 360; }
       if (h == null) return;
       /* 磁偏角精度门：iOS 低精度读数不可靠，仅给校准提示而不更新方位，免漂。 */
@@ -336,8 +339,12 @@
         last = h;
       }
       lastBeta = e.beta || 0; lastGamma = e.gamma || 0;
+      /* 水平判定：beta 为前后俯仰、gamma 为左右横滚，二者皆以度计，八度以内为平（照风水罗盘惯例）。
+         真实罗盘读磁针，手机稍倾即读数漂，故阈值取八度而非宽限。 */
       const beta = Math.abs(lastBeta), gamma = Math.abs(lastGamma);
-      lvMsg = (beta > 30 || gamma > 30) ? '请将罗盘放平' : '已水平';
+      const FLAT = 8;
+      lvMsg = (beta > FLAT || gamma > FLAT) ? '请将罗盘放平' : '已水平';
+      lvPitch = beta; lvRoll = gamma;
       if (!raf) frame();
     }
     /* 未获授权者挂一次性手势监听：用户任何一次触屏、按键或滚动即再试一次，不必去找按钮 */
@@ -382,7 +389,8 @@
       window.removeEventListener('deviceorientationabsolute', onOrient, true);
     }
     return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; },
-             getLvMsg: function () { return lvMsg; } };
+             getLvMsg: function () { return lvMsg; },
+             getLv: function () { return { pitch: lvPitch, roll: lvRoll, msg: lvMsg }; } };
   }
 
   let LP_MODE = 'zong';

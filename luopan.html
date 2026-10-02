@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z340">
+<link rel="stylesheet" href="assets/style.css?v=z341">
 </head>
 <body>
 <div id="topbar"></div>
@@ -73,9 +73,13 @@
     <section data-mode-block="zong">
       <div class="lp-block">
         <div class="lp-readbar">
-          <div class="lp-read">坐 <b id="lpRSit">北</b>　朝 <b id="lpRFace">南</b></div>
+          <div class="lp-read">坐<b id="lpRSit">北</b>朝<b id="lpRFace">南</b></div>
           <div class="lp-deg" id="lpRDeg">0.0°</div>
-          <div class="lp-lvl">横 <span id="lpRLvlX">0.0</span>　竖 <span id="lpRLvlY">0.0</span></div>
+          <div class="lp-level" id="lpLevelBox" title="垂直为手机前后俯仰，水平为左右横滚；两向皆在八度内为平">
+            <span class="lp-level-dir" title="垂直倾角（手机前后俯仰）">俯 <b id="lpLvPitch">0</b>°</span>
+            <span class="lp-level-dir" title="水平倾角（手机左右横滚）">横 <b id="lpLvRoll">0</b>°</span>
+            <span class="lp-level-state" id="lpLvState" title="垂直与水平两向倾角皆在八度内为已水平，否则请将罗盘放平">平</span>
+          </div>
           <button type="button" class="lp-lock" id="lpRLock" onclick="lpRealLock()" aria-label="锁定当前读数">锁定</button>
         </div>
         <div class="lp-real-tools">
@@ -89,7 +93,7 @@
           <button class="btn" id="lpCompassBtn" onclick="lpStartCompass()">启动指南针</button>
         </div>
         <div class="lp-compass-read" id="lpCompassRead"></div>
-        <div class="wheel-block" id="lpRealWrap"><h4 id="lpRealTitle">三元三合综合盘</h4><div id="lpReal"></div></div>
+        <div class="wheel-block" id="lpRealWrap"><h4 id="lpRealTitle">三元三合综合盘</h4><div id="lpRealZoom"><div id="lpRealHost"><div id="lpReal"></div></div></div></div>
         <div class="wheel-detail" id="lpRealDetail"></div>
         <div class="lp-compass-note">电子罗盘读数为磁北，已按所在地磁偏角折真北；仅供参研，不取代传统格龙定针。<br>
         校验方向是否准确：先取当地磁偏角（默认北京市），再以已知朝向核对（如面朝正午太阳方位、面向建筑正门或路牌）。差值即为本机误差，可手填磁偏角反向微调至吻合。读数栏“指向”为人所面向，“坐度”为人背后（相差一百八十度）。手机壳磁吸、金属支架与车内会致磁偏，须移除后再校。读数不稳或提示“请做横8字校准”时，取出手机做横8字晃动数次再平放。</div>
@@ -177,7 +181,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261002a"></script>
+<script defer src="assets/luopan.js?v=20261003a"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
@@ -360,6 +364,8 @@ function lpXiuMid(i){
 var LP_REAL={set:'zonghe', skin:'black', cross:true, deg:0, lock:false, lockedDeg:0, rot:0};
 function lpRealRender(){
   var sel=LP_SEL.real;
+  document.getElementById('lpRealZoom').innerHTML=
+    '<div id="lpRealHost"><div id="lpReal"></div></div>';
   document.getElementById('lpReal').innerHTML=LUOPAN.realDisk({
     id:'lpRealWheel', sel:sel, mode:LP_REAL.set, cross:LP_REAL.cross, pick:'lpPickReal',
     sit:LP_SIT, overlay:true
@@ -367,8 +373,10 @@ function lpRealRender(){
   lpRealRenderOverlay();
   lpRealApplyTransform();
   lpRealReadout();
+  if(document.getElementById('lpRealWrap').__lpApply) document.getElementById('lpRealWrap').__lpApply();
 }
-/* 固定层（天池磁针 + 天心十道）：绝对定位覆盖于转盘之上，永不被旋转带动。 */
+/* 固定层（天池磁针 + 天心十道）：绝对定位覆盖于转盘之上，永不被旋转带动。
+   与盘面同处缩放视窗内，故缩放、平移皆与之同步。 */
 function lpRealRenderOverlay(){
   var host=document.getElementById('lpReal'); if(!host) return;
   var ov=host.querySelector('#lpCrossFixed');
@@ -485,52 +493,65 @@ function lpRealBindZoom(){
   var wrap=document.getElementById('lpRealWrap');
   if(!wrap) return;
   var scale=1, tx=0, ty=0, pinch=null;
-  /* 盘面基准尺寸取 svg 自然宽（未缩放时），放大时按倍数同步撑开容器，
-     使放大的盘面完整可见而不被容器裁切；容器随之变高，页面纵向可滚查看。
-     容器仍 overflow:hidden，盘面不越其外，故不产生横向滚动。 */
+  /* 缩放与平移皆作用于缩放视窗（盘面与固定层同处其内），故放大时天池磁针与
+     天心十道随之同步，永不与盘面分离；盘面只在其内旋转。视窗以左上为原点，
+     故 transform-origin 取 0 0，配合 translate 实现以双指中点为锚的缩放与自由平移。 */
   function apply(){
+    var z=document.getElementById('lpRealZoom');
+    if(!z) return;
     var w=document.getElementById('lpRealWheel');
-    var host=document.getElementById('lpReal');
-    if(w){
-      w.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+') rotate('+LP_REAL.rot+'deg)';
-      if(host&&scale>1){
-        /* 复原基准：以 scale=1 量得的自然宽高为基数，按当前倍数放大容器 */
-        var bw=w.dataset.baseW?parseFloat(w.dataset.baseW):0;
-        var bh=w.dataset.baseH?parseFloat(w.dataset.baseH):0;
-        if(!bw||!bh){
-          var r=w.getBoundingClientRect();
-          bw=r.width/scale; bh=r.height/scale;
-          w.dataset.baseW=bw; w.dataset.baseH=bh;
-        }
-        host.style.width=(bw*scale)+'px';
-        host.style.height=(bh*scale)+'px';
-      }else if(host){
-        host.style.width=''; host.style.height='';
-        w.dataset.baseW=''; w.dataset.baseH='';
-      }
-    }
+    if(w) w.style.transform='rotate('+LP_REAL.rot+'deg)';
+    /* 盘面与固定层同处视窗内，只由视窗的 scale 一处放大：二者同为视窗子元素，
+       缩放即同步，不因各自尺寸而分离。故视窗不设显式宽高（设之则只增空白不放大盘面）。 */
+    z.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';
   }
   function dist(t){ var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY; return Math.hypot(dx,dy); }
   /* 双指夹角：手拨转盘用。传感器不可用时（或欲自行对针时）以双指旋动盘面，与指南针自动转盘同取一角 */
   function ang(t){ return Math.atan2(t[1].clientY-t[0].clientY, t[1].clientX-t[0].clientX)*180/Math.PI; }
+  /* 双指中点：以之为缩放锚与平移基准，故可任意移视盘面任一区域 */
+  function mid(t){ return { x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2 }; }
   wrap.addEventListener('touchstart', function(e){
-    if(e.touches.length===2){ pinch={d:dist(e.touches), s:scale, a:ang(e.touches), r:LP_REAL.rot}; e.preventDefault(); }
+    if(e.touches.length===2){
+      var m=mid(e.touches);
+      var r=wrap.getBoundingClientRect();
+      pinch={ d:dist(e.touches), s:scale, a:ang(e.touches), r0:LP_REAL.rot,
+              mx:m.x-r.left, my:m.y-r.top, tx0:tx, ty0:ty };
+      e.preventDefault();
+    }
   }, {passive:false});
   wrap.addEventListener('touchmove', function(e){
     if(e.touches.length===2&&pinch){
       var k=dist(e.touches)/pinch.d;
-      scale=Math.min(8, Math.max(0.5, pinch.s*k));
-      LP_REAL.rot=pinch.r+(ang(e.touches)-pinch.a);
+      var ns=Math.min(8, Math.max(0.5, pinch.s*k));
+      var m=mid(e.touches);
+      var r=wrap.getBoundingClientRect();
+      var mx=m.x-r.left, my=m.y-r.top;
+      /* 以中点为锚缩放：中点在视窗内的位置保持不动，故 tx/ty 按锚点补偿 */
+      var kk=ns/pinch.s;
+      tx=pinch.tx0+mx-(pinch.mx)*kk;
+      ty=pinch.ty0+my-(pinch.my)*kk;
+      scale=ns;
+      LP_REAL.rot=pinch.r0+(ang(e.touches)-pinch.a);
       e.preventDefault(); apply();
     }
   }, {passive:false});
   wrap.addEventListener('touchend', function(){ pinch=null; });
   wrap.addEventListener('wheel', function(e){
     e.preventDefault();
-    scale=Math.min(8, Math.max(0.5, scale*(e.deltaY<0?1.12:0.89)));
+    var r=wrap.getBoundingClientRect();
+    var cx=(e.clientX-r.left), cy=(e.clientY-r.top);
+    var ns=Math.min(8, Math.max(0.5, scale*(e.deltaY<0?1.12:0.89)));
+    var kk=ns/scale;
+    tx=cx-(cx-tx)*kk; ty=cy-(cy-ty)*kk;
+    scale=ns;
     apply();
   }, {passive:false});
-  wrap.addEventListener('dblclick', function(){ scale=1; tx=0; ty=0; LP_REAL.rot=0; apply(); lpRealReadout(); });
+  wrap.addEventListener('dblclick', function(){
+    scale=1; tx=0; ty=0; LP_REAL.rot=0;
+    var z=document.getElementById('lpRealZoom'); if(z) z.dataset.base='';
+    apply(); lpRealReadout();
+  });
+  wrap.__lpApply=apply;
   wrap.__lpApply=apply;
 }
 /* 三盘三针立向盘（528 骨架，走 FS_LUO） */
@@ -921,15 +942,24 @@ function lpCompassMake(){
         var zS=FS.zhenShan(sitDeg,'zheng');
         lpRealLiveRead(sitDeg, zS?zS.shan:shan);
       }
-      var lx=document.getElementById('lpRLvlX'), ly=document.getElementById('lpRLvlY');
-      if(lx) lx.textContent=(gamma!=null?gamma:0).toFixed(1);
-      if(ly) ly.textContent=(beta!=null?beta:0).toFixed(1);
+      var lv=document.getElementById('lpLvPitch'), lr=document.getElementById('lpLvRoll'), ls=document.getElementById('lpLvState');
+      var pitch=beta!=null?beta:0, roll=gamma!=null?gamma:0;
+      /* 倾角取一位小数，整数则不显示小数点（省宽且合仪表读法） */
+      var fmt=function(v){ return (Math.round(v*10)/10).toString(); };
+      if(lv) lv.textContent=fmt(pitch);
+      if(lr) lr.textContent=fmt(roll);
+      if(ls){
+        var flat=(Math.abs(pitch)<=8 && Math.abs(roll)<=8);
+        ls.textContent=flat?'平':'倾';
+        ls.className='lp-level-state'+(flat?' is-flat':' is-tilt');
+        ls.title=flat?'两向倾角皆在八度内，已水平':'两向倾角超出八度，请将罗盘放平';
+      }
       var am=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
-      var lm=(LP_COMPASS&&LP_COMPASS.getLvMsg)?LP_COMPASS.getLvMsg():'';
       var read=document.getElementById('lpCompassRead');
-      /* 读数行分列两义：指向为面向角（照罗盘针路），坐度为坐山（在人背后），二者相差一百八十度 */
+      /* 读数行分列两义：指向为面向角（照罗盘针路），坐度为坐山（在人背后），二者相差一百八十度；
+         水平两向已另立于读数栏之水平仪，此处不重复。 */
       read.innerHTML='指向 '+deg.toFixed(1)+'°（人面向） 坐度 '+((((deg+180)%360)+360)%360).toFixed(1)+'° 磁偏角'
-        +(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取')+(lm?'　'+lm:'')+(am?'　'+am:'');
+        +(decl!=null&&isFinite(decl)?decl.toFixed(2):'未取')+(am?'　'+am:'');
     }
   });
 }
