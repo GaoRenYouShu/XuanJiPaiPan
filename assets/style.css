@@ -3660,10 +3660,16 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .lp-compass{margin-top:var(--sp-3);text-align:center}
 .page-lp .lp-compass-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em}
 .page-lp .lp-compass-note{margin-top:var(--sp-1);font-size:11.5px;color:var(--lp-ink2);letter-spacing:.03em}
-/* 真实罗盘盘区：转盘旋转时外接矩形变大，故盘容器裁切溢出，免页面可横滚而触发移动端底部条与旋转按钮；
-   固定层（天池磁针、天心十道）覆盖于上，永不被旋转带动。 */
-.page-lp #lpReal{position:relative; overflow:hidden}
-.page-lp #lpRealWheel{position:relative; z-index:1}
+/* 真实罗盘盘区：盘面与固定层（天池磁针、天心十道）同置一缩放视窗内，
+   视窗只作 scale 与 translate，二者为其子元素，故放大同步、永不分离。
+   视窗不裁切（overflow:visible），放大后盘面完整可见且可移视任意区域；
+   裁切只施于内层 #lpRealHost 之自然边界，盘面不越出页面，故不产生横向滚动。 */
+.page-lp #lpRealZoom{position:relative; transform-origin:0 0; overflow:visible}
+/* 缩放基准宿主：包裹盘面（inline-block 收缩至盘面自然宽高），并裁切其自然边界 */
+.page-lp #lpRealHost{position:relative; display:inline-block; overflow:hidden}
+.page-lp #lpReal{position:relative; display:inline-block}
+.page-lp #lpReal .rd-wheel{width:100%}
+.page-lp #lpRealWheel{position:relative; z-index:1; display:block}
 .page-lp #lpCrossFixed{position:absolute; inset:0; z-index:3; pointer-events:none}
 .page-lp #lpCrossFixed svg{width:100%; height:100%; display:block}
 .page-lp .lp-yun-tbl{margin-top:var(--sp-3)}
@@ -3815,13 +3821,21 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   letter-spacing:.06em;transition:.15s}
 .lp-readbar .lp-lock:hover{border-color:var(--lp);color:var(--lp2)}
 .lp-readbar .lp-lock.active{background:var(--lp);border-color:var(--lp);color:#fff}
-/* 窄屏读数栏：坐向、度数、横竖三者字长随读数变动，若与锁钮同处一行，
-   数值一变长即把锁钮挤到下一行而使整页跳动。故此断点下锁钮独占一行居中，
-   读数三件自成一组固定一行，读数变动不牵动行高。 */
+/* 水平仪：垂直（beta 俯仰）与水平（gamma 横滚）两向分列，如实物水平仪。
+   数值用等宽字形并定宽，读数变动不改栏宽；两向间距收紧，使窄屏下
+   坐向、度数、水平仪、锁钮四件仍列于同一行（不改结构，只压内容宽）。 */
+.lp-readbar .lp-level{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:12px;color:var(--lp-ink2);line-height:1.7}
+.lp-readbar .lp-level-dir{white-space:nowrap}
+.lp-readbar .lp-level-dir b{display:inline-block;min-width:1.9em;text-align:right;
+  font-variant-numeric:tabular-nums;font-weight:400;color:var(--lp-deep)}
+.lp-readbar .lp-level-state{white-space:nowrap;padding:0 var(--sp-1);border:1px solid var(--lp-line);color:var(--lp-ink2)}
+.lp-readbar .lp-level-state.is-flat{border-color:var(--lp-line);background:var(--lp-tint);color:var(--lp2)}
+.lp-readbar .lp-level-state.is-tilt{border-color:var(--lp);background:var(--lp);color:#fff}
 @media (max-width:560px){
-  .lp-readbar{gap:var(--sp-2)}
-  .lp-readbar .lp-read,.lp-readbar .lp-deg,.lp-readbar .lp-lvl{flex:0 0 auto;white-space:nowrap}
-  .lp-readbar .lp-lock{flex:1 0 100%;width:100%}
+  .lp-readbar{gap:var(--sp-1)}
+  .lp-readbar .lp-read,.lp-readbar .lp-deg,.lp-readbar .lp-level,.lp-readbar .lp-lock{white-space:nowrap}
+  .lp-readbar .lp-deg{padding:0 var(--sp-1)}
+  .lp-readbar .lp-lock{padding:0 var(--sp-2)}
 }
 .lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
 .lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
