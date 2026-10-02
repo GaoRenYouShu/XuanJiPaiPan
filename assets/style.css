@@ -3659,7 +3659,6 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .lp-guide-inline{max-width:560px;margin:0 auto}
 .page-lp .lp-compass{margin-top:var(--sp-3);text-align:center}
 .page-lp .lp-compass-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em}
-.page-lp .lp-compass-note{margin-top:var(--sp-1);font-size:11.5px;color:var(--lp-ink2);letter-spacing:.03em}
 /* 真实罗盘盘区：盘面与固定层（天池磁针、天心十道）同置一缩放视窗内，
    视窗只作 scale 与 translate，二者为其子元素，故放大同步、永不分离。
    视窗不裁切（overflow:visible），放大后盘面完整可见且可移视任意区域；
@@ -3693,12 +3692,6 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .fs-title-left{text-align:left}
 .page-lp .fs-inp-w100{width:100px}
 .page-lp .fs-inp-w90{width:90px}
-/* 窄屏输入框：宽仍取定宽档（占位文案已精简为“正针坐度°”，定宽即足显），
-   字号 16px 免 iOS 聚焦时自动放大致页面缩放跳变 */
-@media (max-width:560px){
-  .page-lp .fs-inp-w100,.page-lp .fs-inp-w90,.page-lp #baseDecl{font-size:16px}
-  .page-lp .field input,.page-lp .field select{font-size:16px}
-}
 .page-lp .fs-hint{font-size:12px;color:var(--lp-ink2);line-height:1.6;margin-top:var(--sp-2)}
 /* 表格：去框改线，行线取本页浅线 */
 .page-lp .fs-mean-tbl{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--lp-line)}
@@ -3822,17 +3815,18 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .lp-readbar .lp-lock:hover{border-color:var(--lp);color:var(--lp2)}
 .lp-readbar .lp-lock.active{background:var(--lp);border-color:var(--lp);color:#fff}
 /* 水平仪：横（左右横滚）与竖（前后俯仰）两向倾角如实出数，两向皆零度即绝对水平。
-   数值用等宽字形并定宽，读数变动不改栏宽；两向间距收紧，使窄屏下
-   坐向、度数、水平仪、锁钮四件仍列于同一行（不改结构，只压内容宽）。 */
+   数字用等宽字形，随读数自然取宽，不留定宽空档；两向间距收紧，使窄屏下
+   坐向、度数、水平仪三件仍列于同一行。 */
 .lp-readbar .lp-level{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:12px;color:var(--lp-ink2);line-height:1.7}
 .lp-readbar .lp-level-dir{white-space:nowrap}
-.lp-readbar .lp-level-dir b{display:inline-block;min-width:2.6em;text-align:right;
-  font-variant-numeric:tabular-nums;font-weight:400;color:var(--lp-deep)}
+.lp-readbar .lp-level-dir b{font-variant-numeric:tabular-nums;font-weight:400;color:var(--lp-deep)}
 @media (max-width:560px){
   .lp-readbar{gap:var(--sp-1)}
   .lp-readbar .lp-read,.lp-readbar .lp-deg,.lp-readbar .lp-level,.lp-readbar .lp-lock{white-space:nowrap}
   .lp-readbar .lp-deg{padding:0 var(--sp-1)}
-  .lp-readbar .lp-lock{padding:0 var(--sp-2)}
+  /* 锁定钮单独成行：零高整宽断行件置于其前，钮取自然宽居中 */
+  .lp-readbar::before{content:"";flex:0 0 100%;height:0;order:1}
+  .lp-readbar .lp-lock{order:2}
 }
 .lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
 .lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
