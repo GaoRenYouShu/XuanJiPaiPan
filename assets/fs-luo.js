@@ -17,7 +17,8 @@
  * 落在 y 十处的下角距盘心五十二点二单位，尚余三点八单位，不出盘心圆。
  * 风水页罗经盘为规范第七条登记之外的独立骨架，复检时不得回改 440 那套。
  *
- * 取角以地盘正针为基准（子在下、午在上），中针逆偏七点五度、缝针顺偏七点五度。
+ * 取角以地盘正针为基准，相位由调用页给（phase 为盘面北所在之角）：罗经仪页上北下南取零，
+ * 阴宅页沿用旧制取一百八十（子在下、午在上）；中针逆偏七点五度、缝针顺偏七点五度。
  * 盘内字色一律取本页主色，按 fill-opacity 分正针、中针、缝针三档浓淡：
  * 近黑档是留给大标题的，密集小字用它会把盘面压成一片黑，不成纸本调。
  *
@@ -51,12 +52,15 @@ function fenGan(n){
   const zhi=FS.SHAN_SHUANGZHI[shan]||shan;
   return (FS.ZHI.indexOf(zhi)%2===0?['甲','丙','戊','庚','壬']:['乙','丁','己','辛','癸'])[n%5];
 }
-/* 游标：自盘心圆直出外沿，指向所选之山的取度（盘面角为地理度加一百八十，子在下） */
+/* 盘面相位：调用页给 phase 即盘面北所在之角，罗经仪页上北下南取零，缺省一百八十（子在下）。
+   盘面角＝地理度＋相位，取角皆以此为据。 */
+function phOf(o){ return (typeof o.phase==='number')?o.phase:180; }
+/* 游标：自盘心圆直出外沿，指向所选之山的取度 */
 function needle(o){
   const root=document.getElementById(o.id); if(!root) return;
   const ln=root.querySelector('#'+o.needleId), dt=root.querySelector('#'+o.dotId);
   if(!ln||!dt) return;
-  const pa=(((o.degOf(o.i)+180)%360)+360)%360;
+  const pa=(((o.degOf(o.i)+phOf(o))%360)+360)%360;
   const a=px(LY_CORE,pa), c=px(LY_OUT,pa);
   ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1]));
   ln.setAttribute('x2',WHEEL.n(c[0])); ln.setAttribute('y2',WHEEL.n(c[1]));
@@ -74,32 +78,34 @@ function pick(o){
   needle(o);
 }
 /* 盘面绘制。opts：
-     id、curId、pick（点选函数名）、sel（当前山序）、degOf（山序取度，供游标）、
+     id、curId、pick（点选函数名）、sel（当前山序）、degOf（山序取度，供游标）、phase（盘面北所在之角）、
      bad（山序判是否犯煞，犯煞之山取凶色）、core（山序出盘心两行文案与第二行色）、label（无障碍说明） */
 function wheelSvg(o){
   const FS=global.FENGSHUI;
+  const PH=phOf(o);
   const sel=o.sel;
   let s='';
   /* 正针环底色：三盘之中正针为立向基准，独予淡底使其自成一盘，中针、缝针留白为宾 */
   s+=`<circle cx="${LY_C}" cy="${LY_C}" r="${(LY_CORE+LY_R3)/2}" fill="none" stroke="var(--wheel-line)" stroke-opacity=".5" stroke-width="${LY_R3-LY_CORE}"/>`;
   /* 正针环逐格弧：本环二十四格，本身不着色，专作点选态取 d 之源 */
   for(let i=0;i<24;i++){
-    const d=FS.fwShanDeg(i);
+    const d=(i*15+PH)%360;
     s+=`<path d="${arc((LY_CORE+LY_R3)/2,d-7.5,d+7.5)}" class="w-arc" style="stroke-width:${LY_R3-LY_CORE};stroke-opacity:0"/>`;
   }
-  /* 周天三百六十度：每度短线、每五度中线、每十五度长线，每三十度标数字 */
+  /* 周天三百六十度：每度短线、每五度中线、每十五度长线，每三十度标数字。
+     零度落地盘正针子山之心，与正兼向带同轴。 */
   for(let d=0;d<360;d++){
     const r2=d%15===0?LY_TICK0:(d%5===0?LY_OUT-16:LY_OUT-8);
-    const a=px(LY_OUT,d), c=px(r2,d);
+    const a=px(LY_OUT,d+PH), c=px(r2,d+PH);
     s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="${d%15===0?'w-tick-j':'w-tick'}"/>`;
   }
   for(let d=0;d<360;d+=30){
-    const p=px(LY_DEGNUM,d);
+    const p=px(LY_DEGNUM,d+PH);
     s+=`<text x="${WHEEL.n(p[0])}" y="${WHEEL.n(p[1])}" text-anchor="middle" dominant-baseline="central" style="font-size:9px;fill:var(--fy);fill-opacity:.55">${d}</text>`;
   }
   /* 正兼向度数带：山界全长线、山心中线、正向九度界（中线左右各四点五度），判定走刻度形态与盘下详情条 */
   for(let i=0;i<24;i++){
-    const d=FS.fwShanDeg(i);
+    const d=(i*15+PH)%360;
     let a=px(LY_JIAN0,d-7.5), c=px(LY_TICK0,d-7.5);
     s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick-j"/>`;
     a=px(LY_JIAN0,d); c=px(LY_JIAN0+13,d);
@@ -121,7 +127,7 @@ function wheelSvg(o){
   for(const rg of rings){
     const rc=(rg.r0+rg.r1)/2, zheng=rg.off===0;
     for(let i=0;i<24;i++){
-      const d=FS.fwShanDeg(i)+rg.off, p=px(rc,d);
+      const d=(i*15+PH)%360+rg.off, p=px(rc,d);
       const ba=zheng&&o.bad(i);
       const fill=ba?'var(--wheel-bad)':rg.fill;
       s+=`<text x="${WHEEL.n(p[0])}" y="${WHEEL.n(p[1])}" class="w-lab${i===sel?' w-lab-cur':''}" data-i="${i}"`
@@ -140,7 +146,7 @@ function wheelSvg(o){
      环面因此只有一支主色加一支警示色，不引绿：红绿是互补色，并置即成一柄花梳子，
      与本页纸本调也不是一族。某山某分金的吉凶另有文字口径（盘下详情条），
      故本环只作位置提示，不逐格着色到满。 */
-  const fen0=FS.fwShanDeg(0)-7.5;
+  const fen0=PH-7.5;
   for(let n=0;n<120;n++){
     const w=FS.wangXiang(fenGan(n));
     if(w!=='旺'&&w!=='相'&&w!=='龟甲') continue;
@@ -156,15 +162,16 @@ function wheelSvg(o){
   }
   s+=`<circle cx="${LY_C}" cy="${LY_C}" r="${LY_CORE}" class="w-core" style="stroke:var(--wheel-arc);stroke-opacity:.3"/>`;
   /* 点选态：正针环上所选之山的一段高亮弧，d 与逐格弧同源 */
-  s+=`<path id="${o.curId}" class="w-arc w-arc-cur" d="${arc((LY_CORE+LY_R3)/2,FS.fwShanDeg(sel)-7.5,FS.fwShanDeg(sel)+7.5)}" style="stroke-width:${LY_R3-LY_CORE};stroke-opacity:.2"/>`;
+  const sd=(sel*15+PH)%360;
+  s+=`<path id="${o.curId}" class="w-arc w-arc-cur" d="${arc((LY_CORE+LY_R3)/2,sd-7.5,sd+7.5)}" style="stroke-width:${LY_R3-LY_CORE};stroke-opacity:.2"/>`;
   /* 热区：按正针山名分格，径向自正针内沿至正兼向带外沿，点任一处皆按正针落山选中 */
   for(let i=0;i<24;i++){
-    const d=FS.fwShanDeg(i), bd=band(LY_CORE,LY_TICK0,d-7.5,d+7.5);
+    const d=(i*15+PH)%360, bd=band(LY_CORE,LY_TICK0,d-7.5,d+7.5);
     s+=`<path d="${bd}" class="w-hit${i===sel?' is-on':''}" data-i="${i}" onclick="${o.pick}(${i})"/>`;
     s+=`<path d="${bd}" class="w-sel"/>`;
   }
-  /* 游标：自盘心圆直出外沿，指向所选之山的取度；盘面角为地理度加一百八十（子在下） */
-  const pa=(((o.degOf(sel)+180)%360)+360)%360;
+  /* 游标：自盘心圆直出外沿，指向所选之山的取度 */
+  const pa=(((o.degOf(sel)+PH)%360)+360)%360;
   const q0=px(LY_CORE,pa), q1=px(LY_OUT,pa);
   s+=`<line id="${o.needleId}" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle" style="stroke-opacity:.55"/>`
     +`<circle id="${o.dotId}" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="4" class="w-dot"/>`;

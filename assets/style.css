@@ -3649,13 +3649,6 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .wheel-block h4{font-family:var(--lp-serif);color:var(--lp2)}
 /* 盘区块上下取页面级档，盘与前后内容拉开 */
 .page-lp .lp-block{margin-top:var(--sp-5);text-align:center}
-.page-lp .lp-zoom-note{margin-top:var(--sp-3)}
-/* 层白话卡：同组连排，卡间不留距不画线，只末卡一条下线收组；挂载容器不作卡（线源唯一） */
-.page-lp .lp-card{display:block;text-align:left;padding:var(--sp-1) 0;
-  font-size:12px;line-height:1.8;letter-spacing:.03em;color:var(--lp-ink2)}
-.page-lp .lp-card:last-child{border-bottom:1px solid var(--lp-line);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2)}
-#lpZongCard,#lpYunCard,#lpXiuCard,#lpTxCard,#lpDeclCard{margin-top:var(--sp-3)}
-.page-lp .lp-card b{color:var(--lp2);margin-right:.4em}
 .page-lp .lp-guide{text-align:left;margin:var(--sp-3) auto 0;max-width:560px}
 .page-lp .lp-guide-step{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-2) 0;border-top:1px solid var(--lp-line)}
 .page-lp .lp-guide-step:first-child{border-top:0}
@@ -3668,12 +3661,10 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .lp-compass-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em}
 .page-lp .lp-compass-note{margin-top:var(--sp-1);font-size:11.5px;color:var(--lp-ink2);letter-spacing:.03em}
 .page-lp .lp-yun-tbl{margin-top:var(--sp-3)}
-.page-lp .lp-decl-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em;text-align:center}
+/* 提示行内嵌的解除锁定钮：随本页主体色，下划线代框，不另起按钮档 */
+.page-lp .lp-inline-btn{border:0;background:none;padding:0;font:inherit;font-size:11.5px;color:var(--lp);text-decoration:underline;cursor:pointer}
 /* 用法与须知：与前邻区块取区块间档 --sp-4，上下对称；段间同组档 --sp-2 */
 /* 线到题由通用段 rel-title 自带上边距独任（16px，与线前 16px 对称），容器不再叠加内距 */
-.page-lp .lp-usage{margin-top:var(--sp-4);border-top:1px solid var(--lp-line);text-align:left}
-.page-lp .lp-usage-body p{font-size:13px;line-height:1.9;letter-spacing:.04em;color:var(--lp-ink);margin:0 0 var(--sp-2)}
-.page-lp .lp-usage-body p:last-child{margin-bottom:0}
 /* 字段与按钮：本页表单描边、聚焦兜底与按钮色，页面段只定线色 */
 .page-lp .field label{color:var(--lp2);font-weight:400}
 .page-lp .field select,.page-lp .field input{border-color:var(--lp-line);background:var(--card);color:var(--lp-deep)}
@@ -3710,38 +3701,43 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
    属仪器本色例外口径，页内纸本区域不取。盘旁工具钮与读数栏同此例外。 */
 .rd-skin-black{
   --rd-face:#0d0d0d; --rd-rim:#000; --rd-band:#161616; --rd-cell:#0d0d0d; --rd-cell-yang:#a3241a;
-  --rd-cell-kong:#5a1410;
   --rd-line:#3d372a; --rd-grid:#33302a; --rd-grid-j:#55503f;
   --rd-gold:#f0c75e; --rd-dim:#b3a877;
   --rd-red:#e05038; --rd-tick:#7a6f52; --rd-num:#f0c75e;
   --rd-shan-yang:#ffe9b0; --rd-shan-yin:#f0c75e;
   --rd-chi:#f8f4e8; --rd-chi-rim:#c29a3a; --rd-haixian:#c0392b;
+  --rd-dot-yang:#f8f4e8; --rd-dot-yin:#8a8070;
+  --rd-jewel:#3f9d4a; --rd-pit:#7a1a10; --rd-sha:#e05038;
+  --rd-ink-inv:#ffe9b0;
 }
 .rd-skin-gold{
   --rd-face:#d2b158; --rd-rim:#7c6320; --rd-band:#c8a54a; --rd-cell:#d2b158; --rd-cell-yang:#9e2418;
-  --rd-cell-kong:#6a1a12;
   --rd-line:#8a7130; --rd-grid:#8a7130; --rd-grid-j:#5c4a16;
   --rd-gold:#201a10; --rd-dim:#5c4a16;
-  --rd-red:#f3ead0; --rd-tick:#4a3c12; --rd-num:#201a10;
+  --rd-red:#7d1c12; --rd-tick:#4a3c12; --rd-num:#201a10;
   --rd-shan-yang:#ffe9b0; --rd-shan-yin:#201a10;
   --rd-chi:#f8f4e8; --rd-chi-rim:#7c6320; --rd-haixian:#c0392b;
+  --rd-dot-yang:#fbf6e6; --rd-dot-yin:#4a3c12;
+  --rd-jewel:#1f6b2a; --rd-pit:#7d1c12; --rd-sha:#9e2418;
+  --rd-ink-inv:#ffe9b0;
 }
 .rd-skin-white{
   --rd-face:#f7f2e5; --rd-rim:#b3a88c; --rd-band:#efe9d8; --rd-cell:#f7f2e5; --rd-cell-yang:#9e2418;
-  --rd-cell-kong:#c9beb0;
   --rd-line:#a89d82; --rd-grid:#a89d82; --rd-grid-j:#6f6448;
   --rd-gold:#26221a; --rd-dim:#6f6448;
-  --rd-red:#f3ead0; --rd-tick:#6f6448; --rd-num:#26221a;
+  --rd-red:#9e2418; --rd-tick:#6f6448; --rd-num:#26221a;
   --rd-shan-yang:#ffe9b0; --rd-shan-yin:#26221a;
   --rd-chi:#ffffff; --rd-chi-rim:#8a6d2c; --rd-haixian:#c0392b;
+  --rd-dot-yang:#ffffff; --rd-dot-yin:#3a352c;
+  --rd-jewel:#2e7d32; --rd-pit:#9e2418; --rd-sha:#b84a3a;
+  --rd-ink-inv:#ffe9b0;
 }
-.rd-wheel{width:min(88vw,560px);max-width:none;touch-action:none;cursor:grab}
+.rd-wheel{width:min(96vw,640px);max-width:none;touch-action:none;cursor:grab}
 .rd-wheel .rd-face{fill:var(--rd-face);stroke:var(--rd-rim);stroke-width:6}
 .rd-wheel .rd-rim{fill:none;stroke:var(--rd-rim);stroke-width:10}
 .rd-wheel .rd-band{fill:var(--rd-band)}
 .rd-wheel .rd-cell{fill:var(--rd-cell)}
 .rd-wheel .rd-cell.rd-yang{fill:var(--rd-cell-yang)}
-.rd-wheel .rd-cell.rd-kong{fill:var(--rd-cell-kong)}
 .rd-wheel .rd-ring{fill:none;stroke:var(--rd-line);stroke-width:1.6}
 .rd-wheel .rd-grid{stroke:var(--rd-grid);stroke-width:1}
 .rd-wheel .rd-grid-j{stroke:var(--rd-grid-j);stroke-width:2}
@@ -3753,15 +3749,27 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .rd-wheel .rd-lab-red{fill:var(--rd-red);text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-lab-sm{fill:var(--rd-gold);font-size:17px;text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-lab-xs{fill:var(--rd-gold);font-size:14px;text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-shan-yang{fill:var(--rd-shan-yang);font-weight:700;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-shan-yang{fill:var(--rd-shan-yang);text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-shan-yin{fill:var(--rd-shan-yin);text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-gua-big{fill:var(--rd-gold);font-weight:700;text-anchor:middle;dominant-baseline:central}
-.rd-wheel .rd-yao{stroke:var(--rd-gold);stroke-width:2.6}
-.rd-wheel .rd-yao-b{stroke:var(--rd-gold);stroke-width:3.6}
+/* 深底浅墨：写在阳格、空亡格、龟甲格上的字，三底同取一色，免与格色相犯 */
+.rd-wheel .rd-lab-inv{fill:var(--rd-ink-inv);text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-gua-big{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
+/* 爻线只描边不填充：爻为开口弧，不设 fill 则默认填黑，窄带密爻会糊作一团。
+   线宽取细以就爻距，阳爻略重于阴爻。 */
+/* 河图洛书黑白点：白点描细边，浅底上亦见其形；黑点实心不描边。 */
+.rd-wheel .rd-dot-yang{fill:var(--rd-dot-yang);stroke:var(--rd-grid);stroke-width:1.2}
+.rd-wheel .rd-dot-yin{fill:var(--rd-dot-yin);stroke:none}
+/* 抽爻换象吉凶线：绿格珠宝、红格火坑，只标线位不判吉凶。 */
+.rd-wheel .rd-cell.rd-jewel{fill:var(--rd-jewel)}
+.rd-wheel .rd-cell.rd-pit{fill:var(--rd-pit)}
+/* 八煞劫煞线：凶位引红线一条，线宽随环带，两端齐环沿。 */
+.rd-wheel .rd-sha-line{stroke:var(--rd-sha);stroke-width:4;stroke-linecap:butt}
+.rd-wheel .rd-yao{fill:none;stroke:var(--rd-gold);stroke-width:1.5;stroke-linecap:round}
+.rd-wheel .rd-yao-b{fill:none;stroke:var(--rd-gold);stroke-width:2;stroke-linecap:round}
 .rd-wheel .rd-chi{fill:var(--rd-chi);stroke:var(--rd-chi-rim);stroke-width:5}
 .rd-wheel .rd-chi-rim{fill:none;stroke:var(--rd-chi-rim);stroke-width:9}
 .rd-wheel .rd-haixian{stroke:var(--rd-haixian);stroke-width:2.4}
-.rd-wheel .rd-nesw{fill:#333;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.rd-wheel .rd-nesw{fill:var(--rd-num);text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-zh{fill:#333;text-anchor:middle;dominant-baseline:central}
 .rd-wheel .rd-needle-n{fill:#1c1c1c}
 .rd-wheel .rd-needle-s{fill:#c0392b}
@@ -3770,23 +3778,39 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .rd-wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all}
 .rd-wheel .w-hit:focus{outline:none}
 .rd-wheel .w-sel{fill:none;pointer-events:none}
+/* 三元九运九宫格：照戴九履一、左三右七之序，与盘面飞星对读，窄屏三列不横滚 */
+.lp-yun-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin:var(--sp-3) 0 0}
+.lp-yun-cell{border:1px solid var(--lp-line);background:var(--lp-tint);padding:var(--sp-2);min-height:96px}
+.lp-yun-hd{font-size:12px;color:var(--lp-ink2);line-height:1.5}
+.lp-yun-hd b{font-size:16px;color:var(--lp)}
+.lp-yun-star{font-size:14px;color:var(--lp);line-height:1.7}
+.lp-yun-jx{font-size:12px;line-height:1.6}
+.lp-yun-mean{font-size:12px;color:var(--lp-ink2);line-height:1.6}
+@media(max-width:640px){
+  .lp-yun-cell{min-height:0;padding:var(--sp-1)}
+  .lp-yun-mean{display:none}
+}
+
 /* 读数栏：坐向度数实时联动（问真制式：坐向、度数、横竖、锁钮），坐向写八方位字 */
 .lp-readbar{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);flex-wrap:wrap;margin:var(--sp-3) 0 0}
 .lp-readbar .lp-read{font-size:14px;color:var(--lp-ink);letter-spacing:.04em;line-height:1.7}
 .lp-readbar .lp-read b{color:var(--lp2);font-weight:400}
 .lp-readbar .lp-deg{font-size:14px;color:var(--lp-deep);letter-spacing:.02em;background:var(--lp-tint);padding:0 var(--sp-2);height:30px;display:inline-flex;align-items:center}
 .lp-readbar .lp-lvl{font-size:12px;color:var(--lp-ink2);line-height:1.7}
+/* 锁钮与读数同高，描边方角随站内按钮制式，字用主体色，锁定后实底反白 */
+.lp-readbar .lp-lock{font:inherit;font-size:13px;line-height:1;height:30px;cursor:pointer;padding:0 var(--sp-3);
+  border:1px solid var(--lp-line);border-radius:0;background:var(--lp-tint);color:var(--lp);
+  letter-spacing:.06em;transition:.15s}
+.lp-readbar .lp-lock:hover{border-color:var(--lp);color:var(--lp2)}
+.lp-readbar .lp-lock.active{background:var(--lp);border-color:var(--lp);color:#fff}
 .lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
 .lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
   border:0;border-radius:0;background:transparent;color:var(--lp);transition:.15s}
 .lp-real-tools .lp-tool:hover{background:var(--lp-tint);color:var(--lp2)}
 .lp-real-tools .lp-tool.active{background:var(--lp);color:#fff}
-.lp-zoom-note{font-size:11.5px;color:var(--lp-ink2);text-align:center;margin-top:var(--sp-1);letter-spacing:.03em}
 @media print{
   .rd-wheel .rd-face{fill:#fff;stroke:#888}
 }
-/* 洛书九宫数环大字 */
-.rd-wheel .rd-luoshu-num{fill:var(--rd-gold);text-anchor:middle;dominant-baseline:central}
 /* 八方位注记环红块白字（问真制） */
 .rd-wheel .rd-zhu-txt{fill:#fff;text-anchor:middle;dominant-baseline:central}
 
@@ -3795,6 +3819,9 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   .page-lp [data-mode-block="fen"] .wheel-block:last-child:nth-child(odd){grid-column:auto;justify-self:stretch;width:auto}
   .page-lp .fs-row{gap:var(--sp-2)}
   .page-lp .wheel-luo{max-width:340px}
+  /* 真实罗盘为全页主器，窄屏下破例通栏：盘宽随屏，容器不再二重内缩，
+     使二十四层之字得以尽用屏宽。左右各以半个视口宽负边距抵掉两级内边距。 */
+  .page-lp #lpRealWrap{width:100vw;margin-left:calc(50% - 50vw)}
   .page-lp #lpZong svg,.page-lp #lpZhen svg{max-width:390px}
 }
 

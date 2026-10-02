@@ -50,6 +50,7 @@ const NAV_GROUPS = [
     {href:'mianxiang.html', name:'面相'},
     {href:'fengshui.html', name:'阳宅风水'},
     {href:'fengshui-yin.html', name:'阴宅风水'},
+    {href:'luopan.html', name:'罗经仪'},
   ]},
   {type:'group', name:'附录', items:[
     {href:'dianji.html', name:'典籍参考'},
