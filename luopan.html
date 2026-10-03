@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z370">
+<link rel="stylesheet" href="assets/style.css?v=z371">
 </head>
 <body>
 <div id="topbar"></div>
@@ -164,7 +164,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261003e"></script>
+<script defer src="assets/luopan.js?v=20261003f"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
@@ -359,7 +359,7 @@ function lpRealRender(){
   lpRealRenderOverlay();
   lpRealApplyTransform();
   lpRealReadout();
-  if(document.getElementById('lpRealWrap').__lpApply) document.getElementById('lpRealWrap').__lpApply();
+  var zm=document.getElementById('lpRealZoom'); if(zm&&zm.__lpApply) zm.__lpApply();
 }
 /* 固定层（天池磁针 + 天心十道）：绝对定位覆盖于转盘之上，永不被旋转带动。
    与盘面同处缩放视窗内，故缩放、平移皆与之同步。 */
@@ -434,7 +434,7 @@ function lpRealDetailRender(deg, beta, gamma){
     +'天池磁针恒指南北（针自有磁性，与盘角无关），外盘天心十道固定，用以压线读数：'
     +'拨动盘面使坐向压于针上，读数即自十道与针之相对位读出。'
     +'单指拖移可任意角度对针，双指捏合缩放并旋转（桌面滚轮缩放），双击复位；点选任一山即读其落山。'
-    +'指南针只报所向以供核对，不代转盘面。');
+    +'指南针开启时盘面随所指向自动转，天池磁针恒指南北；未开指南针时可双指旋盘自行对针，或填实测坐度。');
 }
 /* 详情条重排：取度与两向倾角。未锁时取实时所向上之坐度，已锁或已填实测坐度时取所锁之值。 */
 function lpRealReadout(){
@@ -577,8 +577,7 @@ function lpRealBindZoom(){
     var z=document.getElementById('lpRealZoom'); if(z) z.dataset.base='';
     apply(); lpRealReadout();
   });
-  wrap.__lpApply=apply;
-  wrap.__lpApply=apply;
+  zoom.__lpApply=apply;
 }
 /* 三盘三针立向盘（528 骨架，走 FS_LUO） */
 function lpZhenSvg(){
@@ -963,9 +962,12 @@ function lpCompassMake(){
       LP_REAL.decl=(decl!=null&&isFinite(decl))?decl:null;
       LP_REAL.accMsg=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
       if(!LP_REAL.lock){
-        /* 盘面不由传感器转。真实罗经之法：磁针恒指南北（针自有磁性，与盘角无关），
-           用者拨动内盘使坐向压于针上；外盘天心十道固定，用以压线读数。
-           故此处只取读数报之，转盘之事在拨盘（单指拖移、双指旋动）与点选山，不在传感器。 */
+        /* 盘面随所指向自动转，使盘面零度对准屏面真北，故盘上之山与真方位一一相应。
+           天池磁针在盘面之内，针随盘转而转，但针自有磁性，静止时必落回真北之向，
+           即盘面零度；故针恒指南北（针与盘面零度恒同位），拨盘对针时针相对盘面之位
+           即读数。外盘天心十道为外盘基准，压线读数，固定不转。 */
+        LP_REAL.rot=-(((screenDeg%360)+360)%360);
+        var zm=document.getElementById('lpRealZoom'); if(zm&&zm.__lpApply) zm.__lpApply();
         /* deg 为手机顶边所指的面向角（人面向之处）；罗盘坐山在人背后，
            故坐度取面向加一百八十度，跨零度归一。此处若直取面向即成坐向颠倒。 */
         var sitDeg=((deg+180)%360+360)%360;
