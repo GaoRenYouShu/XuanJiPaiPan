@@ -177,6 +177,8 @@
     } catch (e) {}
     if (!RD_CATS[c]) c = 'real';
     if (RD_CATS[c].indexOf(m) < 0) m = RD_CATS[c][0] || m;
+    /* 先落持久化之盘再归类：setCat 以 LP_MODE 归位，不先落则默认盘覆盖用户上次所选（刷新跳盘之根因） */
+    LP_MODE = m;
     setCat(c);
   }
 
