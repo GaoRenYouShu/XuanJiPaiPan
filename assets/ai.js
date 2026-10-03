@@ -772,12 +772,20 @@ function geoFetchOne(url){
   });
 }
 
-/* 依次尝试各源，任一成功即返回 */
+/* 依次尝试各源，任一成功即返回；会话内缓存（键与页脚共用），同标签页只外发一次 */
 function geoLookup(){
+  let cached = null;
+  try { cached = JSON.parse(sessionStorage.getItem(GEO_CACHE_KEY) || 'null'); } catch (e){}
+  if (cached && cached.ip) return Promise.resolve(cached);
   let p = Promise.reject(new Error('no source'));
   GEO_SOURCES.forEach(function(u){ p = p.catch(function(){ return geoFetchOne(u); }); });
-  return p;
+  return p.then(function(g){
+    try { sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify(g)); } catch (e){}
+    return g;
+  });
 }
+/* 供同页各模块复用同一管线与缓存（罗经仪页据以预填所在地），端点登记不另增 */
+window.aiGeoLookup = geoLookup;
 
 function renderGeo(el, g){
   const txt = geoText(g);

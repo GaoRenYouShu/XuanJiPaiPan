@@ -457,6 +457,34 @@
   const XIU_YAO_WX = ['木', '金', '土', '火', '水', '火', '水'];
   /* 净阴净阳二十四山（《协纪》引杨公纳甲口诀：乾甲坤乙壬寅午戌癸申子辰属阳，艮丙巽辛庚亥卯未丁巳酉丑属阴） */
   const JING_YANG = ['乾', '甲', '坤', '乙', '壬', '寅', '午', '戌', '癸', '申', '子', '辰'];
+  /* 地母九星翻卦：坤卦起伏位翻卦，翻卦序 伏生贪巨禄文廉武破，八卦各有所翻；
+     通行掌诀：坤起辅、翻至对宫。本表按通行翻卦定表（坤艮坎震巽离乾兑八宫各一星），
+     盘面绘制与详情条取格同取于此，免两处各定一份而星与宫相错。 */
+  const RD_DIMU = { 坤: '左辅', 巽: '贪狼', 乾: '巨门', 离: '禄存', 艮: '文曲', 坎: '廉贞', 震: '武曲', 兑: '破军' };
+  /* 八方方位：北起零度、每向四十五度，与二十四山诸环同轴；盘面与详情条同取，免两处各列一份。 */
+  const RD_BAFANG = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
+  /* 八卦方位两表：后天位（坎北艮东北震东巽东南离南坤西南兑西乾西北）与先天位（乾南坤北离东坎西）。
+     先后天八卦环、河图洛书环、地母九星环、三爻卦画环皆按此二表布卦，
+     详情条取格亦按此二表反查，盘面与读数同取一处，免两处各列一份而卦位相错。
+     山归卦（SHAN_BAGUA）是山与卦之属，与此二表之方位不同用，不可互代。 */
+  const RD_HT_POS = { 坎: 0, 艮: 45, 震: 90, 巽: 135, 离: 180, 坤: 225, 兑: 270, 乾: 315 };
+  const RD_XT_POS = { 乾: 180, 兑: 135, 离: 90, 震: 45, 巽: 315, 坎: 270, 艮: 225, 坤: 0 };
+  /* 洛书数配后天卦（坎一坤二震三巽四乾六兑七艮八离九，五居中宫）、
+     与先后天两仪阴阳（先天阳仪乾兑离震、后天阳卦乾震坎艮）：盘面着色与详情条取格同取，
+     免两处各列一份而数与卦、色与卦相错。 */
+  const RD_LUOSHU = { 坎: 1, 坤: 2, 震: 3, 巽: 4, 乾: 6, 兑: 7, 艮: 8, 离: 9 };
+  const RD_XT_YANG = { 乾: 1, 兑: 1, 离: 1, 震: 1 };
+  const RD_HT_YANG = { 乾: 1, 震: 1, 坎: 1, 艮: 1 };
+  /* 以坐度反查八卦环此刻所对之卦：按该环之方位表归宫，每宫四十五度、宫心即表值。
+     先后天两环方位不同表，故取格须按各环本表，不可按山归卦（SHAN_BAGUA）代之。 */
+  function guaAt(pos, deg) {
+    let best = null, bd = 999;
+    for (const g in pos) {
+      const dd = Math.abs(((deg - pos[g] + 540) % 360) - 180);
+      if (dd < bd) { bd = dd; best = g; }
+    }
+    return best;
+  }
   /* 六十四卦标准卦名：周易本经之名，一至二字，与上方方图行列同序。
      盘面书此名，不书乾为天式四字别称，与罗盘刻法一致，亦免窄格挤字。 */
   const GUA64_SHORT = [
@@ -581,6 +609,46 @@
       const bw = fix[k] ? fix[k] * sc : (hmin[k] * sc + hw);
       out[k] = [acc, acc + bw]; acc += bw;
     });
+    return out;
+  }
+  /* 二十八宿宿宽（盘面角）：本表宿度合三百五十五度，摊满周天三百六十度；
+     觜鬼二宿本度不足容字，故补至下限七点一度，所补之度由余宿按度过下限之数摊还。
+     此表为宿界唯一真源：二十八宿环、盈缩六十龙之龙界与详情条之宿位同取于此，
+     各算一份则宿界与龙界相错，故只此一处算。 */
+  function rdXiuWidths() {
+    const names = global.FENGSHUI.XIU_28, XMIN = 7.1;
+    let total = 0;
+    for (const nm of names) total += global.FENGSHUI.XIU_DU_SHU[nm];
+    const raw = names.map(function (nm) { return global.FENGSHUI.XIU_DU_SHU[nm] / total * 360; });
+    const need = raw.reduce(function (a, w) { return a + Math.max(0, XMIN - w); }, 0);
+    const room = raw.reduce(function (a, w) { return a + Math.max(0, w - XMIN); }, 0);
+    return raw.map(function (w) { return w >= XMIN ? w - need * (w - XMIN) / room : XMIN; });
+  }
+  /* 盈缩六十龙之龙界：六十龙依宿度摊派，故龙界即宿界再细分。
+     每宿先得一龙，余下三十二龙再按最大余额法依宿度派：觜宿本度一度、鬼宿二度，
+     纯按度配额取整皆为零，则二宿无龙而环上留下七点一度之空档，故先保每宿一龙。
+     宿宽取 rdXiuWidths，故龙界与二十八宿环之宿界逐格相值、合满周天无缺。 */
+  function rdYingSuoCells() {
+    const names = global.FENGSHUI.XIU_28;
+    let total = 0;
+    for (const nm of names) total += global.FENGSHUI.XIU_DU_SHU[nm];
+    const ws = rdXiuWidths();
+    const quota = names.map(function (nm) { return global.FENGSHUI.XIU_DU_SHU[nm] * 60 / total; });
+    const cnt = quota.map(function () { return 1; });
+    let rest = 60 - cnt.reduce(function (a, c) { return a + c; }, 0);
+    const order = quota.map(function (q, i) { return [i, q]; })
+      .sort(function (x, y) { return y[1] - x[1]; });
+    for (let t = 0; t < order.length && rest > 0; t++) { cnt[order[t][0]]++; rest--; }
+    const out = [];
+    let acc = 0, k = 0;
+    for (let xi = 0; xi < names.length; xi++) {
+      const step = ws[xi] / Math.max(1, cnt[xi]);
+      for (let j = 0; j < cnt[xi]; j++) {
+        out.push({ a0: acc + j * step, a1: acc + (j + 1) * step, gz: global.FENGSHUI.gzAtIndex(k % 60), xiu: names[xi] });
+        k++;
+      }
+      acc += ws[xi];
+    }
     return out;
   }
   function rdPx(r, deg) { const a = (deg - 90) * Math.PI / 180; return [RD_C + r * Math.cos(a), RD_C + r * Math.sin(a)]; }
@@ -749,16 +817,13 @@
        与二十八宿七曜归属同源，即人盘赖公五行所本。开禧、时宪两度本站只收一套，故只刻其度。
        格宽设下限七点一度：觜鬼二宿本度不足容字，故补至下限，所补之度由余宿按度过下限之数摊还，
        全环仍合周天三百六十度。格内字数按本格实占弧长取，容不下者先省度、再省五行，只书宿名，
-       故字不出格、格不盖字，二十八宿字号同档。 */
+       故字不出格、格不盖字，二十八宿字号同档。
+       宿界与盈缩六十龙之龙界同出 rdXiuWidths 一处：两环刻在同一套宿度上，
+       各算一份则宿界与龙界错位，故宿宽只此一处算，两环与详情条同取。 */
     if (has.xiu) {
       const [r0, r1] = RB.xiu;
-      const names = FS.XIU_28, XMIN = 7.1;
-      let total = 0;
-      for (const nm of names) total += FS.XIU_DU_SHU[nm];
-      const raw = names.map(function (nm) { return FS.XIU_DU_SHU[nm] / total * 360; });
-      const need = raw.reduce(function (a, w) { return a + Math.max(0, XMIN - w); }, 0);
-      const room = raw.reduce(function (a, w) { return a + Math.max(0, w - XMIN); }, 0);
-      const ws = raw.map(function (w) { return w >= XMIN ? w - need * (w - XMIN) / room : XMIN; });
+      const names = FS.XIU_28;
+      const ws = rdXiuWidths();
       let cum = 0;
       for (let i = 0; i < names.length; i++) {
         const nm = names[i], du = FS.XIU_DU_SHU[nm], w = ws[i];
@@ -863,8 +928,8 @@
        阴阳按阳数奇阴数偶分：一三七九作朱格阳字，二四六八作素格阴字。 */
     if (has.luoshu || has.heLuo || has.luoTu) {
       const [r0, r1] = RB.heLuo || RB.luoTu || RB.luoshu;
-      const LUO = { 坎: 1, 坤: 2, 震: 3, 巽: 4, 乾: 6, 兑: 7, 艮: 8, 离: 9 };
-      const POS = { 坎: 0, 艮: 45, 震: 90, 巽: 135, 离: 180, 坤: 225, 兑: 270, 乾: 315 };
+      const LUO = RD_LUOSHU;
+      const POS = RD_HT_POS;
       const bw = r1 - r0, off = 10;
       s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
       for (const g in POS) {
@@ -885,8 +950,8 @@
        阴阳按两仪分：阳仪乾兑离震作朱格阳字，阴仪巽坎艮坤作素格阴字。 */
     if (has.xtGua) {
       const [r0, r1] = RB.xtGua;
-      const XT = { 乾: 180, 兑: 135, 离: 90, 震: 45, 巽: 315, 坎: 270, 艮: 225, 坤: 0 };
-      const XT_YANG = { 乾: 1, 兑: 1, 离: 1, 震: 1 };
+      const XT = RD_XT_POS;
+      const XT_YANG = RD_XT_YANG;
       const bw = r1 - r0, off = 10, nmR = (r0 + r1) / 2;
       s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
       for (const g in XT) {
@@ -904,8 +969,8 @@
        阴阳按说卦传父母六子分：四阳卦乾震坎艮作朱格阳字，四阴卦坤巽离兑作素格阴字。 */
     if (has.htGua || has.htGuaEr) {
       const [r0, r1] = has.htGua ? RB.htGua : RB.htGuaEr;
-      const HT = { 坎: 0, 艮: 45, 震: 90, 巽: 135, 离: 180, 坤: 225, 兑: 270, 乾: 315 };
-      const HT_YANG = { 乾: 1, 震: 1, 坎: 1, 艮: 1 };
+      const HT = RD_HT_POS;
+      const HT_YANG = RD_HT_YANG;
       const bw = r1 - r0, off = 10, nmR = (r0 + r1) / 2;
       s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
       for (const g in HT) {
@@ -971,10 +1036,8 @@
     if (has.diMu) {
       const [r0, r1] = RB.diMu;
       s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      /* 地母九星：坤卦起伏位翻卦，翻卦序 伏生贪巨禄文廉武破，八卦各有所翻；通行掌诀：坤起辅、
-         翻至对宫。本盘按通行翻卦定表（坤艮坎震巽离乾兑八宫各一星）。 */
-      const DM = { 坤: '左辅', 巽: '贪狼', 乾: '巨门', 离: '禄存', 艮: '文曲', 坎: '廉贞', 震: '武曲', 兑: '破军' };
-      const HTd = { 坎: 0, 艮: 45, 震: 90, 巽: 135, 离: 180, 坤: 225, 兑: 270, 乾: 315 };
+      const DM = RD_DIMU;
+      const HTd = RD_HT_POS;
       for (const g in DM) {
         const d = HTd[g], a0 = d - 22.5;
         s += '<path d="' + rdBand(r0, r1, a0, a0 + 45) + '" class="rd-cell"/>';
@@ -1023,8 +1086,7 @@
     /* 八方方位环：八向大字顺布一圈，北字落盘面零度，与二十四山诸环同轴。 */
     if (has.bafang && RB.bafang) {
       const [r0, r1] = RB.bafang;
-      const ZHU = [{ d: 0, t: '北' }, { d: 45, t: '东北' }, { d: 90, t: '东' }, { d: 135, t: '东南' },
-        { d: 180, t: '南' }, { d: 225, t: '西南' }, { d: 270, t: '西' }, { d: 315, t: '西北' }];
+      const ZHU = RD_BAFANG.map(function (t, i) { return { d: i * 45, t: t }; });
       s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
       for (const z of ZHU) {
         const a0 = z.d - 22.5;
@@ -1036,7 +1098,7 @@
     /* 三爻卦画环：独立环带，三爻等距等长，跨角按半径定弦长；阳爻全长、阴爻两段。 */
     if (has.yao) {
       const [r0, r1] = RB.yao;
-      const GUA_POS = { 坎: 0, 艮: 45, 震: 90, 巽: 135, 离: 180, 坤: 225, 兑: 270, 乾: 315 };
+      const GUA_POS = RD_HT_POS;
       for (const g in GUA_POS) {
         const d = GUA_POS[g], bits = GUA_BITS[g];
         s += rdYaoStack(r0, r1, d, bits, 'rd-yao-b', 9);
@@ -1052,27 +1114,11 @@
       const b = RB[key]; if (!b) return '';
       const r0 = b[0], r1 = b[1];
       let g = '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      const names = FS.XIU_28;
-      const total = names.reduce(function (a, nm) { return a + FS.XIU_DU_SHU[nm]; }, 0);
-      const per = 60 / total;
-      const quota = names.map(function (nm) { return FS.XIU_DU_SHU[nm] * per; });
-      const cnt = quota.map(function (q) { return Math.floor(q); });
-      let rest = 60 - cnt.reduce(function (a, c) { return a + c; }, 0);
-      const order = quota.map(function (q, i) { return [i, q - Math.floor(q)]; })
-        .sort(function (x, y) { return y[1] - x[1]; });
-      for (let t = 0; t < order.length && rest > 0; t++) { cnt[order[t][0]]++; rest--; }
-      let acc = 0, k = 0;
-      for (let xi = 0; xi < names.length; xi++) {
-        const w = FS.XIU_DU_SHU[names[xi]] / total * 360, step = w / Math.max(1, cnt[xi]);
-        for (let j = 0; j < cnt[xi]; j++) {
-          const a0 = acc + j * step, a1 = a0 + step;
-          const gz = FS.gzAtIndex(k % 60); k++;
-          g += '<path d="' + rdBand(r0, r1, a0, a1) + '" class="rd-cell"/>';
-          g += rdTxtAuto((r0 + r1) / 2, rdCellMid(a0, a1), gz, key, 60, 'rd-lab-sm');
-          const e0 = rdPx(r0, a0), e1 = rdPx(r1, a0);
-          g += '<line x1="' + WHEEL.n(e0[0]) + '" y1="' + WHEEL.n(e0[1]) + '" x2="' + WHEEL.n(e1[0]) + '" y2="' + WHEEL.n(e1[1]) + '" class="rd-grid"/>';
-        }
-        acc += w;
+      for (const c of rdYingSuoCells()) {
+        g += '<path d="' + rdBand(r0, r1, c.a0, c.a1) + '" class="rd-cell"/>';
+        g += rdTxtAuto((r0 + r1) / 2, rdCellMid(c.a0, c.a1), c.gz, key, 60, 'rd-lab-sm');
+        const e0 = rdPx(r0, c.a0), e1 = rdPx(r1, c.a0);
+        g += '<line x1="' + WHEEL.n(e0[0]) + '" y1="' + WHEEL.n(e0[1]) + '" x2="' + WHEEL.n(e1[0]) + '" y2="' + WHEEL.n(e1[1]) + '" class="rd-grid"/>';
       }
       return g;
     }
@@ -1439,6 +1485,147 @@
     return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixed') + '" viewBox="0 0 2000 2000" aria-hidden="true">' + s + '</svg>';
   }
 
+  /* 各层取格：以坐度反查该层此刻落在何格，为详情条逐层读数与盘面绘制之共用口径。
+     取格若散在两处各算一份，盘上所指之格与详情条所报之格便会错位（各层分格并不齐：
+     二十四山每格十五度、七十二龙每格五度、六十四卦每格五度六二五、二十八宿依宿度不等分），
+     故只此一处算，盘面绘制与详情条同取。
+     三针之偏：中针盘面角较正针逆偏七点五度、缝针顺偏七点五度，故反查时各以加减七点五归正针格。
+     六十龙、七十二龙、百二十分金诸格自带起讫度、跨零度者起大于讫，按区间归格，不可按山均分格序。 */
+  function rdLocateAt(key, deg, sit) {
+    const FS = global.FENGSHUI;
+    const d = (((Number(deg) || 0) % 360) + 360) % 360;
+    const shanIdx = Math.floor((d + 7.5) / 15) % 24;
+    const shan = FS.SHAN_LIST[shanIdx];
+    function cell(list) {
+      for (const r of list) {
+        const a0 = r.start, a1 = r.end;
+        if (a1 > a0 ? (d >= a0 && d < a1) : (d >= a0 || d < a1)) return r;
+      }
+      return null;
+    }
+    function cells(fn, keyFn) {
+      const m = {};
+      FS.SHAN_LIST.forEach(function (sh) { fn(sh).forEach(function (r) { m[keyFn(r)] = r; }); });
+      return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.start - b.start; });
+    }
+    switch (key) {
+      case 'zheng': return { shan: shan, idx: shanIdx };
+      case 'zhong': { const z = FS.zhenShan(d, 'zhong'); return { shan: z.shan, idx: FS.SHAN_LIST.indexOf(z.shan) }; }
+      case 'feng': { const z = FS.zhenShan(d, 'feng'); return { shan: z.shan, idx: FS.SHAN_LIST.indexOf(z.shan) }; }
+      case 'fen': return cell(cells(FS.fenJin, function (r) { return r.gz + '@' + r.start; }));
+      case 'chuan': return cell(cells(FS.chuanShan72, function (r) { return r.gz + '@' + r.start; }));
+      case 'tou': return cell(cells(FS.touDi60, function (r) { return r.gz + '@' + Math.round(r.start * 2); }));
+      case 'pingfen': {
+        const k = Math.floor(d / 6) % 60;
+        return { gz: FS.gzAtIndex(k), start: k * 6, end: (k + 1) * 6 };
+      }
+      case 'yingsuo': {
+        for (const c of rdYingSuoCells()) if (d >= c.a0 && d < c.a1) return { gz: c.gz, xiu: c.xiu, start: c.a0, end: c.a1 };
+        return null;
+      }
+      case 'xiu': {
+        const ws = rdXiuWidths();
+        let acc = 0;
+        for (let i = 0; i < FS.XIU_28.length; i++) {
+          const a0 = acc, a1 = acc + ws[i]; acc = a1;
+          if (d >= a0 && d < a1) {
+            return { xiu: FS.XIU_28[i], du: FS.XIU_DU_SHU[FS.XIU_28[i]], wx: XIU_YAO_WX[i % 7], start: a0, end: a1 };
+          }
+        }
+        return null;
+      }
+      case 'jieqi': {
+        const k = Math.floor(d / 15) % 24;
+        return { name: JIE_QI_24[k], start: k * 15, end: (k + 1) * 15 };
+      }
+      case 'changsheng': {
+        const ju = FS.SANHE_JU[FS.SHAN_SANHE[sit] || '申子辰'] || FS.SANHE_JU['申子辰'];
+        const zsIdx = FS.ZHI.indexOf(ju.zs);
+        const k = Math.round(d / 30) % 12;
+        return { gong: FS.SHENG_LONG_ORDER[(k - zsIdx + 12) % 12], zhi: FS.ZHI[k], ju: ju.ju };
+      }
+      case 'hongfan': return { wx: FS.HONGFAN_WX[shan] || '', ju: FS.SANHE_JU[FS.SHAN_SANHE[shan] || ''] || null };
+      case 'laiGong': {
+        const xius = FS.SHAN_XIU[shan] || [];
+        const idx = xius.length ? FS.XIU_28.indexOf(xius[0]) : -1;
+        return { wx: idx >= 0 ? XIU_YAO_WX[idx % 7] : '' };
+      }
+      case 'najia': return { yang: JING_YANG.indexOf(shan) >= 0 };
+      case 'basha': case 'jieYao': {
+        const z = FS.baSha(shan);
+        return z ? { zhi: z.zhi, gua: z.gua, mean: z.mean } : null;
+      }
+      case 'diMu': {
+        const DM = RD_DIMU[FS.SHAN_BAGUA[shan]];
+        return DM ? { star: DM, gua: FS.SHAN_BAGUA[shan] } : null;
+      }
+      case 'heLuo': {
+        const g = guaAt(RD_HT_POS, d);
+        return { n: RD_LUOSHU[g] || 5, gua: g };
+      }
+      case 'xtGua': {
+        const g = guaAt(RD_XT_POS, d);
+        return { gua: g, wx: BA_WX[g] || '', yang: RD_XT_YANG[g] ? true : false };
+      }
+      case 'htGua': case 'htGuaEr': {
+        const g = guaAt(RD_HT_POS, d);
+        return { gua: g, wx: BA_WX[g] || '', yang: RD_HT_YANG[g] ? true : false };
+      }
+      case 'bafang': return { dir: RD_BAFANG[Math.floor((d + 22.5) / 45) % 8] };
+      case 'cuiGuan': {
+        const t = FS.tianXingGui(shan);
+        return t && t.gui ? { star: t.star, mean: t.mean } : { star: '', mean: '' };
+      }
+      case 'aixing': {
+        const k = Math.floor(d / (360 / 64)) % 64;
+        return { wx: BA_WX[TRI_ORDER[k % 8]] || '' };
+      }
+      case 'yunShu': case 'yuanQi': {
+        const k = Math.floor(d / (360 / 64)) % 64;
+        const up = TRI_ORDER[Math.floor(k / 8)], lo = TRI_ORDER[k % 8];
+        const v = key === 'yunShu'
+          ? (((XT_XU[up] + XT_XU[lo] - 1) % 9) || 9)
+          : (((XT_LUOSHU[up] + XT_LUOSHU[lo] - 1) % 9) || 9);
+        return { n: v, han: HZ_NUM[v] || String(v) };
+      }
+      case 'gua64': {
+        const k = Math.floor(d / (360 / 64)) % 64;
+        return { name: GUA64_SHORT[Math.floor(k / 8)][k % 8], full: (GUA64[TRI_ORDER[Math.floor(k / 8)]] || [])[k % 8] || '' };
+      }
+      case 'fumu': case 'sanyuan24': {
+        const y = FS.yuanOf(shan);
+        return { yuan: y, yang: FS.shanYang(shan), san: y === '天' ? '南北卦' : (y === '地' ? '江东卦' : '江西卦') };
+      }
+      case 'sanyuan24c': case 'zhengSanYuan': return { yang: FS.shanYang(shan) };
+      case 'deg': return { deg: d };
+      /* 只标位不载格之层（天池、劫煞线、反吟伏吟线、抽爻换象线）：各层不依坐度分格，
+         故只报其义与坐度所在，不报格名，免详情条与盘面所指错位。 */
+      case 'chi': return { deg: d };
+      case 'jieSha': {
+        const k = Math.floor((d + 7.5) / 15) % 24;
+        const s2 = FS.SHAN_LIST[k];
+        return { hit: ['寅', '申', '巳', '亥'].indexOf(s2) >= 0, shan: s2 };
+      }
+      case 'fanFu': {
+        const k = Math.floor(d / (360 / 64)) % 64;
+        return { name: GUA64_SHORT[Math.floor(k / 8)][k % 8] };
+      }
+      case 'chouYao': {
+        const k = Math.floor(d / (360 / 64)) % 64, w = 360 / 64;
+        const y = Math.floor((d - k * w) / (w / 6)) % 6;
+        const up = TRI_ORDER[Math.floor(k / 8)], lo = TRI_ORDER[k % 8];
+        const bits = GUA_BITS[lo].concat(GUA_BITS[up]);
+        const q0 = ((XT_LUOSHU[lo] + XT_LUOSHU[up] - 1) % 9) || 9;
+        const bt = bits.slice();
+        bt[y] = bt[y] ? 0 : 1;
+        const lo2 = guaOfBits(bt.slice(0, 3)), up2 = guaOfBits(bt.slice(3, 6));
+        const q1 = ((XT_LUOSHU[lo2] + XT_LUOSHU[up2] - 1) % 9) || 9;
+        return { yao: YAO_WEI[y], name: GUA64_SHORT[Math.floor(k / 8)][k % 8], bao: q0 === q1 || q0 + q1 === 10 };
+      }
+      default: return null;
+    }
+  }
+
   global.LUOPAN = {
     GUIDE_STEPS: GUIDE_STEPS,
     LS_MODE: LS_MODE,
@@ -1450,6 +1637,7 @@
     realDisk: realDisk,
     realDiskOverlay: realDiskOverlay,
     RD_SETS: RD_SETS,
+    rdLocateAt: rdLocateAt,
     RD_RING_NAME_OF: RD_RING_NAME_OF,
     rdBandsOf: rdBandsOf,
     pick: pick,
