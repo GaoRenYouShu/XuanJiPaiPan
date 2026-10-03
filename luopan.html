@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z371">
+<link rel="stylesheet" href="assets/style.css?v=z379">
 </head>
 <body>
 <div id="topbar"></div>
@@ -42,7 +42,7 @@
         <div class="field"><label>流年</label><input type="number" id="baseYear" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="lpApplyBase()"></div>
         <div class="field"><label>罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°" onchange="lpApplyBase()"></div>
       </div>
-      <div class="birth-group compact">
+      <div class="birth-group compact" id="lpGeoGroup">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
         <div class="field"><label>省份</label><select id="lpProv" onchange="lpGeoProv()"></select></div>
         <div class="field"><label>城市</label><select id="lpCity" onchange="lpGeoCity()"></select></div>
@@ -74,6 +74,7 @@
           <button class="lp-tool active" id="lpCrossBtn" onclick="lpRealCross()">天心十道</button>
           <button class="btn" id="lpCompassBtn" onclick="lpStartCompass()">启动指南针</button>
           <button type="button" class="lp-lock" id="lpRLock" onclick="lpRealLock()" aria-label="锁定当前读数">锁定</button>
+          <button type="button" class="lp-lock" id="lpBackfillBtn" onclick="lpBackfillBase()" aria-label="以当前所向回填基础设定的实测坐度与坐山向首">回填设定</button>
         </div>
         <div class="wheel-block" id="lpRealWrap"><h4 id="lpRealTitle">三元三合综合盘</h4><div id="lpRealZoom"><div id="lpRealHost"><div id="lpReal"></div></div></div><div class="wheel-detail" id="lpRealDetail"></div></div>
       </div>
@@ -164,11 +165,11 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261003g"></script>
+<script defer src="assets/luopan.js?v=20261003h"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20260925a"></script>
-<script defer src="assets/ai.js?v=20260927c"></script>
+<script defer src="assets/ai.js?v=20261003a"></script>
 <script>
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
    引擎以 global.FENGSHUI 暴露；FLAT 别名 FS 须在 load 之后取（defer 脚本于解析后执行，
@@ -390,9 +391,11 @@ function lpShanDir(shan){
   var g=FS.SHAN_BAGUA[shan];
   return (g&&FS.GUA_DIR[g])||shan;
 }
-/* 详情条渲染：读数上段（坐向、周天、横竖、指向、磁偏角，皆随读数变）
-   ＋解读下段（落山向山、立向四煞、三针落山、层序与操作，随度数变）。
-   两段同处一条详情条，故窄屏自然随行溢出换行，不另立读数栏。 */
+/* 详情条渲染：上段为仪器读数（坐向、周天、横竖、指向、磁偏角，随所向实时变），
+   中段为坐山理气（卦、行、正兼、四煞、三针落山），下段按当前盘制逐层报所落之格。
+   逐层读数一律走 LUOPAN.rdLocateAt，与盘面绘制同取一套分格口径：
+   盘上此刻压在何格，详情条即报何格，两处各算一份则读数与盘面所指相错。
+   三段同处一条详情条，故窄屏自然随行溢出换行，不另立读数栏。 */
 function lpRealDetailRender(deg, beta, gamma){
   var z=FS.zhenShan(deg,'zheng');
   var sit=z?z.shan:'未定';
@@ -409,31 +412,80 @@ function lpRealDetailRender(deg, beta, gamma){
     if(info.atSanSha) hit.push('三煞到山');
     if(info.atWuHuang) hit.push('年五黄到山');
   }
+  /* 逐层读数：按当前盘制之层序自天池向外，每层报此刻坐度所落之格与其义。
+     有格者报格、无格者报空缺（如催官贵人圈之无星位），不缺层、不臆造。 */
+  function ringLine(k){
+    var v=LUOPAN.rdLocateAt(k, deg, LP_SIT);
+    if(!v) return '';
+    switch(k){
+      case 'chi': return '天池：磁针恒指南北，盘面转而针不移，读数自针与十道之相对位出';
+      case 'xtGua': return '先天八卦 '+v.gua+'（'+v.wx+''+(v.yang?'，阳仪':'，阴仪')+'）';
+      case 'htGua': return '后天八卦 '+v.gua+'（'+v.wx+''+(v.yang?'，阳卦':'，阴卦')+'）';
+      case 'heLuo': return '洛书 '+v.n+' 数（'+v.gua+'宫）';
+      case 'bafang': return '方位 '+v.dir;
+      case 'basha': return '八煞：'+v.gua+'宫曜煞在'+v.zhi+'方';
+      case 'jieYao': return '劫曜煞在'+v.zhi+'方';
+      case 'jieSha': return '四路劫煞线：'+(v.hit?'<span class="wd-x">坐度落'+v.shan+'山，正压劫煞线</span>':'坐度落'+v.shan+'山，不在劫煞线上');
+      case 'diMu': return '地母九星 '+v.star+'（'+v.gua+'宫）';
+      case 'zheng': return '地盘正针 '+v.shan+'山';
+      case 'chuan': return v.kong?'<span class="wd-x">穿山大空亡龙（不可立向）</span>':'穿山七十二龙 '+v.gz+'龙（纳音'+v.nayin+'，'+(function(){ var jx=FS.longJx(v); var c=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+' '+jx.jx+'</span>'; })()+'）';
+      case 'fen': return '百二十分金 '+v.gz+'（纳音'+v.nayin+'，'+(function(){ var c=(v.wang==='旺'||v.wang==='相')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+'</span>'; })()+'）';
+      case 'zhong': return '人盘中针 '+v.shan+'山（消砂）';
+      case 'laiGong': return '赖公五行 '+v.wx;
+      case 'tou': return '透地六十龙 '+v.gz+'龙（纳音'+v.nayin+'，'+(function(){ var c=(v.wang==='旺'||v.wang==='相')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+'</span>'; })()+'）';
+      case 'feng': return '天盘缝针 '+v.shan+'山（纳水）';
+      case 'najia': return '纳甲 '+(v.yang?'<span class="wd-g">净阳</span>':'净阴');
+      case 'yingsuo': return '盈缩六十龙 '+v.gz+'（'+v.xiu+'宿）';
+      case 'pingfen': return '平分六十龙 '+v.gz;
+      case 'hongfan': return '洪范五行 '+v.wx+(v.ju?'（'+v.ju.ju+'）':'');
+      case 'changsheng': return '长生十二宫 '+v.gong+'（'+v.zhi+'方，'+v.ju+'）';
+      case 'cuiGuan': return v.star?'催官天星 '+v.star.split('、')[0]:'催官天星 无';
+      case 'sanyuan24': case 'fumu': return '三元 '+v.yuan+'元龙（'+(v.yang?'阳':'阴')+'，'+v.san+'）';
+      case 'sanyuan24c': case 'zhengSanYuan': return '三元阴阳 '+(v.yang?'<span class="wd-g">阳山</span>':'阴山');
+      case 'aixing': return '挨星五行 '+v.wx;
+      case 'gua64': return '六十四卦 '+v.name+(v.full?'（'+v.full+'）':'');
+      case 'yunShu': return '卦运 '+v.han;
+      case 'yuanQi': return '卦气 '+v.han;
+      case 'fanFu': return '反吟伏吟 线位在'+v.name+'卦';
+      case 'chouYao': return '抽爻换象 '+v.name+'卦'+v.yao+'爻'+(v.bao?'<span class="wd-g">珠宝线</span>':'<span class="wd-x">火坑线</span>');
+      case 'jieqi': return '节气 '+v.name;
+      case 'xiu': return '二十八宿 '+v.xiu+'宿（'+v.wx+'曜，本度'+v.du+'度）';
+      case 'deg': return '周天 '+v.deg.toFixed(1)+'度';
+      default: return '';
+    }
+  }
+  var set=LUOPAN.RD_SETS[LP_REAL.set]||LUOPAN.RD_SETS.zonghe;
+  var ringTxt=set.rings.map(ringLine).filter(function(t){ return t; }).join('　');
   LUOPAN.detail('lpRealDetail',
     '坐'+lpShanDir(sit)+'朝'+lpShanDir(face)
     +'　周天'+deg.toFixed(1)+'°'
+    +((LP_REAL.decl!=null&&isFinite(LP_REAL.decl))?'（磁北'+(((deg-LP_REAL.decl)%360+360)%360).toFixed(1)+'°）':'')
     +'　横'+(gamma!=null?gamma:lv.heng).toFixed(1)+'°'
     +'　竖'+(beta!=null?beta:lv.shu).toFixed(1)+'°'
     +'　指向'+(LP_REAL.point!=null&&isFinite(LP_REAL.point)?LP_REAL.point.toFixed(1):'未取')+'°'
     +'　磁偏角'+(LP_REAL.decl!=null?LP_REAL.decl.toFixed(2):'未取')
+    +'　'+((Math.abs(beta||0)>30||Math.abs(gamma||0)>30)?'<span class="wd-x">请将罗盘放平</span>':'已水平')
     +((LP_REAL.accMsg||LP_REAL.state)?'　'+(LP_REAL.accMsg||LP_REAL.state):'')
     +'<span class="wd-br"></span>'
-    +'坐 '+sit+'山 向 '+face+'山 周天 '+deg.toFixed(1)+'° '
-    +((info)?(info.bagua+'卦'+info.wx+'行'):'')
+    +'坐 '+sit+'山 向 '+face+'山 '+((info)?(info.bagua+'卦'+info.wx+'行'):'')
+    +'　'+st
+    +'　'+FS.SHAN_ZHI[sit]+'支 纳音'+FS.nayin(FS.SHAN_ZHI[sit]).name
     +'<span class="wd-br"></span>'
-    +'立向 '+st+' '+(hit.length?'<span class="wd-x">'+hit.join('、')+'</span>':'<span class="wd-g">本年四煞不到山</span>')
+    +'立向：'+(hit.length?'<span class="wd-x">'+hit.join('、')+'</span>':'<span class="wd-g">本年四煞不到山</span>')
+    +'　正针落'+zhen.shan+'山（立向） 中针落'+zhong.shan+'山（消砂） 缝针落'+feng.shan+'山（纳水）'
     +'<span class="wd-br"></span>'
-    +'正针落'+zhen.shan+'山（立向） 中针落'+zhong.shan+'山（消砂） 缝针落'+feng.shan+'山（纳水）'
+    +'三合'+FS.SANHE_JU[FS.SHAN_SANHE[sit]].ju+'（'+FS.SHAN_SANHE[sit]+'）　桃花'+FS.taoHuaShui(sit).zhi+'方　洪范'+FS.HONGFAN_WX[sit]+'行'
     +'<span class="wd-br"></span>'
-    +LUOPAN.RD_SETS[LP_REAL.set].name+'共'+LUOPAN.RD_SETS[LP_REAL.set].rings.length+'层，自天池向外依次为'
-    +LUOPAN.RD_SETS[LP_REAL.set].rings.map(function(k,i){ return '第'+(i+1)+'层'+LUOPAN.RD_RING_NAME_OF(LP_REAL.set, FS.SHAN_SANHE[LP_SIT])[k]; }).join('，')+'。'
+    +set.name+'共'+set.rings.length+'层，此刻坐度所落：'
+    +'<span class="wd-br"></span>'
+    +ringTxt
     /* 盘面操作提示随详情条出，不在盘上另挂一行小字（同一句话不盘上盘下双出） */
     +'<span class="wd-br"></span>'
     +'盘上色义：朱格为阳（阳山、吉宫、先后天八卦阳卦、洛书阳数），红线为避煞（八煞、劫曜、劫煞、空亡、龟甲），绿格为珠宝、暗红格为火坑。'
     +'<span class="wd-br"></span>'
     +'天池磁针恒指南北（针自有磁性，与盘角无关），外盘天心十道固定，用以压线读数：'
     +'拨动盘面使坐向压于针上，读数即自十道与针之相对位读出。'
-    +'单指拖移可任意角度对针，双指捏合缩放并旋转（桌面滚轮缩放），双击复位；点选任一山即读其落山。'
+    +'双指张合缩放、双指旋动对针（桌面滚轮缩放），双击复位；点选任一山即读其落山。'
     +'指南针开启时盘面随所指向自动转，天池磁针恒指南北；未开指南针时可双指旋盘自行对针，或填实测坐度。');
 }
 /* 详情条重排：取度与两向倾角。未锁时取实时所向上之坐度，已锁或已填实测坐度时取所锁之值。 */
@@ -490,95 +542,70 @@ function lpRealCross(){
   b.classList.toggle('active', LP_REAL.cross);
   lpRealRenderOverlay();
 }
-/* 缩放拖移：单指拖移旋转盘面（真实罗经对针即转盘），双指捏合缩放，双击复位。
-   transform 作用于 svg 元素，缩放与旋转叠加；指南针联动时旋转由传感器接管。 */
+/* 缩放旋动：盘面为转盘，双指张合缩放、双指旋动对针，双击复位。
+   变换只施于 #lpRealHost 一层，盘面与固定层（天池磁针、天心十道）皆为其子元素，
+   故缩放与旋转同步而不分离；盘面转角另由 lpRealApplyTransform 单独落于 svg。 */
 function lpRealApplyTransform(){
   var w=document.getElementById('lpRealWheel');
   if(w) w.style.transform='rotate('+LP_REAL.rot+'deg)';
 }
+/* 罗盘手势：双指张合缩放、双指旋动对针；滚轮缩放与双击复位限于盘面窗口。
+   监听面为整块 wrap：双指常有一指落在盘面之外，监听面须覆盖整块方不漏指。
+   手势主权：wrap、窗口与盘面三处 touch-action 皆取 pan-x pan-y，浏览器只许移视、
+   不许缩页，页面自身不缩不旋，故另拦 iOS 之 gesture 系列事件；移视归浏览器原生，
+   单指与双指拖移同取一路，本层不自绘平移。
+   几何：变换只改倍率、不写位移，原点归盘心 50% 50%，故天池恒居窗口正中、四向均等外扩，
+   落指偏侧亦不漂移；倍率取双指间距之比、转角取双指连线之角差，二者皆与坐标平移无关，
+   故浏览器挪动视口亦不失准；中点位移不然，故不取。
+   界：缩放 0.5 至 8 倍，双指起步距取下限 1 像素以避双指重合时
+   按比失量，越界由倍率之界兜底；触数非二即弃锚，抬指与系统打断皆清锚。 */
 function lpRealBindZoom(){
-  /* 缩放与旋动只 listens 于缩放视窗（其盒即盘面之盒），不 listens 于外层 #lpRealWrap。
-     外层含盘题与盘下详情条，若 listens 于彼，则在盘题与详情条上滚滚轮亦缩放，
-     是为未点到盘面亦缩放之弊。 */
   var zoom=document.getElementById('lpRealZoom');
-  if(!zoom) return;
-  var scale=1, tx=0, ty=0, pinch=null;
-  /* 缩放与平移皆作用于缩放视窗（盘面与固定层同处其内），故放大时天池磁针与
-     天心十道随之同步，永不与盘面分离；盘面只在其内旋转。视窗以左上为原点，
-     故 transform-origin 取 0 0，配合 translate 实现以指针所在为锚的缩放与自由平移。 */
+  var wrap=document.getElementById('lpRealWrap');
+  if(!zoom||!wrap) return;
+  var MIN_S=0.5, MAX_S=8;
+  var scale=1, pinch=null;
+  function layer(){ return document.getElementById('lpRealHost'); }
+  function clamp(v,lo,hi){ return v<lo?lo:(v>hi?hi:v); }
   function apply(){
-    var w=document.getElementById('lpRealWheel');
-    if(w) w.style.transform='rotate('+LP_REAL.rot+'deg)';
-    /* 盘面与固定层同处视窗内，只由视窗的 scale 一处放大：二者同为视窗子元素，
-       缩放即同步，不因各自尺寸而分离。故视窗不设显式宽高（设之则只增空白不放大盘面）。 */
-    zoom.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';
+    lpRealApplyTransform();
+    var el=layer(); if(!el) return;
+    el.style.transform='scale('+scale+')';
   }
-  /* 缩放锚：指针（或双指中点）之视窗内坐标。视窗内一点 u 经 translate 后 scale
-     而落于 u 乘以缩放再加平移量。欲该点缩放前后视觉位置不动，须令
-     u 乘新缩放加新平移 等于 u 乘旧缩放加旧平移，故新平移 = 旧平移 + u 乘（旧缩放减新缩放）。
-     视窗以左上为原点，故 u 取视窗内偏移而非页内坐标，方能以点击处为锚。 */
-  function zoomAt(u, v, ns){
-    tx = tx + u * (scale - ns);
-    ty = ty + v * (scale - ns);
-    scale = ns;
+  function zoomBy(ns){
+    scale=clamp(ns, MIN_S, MAX_S);
     apply();
   }
-  /* 锚点：指针之未变换视窗内坐标。
-     视窗之 transform 为 translate 后 scale，故页内一点 p 落于视窗内一点 u 须满足
-     p = 原点 + u * scale + 平移，即 u = (p - 原点 - 平移) / scale。
-     视窗自身之变换盒已含平移与缩放，不可取其左上角为原点；故取其父级之未变换盒为原点，
-     视窗在父级内之偏移用 offsetLeft/offsetTop 取（此二者不受 transform 影响）。
-     由此得之 u 与公式中者同系，锚点乃真。 */
-  function inZoom(cx, cy){
-    var pr=zoom.offsetParent;
-    var pm=new DOMMatrixReadOnly(getComputedStyle(pr).transform);
-    var ps=pm.a||1, ptx=pm.e||0, pty=pm.f||0;
-    var pb=pr.getBoundingClientRect();
-    var ox=pb.left + (zoom.offsetLeft||0) - ptx/ps;
-    var oy=pb.top + (zoom.offsetTop||0) - pty/ps;
-    return { x:cx-ox, y:cy-oy };
-  }
-  function dist(t){ var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY; return Math.hypot(dx,dy); }
-  /* 双指夹角：手拨转盘用。传感器不可用时（或欲自行对针时）以双指旋动盘面，与指南针自动转盘同取一角 */
+  function dist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
   function ang(t){ return Math.atan2(t[1].clientY-t[0].clientY, t[1].clientX-t[0].clientX)*180/Math.PI; }
-  /* 双指中点：以之为缩放锚与平移基准，故可任意移视盘面任一区域 */
-  function mid(t){ return { x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2 }; }
-  zoom.addEventListener('touchstart', function(e){
-    if(e.touches.length===2){
-      var m=mid(e.touches);
-      var u=inZoom(m.x, m.y);
-      pinch={ d:dist(e.touches), s:scale, a:ang(e.touches), r0:LP_REAL.rot, mx:u.x, my:u.y };
-      e.preventDefault();
-    }
+  wrap.addEventListener('touchstart', function(e){
+    if(e.touches.length!==2) return;
+    pinch={ d:Math.max(1, dist(e.touches)), s:scale, a:ang(e.touches), r0:LP_REAL.rot };
+    e.preventDefault();
   }, {passive:false});
-  zoom.addEventListener('touchmove', function(e){
-    if(e.touches.length===2&&pinch){
-      var ns=Math.min(8, Math.max(0.5, pinch.s*(dist(e.touches)/pinch.d)));
-      var m=mid(e.touches);
-      var u=inZoom(m.x, m.y);
-      /* 以双指中点为锚缩放。中点自身可移，故平移须补中点位移乘旧缩放，
-         再补缩放差乘新中点：新平移 = 旧平移 + （新中点减旧中点）乘旧缩放 + 新中点乘旧缩放减新缩放 */
-      tx = tx + (u.x - pinch.mx)*pinch.s + u.x*(pinch.s - ns);
-      ty = ty + (u.y - pinch.my)*pinch.s + u.y*(pinch.s - ns);
-      scale=ns;
-      LP_REAL.rot=pinch.r0+(ang(e.touches)-pinch.a);
-      e.preventDefault(); apply();
-    }
+  wrap.addEventListener('touchmove', function(e){
+    if(e.touches.length!==2){ pinch=null; return; }
+    if(!pinch) return;
+    LP_REAL.rot=pinch.r0+(ang(e.touches)-pinch.a);
+    zoomBy(pinch.s*(dist(e.touches)/pinch.d));
+    e.preventDefault();
   }, {passive:false});
-  zoom.addEventListener('touchend', function(){ pinch=null; });
+  wrap.addEventListener('touchend', function(){ pinch=null; });
+  wrap.addEventListener('touchcancel', function(){ pinch=null; });
+  ['gesturestart','gesturechange','gestureend'].forEach(function(t){
+    wrap.addEventListener(t, function(e){ e.preventDefault(); }, {passive:false});
+  });
   zoom.addEventListener('wheel', function(e){
     e.preventDefault();
-    var u=inZoom(e.clientX, e.clientY);
-    var ns=Math.min(8, Math.max(0.5, scale*(e.deltaY<0?1.12:0.89)));
-    zoomAt(u.x, u.y, ns);
+    zoomBy(scale*(e.deltaY<0?1.12:0.89));
   }, {passive:false});
   zoom.addEventListener('dblclick', function(){
-    scale=1; tx=0; ty=0; LP_REAL.rot=0;
-    var z=document.getElementById('lpRealZoom'); if(z) z.dataset.base='';
+    scale=1; LP_REAL.rot=0;
     apply(); lpRealReadout();
   });
   zoom.__lpApply=apply;
 }
+
 /* 三盘三针立向盘（528 骨架，走 FS_LUO） */
 function lpZhenSvg(){
   var sel=LP_SEL.zhen;
@@ -1005,6 +1032,56 @@ function lpStartCompass(){
     if(!ok) lpCompassState('未能取得传感器权限，可手拨盘面对针或填实测坐度。');
   });
 }
+/* 实测回填：罗盘所测（实时所向，已锁则取所锁）回写基础设定的实测坐度与坐山向首，
+   测量结果由此成为全页排盘输入。未取得读数则说明之，不盲填。 */
+function lpBackfillBase(){
+  var deg=(LP_REAL.lock&&LP_REAL.lockedDeg!=null)?LP_REAL.lockedDeg:LP_REAL.liveDeg;
+  if(deg==null||!isFinite(deg)){ lpCompassState('指南针未取得读数，无法回填；可启动指南针或手填实测坐度。'); return; }
+  var z=FS.zhenShan(deg,'zheng');
+  var sit=z?z.shan:null;
+  var face=sit?FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24]:null;
+  var dEl=document.getElementById('baseDeg');
+  if(dEl) dEl.value=deg.toFixed(1);
+  if(sit){ var sEl=document.getElementById('baseSit'); if(sEl) sEl.value=sit; }
+  if(face){ var fEl=document.getElementById('baseFace'); if(fEl) fEl.value=face; }
+  lpApplyBase();
+  lpCompassState('已回填实测坐度与坐山向首（'+sit+'山'+face+'山 '+deg.toFixed(1)+'°）。');
+}
+/* 所在地 IP 反查预填：复用 ai.js 四源兜底定位（端点已在开源页登记）。
+   仅当用户从未手选（lp_geo_manual）且本浏览器未预填过（lp_geo_done）时才填；
+   归属地匹配 latlng.js 省市表，取到哪级用哪级；失败静默（离线优先）。
+   手选经由真实 change 事件发生（程序赋值不触发 change），故预填不会误标手选。 */
+function lpIpPrefill(){
+  var done=false, manual=false;
+  try{ done=localStorage.getItem('lp_geo_done')==='1'; manual=localStorage.getItem('lp_geo_manual')==='1'; }catch(e){}
+  if(done||manual) return;
+  if(typeof window.aiGeoLookup!=='function') return;
+  var gr=null;
+  try{ gr=document.getElementById('lpGeoGroup'); }catch(e){}
+  if(gr) gr.addEventListener('change', function(){ try{ localStorage.setItem('lp_geo_manual','1'); }catch(e){} });
+  window.aiGeoLookup().then(function(g){
+    if(!g || (!g.region&&!g.city)) return;
+    try{ if(localStorage.getItem('lp_geo_manual')==='1') return; }catch(e){ return; }
+    var provs=(typeof PROV!=='undefined')?Object.keys(PROV):[];
+    var pk=provs.find(function(k){ return k===g.region; })
+        ||provs.find(function(k){ return g.region&&(k.indexOf(g.region)===0||g.region.indexOf(k)===0); });
+    if(!pk) return;
+    var cities=((typeof PROV!=='undefined'&&PROV[pk])||[]).map(function(e){ return e.c; });
+    var ck=g.city?(cities.find(function(c){ return c===g.city; })
+        ||cities.find(function(c){ return c.indexOf(g.city)===0||g.city.indexOf(c)===0; })):null;
+    var pEl=document.getElementById('lpProv');
+    if(!pEl) return;
+    pEl.value=pk;
+    if(pk!==pEl.value) return;
+    lpGeoFillCity();
+    var cEl=document.getElementById('lpCity');
+    if(ck&&cEl){ cEl.value=ck; lpGeoFillDist(); }
+    lpGeoPick();
+    try{ localStorage.setItem('lp_geo_done','1'); }catch(e){}
+    var gl=gr?gr.querySelector('.group-label'):null;
+    if(gl) gl.textContent='所在地（用于磁偏角折算，不选则按古法直读磁北）已由 IP 反查预填，仅供参考，可改选';
+  }).catch(function(){});
+}
 function lpRenderAll(){
   lpRealRender();
   lpZhenSvg(); lpZhenDetail();
@@ -1031,6 +1108,7 @@ function lpInit(){
   lpGeoInit();
   lpFillBase();
   lpGetBase();
+  lpIpPrefill();
   lpRealBindZoom();
   lpRealSkin(LP_REAL.skin);
   document.querySelectorAll('[data-rdset]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-rdset')===LP_REAL.set); });

@@ -3672,18 +3672,22 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .lp-guide-inline{max-width:560px;margin:var(--sp-3) auto 0}
 .page-lp .lp-compass{margin-top:var(--sp-3);text-align:center}
 .page-lp .lp-compass-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em}
-/* 真实罗盘盘区：盘面与固定层（天池磁针、天心十道）同置一缩放视窗内，
-   视窗只作 scale 与 translate，二者为其子元素，故放大同步、永不分离。
-   视窗不裁切（overflow:visible），放大后盘面完整可见且可移视任意区域；
-   裁切只施于内层 #lpRealHost 之自然边界，盘面不越出页面，故不产生横向滚动。
-   视窗宽随宿主收缩（inline-block），故视窗之命中区即盘面之命中区：
-   盘外空白处不属视窗，缩放与旋动只在盘面之内生效。 */
-.page-lp #lpRealZoom{position:relative; display:inline-block; transform-origin:0 0; overflow:visible}
-/* 缩放基准宿主：包裹盘面（inline-block 收缩至盘面自然宽高），并裁切其自然边界 */
-.page-lp #lpRealHost{position:relative; display:block; overflow:hidden}
+/* 真实罗盘盘区：盘面与固定层（天池磁针、天心十道）同置一变换层内，
+   变换层只作 scale，二者为其子元素，故放大同步、永不分离。
+   窗口 #lpRealZoom 为 inline-block，宽随内容收缩，其盒即盘面自然盒，一律不裁切：
+   放大后盘面越出窗口而完整成圆，四缘不得被方框切断；窗口即命中区，
+   盘外空白处不属窗口，缩放与旋动只在盘面之内生效。
+   touch-action 取 pan-x pan-y：只许浏览器移视、不许其缩页，缩放与旋动全归自绘。 */
+.page-lp #lpRealZoom{position:relative; display:inline-block; overflow:visible; touch-action:pan-x pan-y}
+/* 变换层：窗口内唯一被缩放的一层，原点归盘心 50% 50%，故缩放恒以天池为中心。
+   裁切只施于本层自身：裁界与盘面同倍放大，故放大后盘面完整成圆，四缘不被方框切断；
+   只裁去盘面盒外那圈不可见的旋转余角，使页面不因盘面旋转而多出一线横溢。 */
+.page-lp #lpRealHost{position:relative; display:block; overflow:hidden; transform-origin:50% 50%}
+/* 盘区块：移视归浏览器原生，单指与双指拖移同取一路；只许移视，不许缩页。 */
+.page-lp #lpRealWrap{touch-action:pan-x pan-y}
 .page-lp #lpReal{position:relative; display:block}
 /* 盘面宽度：平板端 450px、电脑端 550px，手机端随视口取九成六。
-   视窗与宿主同宽，故视窗命中区即盘面命中区，缩放与旋动只在盘面之内生效。 */
+   窗口与变换层同宽，故窗口命中区即盘面命中区，缩放与旋动只在盘面之内生效。 */
 .page-lp #lpReal .rd-wheel{width:min(96vw,450px)}
 @media (min-width:1025px){
   .page-lp #lpReal .rd-wheel{width:550px}
@@ -3768,7 +3772,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   --rd-jewel:#2e7d32; --rd-pit:#9e2418; --rd-sha:#b84a3a;
   --rd-ink-inv:#ffe9b0;
 }
-.rd-wheel{width:min(96vw,640px);max-width:none;touch-action:none;cursor:grab}
+.rd-wheel{width:min(96vw,640px);max-width:none;touch-action:pan-x pan-y;cursor:grab}
 .rd-wheel .rd-face{fill:var(--rd-face);stroke:var(--rd-rim);stroke-width:6}
 .rd-wheel .rd-rim{fill:none;stroke:var(--rd-rim);stroke-width:10}
 .rd-wheel .rd-band{fill:var(--rd-band)}
@@ -3853,6 +3857,8 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   /* 真实罗盘为全页主器，窄屏下破例通栏：盘宽随屏，容器不再二重内缩，
      使二十四层之字得以尽用屏宽。左右各以半个视口宽负边距抵掉两级内边距。 */
   .page-lp #lpRealWrap{width:100vw;margin-left:calc(50% - 50vw)}
+  /* 通栏后详情条回收两级内边距，字行落回与各查询盘详情条对齐之正文区 */
+  .page-lp #lpRealWrap .wheel-detail{padding-left:calc(var(--sp-4)*2);padding-right:calc(var(--sp-4)*2)}
   .page-lp #lpZong svg,.page-lp #lpZhen svg{max-width:390px}
 }
 
