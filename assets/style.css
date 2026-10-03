@@ -3634,9 +3634,20 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .rel-title{color:var(--lp2);font-family:var(--lp-serif)}
 .page-lp .lp-tip{margin:var(--sp-3) 0 0;padding:var(--sp-2) 0;border-bottom:1px solid var(--lp-line);
   font-size:12.5px;line-height:1.8;letter-spacing:.04em;color:var(--lp-ink2);text-align:center}
+/* 分类输出两级。一级为真实罗盘与查询罗盘二大类，一级用 tier3（14px）以示高于二级一级，
+   二级为各大类之下之细目，用 tier4（13px），皆取全站字号四档，不另立值。
+   二级常态隐藏，点查询罗盘方展开。
+   一级条与其下二级分类条之距，两区同为一级与二级之关系，归同一档 --sp-4：
+   真实罗盘区之二级（综合、三元、三合等盘制钮）同列工具条，其上距由 .lp-block 之 --sp-4 承担；
+   查询罗盘区之二级即本件，故自取 --sp-4，两区相等。 */
+.lp-cat-switch{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-3);margin:var(--sp-2) 0 var(--sp-4)}
+.lp-cat-btn{font:inherit;font-size:var(--tier3);line-height:1;height:30px;cursor:pointer;padding:0 var(--sp-4);
+  border:1px solid var(--lp-line);border-radius:0;background:var(--card);color:var(--lp);transition:.15s}
+.lp-cat-btn:hover{border-color:var(--lp);color:var(--lp2)}
+.lp-cat-btn.active{background:var(--lp);border-color:var(--lp);color:#fff}
 /* 模式切换条：仿择日页 zr-mode-switch，无框无底、常态主色字、选中实底白字、控件高 30px */
-.lp-mode-switch{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-4);margin:var(--sp-4) 0 var(--sp-2)}
-.lp-mode-btn{font:inherit;font-size:13px;line-height:1.2;height:30px;cursor:pointer;padding:0 var(--sp-3);
+.lp-mode-switch{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-4);margin:var(--sp-2) 0 var(--sp-2)}
+.lp-mode-btn{font:inherit;font-size:var(--tier4);line-height:1.2;height:30px;cursor:pointer;padding:0 var(--sp-3);
   border:0;border-radius:0;background:transparent;color:var(--lp);transition:.15s}
 .lp-mode-btn:hover{background:var(--lp-tint);color:var(--lp2)}
 .lp-mode-btn.active{background:var(--lp);color:#fff}
@@ -3648,7 +3659,8 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp #baseDecl{width:117px}
 .page-lp .wheel-block h4{font-family:var(--lp-serif);color:var(--lp2)}
 /* 盘区块上下取页面级档，盘与前后内容拉开 */
-.page-lp .lp-block{margin-top:var(--sp-5);text-align:center}
+/* 盘区块：与前一区块之间取 --sp-4（区块间）。原取 --sp-5 页面级档，层级倒挂。 */
+.page-lp .lp-block{margin-top:var(--sp-4);text-align:center}
 .page-lp .lp-guide{text-align:left;margin:var(--sp-3) auto 0;max-width:560px}
 .page-lp .lp-guide-step{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-2) 0;border-top:1px solid var(--lp-line)}
 .page-lp .lp-guide-step:first-child{border-top:0}
@@ -3656,18 +3668,26 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   background:var(--lp);color:#fff;font-size:12px;font-family:var(--lp-serif)}
 .page-lp .lp-guide-body{font-size:12.5px;line-height:1.8;letter-spacing:.03em;color:var(--lp-ink)}
 .page-lp .lp-guide-body b{color:var(--lp2);margin-right:.4em}
-.page-lp .lp-guide-inline{max-width:560px;margin:0 auto}
+/* 盘后引导段（新手引导内联于某盘之下者）：与所属盘块同属一组，取 --sp-3 */
+.page-lp .lp-guide-inline{max-width:560px;margin:var(--sp-3) auto 0}
 .page-lp .lp-compass{margin-top:var(--sp-3);text-align:center}
 .page-lp .lp-compass-read{margin-top:var(--sp-2);font-size:13px;color:var(--lp-ink);letter-spacing:.04em}
 /* 真实罗盘盘区：盘面与固定层（天池磁针、天心十道）同置一缩放视窗内，
    视窗只作 scale 与 translate，二者为其子元素，故放大同步、永不分离。
    视窗不裁切（overflow:visible），放大后盘面完整可见且可移视任意区域；
-   裁切只施于内层 #lpRealHost 之自然边界，盘面不越出页面，故不产生横向滚动。 */
-.page-lp #lpRealZoom{position:relative; transform-origin:0 0; overflow:visible}
+   裁切只施于内层 #lpRealHost 之自然边界，盘面不越出页面，故不产生横向滚动。
+   视窗宽随宿主收缩（inline-block），故视窗之命中区即盘面之命中区：
+   盘外空白处不属视窗，缩放与旋动只在盘面之内生效。 */
+.page-lp #lpRealZoom{position:relative; display:inline-block; transform-origin:0 0; overflow:visible}
 /* 缩放基准宿主：包裹盘面（inline-block 收缩至盘面自然宽高），并裁切其自然边界 */
-.page-lp #lpRealHost{position:relative; display:inline-block; overflow:hidden}
-.page-lp #lpReal{position:relative; display:inline-block}
-.page-lp #lpReal .rd-wheel{width:100%}
+.page-lp #lpRealHost{position:relative; display:block; overflow:hidden}
+.page-lp #lpReal{position:relative; display:block}
+/* 盘面宽度：平板端 450px、电脑端 550px，手机端随视口取九成六。
+   视窗与宿主同宽，故视窗命中区即盘面命中区，缩放与旋动只在盘面之内生效。 */
+.page-lp #lpReal .rd-wheel{width:min(96vw,450px)}
+@media (min-width:1025px){
+  .page-lp #lpReal .rd-wheel{width:550px}
+}
 .page-lp #lpRealWheel{position:relative; z-index:1; display:block}
 .page-lp #lpCrossFixed{position:absolute; inset:0; z-index:3; pointer-events:none}
 .page-lp #lpCrossFixed svg{width:100%; height:100%; display:block}
@@ -3687,12 +3707,17 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-lp .ai-block .btn.gold,.page-lp .ai-block .btn.soft{background:var(--lp-tint);border-color:var(--lp-line);color:var(--lp-ink);box-shadow:none}
 .page-lp .ai-block .btn.gold:hover,.page-lp .ai-block .btn.soft:hover{background:var(--card);border-color:var(--lp);color:var(--lp2)}
 /* 基础设定区：fs-row 与题头、提示、定宽输入族，终值同风水两页（此族不进通用段，各页自持） */
+/* 基础设定块（坐山向首、所在地、磁偏角三组）：块级件，与后续内容区之间取 --sp-4。
+   其内各组之距由各自件承担，本块只管块与块之距。 */
+.page-lp .fs-base{margin-bottom:var(--sp-4)}
 .page-lp .fs-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end}
 .page-lp .fs-board-title{color:var(--gold2);text-align:center;font-size:14px;line-height:1.7;margin-bottom:var(--sp-2)}
 .page-lp .fs-title-left{text-align:left}
 .page-lp .fs-inp-w100{width:100px}
 .page-lp .fs-inp-w90{width:90px}
-.page-lp .fs-hint{font-size:12px;color:var(--lp-ink2);line-height:1.6;margin-top:var(--sp-2)}
+/* 提示段：磁偏角折算与锁定之说明，下以长横线与后续内容分隔（照本页 .lp-tip 之既有做法） */
+.page-lp .fs-hint{font-size:12px;color:var(--lp-ink2);line-height:1.6;margin:var(--sp-2) 0 var(--sp-3);
+  padding-bottom:var(--sp-2);border-bottom:1px solid var(--lp-line)}
 /* 表格：去框改线，行线取本页浅线 */
 .page-lp .fs-mean-tbl{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--lp-line)}
 .page-lp .fs-mean-tbl th,.page-lp .fs-mean-tbl td{border:0;border-bottom:1px solid var(--lp-line);padding:var(--sp-2) var(--sp-2);text-align:left;vertical-align:top;color:var(--lp-ink)}
@@ -3802,33 +3827,14 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   .lp-yun-mean{display:none}
 }
 
-/* 读数栏：坐向度数实时联动（问真制式：坐向、度数、横竖、锁钮），坐向写八方位字 */
-.lp-readbar{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);flex-wrap:wrap;margin:var(--sp-3) 0 0}
-.lp-readbar .lp-read{font-size:14px;color:var(--lp-ink);letter-spacing:.04em;line-height:1.7}
-.lp-readbar .lp-read b{color:var(--lp2);font-weight:400}
-.lp-readbar .lp-deg{font-size:14px;color:var(--lp-deep);letter-spacing:.02em;background:var(--lp-tint);padding:0 var(--sp-2);height:30px;display:inline-flex;align-items:center}
-.lp-readbar .lp-lvl{font-size:12px;color:var(--lp-ink2);line-height:1.7}
-/* 锁钮与读数同高，描边方角随站内按钮制式，字用主体色，锁定后实底反白 */
-.lp-readbar .lp-lock{font:inherit;font-size:13px;line-height:1;height:30px;cursor:pointer;padding:0 var(--sp-3);
+/* 锁钮：与盘制、底色、指南针诸钮同列（皆为对盘之操作），故随工具条排布 */
+.lp-real-tools .lp-lock{font:inherit;font-size:13px;line-height:1;height:30px;cursor:pointer;padding:0 var(--sp-3);
   border:1px solid var(--lp-line);border-radius:0;background:var(--lp-tint);color:var(--lp);
   letter-spacing:.06em;transition:.15s}
-.lp-readbar .lp-lock:hover{border-color:var(--lp);color:var(--lp2)}
-.lp-readbar .lp-lock.active{background:var(--lp);border-color:var(--lp);color:#fff}
-/* 水平仪：横（左右横滚）与竖（前后俯仰）两向倾角如实出数，两向皆零度即绝对水平。
-   数字用等宽字形，随读数自然取宽，不留定宽空档；两向间距收紧，使窄屏下
-   坐向、度数、水平仪三件仍列于同一行。 */
-.lp-readbar .lp-level{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:12px;color:var(--lp-ink2);line-height:1.7}
-.lp-readbar .lp-level-dir{white-space:nowrap}
-.lp-readbar .lp-level-dir b{font-variant-numeric:tabular-nums;font-weight:400;color:var(--lp-deep)}
-@media (max-width:560px){
-  .lp-readbar{gap:var(--sp-1)}
-  .lp-readbar .lp-read,.lp-readbar .lp-deg,.lp-readbar .lp-level,.lp-readbar .lp-lock{white-space:nowrap}
-  .lp-readbar .lp-deg{padding:0 var(--sp-1)}
-  /* 锁定钮单独成行：零高整宽断行件置于其前，钮取自然宽居中 */
-  .lp-readbar::before{content:"";flex:0 0 100%;height:0;order:1}
-  .lp-readbar .lp-lock{order:2}
-}
-.lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 0}
+.lp-real-tools .lp-lock:hover{border-color:var(--lp);color:var(--lp2)}
+.lp-real-tools .lp-lock.active{background:var(--lp);border-color:var(--lp);color:#fff}
+/* 盘上工具条（盘制、底色、十道、指南针、锁定）：控件行，与所属模块同组，取 --sp-2 */
+.lp-real-tools{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0 var(--sp-2)}
 .lp-real-tools .lp-tool{font:inherit;font-size:13px;height:30px;cursor:pointer;padding:0 var(--sp-3);
   border:0;border-radius:0;background:transparent;color:var(--lp);transition:.15s}
 .lp-real-tools .lp-tool:hover{background:var(--lp-tint);color:var(--lp2)}
