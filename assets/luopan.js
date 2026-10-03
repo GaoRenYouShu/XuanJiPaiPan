@@ -12,6 +12,7 @@
   'use strict';
 
   const LS_MODE = 'luopan_mode_v1';
+  const LS_CAT = 'luopan_cat_v1';
 
   /* 通用层盘骨架（viewBox 440，与阴宅穿山透地盘同式）：外圈二十四山、内圈数据环。
      径向自盘心向外：盘心 78、内界圈 120、内圈数据带 146、外圈刻度 168、外环 182、外圈山名 206。
@@ -130,19 +131,53 @@
 
   function detail(id, html) { const e = document.getElementById(id); if (e) e.innerHTML = html; }
 
-  /* 模式切换：仿择日页，切 .lp-mode-btn.active 与 [data-mode-block] 显隐，localStorage 记忆。 */
+  /* 分类输出两级。一级为真实罗盘与查询罗盘二大类：真实罗盘者仪器本体，
+     以现场读数与对针为用；查询罗盘者各盘之查索，以坐向入各理气法为用。
+     二级为各大类之下之细目：真实罗盘下是盘制（综合、三元、三合，本体无需二级分类，
+     盘制与其底色诸钮同列工具条即其切换处），查询罗盘下是三盘三针、分金体系等九种盘。
+     二级常态隐藏，点查询罗盘方展开，免得九钮常显占位而掩了核心件。 */
+  const RD_CATS = {
+    real: [],
+    query: ['zhen', 'fen', 'sanhe', 'tianxing', 'bazhai', 'bagua', 'yun', 'xiu', 'decl']
+  };
+  let LP_CAT = 'real';
+  let LP_MODE = 'zhen';
+  function setCat(cat) {
+    const c = RD_CATS[cat] ? cat : 'real';
+    LP_CAT = c;
+    document.querySelectorAll('.lp-cat-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-cat') === c);
+    });
+    document.querySelectorAll('[data-cat-block]').forEach(function (el) {
+      el.hidden = (el.getAttribute('data-cat-block') !== c);
+    });
+    /* 入查询罗盘：二级钮随之显，所选之盘若不在其中则取首个（三盘三针） */
+    setMode(RD_CATS[c].indexOf(LP_MODE) >= 0 ? LP_MODE : (RD_CATS[c][0] || LP_MODE));
+    try { localStorage.setItem(LS_CAT, c); } catch (e) {}
+  }
+  /* 盘切换：切二级钮之 active 与 [data-mode-block] 显隐，localStorage 记忆。 */
   function setMode(mode) {
-    LP_MODE = mode;
+    const list = RD_CATS[LP_CAT] || [];
+    const m = list.indexOf(mode) >= 0 ? mode : (list[0] || mode);
+    LP_MODE = m;
     document.querySelectorAll('.lp-mode-btn').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+      b.classList.toggle('active', b.getAttribute('data-mode') === m);
     });
     document.querySelectorAll('[data-mode-block]').forEach(function (el) {
-      el.hidden = (el.getAttribute('data-mode-block') !== mode);
+      el.hidden = (el.getAttribute('data-mode-block') !== m);
     });
-    try { localStorage.setItem(LS_MODE, mode); } catch (e) {}
+    try { localStorage.setItem(LS_MODE, m); } catch (e) {}
   }
   function restoreMode() {
-    try { const m = localStorage.getItem(LS_MODE); if (m) setMode(m); } catch (e) {}
+    let c = 'real', m = 'zhen';
+    try {
+      const sc = localStorage.getItem(LS_CAT), sm = localStorage.getItem(LS_MODE);
+      if (sc) c = sc;
+      if (sm) m = sm;
+    } catch (e) {}
+    if (!RD_CATS[c]) c = 'real';
+    if (RD_CATS[c].indexOf(m) < 0) m = RD_CATS[c][0] || m;
+    setCat(c);
   }
 
   /* 新手引导五步：对针、定向、消砂、纳水、理气。每步只给白话与所看之层，不裁断吉凶。 */
@@ -387,8 +422,6 @@
     return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; },
              getLv: function () { return { heng: lvHeng, shu: lvShu }; } };
   }
-
-  let LP_MODE = 'zong';
 
   /* ============================================================
      真实罗盘（realDisk）：照真实罗经形制的高保真转盘。
@@ -1344,14 +1377,16 @@
     if (has.changsheng) s += rdChangSheng('changsheng', JU_KEY);
     if (has.cuiGuan) s += rdCuiGuan('cuiGuan');
 
-        /* 天池：白圆（0至12%）、NESW 贴池沿、海底线、菱形磁针。 */
-    if (has.chi && o.overlay !== true) {
+        /* 天池与磁针：白圆（0至12%）、NESW 贴池沿、海底线、菱形磁针。
+       形制真源 docs/罗经完全详解指南.md 一之三：天池为中央圆槽、内置磁针与子午红线、
+       且为第一层，故属内盘，此件与盘面同转。
+       池面四方字与磁针同轴：北字落盘面零度，磁针北端与之同位，
+       故针恒指南北，拨盘时针随盘转而读者即由针与十道之相对位读出。 */
+    if (has.chi) {
       const [r0, r1] = RB.chi;
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + r1 + '" class="rd-chi-rim"/>';
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + (r1 - 4) + '" class="rd-chi"/>';
       s += '<line x1="' + C + '" y1="' + (C - r1 + 8) + '" x2="' + C + '" y2="' + (C + r1 - 8) + '" class="rd-haixian"/>';
-      /* 池面四方字与磁针同轴：上北下南，北字落盘面零度，磁针北端上指，
-         使针对北字、北字对地盘正针子山。 */
       const labs = [['N', 0], ['E', 90], ['S', 180], ['W', 270]];
       for (const [t2, d] of labs) {
         const p = rdPx(r1 - 14, d);
@@ -1386,33 +1421,18 @@
     const label = RD_SETS[mode].name + '共' + rings.length + '层：自天池向外依次为' + rings.map(function (k) { return RD_RING_NAME_OF(mode, JU_KEY)[k]; }).join('、') + '。';
     return '<svg class="wheel rd-wheel" id="' + o.id + '" viewBox="0 0 2000 2000" role="img" aria-label="' + label + '">' + s + '</svg>';
   }
-  /* 固定层（不随盘转）：天池磁针与天心十道。真实罗经用法，针恒指北、十道为固定瞄准线，
-     故与旋转之内盘分离，由页面以绝对定位覆盖层渲染，转盘旋转不带动此层。 */
+  /* 固定层（不随盘转）：天心十道。
+     形制真源 docs/罗经完全详解指南.md 一之三：外盘方座四边设十字红线即天心十道，
+     用以压线读数；又十字线交点对天池中心，读数时压于坐向线上。
+     故十字线属外盘、为读数之基准参照，拨盘时恒定不动。
+     天池与磁针属内盘（第一层），与盘面同转，已在 realDisk 内绘出，不在此层。 */
   function realDiskOverlay(o) {
-    const mode = RD_SETS[o.mode] ? o.mode : 'zonghe';
     const C = RD_C, ROUT = 985;
-    const RB = rdBandsOf(mode);
-    let s = '';
-    if (RB.chi) {
-      const r1 = RB.chi[1];
-      s += '<circle cx="' + C + '" cy="' + C + '" r="' + r1 + '" class="rd-chi-rim"/>';
-      s += '<circle cx="' + C + '" cy="' + C + '" r="' + (r1 - 4) + '" class="rd-chi"/>';
-      s += '<line x1="' + C + '" y1="' + (C - r1 + 8) + '" x2="' + C + '" y2="' + (C + r1 - 8) + '" class="rd-haixian"/>';
-      const labs = [['N', 0], ['E', 90], ['S', 180], ['W', 270]];
-      for (const [t2, d] of labs) {
-        const p = rdPx(r1 - 14, d);
-        s += '<text x="' + WHEEL.n(p[0]) + '" y="' + WHEEL.n(p[1]) + '" class="rd-nesw" style="font-size:22px"'
-          + ' transform="rotate(' + WHEEL.ring(d) + ' ' + WHEEL.n(p[0]) + ' ' + WHEEL.n(p[1]) + ')">' + t2 + '</text>';
-      }
-      const half = (r1 - 12), wid = half * 0.16;
-      s += '<path d="M' + C + ' ' + (C - half) + 'L' + (C + wid) + ' ' + C + 'L' + C + ' ' + C + 'L' + (C - wid) + ' ' + C + 'Z" class="rd-needle-n"/>';
-      s += '<path d="M' + C + ' ' + (C + half) + 'L' + (C + wid) + ' ' + C + 'L' + C + ' ' + C + 'L' + (C - wid) + ' ' + C + 'Z" class="rd-needle-s"/>';
-      s += '<circle cx="' + C + '" cy="' + C + '" r="6" class="rd-pin"/>';
+    if (o.cross === false) {
+      return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixed') + '" viewBox="0 0 2000 2000" aria-hidden="true"></svg>';
     }
-    if (o.cross !== false) {
-      s += '<line x1="' + (C - ROUT) + '" y1="' + C + '" x2="' + (C + ROUT) + '" y2="' + C + '" class="rd-cross"/>';
-      s += '<line x1="' + C + '" y1="' + (C - ROUT) + '" x2="' + C + '" y2="' + (C + ROUT) + '" class="rd-cross"/>';
-    }
+    let s = '<line x1="' + (C - ROUT) + '" y1="' + C + '" x2="' + (C + ROUT) + '" y2="' + C + '" class="rd-cross"/>'
+      + '<line x1="' + C + '" y1="' + (C - ROUT) + '" x2="' + C + '" y2="' + (C + ROUT) + '" class="rd-cross"/>';
     return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixed') + '" viewBox="0 0 2000 2000" aria-hidden="true">' + s + '</svg>';
   }
 
@@ -1432,6 +1452,7 @@
     pick: pick,
     detail: detail,
     setMode: setMode,
+    setCat: setCat,
     restoreMode: restoreMode,
     guide: guide,
     lerpAngle: lerpAngle,
