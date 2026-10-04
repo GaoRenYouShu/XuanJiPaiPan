@@ -19,9 +19,9 @@
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
 <script defer src="assets/meta.js?v=20260925b"></script>
-<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20260914c">
-<link rel="icon" href="assets/logo/favicon.ico?v=20260914c" sizes="32x32">
-<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20260914c">
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20261004a">
+<link rel="icon" href="assets/logo/favicon.ico?v=20261004a" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20261004a">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
@@ -165,7 +165,7 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261004b"></script>
+<script defer src="assets/luopan.js?v=20261004d"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/latlng.js?v=20261004a"></script>
@@ -174,7 +174,7 @@
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
    引擎以 global.FENGSHUI 暴露；FLAT 别名 FS 须在 load 之后取（defer 脚本于解析后执行，
    故置 DOMContentLoaded 内取，确保 fengshui-engine 已挂 FENGSHUI），其余页面级别量由本页自管。 */
-var LP_DECL_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null;
+var LP_DECL_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null, LP_LV_MAX=5;
 var FS=null;
 function lpGeoFillCity(){
   var sp=document.getElementById('lpProv'), sc=document.getElementById('lpCity');
@@ -391,6 +391,21 @@ function lpShanDir(shan){
   var g=FS.SHAN_BAGUA[shan];
   return (g&&FS.GUA_DIR[g])||shan;
 }
+/* 水平判据：盘面法线与铅垂线之夹角，取两向倾角余弦之积的反余弦，非逐轴取绝对值。
+   逐轴判者两轴各在阈内而实倾角可逾阈：两轴各三十度时实倾角四十一点四度，
+   即对角方向暗中放宽十余度，沿对角抬起者不提示。阈值取五度，回填门槛同取一值。
+   两向有一未取（本机不报该轴）者判据无据，报未取，不谎称已水平。 */
+function lpTiltDeg(beta, gamma){
+  if(beta==null||gamma==null||!isFinite(beta)||!isFinite(gamma)) return null;
+  var r=Math.PI/180;
+  return Math.acos(Math.cos(beta*r)*Math.cos(gamma*r))/r;
+}
+function lpLvTag(beta, gamma){
+  var t=lpTiltDeg(beta, gamma);
+  if(t==null) return '<span class="wd-x">水平未取</span>';
+  return t>LP_LV_MAX?'<span class="wd-x">请将罗盘放平</span>':'已水平';
+}
+function lpLvNum(v){ return (v==null||!isFinite(v))?'未取':(v.toFixed(1)+'°'); }
 /* 详情条渲染：上段为仪器读数（坐向、周天、横竖、指向、磁偏角，随所向实时变），
    中段为坐山理气（卦、行、正兼、四煞、三针落山），下段按当前盘制逐层报所落之格。
    逐层读数一律走 LUOPAN.rdLocateAt，与盘面绘制同取一套分格口径：
@@ -400,7 +415,9 @@ function lpRealDetailRender(deg, beta, gamma){
   var z=FS.zhenShan(deg,'zheng');
   var sit=z?z.shan:'未定';
   var face=FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24];
-  var lv=(LP_COMPASS&&LP_COMPASS.getLv)?LP_COMPASS.getLv():{heng:0,shu:0};
+  var lv=(LP_COMPASS&&LP_COMPASS.getLv)?LP_COMPASS.getLv():{heng:null,shu:null};
+  /* 两向倾角以实参优先，实参缺则回取库内所存；二者皆缺即未取，如实报缺。 */
+  var lvB=(beta!=null?beta:lv.shu), lvG=(gamma!=null?gamma:lv.heng);
   var info=FS.shanInfo(sit, LP_YEAR, LP_DEG);
   var pj=info&&info.measured;
   var st=pj?(pj.kong?'<span class="wd-x">骑缝空亡（不可立向）</span>':(pj.jian?'兼'+pj.jianTo+'山（须起替卦）':'<span class="wd-g">正向（下卦立向）</span>')):'未填实测坐度';
@@ -466,11 +483,12 @@ function lpRealDetailRender(deg, beta, gamma){
     '坐'+lpShanDir(sit)+'朝'+lpShanDir(face)
     +'　周天'+deg.toFixed(1)+'°'
     +((LP_REAL.decl!=null&&isFinite(LP_REAL.decl))?'（磁北'+(((deg-LP_REAL.decl)%360+360)%360).toFixed(1)+'°）':'')
-    +'　横'+(gamma!=null?gamma:lv.heng).toFixed(1)+'°'
-    +'　竖'+(beta!=null?beta:lv.shu).toFixed(1)+'°'
+    +'　横'+lpLvNum(lvG)
+    +'　竖'+lpLvNum(lvB)
     +'　指向'+(LP_REAL.point!=null&&isFinite(LP_REAL.point)?LP_REAL.point.toFixed(1):'未取')+'°'
     +'　磁偏角'+(LP_REAL.decl!=null?LP_REAL.decl.toFixed(2):'未取')
-    +'　'+((Math.abs(beta||0)>30||Math.abs(gamma||0)>30)?'<span class="wd-x">请将罗盘放平</span>':'已水平')
+    +'　'+lpLvTag(lvB, lvG)
+    +((LP_COMPASS&&LP_COMPASS.getAbs&&!LP_COMPASS.getAbs())?'　<span class="wd-x">当前为相对方位，非真北</span>':'')
     +((LP_REAL.accMsg||LP_REAL.state)?'　'+(LP_REAL.accMsg||LP_REAL.state):'')
     +'<span class="wd-br"></span>'
     +'坐 '+sit+'山 向 '+face+'山 '+((info)?(info.bagua+'卦'+info.wx+'行'):'')
@@ -494,7 +512,7 @@ function lpRealDetailRender(deg, beta, gamma){
 /* 详情条重排：取度与两向倾角。未锁时取实时所向上之坐度，已锁或已填实测坐度时取所锁之值。 */
 function lpRealReadout(){
   var deg=lpRealDegOfSel();
-  var lv=(LP_COMPASS&&LP_COMPASS.getLv)?LP_COMPASS.getLv():{heng:0,shu:0};
+  var lv=(LP_COMPASS&&LP_COMPASS.getLv)?LP_COMPASS.getLv():{heng:null,shu:null};
   lpRealDetailRender(deg, lv.shu, lv.heng);
 }
 /* 指南针实时读数：详情条随之重排，故坐向、周天、横竖、指向、磁偏角与落山诸项皆随所指向实时变。 */
@@ -1005,9 +1023,17 @@ function lpCompassMake(){
         lpRealLiveRead(sitDeg, zS?zS.shan:shan, beta, gamma);
       }else{
         /* 已锁定：坐向度数与盘面冻结，唯横竖两向仍随盘实测更新（水平不属所锁之列） */
-        var lv=(LP_COMPASS&&LP_COMPASS.getLv)?LP_COMPASS.getLv():{heng:0,shu:0};
+        var lv=(LP_COMPASS&&LP_COMPASS.getLv)?LP_COMPASS.getLv():{heng:null,shu:null};
         lpRealDetailRender(LP_REAL.lockedDeg, beta!=null?beta:lv.shu, gamma!=null?gamma:lv.heng);
       }
+    },
+    onTilt:function(beta,gamma){
+      /* 方位未取得时（精度门拦下、未获授权、本机无磁力计、非安全上下文不派发方位事件），
+         坐向诸读数无据可报，唯横竖两向倾角与方位无涉，照实上屏，
+         使放平提示不随方位一并冻结。坐度取当前所取之值：未锁为选中山、已锁为所锁。 */
+      LP_REAL.accMsg=(LP_COMPASS&&LP_COMPASS.getAccMsg)?LP_COMPASS.getAccMsg():'';
+      if(LP_REAL.lock){ lpRealDetailRender(LP_REAL.lockedDeg, beta, gamma); return; }
+      lpRealDetailRender(lpRealDegOfSel(), beta, gamma);
     }
   });
 }
@@ -1040,6 +1066,13 @@ function lpStartCompass(){
 function lpBackfillBase(){
   var deg=(LP_REAL.lock&&LP_REAL.lockedDeg!=null)?LP_REAL.lockedDeg:LP_REAL.liveDeg;
   if(deg==null||!isFinite(deg)){ lpCompassState('指南针未取得读数，无法回填；可启动指南针或手填实测坐度。'); return; }
+  /* 未放平时方位带倾斜误差，回填即把倾斜读数当实测写进盘面，故先请放平。
+     判据取真实倾角（两向余弦之积的反余弦）与阈值五度，与详情条放平提示同取一值。
+     两向皆未取者无从判，不拦，本机不报倾角时另行自审。 */
+  if(LP_COMPASS&&LP_COMPASS.getLv){
+    var lv0=LP_COMPASS.getLv(), t0=lpTiltDeg(lv0.shu, lv0.heng);
+    if(t0!=null&&t0>LP_LV_MAX){ lpCompassState('罗盘未放平，请将罗盘放平后再回填。'); return; }
+  }
   var z=FS.zhenShan(deg,'zheng');
   var sit=z?z.shan:null;
   var face=sit?FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24]:null;

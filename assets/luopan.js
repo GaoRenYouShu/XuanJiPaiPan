@@ -201,10 +201,13 @@
       + '</div>';
   }
 
+  /* 有向角差（0/360 环绕）：b 到 a 的最短角差，落在正负一百八十度内 */
+  function angDiff(a, b) {
+    return ((a - b + 540) % 360) - 180;
+  }
   /* 角度插值（0/360 环绕），EMA 平滑用 */
   function lerpAngle(a, b, k) {
-    let d = ((b - a + 540) % 360) - 180;
-    return (((a + d * k) % 360) + 360) % 360;
+    return (((a + angDiff(b, a) * k) % 360) + 360) % 360;
   }
 
   /* 十二宫盘（viewBox 440，与 layerDisk 同骨架）：外圈宫名环布带吉凶色、内圈地支取字角，
@@ -316,36 +319,77 @@
 
 
   /* 实时指南针外壳：旋转给定罗盘 svg（使子恒指物理北），读数走调用页提供的元素。
-     opts：{wheelId, read:{deg,shan,decl,true}, getDecl, onRead}
+     opts：{wheelId, read:{deg,shan,decl,true}, getDecl, onRead, onTilt}
      getDecl 返回当地磁偏角（东正西负）或 null；onRead(deg,shan,decl,screenDeg,beta,gamma) 于每帧回调，
-     末二参即水平仪横竖两向倾角（度），由调用页自行上屏。
+     末二参即水平仪横竖两向倾角（度），由调用页自行上屏。方位未取得时 onRead 不触发，
+     倾角另由 onTilt(beta,gamma) 报出：倾角与方位本无涉，不随方位之取得与否。
+     方位自系统姿态角取，本库只做滤波与提示，不读原始磁力计：三轴融合、硬软铁校正与倾斜补偿
+     皆由系统完成，苹果另给已倾斜补偿之航向；原始传感器接口须安全上下文且苹果不支持，
+     自建融合在网页端反不如系统融合覆盖广、读数稳。
      电子罗盘仅作参考，不取代传统格龙定针。 */
   function Compass(opts) {
     opts = opts || {};
     const FS = global.FENGSHUI;
     const wheel = opts.wheelId ? document.getElementById(opts.wheelId) : null;
     const R = opts.read || {};
-    let raf = null, last = null, heading = 0, running = false, hasAbsolute = false, accMsg = '', lastBeta = 0, lastGamma = 0;
+    let raf = null, started = false, heading = 0, shown = null, running = false, hasAbsolute = false,
+        accMsg = '', lastBeta = null, lastGamma = null, gyroW = null, restBuf = [];
     function read(id) { return id ? document.getElementById(id) : null; }
+    /* 显示值迟滞：真值相对当前显示值变化不足零点一五度即沿用旧值。
+       静止时方位在零点几度内来回跳，末位乱闪而无实义；此阈远小于一山之十五度，不碍定山。 */
+    function hold(d) {
+      if (shown == null || Math.abs(angDiff(d, shown)) >= 0.15) shown = d;
+      return shown;
+    }
+    /* 滤波系数随角速度自适应：静止强平滑以压抖，转动即抬以跟手。
+       单极 EMA 的滞后与抖动本是一对矛盾，唯有借陀螺仪角速度方能两全；
+       无陀螺仪者退回固定系数，不作伪自适应。 */
+    function alphaOf(w) {
+      if (w == null) return 0.2;
+      if (w <= 8) return 0.06;
+      if (w >= 120) return 0.6;
+      return 0.06 + (w - 8) / 112 * 0.54;
+    }
+    /* 静止游走幅度（度）：角速度低而原始方位仍大幅漂移，即磁场受扰。
+       苹果自报精度不足时另有精度字段可依，安卓无此字段，故以游走幅度作代理。
+       无陀螺仪则无从判静止，转动与漂移分不开，此时不作代理，免把转身误判成受扰。
+       取样本相对首样本的有向角差极差，跨零度不致误算成三百余度。 */
+    function wander(h) {
+      if (gyroW == null) return 0;
+      if (gyroW > 5) { restBuf.length = 0; return 0; }
+      restBuf.push(h);
+      if (restBuf.length > 90) restBuf.shift();
+      if (restBuf.length < 30) return 0;
+      const ref = restBuf[0];
+      let lo = 0, hi = 0;
+      for (let i = 1; i < restBuf.length; i++) {
+        const d = angDiff(restBuf[i], ref);
+        if (d < lo) lo = d;
+        if (d > hi) hi = d;
+      }
+      return hi - lo;
+    }
     function frame() {
       if (!running) return;
       raf = requestAnimationFrame(frame);
-      if (last == null) return;
+      /* 横竖两向倾角与方位无涉，故不随方位之取得与否。方位未取得者（精度门拦下、
+         未获授权、本机无磁力计、非安全上下文不派发方位事件）仍须照报倾角，
+         否则水平提示随方位一并冻结于开页初值，倾角再大亦恒显示已水平。 */
+      if (!started) { if (typeof opts.onTilt === 'function') opts.onTilt(lastBeta, lastGamma); return; }
+      const deg = hold(heading);
       const decl = typeof opts.getDecl === 'function' ? opts.getDecl() : null;
-      const trueDeg = (decl != null && isFinite(decl)) ? ((heading + decl) % 360 + 360) % 360 : heading;
+      const trueDeg = (decl != null && isFinite(decl)) ? ((deg + decl) % 360 + 360) % 360 : deg;
       /* 屏角：横竖屏切换时屏面之上并非机身之顶，故须以屏角折算，使盘面零度仍对屏面之真北 */
       const sa = (typeof screen !== 'undefined' && screen.orientation && typeof screen.orientation.angle === 'number')
         ? screen.orientation.angle : 0;
       const screenDeg = ((trueDeg - sa) % 360 + 360) % 360;
       const z = FS.zhenShan(trueDeg, 'zheng');
       const shan = z ? z.shan : '子';
-      if (wheel) {
-        /* 转盘旋转交由调用页 onRead 处理（真实罗盘页的转盘与缩放拖移叠加）；
-           页面未接管时（opts.rotate!==false）才由本库旋转。 */
-        if (opts.rotate !== false) {
-          wheel.style.transform = 'rotate(' + (-screenDeg) + 'deg)';
-          wheel.style.transformOrigin = '50% 50%';
-        }
+      /* 转盘旋转交由调用页 onRead 处理（真实罗盘页的转盘与缩放拖移叠加）；
+         页面未接管时（opts.rotate 不为 false）才由本库旋转。 */
+      if (wheel && opts.rotate !== false) {
+        wheel.style.transform = 'rotate(' + (-screenDeg) + 'deg)';
+        wheel.style.transformOrigin = '50% 50%';
       }
       const d = read(R.deg); if (d) d.textContent = trueDeg.toFixed(1);
       const sn = read(R.shan); if (sn) sn.textContent = shan + '山';
@@ -353,7 +397,7 @@
       const tr = read(R.true); if (tr) tr.textContent = trueDeg.toFixed(1);
       if (typeof opts.onRead === 'function') opts.onRead(trueDeg, shan, decl, screenDeg, lastBeta, lastGamma);
     }
-    let lvHeng = 0, lvShu = 0;
+    let lvHeng = null, lvShu = null;
     /* 方位角：苹果给 webkitCompassHeading（顺时针自北，即真方位角）；
        其余按设备方位规范取三百六十减 alpha（alpha 绕竖轴逆时针为正，绝对与相对同一轴向、同一符号，
        故绝对事件不得直取 alpha，否则东西相反而成镜像）。 */
@@ -363,24 +407,41 @@
          屏幕朝西时 alpha 为九十，而其罗盘方位为西即二百七十，正是三百六十减九十。
          absolute 只表明读数是否绝对于地磁轴，不改变 alpha 的旋向，故绝对方位流亦须折算，
          直取 alpha 会使安卓机型东西镜像，与真方位差达一百八十度。 */
-      let h;
-      if (typeof e.webkitCompassHeading === 'number') { h = e.webkitCompassHeading; if (e.absolute) hasAbsolute = true; }
-      else if (e.absolute) { h = (360 - (e.alpha || 0)) % 360; hasAbsolute = true; }
-      else { if (hasAbsolute) return; h = (360 - (e.alpha || 0)) % 360; }
+      let h, abs;
+      if (typeof e.webkitCompassHeading === 'number') { h = e.webkitCompassHeading; abs = true; }
+      else { h = (360 - (e.alpha || 0)) % 360; abs = !!e.absolute; }
+      if (abs) hasAbsolute = true;
+      else if (hasAbsolute) return;
       if (h == null) return;
-      /* 磁偏角精度门：iOS 低精度读数不可靠，仅给校准提示而不更新方位，免漂。 */
-      if (typeof e.webkitCompassAccuracy === 'number' && (!isFinite(e.webkitCompassAccuracy) || e.webkitCompassAccuracy > 20)) {
+      /* 方位精度门：苹果自报精度不足即读数不可信，安卓无此字段而取静止游走作代理。
+         两者皆只提示校准而不更新方位，免把漂移当测量。 */
+      const badAcc = typeof e.webkitCompassAccuracy === 'number'
+        && (!isFinite(e.webkitCompassAccuracy) || e.webkitCompassAccuracy > 20);
+      if (badAcc) {
         accMsg = '请做横8字校准';
+        restBuf.length = 0;
+      } else if (wander(h) > 12) {
+        accMsg = '磁场受扰，请做横8字校准';
       } else {
         accMsg = '';
-        if (last == null) heading = h; else heading = lerpAngle(heading, h, 0.2);
-        last = h;
+        heading = started ? lerpAngle(heading, h, alphaOf(gyroW)) : h;
+        started = true;
       }
-      lastBeta = e.beta || 0; lastGamma = e.gamma || 0;
-      /* 水平仪两向倾角：beta 为前后俯仰（竖），gamma 为左右横滚（横），
-         皆以度如实上报，零度即绝对水平，是否放平由读数人自判，库内不作阈值定夺。 */
+      /* 水平仪两向倾角：beta 为前后俯仰（竖），gamma 为左右横滚（横），皆以度如实上报，
+         是否放平由读数人自判，库内不作阈值定夺。该轴无数据者记空值：零度即绝对水平，
+         以零充数则与真正水平同貌，读数人无从分辨。 */
+      lastBeta = (typeof e.beta === 'number' && isFinite(e.beta)) ? e.beta : null;
+      lastGamma = (typeof e.gamma === 'number' && isFinite(e.gamma)) ? e.gamma : null;
       lvShu = lastBeta; lvHeng = lastGamma;
       if (!raf) frame();
+    }
+    /* 陀螺仪角速度（度每秒）：取水平面两轴合成。平放转手机绕 z 轴，竖持绕 y 轴，
+       合成以兼顾两种持法。仅供滤波系数与静止判定取用，不参与方位解算。 */
+    function onMotion(e) {
+      const rr = e.rotationRate;
+      if (!rr) return;
+      const a = rr.alpha || 0, g = rr.gamma || 0;
+      gyroW = Math.sqrt(a * a + g * g);
     }
     /* 未获授权者挂一次性手势监听：用户任何一次触屏、按键或滚动即再试一次，不必去找按钮 */
     let armed = false;
@@ -393,37 +454,41 @@
       };
       ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (ev) { window.addEventListener(ev, once, true); });
     }
-    function attach() {
+    function attach(motion) {
       window.addEventListener('deviceorientation', onOrient, true);
       window.addEventListener('deviceorientationabsolute', onOrient, true);
+      if (motion) window.addEventListener('devicemotion', onMotion, true);
       frame();
+    }
+    function permit(Ev) {
+      return (typeof Ev !== 'undefined' && typeof Ev.requestPermission === 'function')
+        ? Ev.requestPermission() : Promise.resolve('granted');
     }
     /* 开启：凡平台不设权限门者（安卓浏览器、桌面）即时启用，开页即用；
        苹果须由用户手势授权，故页面载入即试启一次，未获授权则挂一次性手势监听，
-       用户任何一次触屏、按键或滚动即完成授权。 */
+       用户任何一次触屏、按键或滚动即完成授权。动感另请一次，仅供取角速度；
+       未获准者仍以方位流工作，只是退回固定滤波系数，不碍读数。 */
     function start() {
       if (running) return Promise.resolve(true);
       running = true;
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        return DeviceOrientationEvent.requestPermission().then(function (st) {
-          if (st === 'granted') { attach(); if (typeof opts.onState === 'function') opts.onState(true); return true; }
-          running = false; arm(); if (typeof opts.onState === 'function') opts.onState(false); return false;
-        }).catch(function () {
-          running = false; arm(); if (typeof opts.onState === 'function') opts.onState(false); return false;
-        });
-      }
-      attach();
-      if (typeof opts.onState === 'function') opts.onState(true);
-      return Promise.resolve(true);
+      return Promise.all([permit(global.DeviceOrientationEvent), permit(global.DeviceMotionEvent)]).then(function (st) {
+        if (st[0] === 'granted') { attach(st[1] === 'granted'); if (typeof opts.onState === 'function') opts.onState(true); return true; }
+        running = false; arm(); if (typeof opts.onState === 'function') opts.onState(false); return false;
+      }).catch(function () {
+        running = false; arm(); if (typeof opts.onState === 'function') opts.onState(false); return false;
+      });
     }
     function stop() {
       running = false;
       if (raf) cancelAnimationFrame(raf);
-      raf = null; last = null;
+      raf = null; started = false; shown = null; heading = 0; gyroW = null; restBuf.length = 0;
+      lastBeta = null; lastGamma = null; lvShu = null; lvHeng = null;
       window.removeEventListener('deviceorientation', onOrient, true);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);
+      window.removeEventListener('devicemotion', onMotion, true);
     }
-    return { start: start, stop: stop, getHeading: function () { return heading; }, getAccMsg: function () { return accMsg; },
+    return { start: start, stop: stop, getHeading: function () { return heading; }, getAbs: function () { return hasAbsolute; },
+             getAccMsg: function () { return accMsg; },
              getLv: function () { return { heng: lvHeng, shu: lvShu }; } };
   }
 
