@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z383">
+<link rel="stylesheet" href="assets/style.css?v=z386">
 
 </head>
 <body>
@@ -298,12 +298,12 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=20260927a"></script>
-<script defer src="assets/latlng.js?v=20261004a"></script>
+<script defer src="assets/latlng.js?v=20261004b"></script>
 <script defer src="assets/app.js?v=20261004a"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
-<script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/fs-luo.js?v=20260923c"></script>
+<script defer src="assets/fengshui-engine.js?v=20261004b"></script>
+<script defer src="assets/fs-luo.js?v=20261004e"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
 <script defer src="assets/bazi-data.js?v=20260928d"></script>
 <script defer src="assets/bazi-rel.js?v=20260920c"></script>
@@ -312,9 +312,9 @@
 <script>
 /* 罗经立向盘（三盘三针）骨架 528：圈数多于他盘（周天刻度、正兼向度数带、三盘三针三环、
    百二十分金共六层），440 骨架可用径向仅 104 单位而六层按站内层宽需 183 单位，装不下，
-   故另立一套，见规范第七节。骨架常量、取角、盘面绘制与点选三件套走共享件 assets/fs-luo.js
+   故另立一套。骨架常量、取角、盘面绘制与点选三件套走共享件 assets/fs-luo.js
    （FS_LUO），两页同源，改一处两页同改；径向分配与盘心包围盒反推的过程见该件头注。
-   本盘是规范第七条登记之外的独立骨架，复检时不得回改 440 那套。 */
+   本盘为 528 独立骨架，与站点通用 440 骨架并存，两套各依其页，不互改。 */
 /* 支 z 的方位与周天区间：方位名走 ZHI_FANG_Y，度数取支心前后各十五度，与盘面角同源。
    太岁方位煞盘与仙命禄马贵人方位盘共用此串，方位与度数两处口径一致，不各写一遍。
    方位名是本页页内常量，故本式留本页；盘面角走共享件的 fwZhiDeg。 */
@@ -813,7 +813,7 @@ function fsPickXk(i){
 }
 /* 罗经立向盘（三盘三针，含实测坐度判定）：盘面之外的文字一律收在盘下详情条一处。
    盘上不加图注：三针各主何事与用事口径都是定则，写在盘上会与盘下重出一遍；
-   站内也不容页面自造图注件（规范第二十五条），故定则与随点选走的数据同出一处。 */
+   盘上不自造图注件，定则与随点选走的数据同出一处。 */
 function drawShan(){
   const b=getBase(), shan=b.sitShan, y=b.flowYear;
   const s=FS.shanInfo(shan,y,b.deg);

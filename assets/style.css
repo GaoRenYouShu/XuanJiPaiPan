@@ -234,7 +234,7 @@ select option{font-family:inherit}
    七、验收三条（须同时满足）：
    ① 两侧余量 ≥ 2px；② 两侧余量差 ≤ 1px；③ 左右间距落在 14 至 16px 档内。下拉族只验①。
    ===== */
-/* 姓名学联名模式“适用对象”下拉：按顶层规范第二段第 8 条取 130px。
+/* 姓名学联名模式“适用对象”下拉：取 130px。
    该项文案为 龙凤胎（男先）与 龙凤胎（女先），最长选项文字墨迹 81.83px；
    130px 下自文字右缘到原生箭头尚余 17.5px（DSF6 像素扫描实测），故不随最长选项自然定宽。
    同行的联名法下拉不随同收窄：其最长选项 拆字合名（单字名）在 130px 下被切，仍取自然宽 163px。 */
@@ -252,7 +252,7 @@ select option{font-family:inherit}
 .form-row .field{flex:0 0 auto;width:auto;min-width:70px}
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 .form-row .field.field-off{display:none}
-/* 日期文本输入：宽 96px 按顶层规范第 1 条，去除浏览器 size=20 默认内在宽度带来的右侧空白 */
+/* 日期文本输入：宽 96px，去除浏览器 size=20 默认内在宽度带来的右侧空白 */
 .form-row .field input[type="text"].dt-input{width:96px}
 /* 万年历等日历页：字段固定155px；日期框按内容自适应（96px，见上条 .dt-input），其余 input 随字段铺满 */
 .cal-page .form-row .field{flex:0 0 auto;width:155px}
@@ -714,7 +714,7 @@ footer .ref a:hover{color:var(--red)}
 /* 勾选框回原生尺寸：排除 .field input 的 30px 等高与内距，与"真太阳时校正"同款 13×13 */
 .field.chk input{width:auto;height:auto;padding:0}
 /* 勾选块随主体色：原生复选框的填充与勾一律取本页主色。各页的 --gold 已在主题段重指到本页
-   主色族（规范 1.3），故此处一条通配即覆盖全站，页面段不必逐页再写 accent-color */
+   主色族一处定源，故此处一条通配即覆盖全站，页面段不必逐页再写 accent-color */
 input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
 /* info-box 内 .info-box p{color:var(--ink)} 特异性(0,1,1)高于 .sub-note(0,1,0)，此处提级保证补充说明浅色不被覆盖 */
@@ -1024,7 +1024,7 @@ table.yun-tbl.rel-matrix td .rel{margin-right:0}
 .modal-mask.show{display:flex}
 .modal{background:var(--card);max-width:440px;width:100%;border-radius:0;border:2px solid var(--gold);box-shadow:0 10px 40px rgba(0,0,0,.3);padding:var(--sp-5);position:relative;max-height:80vh;overflow:auto}
 /* 说明弹窗（点击文字弹出的说明、历史、宫位详情）边框取本页主体色：dtm-* 由 app.js 依页面主题类附加，
-   弹窗挂 body 下、不在页容器内，故不能用页类后代选择器归一；此处只改 border-color，保留 .modal 的 2px 宽度。
+   弹窗挂 body 下、不在页容器内，页类后代选择器罩不到；此处只改 border-color，保留 .modal 的 2px 宽度。
    .modal.ai-cfg（后出，border:0）与 .dt-modal（后出，1px 主题细线）各自覆盖，不受本行影响。 */
 .modal[class*="dtm-"]{border-color:var(--tk)}
 .modal .close{position:absolute;top:10px;right:14px;font-size:22px;cursor:pointer;color:var(--ink2)}
@@ -1047,9 +1047,9 @@ input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
 .dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
 .field .dt-wrap{width:100%}
 .dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
-/* 日期框：定宽 96px，按顶层规范第二段（内容 + 左右间距 + 边框） */
+/* 日期框：定宽 96px（容 yyyy-mm-dd 内容与左右间距、边框） */
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
-/* 时间框：定宽 72px，按顶层规范第二段（HH:MM 内容 + 左右间距 + 边框） */
+/* 时间框：定宽 72px（容 HH:MM 内容与左右间距、边框） */
 .dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
 /* 日期与时间框内文字居中：框宽按内容定，居中使两侧留白恒等 */
 input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
@@ -1171,7 +1171,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 .cal-cell.zhai{background:transparent}
 
 /* 附加功能面板（页尾收束件）：低频工具区，默认收起成一行，上下细线夹出，
-   下边线承担内容到免责声明之间的收束。题名与状态字同取注文级 12px（规范四之 9），
+   下边线承担内容到免责声明之间的收束。题名与状态字同取注文级 12px，
    形制全站在此定终值，页面段只写线色与题色。 */
 .ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
 .ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
@@ -1367,7 +1367,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 
 /* ═══ AI 配置弹窗（多模型管理）：墨黑头部、朱砂题签、分节编号 ═══ */
 /* 定边靠墨黑头部与深投影，不设描边：浅描边夹在墨头与暗遮罩之间会读成一道白线框 */
-/* 弹窗强调色：按类归一。弹窗由 ai.js 挂到 body 下，不在 .page 内，页面主体色不可继承，
+/* 弹窗强调色：按类各归各条。弹窗由 ai.js 挂到 body 下，不在 .page 内，页面主体色不可继承，
    故在本类上声明一支弹窗自己的强调色，全弹窗只此一处定义，其余规则一律引用。 */
 .modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
   max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
@@ -1513,7 +1513,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   .dyn-block{margin:var(--sp-2) 0;gap:var(--sp-1);align-items:stretch}
   .dyn-label{font-size:12px;font-weight:700;color:var(--gold2);background:transparent;border:none;padding:0;margin:0;writing-mode:horizontal-tb;letter-spacing:0}
   .dyn-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:var(--sp-1);gap:var(--sp-1);align-items:stretch}
-  /* 逐行按类归一，不按行 id 列举：dyn-row 内任何按钮行（大运/流年/小运/流月）都同口径，新增行不必再登记 */
+  /* 逐行按类同规，不按行 id 列举：dyn-row 内任何按钮行（大运/流年/小运/流月）都同口径，新增行不必再登记 */
   .dyn-row .dyn-btn{min-width:38px;padding:var(--sp-1) var(--sp-1);font-size:11px;border-radius:0;gap:0}
   .dyn-row .dyn-btn .g{font-size:11px;letter-spacing:0;white-space:nowrap}
   .dyn-row .dyn-btn .dy-top{font-size:9px}
@@ -2409,7 +2409,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:4em !important
   --line:var(--dao-line);--ink:var(--dao-ink)
 }
 
-/* ============ 全站统一（全站生效，各页勿再逐处重复定义） ============ */
+/* ============ 全站控件定宽（全站生效，各页勿再逐处重复定义） ============ */
 /* 1) 表格与说明卡内所有黑色加粗强调（<b>/<strong>）一律不加粗、统一暗金色 */
 table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic strong,.house-box b{font-weight:400;color:var(--gold2)}
 /* 2) 页面可见文案严禁使用全角竖线（U+FF5C）与斜杠作分隔符，新增文案一律用顿号、分号或括号替代 */
@@ -2506,7 +2506,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   --bz-serif:var(--font-serif);
 
   /* 全站中性次级字色 --ink2 在本页一并落到松族灰：表单标签、模块副标题、图例等共享件
-     都挂这一档，不在此归一就会在松青页上混进一支冷灰 */
+     都挂这一档，不在此统一定色就会在松青页上混进一支冷灰 */
   --ink2:var(--bz-ink2);
 
   /* 全站强调令牌在本页一律落到松青族：表格加粗、折叠框标题、圆盘字色、
@@ -2705,7 +2705,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   --line:var(--nm-line);--ink:var(--nm-ink)
 }
 
-/* 页头：标题上下各一条本页浅线夹题，卷首说明居中宽字距、下一道竖线收束（规范第三条，七页同式） */
+/* 页头：标题上下各一条本页浅线夹题，卷首说明居中宽字距、下一道竖线收束（七页同式） */
 .page-nm .page h1{color:var(--nm-deep);font-family:var(--nm-serif);font-size:23px;
   letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
 .page-nm .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--nm-line);margin:0 auto var(--sp-3)}
@@ -2717,7 +2717,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-nm .ly-zh-p{color:var(--nm-ink)}
 .page-nm .sub-note{color:var(--nm-ink2)}
 .page-nm .mh-method{color:var(--nm-ink2)}
-/* 注记与提示：上下各一条细线夹出、透明底（规范第二条收束件，八字、择日两页同式） */
+/* 注记与提示：上下各一条细线夹出、透明底（八字、择日两页同式） */
 .page-nm .notice{color:var(--nm-ink);border:0;border-top:1px solid var(--nm-line);border-bottom:1px solid var(--nm-line);background:transparent;border-radius:0}
 
 /* 表单与出生信息组 */
@@ -2753,7 +2753,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-nm .nm-lead{background:transparent;border-top:1px solid var(--nm-line);border-radius:0;padding:var(--sp-2) 0;margin:0 0 var(--sp-3)}
 .page-nm .nm-lead .ly-zh-p{margin:0}
 
-/* 表格：铺满容器、合并边框、字号取 13px 档；表头与行标签同取本页纸淡底（规范第八条） */
+/* 表格：铺满容器、合并边框、字号取 13px 档；表头与行标签同取本页纸淡底 */
 .page-nm .xlr-table{width:100%;max-width:100%;border-collapse:collapse;font-size:13px}
 .page-nm .xlr-table th,.page-nm .xlr-table td{border:1px solid var(--nm-line);padding:6px 9px;text-align:left;vertical-align:top;font-weight:400}
 .page-nm .xlr-table th{background:var(--nm-tint);color:var(--nm2);white-space:nowrap;text-align:center}
@@ -2770,12 +2770,12 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-nm .mh-ref th{background:var(--nm-tint);color:var(--nm-deep);font-weight:400}
 .page-nm .mh-ref td{background:transparent;color:var(--nm-ink)}
 
-/* 数格（lr-ke）：并列条目卡只画一条上线，不留底色与投影（规范第二条，铁板条文九类同式）；
+/* 数格（lr-ke）：并列条目卡只画一条上线，不留底色与投影（铁板条文九类同式）；
    卡内 .lr-ke-d 的上线承担"字"与"笔画"之间的分隔，两线相距远超 12px，不叠成重线 */
 .page-nm .lr-ke{background:transparent;border:0;border-top:1px solid var(--nm-line);border-radius:0;box-shadow:none}
 /* 悬停淡底取本页浅色系令牌 --gold-bg（本页已重指 --nm-tint），不引全局纸色与纯白 */
 .page-nm .lr-ke:hover{background:var(--gold-bg)}
-/* 三运三行：去白瓷与投影，只留顶线、末条补底线（规范第二条：线只画一条；
+/* 三运三行：去白瓷与投影，只留顶线、末条补底线（线只画一条；
    行距由 padding 承担，相邻线距不小于 12px） */
 .page-nm .nm-chuans{gap:0;max-width:none}
 .page-nm .nm-chuans .lr-chuan{background:transparent;border:0;border-top:1px solid var(--nm-line);
@@ -2783,7 +2783,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-nm .nm-chuans .lr-chuan:last-child{border-bottom:1px solid var(--nm-line)}
 .page-nm .nm-chuans .lr-chuan:hover{background:var(--nm-tint)}
 /* 取数卡按框宽等分铺满，长名模式取数卡较多时换行；卡间列距 16px、
-   行距 12px（不小于规范第二条的相邻平行线最小间距），使各卡的上线读作分栏而非断线 */
+   行距 12px（不小于相邻平行线最小间距），使各卡的上线读作分栏而非断线 */
 .page-nm .mod-body .lr-kes{gap:var(--sp-3) var(--sp-4);justify-content:stretch;flex-wrap:wrap}
 .page-nm .mod-body .lr-kes .lr-ke{flex:1 1 0;min-width:0}
 /* 取数卡主字：通用件取全站墨色，本页须落回页内色族，否则整片卡主字为页外黑 */
@@ -2794,7 +2794,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 吉凶档字色走站内 .luck-吉/.luck-凶 体系，此处不得覆盖（吉绿/凶红） */
 
 /* 标签与高亮：标签随通用件 .zr-tag 的形态（无框无底），只取本页色
-   （规范第二条：底能去则去；纯白不作卡内标签底） */
+   （底能去则去；纯白不作卡内标签底） */
 .page-nm .zr-tag{color:var(--nm-ink)}
 .page-nm .zr-tag.nm-tag{color:var(--nm2)}
 .page-nm .zr-tag.nm-tag-soft{color:var(--nm2)}
@@ -2810,7 +2810,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 单盘居整行（通用件 .wheel-wheels 是两列网格，本页只有一张六维盘） */
 .page-nm .wheel-wheels{margin-top:var(--sp-3);padding-top:var(--sp-3)}
 
-/* 附加功能面板：上下细线夹出、透明底（规范第四节第 9 组，与合婚页同口径） */
+/* 附加功能面板：上下细线夹出、透明底（与合婚页同口径） */
 .page-nm .ai-block{border:0;border-top:1px solid var(--nm-line);border-bottom:1px solid var(--nm-line);border-radius:0;background:transparent;color:var(--nm-ink);box-shadow:none}
 .page-nm .ai-head{background:transparent;border-bottom-color:var(--nm-line)}
 .page-nm .ai-head h3{color:var(--nm2);font-family:var(--nm-serif);font-weight:400}
@@ -2861,7 +2861,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 页内显隐与辅助行：JS 只切换 nm-hide 类，样式单一来源在此 */
 .page-nm .nm-hide{display:none}
 .page-nm .nm-shu-line{font-size:13px}
-/* 典出标记：只以主体色小字标出，不单独画框（规范第二条：并列小件不逐件加框） */
+/* 典出标记：只以主体色小字标出，不单独画框（并列小件不逐件加框） */
 .page-nm .nm-word-jd{display:inline-block;padding:1px var(--sp-1);border:0;font-size:12px;color:var(--nm2)}
 .page-nm .nm-heat-p{font-size:12px;color:var(--red2)}
 .page-nm .nm-pager{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);margin-top:var(--sp-3)}
@@ -2908,7 +2908,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .page-nm #fGenWx{max-width:none}
 /* 起名推荐卡：网格铺排，卡面沿用站内卡底与线色 */
 .page-nm .nm-gen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:var(--sp-3) var(--sp-4);margin-top:var(--sp-4)}
-/* 起名推荐卡：网格并列条目卡，每卡只画一条上线（规范第二条，铁板条文九类同式），
+/* 起名推荐卡：网格并列条目卡，每卡只画一条上线（铁板条文九类同式），
    底色与投影一律不留；卡内字义块与两名小框改取淡底实色块分组 */
 .page-nm .nm-gen-card{border:0;border-top:1px solid var(--nm-line);border-radius:0;background:transparent;padding:var(--sp-2) 0;display:flex;flex-direction:column;gap:var(--sp-1)}
 .page-nm .nm-gen-top{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-1)}
@@ -4051,7 +4051,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 顶部控件按内容自适应：.field 是 flex 列容器，子控件默认被拉伸到字段宽，故以 align-self:flex-start 回到内容宽。 select 取最长选项宽（width:auto 即浏览器自适应）；姓名、农历年为文本/数字框，width:auto 会回落浏览器默认 size=20 约 170px，故按内容显式定宽（姓名 96px 与全站日期框同口径、农历年 76px 为四位数年份＋数字步进器的最小不裁切宽）。 */
 .page-bazi .bazi-top .field#fName input{width:96px;align-self:flex-start}
 .page-bazi .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
-/* 出生时间：宽度由全站统一统一（72px），字段收缩后不另定宽 */
+/* 出生时间：全站统一宽 72px，字段收缩后不另定宽 */
 /* 农历模式（桌面）：8 项贴内容自适应占一排（flex:0 0 auto），不拥挤； 闰月勾选框复用 .field.chk 现成样式（与"真太阳时校正"同款），不设固定宽 */
 .mode-lunar:where(.bz-root) .bazi-top{flex-wrap:nowrap}
 .mode-lunar:where(.bz-root) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0;margin:0}
@@ -4069,7 +4069,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 @media(min-width:641px) and (max-width:970px){
   .mode-lunar:where(.bz-root) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end}
   .mode-lunar:where(.bz-root) .bazi-top .field{flex:0 0 auto;min-width:0;max-width:none}
-  /* 出生时间图标布局：图标与输入框同行；输入框宽度由全站统一统一定 72px */
+  /* 出生时间图标布局：图标与输入框同行；输入框全站统一宽 72px */
   .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
 }
 /* 四柱模式布局（电脑端）：bazi-flow 与其内三层包裹、检索跨度组一律转 display:contents，
@@ -4118,7 +4118,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .mode-pillar:where(.bz-root) .bazi-flow .span-field,
   .mode-pillar:where(.bz-root) .bazi-flow .span-years,
   .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn{grid-column:span 2}
-  /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间见全站统一 72） */
+  /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
   .mode-date:where(.bz-root) .bazi-top,.mode-lunar:where(.bz-root) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2)}
   /* 已存模式（body 无模式类）同入流式：顶部行与公历/农历同口径，两框之间不留空档 */
   .mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
@@ -4130,7 +4130,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
   .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
   /* 农历窄屏压缩定宽：内容均两字，缩框使 农历年+农历月+闰月+农历日+出生时间 能并入两排
-     （行1 输入方式72/性别55/姓名96/农历年76；行2 农历月72/闰月43/农历日68/出生时间112，时间框 72px 由全站统一定） */
+     （行1 输入方式72/性别55/姓名96/农历年76；行2 农历月72/闰月43/农历日68/出生时间112，时间框 72px 全站统一） */
   .mode-lunar:where(.bz-root) .bazi-top .field#cMode select{width:72px}
   .mode-lunar:where(.bz-root) .bazi-top .field#cSex select{width:55px}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarM select{width:72px}
@@ -4378,7 +4378,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* ===== 页级样式：cezi（page-cz）===== */
 /* 检索行：下边距收至 8px，与铁板、皇极等排盘页同款节奏 */
 .page-cz .page > .form-row{margin-bottom:var(--sp-2)}
-.page-cz .page h1{color:var(--cz-deep);font-family:var(--cz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-cz .page h1{color:var(--cz-deep);font-family:var(--cz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-cz .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--cz-line);margin:0 auto var(--sp-3)}
 .page-cz .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--cz-line);margin:var(--sp-3) auto 0}
 .page-cz .page .lead::after{background:var(--cz-line)}
@@ -4526,7 +4526,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 
 .page-dlr .mod-head{border-top-color:var(--dlr-line);border-bottom-color:var(--dlr-line)}
-.page-dlr .page h1{color:var(--dlr-deep);font-family:var(--dlr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-dlr .page h1{color:var(--dlr-deep);font-family:var(--dlr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-dlr .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--dlr-line);margin:0 auto var(--sp-3)}
 .page-dlr .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--dlr-line);margin:var(--sp-3) auto 0}
 .page-dlr .page .lead::after{background:var(--dlr-line)}
@@ -5009,7 +5009,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 
 
-.page-fs .page h1{color:var(--fs-deep);font-family:var(--fs-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-fs .page h1{color:var(--fs-deep);font-family:var(--fs-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-fs .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--fs-line);margin:0 auto var(--sp-3)}
 .page-fs .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--fs-line);margin:var(--sp-3) auto 0}
 .page-fs .page .lead::after{background:var(--fs-line)}
@@ -5024,7 +5024,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-fs .field label{color:var(--fs2);font-weight:400}
 .page-fs .field input,.page-fs .field select{border-color:var(--fs-line);background:var(--card);color:var(--fs-deep)}
 /* 聚焦态不限定 .field 祖先：本页控件有落在 .field 内的，也有直接落在行内的（形煞自检、金锁玉关等处），
-   一律在此归一，凡聚焦只改边色、不出外环 */
+   一律归此条统管，凡聚焦只改边色、不出外环 */
 .page-fs input:focus,.page-fs select:focus,.page-fs textarea:focus{border-color:var(--fs);outline:none}
 
 /* 主按钮：罗盘黛蓝实底 + 柔和投影；次按钮罗针金 */
@@ -5048,7 +5048,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* AI 面板状态字与提示：全站共享件，通用段取 --ink2，本页取本页次级字色，与页内其余次级文本同源 */
 .page-fs .ai-head .ai-status{color:var(--fs-ink2)}
 .page-fs .ai-tip{color:var(--fs-ink2)}
-/* 模块副标题：通用段取 --ink2，本页以本页次级字色归一，与页内其余次级文本同源 */
+/* 模块副标题：通用段取 --ink2，本页以本页次级字色覆写，与页内其余次级文本同源 */
 .page-fs .mod-sub{color:var(--fs-ink2)}
 .page-fs .ai-block .btn{background:var(--fs);color:#fff;box-shadow:none}
 .page-fs .ai-block .btn:hover{background:var(--fs2)}
@@ -5254,7 +5254,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 
 
-.page-fy .page h1{color:var(--fy-deep);font-family:var(--fy-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-fy .page h1{color:var(--fy-deep);font-family:var(--fy-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-fy .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--fy-line);margin:0 auto var(--sp-3)}
 .page-fy .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--fy-line);margin:var(--sp-3) auto 0}
 .page-fy .page .lead::after{background:var(--fy-line)}
@@ -5279,7 +5279,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 .page-fy .field label{color:var(--fy2);font-weight:400}
 .page-fy .field input,.page-fy .field select{border-color:var(--fy-line);background:var(--card);color:var(--fy-deep)}
-/* 聚焦态不限定 .field 祖先：峦头自检等处的下拉直接落在行内，一并在此归一 */
+/* 聚焦态不限定 .field 祖先：峦头自检等处的下拉直接落在行内，一并归此条统管 */
 .page-fy input:focus,.page-fy select:focus,.page-fy textarea:focus{border-color:var(--fy);outline:none}
 
 /* 主按钮：玄壤墨青实底 + 柔和投影；配置模型碑石银 */
@@ -5924,7 +5924,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-hj .hj-nav .btn{padding:0 12px;font-size:12.5px}
 
 /* 本页年份框（年份直达、年份互查、起年、讫年、八字联动出生年）：最长内容按本页年份口径取六位数字，
-   内容宽 43.45px，按内容宽加 54px 得 97.45px，取 96px，左右余量 13.27px 至 15.27px，落全站统一七验收档内；
+   内容宽 43.45px，按内容宽加 54px 得 97.45px，取 96px，左右余量 13.27px 至 15.27px；
    年份直达框的占位提示 2026前2357 实测 70.89px，96px 下内容区 74px 容得下。
    关键词检索框属规则六整行族，走共享件 .jw-search 与 .jw-input（flex:1、min-width:0），本页不给宽度 */
 .page-hj #yInput,.page-hj #hjLookQ,.page-hj #hjSpanA,.page-hj #hjSpanB,.page-hj #hjBzYear{width:96px}
@@ -6275,7 +6275,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 
 
-.page-ln .page h1{color:var(--ln-deep);font-family:var(--ln-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-ln .page h1{color:var(--ln-deep);font-family:var(--ln-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-ln .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ln-line);margin:0 auto var(--sp-3)}
 .page-ln .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ln-line);margin:var(--sp-3) auto 0}
 .page-ln .page .lead::after{background:var(--ln-line)}
@@ -6490,7 +6490,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-ly .ly-chk-native{width:auto;height:auto}
 .page-ly .ly-zi-field{flex:0 0 auto;min-width:0;margin:0}
 .page-ly .ly-multi-label{font-size:var(--tier4);display:inline-flex;align-items:center;gap:var(--sp-1);margin:0;cursor:pointer}
-/* 历史记录弹层挂 body，不在 .page-ly 内，样式与令牌一律归一在弹层自身类上，主色取 dtm-ly 主题令牌 */
+/* 历史记录弹层挂 body，不在 .page-ly 内，样式与令牌一律落在弹层自身类上，主色取 dtm-ly 主题令牌 */
 .modal.ly-hist-modal{max-width:560px}
 .modal.ly-hist-modal .ly-hist-empty{padding:var(--sp-3);color:var(--tk-ink,var(--ink2));font-size:var(--tier4);text-align:center}
 .modal.ly-hist-modal .ly-hist-foot{margin-top:var(--sp-2);font-size:var(--tier4);color:#999}
@@ -6646,7 +6646,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 
 
 
-.page-ly .page h1{color:var(--ly-deep);font-family:var(--ly-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-ly .page h1{color:var(--ly-deep);font-family:var(--ly-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-ly .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ly-line);margin:0 auto var(--sp-3)}
 .page-ly .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ly-line);margin:var(--sp-3) auto 0}
 .page-ly .page .lead{color:var(--ly-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
@@ -6740,7 +6740,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 .page-mh .mh-multi-label{font-size:var(--tier4);display:inline-flex;align-items:center;gap:var(--sp-1);margin:0;cursor:pointer}
 .page-mh .mh-true-tip{font-size:var(--tier4);color:var(--mh-ink2)}
 .page-mh .mh-yao-sub{font-size:var(--tier4);color:var(--mh-ink2);margin-top:var(--sp-1)}
-/* 历史记录弹层挂 body，不在 .page-mh 内，样式归一在弹层自身类上 */
+/* 历史记录弹层挂 body，不在 .page-mh 内，样式落在弹层自身类上 */
 .modal.mh-hist-modal .mh-hist-empty{padding:var(--sp-3);color:var(--tk-ink,var(--ink2));font-size:var(--tier4);text-align:center}
 .modal.mh-hist-modal .mh-hist-row{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-1) 0;border-bottom:1px solid var(--tk-line,var(--line))}
 .modal.mh-hist-modal .mh-hist-row .mh-hist-t{flex:1;font-size:var(--tier4)}
@@ -6848,7 +6848,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 
 
 
-.page-mh .page h1{color:var(--mh-deep);font-family:var(--mh-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-mh .page h1{color:var(--mh-deep);font-family:var(--mh-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-mh .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--mh-line);margin:0 auto var(--sp-3)}
 .page-mh .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--mh-line);margin:var(--sp-3) auto 0}
 .page-mh .page .lead::after{background:var(--mh-line)}
@@ -6907,7 +6907,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 
 /* ===== 页级样式：minsu（page-ms）===== */
 
-.page-ms .page h1{color:var(--ms-deep);font-family:var(--ms-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-ms .page h1{color:var(--ms-deep);font-family:var(--ms-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-ms .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ms-line);margin:0 auto var(--sp-3)}
 .page-ms .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ms-line);margin:var(--sp-3) auto 0}
 .page-ms .page .lead::after{background:var(--ms-line)}
@@ -7184,7 +7184,7 @@ to{opacity:1;transform:none}}
 /* 宫格联动高亮：点击弹层时选中宫描边、其余降虚 */
 .page-qm .qi-cell.qi-sel{border-color:var(--qm)}
 .page-qm .qi-cell.qi-dim{opacity:.5}
-/* 宫位详情弹层挂到 body，不在 .page-qm 容器内，页级后代选择器永不匹配，令牌与版式一律归一在弹层自身类上 */
+/* 宫位详情弹层挂到 body，不在 .page-qm 容器内，页级后代选择器永不匹配，令牌与版式一律落在弹层自身类上 */
 .modal.qi-gong-modal{max-width:460px;
   --qm2:#213b45;--qm-ink:#33424a;--qm-line:#ccd9dc;--qm-ink2:#4f656d}
 /* 头部：宫名宋体主体色，方位与五行次级，徽章行靠右；右留一档间距给关闭 × */
@@ -7286,7 +7286,7 @@ to{opacity:1;transform:none}}
 .page-qm .gua-ico{background:transparent;border:0;color:var(--qm2)}
 
 .page-qm .mod-head{border-top-color:var(--qm-line);border-bottom-color:var(--qm-line)}
-.page-qm .page h1{color:var(--qm-deep);font-family:var(--qm-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-qm .page h1{color:var(--qm-deep);font-family:var(--qm-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-qm .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--qm-line);margin:0 auto var(--sp-3)}
 .page-qm .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--qm-line);margin:var(--sp-3) auto 0}
 .page-qm .page .lead::after{background:var(--qm-line)}
@@ -7451,7 +7451,7 @@ to{opacity:1;transform:none}}
 
 
 
-.page-qz .page h1{color:var(--qz-deep);font-family:var(--qz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-qz .page h1{color:var(--qz-deep);font-family:var(--qz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-qz .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--qz-line);margin:0 auto var(--sp-3)}
 .page-qz .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--qz-line);margin:var(--sp-3) auto 0}
 .page-qz .page .lead::after{background:var(--qz-line)}
@@ -7665,7 +7665,7 @@ to{opacity:1;transform:none}}
 
 
 
-.page-ts .page h1{color:var(--ts-deep);font-family:var(--ts-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-ts .page h1{color:var(--ts-deep);font-family:var(--ts-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-ts .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ts-line);margin:0 auto var(--sp-3)}
 .page-ts .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ts-line);margin:var(--sp-3) auto 0}
 .page-ts .page .lead::after{background:var(--ts-line)}
@@ -7912,7 +7912,7 @@ to{opacity:1;transform:none}}
 .page-ty .ty-16c i{display:block;color:var(--ty2);font-style:normal;font-size:11px;margin-top:2px}
 
 .page-ty .mod-head{border-top-color:var(--ty-line);border-bottom-color:var(--ty-line)}
-.page-ty .page h1{color:var(--ty-deep);font-family:var(--ty-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-ty .page h1{color:var(--ty-deep);font-family:var(--ty-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-ty .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ty-line);margin:0 auto var(--sp-3)}
 .page-ty .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ty-line);margin:var(--sp-3) auto 0}
 .page-ty .page .lead::after{background:var(--ty-line)}
@@ -8144,7 +8144,7 @@ to{opacity:1;transform:none}}
 
 
 
-.page-tr .page h1{color:var(--tr-deep);font-family:var(--tr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-tr .page h1{color:var(--tr-deep);font-family:var(--tr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-tr .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--tr-line);margin:0 auto var(--sp-3)}
 .page-tr .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--tr-line);margin:var(--sp-3) auto 0}
 .page-tr .page .lead::after{background:var(--tr-line)}
@@ -8630,7 +8630,7 @@ to{opacity:1;transform:none}}
 .page-xlr .xlr-math code{background:var(--xlr-tint);padding:1px var(--sp-1);border-radius:0;color:var(--red2);font-weight:700}
 .page-xlr .xlr-note{font-size:12px;color:var(--xlr-ink2);margin-top:var(--sp-1)}
 
-.page-xlr .page h1{color:var(--xlr-deep);font-family:var(--xlr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-xlr .page h1{color:var(--xlr-deep);font-family:var(--xlr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-xlr .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--xlr-line);margin:0 auto var(--sp-3)}
 .page-xlr .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--xlr-line);margin:var(--sp-3) auto 0}
 .page-xlr .page .lead::after{background:var(--xlr-line)}
@@ -8685,7 +8685,7 @@ to{opacity:1;transform:none}}
 .page-xx .xx-tbl:has(tr>*:nth-child(3)){min-width:560px}
 /* 检索行：下边距收至 8px，与铁板、皇极等排盘页同款节奏 */
 .page-xx .mod .form-row{margin-bottom:var(--sp-2)}
-.page-xx .page h1{color:var(--xx-deep);font-family:var(--xx-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-xx .page h1{color:var(--xx-deep);font-family:var(--xx-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-xx .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--xx-line);margin:0 auto var(--sp-3)}
 .page-xx .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--xx-line);margin:var(--sp-3) auto 0}
 .page-xx .page .lead::after{background:var(--xx-line)}
@@ -8705,9 +8705,9 @@ to{opacity:1;transform:none}}
 .page-xx .btn:hover,.page-xx .btn.gold:hover{background:var(--xx2);border-color:var(--xx2);color:#fff;box-shadow:none}
 
 /* ── 本页私有件：宿位表、结果卡、标签徽标、示意星图 ──
-   原先分作三处（主题段、通用段、页级段）且无页类权重，现按规范第十一条并入本段，一律带 .page-xx 实权重。
+   本段样式一律带 .page-xx 实权重，压过主题段与通用段的同名低权规则。
    四象与吉凶的语义色块按第 1.4 条保留，只收字号、间距与键列定宽。 */
-/* 宿位表：一条通配淡染（规范第八条），首列与表头居中，长文列给最小宽由 .xx-tbl-wrap 横滚兜底 */
+/* 宿位表：一条通配淡染，首列与表头居中，长文列给最小宽由 .xx-tbl-wrap 横滚兜底 */
 .page-xx .xx-tbl-wrap{margin-top:var(--sp-2);overflow-x:auto}
 .page-xx .xx-tbl{width:100%;border-collapse:collapse;font-size:var(--tier3);line-height:1.7}
 .page-xx .xx-tbl th,.page-xx .xx-tbl td{border:1px solid var(--xx-line);padding:6px 9px;vertical-align:top;text-align:left;color:var(--xx-ink)}
@@ -8722,7 +8722,7 @@ to{opacity:1;transform:none}}
 .page-xx .xx-tbl .xx-yi{color:var(--green)}
 .page-xx .xx-tbl .xx-ji{color:var(--red)}
 .page-xx .xx-fold .xx-tbl-wrap{margin-top:var(--sp-2)}
-/* 日期字段按内容定宽：定死 170px 会比内容所需的 135px 多出一段空白，图标右缘不贴边（规范 0.5） */
+/* 日期字段按内容定宽：定死 170px 会比内容所需的 135px 多出一段空白，图标右缘不贴边 */
 .page-xx .xx-field-date{flex:0 0 auto}
 /* 标签徽标：吉凶与四象为语义色，保留色块；字重统一 400，与页内加粗收敛同口径 */
 .page-xx .xx-tag{display:inline-block;padding:1px var(--sp-2);border-radius:0;font-size:12px;line-height:1.6;vertical-align:middle;font-weight:400}
@@ -8972,7 +8972,7 @@ to{opacity:1;transform:none}}
 
 
 
-.page-xz .page h1{color:var(--xz-deep);font-family:var(--xz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+.page-xz .page h1{color:var(--xz-deep);font-family:var(--xz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
 .page-xz .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--xz-line);margin:0 auto var(--sp-3)}
 .page-xz .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--xz-line);margin:var(--sp-3) auto 0}
 .page-xz .page .lead::after{background:var(--xz-line)}
@@ -9293,7 +9293,7 @@ to{opacity:1;transform:none}}
 .zg-poem{font-family:var(--font);font-size:var(--tier2);line-height:1.9;text-align:center;color:var(--zg2);background:transparent;border:0;border-top:1px solid var(--zg-line);border-radius:0;box-shadow:none;padding:var(--sp-3) 0;margin:var(--sp-4) 0 var(--sp-3)}
 .zg-search{display:flex;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-2)}
 .page-zg .zg-search input{flex:1;min-width:0;height:30px;padding:0 12px;font-size:var(--tier4);line-height:1.35;box-sizing:border-box;border-width:1px;border-style:solid;border-radius:0;background:var(--card);color:var(--zg-deep);transition:border-color .15s}
-/* 页内控件描边取月晕浅线（规范补 2），色由本条终值给出，宽与样式由控件自身承担 */
+/* 页内控件描边取月晕浅线，色由本条终值给出，宽与样式由控件自身承担 */
 .page-zg input,.page-zg select,.page-zg textarea{border-color:var(--zg-line)}
 .page-zg .zg-search input:focus{outline:none;border-color:var(--zg)}
 .page-zg .zg-count{font-size:var(--tier4);color:var(--zg-ink2);margin:var(--sp-2) 0 var(--sp-1)}
@@ -9883,7 +9883,7 @@ to{opacity:1;transform:none}}
 }
 
 /* ===== 页级样式：yunqi（page-yq）===== */
-/* 页头：卷首式，上下各一条 88px 细线夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+/* 页头：卷首式，上下各一条 88px 细线夹题，卷首说明末尾 26px 竖线收束 */
 .page-yq .page h1{color:var(--yq-deep);font-family:var(--yq-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
 .page-yq .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--yq-line);margin:0 auto var(--sp-3)}
 .page-yq .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--yq-line);margin:var(--sp-3) auto 0}
@@ -9954,7 +9954,7 @@ to{opacity:1;transform:none}}
 }
 
 /* ===== 页级样式：shouxiang（page-sx）===== */
-/* 页头：卷首式，上下各一条 88px 细线夹题，卷首说明末尾 26px 竖线收束（规范第三条） */
+/* 页头：卷首式，上下各一条 88px 细线夹题，卷首说明末尾 26px 竖线收束 */
 .page-sx .page h1{color:var(--sx-deep);font-family:var(--sx-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
 .page-sx .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--sx-line);margin:0 auto var(--sp-3)}
 .page-sx .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--sx-line);margin:var(--sp-3) auto 0}

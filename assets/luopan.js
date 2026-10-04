@@ -494,7 +494,7 @@
 
   /* ============================================================
      真实罗盘（realDisk）：照真实罗经形制的高保真转盘。
-     形制真源：罗经完全详解指南.md 十五层制与问真罗盘盘面实物。
+     形制依《罗经透解》十五层之制，并参坊间问真罗盘实物。
      口径：
        度数以地盘子山中心为零度向东递增；盘面角为地理度加一百八十（子山在下），
        与站内测角同源。 rings 数组即自内向外的层序：首项紧挨天池为第一层，末项抵盘沿为末层；
@@ -577,7 +577,7 @@
   /* 三盘制：移动版三元盘二十层、三合盘二十二层、三元三合综合盘二十五层。
      综合盘只收两派共有之层，一派独有者各归本盘，故层数不为两盘之并而近其半；
      窄屏一圈之地有限，层数愈多则逐层愈窄，字愈小，此为移动端之制。
-     层序照 罗经完全详解指南.md 四之二节三表。rings 数组自内向外排：
+     层序依《罗经透解》诸层由内向外之序。rings 数组自内向外排：
      天池为第一层在最内，末项为最外的大外圈；题名与详情条顺取串接，即得自天池向外之读序。 */
   const RD_RING_NAME_OF = function (mode, juKey) {
     const m = RD_SETS[mode] ? mode : 'zonghe';
@@ -587,7 +587,7 @@
       basha: '八煞黄泉', jieYao: '劫曜煞', jieSha: '八路四路劫煞线',
       diMu: '地母九星翻卦', zheng: '地盘正针二十四山',
       chuan: '穿山七十二龙', fen: '一百二十分金', zhong: '人盘中针二十四山',
-      laiGong: '赖公大五行催官诀', pingfen: '平分六十龙', tou: '透地六十龙',
+      laiGong: '赖公大五行催官诀', tou: '透地六十龙',
       feng: '天盘缝针二十四山', najia: '郭璞纳甲净阴净阳', yingsuo: '盈缩六十龙',
       hongfan: '洪范双山五行', changsheng: '十二长生水法', cuiGuan: '催官贵人禄马圈',
       sanyuan24: '二十四山阴阳与三般卦', zhengSanYuan: '二十四山三元盘',
@@ -637,7 +637,7 @@
     zhengSanYuan: [1, 0], laiGong: [1, 0], aixing: [1, 0], najia: [1, 0], hongfan: [1, 0],
     yunShu: [1, 0], yuanQi: [1, 0],
     sanyuan24: [2, 1], fumu: [2, 1], cuiGuan: [2, 1],
-    chuan: [2, 1], fen: [2, 1], pingfen: [2, 1], tou: [2, 1], yingsuo: [2, 1],
+    chuan: [2, 1], fen: [2, 1], tou: [2, 1], yingsuo: [2, 1],
     changsheng: [2, 1], jieqi: [2, 1], xiu: [2, 1]
   };
   /* 横排环带宽下限：单字环按字幅定下限，色块环与线环取下限之半，使余量尽归有字之环 */
@@ -648,10 +648,10 @@
   };
   /* 竖排环字格：每字一格，带宽为字数乘字格加余白，故格再密亦不相犯 */
   const RD_GAP = {
-    chuan: 25, fen: 25, pingfen: 25, tou: 25, yingsuo: 25,
+    chuan: 25, fen: 25, tou: 25, yingsuo: 25,
     changsheng: 20, jieqi: 20, sanyuan24: 20, fumu: 20, cuiGuan: 20, xiu: 22
   };
-  /* 环带半径表：本件环带唯一真源，盘面绘制与实测检测同取此表。 */
+  /* 环带半径表：本件环带唯一真源，盘面绘制与环宽核算同取此表。 */
   function rdBandsOf(mode) {
     const m = RD_SETS[mode] ? mode : 'zonghe';
     const rings = RD_SETS[m].rings;
@@ -724,7 +724,7 @@
     const p0 = rdPx(r0, deg), p1 = rdPx(r1, deg);
     return '<line x1="' + WHEEL.n(p0[0]) + '" y1="' + WHEEL.n(p0[1]) + '" x2="' + WHEEL.n(p1[0]) + '" y2="' + WHEEL.n(p1[1]) + '" class="rd-sha-line"/>';
   }
-  /* 格心角：环上逐格首尾相接，末格归一处止角小于起角（跨零度），
+  /* 格心角：环上逐格首尾相接，末格跨零度时止角小于起角，
      此时起止均值落到对面，故改按本格角宽之半加于起角，再归一周。 */
   function rdCellMid(a0, a1) { return (a0 + ((((a1 - a0) % 360) + 360) % 360) / 2) % 360; }
   function rdArc(r, a0, a1) {
@@ -907,9 +907,8 @@
     }
     /* 六十四卦卦象名环：卦画与卦名同在一格。内半为三字卦名竖排，外半为六爻卦画，
        一圈之内象与名相配。 */
-    if (has.gua64 || has.gua64Hua || has.gua64Ming) {
-      const rb = RB.gua64 || RB.gua64Ming || RB.gua64Hua;
-      const r0 = rb[0], r1 = rb[1], bw = r1 - r0;
+    if (has.gua64) {
+      const r0 = RB.gua64[0], r1 = RB.gua64[1], bw = r1 - r0;
       const nmR = r0 + bw * 0.26, y0 = r0 + bw * 0.56, y1 = r1 - bw * 0.10;
       s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
       for (let k = 0; k < 64; k++) {
@@ -924,7 +923,7 @@
       }
     }
     /* 三针三环：缝针、中针、正针，二十四山阳山红格 */
-    const needleRings = [['feng', 7.5], ['zhong', -7.5], ['zheng', 0], ['zhengSanhe', 0]];
+    const needleRings = [['feng', 7.5], ['zhong', -7.5], ['zheng', 0]];
     for (const [key, off] of needleRings) {
       if (!has[key]) continue;
       const [r0, r1] = RB[key];
@@ -993,8 +992,8 @@
        数字与黑白点图同格并列、各占全带：数在前、点图在后；白点为阳数之奇、
        黑点为阴数之偶，点数即其数。中五不在此环，居中宫盘心，故环上只布八数。
        阴阳按阳数奇阴数偶分：一三七九作朱格阳字，二四六八作素格阴字。 */
-    if (has.luoshu || has.heLuo || has.luoTu) {
-      const [r0, r1] = RB.heLuo || RB.luoTu || RB.luoshu;
+    if (has.heLuo) {
+      const [r0, r1] = RB.heLuo;
       const LUO = RD_LUOSHU;
       const POS = RD_HT_POS;
       const bw = r1 - r0, off = 10;
@@ -1034,8 +1033,8 @@
        符号与汉字同在一格并列，名在前段、画在后段，各占全带；
        卦画只占带中四成六，爻线短而爻距密，不撑满圈层。
        阴阳按说卦传父母六子分：四阳卦乾震坎艮作朱格阳字，四阴卦坤巽离兑作素格阴字。 */
-    if (has.htGua || has.htGuaEr) {
-      const [r0, r1] = has.htGua ? RB.htGua : RB.htGuaEr;
+    if (has.htGua) {
+      const [r0, r1] = RB.htGua;
       const HT = RD_HT_POS;
       const HT_YANG = RD_HT_YANG;
       const bw = r1 - r0, off = 10, nmR = (r0 + r1) / 2;
@@ -1090,11 +1089,10 @@
        与二十四山诸环同轴。 */
     if (has.jieqi) {
       const [r0, r1] = RB.jieqi;
-      const JQ = ['冬至','小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪'];
       for (let i = 0; i < 24; i++) {
         const d = i * 15;
         s += '<path d="' + rdBand(r0, r1, d - 7.5, d + 7.5) + '" class="rd-cell"/>';
-        s += rdTxtAuto((r0 + r1) / 2, d, JQ[i], 'jieqi', 24, 'rd-lab-sm');
+        s += rdTxtAuto((r0 + r1) / 2, d, JIE_QI_24[i], 'jieqi', 24, 'rd-lab-sm');
         s += '<line x1="' + WHEEL.n(rdPx(r0, d - 7.5)[0]) + '" y1="' + WHEEL.n(rdPx(r0, d - 7.5)[1]) + '" x2="' + WHEEL.n(rdPx(r1, d - 7.5)[0]) + '" y2="' + WHEEL.n(rdPx(r1, d - 7.5)[1]) + '" class="rd-grid"/>';
       }
     }
@@ -1132,24 +1130,6 @@
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + r1 + '" class="rd-ring"/>';
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + r0 + '" class="rd-ring"/>';
     }
-    /* 七百二十分金环：每山三十位、每分零点五度，六十甲子纳音循环两轮；只画格线与龟甲红线位。 */
-    if (has.fen720) {
-      const [r0, r1] = RB.fen720 || RB.fen || [758, 800];
-      s += '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      for (let n2 = 0; n2 < 720; n2++) {
-        const a0 = n2 * 0.5;
-        const jiazi = n2 % 60;
-        const gan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'][jiazi % 10];
-        const kong = (gan === '戊' || gan === '己');
-        s += '<line x1="' + WHEEL.n(rdPx(r0, a0)[0]) + '" y1="' + WHEEL.n(rdPx(r0, a0)[1]) + '" x2="' + WHEEL.n(rdPx(kong ? r0 + (r1 - r0) * 0.7 : r0 + (r1 - r0) * 0.45, a0)[0]) + '" y2="' + WHEEL.n(rdPx(kong ? r0 + (r1 - r0) * 0.7 : r0 + (r1 - r0) * 0.45, a0)[1]) + '" style="stroke:' + (kong ? 'var(--rd-red)' : 'var(--rd-grid-j)') + ';stroke-width:1"/>';
-      }
-      for (let i = 0; i < 24; i++) {
-        const d = rdShanDeg(i);
-        s += '<line x1="' + WHEEL.n(rdPx(r0, d - 7.5)[0]) + '" y1="' + WHEEL.n(rdPx(r0, d - 7.5)[1]) + '" x2="' + WHEEL.n(rdPx(r1, d - 7.5)[0]) + '" y2="' + WHEEL.n(rdPx(r1, d - 7.5)[1]) + '" class="rd-grid-j"/>';
-      }
-    }
-    /* 指南针：并入天池区（chi 环内画磁针与 NESW，即问真天池即指南针位）。 */
-    if (has.zhizhen) { /* 磁针已在 chi 分支绘制，此环只为层名单独占位。 */ }
     /* 八方方位环：八向大字顺布一圈，北字落盘面零度，与二十四山诸环同轴。 */
     if (has.bafang && RB.bafang) {
       const [r0, r1] = RB.bafang;
@@ -1161,18 +1141,6 @@
         s += rdTxtAuto((r0 + r1) / 2, z.d, z.t, 'bafang', 8, 'rd-gua-big');
         s += '<line x1="' + WHEEL.n(rdPx(r0, a0)[0]) + '" y1="' + WHEEL.n(rdPx(r0, a0)[1]) + '" x2="' + WHEEL.n(rdPx(r1, a0)[0]) + '" y2="' + WHEEL.n(rdPx(r1, a0)[1]) + '" class="rd-grid"/>';
       }
-    }
-    /* 三爻卦画环：独立环带，三爻等距等长，跨角按半径定弦长；阳爻全长、阴爻两段。 */
-    if (has.yao) {
-      const [r0, r1] = RB.yao;
-      const GUA_POS = RD_HT_POS;
-      for (const g in GUA_POS) {
-        const d = GUA_POS[g], bits = GUA_BITS[g];
-        s += rdYaoStack(r0, r1, d, bits, 'rd-yao-b', 9);
-        s += '<line x1="' + WHEEL.n(rdPx(r0, d - 22.5)[0]) + '" y1="' + WHEEL.n(rdPx(r0, d - 22.5)[1]) + '" x2="' + WHEEL.n(rdPx(r1, d - 22.5)[0]) + '" y2="' + WHEEL.n(rdPx(r1, d - 22.5)[1]) + '" class="rd-grid"/>';
-      }
-      s += '<circle cx="' + C + '" cy="' + C + '" r="' + r1 + '" class="rd-ring"/>';
-      s += '<circle cx="' + C + '" cy="' + C + '" r="' + r0 + '" class="rd-ring"/>';
     }
     /* 透地盈缩六十龙：六十龙之宽依二十八宿宿度摊派，故各龙不等宽（最大余额法配六十分），
        与平分六十龙相对：平分者等分周天，盈缩者随宿度伸缩，故名。
@@ -1288,64 +1256,6 @@
       }
       return g;
     }
-    /* 六十甲子配生年：周天六十等分，每格一甲子，自甲子起顺布。 */
-    function rdJiaZi(key) {
-      const b = RB[key]; if (!b) return '';
-      const r0 = b[0], r1 = b[1];
-      let g = '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      for (let k = 0; k < 60; k++) {
-        const a0 = k * 6, a1 = a0 + 6;
-        g += '<path d="' + rdBand(r0, r1, a0, a1) + '" class="rd-cell"/>';
-        g += rdTxtAuto((r0 + r1) / 2, a0 + 3, FS.gzAtIndex(k), key, 60, 'rd-lab-sm');
-        const e0 = rdPx(r0, a0), e1 = rdPx(r1, a0);
-        g += '<line x1="' + WHEEL.n(e0[0]) + '" y1="' + WHEEL.n(e0[1]) + '" x2="' + WHEEL.n(e1[0]) + '" y2="' + WHEEL.n(e1[1]) + '" class="rd-grid"/>';
-      }
-      return g;
-    }
-    /* 二百四十分金：每山十格、每格一点五度，正针二十四山之下。
-       格中天干以本山一百二十分金五子轮派（阳支配甲丙戊庚壬、阴支配乙丁己辛癸），
-       戊己二子居山中线两侧，为龟甲空亡之位，故不着字、以红格示之。 */
-    function rdFen240(key) {
-      const b = RB[key]; if (!b) return '';
-      const r0 = b[0], r1 = b[1];
-      let g = '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      for (let i = 0; i < 24; i++) {
-        const shan = FS.SHAN_LIST[i], c = rdShanDeg(i);
-        const zhi = FS.SHAN_SHUANGZHI[shan] || shan;
-        const yang = FS.ZHI.indexOf(zhi) % 2 === 0;
-        const gans = yang ? ['甲', '丙', '戊', '庚', '壬'] : ['乙', '丁', '己', '辛', '癸'];
-        for (let k = 0; k < 10; k++) {
-          const a0 = c - 7.5 + k * 1.5, a1 = a0 + 1.5, mid = a0 + 0.75;
-          const gan = gans[Math.floor(k / 2)];
-          const kong = gan === '戊' || gan === '己';
-          g += '<path d="' + rdBand(r0, r1, a0, a1) + '" class="rd-cell"/>';
-          if (kong) g += rdShaLine(r0, r1, mid);
-          else g += rdTxtAuto((r0 + r1) / 2, mid, gan, key, 240, 'rd-lab-xs');
-          const e0 = rdPx(r0, a0), e1 = rdPx(r1, a0);
-          g += '<line x1="' + WHEEL.n(e0[0]) + '" y1="' + WHEEL.n(e0[1]) + '" x2="' + WHEEL.n(e1[0]) + '" y2="' + WHEEL.n(e1[1]) + '" class="rd-grid"/>';
-        }
-      }
-      return g;
-    }
-    /* 三百八十四爻：六十四卦各六爻，爻名以爻位配九六（阳爻称九、阴爻称六）。 */
-    function rdYao384(key) {
-      const b = RB[key]; if (!b) return '';
-      const r0 = b[0], r1 = b[1];
-      let g = '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      for (let k = 0; k < 64; k++) {
-        const w = 360 / 64, a0 = k * w;
-        const up = TRI_ORDER[Math.floor(k / 8)], lo = TRI_ORDER[k % 8];
-        const bits = GUA_BITS[lo].concat(GUA_BITS[up]);
-        for (let y = 0; y < 6; y++) {
-          const c0 = a0 + y * w / 6, mid = c0 + w / 12;
-          g += '<path d="' + rdBand(r0, r1, c0, c0 + w / 6) + '" class="rd-cell"/>';
-          g += rdTxtAuto((r0 + r1) / 2, mid, YAO_WEI[y] + (bits[y] ? '九' : '六'), key, 384, bits[y] ? 'rd-shan-yang' : 'rd-lab-xs');
-          const e0 = rdPx(r0, c0), e1 = rdPx(r1, c0);
-          g += '<line x1="' + WHEEL.n(e0[0]) + '" y1="' + WHEEL.n(e0[1]) + '" x2="' + WHEEL.n(e1[0]) + '" y2="' + WHEEL.n(e1[1]) + '" class="rd-grid"/>';
-        }
-      }
-      return g;
-    }
     /* 反吟伏吟：本卦与之爻爻相反者为反吟，本位即伏吟。只标其卦位，不判吉凶。 */
     function rdFanFu(key) {
       const b = RB[key]; if (!b) return '';
@@ -1426,22 +1336,6 @@
       }
       return g;
     }
-    /* 玄空大卦九星盘：卦气化九配洛书九星，一贪二巨三禄四文五廉六武七破八辅九弼。 */
-    function rdXuanXing(key) {
-      const b = RB[key]; if (!b) return '';
-      const r0 = b[0], r1 = b[1];
-      let g = '<path d="' + rdBand(r0, r1, 0, 359.999) + '" class="rd-band"/>';
-      for (let k = 0; k < 64; k++) {
-        const w = 360 / 64, a0 = k * w, mid = a0 + w / 2;
-        const up = TRI_ORDER[Math.floor(k / 8)], lo = TRI_ORDER[k % 8];
-        const v = ((XT_LUOSHU[up] + XT_LUOSHU[lo] - 1) % 9) || 9;
-        g += '<path d="' + rdBand(r0, r1, a0, a0 + w) + '" class="rd-cell"/>';
-        g += rdTxtAuto((r0 + r1) / 2, mid, LUO_STAR[v], key, 64, 'rd-lab-sm');
-        const e0 = rdPx(r0, a0), e1 = rdPx(r1, a0);
-        g += '<line x1="' + WHEEL.n(e0[0]) + '" y1="' + WHEEL.n(e0[1]) + '" x2="' + WHEEL.n(e1[0]) + '" y2="' + WHEEL.n(e1[1]) + '" class="rd-grid"/>';
-      }
-      return g;
-    }
     /* 赖公大五行催官诀：人盘消砂所用五行，由该山所隶二十八宿之七曜五行推衍，
        与正体五行、双山五行并为三套，不可互套。此为推衍一例，诸家配属另有出入。 */
     function rdLaiGong(key) {
@@ -1492,8 +1386,8 @@
     if (has.changsheng) s += rdChangSheng('changsheng', JU_KEY);
     if (has.cuiGuan) s += rdCuiGuan('cuiGuan');
 
-        /* 天池与磁针：白圆（0至12%）、NESW 贴池沿、海底线、菱形磁针。
-       形制真源 罗经完全详解指南.md 一之三：天池为中央圆槽、内置磁针与子午红线、
+    /* 天池与磁针：白圆（0至12%）、NESW 贴池沿、海底线、菱形磁针。
+       形制依通行罗经之制：天池为中央圆槽、内置磁针与子午红线、
        且为内盘第一层，故绘于盘面之内，随盘面同转。
        池面四方字与磁针同轴：北字落盘面零度，磁针北端与之同位。
        磁针自有磁性，恒指南北；盘面转时针随之同转而针仍指南北，
@@ -1514,7 +1408,7 @@
       s += '<path d="M' + C + ' ' + (C + half) + 'L' + (C + wid) + ' ' + C + 'L' + C + ' ' + C + 'L' + (C - wid) + ' ' + C + 'Z" class="rd-needle-s"/>';
       s += '<circle cx="' + C + '" cy="' + C + '" r="6" class="rd-pin"/>';
     }
-    /* 环间细线（连续环系逐环归一） */
+    /* 环间细线（连续环系逐环闭合） */
     for (const k in RB) {
       if (!has[k]) continue;
       s += '<circle cx="' + C + '" cy="' + C + '" r="' + RB[k][0] + '" class="rd-ring"/>';
@@ -1538,7 +1432,7 @@
     return '<svg class="wheel rd-wheel" id="' + o.id + '" viewBox="0 0 2000 2000" role="img" aria-label="' + label + '">' + s + '</svg>';
   }
   /* 固定层（不随盘转）：天心十道。
-     形制真源 罗经完全详解指南.md 一之三：外盘方座四边设十字红线即天心十道，
+     外盘方座四边设十字红线即天心十道，
      用以压线读数；又十字线交点对天池中心，读数时压于坐向线上。
      故十字线属外盘、为读数之基准参照，拨盘时恒定不动。
      天池与磁针属内盘（第一层），与盘面同转，已在 realDisk 内绘出，不在此层。 */
@@ -1582,10 +1476,6 @@
       case 'fen': return cell(cells(FS.fenJin, function (r) { return r.gz + '@' + r.start; }));
       case 'chuan': return cell(cells(FS.chuanShan72, function (r) { return r.gz + '@' + r.start; }));
       case 'tou': return cell(cells(FS.touDi60, function (r) { return r.gz + '@' + Math.round(r.start * 2); }));
-      case 'pingfen': {
-        const k = Math.floor(d / 6) % 60;
-        return { gz: FS.gzAtIndex(k), start: k * 6, end: (k + 1) * 6 };
-      }
       case 'yingsuo': {
         for (const c of rdYingSuoCells()) if (d >= c.a0 && d < c.a1) return { gz: c.gz, xiu: c.xiu, start: c.a0, end: c.a1 };
         return null;
@@ -1634,7 +1524,7 @@
         const g = guaAt(RD_XT_POS, d);
         return { gua: g, wx: BA_WX[g] || '', yang: RD_XT_YANG[g] ? true : false };
       }
-      case 'htGua': case 'htGuaEr': {
+      case 'htGua': {
         const g = guaAt(RD_HT_POS, d);
         return { gua: g, wx: BA_WX[g] || '', yang: RD_HT_YANG[g] ? true : false };
       }
@@ -1694,8 +1584,6 @@
   }
 
   global.LUOPAN = {
-    GUIDE_STEPS: GUIDE_STEPS,
-    LS_MODE: LS_MODE,
     wheelSvg: function () { return global.FS_LUO.wheelSvg.apply(global.FS_LUO, arguments); },
     layerDisk: layerDisk,
     gongDisk: gongDisk,
@@ -1705,7 +1593,6 @@
     realDiskOverlay: realDiskOverlay,
     RD_SETS: RD_SETS,
     rdLocateAt: rdLocateAt,
-    RD_RING_NAME_OF: RD_RING_NAME_OF,
     rdBandsOf: rdBandsOf,
     pick: pick,
     detail: detail,
@@ -1713,9 +1600,6 @@
     setCat: setCat,
     restoreMode: restoreMode,
     guide: guide,
-    lerpAngle: lerpAngle,
     Compass: Compass
   };
 })(typeof window !== 'undefined' ? window : this);
-
-

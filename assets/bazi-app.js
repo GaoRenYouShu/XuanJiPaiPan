@@ -508,7 +508,7 @@ function toggleBaziMode(){
     }
   }
 }
-/* 读取检索跨度（起始年、终止年，历史年可负），做合法性归一：-2697~9999，无公元 0 年，保证 start<=end */
+/* 读取检索跨度（起始年、终止年，历史年可负），做合法性判定：-2697~9999，无公元 0 年，保证 start<=end */
 function getPillarSpan(){
   let s=parseInt(document.getElementById('pStart').value,10);
   let e=parseInt(document.getElementById('pEnd').value,10);

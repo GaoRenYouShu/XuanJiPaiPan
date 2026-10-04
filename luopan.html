@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z383">
+<link rel="stylesheet" href="assets/style.css?v=z386">
 </head>
 <body>
 <div id="topbar"></div>
@@ -166,16 +166,16 @@
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
-<script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261004d"></script>
-<script defer src="assets/fs-luo.js?v=20260923c"></script>
+<script defer src="assets/fengshui-engine.js?v=20261004b"></script>
+<script defer src="assets/luopan.js?v=20261004f"></script>
+<script defer src="assets/fs-luo.js?v=20261004e"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
-<script defer src="assets/latlng.js?v=20261004a"></script>
+<script defer src="assets/latlng.js?v=20261004b"></script>
 <script defer src="assets/ai.js?v=20261003a"></script>
 <script>
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
-   引擎以 global.FENGSHUI 暴露；FLAT 别名 FS 须在 load 之后取（defer 脚本于解析后执行，
-   故置 DOMContentLoaded 内取，确保 fengshui-engine 已挂 FENGSHUI），其余页面级别量由本页自管。 */
+   引擎以 global.FENGSHUI 暴露；页内别名 FS 须待 defer 脚本执行后取，
+   故置 DOMContentLoaded 内取，确保 fengshui-engine 已挂 FENGSHUI，其余页面级别量由本页自管。 */
 var LP_DECL_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null, LP_LV_MAX=5;
 var FS=null;
 function lpGeoFillCity(){
@@ -345,7 +345,7 @@ function lpXiuMid(i){
 
 /* 真实罗盘：渲染、读数栏联动、锁定、盘制与底色切换、缩放拖移。
    盘面为转盘，由拨盘、点选山与实测坐度三者定其转角，不由传感器夺转。
-   照真实罗经用法（形制真源 罗经完全详解指南.md 一之三）：天池居内盘第一层、
+   照真实罗经用法：天池居内盘第一层、
    内载磁针，针自有磁性故恒指南北；外盘方座四边十字红线即天心十道，固定不转，
    用以压线读数。是以转向在针而不在盘，指南针只报所向，读数仍自盘面读出。 */
 var LP_REAL={set:'zonghe', skin:'black', cross:true, deg:0, lock:false, lockedDeg:0, rot:0, point:null, decl:null, accMsg:'', state:'', liveDeg:null};
@@ -455,7 +455,6 @@ function lpRealDetailRender(deg, beta, gamma){
       case 'feng': return '天盘缝针 '+v.shan+'山（纳水）';
       case 'najia': return '纳甲 '+(v.yang?'<span class="wd-g">净阳</span>':'净阴');
       case 'yingsuo': return '盈缩六十龙 '+v.gz+'（'+v.xiu+'宿）';
-      case 'pingfen': return '平分六十龙 '+v.gz;
       case 'hongfan': return '洪范五行 '+v.wx+(v.ju?'（'+v.ju.ju+'）':'');
       case 'changsheng': return '长生十二宫 '+v.gong+'（'+v.zhi+'方，'+v.ju+'）';
       case 'cuiGuan': return v.star?'催官天星 '+v.star.split('、')[0]:'催官天星 无';
@@ -1039,7 +1038,7 @@ function lpCompassMake(){
     }
   });
 }
-/* 开页即启：安卓浏览器与桌面无权限门，即时启用；苹果首次须手势，本库已挂一次性手势监听，
+/* 指南针开页即启：安卓浏览器与桌面无权限门，即时启用；苹果首次须手势，本库已挂一次性手势监听，
    用户任何一次触屏、按键或滚动即完成授权，不必先找按钮。 */
 /* 指南针状态提示：并入详情条之读数上段末（读数五项之侧），
    故不另立一行，详情条随溢出换行亦不致散。 */
@@ -1087,7 +1086,7 @@ function lpBackfillBase(){
 }
 /* 所在地 IP 反查预填：复用 ai.js 四源兜底定位（端点已在开源页登记）。
    取到归属地即填入下拉并折算磁偏角；省市归位由 latlng.js placeOf 担之，
-   本处不各写一套名比对，英文名与行政区划后缀之差异皆在源头上归一。
+   本处不各写一套名比对，英文名与行政区划后缀之差异皆在数据源头归一。
    仅当用户从未手选（lp_geo_manual）时才填，每次进页都重取：
    IP 归属地会随网络而变，早先一次填错不该被记住而不复校。
    手选经由真实 change 事件发生（程序赋值不触发 change），故预填不会误标手选。
@@ -1178,7 +1177,7 @@ window.addEventListener('load', function(){
     shareWait({ page:"luopan", title:"罗经仪", recast:function(){ try{ lpApplyBase(); }catch(e){} } });
   }, 0);
 });
-window.addEventListener('DOMContentLoaded', function(){ FS=window.FENGSHUI; window.FS=FS; if(FS&&window.LUOPAN) lpInit(); else setTimeout(function(){ FS=window.FENGSHUI; window.FS=FS; if(FS&&window.LUOPAN) lpInit(); },0); });
+window.addEventListener('DOMContentLoaded', function(){ FS=window.FENGSHUI; window.FS=FS; if(FS&&window.LUOPAN) lpInit(); });
 </script>
 </body>
 </html>

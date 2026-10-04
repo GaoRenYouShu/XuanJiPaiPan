@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z383">
+<link rel="stylesheet" href="assets/style.css?v=z386">
 
 </head>
 <body>
@@ -82,7 +82,7 @@
 <script defer src="assets/app.js?v=20261004a"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/ai.js?v=20261003a"></script>
-<script defer src="assets/latlng.js?v=20261004a"></script>
+<script defer src="assets/latlng.js?v=20261004b"></script>
 <script defer src="assets/astronomy-engine.min.js?v=20260904a"></script>
 <script defer src="assets/xz-ephem.js?v=20260925a"></script>
 <script defer src="assets/xingzhan-data.js?v=20260925a"></script>
@@ -180,7 +180,7 @@ function renderWheel(chart){
      故不适用全站最外圈环布 WHEEL.ring 那条口径；且象限宫位制下宫宽自几度至三百余度不等，
      环布会使相邻宫号歪斜不一、窄宫处挤作一堆。行业实现同此：kerykeion 画宫号明写 keep text
      upright 并以 rotate(-mid) rotate(90+mid) 反向抵消，hew/astrology-chart-wheel 全文件零 rotate。
-     详见规范第七条取字法段的西洋占星盘例外，勿按环布口径改回去。 */
+     西洋占星盘字符取散射径向式为贯例，勿按环布口径改回去。 */
   for(let h = 1; h <= 12; h++){
     const c = pt(lineA[h - 1], R);
     const cls = (h === 1) ? 'asc' : '';
@@ -208,7 +208,7 @@ function renderWheel(chart){
 }
 /* =================== 黄道落星盘 ===================
    “星体落入十二星座”一类表一律上盘：黄道十二星座是天然成环的序数，星体按黄经落位，
-   盘面只承担序数与吉凶二值两类（规范第七条“量值型数据怎么上盘”）。
+   盘面只承担序数与吉凶二值两类，不载量值刻度。
    骨架照“两字外圈”体系：盘心 220、弧 188、外圈线 179、刻度 171 至 177、环名 206、
    盘心 78、指针 82 至 100、热区 104 至 194。
    🔴 内界圈由 120 收到 104、内签拆成 160 与 138 与 116 三圈：十星常有三颗并落一处窄角域，
@@ -216,7 +216,7 @@ function renderWheel(chart){
    120 至刻度内沿 171 的 51 单位只容得下两行，装不下才按“只把内界圈往里挪”这条口径内挪，
    外圈线 179、外签 206、弧 188、刻度 171 至 177、盘心 78 五处一律照骨架不动。
    全盘文字恒正立，不套 WHEEL.ring 与 WHEEL.radial：西洋盘是盘转字不转，星座名与星体符号
-   皆无固有方位语义（规范第七条西洋占星盘例外），各字只按位置角取 x 与 y。
+   皆无固有方位语义，各字只按位置角取 x 与 y。
    星体按各自黄经定角，落在同一窄角域者按半径错开一档，故相邻两星不叠作一团。 */
 const XZW_C = 220, XZW_STEP = 30, XZW_ARC = 188, XZW_OUT = 179,
   XZW_TICK0 = 171, XZW_TICK1 = 177, XZW_LAB_OUT = 206, XZW_IN = 104,
