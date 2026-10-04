@@ -2145,6 +2145,11 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:4em !important
 .wheel-detail .wd-g{color:var(--wheel-good,#3f7a1f)}
 .wheel-detail .wd-x{color:var(--wheel-bad,#b23b2e)}
 .wheel-detail .wd-br{display:block;height:0;width:0}
+/* 详情条段间短横线：段与段之界的可见细线，与详情条顶线同色同宽，层序随线可辨 */
+.wheel-detail .wd-hr{display:block;height:0;margin:var(--sp-1) 0;border:0;border-top:1px solid var(--wheel-line,#c9c9c9)}
+/* 详情条指向说明文档之链：随文色加虚下划线，与全站正文引链同制，不另立一色 */
+.wheel-detail .wd-doc{color:inherit;border-bottom:1px dotted currentColor;text-decoration:none}
+.wheel-detail .wd-doc:hover{color:var(--wheel-good,#3f7a1f);border-bottom-color:currentColor}
 @media(max-width:640px){
   .wheel-wheels{grid-template-columns:1fr;gap:var(--sp-4)}
   .wheel{max-width:320px}
@@ -3662,12 +3667,11 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 盘区块：与前一区块之间取 --sp-4（区块间）。原取 --sp-5 页面级档，层级倒挂。 */
 .page-lp .lp-block{margin-top:var(--sp-4);text-align:center}
 .page-lp .lp-guide{text-align:left;margin:var(--sp-3) auto 0;max-width:560px}
-.page-lp .lp-guide-step{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-2) 0;border-top:1px solid var(--lp-line)}
+.page-lp .lp-guide-step{padding:var(--sp-2) 0;border-top:1px solid var(--lp-line)}
 .page-lp .lp-guide-step:first-child{border-top:0}
-.page-lp .lp-guide-no{flex:0 0 auto;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;
-  background:var(--lp);color:#fff;font-size:12px;font-family:var(--lp-serif)}
 .page-lp .lp-guide-body{font-size:12.5px;line-height:1.8;letter-spacing:.03em;color:var(--lp-ink)}
-.page-lp .lp-guide-body b{color:var(--lp2);margin-right:.4em}
+/* 行首步名随文不加粗，只留半字之间距使步名与正文不粘连 */
+.page-lp .lp-guide-t{margin-right:.4em}
 /* 盘后引导段（新手引导内联于某盘之下者）：与所属盘块同属一组，取 --sp-3 */
 .page-lp .lp-guide-inline{max-width:560px;margin:var(--sp-3) auto 0}
 .page-lp .lp-compass{margin-top:var(--sp-3);text-align:center}

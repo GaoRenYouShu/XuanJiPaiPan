@@ -25,7 +25,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z379">
+<link rel="stylesheet" href="assets/style.css?v=z383">
 </head>
 <body>
 <div id="topbar"></div>
@@ -165,10 +165,10 @@
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/fengshui-engine.js?v=20260924a"></script>
-<script defer src="assets/luopan.js?v=20261003h"></script>
+<script defer src="assets/luopan.js?v=20261004b"></script>
 <script defer src="assets/fs-luo.js?v=20260923c"></script>
 <script defer src="assets/fs-mag.js?v=20260923a"></script>
-<script defer src="assets/latlng.js?v=20260925a"></script>
+<script defer src="assets/latlng.js?v=20261004a"></script>
 <script defer src="assets/ai.js?v=20261003a"></script>
 <script>
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
@@ -449,13 +449,19 @@ function lpRealDetailRender(deg, beta, gamma){
       case 'fanFu': return '反吟伏吟 线位在'+v.name+'卦';
       case 'chouYao': return '抽爻换象 '+v.name+'卦'+v.yao+'爻'+(v.bao?'<span class="wd-g">珠宝线</span>':'<span class="wd-x">火坑线</span>');
       case 'jieqi': return '节气 '+v.name;
-      case 'xiu': return '二十八宿 '+v.xiu+'宿（'+v.wx+'曜，本度'+v.du+'度）';
-      case 'deg': return '周天 '+v.deg.toFixed(1)+'度';
+      case 'xiu': return '二十八宿 '+v.xiu+'宿（'+v.wx+'曜，本度'+v.du+'°）';
+      case 'deg': return '周天 '+v.deg.toFixed(1)+'°';
       default: return '';
     }
   }
   var set=LUOPAN.RD_SETS[LP_REAL.set]||LUOPAN.RD_SETS.zonghe;
-  var ringTxt=set.rings.map(ringLine).filter(function(t){ return t; }).join('　');
+  /* 逐层读数分三段随序而下：并作一段则层序难辨，逐层一行又二十余行太占屏；
+     故按序均分三段，段内随文连读，段间行断。 */
+  var ls=set.rings.map(ringLine).filter(function(t){ return t; });
+  var per=Math.ceil(ls.length/3), ringTxt='';
+  for(var i=0;i<ls.length;i+=per){
+    ringTxt+=(i?'<span class="wd-hr"></span>':'')+ls.slice(i,i+per).join('　');
+  }
   LUOPAN.detail('lpRealDetail',
     '坐'+lpShanDir(sit)+'朝'+lpShanDir(face)
     +'　周天'+deg.toFixed(1)+'°'
@@ -475,18 +481,15 @@ function lpRealDetailRender(deg, beta, gamma){
     +'　正针落'+zhen.shan+'山（立向） 中针落'+zhong.shan+'山（消砂） 缝针落'+feng.shan+'山（纳水）'
     +'<span class="wd-br"></span>'
     +'三合'+FS.SANHE_JU[FS.SHAN_SANHE[sit]].ju+'（'+FS.SHAN_SANHE[sit]+'）　桃花'+FS.taoHuaShui(sit).zhi+'方　洪范'+FS.HONGFAN_WX[sit]+'行'
-    +'<span class="wd-br"></span>'
-    +set.name+'共'+set.rings.length+'层，此刻坐度所落：'
++'<span class="wd-hr"></span>'
++set.name+'共'+set.rings.length+'层，此刻坐度所落：'
     +'<span class="wd-br"></span>'
     +ringTxt
-    /* 盘面操作提示随详情条出，不在盘上另挂一行小字（同一句话不盘上盘下双出） */
+    /* 色义与操作两事照说明文档一册收的口径移出本条，此处只留指向：
+       该二事是通例而非此刻之读数，随每根详情条重出一遍即成冗复。 */
     +'<span class="wd-br"></span>'
-    +'盘上色义：朱格为阳（阳山、吉宫、先后天八卦阳卦、洛书阳数），红线为避煞（八煞、劫曜、劫煞、空亡、龟甲），绿格为珠宝、暗红格为火坑。'
-    +'<span class="wd-br"></span>'
-    +'天池磁针恒指南北（针自有磁性，与盘角无关），外盘天心十道固定，用以压线读数：'
-    +'拨动盘面使坐向压于针上，读数即自十道与针之相对位读出。'
-    +'双指张合缩放、双指旋动对针（桌面滚轮缩放），双击复位；点选任一山即读其落山。'
-    +'指南针开启时盘面随所指向自动转，天池磁针恒指南北；未开指南针时可双指旋盘自行对针，或填实测坐度。');
+    +'<a class="wd-doc" href="shuoming.html#t-luopan-m3">盘上色义</a>、'
+    +'<a class="wd-doc" href="shuoming.html#t-luopan-m6">天池十道与读数法</a>见说明文档。');
 }
 /* 详情条重排：取度与两向倾角。未锁时取实时所向上之坐度，已锁或已填实测坐度时取所锁之值。 */
 function lpRealReadout(){
@@ -634,7 +637,7 @@ function lpFenCore(sel){
   var shan=FS.SHAN_LIST[sel], list=FS.fenJin(shan);
   var mid=list[2]||{};
   var good=mid.wang==='旺'||mid.wang==='相';
-  return [shan+'山', mid.gz+' '+mid.wang, good?'var(--wheel-good)':'var(--wheel-bad)', '中格 周天'+(sel*15)+'度'];
+  return [shan+'山', mid.gz+' '+mid.wang, good?'var(--wheel-good)':'var(--wheel-bad)', '中格 周天'+(sel*15)+'°'];
 }
 function lpFenSvg(){
   var sel=LP_SEL.fen;
@@ -667,7 +670,7 @@ function lpChuanCore(sel){
   var shan=FS.SHAN_LIST[sel], rs=FS.chuanShan72(shan);
   var good=rs.filter(function(r){ return r.wang==='旺'||r.wang==='相'; }).length;
   var a=(((sel*15-7.5)%360)+360)%360, b=(((sel*15+7.5)%360)+360)%360;
-  return [shan+'山', '珠宝'+good+'龙', good>0?'var(--wheel-good)':'var(--wheel-bad)', '周天'+a+'至'+b+'度'];
+  return [shan+'山', '珠宝'+good+'龙', good>0?'var(--wheel-good)':'var(--wheel-bad)', '周天'+a+'至'+b+'°'];
 }
 function lpChuanSvg(){
   var sel=LP_SEL.chuan;
@@ -830,7 +833,7 @@ function lpXiuCore(sel){
   var full=xiu+((typeof LunarUtil!=='undefined'&&LunarUtil.ZHENG&&LunarUtil.ZHENG[xiu])||'')+((typeof LunarUtil!=='undefined'&&LunarUtil.ANIMAL&&LunarUtil.ANIMAL[xiu])||'');
   var xg=LUOPAN.XIU_XIANG.filter(function(x){ return sel>=x.from&&sel<x.to; })[0]||{};
   var shans=Object.keys(FS.SHAN_XIU).filter(function(s){ return FS.SHAN_XIU[s].indexOf(xiu)>=0; });
-  return [full, '第'+(sel+1)+'宿 周天'+FS.XIU_DU_SHU[xiu]+'度', '', (xg.full||'')+(shans.length?' 配'+shans.join('、')+'山':'')];
+  return [full, '第'+(sel+1)+'宿 周天'+FS.XIU_DU_SHU[xiu]+'°', '', (xg.full||'')+(shans.length?' 配'+shans.join('、')+'山':'')];
 }
 function lpXiuSvg(){
   document.getElementById('lpXiuHost').innerHTML=LUOPAN.xiuDisk({
@@ -844,7 +847,7 @@ function lpXiuDetail(){
   var shans=Object.keys(FS.SHAN_XIU).filter(function(s){ return FS.SHAN_XIU[s].indexOf(xiu)>=0; });
   var xg=LUOPAN.XIU_XIANG.filter(function(x){ return LP_SEL.xiu>=x.from&&LP_SEL.xiu<x.to; })[0]||{};
   var wx=FS.xiuDuWuxing(xiu, du);
-  LUOPAN.detail('lpXiuDetail', '第'+(LP_SEL.xiu+1)+'宿 '+xiu+'宿 '+(xg.full||'')+' 本表距度'+du+'度'
+  LUOPAN.detail('lpXiuDetail', '第'+(LP_SEL.xiu+1)+'宿 '+xiu+'宿 '+(xg.full||'')+' 本表距度'+du+'°'
     +((wx&&wx.wx)?(' 宿度五行属'+wx.wx):'')
     +' 配'+shans.join('、')+'山'
     +'<span class="wd-br"></span>'
@@ -952,7 +955,7 @@ function lpDeclValue(){
 function lpDeclCore(sel){
   var d=lpDeclValue();
   var shan=FS.SHAN_LIST[sel];
-  return [d!=null?('偏'+d.toFixed(2)+'°'):'未取', '', d!=null?'var(--wheel-good)':'var(--wheel-bad)', shan+'山 周天'+(sel*15)+'度'];
+  return [d!=null?('偏'+d.toFixed(2)+'°'):'未取', '', d!=null?'var(--wheel-good)':'var(--wheel-bad)', shan+'山 周天'+(sel*15)+'°'];
 }
 function lpDeclSvg(){
   var sel=LP_SEL.decl;
@@ -1048,38 +1051,33 @@ function lpBackfillBase(){
   lpCompassState('已回填实测坐度与坐山向首（'+sit+'山'+face+'山 '+deg.toFixed(1)+'°）。');
 }
 /* 所在地 IP 反查预填：复用 ai.js 四源兜底定位（端点已在开源页登记）。
-   仅当用户从未手选（lp_geo_manual）且本浏览器未预填过（lp_geo_done）时才填；
-   归属地匹配 latlng.js 省市表，取到哪级用哪级；失败静默（离线优先）。
-   手选经由真实 change 事件发生（程序赋值不触发 change），故预填不会误标手选。 */
+   取到归属地即填入下拉并折算磁偏角；省市归位由 latlng.js placeOf 担之，
+   本处不各写一套名比对，英文名与行政区划后缀之差异皆在源头上归一。
+   仅当用户从未手选（lp_geo_manual）时才填，每次进页都重取：
+   IP 归属地会随网络而变，早先一次填错不该被记住而不复校。
+   手选经由真实 change 事件发生（程序赋值不触发 change），故预填不会误标手选。
+   预填成败不再于题头缀字：所选省市区县已落在框里，再报一遍即与框相重，
+   其口径（何以如此、准不准、怎样改）收在说明文档。 */
 function lpIpPrefill(){
-  var done=false, manual=false;
-  try{ done=localStorage.getItem('lp_geo_done')==='1'; manual=localStorage.getItem('lp_geo_manual')==='1'; }catch(e){}
-  if(done||manual) return;
+  var manual=false;
+  try{ manual=localStorage.getItem('lp_geo_manual')==='1'; }catch(e){}
+  if(manual) return;
   if(typeof window.aiGeoLookup!=='function') return;
   var gr=null;
   try{ gr=document.getElementById('lpGeoGroup'); }catch(e){}
   if(gr) gr.addEventListener('change', function(){ try{ localStorage.setItem('lp_geo_manual','1'); }catch(e){} });
   window.aiGeoLookup().then(function(g){
-    if(!g || (!g.region&&!g.city)) return;
+    if(!g) return;
     try{ if(localStorage.getItem('lp_geo_manual')==='1') return; }catch(e){ return; }
-    var provs=(typeof PROV!=='undefined')?Object.keys(PROV):[];
-    var pk=provs.find(function(k){ return k===g.region; })
-        ||provs.find(function(k){ return g.region&&(k.indexOf(g.region)===0||g.region.indexOf(k)===0); });
-    if(!pk) return;
-    var cities=((typeof PROV!=='undefined'&&PROV[pk])||[]).map(function(e){ return e.c; });
-    var ck=g.city?(cities.find(function(c){ return c===g.city; })
-        ||cities.find(function(c){ return c.indexOf(g.city)===0||g.city.indexOf(c)===0; })):null;
+    var pl=(typeof placeOf==='function')?placeOf(g.region, g.city):{prov:null, city:null};
+    if(!pl.prov) return;
     var pEl=document.getElementById('lpProv');
     if(!pEl) return;
-    pEl.value=pk;
-    if(pk!==pEl.value) return;
+    pEl.value=pl.prov;
     lpGeoFillCity();
     var cEl=document.getElementById('lpCity');
-    if(ck&&cEl){ cEl.value=ck; lpGeoFillDist(); }
+    if(pl.city&&cEl){ cEl.value=pl.city; lpGeoFillDist(); }
     lpGeoPick();
-    try{ localStorage.setItem('lp_geo_done','1'); }catch(e){}
-    var gl=gr?gr.querySelector('.group-label'):null;
-    if(gl) gl.textContent='所在地（用于磁偏角折算，不选则按古法直读磁北）已由 IP 反查预填，仅供参考，可改选';
   }).catch(function(){});
 }
 function lpRenderAll(){

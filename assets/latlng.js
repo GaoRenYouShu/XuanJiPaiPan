@@ -47,3 +47,76 @@ function distList(prov, city){
   if(!c || !c.d) return [];
   return Object.keys(c.d).filter(k => c.d[k]!=null);
 }
+
+/* IP 归属地归位： IP 库所报省市名与本表键名不同源，故由本表负责收敛，调用方不做猜判。
+   三种常态差异：行政区划后缀（本表收石家庄市而 IP 常报石家庄）、
+   英文省名（海外 IP 库所报省名多为拉丁字）、只报其一（省空或市空）。
+   省名英文归中文只收三十四省级政区之通行拉丁名，市名英文不收：
+   地级拉丁转写诸家不一，按表臆猜易落错地；省一级已足定磁偏角与真太阳时，
+   故城市英文不归位者只停在省，不明跳他市。 */
+const PROV_EN = {
+  'Beijing':'北京市','Tianjin':'天津市','Hebei':'河北省','Shanxi':'山西省',
+  'Nei Mongol':'内蒙古自治区','Inner Mongolia':'内蒙古自治区','Liaoning':'辽宁省',
+  'Jilin':'吉林省','Heilongjiang':'黑龙江省','Shanghai':'上海市','Jiangsu':'江苏省',
+  'Zhejiang':'浙江省','Anhui':'安徽省','Fujian':'福建省','Jiangxi':'江西省',
+  'Shandong':'山东省','Henan':'河南省','Hubei':'湖北省','Hunan':'湖南省',
+  'Guangdong':'广东省','Guangxi':'广西壮族自治区','Hainan':'海南省','Chongqing':'重庆市',
+  'Sichuan':'四川省','Guizhou':'贵州省','Yunnan':'云南省','Tibet':'西藏自治区',
+  'Shaanxi':'陕西省','Gansu':'甘肃省','Qinghai':'青海省','Ningxia':'宁夏回族自治区',
+  'Xinjiang':'新疆维吾尔自治区','Taiwan':'台湾省','Hong Kong':'香港特别行政区',
+  'Macau':'澳门特别行政区','Macao':'澳门特别行政区'
+};
+/* 后缀剥离后比对：先剥行政区划通名，再取双向包含，使石家庄入石家庄市、
+   广西壮族自治区入广西。剥离只去通名，二字以下之专名不剥，
+   免山西被剥作空串而误配上海。 */
+const DIV_SUFFIX = /[省市区县]$|市$|自治区$|特别行政区$|自治州$|地区$|盟$/;
+function nameSame(a, b){
+  if(!a || !b) return false;
+  if(a === b) return true;
+  const cut = s => s.length > 2 ? s.replace(DIV_SUFFIX, '') : s;
+  const ca = cut(a), cb = cut(b);
+  if(!ca || !cb) return false;
+  if(ca === cb) return true;
+  return ca.indexOf(cb) === 0 || cb.indexOf(ca) === 0;
+}
+/* 省名归位：英文名唯一直译，中文名按去后缀与包含比对，皆不中则返回空。 */
+function matchProv(region){
+  const keys = Object.keys(PROV);
+  if(!region) return null;
+  const s = String(region).trim();
+  const en = PROV_EN[s] || PROV_EN[Object.keys(PROV_EN).find(k => k.toLowerCase() === s.toLowerCase()) || ''];
+  if(en && PROV[en]) return en;
+  return keys.find(k => nameSame(k, s)) || null;
+}
+/* 城市归位：在指定省内比对，省未定则跨省全表比对。
+   跨省重名（如全国不止一处同名镇）取首个匹配；归属地本为粗定位，取首个即为合宜。 */
+function matchCity(city, prov){
+  const s = city ? String(city).trim() : '';
+  if(!s) return { prov: prov || null, city: null };
+  const inProv = p => {
+    if(!p || !PROV[p]) return null;
+    const hit = PROV[p].find(x => nameSame(x.c, s));
+    return hit ? { prov: p, city: hit.c } : null;
+  };
+  const got = inProv(prov);
+  if(got) return got;
+  /* 省内无此市即停在本省而不另投他市：归属地诸源所报之市未必真属其省，
+     跨省续投会把错市当成定论，反不如停在省一级。 */
+  return { prov: prov || null, city: null };
+}
+/* 归属地归位总口：IP 所报 region 与 city 进，本表省市出，取到哪级用哪级。
+   二者任一为空皆不视为失败：有市可按市反查省，有省虽无市亦足折算，
+   唯二者皆不可归位时才返回空。 */
+function placeOf(region, city){
+  let p = matchProv(region);
+  if(!p && city){
+    const r = matchCity(city, null);
+    p = r.prov;
+    if(p){
+      const c = matchCity(city, p);
+      return { prov: p, city: c.city };
+    }
+  }
+  if(!p) return { prov: null, city: null };
+  return matchCity(city, p);
+}
