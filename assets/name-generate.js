@@ -64,7 +64,7 @@ window.NAME_GENERATE = (function () {
   /* ---- 数理缓存：五格、三才、成功运与基础运只由笔画决定 ----
    * 键 = xst|名笔画；值 = {base, sancai, renWx, zongWx}
    * 数理零否决：凶格不淘汰，按 80 分制原始分入总分（候选经 10 分制折算后自然沉底），
-   * 缓存下限 1 分防零分候选与"缓存 falsy 值"语义冲突（null 曾作淘汰标记，今无淘汰） */
+   * 缓存值下限取 1 分，永不存零分与 falsy 值，故零分候选不进缓存、按 80 分制原始分自然沉底 */
   var GRID_CACHE = {};
   var __enumScale = 1; /* 枚举预算系数：五行定向补枚举时打折，平时恒 1 */
   function gridScore(xst, mst) {

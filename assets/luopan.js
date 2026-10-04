@@ -727,10 +727,6 @@
   /* 格心角：环上逐格首尾相接，末格跨零度时止角小于起角，
      此时起止均值落到对面，故改按本格角宽之半加于起角，再归一周。 */
   function rdCellMid(a0, a1) { return (a0 + ((((a1 - a0) % 360) + 360) % 360) / 2) % 360; }
-  function rdArc(r, a0, a1) {
-    const p0 = rdPx(r, a0), p1 = rdPx(r, a1), lg = (a1 - a0) > 180 ? 1 : 0;
-    return 'M' + WHEEL.n(p0[0]) + ' ' + WHEEL.n(p0[1]) + 'A' + r + ' ' + r + ' 0 ' + lg + ' 1 ' + WHEEL.n(p1[0]) + ' ' + WHEEL.n(p1[1]);
-  }
   function rdBand(r0, r1, a0, a1) {
     const A = rdPx(r1, a0), B = rdPx(r1, a1), D = rdPx(r0, a1), E = rdPx(r0, a0), lg = (a1 - a0) > 180 ? 1 : 0;
     return 'M' + WHEEL.n(A[0]) + ' ' + WHEEL.n(A[1]) + 'A' + r1 + ' ' + r1 + ' 0 ' + lg + ' 1 ' + WHEEL.n(B[0]) + ' ' + WHEEL.n(B[1])
@@ -797,14 +793,6 @@
       + ' style="font-size:' + fs + 'px;letter-spacing:0"' + (extra || '')
       + ' transform="rotate(' + WHEEL.radial(deg) + ' ' + WHEEL.n(p[0]) + ' ' + WHEEL.n(p[1]) + ')">' + txt + '</text>';
   }
-  /* 象地环字（四正正立、余沿半径），用于八卦大字与山名内环 */
-  function rdTxtDir(r, deg, txt, fs, cls, extra) {
-    const p = rdPx(r, deg);
-    return '<text x="' + WHEEL.n(p[0]) + '" y="' + WHEEL.n(p[1]) + '" class="' + cls + '"'
-      + ' style="font-size:' + fs + 'px"' + (extra || '')
-      + ' transform="rotate(' + WHEEL.dir(deg) + ' ' + WHEEL.n(p[0]) + ' ' + WHEEL.n(p[1]) + ')">' + txt + '</text>';
-  }
-
   /* 真实罗盘。opts：{id, sel(选中山序), mode(盘制 key), cross(天心十道 bool), pick}
      返回 svg 字符串。环系由盘心向外连续铺满、环间不留空带（照真实罗经盘面圈层紧排）。
      rings 数组自内向外，第一层天池恒在最内，末层周天三百六十度恒在外沿；
@@ -819,23 +807,6 @@
     const RB = rdBandsOf(mode);
     /* 本设坐向所属四大局：十二长生环依此局之长生位顺布十二宫，坐向未传者取水局。 */
     const JU_KEY = FS.SHAN_SANHE[o.sit] || '申子辰';
-    /* 字号：竖排环字高取带宽除字数（字沿半径排，弧长不相犯）；
-       横排环取带宽六成四与弧长七成八除字数的较小者。 */
-    function rdFit(key, n, chars) {
-      const b = RB[key]; if (!b) return 14;
-      const bw = b[1] - b[0], rm = (b[0] + b[1]) / 2;
-      const arc = 2 * Math.PI * rm / Math.max(1, n);
-      const vert = (RD_CELL[key] || [1, 0])[1];
-      /* 字号据实测定：本页字体汉字墨高为字号零点九二倍、字宽等于字号。
-         竖排（字沿半径叠排）：整串径向长取带宽九成二，字距按一点零八倍字号计，
-         故字号为带宽零点九二除以字数乘一点零八；字高沿弧不得过弧长九成。
-         横排（字沿圆周环布）：墨高占带宽零点八四，故字号为带宽零点八四，
-         字宽不得过弧长八成，二者取小，环宽与弧长两不相犯。 */
-      if (vert) {
-        return Math.max(9, Math.round(Math.min(bw * 0.92 / (Math.max(1, chars) * 1.08), arc * 0.9) * 10) / 10);
-      }
-      return Math.max(10, Math.round(Math.min(bw * 0.84, arc * 0.80 / Math.max(1, chars)) * 10) / 10);
-    }
     /* 环上文字方向与字号：按格形自定，不预设方向。
        每格沿圆周之长为弧长、沿半径之宽为带宽，两向各算其可容之最大字号，取其大者：
        横排（字沿圆周环布）受带宽之墨高与弧长之字串两限；

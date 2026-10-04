@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z386">
+<link rel="stylesheet" href="assets/style.css?v=z387">
 </head>
 <body>
 <div id="topbar"></div>
@@ -61,15 +61,15 @@
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20261004a"></script>
 <script defer src="assets/shiling.js?v=20260928n"></script>
-<script defer src="assets/tongshu-terms.js?v=20260929c"></script>
+<script defer src="assets/tongshu-terms.js?v=20261005a"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
-<script defer src="assets/holiday.js?v=20260917h2"></script>
+<script defer src="assets/holiday.js?v=20261005a"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
-<script defer src="assets/ai.js?v=20261003a"></script>
+<script defer src="assets/ai.js?v=20261005c"></script>
 <script>
 let cur = new Date();
 let lastSel = '';
-/* 三伏/出伏/数九/入梅出梅 时令计算取自公共模块 assets/shiling.js（万年历与老黄历共用单一真源） */
+/* 三伏、出伏、数九、入梅出梅 时令计算取自公共模块 assets/shiling.js（万年历与老黄历共用单一真源） */
 function render(){
   const y=cur.getFullYear(), m=cur.getMonth();
   const ct=document.getElementById('calTitle'); if(ct) ct.textContent = y+'年'+(m+1)+'月';
@@ -123,10 +123,10 @@ function cell(d,other,todayStr){
    最外圈的季名沿圆周环布（字头朝盘外、随切线转向：正上横排、右半圈顺时针转向、正下倒排），走 WHEEL.ring。
    内圈的节气名两字（立春、雨水…）照旧径向散射聚焦盘心：一圈两字若也走环布，整圈会连成一条密带，反失疏朗。
    四季弧与季名着五行色：春木、夏火、秋金、冬水，取站内 .wx-mu/.wx-huo/.wx-jin/.wx-shui
-   （#5DC336 / #F65352 / #D4A017 / #4190FA）降调而成——弧面积大，直接用原色会压过黛青主调。
+   （#5DC336 / #F65352 / #D4A017 / #4190FA）降调而成，弧面积大，直接用原色会压过黛青主调。
    环带自外向内：季名 206 → 四季弧 192 → 外圈 182 → 刻度 166~176 → 节气名 146 → 内界圈 116 → 盘心 76。
    🔴 每气的可选区段以气名为中心取 ±7.5 度：气名与刻度都落在 i*15，区段若从 i*15 起算，气名就压在
-   区段边沿，点气名会命中相邻的气（曾致误选）。指针同指 i*15，与气名、刻度连成一条辐条。
+   区段边沿，点气名会命中相邻的气。指针同指 i*15，与气名、刻度连成一条辐条。
    点选热区取内界圈至弧带外沿（116 至 198），不盖盘心。 */
 const JIEQI_24 = ['立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑',
   '立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至','小寒','大寒'];
@@ -297,7 +297,7 @@ function jieqiWheel(solar, lunar){
     s += `<path d="M${n2(a0[0])} ${n2(a0[1])}A192 192 0 0 1 ${n2(a1[0])} ${n2(a1[1])}" class="w-arc w-arc-b"/>`;
     s += `<text x="${n2(tp[0])}" y="${n2(tp[1])}" class="w-tag" style="fill:${x[2]}" transform="rotate(${ring(dg)} ${n2(tp[0])} ${n2(tp[1])})">${x[0]}</text>`;
   });
-  /* 刻度：节（十二）长而重、气（十二）短而轻，与日历格“节/气”角标同一分法 */
+  /* 刻度：节（十二）长而重、气（十二）短而轻，与日历格“节、气”角标同一分法 */
   for (let i = 0; i < 24; i++) {
     const dg = i * 15, isJie = (i % 2 === 0);
     const ta = px(isJie ? 166 : 170, dg), tb = px(176, dg), tp = px(146, dg);
@@ -306,7 +306,7 @@ function jieqiWheel(solar, lunar){
   }
   /* 点选热区：只负责命中；.w-sel 紧随其后，只负责悬停着色（紧邻兄弟选择器随悬停显隐）。
      🔴 区段以气名为中心取 ±7.5 度（气名与刻度都在 i*15）：若从 i*15 起算，气名就压在区段边沿，
-     点气名会命中相邻的气（曾致误选）。 */
+     点气名会命中相邻的气。 */
   for (let i = 0; i < 24; i++) {
     s += `<path d="${WHEEL.band(116, 198, i * 15 - 7.5, i * 15 + 7.5)}" class="w-hit${i === WNL_JQ_SEL ? ' is-on' : ''}" data-i="${i}" onclick="wnlPickJq(${i})"/>`;
     s += `<path d="${WHEEL.band(116, 198, i * 15 - 7.5, i * 15 + 7.5)}" class="w-sel"/>`;
@@ -331,12 +331,11 @@ function jieqiWheel(solar, lunar){
    数据来自 assets/shiling.js 的 SHILING_JINGLUO（单一真源），不另起一份。
    弧用主体色（与节气圆盘一致：弧是骨，单色不抢；字按经络五行上色，与纳音同源）。
    盘上取字角：**最外圈**地支沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向，整圈读作一条环带；
-   **内圈**经名是两字（胆经、三焦经…），全圈走 radial 放射聚焦盘心——两字做环布会把一圈挤成密带。
+   **内圈**经名是两字（胆经、三焦经…），全圈走 radial 放射聚焦盘心，两字做环布会把一圈挤成密带。
    外圈环布、内圈放射，正是全站“只最外圈环布”那条的落实。
    十二经各占 30 度，段界落在 i*30±15，故地支、经名、刻度、指针一律落在 i*30：
    子落正上、午落正下、卯落正右、酉落正左，与老黄历十二时辰吉凶盘同一朝向（子北午南、卯东酉西）。
-   🔴 曾把整环挪 15 度以“避开四正”，结果两页同一个十二时辰环方向对不上，已归正。
-   环带自外向内：地支 210 → 十二弧 192 → 外圈 182 → 刻度 168~176 → 经名 148 → 内界圈 120 → 盘心 78。
+      环带自外向内：地支 210 → 十二弧 192 → 外圈 182 → 刻度 168~176 → 经名 148 → 内界圈 120 → 盘心 78。
    点选热区取内界圈至弧带外沿（120 至 198），不盖盘心。 */
 function jingluoWheel(){
   if (typeof SHILING_JINGLUO === 'undefined' || typeof shilingDangLing !== 'function') return '';

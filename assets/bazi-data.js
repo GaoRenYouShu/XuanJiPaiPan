@@ -2513,8 +2513,7 @@ function evalGZ(BZ, A, step){
       if(tdc && !ganSeen['tdc'+pg]){ ganSeen['tdc'+pg]=true; keys.push(`天干${g}与${ganPl(pg)}相战，且支${z}成天克地冲，引动剧烈`); }
     });
     let rating = (jiHits===0&&xiHits>0)?'吉' : (xiHits===0&&jiHits>0)?'凶' : '平';
-    /* keys 内含 HTML 标签，“用神”与“之根”之间夹着 </span>，故正则须容忍该标签，
-       否则此降档规则永不触发（旧写法 /用神之根/ 即因此失效）。 */
+    /* keys 内含 HTML 标签，“用神”与“之根”之间夹着 </span>，降档规则的正则须容忍该标签方可命中。 */
     const chongXi=keys.some(k=>/用神(<\/span>)?之根/.test(k) && /根基动荡/.test(k));
     const quJi   =keys.some(k=>/去病之吉/.test(k));
     if(chongXi && (rating==='吉'||rating==='平')) rating='中';

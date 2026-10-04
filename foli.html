@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z386">
+<link rel="stylesheet" href="assets/style.css?v=z387">
 </head>
 <body>
 <div id="topbar"></div>
@@ -62,7 +62,7 @@
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script defer src="assets/foli-terms.js?v=20260928b"></script>
 <script defer src="assets/app.js?v=20261004a"></script>
-<script defer src="assets/ai.js?v=20261003a"></script>
+<script defer src="assets/ai.js?v=20261005c"></script>
 <script>
 let cur = new Date();
 let lastKey = '';
@@ -154,9 +154,8 @@ function showFoliTip(name){
 /* 当日值宿弹窗：宿曜全名＋逐宿释义＋宿曜吉凶歌；与宿盘详情同一文案，不另起一套。
    按宿名直取（不依赖盘内选中态），详情行与宿盘详情条两处共用。
    两段制：上段逐宿释义（foli-terms.js 单一真源，已含七曜、方位、吉凶、禀性、宜忌），
-   下段吉凶歌另起一段并冠名。旧写法在歌诀前重出方位与吉凶，与释义段各说一遍；
-   且靠 .wd-br 折行，而 .wd-br 只在 .wheel-detail 作用域下有规则，弹窗内塌成零宽，
-   吉与歌诀连读成 "吉毕星造作主光前"，断句误导。 */
+   下段吉凶歌另起一段并冠名；两段以 <p> 分段，弹窗不在 .wheel-detail 作用域内，
+   .wd-br 在其中无规则，不可用作折行。 */
 function showXiuTipByName(nm){
   try{
     const luck=LunarUtil.XIU_LUCK[nm]||'', full=nm+(LunarUtil.ZHENG[nm]||'')+(LunarUtil.ANIMAL[nm]||'');
@@ -241,7 +240,7 @@ function foliBusha(lunar){
    🔴 外圈四方单字钉在四正（东右、北上、西左、南下），不随各象扇区中心：
    二十七宿不是四的整数倍，各象中心角会偏出四正（北象偏 1.7 度、西象偏 5 度），
    钉四正既合罗盘方位之例，四象名落象带时也只取整圈一致的环布读法。
-   🔴 取字角：最外圈四方单字沿圆周环布（WHEEL.ring）——正上横排、右半圈顺时针转向、正下倒排，
+   🔴 取字角：最外圈四方单字沿圆周环布（WHEEL.ring），正上横排、右半圈顺时针转向、正下倒排，
    整圈读作一条环带；内圈二十七宿名单字照旧走 WHEEL.dir（四正正立、其余沿半径散射）。 */
 const FOLI_XIU=['角','亢','氐','房','心','尾','箕','斗','女','虚','危','室','壁',
   '奎','娄','胃','昴','毕','觜','参','井','鬼','柳','星','张','翼','轸'];
@@ -372,9 +371,6 @@ const FZ_C=220, FZ_ARC=192, FZ_OUT=182, FZ_IN=120, FZ_CORE=78,
   FZ_LAB_IN=148, FZ_LAB_OUT=206, FZ_TICK0=168, FZ_TICK1=176, FZ_P0=82, FZ_P1=116,
   FZ_HIT1=FZ_ARC+6;
 const FZ_IDS={arc:'foliZhaiArc',needle:'foliZhaiNeedle',dot:'foliZhaiDot'};
-/* 五类斋期的判定说明：与 assets/lunar.js 里 FotoUtil 的五个判定函数一一对应
-   （isDayZhaiShuoWang / isDayZhaiSix / isDayZhaiTen / isDayZhaiGuanYin / isMonthZhai），
-   改判定须同改此处，免得盘下说的是另一套日子。 */
 /* 斋期判定说明表：与 assets/lunar.js 里 FotoUtil 的五个判定函数一一对应
    （isDayZhaiShuoWang / isDayZhaiSix / isDayZhaiTen / isDayZhaiGuanYin / isMonthZhai），
    改判定须同改 foli-terms.js 释义（同一张单一真源），免得盘下说的是另一套日子。
@@ -479,7 +475,7 @@ function foliZhaiWheel(){
   return `<svg class="wheel" id="foliZhaiWheel" viewBox="0 0 440 440" role="img" aria-label="斋日盘">${s}</svg>`;
 }
 /* 盘下详情条：该日斋期全列（各斋名可点弹判定与来源）+ 所查日是否属斋期。非斋日给下一个斋日，
-   好顺着盘找下去。判定说明移入弹窗（foli-terms.js 单一真源），条内不再重复。 */
+   好顺着盘找下去。判定说明收在弹窗（foli-terms.js 单一真源），条内不重复。 */
 function foliZhaiDetailHTML(i){
   const x=FZ_ITEMS&&FZ_ITEMS[i]; if(!x) return '';
   const names=x.types.map(tipSpan).join('、');

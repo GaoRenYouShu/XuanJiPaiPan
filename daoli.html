@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z386">
+<link rel="stylesheet" href="assets/style.css?v=z387">
 </head>
 <body>
 <div id="topbar"></div>
@@ -61,19 +61,19 @@
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/shiling.js?v=20260928n"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
-<script defer src="assets/tongshu-terms.js?v=20260929c"></script>
-<script defer src="assets/daoli-terms.js?v=20260929d"></script>
+<script defer src="assets/tongshu-terms.js?v=20261005a"></script>
+<script defer src="assets/daoli-terms.js?v=20261005a"></script>
 <script defer src="assets/app.js?v=20261004a"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/taisui-data.js?v=20260917da"></script>
 <script defer src="assets/gua.js?v=20260906cz1"></script>
 <script defer src="assets/jingwen.js?v=20260906cz1"></script>
-<script defer src="assets/ai.js?v=20261003a"></script>
+<script defer src="assets/ai.js?v=20261005c"></script>
 <script>
 /* ===== 道历术语弹窗体系（与佛历 foli-terms、老黄历 tongshu-terms 同制式，各页自成一份） =====
    释义双真源：道教专有层走 assets/daoli-terms.js（DAO_DICT），通用黄历层走 assets/tongshu-terms.js
    （TONGSHU_DICT，与老黄历、万年历同一张表）。前端只输出专业内容：可点术语走 tipSpan，
-   判定与来源移入弹窗，页内不再内联大段说明。 */
+   判定与来源收在弹窗一处，页内不另置大段说明。 */
 function tipSpan(name){
   if(!name || name==='无' || name==='未载') return name;
   const inDao=(typeof DAO_DICT!=='undefined')&&DAO_DICT[name];
@@ -129,9 +129,8 @@ function showHouTip(wu){
 /* 值宿弹窗：宿名（如“室”）直取，给全名、第几宿、四象、吉凶与宿诗。
    与老黄历 showXiuTipByName、佛历同制式：全名、七曜、禽兽、宿诗照 lunar.js 内置表合成，
    本页不另抄一份（抄了就要与库同改，两处真源必有一处先烂）。
-   两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名。旧写法靠 .wd-br 折行，
-   而 .wd-br 只在 .wheel-detail 作用域下有规则，弹窗内塌成零宽，
-   吉与宿诗连读成 "吉毕星造作主光前"，断句误导。 */
+   两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名；两段以 <p> 分段，
+   弹窗不在 .wheel-detail 作用域内，.wd-br 在其中无规则，不可用作折行。 */
 const DAO_XIU_28=['角','亢','氐','房','心','尾','箕','斗','牛','女','虚','危','室','壁',
   '奎','娄','胃','昴','毕','觜','参','井','鬼','柳','星','张','翼','轸'];
 function showXiuTipByName(nm){
@@ -230,7 +229,7 @@ function monthStar(y,zhi,monthZhi){
 }
 const FEI_WX={1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
 const FEI_NAME={1:'一白',2:'二黑',3:'三碧',4:'四绿',5:'五黄',6:'六白',7:'七赤',8:'八白',9:'九紫'};
-/* 九宫飞星：洛书顺飞，年家/月家/日家/时家紫白共用一图 */
+/* 九宫飞星：洛书顺飞，年家、月家、日家、时家紫白共用一图 */
 function feiXingGrid(center){
   const order=[5,6,7,8,9,1,2,3,4];
   const pmap={1:[3,2],2:[1,3],3:[2,1],4:[1,1],5:[2,2],6:[3,3],7:[2,3],8:[3,1],9:[1,2]};
@@ -269,7 +268,7 @@ function feiGridHTML(center){
    与老黄历、万年历、佛历同一套通用件（assets/wheel.js 的 WHEEL ＋ style.css 的 .wheel/.w-*），
    此处只给本页数据与令牌（--wheel-* 在 .page-daoli 段定义，主体色取玄青）。
    第二盘为本页专属的圣诞斋日盘（道历当月神仙圣诞与道教斋期合一盘），不照搬别页的盘：照搬即与本页“二十八宿”条重复。
-🔴 取字角全站一例：**最外圈**环名一律沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向——
+🔴 取字角全站一例：**最外圈**环名一律沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向，
    正上横排、右半圈顺时针转向、正下倒排，整圈读作一条环带；单字两字同法，两字一前一后落于切线。
    内侧各圈照旧：单字走 WHEEL.dir（四正正立、其余沿半径散射），两字走 WHEEL.radial（全圈放射聚焦盘心）。
    🔴 热区外沿盖到标记外沿（标记位 216 再外扩 6），命中区与悬停着色同取此值。
@@ -651,8 +650,7 @@ function cell(d,other,todayStr){
   else if(tao.isDayBaHui()) tag='八会日';
   else if(tao.isDayTianShe()) tag='天赦日';
   /* 角标与节的两种判定分开：zhaiDay 只认斋期八类，special 只作节的底色标记。
-     🔴 旧写法把 fest.length（有道教节日）也算进斋期，于是凡是神仙圣诞都标“斋”，
-     2026 年误标 44 天（圣诞、下降、成道皆非斋期）。斋期与节日是两回事，不可混。
+      斋期与节日是两回事，不可混：道教节日（圣诞、下降、成道）皆非斋期，不作“斋”角标。
      判定走 dlZhaiTypes（与圣诞斋日盘 dlDanBuild、showDay 斋期条同一函数，口径唯一）。 */
   const zhaiTypes=dlZhaiTypes(lunar,tao);
   const zhaiDay=zhaiTypes.length>0;

@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z386">
+<link rel="stylesheet" href="assets/style.css?v=z387">
 </head>
 <body>
 <div id="topbar"></div>
@@ -80,10 +80,10 @@
 <script defer src="assets/app.js?v=20261004a"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/latlng.js?v=20261004b"></script>
-<script defer src="assets/bazi-data.js?v=20260928d"></script>
+<script defer src="assets/bazi-data.js?v=20261005b"></script>
 <script defer src="assets/bazi-rel.js?v=20260920c"></script>
-<script defer src="assets/fengshui-engine.js?v=20261004b"></script>
-<script defer src="assets/ai.js?v=20261003a"></script>
+<script defer src="assets/fengshui-engine.js?v=20261005b"></script>
+<script defer src="assets/ai.js?v=20261005c"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
 <script>
 /* 出生地三级联动 + 经度缓存 + 表单持久化（复用 latlng.js 的 PROV 与 bazi-data.js 的 trueSolarTime，单源）
@@ -1308,7 +1308,7 @@ function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv){
   // 档位判定统一由 hhLvIndex(composite) 给出，等级名/主题五行/色值取 HH_LV_META 单源。
   const L=HH_LV_META[adv.lv]; const level=L.lv, wx=L.wx;
   const color=L.color;
-  window.__hhLevel=level; window.__hhAdvice=adv.level;   // __hhAdvice 为兼容字段，新建议结构在 window.__hh.adv
+  
   function pillarTbl(C,who){
     return `<div class="hh-chart"><div class="hh-chart-title">${who}</div>${renderTable(C.cols)}</div>`;
   }

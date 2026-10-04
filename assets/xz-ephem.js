@@ -14,11 +14,6 @@ function xz_jdToDate(jd){
   return new Date(ms);
 }
 
-/* 儒略日 ← Date（UT） */
-function xz_dateToJd(date){
-  return date.getTime() / 86400000 + 2440587.5;
-}
-
 /* 月亮黄纬（度）。黄纬由负转正处即升交点（罗睺）。 */
 function xz_moonLat(jd){
   return Astronomy.EclipticGeoMoon(Astronomy.MakeTime(xz_jdToDate(jd))).lat;

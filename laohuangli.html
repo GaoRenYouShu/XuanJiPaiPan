@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z386">
+<link rel="stylesheet" href="assets/style.css?v=z387">
 </head>
 <body>
 <div id="topbar"></div>
@@ -61,21 +61,21 @@
 <script defer src="assets/lunar.js?v=20260927a"></script>
 <script defer src="assets/app.js?v=20261004a"></script>
 <script defer src="assets/shiling.js?v=20260928n"></script>
-<script defer src="assets/tongshu-terms.js?v=20260929c"></script>
-<script defer src="assets/holiday.js?v=20260917h2"></script>
+<script defer src="assets/tongshu-terms.js?v=20261005a"></script>
+<script defer src="assets/holiday.js?v=20261005a"></script>
 <script defer src="assets/xuanji-lib.js?v=20260925a"></script>
 <script defer src="assets/taisui-data.js?v=20260917da"></script>
 <script defer src="assets/wheel.js?v=20260925a"></script>
-<script defer src="assets/ai.js?v=20261003a"></script>
+<script defer src="assets/ai.js?v=20261005c"></script>
 <script>
 /* ---------- 本地计算辅助 ---------- */
 /* 地支方位：DIZHI_CHONG / pairChong / 太岁常量由 assets/xuanji-lib.js、assets/taisui-data.js 共享提供 */
 const ZHI_FANG={子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北'};
-/* 胎神（日/月干支占处，据《玉匣记》歌诀：甲己占门、乙庚碓磨、丙辛厨灶、丁壬仓库、戊癸占房） */
+/* 胎神（日、月干支占处，据《玉匣记》歌诀：甲己占门、乙庚碓磨、丙辛厨灶、丁壬仓库、戊癸占房） */
 const GAN_TAISHEN={甲:'门',己:'门',乙:'碓磨',庚:'碓磨',丙:'厨灶',辛:'厨灶',丁:'仓库',壬:'仓库',戊:'房',癸:'房'};
 const ZHI_TAISHEN={子:'碓磨',丑:'厕',寅:'户',卯:'门',辰:'厨',巳:'灶',午:'厕',未:'井',申:'仓',酉:'户',戌:'房',亥:'床'};
 function taiShen(gan,zhi){return '占'+GAN_TAISHEN[gan]+'、'+ZHI_TAISHEN[zhi];}
-/* 太岁神君与犯太岁（值/冲/刑/害/破）：TAISUI_STAR / XING_TAI / HAI_TAI / PO_TAI / ZHI_SHENG 由 assets/taisui-data.js 提供 */
+/* 太岁神君与犯太岁（值、冲、刑、害、破）：TAISUI_STAR / XING_TAI / HAI_TAI / PO_TAI / ZHI_SHENG 由 assets/taisui-data.js 提供 */
 function taiSuiText(ygz,yZhi,suiPo){
   const star=TAISUI_STAR[ygz]||'未载';
   const xing=(XING_TAI[yZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
@@ -93,7 +93,7 @@ function taiSuiText(ygz,yZhi,suiPo){
    弧带一律细（3px）、低透明（.22）、主体色，整圈看去是一条淡环；只有“当前查看”那一段转实色加粗
    （4px、不透明），全盘仅此一段抢眼。外圈只放单字，不用两字以上的词：多字沿半径排开就成了长辐条，
    既挤到画布外，也失了经络圆盘那种“外圈一圈单字”的整饬。
-🔴 取字角全站一例：**最外圈**环名一律沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向——
+🔴 取字角全站一例：**最外圈**环名一律沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向，
    正上横排、右半圈顺时针转向、正下倒排，整圈读作一条环带；单字两字同法，两字一前一后落于切线。
    内侧各圈照旧：单字走 WHEEL.dir（四正正立、其余沿半径散射），两字走 WHEEL.radial（全圈放射聚焦盘心）。
    🔴 全盘只有一套标记：加粗弧、指针、圆点、内侧字高亮、盘心、下方详情，统统指向同一个“当前查看”
@@ -159,9 +159,8 @@ function showShilingTip(item){
 }
 /* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗。按宿名直取（不依赖盘内选中态），
    详情条与基础信息表二十八宿条两处共用；宿诗只在此弹窗出一份，详情条不再重复。
-   两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名。旧写法靠 .wd-br 折行，
-   而 .wd-br 只在 .wheel-detail 作用域下有规则，弹窗内塌成零宽，
-   吉与宿诗连读成 "吉毕星造作主光前"，断句误导。 */
+   两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名；两段以 <p> 分段，
+   弹窗不在 .wheel-detail 作用域内，.wd-br 在其中无规则，不可用作折行。 */
 function showXiuTipByName(nm){
   try{
     if(typeof LunarUtil==='undefined'||!LunarUtil.XIU_SONG) return;
@@ -329,7 +328,7 @@ function xiuWheel(lunar){
     s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl" style="fill:${x[5]}"`
       +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x[4]}</text>`;
   });
-  /* 内圈：二十八宿名，单字，按吉凶着色，走 WHEEL.dir——四正处（房、虚、昴、星）正立，
+  /* 内圈：二十八宿名，单字，按吉凶着色，走 WHEEL.dir，四正处（房、虚、昴、星）正立，
      其余沿半径散射。环布只给最外圈的四象方位字。 */
   LHL_XIU.forEach(function(x,i){
     const dg=xiuMid(i), tp=WHEEL.px(W_LAB_IN,dg);
@@ -366,7 +365,7 @@ function lhlPickXiu(i){
   const d=document.getElementById('lhlXiuDetail');
   if(d) d.innerHTML=lhlXiuDetailHTML(i,x);
 }
-/* 九宫飞星：洛书顺飞，年家/月家/日家/时家紫白共用一图 */
+/* 九宫飞星：洛书顺飞，年家、月家、日家、时家紫白共用一图 */
 function feiXingGrid(center){
   /* 洛书顺飞轨迹：中(5)→乾(6)→兑(7)→艮(8)→离(9)→坎(1)→坤(2)→震(3)→巽(4) */
   const order=[5,6,7,8,9,1,2,3,4];
@@ -409,7 +408,7 @@ function baiSegment(y,m,d){
   if(q>=CZ&&q<SJ) return {base:3,dir:-1};  /* 阴中元 */
   return {base:6,dir:-1};                  /* 阴下元（霜降→冬至） */
 }
-/* 三伏/出伏/数九/入梅出梅 时令取自 assets/shiling.js（与万年历共用真源） */
+/* 三伏、出伏、数九、入梅出梅 时令取自 assets/shiling.js（与万年历共用真源） */
 function dayStar(y,m,d){
   const n=gzIndex(Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi()); /* 1..60 */
   const off=(n-1+60)%60;                    /* 距最近甲子日（符头）天数 */

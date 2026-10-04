@@ -101,6 +101,7 @@
               return g;
             });
           })
+          .then(function (g) { if (g) writeCache(y, g); return g; })
           .catch(function () { return null; });
     pending[y] = p.then(
       function (g) { ready[y] = g || {}; return g; },

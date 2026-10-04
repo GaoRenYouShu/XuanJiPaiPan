@@ -1153,7 +1153,6 @@ async function runAiAnalyze(question, selectedIdx){
     const user = `【术数类型】${title}\n【盘面信息】\n${ctx}\n\n请给出解读。`;
     messages.push({ role: 'user', content: user, models: allIdx });
     window.__aiHistory = messages.slice();
-    window.__aiLastContext = ctx;
   } else {
     // 对话：使用传入的 selectedIdx，未传则默认当前活动标签
     if (Array.isArray(selectedIdx)){

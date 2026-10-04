@@ -195,7 +195,7 @@ select option{font-family:inherit}
 /* generic page */
 /* 精简边框三层+内层四模块：去外层 .page 框（与 body 同质）、.mod-head 仅留底色+金色左线（去全框）。响应式下少 2-3 层叠加挤压。 */
 /* 间距单一来源：footer 顶部 padding(var(--sp-4)=16px) 已承担"内容→免责声明"的间隙，
-   故 .page 底部 padding 归零，避免与 footer 顶部 padding 叠加成双倍（万年历等通用 .page 页曾出现 28px 空隙）。
+   故 .page 底部 padding 归零，避免与 footer 顶部 padding 叠加成双倍间隙。
    首页等 .hm-page 已显式 padding:0 24px，与此一致。 */
 .page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
 /* 全站 .info-box 高级卡片语言（对齐历法页/首页模块）：纯白底 + 细边 + 圆角 + 极淡阴影，克制不厚重。
@@ -4136,7 +4136,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarM select{width:72px}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarD select{width:68px}
 }
-/* 窄屏选项行：公历/农历模式一致，行1 子时+空亡 各半；行2 排盘+保存 各半（真太阳时校正已移入出生地框）。 style.css .opts-row .field{min-width:160px} 会撑破 4 列 grid，必须 min-width:0 重置。 lunar 必须与 date 同规则，否则 mode-lunar 无 mode-date class，opts-row 回退 style.css 默认乱排）
+/* 窄屏选项行：公历/农历模式一致，行1 子时+空亡 各半；行2 排盘+保存 各半。 style.css .opts-row .field{min-width:160px} 会撑破 4 列 grid，必须 min-width:0 重置。 lunar 必须与 date 同规则，否则 mode-lunar 无 mode-date class，opts-row 回退 style.css 默认乱排）
    窄屏列宽仅 155.5px，子时选项墨迹 131.5、空亡 130，超出通用段 12px 横向内边距的内容区（129.5）。
    本档把 select 横向内边距收到 6px，让出 12px，文字居中显示无截断；高度仍由通用段给 30px。 */
 @media(max-width:640px){
@@ -8155,8 +8155,8 @@ to{opacity:1;transform:none}}
 .page-tr .sub-note{color:var(--tr-ink2)}
 .page-tr .tr-stats{color:var(--tr-ink)}
 
-/* 抽牌表单行：只写本页墨色与控件描边。排布与间距属共享件共性，页面段不写（曾在此处写
-   justify-content:center 与 margin-bottom:0，使控件脱离页面左基线、并把表单与牌面间 24px 抹掉） */
+/* 抽牌表单行：只写本页墨色与控件描边。排布与间距属共享件共性，页面段不写对齐与外距：
+   行随页面左基线，表单与牌面间距由共享件承担。 */
 .page-tr .page > .form-row .field label{color:var(--tr2);font-weight:400}
 .page-tr .page > .form-row .field input,.page-tr .page > .form-row .field select{border-color:var(--tr-line);transition:border-color .15s}
 .page-tr .page > .form-row .field input:focus,.page-tr .page > .form-row .field select:focus{border-color:var(--tr);outline:none}
