@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z387">
+<link rel="stylesheet" href="assets/style.css?v=z388">
 </head>
 <body>
 <div id="topbar"></div>
@@ -543,7 +543,7 @@ function nmGo(){
   btn.disabled=true;
   btn.textContent='正在计算中';
   nmStackReady(function(){
-    var ready=(window.NAME_ARCHIVE_LOADER&&window.NAME_ARCHIVE_LOADER.ensure)?window.NAME_ARCHIVE_LOADER.ensure(['semantic','jianfan-full','zodiac']):Promise.resolve(true);
+    var ready=(window.NAME_ARCHIVE_LOADER&&window.NAME_ARCHIVE_LOADER.ensure)?window.NAME_ARCHIVE_LOADER.ensure(['semantic','jianfan-full']):Promise.resolve(true);
     ready.then(function(){
       setTimeout(function(){
         /* 主按钮＝再要一批，故进入时置续取标记；该标记由本函数收尾清除，
@@ -750,12 +750,11 @@ function query(){
       if(!window.NAME_HEXAGRAM) return '';
       var r2=window.NAME_HEXAGRAM.build((LAST.xs||[]).filter(function(c){return isHanzi(c);}), (LAST.ms||[]).filter(function(c){return isHanzi(c);}));
       if(!r2) return '';
-      return '<section class="mod collapsed" id="nmModMingGua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">名卦（梅花字占，民俗参考）</span></div>'
-        +'<div class="mod-body">'
+      return '<details class="mh-ref" id="nmModMingGua"><summary>名卦（梅花字占，民俗参考）</summary>'
         +'<div class="hex-row nm-center"><div class="hex-name"><span class="hx">'+r2.lsym+r2.usym+'</span> <b>'+r2.name+'</b></div></div>'
         +'<p class="sub-note nm-center">上卦'+r2.upper+'（姓 '+r2.xingStrokes+' 画），下卦'+r2.lower+'（名 '+r2.mingStrokes+' 画），动爻第'+r2.dong+'爻，变卦<b>'+r2.changedName+'</b></p>'
         +'<p class="sub-note nm-center">'+r2.palace+' '+r2.type+'（世'+r2.world+' 应'+r2.ying+'）　口径：'+r2.caliber+'</p>'
-        +'</div></section>';
+        +'</details>';
     }
     var hexagramHtml=hexagramHtmlBuild();
     /* T13：生肖宜忌区块（字根宜忌为民俗通行口径；判定引擎 name-zodiac.js，
@@ -786,8 +785,7 @@ function query(){
       }).join('');
       var lv=a.level==='宜'?'吉':(a.level==='慎'?'凶':'');
       var lvHtml=a.level==='中性'?'中性':'<b class="'+LUCK_CLS[lv]+'">'+a.level+'</b>';
-      return '<section class="mod collapsed" id="nmModShengXiao"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">生肖宜忌</span></div>'
-        +'<div class="mod-body">'
+      return '<details class="mh-ref" id="nmModShengXiao"><summary>生肖宜忌</summary>'
         +'<p class="sub-note nm-center">生肖'+a.zodiac+'（'+a.branch+'）　'+relLine.join('　')+'　综合档：<b class="'+(lv?LUCK_CLS[lv]:'')+'">'+a.level+'</b></p>'
         +'<table class="xlr-table nm-mt-1"><tbody>'
         +'<tr><th>宜用字根</th><td>'+(a.yiHits.length?a.yiHits.join('、'):'无')+'</td></tr>'
@@ -795,7 +793,7 @@ function query(){
         +rows
         +'</tbody></table>'
         +'<p class="sub-note nm-center">地支关系为客观规则；字根宜忌为民俗通行口径，仅供参考</p>'
-        +'</div></section>';
+        +'</details>';
     }
     var zodiacHtml=zodiacHtmlBuild();
     var matchHtml='';
@@ -2173,8 +2171,9 @@ function nmBoot(){
     var el=document.getElementById(id); if(el) el.addEventListener('change', nmXiCalc);
   });
   if(document.getElementById('nmBDate').value&&document.getElementById('nmBTime').value) nmXiCalc();
-  query();
-  window.__nmInitDone=true;
+  var nmLoader=window.NAME_ARCHIVE_LOADER;
+  var nmReady=(nmLoader&&nmLoader.ensure)?nmLoader.ensure(['semantic','jianfan-full']):Promise.resolve(true);
+  nmReady.then(function(){ query(); window.__nmInitDone=true; });
 }
 /* 附加功能的取文：由 mountAI 调用，正文随结果区重画 */
 function nmAiText(){
@@ -2255,6 +2254,7 @@ window.addEventListener('load', function () {
         'assets/name-archive-jianfan.js',
         'assets/name-archive-surname-reading.js',
         'assets/name-archive-hand.js',
+        'assets/name-archive-zodiac.js',
         'assets/name-archive-homophone.js',
         'assets/name-archive-manifest.js',
         'assets/name-archive-loader.js',
