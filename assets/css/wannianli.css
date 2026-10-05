@@ -1,0 +1,209 @@
+/* 页级样式：wannianli
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-wnl .page h1{color:var(--wnl-deep);font-family:var(--wnl-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-wnl .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--wnl-line);margin:0 auto var(--sp-3)}
+
+.page-wnl .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--wnl-line);margin:var(--sp-3) auto 0}
+
+.page-wnl .page .lead{color:var(--wnl-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-wnl .page .lead::after{background:var(--wnl-line)}
+
+.page-wnl .page > .form-row{
+  background:none;border:0;border-radius:0;
+  padding:0;margin-top:var(--sp-2);margin-bottom:0;box-shadow:none;
+  align-items:center;justify-content:center;
+}
+
+.page-wnl .page > .form-row .field{flex:0 0 auto;width:auto;max-width:none;
+  flex-direction:row;align-items:center;gap:var(--sp-2)}
+
+.page-wnl .page > .form-row .field .dt-wrap{width:auto}
+
+.page-wnl .page > .form-row .field label{color:var(--wnl2);font-weight:400;margin:0;white-space:nowrap}
+
+.page-wnl .page > .form-row .field input{border-color:var(--wnl-line);border-radius:0;padding:4px 10px;
+  transition:border-color .15s,box-shadow .15s}
+
+.page-wnl .page > .form-row .field input:focus{border-color:var(--wnl);outline:none}
+
+.page-wnl .page > .form-row .btn.gold{background:var(--wnl);border-radius:0;padding:5px 14px;box-shadow:none;margin-bottom:0}
+
+.page-wnl .page > .form-row .btn.gold:hover{background:var(--wnl2)}
+
+.page-wnl .btn,.page-wnl .btn.gold{background:var(--wnl);border-color:var(--wnl);color:#fff;box-shadow:none}
+
+.page-wnl .btn:hover,.page-wnl .btn.gold:hover{background:var(--wnl2);color:#fff;box-shadow:none}
+
+.page-wnl .cal-nav{margin:var(--sp-3) 0 var(--sp-2)}
+
+.page-wnl .cal-title{color:var(--wnl-deep);font-family:var(--wnl-serif);font-weight:400;font-size:19px;letter-spacing:.2em;text-indent:.2em;padding:0 var(--sp-2)}
+
+.page-wnl .nav-btn{background:transparent;border-color:transparent;color:var(--wnl);border-radius:0}
+
+.page-wnl .nav-btn:hover{background:var(--wnl-tint);border-color:transparent;color:var(--wnl2);box-shadow:none}
+
+.page-wnl .nav-btn:focus-visible{border-color:var(--wnl);outline:none}
+
+.page-wnl .cal-grid .wd{color:var(--wnl);font-family:var(--wnl-serif);font-weight:400;
+  letter-spacing:.12em;border-bottom:1px solid var(--wnl-line);padding-bottom:var(--sp-1)}
+
+.page-wnl .cal-cell.today{background:var(--wnl);box-shadow:none}
+
+.page-wnl .cal-cell.today.zhai{background:var(--wnl)}
+
+.page-wnl .cal-cell.selected:not(.today){background:var(--wnl-tint);border-color:var(--wnl)}
+
+.page-wnl .cal-cell:hover:not(.today){background:#e7f0f0}
+
+.page-wnl .cal-cell.today:hover{background:var(--wnl2)}
+
+.page-wnl .cal-cell::before{display:none}
+
+.page-wnl .cal-cell .jq-mark{color:#1f7a68}
+
+.page-wnl .cal-cell .slot-jq{color:#1f7a68}
+
+.page-wnl .cal-cell .slot-fest{color:var(--red)}
+
+.page-wnl .cal-cell .ld{color:var(--wnl-ink2)}
+
+.page-wnl .cal-cell.weekend .sd-num{color:var(--red)}
+
+.page-wnl .today-card{
+  position:relative;overflow:hidden;
+  background:transparent;
+  border:0;border-top:1px solid var(--wnl-line);border-bottom:1px solid var(--wnl-line);
+  border-radius:0;
+  box-shadow:none;
+  padding:var(--sp-4) 0;
+}
+
+.page-wnl .today-top{flex-direction:column;gap:var(--sp-3)}
+
+.page-wnl .big-date{display:flex;flex-direction:column-reverse;align-items:center}
+
+.page-wnl .big-date .d{color:var(--wnl);font-family:var(--wnl-serif);font-weight:400;font-size:42px}
+
+.page-wnl .big-date .ym{font-size:12.5px;letter-spacing:.2em;text-indent:.2em;color:var(--wnl-ink2)}
+
+.page-wnl .lunar-info .ln{color:var(--wnl-deep);font-family:var(--wnl-serif);font-weight:400;
+  font-size:22px;letter-spacing:.14em;text-indent:.14em}
+
+.page-wnl .lunar-info .zodiac{font-size:12px;letter-spacing:.06em;color:var(--wnl-ink2);margin-top:var(--sp-2)}
+
+.page-wnl .cal-cell:not(.weekend):not(.today) .sd-num{color:var(--wnl-ink)}
+
+.page-wnl .sub-note{color:var(--wnl-ink2)}
+
+.page-wnl .rel-title{color:var(--wnl-deep)}
+
+.page-wnl .wnl-info{margin-top:var(--sp-3);columns:2;column-gap:var(--sp-5);
+  font-size:14px;border-top:1px solid var(--wnl-line)}
+
+.page-wnl .wnl-i{display:flex;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--wnl-line);
+  break-inside:avoid;page-break-inside:avoid}
+
+.page-wnl .wnl-i.wide{column-span:all}
+
+.page-wnl .wnl-i>.k{flex:0 0 88px;color:var(--wnl2);letter-spacing:.5px}
+
+.page-wnl .wnl-i>.v{flex:1;min-width:0;color:var(--wnl-ink);line-height:1.7}
+
+.page-wnl .wnl-i>.v.yi{color:var(--green)}
+
+.page-wnl .wnl-i>.v.ji{color:var(--red)}
+
+.page-wnl .wnl-i>.v.yi .tip{color:var(--green)}
+
+.page-wnl .wnl-i>.v.yi .tip:hover{color:var(--green);background:rgba(31,122,61,.12)}
+
+.page-wnl .wnl-i>.v.ji .tip{color:var(--red)}
+
+.page-wnl .wnl-i>.v.ji .tip:hover{color:var(--red);background:rgba(246,83,82,.12)}
+
+.page-wnl .wnl-info .wnl-br{display:inline-block;width:.9em}
+
+.page-wnl .ngw{white-space:nowrap}
+
+.page-wnl .ai-block{
+  border:0;border-top:1px solid var(--wnl-line);border-bottom:1px solid var(--wnl-line);border-radius:0;
+  background:transparent;color:var(--wnl-ink);
+  box-shadow:none;
+}
+
+.page-wnl .ai-head{
+  background:transparent;
+  border-bottom-color:var(--wnl-line);
+}
+
+.page-wnl .ai-head h3{color:var(--wnl2);font-family:var(--wnl-serif);font-weight:400}
+
+.page-wnl .ai-head .ai-status{color:var(--wnl-ink2)}
+
+.page-wnl .ai-block .btn{background:var(--wnl);border-radius:0}
+
+.page-wnl .ai-block .btn:hover{background:var(--wnl2)}
+
+.page-wnl .ai-block .btn.gold,.page-wnl .ai-block .btn.soft{background:var(--wnl-tint);border-color:var(--wnl-line);color:var(--wnl-ink)}
+
+.page-wnl .ai-block .btn.gold:hover,.page-wnl .ai-block .btn.soft:hover{background:var(--card);border-color:var(--wnl);color:var(--wnl2)}
+
+.page-wnl .ai-tab{border-radius:0}
+
+.page-wnl .ai-pane .ai-out{border-radius:0}
+
+.page-wnl .ai-bubble{border-radius:0}
+
+.page-wnl .ai-tab:hover{border-color:var(--wnl);color:var(--wnl2)}
+
+.page-wnl .ai-tab.active{background:var(--wnl);border-color:var(--wnl);color:#fff}
+
+.page-wnl .ai-tab.active:hover{background:var(--wnl2);border-color:var(--wnl2);color:#fff}
+
+.page-wnl .ai-bubble.user{background:var(--wnl-tint);border-color:var(--wnl)}
+
+.page-wnl .ai-bubble.assistant{border-color:var(--wnl-line)}
+
+.page-wnl .ai-model-row:hover{background:var(--wnl-tint)}
+
+.page-wnl .ai-tip{color:var(--wnl-ink2)}
+
+.page-wnl .ai-block .ai-out,.page-wnl .ai-block .ai-bubble.user,.page-wnl .ai-block .ai-bubble.assistant,.page-wnl .ai-block .ai-model-name{color:var(--wnl-ink)}
+
+.page-wnl .ai-block input,.page-wnl .ai-block select{color:var(--wnl-ink)}
+
+@media(max-width:640px){
+  .page-wnl .big-date .d{font-size:36px}
+  .page-wnl .lunar-info .ln{font-size:19px}
+  /* 窄屏：字段流转单栏，分段符由 0.9em 间隙改整行换行 */
+  .page-wnl .wnl-info{columns:1}
+  .page-wnl .wnl-info .wnl-br{display:block;height:0;width:0}
+}
+
+@media print{
+  .page-wnl .cal-grid,.page-wnl .today-card{background:var(--card) !important;box-shadow:none !important}
+  .page-wnl .cal-grid .wd{border-bottom-color:var(--line)}
+  .page-wnl .wheel-wheels{background:transparent !important}
+}
+
+.page-wnl .wnl-yiji{display:flex;gap:var(--sp-2);grid-column:1/-1;margin-top:var(--sp-3)}
+
+.page-wnl .wnl-yiji .info-box{flex:1;min-width:0}
+
+@media (prefers-color-scheme: dark){
+  html .page-wnl {
+    --wnl:#2696a5;
+    --wnl2:#2199ab;
+    --wnl-deep:#d4e0e3;
+    --wnl-ink:#cbd4d7;
+    --wnl-ink2:#9ba9ac;
+    --wnl-line:#404e4e;
+    --wnl-tint:#212b2b;
+  }
+}

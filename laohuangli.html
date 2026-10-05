@@ -18,16 +18,17 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script defer src="assets/meta.js?v=20260925b"></script>
-<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=20261004a">
-<link rel="icon" href="assets/logo/favicon.ico?v=20261004a" sizes="32x32">
-<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png?v=20261004a">
+<script defer src="assets/meta.js?v=2740dac0"></script>
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=10cf4858">
+<link rel="icon" href="assets/logo/favicon.ico?v=6a2ce483" sizes="32x32">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png?v=ee691450">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=20261004a">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=20260927995e">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=20260927995e">
-<link rel="stylesheet" href="assets/fonts/site-sym.css?v=20260929f">
-<link rel="stylesheet" href="assets/style.css?v=z390">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=a78a985e">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
+<link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
+<link rel="stylesheet" href="assets/style.css?v=b960d03e">
+<link rel="stylesheet" href="assets/css/laohuangli.css?v=52980d90">
 </head>
 <body>
 <div id="topbar"></div>
@@ -58,15 +59,15 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/lunar.js?v=20260927a"></script>
-<script defer src="assets/app.js?v=20261004a"></script>
-<script defer src="assets/shiling.js?v=20260928n"></script>
-<script defer src="assets/tongshu-terms.js?v=20261005a"></script>
-<script defer src="assets/holiday.js?v=20261005a"></script>
-<script defer src="assets/xuanji-lib.js?v=20260925a"></script>
-<script defer src="assets/taisui-data.js?v=20260917da"></script>
-<script defer src="assets/wheel.js?v=20260925a"></script>
-<script defer src="assets/ai.js?v=20261005c"></script>
+<script defer src="assets/lunar.js?v=9750324b"></script>
+<script defer src="assets/app.js?v=20871d52"></script>
+<script defer src="assets/shiling.js?v=47791a00"></script>
+<script defer src="assets/tongshu-terms.js?v=f266b8b2"></script>
+<script defer src="assets/holiday.js?v=5a9525d6"></script>
+<script defer src="assets/xuanji-lib.js?v=6e7aefad"></script>
+<script defer src="assets/taisui-data.js?v=8445284e"></script>
+<script defer src="assets/wheel.js?v=b5e657ab"></script>
+<script defer src="assets/ai.js?v=05f6b216"></script>
 <script>
 /* ---------- 本地计算辅助 ---------- */
 /* 地支方位：DIZHI_CHONG / pairChong / 太岁常量由 assets/xuanji-lib.js、assets/taisui-data.js 共享提供 */
@@ -156,6 +157,13 @@ function showShilingTip(item){
   const key=(typeof shilingRuleKeyOf==='function')?shilingRuleKeyOf(item):'';
   const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
   _lhlShow(item, txt||'（暂无说明）');
+}
+/* 经络当令弹窗：当令经的全名、时段与宜做（取 shiling.js SHILING_JINGLUO 单一真源）；
+   按传入时支取数，与行内所示同一时辰，不按点击时刻重推 */
+function showDangLingTip(zhi){
+  const j=(typeof SHILING_JINGLUO!=='undefined')?SHILING_JINGLUO.find(function(x){return x.zhi===zhi;}):null;
+  if(!j) return;
+  _lhlShow(j.zhi+'时 '+j.jing, j.full+'，当令时段 '+j.range+'。宜 '+j.yi+'。');
 }
 /* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗。按宿名直取（不依赖盘内选中态），
    详情条与基础信息表二十八宿条两处共用；宿诗只在此弹窗出一份，详情条不再重复。
@@ -528,7 +536,9 @@ function query(){
   const wuHou=(typeof shilingWuHouInfo==='function')?shilingWuHouInfo(lunar):null;
   /* 物候行：全名“节气 候序 候名”，候名可点取释义；无候可查时整行不点，免得点了弹空窗 */
   shilingParts.push('物候：'+(wuHou?`${wuHou.jq} ${wuHou.hou} <span class="tip" onclick="showHouTip('${wuHou.wu}')">${wuHou.wu}</span>`:(shilingWuHou(lunar)||'无')));
-  shilingParts.push('经络当令：'+shilingDangLing().text);
+  /* 经络当令：可点弹窗，弹出全名时段与宜做，按行内时支取数（与显示同一时辰，不按点击时刻重推） */
+  const dangLing=shilingDangLing();
+  shilingParts.push('经络当令：<span class="tip" onclick="showDangLingTip(\''+dangLing.zhi+'\')">'+dangLing.text+'</span>');
   renderGrid();
   /* 今日卡 */
   html+=`<div class="today-card">
