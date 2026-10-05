@@ -1,0 +1,454 @@
+/* 页级样式：xingming
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+/*
+   黛墨、青玉主题：青玉主色（--nm）配青灰墨正文，令牌与本页细则同段，令牌块见本段首条。
+   日期弹框主题见本段 .dtm-nm。 */
+
+.page-nm{
+  --nm:#3d8b7d;
+  --nm2:#2e7264;
+  --nm-deep:#1f4f44;
+  --nm-ink:#3a4a45;
+  --nm-ink2:#6d8a80;
+  --nm-line:#c8e3da;
+  --nm-tint:#f2faf7;
+  --nm-serif:var(--font-serif);
+  --gold2:var(--nm2);
+  --gold:var(--nm);
+  --gold-brown:var(--nm2);
+  --gold-bg:var(--nm-tint);
+  --ink2:var(--nm-ink2);
+  --foot-ink:var(--nm2);
+  --wheel-serif:var(--nm-serif);
+  --wheel-line:var(--nm-line);
+  --wheel-arc:var(--nm);
+  --wheel-ink:var(--nm-ink);
+  --wheel-deep:var(--nm-deep);
+  --wheel-ink2:var(--nm-ink2);
+  --wheel-cur:var(--nm);
+  --wheel-core:var(--nm-tint);
+  --wheel-h4:var(--nm2);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);
+  --line:var(--nm-line);--ink:var(--nm-ink)
+}
+
+.page-nm .page h1{color:var(--nm-deep);font-family:var(--nm-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-nm .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--nm-line);margin:0 auto var(--sp-3)}
+
+.page-nm .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--nm-line);margin:var(--sp-3) auto 0}
+
+.page-nm .page .lead{color:var(--nm-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-nm .page .lead::after{background:var(--nm-line)}
+
+.page-nm .det-h{color:var(--nm-deep)}
+
+.page-nm .ly-zh-p{color:var(--nm-ink)}
+
+.page-nm .sub-note{color:var(--nm-ink2)}
+
+.page-nm .mh-method{color:var(--nm-ink2)}
+
+.page-nm .notice{color:var(--nm-ink);border:0;border-top:1px solid var(--nm-line);border-bottom:1px solid var(--nm-line);background:transparent;border-radius:0}
+
+.page-nm .field label{color:var(--nm2);font-weight:400}
+
+.page-nm .field.chk label{font-weight:400}
+
+.page-nm .field input,.page-nm .field select{border-color:var(--nm-line);background:var(--card);color:var(--nm-deep);transition:border-color .15s,box-shadow .15s}
+
+.page-nm .field input:focus,.page-nm .field select:focus{border-color:var(--nm);outline:none}
+
+.page-nm .nm-wxrow select{color:var(--nm-deep)}
+
+.page-nm .group-label{color:var(--nm2)}
+
+.page-nm .nm-go-row{display:flex;flex:1 1 100%;flex-wrap:wrap;align-items:center;gap:var(--sp-3) var(--sp-4)}
+
+.page-nm .nm-go-row .btn{margin:0}
+
+.page-nm .nm-go-row .nm-b2{flex-direction:row;align-items:center;gap:var(--sp-2);min-width:auto;max-width:none}
+
+.page-nm .nm-go-row .nm-b2 label{white-space:nowrap;color:var(--nm-ink2)}
+
+.page-nm .birth-group,.page-nm .birth-group.compact{background:transparent;border:0;border-top:1px solid var(--nm-line);border-radius:0;box-shadow:none;padding:var(--sp-3) 0}
+
+@media(max-width:640px){.page-nm .birth-group,.page-nm .birth-group.compact{padding-top:var(--sp-2)}}
+
+.page-nm .btn{background:var(--nm);color:#fff;box-shadow:none}
+
+.page-nm .btn:hover{background:var(--nm2)}
+
+.page-nm .btn-ghost{background:var(--card);border:1px solid var(--nm);color:var(--nm2);box-shadow:none}
+
+.page-nm .btn-ghost:hover{background:var(--nm-tint)}
+
+.page-nm .mod-head{border-color:var(--nm-line)}
+
+.page-nm .mod-title{color:var(--nm2)}
+
+.page-nm .mod-n{background:var(--nm);color:#fff}
+
+.page-nm .nm-lead{background:transparent;border-top:1px solid var(--nm-line);border-radius:0;padding:var(--sp-2) 0;margin:0 0 var(--sp-3)}
+
+.page-nm .nm-lead .ly-zh-p{margin:0}
+
+.page-nm .xlr-table{width:100%;max-width:100%;border-collapse:collapse;font-size:13px}
+
+.page-nm .xlr-table th,.page-nm .xlr-table td{border:1px solid var(--nm-line);padding:6px 9px;text-align:left;vertical-align:top;font-weight:400}
+
+.page-nm .xlr-table th{background:var(--nm-tint);color:var(--nm2);white-space:nowrap;text-align:center}
+
+.page-nm .xlr-table td{color:var(--nm-ink)}
+
+.page-nm .nm-note-tbl th{padding-right:var(--sp-4)}
+
+.page-nm .nm-note-tbl td{line-height:1.8}
+
+.page-nm .xlr-table.nm-left td:first-child{text-align:center}
+
+.page-nm .mh-ref{border-color:var(--nm-line)}
+
+.page-nm .mh-ref summary{color:var(--nm2)}
+
+.page-nm .mh-ref th,.page-nm .mh-ref td{border-color:var(--nm-line)}
+
+.page-nm .mh-ref th{background:var(--nm-tint);color:var(--nm-deep);font-weight:400}
+
+.page-nm .mh-ref td{background:transparent;color:var(--nm-ink)}
+
+.page-nm .lr-ke{background:transparent;border:0;border-top:1px solid var(--nm-line);border-radius:0;box-shadow:none}
+
+.page-nm .lr-ke:hover{background:var(--gold-bg)}
+
+.page-nm .nm-chuans{gap:0;max-width:none}
+
+.page-nm .nm-chuans .lr-chuan{background:transparent;border:0;border-top:1px solid var(--nm-line);
+  border-radius:0;box-shadow:none;padding:var(--sp-3) 0}
+
+.page-nm .nm-chuans .lr-chuan:last-child{border-bottom:1px solid var(--nm-line)}
+
+.page-nm .nm-chuans .lr-chuan:hover{background:var(--nm-tint)}
+
+.page-nm .mod-body .lr-kes{gap:var(--sp-3) var(--sp-4);justify-content:stretch;flex-wrap:wrap}
+
+.page-nm .mod-body .lr-kes .lr-ke{flex:1 1 0;min-width:0}
+
+.page-nm .lr-ke-u{color:var(--nm2)}
+
+.page-nm .lr-ke-l{color:var(--nm)}
+
+.page-nm .lr-ke-d{color:var(--nm-ink);border-top-color:var(--nm-line)}
+
+.page-nm .zr-tag{color:var(--nm-ink)}
+
+.page-nm .zr-tag.nm-tag{color:var(--nm2)}
+
+.page-nm .zr-tag.nm-tag-soft{color:var(--nm2)}
+
+.page-nm .zr-tag.nm-tag-warn{color:var(--red)}
+
+.page-nm .hh-total{border:0;background:transparent;box-shadow:none}
+
+.page-nm .hh-total::before{background:var(--nm2)}
+
+.page-nm .hh-total-cap{color:var(--nm2)}
+
+.page-nm .hh-total-score b{text-shadow:none}
+
+.page-nm .hh-total-lv{border-top:1px dashed var(--nm-line)}
+
+.page-nm .wheel-wheels{margin-top:var(--sp-3);padding-top:var(--sp-3)}
+
+.page-nm .ai-block{border:0;border-top:1px solid var(--nm-line);border-bottom:1px solid var(--nm-line);border-radius:0;background:transparent;color:var(--nm-ink);box-shadow:none}
+
+.page-nm .ai-head{background:transparent;border-bottom-color:var(--nm-line)}
+
+.page-nm .ai-head h3{color:var(--nm2);font-family:var(--nm-serif);font-weight:400}
+
+.page-nm .ai-head .ai-status{color:var(--nm-ink2)}
+
+.page-nm .ai-block .btn{border-radius:0}
+
+.page-nm .ai-block .btn.gold,.page-nm .ai-block .btn.soft{background:var(--nm-tint);border-color:var(--nm-line);color:var(--nm-ink);box-shadow:none}
+
+.page-nm .ai-block .btn.gold:hover,.page-nm .ai-block .btn.soft:hover{background:var(--card);border-color:var(--nm);color:var(--nm2)}
+
+.page-nm .ai-block .ai-out,.page-nm .ai-block .ai-bubble.user,.page-nm .ai-block .ai-bubble.assistant,.page-nm .ai-block .ai-model-name{color:var(--nm-ink)}
+
+.page-nm .ai-block input,.page-nm .ai-block select{color:var(--nm-ink)}
+
+.page-nm .ai-tab:hover{border-color:var(--nm);color:var(--nm2)}
+
+.page-nm .ai-tab.active{background:var(--nm);border-color:var(--nm);color:#fff}
+
+.page-nm .ai-tab.active:hover{background:var(--nm2);border-color:var(--nm2);color:#fff}
+
+.page-nm .ai-bubble.user{background:var(--nm-tint);border-color:var(--nm)}
+
+.page-nm .ai-bubble.assistant{border-color:var(--nm-line)}
+
+.page-nm .ai-model-row:hover{background:var(--nm-tint)}
+
+.page-nm .ai-tip{color:var(--nm-ink2)}
+
+.page-nm .mod-body,.page-nm .nm-sub-sec{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.page-nm .xlr-table:has(tr>*:nth-child(3)){min-width:560px}
+
+.page-nm .nm-imp-k{color:var(--nm2)}
+
+.page-nm .nm-imp-p{margin:0;font-size:12px}
+
+.page-nm .nm-tag-imp{color:var(--nm-ink)}
+
+.page-nm .nm-word-card{margin:0 0 var(--sp-3);padding:var(--sp-2) 0 0;border:0;border-top:1px dashed var(--nm-line);border-radius:0;background:transparent;display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-1) var(--sp-3)}
+
+.page-nm .nm-word-t{font-size:var(--tier2);color:var(--nm2)}
+
+.page-nm .nm-word-d{color:var(--nm-ink)}
+
+.page-nm .nm-word-s{font-size:12px;color:var(--nm-ink2)}
+
+.page-nm .nm-word-tbl{margin-top:var(--sp-3)}
+
+.page-nm .nm-word-tbl th{white-space:nowrap}
+
+.page-nm .nm-word-tbl thead th.nm-word-term{width:88px}
+
+.page-nm .nm-word-tbl thead th.nm-word-mean{width:44%}
+
+.page-nm .nm-word-tbl .nm-word-s{display:block;margin-top:2px}
+
+.page-nm .nm-hide{display:none}
+
+.page-nm .nm-shu-line{font-size:13px}
+
+.page-nm .nm-word-jd{display:inline-block;padding:1px var(--sp-1);border:0;font-size:12px;color:var(--nm2)}
+
+.page-nm .nm-heat-p{font-size:12px;color:var(--red2)}
+
+.page-nm .nm-pager{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);margin-top:var(--sp-3)}
+
+.page-nm .nm-pg-info{font-size:13px;color:var(--nm-ink2)}
+
+.page-nm .nm-fav-bar{margin-bottom:var(--sp-2);padding:var(--sp-1) var(--sp-2);background:var(--nm-tint);border-radius:0;font-size:13px}
+
+.page-nm .nm-fav-btn{font-size:12px;padding:2px var(--sp-2);margin-left:var(--sp-1)}
+
+.page-nm .nm-fav-btn.nm-fav-on{background:var(--nm2);color:#fff;border-color:var(--nm2)}
+
+.page-nm .nm-word-sm{margin:0 0 var(--sp-1);padding:var(--sp-2);font-size:12px}
+
+.page-nm .nm-word-sm .nm-word-t{font-size:var(--tier3)}
+
+.page-nm .lr-ke .nm-jx{display:block;margin-top:var(--sp-1)}
+
+.page-nm .nm-jx{font-size:var(--tier4)}
+
+.page-nm .nm-chuans .lr-chuan-z{color:var(--nm2)}
+
+.page-nm .nm-chuans .lr-chuan-j{flex:1;line-height:1.7}
+
+.page-nm .nm-total.hh-total-xz .hh-total-score{margin-bottom:var(--sp-2)}
+
+.page-nm .nm-cls{margin-top:var(--sp-1);display:flex;gap:var(--sp-1);flex-wrap:wrap;justify-content:center}
+
+.page-nm .nm-tag{padding:1px var(--sp-2)}
+
+.page-nm #nmHist{margin:var(--sp-1) 2px var(--sp-1)}
+
+.page-nm #nmHist a{color:var(--nm2);text-decoration:none;border-bottom:1px dashed var(--nm2);margin-right:2px}
+
+.page-nm #nmHist .nm-hist-clr{color:var(--nm-ink2);border-bottom:1px dashed var(--nm-ink2);font-size:12px}
+
+.page-nm #linkLine{margin:var(--sp-1) 2px 0}
+
+.page-nm #nmXing{width:100px}
+
+.page-nm #nmMing{width:96px}
+
+.page-nm #nmLong{width:170px}
+
+.page-nm #nmCmp{width:110px}
+
+.page-nm #nmAvoid{width:130px}
+
+.page-nm #nmBzPos{width:78px}
+
+.page-nm #nmBeizi{width:44px}
+
+.page-nm #nmSex{width:90px}
+
+.page-nm #fBeizi{flex:0 0 132px;width:132px;flex-direction:row;flex-wrap:wrap;align-items:center;gap:var(--sp-1);max-width:none}
+
+.page-nm #fBeizi label{flex:0 0 100%;white-space:normal}
+
+.page-nm #fAvoid{max-width:none}
+
+.page-nm #fGenWx{max-width:none}
+
+.page-nm .nm-gen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:var(--sp-3) var(--sp-4);margin-top:var(--sp-4)}
+
+.page-nm .nm-gen-card{border:0;border-top:1px solid var(--nm-line);border-radius:0;background:transparent;padding:var(--sp-2) 0;display:flex;flex-direction:column;gap:var(--sp-1)}
+
+.page-nm .nm-gen-top{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-1)}
+
+.page-nm .nm-gen-name{font-size:var(--tier3);color:var(--nm2);white-space:nowrap}
+
+.page-nm .nm-gen-py{font-size:12px;color:var(--nm-ink2)}
+
+.page-nm .nm-gen-row{font-size:var(--tier4);color:var(--nm-ink)}
+
+.page-nm .nm-gen-note{font-size:12px;color:var(--nm-ink2)}
+
+.page-nm .nm-gen-yi{font-size:12px;color:var(--nm-ink);line-height:1.6;border-top:1px dashed var(--nm-line);padding-top:var(--sp-1);overflow-wrap:anywhere}
+
+.page-nm .nm-gen-btn{font-size:12px;padding:var(--sp-1) var(--sp-2);border-radius:0;border:1px solid var(--nm2);background:transparent;color:var(--nm2);cursor:pointer;white-space:nowrap}
+
+.page-nm .nm-gen-btn:hover{background:var(--nm-tint)}
+
+.page-nm .nm-gen-grid.nm-twin-list{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
+
+.page-nm .nm-twin-card{gap:var(--sp-2)}
+
+.page-nm .nm-twin-idiom{font-size:14px;font-weight:400;color:var(--nm2)}
+
+.page-nm .nm-twin-pair{display:flex;align-items:stretch;gap:var(--sp-2);flex-wrap:wrap}
+
+.page-nm .nm-twin-one{flex:1 1 160px;min-width:0;padding:var(--sp-2) 0;background:transparent;border-top:0}
+
+.page-nm .nm-twin-one .nm-gen-top{flex-wrap:wrap;row-gap:var(--sp-1)}
+
+.page-nm .nm-twin-join{align-self:center;font-size:var(--tier3);color:var(--nm2)}
+
+.page-nm .nm-twin-warn{color:var(--red)}
+
+.page-nm .hex-name{font-size:var(--tier3)}
+
+.page-nm .hex-name .hx{font-size:18px;letter-spacing:2px;color:var(--nm2)}
+
+.page-nm .nm-twin-act{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+
+.page-nm #fTwinFix .nm-twin-shared-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2)}
+
+.page-nm #fTwinFix .nm-twin-shared-row>select,.page-nm #fTwinFix .nm-twin-shared-row>input{flex:0 0 auto;min-width:0;max-width:none;height:30px;padding:4px 12px;font-size:13px;line-height:1.35;border-radius:0;border:1px solid var(--nm-line);background:var(--card);color:var(--nm-deep);box-sizing:border-box}
+
+.page-nm #fTwinFix .nm-twin-shared-row>select{width:auto}
+
+.page-nm #fTwinFix .nm-twin-shared-row>input{width:100%;letter-spacing:.05em}
+
+.page-nm .nm-back-link{font-size:13px;color:var(--nm2);text-decoration:none}
+
+.page-nm .nm-back-link:hover{text-decoration:underline}
+
+.page-nm .nm-wxrow{display:flex;gap:var(--sp-1);flex-wrap:wrap}
+
+.page-nm .nm-wxrow .wx{display:flex;flex-direction:column;gap:2px;align-items:center;font-size:12px;color:var(--nm-ink2)}
+
+.page-nm .nm-wxrow .wx label{white-space:nowrap}
+
+.page-nm .nm-wxrow .wx select{width:52px;height:30px;padding:0 6px;font-size:13px}
+
+.page-nm .nm-center{text-align:center}
+
+.page-nm .nm-mt-1{margin-top:var(--sp-1)}
+
+.page-nm .nm-dim{color:var(--nm-ink2)}
+
+.page-nm .nm-hl{color:var(--nm2)}
+
+.page-nm .nm-td-l{text-align:left}
+
+.page-nm .nm-guard-p{margin:var(--sp-2) 0 0}
+
+.page-nm .nm-hits{margin-top:var(--sp-2)}
+
+.page-nm .nm-link-s{font-size:12px}
+
+.page-nm #fBirth .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
+
+.page-nm .nm-suppl{margin-top:var(--sp-2);background:transparent}
+
+.page-nm .nm-err{text-align:left;font-size:var(--tier4);color:var(--red2);white-space:pre-wrap;max-height:300px;overflow:auto}
+
+@media(max-width:640px){
+  /* 表单字段流式自适应：一律"按内容定宽、绝不拉伸铺满"——
+   * 字段 flex-grow 归 0（不参与剩余空间分配），输入框 width:auto（跟随自身内容与桌面定宽），
+   * 容器 flex-wrap 让字段像文字一样流式排布，能放几个放几个。 */
+  .page-nm .form-row{gap:var(--sp-2)}
+  /* 出生地组上线与上方控件底的净距须为 12px（第二条：相邻平行线不得小于 12 像素）：
+     本行在窄屏的 row-gap 给 8px，余下 4px 由本组自带的顶距补足，两处相加恰为 12px */
+  .page-nm .birth-group{margin-top:var(--sp-1)}
+  .page-nm .form-row>.field{flex:0 1 auto;width:auto;min-width:0;max-width:100%;margin:0}
+  .page-nm .form-row>.field>input,
+  .page-nm .form-row>.field>select{width:auto;min-width:0;max-width:100%}
+  .page-nm .form-row>.field.chk{flex:0 0 auto;min-width:0}
+  .page-nm .form-row>.field.chk>input{width:auto}
+  /* 子时算法：选项文案长（晚子时（23点归次日）），移动端最小 100、内容自适应、跟随父级 max-width:100%，不另设上限 */
+  .page-nm .form-row #nmBZi{width:auto;min-width:100px}
+  /* 字辈字：名首字下拉与字辈输入框同行在后，两框皆按内容宽，
+   * 字段宽度回到 auto 由两者相加决定，不沿用桌面 132px 定值把框撑长 */
+  .page-nm .form-row #fBeizi{flex:0 0 auto;width:144px;max-width:100%}
+  .page-nm .form-row #fBeizi #nmBzPos{width:auto;min-width:64px}
+  .page-nm .form-row #fBeizi #nmBeizi{width:auto;min-width:44px;max-width:64px}
+  /* 五行配额一行五框：按内容排，不铺满 */
+  .page-nm .nm-wxrow{gap:var(--sp-2)}
+  .page-nm .nm-wxrow .wx{flex:0 1 auto;min-width:0}
+  .page-nm .nm-wxrow .wx select{width:auto;min-width:0}
+  /* 推荐名单窄屏单列：311px 下分两列会把卡压到 148px，名字与字义两行都排不下；
+     联名卡一卡装两名，同样必须单列，否则两名挤在一起读不出关系 */
+  .page-nm .nm-gen-grid{grid-template-columns:1fr}
+  .page-nm .nm-gen-grid.nm-twin-list{grid-template-columns:1fr}
+  /* 名字恒单行（字号与单行由基础条给）；装不下时详排按钮自动折到名字下方，名字与按钮互不挤压 */
+  .page-nm .nm-gen-top{flex-wrap:wrap;row-gap:var(--sp-1)}
+  /* 五格取数卡信息量最大（数、断语、宫位、五行、吉凶各一行），窄屏按两列入行：
+     按零基准等分会被压到不足断语在 keep-all 下的最小片段，文字溢到邻卡上 */
+  .page-nm .mod-body .lr-kes.nm-ge-kes .lr-ke{flex:1 1 calc(50% - 8px);max-width:calc(50% - 8px)}
+  /* 字义字源表：窄屏收窄词列与寓意列 */
+  .page-nm .nm-word-tbl thead th.nm-word-term{width:64px}
+  .page-nm .nm-word-tbl thead th.nm-word-mean{width:38%}
+  /* 两字徽章与吉凶标签不折行（写成两个单字各占一行属排版事故） */
+  .page-nm .zr-tag,.page-nm .nm-jx{white-space:nowrap}
+  /* 表首列不折行：内容区被压到十几像素时两字键名（天格、总格）被拆成两个单字 */
+  .page-nm .xlr-table td:first-child{white-space:nowrap}
+  /* 五格断语与郡望列举按标点整段换行，末字不再独占一行 */
+  .page-nm .lr-ke-d,.page-nm .xlr-table td{word-break:keep-all}
+}
+
+@media (max-width:600px){
+  /* 字辈字段为 label+下拉+输入框横排，r2 的 48% 两列宽装不下会把输入框顶出框外，独占整行；
+     字辈字段定基准宽，可与名字字数同行；下拉 84px 保三字不截断，输入框 44px 单字宽 */
+  .page-nm #fBeizi{flex:1 1 140px}
+  .page-nm #nmBzPos{width:84px}
+  .page-nm #nmBeizi{width:44px}
+  .page-nm #fBeizi input{flex:0 0 44px;min-width:0;width:44px}
+  /* 五行配额组整行：r2 的 48% 半行宽只装得下 3 个选框，折成多行撑高页面 */
+  .page-nm #fGenWx{flex:1 1 100%}
+  /* 名字字数/推荐数量：字段与下拉均按内容自适应定宽，摆脱 48% 半行，可与字辈字同排 */
+  .page-nm #fGenLen,.page-nm #fGenCnt{flex:0 0 auto;width:auto;max-width:none}
+  .page-nm #nmGenLen{width:72px}
+  .page-nm #nmGenCnt{width:80px}
+}
+
+@media print{
+  .page-nm .mod,.page-nm .info-box,.page-nm .mh-ref,.page-nm .xlr-table{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-nm {
+    --nm:#60b9a9;
+    --nm2:#56bba6;
+    --nm-deep:#d5e2df;
+    --nm-ink:#cfd4d2;
+    --nm-ink2:#9ea9a5;
+    --nm-line:#3d524b;
+    --nm-tint:#1e2f28;
+  }
+}

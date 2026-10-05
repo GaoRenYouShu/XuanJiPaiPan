@@ -1,0 +1,386 @@
+/* 页级样式：liuyao
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-ly{--ly:#9c5f24;/* 琥珀铜主色（五帝钱受光面） */
+  --ly2:#7a4a1a;/* 深铜：hover与强调 */
+  --ly-deep:#4a2c10;/* 铜墨：大标题字色 */
+  --ly-ink:#463a2c;/* 铜灰墨：正文字色 */
+  --ly-brass:#c8802e;/* 亮铜点缀（装饰用） */
+  --ly-line:#e8d9c2;/* 铜浅线 */
+  --ly-tint:#fbf3e7;/* 铜纸淡底 */
+  --ly-ink2:#6d5e4f;  /* 次级字色：卷首说明、副注、标注 */
+  --ly-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  --gold2:var(--ly2);--gold:var(--ly);--gold-brown:var(--ly2);--gold-bg:var(--ly-tint);--line:var(--ly-line);--ink:var(--ly-ink)}
+
+.page-ly .page{--ly-neutral:#5d6d7e;--ly-warn:#8a6d3b;--ly-bad:#b84a3a}
+
+.page-ly .ly-lead-ways{margin:var(--sp-2) 0 2px}
+
+.page-ly .ly-lead-tbl{display:block}
+
+.page-ly .ly-lead-row{display:flex;gap:var(--sp-3);align-items:baseline;padding:var(--sp-1) 0;border-bottom:1px solid var(--ly-line)}
+
+.page-ly .ly-lead-row:last-child{border-bottom:0}
+
+.page-ly .ly-lead-n{flex:0 0 88px;font-weight:400;color:var(--ly2);font-size:var(--tier4);white-space:nowrap;line-height:1.5}
+
+.page-ly .ly-lead-d{flex:1;min-width:0;font-size:var(--tier4);color:var(--ly-ink2);line-height:1.5;word-break:break-word;overflow-wrap:break-word}
+
+.page-ly h3.rel-title{margin:var(--sp-4) 0 var(--sp-2)}
+
+.page-ly details.mh-ref{border-color:var(--ly-line)}
+
+.page-ly details.mh-ref > summary{cursor:pointer;user-select:none}
+
+.page-ly details.mh-ref > summary:hover{color:var(--gold)}
+
+.page-ly .form-row .ly-q-field{flex:0 0 auto;min-width:0;max-width:none;width:auto}
+
+.page-ly .form-row .ly-q-field input{width:220px;max-width:100%}
+
+.page-ly .ly-time-row{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);align-items:flex-end;padding:var(--sp-2) 0;background:transparent;border:0;border-top:1px solid var(--ly-line);border-radius:0;margin-top:2px;min-width:0;box-sizing:border-box}
+
+.page-ly .ly-time-row .field{flex:0 0 auto;min-width:0;margin:0}
+
+.page-ly .ly-time-row .ly-tf-btn .btn{font-size:var(--tier4);white-space:nowrap;width:auto;min-width:0;margin:0}
+
+.page-ly .ly-actions{display:flex;gap:var(--sp-2);align-items:flex-end;flex:1 1 auto;min-width:0;max-width:100%;flex-wrap:wrap}
+
+.page-ly .ly-actions .btn{flex:0 0 auto;width:auto;min-width:0;display:inline-flex;align-items:center;justify-content:center}
+
+.page-ly .page .ly-time-row .ly-tf-btn .btn,.page-ly .page .ly-actions .btn:not(#lyCastBtn),.page-ly .page #lyStepField .ly-num-row .btn{background:transparent;border:1px solid var(--line);color:var(--ink2)}
+
+.page-ly .page .ly-time-row .ly-tf-btn .btn:hover,.page-ly .page .ly-actions .btn:not(#lyCastBtn):hover,.page-ly .page #lyStepField .ly-num-row .btn:hover{border-color:var(--gold);color:var(--ink);background:var(--gold-bg)}
+
+.page-ly .ly-bo-row{display:flex;flex-direction:column;gap:2px;align-items:flex-start;min-width:0;align-self:flex-end}
+
+.page-ly .ly-bo{display:inline-flex;align-items:center;gap:var(--sp-1);font-size:var(--tier4);color:var(--ink2);font-weight:400;margin:0;white-space:nowrap;line-height:1.4;cursor:pointer}
+
+.page-ly .ly-num-row{display:flex;align-items:center;gap:var(--sp-1);flex-wrap:wrap;min-width:0}
+
+.page-ly .ly-num-inputs{display:flex;gap:var(--sp-1);flex:0 0 auto}
+
+.page-ly #lyNumField .ly-num-inputs input{width:34px;text-align:center;padding:0 4px;font-size:var(--tier4);border:1px solid var(--line);border-radius:0;background:var(--card);font-family:inherit;box-sizing:border-box}
+
+.page-ly #lyBaoShuField .ly-num-inputs input{width:52px;max-width:52px;text-align:center;padding:0 4px;font-size:var(--tier4);border:1px solid var(--line);border-radius:0;background:var(--card);font-family:inherit;box-sizing:border-box;overflow:hidden;text-overflow:ellipsis}
+
+.page-ly #lySpecField .ly-num-inputs input{width:28px;max-width:28px;text-align:center;padding:0 2px;font-size:var(--tier4);border:1px solid var(--line);border-radius:0;background:var(--card);font-family:inherit;box-sizing:border-box;overflow:hidden;text-overflow:ellipsis}
+
+.page-ly .ly-num-tip{font-size:var(--tier4);line-height:1.4;white-space:normal;color:var(--ink2);margin:0;min-width:0}
+
+.page-ly .form-row .ly-sel-field{flex:0 1 auto;min-width:0;max-width:none}
+
+.page-ly .form-row .field input.ly-name-input{width:130px}
+
+.page-ly .ly-step-btn{height:30px}
+
+.page-ly .ly-step-clear{background:var(--red);color:#fff;border-color:transparent}
+
+.page-ly .ly-chk-native{width:auto;height:auto}
+
+.page-ly .ly-zi-field{flex:0 0 auto;min-width:0;margin:0}
+
+.page-ly .ly-multi-label{font-size:var(--tier4);display:inline-flex;align-items:center;gap:var(--sp-1);margin:0;cursor:pointer}
+
+.modal.ly-hist-modal{max-width:560px}
+
+.modal.ly-hist-modal .ly-hist-empty{padding:var(--sp-3);color:var(--tk-ink,var(--ink2));font-size:var(--tier4);text-align:center}
+
+.modal.ly-hist-modal .ly-hist-foot{margin-top:var(--sp-2);font-size:var(--tier4);color:#999}
+
+.modal.ly-hist-modal .ly-hist-q{color:#999;font-size:var(--tier4)}
+
+.modal.ly-hist-modal .ly-hist-act-btn{font-size:var(--tier4);padding:2px var(--sp-2);height:auto;line-height:1.5}
+
+.modal.ly-hist-modal .ly-hist-del-btn{font-size:var(--tier4);padding:2px var(--sp-1);height:auto;line-height:1.5}
+
+.page-ly .ly-multi-del-btn{font-size:var(--tier4);padding:1px var(--sp-2);height:auto;line-height:1.5}
+
+.page-ly .ly-grade-badge{display:inline-block;padding:1px var(--sp-1);border-radius:0;color:#fff;font-size:var(--tier4);font-weight:400;margin-right:var(--sp-1);vertical-align:1px}
+
+.page-ly .ly-wx-svg{width:100%;max-width:300px;margin:0 auto;display:block}
+
+.page-ly .ly-wx-svg-wrap{padding:var(--sp-1) 2px;text-align:center}
+
+.page-ly .ly-ref-note{font-size:var(--tier4)}
+
+.page-ly .ly-ref-p{font-size:var(--tier4);color:var(--ink2);line-height:1.6;margin:var(--sp-1) 0;font-weight:400}
+
+.page-ly .ly-ref-h4{margin:var(--sp-2) 0 var(--sp-1);font-size:var(--tier4);color:var(--gold2);font-weight:400}
+
+.page-ly .ly-th-time{width:80px}
+
+.page-ly .ly-najia-td{line-height:1.95}
+
+.page-ly .ly-left{text-align:left}
+
+.page-ly .yao-board{display:flex;gap:var(--sp-5);flex-wrap:wrap;justify-content:center;margin-top:var(--sp-4);background:transparent;border:0;border-radius:0;padding:var(--sp-4) var(--sp-5);box-shadow:none}
+
+.page-ly .yao-board.ly-sub{margin-top:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--ly-line);border-radius:0;box-shadow:none}
+
+.page-ly .yao-board.ly-sub .yao-line{min-height:0;margin:var(--sp-1) 0}
+
+.page-ly .yao-board.ly-sub .yao-sym{width:64px}
+
+.page-ly .yao-board.ly-sub .yb{width:30px;height:9px}
+
+.page-ly .yao-board.ly-sub .yb.gap{width:30px}
+
+.page-ly .yao-board.ly-sub .yb.gap span{width:11px;height:9px}
+
+.page-ly .yao-col{text-align:center}
+
+.page-ly .yao-col h4{margin-bottom:var(--sp-2);padding-bottom:var(--sp-2);border-bottom:1px solid var(--ly-line,var(--line));color:var(--gold2);font-size:var(--tier3);font-weight:400;letter-spacing:2px}
+
+.page-ly .yao-board .yao-col .yao-line:last-child{margin-bottom:0}
+
+.page-ly .yao-line{display:flex;align-items:center;gap:var(--sp-1);margin:var(--sp-1) 0;font-size:var(--tier3);justify-content:center;min-height:34px}
+
+.page-ly .yao-line .god,.page-ly .yao-line .sy,.page-ly .yao-line .gz,.page-ly .yao-line .yao-tag{line-height:1.4}
+
+.page-ly .yao-line.ly-yue{background:rgba(255,246,224,.5)}
+
+.page-ly .yao-line.ly-ri{background:rgba(234,241,255,.5)}
+
+.page-ly .yao-tag{font-size:var(--tier4);color:var(--red);width:22px;text-align:center;flex:0 0 22px}
+
+.page-ly .god{width:28px;font-size:var(--tier4);color:var(--ly-ink2);text-align:center;flex:0 0 28px}
+
+.page-ly .sy{width:16px;font-size:var(--tier4);font-weight:400;color:var(--gold2);text-align:center;flex:0 0 16px}
+
+.page-ly .qin{width:30px;font-size:var(--tier4);color:var(--gold2);font-weight:400;text-align:center;flex:0 0 30px;white-space:nowrap;line-height:1.4}
+
+.page-ly .qin.ly-yong{color:var(--red);text-decoration:underline;background:color-mix(in srgb,var(--gold) 16%,transparent);border-radius:0;padding:0 var(--sp-1)}
+
+.page-ly .qin.ly-yong2{color:var(--red);opacity:.62;text-decoration:underline dotted}
+
+.page-ly .gz{width:30px;font-size:var(--tier4);color:var(--ly-ink2);text-align:center;flex:0 0 30px}
+
+.page-ly .yao-sym{display:flex;gap:var(--sp-1);width:112px;justify-content:center}
+
+.page-ly .yb{width:42px;height:12px;background:var(--ly);border-radius:0}
+
+.page-ly .yb.gap{background:transparent;border:none;width:42px;display:flex;justify-content:space-between}
+
+.page-ly .yb.gap span{width:17px;height:12px;background:var(--ly);border-radius:0}
+
+.page-ly .ly-tags{display:flex;align-items:center;gap:var(--sp-1);flex-wrap:nowrap;justify-content:flex-start;width:120px;flex:0 0 120px;overflow:hidden;white-space:nowrap;max-height:34px;-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
+
+@media (min-width:641px){
+  .page-ly .yao-board .yao-col + .yao-col{border-left:1px solid var(--line);padding-left:var(--sp-5);margin-left:var(--sp-3)}
+}
+
+.page-ly .ly-tag{display:inline-block;padding:0 var(--sp-1);border:0;border-bottom:1px solid;border-radius:0;font-size:var(--tier4);font-weight:400;margin-left:var(--sp-1);line-height:1.55;background:transparent}
+
+.page-ly .ly-tag-po,.page-ly .ly-tag-rp,.page-ly .ly-tag-js,.page-ly .ly-tag-tui{color:var(--ly-bad);border-color:color-mix(in srgb,var(--ly-bad) 45%,transparent)}
+
+.page-ly .ly-tag-mu,.page-ly .ly-tag-jin,.page-ly .ly-tag-cs,.page-ly .ly-tag-ys{color:var(--ly-warn);border-color:color-mix(in srgb,var(--ly-warn) 45%,transparent)}
+
+.page-ly .ly-tag-kong,.page-ly .ly-tag-an,.page-ly .ly-tag-ht,.page-ly .ly-tag-fu{color:var(--ly-neutral);border-color:color-mix(in srgb,var(--ly-neutral) 42%,transparent)}
+
+.page-ly .ly-tag-yue,.page-ly .ly-tag-ri{color:var(--gold2);border-color:color-mix(in srgb,var(--gold2) 50%,transparent)}
+
+.page-ly .ly-cat-tbl{width:100%;border-collapse:collapse;margin-top:var(--sp-1);border-top:1px solid var(--ly-line)}
+
+.page-ly .ly-cat-tbl th,.page-ly .ly-cat-tbl td{border:0;border-bottom:1px solid var(--ly-line);padding:9px 11px;font-size:var(--tier4);text-align:left;line-height:1.68;vertical-align:top;word-break:break-word}
+
+.page-ly .ly-cat-tbl th{background:transparent;color:var(--ly2);letter-spacing:1px;white-space:nowrap;font-weight:400}
+
+.page-ly .ly-cat-tbl tr.ly-cur{background:var(--ly-tint)}
+
+.page-ly .ly-zh-tbl th,.page-ly .ly-info-tbl th{width:88px}
+
+.page-ly .ly-tbl-gap{margin-top:var(--sp-2)}
+
+.page-ly .ly-tbl-gap-lg{margin-top:var(--sp-3)}
+
+.page-ly .ly-guide-tbl td:nth-child(1){white-space:nowrap;color:var(--gold2);text-align:center;width:1%}
+
+.page-ly .ly-guide-tbl th:nth-child(1){white-space:nowrap;width:1%}
+
+.page-ly .ly-guide-tbl td:nth-child(2){white-space:normal;word-break:break-word;overflow-wrap:break-word;text-align:left}
+
+.ly-coins{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:999;display:flex;gap:var(--sp-5);padding:var(--sp-4) var(--sp-4)}
+
+.ly-coin{width:66px;height:66px;border-radius:50%;overflow:hidden;filter:drop-shadow(0 5px 10px rgba(0,0,0,.42));animation:lyCoinToss .55s cubic-bezier(.45,0,.55,1) infinite alternate}
+
+.ly-coin svg{display:block;width:100%;height:100%}
+
+.page-ly .ly-wx-fill{fill:currentColor}
+
+.page-ly .ly-wx-fill.wx-mu{color:#5DC336}
+
+.page-ly .ly-wx-fill.wx-huo{color:#F65352}
+
+.page-ly .ly-wx-fill.wx-tu{color:#A07040}
+
+.page-ly .ly-wx-fill.wx-jin{color:#D4A017}
+
+.page-ly .ly-wx-fill.wx-shui{color:#4190FA}
+
+.page-ly .ly-multi-card{border:2px solid var(--gold);border-radius:0;padding:var(--sp-3) var(--sp-3);margin-top:var(--sp-3);background:var(--card);box-shadow:var(--shadow)}
+
+.page-ly .ly-multi-head{display:flex;align-items:center;gap:var(--sp-2);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2);border-bottom:1px dashed var(--gold)}
+
+.page-ly .ly-multi-no{font-size:var(--tier4);font-weight:400;color:var(--gold2);white-space:nowrap}
+
+.page-ly .ly-multi-info{flex:1 1 auto;min-width:0;font-size:var(--tier4);color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.modal.ly-hist-modal .ly-hist-hd,.modal.ly-hist-modal .ly-hist-row{display:flex;gap:var(--sp-1);align-items:center;font-size:var(--tier4);padding:var(--sp-1) 0;border-bottom:1px solid var(--tk-line,var(--line))}
+
+.modal.ly-hist-modal .ly-hist-hd{color:var(--ink2);font-weight:400}
+
+.modal.ly-hist-modal .ly-hc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.modal.ly-hist-modal .ly-hc-t{flex:0 0 110px;min-width:0;color:var(--ink2)}
+
+.modal.ly-hist-modal .ly-hc-c{flex:0 0 60px;text-align:center;color:var(--ink)}
+
+.modal.ly-hist-modal .ly-hc-g{flex:1 1 auto;min-width:0;color:var(--ink2)}
+
+.modal.ly-hist-modal .ly-hc-a{flex:0 0 72px;text-align:right;white-space:nowrap;display:flex;gap:var(--sp-1);align-items:center;justify-content:flex-end}
+
+@media(max-width:640px){
+  .page-ly #lyNumField .ly-num-inputs input{width:30px;padding:0 2px}
+  .page-ly #lySpecField .ly-num-inputs input{width:26px;padding:0 2px}
+  .page-ly .form-row .ly-q-field{flex:0 0 auto;width:auto;max-width:100%;min-width:0}
+  .page-ly #lyNumField>label,.page-ly #lyBaoShuField>label,.page-ly #lySpecField>label,.page-ly #lyStepField>label{white-space:nowrap;margin:0;flex:0 0 auto}
+  /* 数字、报数、指定输入框：固定窄宽、不拉伸，与起卦方式并排 */
+  .page-ly #lyNumField .ly-num-inputs,.page-ly #lyBaoShuField .ly-num-inputs,.page-ly #lySpecField .ly-num-inputs{flex:0 0 auto;min-width:0}
+  .page-ly #lyNumField .ly-num-inputs input,.page-ly #lySpecField .ly-num-inputs input{flex:0 0 auto;width:26px;max-width:26px;min-width:0}
+  .page-ly #lyBaoShuField .ly-num-inputs input{flex:0 0 auto;width:38px;max-width:38px;min-width:0;padding:0 2px}
+  .page-ly .ly-num-tip{display:none;font-size:var(--tier4)}
+  .page-ly #lyStepField .ly-num-row{flex:1 1 auto}
+  .page-ly .form-row .ly-q-field input{width:170px;max-width:100%;min-width:0}
+  .page-ly .ly-time-row{gap:var(--sp-1) var(--sp-2)}
+  .page-ly .ly-time-row #lyDate{width:96px}
+  .page-ly .yao-board{flex-direction:column;gap:var(--sp-3);align-items:center;padding:var(--sp-3) var(--sp-4)}
+  .page-ly .yao-board.ly-sub{flex-direction:row;gap:var(--sp-1);align-items:flex-start;justify-content:center}
+  .page-ly .yao-board.ly-sub .yao-col{flex:0 1 auto;width:auto;max-width:none}
+  .page-ly .yao-board.ly-sub .yao-line{gap:0}
+  .page-ly .yao-board.ly-sub .yao-sym{width:64px}
+  .page-ly .yao-board.ly-sub .yb{width:24px;height:9px}
+  .page-ly .yao-board.ly-sub .yb.gap{width:24px}
+  .page-ly .yao-board.ly-sub .yb.gap span{width:9px;height:9px}
+  .page-ly .yao-col{flex:1 1 auto;width:100%;max-width:520px}
+  .page-ly .yao-line{gap:2px;font-size:var(--tier4);margin:var(--sp-1) 0;justify-content:center}
+  .page-ly .yao-sym{width:92px;gap:2px}
+  .page-ly .yb{width:34px;height:11px}
+  .page-ly .yb.gap{width:34px}
+  .page-ly .yb.gap span{width:13px;height:11px}
+  .page-ly .god,.page-ly .qin,.page-ly .sy,.page-ly .gz{font-size:var(--tier4);white-space:nowrap}
+  .page-ly .yao-tag{font-size:var(--tier4)}
+  .page-ly .ly-tag{font-size:var(--tier4);padding:1px var(--sp-1);margin-left:var(--sp-1)}
+  .page-ly .ly-cat-tbl th,.page-ly .ly-cat-tbl td{padding:7px;line-height:1.55}
+  /* 多列参考表窄屏列宽走全站契约（下限 7em、上限 min(70vw,22em)），由折叠区横向滚动兜底 */
+  .page-ly details.mh-ref{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* 起卦方式说明窄屏按站内标签一行、说明一行的堆叠写法，说明列得满宽（并排时 320 视口只剩 156px，13 字说明要 169px） */
+  .page-ly .ly-lead-row{display:block}
+  .page-ly .ly-lead-n{display:block;margin-bottom:2px}
+}
+
+@media(max-width:420px){
+  .page-ly .ly-zh-tbl th,.page-ly .ly-info-tbl th{width:72px}
+  .page-ly .ly-cat-ref{min-width:420px}
+  /* 断卦流程引导：步骤列自适应内容宽，说明列占满剩余空间 */
+  .page-ly .ly-guide-tbl td:nth-child(1){width:1%;white-space:nowrap;padding-left:4px;padding-right:4px}
+  .page-ly .ly-guide-tbl td:nth-child(2){white-space:normal;word-break:break-word;overflow-wrap:break-word;text-align:left}
+}
+
+@media(max-width:640px){
+  .page-ly .ly-bo-row{flex:1 1 100%}
+  .page-ly .ly-bo{white-space:normal}
+  /* 出生地组上线与上方控件底的净距须为 12px（第二条：相邻平行线不得小于 12 像素）：
+     外层表单行在窄屏的 row-gap 给 8px，余下 4px 由本组自带的顶距补足，两处相加恰为 12px */
+  .page-ly .birth-group{margin-top:var(--sp-1)}
+}
+
+.page-ly .page > .form-row{margin-bottom:var(--sp-2)}
+
+.page-ly .page h1{color:var(--ly-deep);font-family:var(--ly-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
+
+.page-ly .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ly-line);margin:0 auto var(--sp-3)}
+
+.page-ly .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ly-line);margin:var(--sp-3) auto 0}
+
+.page-ly .page .lead{color:var(--ly-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-ly .page .lead::after{background:var(--ly-line)}
+
+.page-ly .rel-title{color:var(--ly2)}
+
+.page-ly .ly-zh-p{color:var(--ly-ink)}
+
+.page-ly .sub-note{color:var(--ly-ink2)}
+
+.page-ly .notice{color:var(--ly-ink);border:1px solid var(--ly-line);background:var(--ly-tint);border-radius:0}
+
+.page-ly .ly-lead-more summary{color:var(--ly2)}
+
+.page-ly .field label{color:var(--ly2);font-weight:400}
+
+.page-ly .field input,.page-ly .field select{border-color:var(--ly-line);background:var(--card);color:var(--ly-deep)}
+
+.page-ly .field input:focus,.page-ly .field select:focus{border-color:var(--ly);outline:none}
+
+.page-ly .group-label{color:var(--ly2)}
+
+.page-ly .btn{background:var(--ly)}
+
+.page-ly .btn:hover{background:var(--ly2)}
+
+.page-ly .btn-ghost{background:var(--card);border:1px solid var(--ly);color:var(--ly2)}
+
+.page-ly .btn-ghost:hover{background:var(--ly-tint)}
+
+.page-ly .birth-group,.page-ly .birth-group.compact{background:transparent;border:0;border-top:1px solid var(--ly-line);border-radius:0;box-shadow:none;padding:var(--sp-3) 0}
+
+@media(max-width:640px){.page-ly .birth-group,.page-ly .birth-group.compact{padding-top:var(--sp-2)}}
+
+.page-ly .field.chk label{font-weight:400}
+
+.page-ly .ai-block{border:0;border-top:1px solid var(--ly-line);border-bottom:1px solid var(--ly-line);border-radius:0;background:transparent;color:var(--ly-ink);box-shadow:none}
+
+.page-ly .ai-head{background:transparent;border-bottom-color:var(--ly-line)}
+
+.page-ly .ai-head h3{color:var(--ly2)}
+
+.page-ly .ai-block .btn{background:var(--ly);color:#fff}
+
+.page-ly .ai-block .btn:hover{background:var(--ly2)}
+
+.page-ly .ai-block .btn.gold,.page-ly .ai-block .btn.soft{background:var(--ly-tint);border-color:var(--ly-line);color:var(--ly-ink);box-shadow:none}
+
+.page-ly .ai-block .btn.gold:hover,.page-ly .ai-block .btn.soft:hover{background:var(--card);border-color:var(--ly);color:var(--ly2)}
+
+.page-ly .ai-block .ai-out,.page-ly .ai-block .ai-bubble.user,.page-ly .ai-block .ai-bubble.assistant,.page-ly .ai-block .ai-model-name,.page-ly .ai-block input,.page-ly .ai-block select{color:var(--ly-ink)}
+
+.page-ly .ai-tab.active{background:var(--ly);border-color:var(--ly);color:#fff}
+
+.page-ly .ai-bubble.user{background:var(--ly-tint);border-color:var(--ly)}
+
+.page-ly .ai-bubble.assistant{border-color:var(--ly-line)}
+
+@media print{
+  .page-ly .ly-cat-tbl th{background:var(--card) !important;border-color:var(--line) !important}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-ly {
+    --ly:#d3883f;
+    --ly2:#d38231;
+    --ly-deep:#e5dbd2;
+    --ly-ink:#d6d1cc;
+    --ly-brass:#dfac73;
+    --ly-line:#564a39;
+    --ly-tint:#342919;
+    --ly-ink2:#aba39c;
+  }
+  html .page-ly .page {
+    --ly-neutral:#12ae106fe0d;
+    --ly-warn:#a2deb01678;
+    --ly-bad:#86216661870;
+  }
+}

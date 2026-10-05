@@ -1,0 +1,201 @@
+/* 页级样式：lenormand
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-ln .btn,.page-ln .btn.gold{background:var(--ln);border-color:var(--ln);color:#fff;box-shadow:none}
+
+.page-ln .leno-card{border-color:var(--ln-line);cursor:pointer;transition:background .15s}
+
+.page-ln .leno-card:hover{background:var(--cal-hover)}
+
+.page-ln .leno-k2{font-size:12px;color:var(--ln-ink);margin-top:var(--sp-1);line-height:1.5}
+
+.page-ln .leno-hint{font-size:12px;color:var(--ln2);margin-top:2px;word-break:keep-all}
+
+.page-ln .leno-9{grid-auto-rows:1fr}
+
+.page-ln .leno-box{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-2);max-width:640px;margin:0 auto var(--sp-4)}
+
+.page-ln .leno-box .leno-card{max-width:none}
+
+.page-ln .leno-gt{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:1fr;gap:var(--sp-2);max-width:1000px;margin:0 auto var(--sp-3)}
+
+.page-ln .gt-tile{border:1px solid var(--ln-line);border-radius:0;background:var(--paper2);text-align:center;padding:var(--sp-2) var(--sp-1);cursor:pointer;transition:background .15s}
+
+.page-ln .gt-tile:hover{background:var(--cal-hover)}
+
+.page-ln .gt-h{font-size:11px;color:var(--ln2);line-height:1.5}
+
+.page-ln .gt-em{font-size:30px;line-height:1.45}
+
+.page-ln .gt-n{font-size:12.5px;font-weight:700;color:var(--ln-deep);line-height:1.5}
+
+.page-ln .gt-k2{font-size:11px;color:var(--ln-ink);line-height:1.5;margin-top:1px}
+
+.page-ln .gt-tile.sig{border-color:var(--ln);background:var(--ln-tint)}
+
+.page-ln .gt-badge{display:inline-block;font-size:9.5px;background:var(--ln);color:#fff;border-radius:0;padding:0 4px;line-height:1.5;margin-top:1px}
+
+.page-ln .leno-combo{font-size:12px;color:var(--ln2);line-height:1.6;margin-bottom:2px}
+
+.page-ln .leno-struct{margin-top:var(--sp-2);font-size:12.5px;color:var(--ln-ink);line-height:1.8}
+
+.page-ln .leno-struct b{color:var(--ln2);font-weight:400}
+
+.page-ln .ln-table{width:100%;border-collapse:collapse;margin-top:var(--sp-2);font-size:13px;border-top:1px solid var(--ln-line)}
+
+.page-ln .ln-table th,.page-ln .ln-table td{border:0;border-bottom:1px solid var(--ln-line);padding:7px 9px;text-align:left;line-height:1.75;vertical-align:top}
+
+.page-ln .ln-table thead th{background:transparent;color:var(--ln2);font-weight:400;white-space:nowrap}
+
+.page-ln .ln-table td.k{width:110px;color:var(--ln2)}
+
+#lnMask{position:fixed;inset:0;background:rgba(32,38,12,.55);display:none;align-items:center;justify-content:center;z-index:99;padding:var(--sp-3)}
+
+#lnMask.on{display:flex}
+
+.ln-modal{position:relative;background:var(--paper2);max-width:640px;width:100%;max-height:86vh;overflow:auto;border:1px solid var(--ln-line);border-radius:0;padding:var(--sp-4);box-shadow:none}
+
+.page-ln .lm-close{position:absolute;top:8px;right:12px;font-size:26px;line-height:1;color:var(--ink2);cursor:pointer;padding:4px}
+
+.page-ln .lm-close:hover{color:var(--ln2)}
+
+.page-ln .lm-head{display:flex;gap:var(--sp-3);align-items:flex-start}
+
+.page-ln .lm-em{width:96px;height:96px;flex:0 0 96px;display:flex;align-items:center;justify-content:center;font-size:52px;border-radius:0;background:var(--ln-tint);border:1px solid var(--ln-line);box-shadow:none}
+
+.page-ln .lm-b h3{margin:0 0 var(--sp-1);color:var(--ln-deep);font-size:20px}
+
+.page-ln .lm-en{font-size:12px;color:var(--ink2);font-style:italic;font-weight:400}
+
+.page-ln .lm-tags{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin-bottom:var(--sp-2)}
+
+.page-ln .lm-tags span{font-size:11px;border:1px solid var(--ln-line);border-radius:0;padding:1px 8px;color:var(--ln-ink);background:var(--ln-tint)}
+
+.page-ln .lm-b p{margin:0 0 var(--sp-1);font-size:13px;line-height:1.7}
+
+.page-ln .lm-kw b,.page-ln .lm-core b,.page-ln .lm-time b,.page-ln .lm-person b{color:var(--ln2);font-weight:400}
+
+.page-ln .lm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-2);margin-top:var(--sp-3)}
+
+.page-ln .lm-dom{border:1px solid var(--ln-line);border-radius:0;padding:var(--sp-2) var(--sp-3);background:var(--paper)}
+
+.page-ln .lm-dom h4{margin:0 0 2px;font-size:13px;color:var(--ln2);font-weight:700}
+
+.page-ln .lm-dom p{margin:0;font-size:12.5px;line-height:1.7}
+
+.page-ln .lm-pos{margin-top:var(--sp-3);font-size:12.5px;color:var(--ln-ink);line-height:1.7}
+
+.page-ln .lm-pos b{color:var(--ln2);font-weight:400}
+
+@media(max-width:760px){
+  /* 表单竖排：牌阵、指标牌、所问之事、抽牌各占一行，随页宽自适应（容器 .wrap 限宽，不超过桌面版宽） */
+  .page-ln .page > .form-row{flex-direction:column;align-items:stretch}
+  .page-ln .page > .form-row .field{flex:1 1 100%;width:100%;min-width:0;max-width:none}
+  .page-ln .page > .form-row .field input,.page-ln .page > .form-row .field select{width:100%;max-width:none}
+  /* 抽牌钮占满一行：列向容器里 flex-basis 即主轴（高），写百分比会盖掉 .btn 的 30px 定高，故取 auto */
+  .page-ln .page > .form-row .btn{flex:0 0 auto;width:100%}
+  .page-ln .leno-box{grid-template-columns:repeat(2,1fr)}
+  /* 大全景移动端：3 列放大砖块 */
+  .page-ln .leno-gt{grid-template-columns:repeat(3,1fr)}
+  .page-ln .gt-tile{padding:var(--sp-1) 2px}
+  .page-ln .gt-h{font-size:9.5px}
+  .page-ln .gt-em{font-size:26px}
+  .page-ln .gt-n{font-size:11px}
+  .page-ln .gt-k2{font-size:10px}
+  .page-ln .lm-head{flex-direction:column}
+  .page-ln .lm-em{width:72px;height:72px;flex-basis:72px;font-size:40px}
+  .page-ln .lm-grid{grid-template-columns:1fr}
+  .page-ln .ln-table th,.page-ln .ln-table td{padding:5px 6px}
+  .page-ln .ln-table td.k{width:72px}
+  /* 统计行的断行落在分号与顿号处，末字不再独占一行 */
+  .page-ln .ln-table td{word-break:keep-all}
+}
+
+@media print{
+  #lnMask{display:none!important}
+  .page-ln .leno-card,.page-ln .gt-tile{page-break-inside:avoid}
+}
+
+.page-ln .page h1{color:var(--ln-deep);font-family:var(--ln-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
+
+.page-ln .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ln-line);margin:0 auto var(--sp-3)}
+
+.page-ln .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ln-line);margin:var(--sp-3) auto 0}
+
+.page-ln .page .lead::after{background:var(--ln-line)}
+
+.page-ln .page .lead{color:var(--ln-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-ln .rel-title{color:var(--ln2)}
+
+.page-ln .ly-zh-p{color:var(--ln-ink)}
+
+.page-ln .sub-note{color:var(--ln-ink2)}
+
+.page-ln .tr-stats{color:var(--ln-ink)}
+
+.page-ln .page > .form-row .field label{color:var(--ln2);font-weight:400}
+
+.page-ln .page > .form-row .field input,.page-ln .page > .form-row .field select{border-color:var(--ln-line);transition:border-color .15s}
+
+.page-ln .page > .form-row .field input:focus,.page-ln .page > .form-row .field select:focus{border-color:var(--ln);outline:none}
+
+.page-ln .page > .form-row .btn.gold{background:var(--ln);border-color:var(--ln);box-shadow:none}
+
+.page-ln .page > .form-row .btn.gold:hover{background:var(--ln2);border-color:var(--ln2);box-shadow:none}
+
+.page-ln .leno-name{color:var(--ln-deep)}
+
+.page-ln .leno-pos{color:var(--ln2)}
+
+.page-ln .leno-k{color:var(--ln-ink)}
+
+.page-ln .info-box{background:transparent;border:0;border-top:1px solid var(--ln-line);border-radius:0;box-shadow:none}
+
+.page-ln .info-box h4{color:var(--ln2);letter-spacing:.5px}
+
+.page-ln .info-box p{color:var(--ln-ink)}
+
+.page-ln .ai-block{
+  border:0;border-top:1px solid var(--ln-line);border-bottom:1px solid var(--ln-line);border-radius:0;
+  background:transparent;color:var(--ln-ink);box-shadow:none;
+}
+
+.page-ln .ai-head{background:transparent;border-bottom-color:var(--ln-line)}
+
+.page-ln .ai-head h3{color:var(--ln2)}
+
+.page-ln .ai-block .btn{background:var(--ln);color:#fff}
+
+.page-ln .ai-block .btn:hover{background:var(--ln2)}
+
+.page-ln .ai-block .btn.gold,.page-ln .ai-block .btn.soft{background:var(--ln-tint);border-color:var(--ln-line);color:var(--ln-ink);box-shadow:none}
+
+.page-ln .ai-block .btn.gold:hover,.page-ln .ai-block .btn.soft:hover{background:var(--card);border-color:var(--ln);color:var(--ln2)}
+
+.page-ln .ai-block .ai-out,.page-ln .ai-block .ai-bubble.user,.page-ln .ai-block .ai-bubble.assistant,.page-ln .ai-block .ai-model-name,.page-ln .ai-block input,.page-ln .ai-block select{color:var(--ln-ink)}
+
+.page-ln .ai-tab.active{background:var(--ln);border-color:var(--ln);color:#fff}
+
+.page-ln .ai-bubble.user{background:var(--ln-tint);border-color:var(--ln)}
+
+.page-ln .ai-bubble.assistant{border-color:var(--ln-line)}
+
+@media print{
+  .page-ln .leno-card,.page-ln .info-box,.page-ln .page > .form-row{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-ln {
+    --ln:#a0b642;
+    --ln2:#9eba3a;
+    --ln-deep:#e0e3d3;
+    --ln-ink:#d2d5ce;
+    --ln-accent:#c1cc77;
+    --ln-line:#4f523c;
+    --ln-tint:#2e2f1e;
+    --ln-ink2:#a8ab9c;
+  }
+}

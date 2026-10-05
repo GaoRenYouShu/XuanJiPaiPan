@@ -1,0 +1,288 @@
+/* 页级样式：ziwei
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+/*
+   主色取帝星之紫（色相 268 度），六档同色相派生：深档 hover 与强调、墨档给大标题与表头、
+   正文字取紫墨灰、次级字只降饱和不另立色相、浅线与纸淡底提到 86% 与 95% 明度。
+   语言：零圆角、零投影、零渐变，白瓷卡一律改上下细线（纸本目录）；
+   四化（禄权科忌）与喜忌为语义色，不随主题走。 */
+
+.page-zw{
+  --zw:#5a3a7e;          /* 帝星紫主色 */
+  --zw2:#483064;         /* 深紫：hover、强调、标签字 */
+  --zw-deep:#332347;     /* 玄紫：大标题与表头字色 */
+  --zw-ink:#3c3444;      /* 紫墨灰：正文字色 */
+  --zw-ink2:#60566e;     /* 次级字色：卷首说明、副注、图例 */
+  --zw-line:#dbd2e6;     /* 紫浅线 */
+  --zw-tint:#f4eff8;     /* 紫纸淡底 */
+  --zw-tint2:#ebe2f2;    /* 紫淡底深一档：盘上点选态 */
+  --zw-serif:var(--font-serif);
+  --ink2:var(--zw-ink2);
+  --gold:var(--zw);
+  --gold2:var(--zw2);
+  --gold-brown:var(--zw2);
+  --gold-bg:var(--zw-tint);
+  --foot-ink:var(--zw2);
+  --line:var(--zw-line);--ink:var(--zw-ink)
+}
+
+.page-zw .page h1{color:var(--zw-deep);font-family:var(--zw-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-zw .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--zw-line);margin:0 auto var(--sp-3)}
+
+.page-zw .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--zw-line);margin:var(--sp-3) auto 0}
+
+.page-zw .page .lead{color:var(--zw-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-zw .page .lead::after{background:var(--zw-line)}
+
+.page-zw .page > .form-row{margin-bottom:var(--sp-3)}
+
+.page-zw input,.page-zw select,.page-zw textarea{border-color:var(--zw-line);color:var(--zw-ink)}
+
+.page-zw input:focus,.page-zw select:focus,.page-zw textarea:focus{border-color:var(--zw);outline:none}
+
+.page-zw .btn,.page-zw .btn.gold{background:var(--zw);border-color:var(--zw);color:#fff;box-shadow:none}
+
+.page-zw .btn:hover,.page-zw .btn.gold:hover{background:var(--zw2);color:#fff;box-shadow:none}
+
+.page-zw .dt-ic{color:var(--zw-ink)}
+
+.page-zw .ai-block .btn{border-radius:0}
+
+.page-zw .ai-block .btn.gold,.page-zw .ai-block .btn.soft{background:var(--zw-tint);border-color:var(--zw-line);color:var(--zw-ink)}
+
+.page-zw .ai-block .btn.gold:hover,.page-zw .ai-block .btn.soft:hover{background:var(--card);border-color:var(--zw);color:var(--zw2)}
+
+.page-zw .birth-group{background:transparent;border:0;
+  border-top:1px solid var(--zw-line);border-radius:0;padding:var(--sp-3) 0;margin-bottom:var(--sp-2)}
+
+@media(max-width:640px){.page-zw .birth-group,.page-zw .birth-group.compact{padding-top:var(--sp-2)}}
+
+.page-zw .birth-group .group-label{color:var(--zw2)}
+
+.page-zw .zw-rel2 .group-label{width:100%;margin:0;color:var(--zw2)}
+
+.page-zw .zw-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
+  margin:var(--sp-1) 0 var(--sp-2);font-size:13px;color:var(--zw-ink);cursor:pointer;user-select:none}
+
+.page-zw .zw-rel-chk input{width:auto;margin:0}
+
+.page-zw .zw-rel2{display:none}
+
+.page-zw .zw-rel2.is-on{display:block}
+
+.page-zw #out > .zp-v{margin-top:var(--sp-4);padding:var(--sp-3) 0;border-top:1px solid var(--zw-line)}
+
+.page-zw .zp-v{--major:var(--zw2);--text:var(--zw-ink);--border:var(--zw-line)}
+
+.page-zw .zp-v .zw-pal,.page-zw .zp-v .zw-center{background:transparent;border-color:var(--zw-line);color:var(--zw-ink);box-shadow:none}
+
+.page-zw .zp-v .zw-pal:hover{background:var(--zw-tint)}
+
+.page-zw .zp-v .zw-pal .zw-minor,.page-zw .zp-v .zw-pal .vmajor{color:var(--zw-ink)}
+
+.page-zw .zp-v .zw-pal .zw-adj{color:var(--zw-ink2)}
+
+.page-zw .zp-v .zw-center .zw-ct td.k,.page-zw .zp-v .zw-center .zw-ct td.wk{color:var(--zw2)}
+
+.page-zw .zp-v .zw-center .zw-ct td.v,.page-zw .zp-v .zw-center .zw-ct td.wv{color:var(--zw-ink)}
+
+.page-zw .zp-v .zw-pal.zw-3he{background:var(--zw-tint)}
+
+.page-zw .zp-v .zw-pal.zw-hua-lu{background:#eef6ee}
+
+.page-zw .zp-v .zw-pal.zw-hua-ji{background:#fbeeec}
+
+.page-zw .zp-v .zw-pal.zw-rel{background:var(--zw-tint)}
+
+.page-zw .zp-v .zw-pal.zw-focused{background:var(--zw-tint2);border-color:var(--zw)}
+
+.page-zw #out .mod-head{border:0;
+  border-top:1px solid var(--zw-line);border-bottom:1px solid var(--zw-line);
+  border-radius:0;box-shadow:none;padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-3)}
+
+.page-zw #out .mod-caret{color:var(--zw)}
+
+.page-zw #out .mod-title{color:var(--zw2)}
+
+.page-zw #out .mod-sub{color:var(--zw-ink2)}
+
+.page-zw #out .gua-ico{background:transparent;border:0;color:var(--zw2)}
+
+.page-zw #out .mod-body h3.rel-title{margin-top:var(--sp-4)}
+
+.page-zw #out .mod-body > h3.rel-title:first-child{margin-top:0}
+
+.page-zw .info-box.zp-ding,.page-zw .info-box.zp-liunian,.page-zw .info-box.zp-yunout{
+  background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
+
+.page-zw .info-box{background:transparent;border:0;border-top:1px solid var(--zw-line);
+  border-radius:0;box-shadow:none}
+
+.page-zw .info-box.yi{border-top-color:var(--green)}
+
+.page-zw .info-box.ji{border-top-color:var(--red)}
+
+.page-zw .info-box h4{color:var(--zw2);font-family:var(--zw-serif);font-weight:400;letter-spacing:.2em;border-bottom:1px solid var(--zw-line);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2)}
+
+.page-zw .palace-detail .info-box{background:transparent;border:0;
+  border-top:1px solid var(--zw-line);border-radius:0;box-shadow:none;padding:var(--sp-3) 0}
+
+.page-zw .palace-detail .info-box h4{color:var(--zw2);font-weight:400}
+
+.page-zw .zp-yun-tbl{background:transparent}
+
+.page-zw .zp-yun-tbl th,.page-zw .zp-yun-tbl td{border-color:var(--zw-line)}
+
+.page-zw .zp-yun-tbl tr+tr{border-top:0}
+
+.page-zw .zp-yun-tbl th{background:var(--zw-tint);color:var(--zw-deep);font-weight:400}
+
+.page-zw .zp-yun-tbl td{color:var(--zw-ink)}
+
+.page-zw .zw-hp-tbl th,.page-zw .zw-hp-tbl td{border-color:var(--zw-line)}
+
+.page-zw .zw-hp-tbl th{background:var(--zw-tint);color:var(--zw-deep);font-weight:400;white-space:nowrap}
+
+.page-zw .zw-hp-tbl td{color:var(--zw-ink);white-space:nowrap}
+
+.page-zw .zw-hp-tbl td.zw-hp-det{white-space:normal;overflow-wrap:anywhere}
+
+.page-zw .zw-hp-max{color:var(--zw-ink2);font-size:12px;font-weight:400;margin-left:var(--sp-1);white-space:nowrap}
+
+.page-zw .zw-hp-total .hh-adv-lv{margin-left:var(--sp-2)}
+
+.page-zw .hh-adv{border-color:var(--zw-line)}
+
+.page-zw .hh-adv-box,.page-zw .hh-adv-tbl th,.page-zw .hh-adv-tbl td{border-color:var(--zw-line)}
+
+.page-zw .hh-adv-tbl tr+tr th,.page-zw .hh-adv-tbl tr+tr td,
+.page-zw .hh-adv-tbl .hh-adv-sec td{border-color:var(--zw-line)}
+
+.page-zw .hh-adv-tbl td{color:var(--zw-ink)}
+
+.page-zw .hh-adv-pill-g{background:var(--zw)}
+
+.page-zw .hh-adv-pill-d{background:var(--zw-deep)}
+
+.page-zw .dy-row{background:transparent;border:0;border-top:1px solid var(--zw-line);border-radius:0}
+
+.page-zw .dy-name,.page-zw .dy-gz{color:var(--zw2)}
+
+.page-zw .dy-star,.page-zw .dy-age{color:var(--zw-ink2)}
+
+.page-zw .ly-zh-p,.page-zw .ly-zh-p.sub,.page-zw .palace-detail .ly-zh-p,.page-zw .palace-detail .ly-zh-p.sub{color:var(--zw-ink)}
+
+.page-zw .sub-note,.page-zw .yf-hint{color:var(--zw-ink2)}
+
+.page-zw .yf-picker label{color:var(--zw2)}
+
+.page-zw .lqkj-grid .lq-b{color:var(--zw-ink)}
+
+.page-zw .zw-key{color:var(--zw2)}
+
+.page-zw .zw-note{color:var(--zw-ink2);font-size:12px}
+
+.page-zw .zw-xi{color:var(--green)}
+
+.page-zw .zw-ji{color:var(--red)}
+
+.page-zw .info-box p{color:var(--zw-ink)}
+
+.page-zw .yf-picker input{border-color:var(--zw-line)}
+
+.page-zw .zw-jx{display:inline-block;padding:0 var(--sp-2);border-radius:0;color:#fff;
+  font-size:12px;font-weight:400;line-height:1.7;margin-right:var(--sp-1)}
+
+.page-zw .zw-ref{margin-top:var(--sp-4);padding:var(--sp-3) 0;background:transparent;border:0;
+  border-top:1px solid var(--zw-line);border-radius:0}
+
+.page-zw .zw-ref:not([open]){border-bottom:1px solid var(--zw-line)}
+
+.page-zw .zw-ref summary{color:var(--zw-deep);font-family:var(--zw-serif);
+  font-size:var(--tier3);font-weight:400;letter-spacing:.1em}
+
+.page-zw .zw-legend{color:var(--zw-ink2)}
+
+.page-zw .zw-legend b{color:var(--zw2)}
+
+.page-zw .zw-pal-mean th,.page-zw .zw-pal-mean td{border-color:var(--zw-line);color:var(--zw-ink)}
+
+.page-zw .zw-pal-mean th{background:var(--zw-tint);color:var(--zw-deep);font-weight:400}
+
+.page-zw table th{color:var(--zw-deep);font-weight:400}
+
+.page-zw table td{color:var(--zw-ink)}
+
+.page-zw .rel-title{color:var(--zw-deep)}
+
+.page-zw .notice{color:var(--zw-ink);background:transparent;border:0;
+  border-top:1px solid var(--zw-line);border-bottom:1px solid var(--zw-line)}
+
+.page-zw .ai-block{border:0;border-top:1px solid var(--zw-line);border-bottom:1px solid var(--zw-line);
+  border-radius:0;background:transparent;color:var(--zw-ink);box-shadow:none}
+
+.page-zw .ai-head{background:transparent;border-bottom-color:var(--zw-line)}
+
+.page-zw .ai-head h3{color:var(--zw2);font-family:var(--zw-serif);font-weight:400}
+
+.page-zw .ai-head .ai-status{color:var(--zw-ink2)}
+
+.page-zw .ai-tab{border-radius:0}
+
+.page-zw .ai-pane .ai-out{border-radius:0}
+
+.page-zw .ai-bubble{border-radius:0}
+
+.page-zw .ai-tab:hover{border-color:var(--zw);color:var(--zw2)}
+
+.page-zw .ai-tab.active{background:var(--zw);border-color:var(--zw);color:#fff}
+
+.page-zw .ai-tab.active:hover{background:var(--zw2);border-color:var(--zw2);color:#fff}
+
+.page-zw .ai-bubble.user{background:var(--zw-tint);border-color:var(--zw)}
+
+.page-zw .ai-bubble.assistant{border-color:var(--zw-line)}
+
+.page-zw .ai-model-row:hover{background:var(--zw-tint)}
+
+.page-zw .ai-block .ai-out,.page-zw .ai-block .ai-bubble.user,
+.page-zw .ai-block .ai-bubble.assistant,.page-zw .ai-block .ai-model-name{color:var(--zw-ink)}
+
+.page-zw .ai-block input,.page-zw .ai-block select{color:var(--zw-ink)}
+
+.page-zw .ai-tip{color:var(--zw-ink2)}
+
+@media(max-width:640px){
+  /* 合盘各表首列：表头长句在窄屏被 nowrap 撑到两百余像素，把右侧分值挤成窄条，故窄屏放开换行并左对齐 */
+  .page-zw .zw-hp-tbl th,.page-zw .zw-hp-total .zp-yun-tbl th{white-space:normal;text-align:left}
+  /* 双人合盘勾选行：整行说明文字长，窄屏独占一行随文字折行，复选框不被挤到文字中间 */
+  .page-zw .zw-rel-chk{display:flex}
+  .page-zw .zp-yun-tbl th,.page-zw .zp-yun-tbl td{padding:var(--sp-1) var(--sp-2)}
+  /* 正文与大运表的值按标点整段换行，末字不再独占一行 */
+  .page-zw .ly-zh-p,.page-zw .zp-yun-tbl td{word-break:keep-all}
+  .page-zw .zw-hp-tbl td{white-space:normal}
+  .page-zw .zw-hp-max{display:block;margin-left:0;margin-top:var(--sp-1)}
+}
+
+@media print{
+  .page-zw .zp-ding,.page-zw .info-box,.page-zw .notice,.page-zw .ai-block{
+    background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-zw {
+    --zw:#8258b2;
+    --zw2:#7f56ae;
+    --zw-deep:#dbd6e0;
+    --zw-ink:#d1ced4;
+    --zw-ink2:#a29ea9;
+    --zw-line:#463e51;
+    --zw-tint:#271f2e;
+    --zw-tint2:#ebe2f2;
+  }
+}
