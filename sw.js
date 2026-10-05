@@ -13,7 +13,7 @@ const SHELL = [
   './manifest.webmanifest',
   './assets/meta.js?v=20260925b',
   './assets/app.js?v=20261004a',
-  './assets/style.css?v=z388',
+  './assets/style.css?v=z390',
   './assets/lunar.js?v=20260927a',
   './assets/foli-terms.js?v=20260928b',
   './assets/daoli-terms.js?v=20261005a',

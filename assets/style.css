@@ -4149,12 +4149,13 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
      加外边距会与 gap 叠加成 12px，同行之内读作两值，且该钮左缘与上排 空亡基准 的左缘错开 */
   .mode-date:where(.bz-root) .opts-row .btn.btn-ghost,.mode-lunar:where(.bz-root) .opts-row .btn.btn-ghost{grid-column:3 / span 2}
 }
-/* 关联数术：折叠框去白瓷卡改上下细线；条目去四边框改项间细线，标题取松墨宋体宽字距 */
+/* 关联数术：折叠框不留卡与投影，收起态上下细线夹住题名；条目只留项间细线并由末条收束，标题取松墨宋体宽字距 */
 .page-bazi .bazi-linkage{margin:0;background:transparent;border:0;border-top:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
+.page-bazi .bazi-linkage:not([open]){border-bottom:1px solid var(--bz-line)}
 .page-bazi .bazi-linkage summary{font-size:var(--tier3);color:var(--bz-deep);font-family:var(--bz-serif);font-weight:400;letter-spacing:.2em;cursor:pointer}
 .page-bazi .bazi-linkage[open] summary{margin-bottom:var(--sp-1)}
 /* 结果区内的二级折叠框（所选干支详情、终身卦流年卦）：形制由通用段给出，本页只补线色与题色；
-   关联数术块是页尾收束件，自带上下细线，不在其列 */
+   关联数术块是页尾收束件，展开态由列表末条收束、收起态自补下线，不在其列 */
 .page-bazi .mh-ref:not(.bazi-linkage){border-color:var(--bz-line)}
 /* 终身卦流年卦题头：随墨松青深档 */
 .page-bazi #hexWrap .mh-ref>summary{color:var(--bz-deep)}
@@ -4162,7 +4163,6 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .page-bazi #hexWrap .mh-ref th,.page-bazi #hexWrap .mh-ref td{border-color:var(--bz-line)}
 .page-bazi .link-list{display:flex;flex-direction:column;gap:0;margin-top:var(--sp-1)}
 .page-bazi .link-item{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) 0;border:0;border-bottom:1px solid var(--bz-line);border-radius:0;cursor:pointer;transition:background .15s;text-decoration:none;font-size:13px}
-.page-bazi .link-item:last-child{border-bottom:0}
 .page-bazi .link-item:hover{background:var(--bz-tint)}
 .page-bazi .link-item .li-ico{font-size:15px;flex:none;line-height:1}
 .page-bazi .link-item .li-name{color:var(--bz2);font-weight:400;font-family:var(--bz-serif);letter-spacing:.05em;white-space:nowrap;flex:none}
