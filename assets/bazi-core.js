@@ -1992,7 +1992,8 @@ function renderOverview(BZ, yd){
   const strength=A.strength||'无';
   const score=(typeof A.score==='number')?A.score.toFixed(1):'无';
   const bi=(k,v)=>`<div class="bz-i"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-  return bi('日主', `${dg}${dwx}`)+bi('格局', ge)+bi('喜用', xi)+bi('身强身弱', strength)+bi('旺衰评分', score);
+  // 格局之值可点：弹窗给立格之义、清浊层次与本命喜忌（与同流二十八宿、三垣、命卦同例）。
+  return bi('日主', `${dg}${dwx}`)+bi('格局', `<span class="tip" onclick="showTip('__GEJU__')">${ge}</span>`)+bi('喜用', xi)+bi('身强身弱', strength)+bi('旺衰评分', score);
 }
 
 /* ============ 八字双盘：量化四柱圆盘、十二长生盘 ============
@@ -2292,12 +2293,13 @@ function renderBaziPage(R, BZ = window.BZ){
     infoFlow+=bi('生肖', lunar.getYearShengXiao());
     infoFlow+=bi('星座', `${Solar.fromYmd(y,m,d).getXingZuo()}座`);
     // 二十八宿与老黄历、万年历、道历同一写法：宿名＋正（七政）＋动物＋吉凶，如 轸水蚓（吉）
-    infoFlow+=bi('二十八宿', `${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）`);
+    // 二十八宿、三垣、命卦三项之值可点：弹窗先述术语之义、再列本命所值，与老黄历字段流的值型条目同例。
+    infoFlow+=bi('二十八宿', `<span class="tip" onclick="showTip('__XIU__','${lunar.getXiu()}')">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span>`);
     if(isBC){
       infoFlow+=bi('三垣 命卦', '公元前出生：命宫、胎元、身宫、八宅命卦因历法库对远古节气计算失真，此处暂不显示具体值，可据输入月柱与时柱自行按古法推排。');
     }else{
-      infoFlow+=bi('三垣', `${seg('命宫',R.ec.getMingGong())}<span class="bz-br"></span>${seg('胎元',R.ec.getTaiYuan())}<span class="bz-br"></span>${seg('身宫',R.ec.getShenGong())}`, 'bz-oneline')
-        +bi('命卦', `${mg.gua}宫 ${mg.group}`);
+      infoFlow+=bi('三垣', `<span class="tip" onclick="showTip('__PALACE__')">${seg('命宫',R.ec.getMingGong())}<span class="bz-br"></span>${seg('胎元',R.ec.getTaiYuan())}<span class="bz-br"></span>${seg('身宫',R.ec.getShenGong())}</span>`, 'bz-oneline')
+        +bi('命卦', `<span class="tip" onclick="showTip('__MINGGUA__')">${mg.gua}宫 ${mg.group}</span>`);
     }
     infoFlow+=bi('节气', `当令 ${pj.getName()} ${pj.getSolar().toYmd()}<span class="bz-br"></span>下一节 ${nj.getName()} ${nj.getSolar().toYmd()}`);
   }

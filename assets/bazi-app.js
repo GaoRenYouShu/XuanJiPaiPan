@@ -997,6 +997,14 @@ function showTip(key, extra){
   if(key==='__NAYIN__' && extra){
     const info=NAYIN_INFO[extra];
     body=`<h3 class="tip-title">${extra}</h3><div class="tip-body">五行属<span class="${WX_CLASS[info.wx]||''}">${info.wx}</span>。<br>${info.d}</div>`;
+  } else if(key==='__XIU__'){
+    body=bzXiuTip(extra);
+  } else if(key==='__PALACE__'){
+    body=bzPalaceTip();
+  } else if(key==='__MINGGUA__'){
+    body=bzMingGuaTip();
+  } else if(key==='__GEJU__'){
+    body=bzGeJuTip();
   } else if(o){
     body=tipHtml(key);
   } else {
@@ -1008,6 +1016,66 @@ function showTip(key, extra){
 }
 function closeTip(){ document.getElementById('modalMask').classList.remove('show'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
+
+/* ---------- 基础信息字段流弹窗：二十八宿、三垣、命卦、格局 ----------
+   四项皆字段流的值型条目，弹窗先述术语之义、再列本命所值。
+   取数一律问现有真源，不另存副本：宿曜全名、四象与吉凶歌取 lunar.js 的 LunarUtil，
+   三垣取 bazi-core.js 的 PALACE_DEF，命卦取 bazi-data.js 的 mingGuaDate 与 bazi-core.js 的 MING_GUA_DETAIL，
+   格局取 bazi-rel.js 的 getAnalysis（清浊、层次、喜忌三处的剥括号口径与喜用格局段一致）。 */
+function bzXiuTip(nm){
+  const L=(typeof LunarUtil!=='undefined')?LunarUtil:null;
+  if(!nm) return '<h3 class="tip-title">二十八宿</h3><div class="tip-body">（暂无说明）</div>';
+  const luck=(L&&L.XIU_LUCK&&L.XIU_LUCK[nm])||'';
+  const g=(L&&L.GONG&&L.GONG[nm])||'', shou=(g&&L.SHOU&&L.SHOU[g])||'';
+  const song=(L&&L.XIU_SONG&&L.XIU_SONG[nm])||'';
+  const full=nm+((L&&L.ZHENG&&L.ZHENG[nm])||'')+((L&&L.ANIMAL&&L.ANIMAL[nm])||'');
+  const lines=['二十八宿为黄道周天之分度，逐日轮值，所值之宿主一日之吉凶；本项取生日当日所值之宿。',
+    `本命宿${nm}${g?('，属'+g+'方'+shou+'七宿'):''}${luck?('，为'+luck+'宿'):''}。`];
+  if(song) lines.push('值日吉凶歌：'+song);
+  return `<h3 class="tip-title">${full}${luck?'（'+luck+'）':''}</h3><div class="tip-body">${lines.join('<br>')}</div>`;
+}
+function bzPalaceTip(){
+  const B=(typeof window!=='undefined')?window.BZ:null;
+  const M=(B&&B.meta)?B.meta:{};
+  const PD=(typeof PALACE_DEF!=='undefined')?PALACE_DEF:{};
+  const rows=[['命宫',M.mingGong],['胎元',M.taiYuan],['身宫',M.shenGong]].filter(p=>p[1]);
+  if(!rows.length) return '<h3 class="tip-title">三垣</h3><div class="tip-body">（暂无说明）</div>';
+  const lines=['三垣为命宫、胎元、身宫之合称，出于四柱之外而补四柱之未备：命宫言其志，胎元言其根，身宫言其行。'];
+  rows.forEach(p=>{ lines.push(`<b>${p[0]} ${p[1]}</b>：${PD[p[0]]||''}`); });
+  return `<h3 class="tip-title">三垣</h3><div class="tip-body">${lines.join('<br>')}</div>`;
+}
+function bzMingGuaTip(){
+  const bad='<h3 class="tip-title">命卦</h3><div class="tip-body">（暂无说明）</div>';
+  const B=(typeof window!=='undefined')?window.BZ:null;
+  if(!B) return bad;
+  const male=(B.sex===1||B.sex==='男'||B.sex===true);
+  let mg=null;
+  try{ mg=(typeof mingGuaDate==='function'&&B.birthMonth)?mingGuaDate(B.birthYear,B.birthMonth,B.birthDay,male):mingGua(B.birthYear,male); }catch(e){ mg=null; }
+  if(!mg||!mg.gua) return bad;
+  const GD=(typeof MING_GUA_DETAIL!=='undefined'&&MING_GUA_DETAIL[mg.gua])||{};
+  const lines=['八宅命卦由出生年推得，命卦即所居之宫，与年柱同以立春为界换年；命卦为方位家居之坐标，不作五行喜忌之判。',
+    `本命${mg.gua}宫，属${mg.group}，${mg.dong?'宜居东四宅：坎、震、巽、离':'宜居西四宅：乾、坤、艮、兑'}。`];
+  if(GD.wx) lines.push(`卦气${GD.wx}，方位${GD.wei}，卦象${GD.xiang}。`);
+  if(GD.qi) lines.push(GD.qi+'。');
+  if(GD.zhi) lines.push(GD.zhi+'。');
+  return `<h3 class="tip-title">命卦 ${mg.gua}宫</h3><div class="tip-body">${lines.join('<br>')}</div>`;
+}
+function bzGeJuTip(){
+  const bad='<h3 class="tip-title">格局</h3><div class="tip-body">（暂无说明）</div>';
+  const B=(typeof window!=='undefined')?window.BZ:null;
+  if(!B) return bad;
+  let A=null;
+  try{ A=getAnalysis(B); }catch(e){ A=null; }
+  if(!A) return bad;
+  const ge=A.geOuter||A.geName||'普通格';
+  const xi=(A.geUse&&A.geUse.xi)||'依格局而定', ji=(A.geUse&&A.geUse.ji)||'依格局而定';
+  const lines=['格局以月令为纲，取月令藏干与日主之关系立格，格定而后喜忌有所依，为八字论命之骨干。',
+    `本命以${ge}立格${A.geGanLabel||''}，清浊${stripCat(A.geQing)}，层次${stripCat(A.geLevel)}。喜${xi}，忌${ji}。`];
+  const note=stripCat(A.geLevelNote);
+  if(note) lines.push(note);
+  if(A.geOuterNote) lines.push(A.geOuterNote);
+  return `<h3 class="tip-title">格局 ${ge}</h3><div class="tip-body">${lines.join('<br>')}</div>`;
+}
 
 /* 把页面渲染出的 HTML 片段剥成纯文本，供“复制排盘数据”使用，
    保证复制内容与页面完全一致、不会失同步。表格单元格用“ | ”分隔，块级元素换行。 */
