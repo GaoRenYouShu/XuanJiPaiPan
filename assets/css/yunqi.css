@@ -1,0 +1,104 @@
+/* 页级样式：yunqi
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-yq .page h1{color:var(--yq-deep);font-family:var(--yq-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-yq .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--yq-line);margin:0 auto var(--sp-3)}
+
+.page-yq .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--yq-line);margin:var(--sp-3) auto 0}
+
+.page-yq .page .lead{color:var(--yq-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-yq .page .lead::after{background:var(--yq-line)}
+
+.page-yq .mod-head{border-top-color:var(--yq-line);border-bottom-color:var(--yq-line)}
+
+.page-yq .field label{color:var(--yq2);font-weight:400}
+
+.page-yq .field select{border-color:var(--yq-line);background:var(--card);color:var(--yq-deep)}
+
+.page-yq .field select:focus{border-color:var(--yq);outline:none}
+
+.page-yq .btn{background:var(--yq)}
+
+.page-yq .btn:hover{background:var(--yq2)}
+
+.page-yq .yq-tbl-wrap{margin-top:var(--sp-2);overflow-x:auto}
+
+.page-yq .yq-tbl{width:100%;border-collapse:collapse;font-size:13px;line-height:1.6;border-top:1px solid var(--yq-line)}
+
+.page-yq .yq-tbl th{background:var(--yq-tint);text-align:left;font-weight:400;white-space:nowrap;color:var(--yq2);border:0;border-bottom:1px solid var(--yq-line);padding:6px 9px}
+
+.page-yq .yq-tbl td{border:0;border-bottom:1px solid var(--yq-line);padding:6px 9px;vertical-align:top;color:var(--yq-ink)}
+
+.page-yq .yq-tbl .yq-c0{white-space:nowrap;color:var(--yq-ink2)}
+
+.page-yq .yq-tbl tr.yq-good td{background:var(--yq-good-bg)}
+
+.page-yq .yq-tbl tr.yq-good td:last-child{color:var(--green)}
+
+.page-yq .yq-tbl tr.yq-bad td{background:var(--yq-bad-bg)}
+
+.page-yq .yq-tbl tr.yq-bad td:last-child{color:var(--red)}
+
+.page-yq .yq-head{color:var(--yq-deep);font-family:var(--yq-serif);font-weight:400;letter-spacing:.2em;margin:var(--sp-2) 0 var(--sp-1)}
+
+.page-yq .yq-ov{font-size:13px;color:var(--yq-ink2);margin:var(--sp-1) 0 var(--sp-2)}
+
+.page-yq .yq-err{color:var(--red);font-size:13px}
+
+.page-yq .sub-note{color:var(--yq-ink2)}
+
+.page-yq .info-box{background:transparent;border:0;border-top:1px solid var(--yq-line);border-radius:0;box-shadow:none}
+
+.page-yq .info-box h4{color:var(--yq2);font-family:var(--yq-serif);font-weight:400;letter-spacing:.2em}
+
+.page-yq .info-box p{color:var(--yq-ink)}
+
+.page-yq .ai-block{border:0;border-top:1px solid var(--yq-line);border-bottom:1px solid var(--yq-line);border-radius:0;background:transparent;color:var(--yq-ink);box-shadow:none}
+
+.page-yq .ai-head{background:transparent;border-bottom-color:var(--yq-line)}
+
+.page-yq .ai-head h3{color:var(--yq2)}
+
+.page-yq .ai-block .btn{background:var(--yq);color:#fff}
+
+.page-yq .ai-block .btn:hover{background:var(--yq2)}
+
+.page-yq .ai-block .btn.gold,.page-yq .ai-block .btn.soft{background:var(--yq-tint);border-color:var(--yq-line);color:var(--yq-ink);box-shadow:none}
+
+.page-yq .ai-block .btn.gold:hover,.page-yq .ai-block .btn.soft:hover{background:var(--card);border-color:var(--yq);color:var(--yq2)}
+
+.page-yq .ai-block .ai-out,.page-yq .ai-block .ai-bubble.user,.page-yq .ai-block .ai-bubble.assistant,.page-yq .ai-block .ai-model-name,.page-yq .ai-block input,.page-yq .ai-block select{color:var(--yq-ink)}
+
+.page-yq .ai-tab.active{background:var(--yq);border-color:var(--yq);color:#fff}
+
+.page-yq .ai-bubble.user{background:var(--yq-tint);border-color:var(--yq)}
+
+.page-yq .ai-bubble.assistant{border-color:var(--yq-line)}
+
+@media(max-width:640px){
+  .page-yq .yq-tbl th,.page-yq .yq-tbl td{padding:5px 4px}
+  .page-yq .yq-tbl th{white-space:nowrap}
+  .page-yq .yq-tbl-wrap table{width:max-content;min-width:100%}
+  .page-yq .yq-tbl-wrap{padding-bottom:var(--sp-4)}
+}
+
+@media print{
+  .page-yq .yq-tbl th{background:var(--card) !important}
+  .page-yq .yq-tbl tr.yq-good td,.page-yq .yq-tbl tr.yq-bad td{background:transparent}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-yq {
+    --yq:#4faa6a;
+    --yq2:#4aa468;
+    --yq-deep:#d6e1d9;
+    --yq-ink:#cfd3d0;
+    --yq-line:#404f44;
+    --yq-tint:#212b25;
+    --yq-ink2:#9ea8a2;
+  }
+}

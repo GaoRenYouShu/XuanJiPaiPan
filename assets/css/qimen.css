@@ -1,0 +1,298 @@
+/* 页级样式：qimen
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-qm .qi-board{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);max-width:560px;margin:var(--sp-4) auto;animation:qiFade .3s ease}
+
+.page-qm .qi-cell{border:1px solid var(--qm-line);background:transparent;border-radius:0;min-height:150px;padding:var(--sp-2);position:relative;font-size:12px;line-height:1.5;cursor:pointer;transition:border-color .2s,background .15s,opacity .2s}
+
+.page-qm .qi-cell .gname{color:var(--gold2);font-weight:700;font-size:13px}
+
+.page-qm .qi-cell .gdir{color:var(--ink2);font-size:11px;margin-left:var(--sp-1)}
+
+.page-qm .qi-cell .tp{font-size:24px;font-weight:700;text-align:center;margin:2px 0 1px;line-height:1}
+
+.page-qm .qi-cell .dp{text-align:center;color:var(--ink2);font-size:12px;margin-bottom:var(--sp-1)}
+
+.page-qm .qi-cell .row{display:flex;justify-content:space-between;gap:var(--sp-1);padding:1px 0}
+
+.page-qm .qi-cell .row .k{color:var(--ink2)}
+
+.page-qm .qi-cell .xing{color:#5b3a8c;font-weight:600}
+
+.page-qm .qi-cell .men-ji,.modal.qi-gong-modal .men-ji{color:#1b7a34;font-weight:600}
+
+.page-qm .qi-cell .men-xiong,.modal.qi-gong-modal .men-xiong{color:#b3261e;font-weight:600}
+
+.page-qm .qi-cell .shen-ji,.modal.qi-gong-modal .shen-ji{color:#1b6fa8}
+
+.page-qm .qi-cell .shen-xiong,.modal.qi-gong-modal .shen-xiong{color:var(--special-text)}
+
+.page-qm .qi-cell .an{color:#777}
+
+.page-qm .qi-cell .ky{margin-top:var(--sp-1);font-size:11px;color:var(--ink2);line-height:1.5;border-top:1px dashed var(--line);padding-top:var(--sp-1);word-break:keep-all;overflow-wrap:anywhere}
+
+.page-qm .g-src{display:block;font-style:normal;font-size:10px;color:var(--ink2);opacity:.7;margin-top:1px;font-weight:300}
+
+.page-qm .qi-badge{position:absolute;top:6px;right:6px;display:flex;flex-direction:column;gap:var(--sp-1);align-items:flex-end}
+
+.page-qm .qi-badge span{font-size:10px;padding:1px var(--sp-1);border-radius:0;line-height:1.4}
+
+.page-qm .b-zf,.modal.qi-gong-modal .b-zf{background:var(--red);color:#fff}
+
+.page-qm .b-zs,.modal.qi-gong-modal .b-zs{background:var(--green);color:#fff}
+
+.page-qm .b-kw,.modal.qi-gong-modal .b-kw{background:#555;color:#fff}
+
+.page-qm .b-ym,.modal.qi-gong-modal .b-ym{background:#1565c0;color:#fff}
+
+.page-qm .qi-cell.cell-zf{border-color:var(--gold)}
+
+.page-qm .qi-cell.cell-zs{border-color:#2e8b57}
+
+.page-qm .qi-cell.qi-sel{border-color:var(--qm)}
+
+.page-qm .qi-cell.qi-dim{opacity:.5}
+
+.modal.qi-gong-modal{max-width:460px;
+  --qm2:#213b45;--qm-ink:#33424a;--qm-line:#ccd9dc;--qm-ink2:#4f656d}
+
+.modal.qi-gong-modal .qi-modal-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-1) var(--sp-2);
+  padding-right:var(--sp-5);padding-bottom:var(--sp-2);border-bottom:1px solid var(--qm-line)}
+
+.modal.qi-gong-modal .qi-g-name{font-family:var(--font-serif);font-size:var(--tier2);font-weight:400;color:var(--qm2);letter-spacing:.1em}
+
+.modal.qi-gong-modal .qi-g-sub{font-size:var(--tier4);color:var(--qm-ink2)}
+
+.modal.qi-gong-modal .qm-badge-row{display:inline-flex;gap:var(--sp-1);margin-left:auto}
+
+.modal.qi-gong-modal .qm-badge-row span{font-size:10px;padding:1px var(--sp-1);border-radius:0;line-height:1.4}
+
+.modal.qi-gong-modal .qi-g-sec{margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px solid var(--qm-line)}
+
+.modal.qi-gong-modal .qi-modal-head + .qi-g-sec{border-top:0;padding-top:0}
+
+.modal.qi-gong-modal .qi-g-sec-t{font-size:var(--tier4);color:var(--qm2);letter-spacing:.1em;margin-bottom:var(--sp-1)}
+
+.modal.qi-gong-modal .qi-mp-grid{display:grid;grid-template-columns:auto 1fr;gap:var(--sp-1) var(--sp-3);font-size:var(--tier4);line-height:1.75}
+
+.modal.qi-gong-modal .qi-mp-grid .mk{color:var(--qm-ink2);white-space:nowrap}
+
+.modal.qi-gong-modal .qi-g-plain{font-size:var(--tier4);line-height:1.8;color:var(--qm-ink);margin-top:var(--sp-1)}
+
+.modal.qi-gong-modal .qi-mp-note{margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px dashed var(--qm-line);font-size:12px;color:var(--qm-ink2);line-height:1.75}
+
+.modal.qi-gong-modal .qi-mp-src{color:var(--qm-ink2);font-size:11px}
+
+.page-qm .qi-jx-txt{font-size:12px;font-weight:700;margin-top:var(--sp-1);text-align:center}
+
+.page-qm .qi-jx-txt.da_ji{color:var(--green)}
+
+.page-qm .qi-jx-txt.xiao_ji{color:#66bb6a}
+
+.page-qm .qi-jx-txt.ping{color:#9e9e9e}
+
+.page-qm .qi-jx-txt.xiao_xiong{color:#ef6c4d}
+
+.page-qm .qi-jx-txt.da_xiong{color:var(--red)}
+
+.page-qm .qi-legend{font-size:12px;color:var(--ink2);text-align:center;margin:var(--sp-2) 0 0;line-height:1.7}
+
+.page-qm .qi-legend b{color:var(--ink)}
+
+.page-qm .qm-note{font-size:12px;color:var(--qm-ink2);margin-top:var(--sp-4);line-height:1.7}
+
+.page-qm .form-row .field input.qi-w-gz{width:80px}
+
+.page-qm .form-row .field input.qi-in-ro{width:70px;background:var(--paper2);color:var(--ink2)}
+
+.page-qm .qm-gloss-ref{border-color:var(--qm-line)}
+
+.page-qm .page > .form-row{margin-bottom:var(--sp-2)}
+
+.page-qm .qm-plain-tb{width:100%;border-collapse:collapse;margin-top:var(--sp-1)}
+
+.page-qm .qm-plain-tb th,.page-qm .qm-plain-tb td{font-size:var(--tier4);line-height:1.85;vertical-align:top;text-align:left;word-break:break-word;font-weight:400;border:1px solid var(--line);padding:6px 10px;background:transparent}
+
+.page-qm .qm-plain-tb th{color:var(--gold2);white-space:nowrap}
+
+.page-qm .qm-gloss{width:100%;border-collapse:collapse;margin-top:var(--sp-1);table-layout:fixed}
+
+.page-qm .qm-gloss th,.page-qm .qm-gloss td{font-size:var(--tier4);line-height:1.8;vertical-align:top;text-align:left;word-break:break-word;font-weight:400;border:1px solid var(--line);padding:4px 8px;background:transparent}
+
+.page-qm .qm-gloss th:first-child,.page-qm .qm-gloss td:first-child{white-space:nowrap;width:80px}
+
+.page-qm .qm-gloss th:first-child{color:var(--gold2)}
+
+.page-qm .qm-tbl{width:100%;border-collapse:collapse;margin-top:var(--sp-2);table-layout:auto}
+
+.page-qm .mod-body{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.page-qm .qm-tbl:has(tr>*:nth-child(3)){min-width:600px}
+
+.page-qm .qm-tbl th,.page-qm .qm-tbl td{border:1px solid var(--line);padding:8px 11px;font-size:13px;line-height:1.68;text-align:left;vertical-align:top;white-space:normal;word-break:break-word}
+
+.page-qm .qm-tbl th{background:var(--paper);color:var(--gold2);border-color:var(--qm-line);font-weight:400}
+
+.page-qm .qm-tbl.zh-tbl th{white-space:nowrap}
+
+.page-qm .qm-link-head{display:flex;flex-wrap:wrap;gap:var(--sp-1) var(--sp-3);align-items:baseline}
+
+.page-qm .qm-lh-it{white-space:nowrap;display:inline-block}
+
+.page-qm .qm-tbl td .qm-link-head{margin:-2px 0}
+
+.page-qm .qm-tbl.zh-tbl.link-th th{white-space:nowrap;min-width:auto;width:auto;padding:6px 8px}
+
+.page-qm .qm-tbl.geju .col-jx{width:1%;white-space:nowrap;text-align:center}
+
+.page-qm .qm-tbl.geju .col-ge{white-space:nowrap}
+
+.page-qm .qm-tbl.geju .col-cy{width:auto}
+
+.page-qm .qm-tbl.geju .col-sc{width:auto}
+
+.page-qm .qm-tbl.geju td.qi-ji{color:var(--green);font-weight:600}
+
+.page-qm .qm-tbl.geju td.qi-xiong{color:var(--red);font-weight:600}
+
+.page-qm .qm-src{color:var(--ink2);font-size:12px}
+
+.page-qm .qi-cell:hover{background:var(--cal-hover)}
+
+.page-qm .qi-cell:active{transform:scale(.98)}
+
+@media(max-width:640px){
+  .page-qm .qi-board{gap:var(--sp-1);max-width:100%}
+  .page-qm .qi-cell{min-height:auto;padding:var(--sp-2) var(--sp-1);font-size:11px}
+  .page-qm .qi-cell .tp{font-size:20px}
+  .page-qm .qi-cell .dp{font-size:11px}
+  .page-qm .qi-cell .ky{font-size:10px}
+  .page-qm .g-src{font-size:9px}
+  .page-qm .qi-badge span{font-size:9px}
+  /* 移动端键值表首列一律按内容定宽且不折行：写死 55px 与 43px 会把三字术语拆成单字 */
+  .page-qm .qm-tbl.zh-tbl th{width:auto;min-width:0;max-width:none;white-space:nowrap}
+  .page-qm .qm-plain-tb th{width:auto;min-width:0;max-width:none;white-space:nowrap}
+  /* 表头与首列不折行：内容区只剩 26px 时两字表头（九星、八门）与两字宫位（巽宫、离宫）卡在临界值被拆成两个单字 */
+  .page-qm .qm-tbl th,.page-qm .qm-tbl td:first-child{white-space:nowrap}
+  /* 断语按标点整段换行，末字不再独占一行 */
+  .page-qm .qm-tbl td{word-break:keep-all}
+  .page-qm .qm-gloss{table-layout:auto}
+  .page-qm .qm-gloss th:first-child,.page-qm .qm-gloss td:first-child{width:auto;white-space:nowrap}
+}
+
+.page-qm .mod-title{color:var(--qm2)}
+
+.page-qm .gua-ico{background:transparent;border:0;color:var(--qm2)}
+
+.page-qm .mod-head{border-top-color:var(--qm-line);border-bottom-color:var(--qm-line)}
+
+.page-qm .page h1{color:var(--qm-deep);font-family:var(--qm-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
+
+.page-qm .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--qm-line);margin:0 auto var(--sp-3)}
+
+.page-qm .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--qm-line);margin:var(--sp-3) auto 0}
+
+.page-qm .page .lead::after{background:var(--qm-line)}
+
+.page-qm .page .lead{color:var(--qm-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-qm .rel-title{color:var(--qm2)}
+
+.page-qm .ly-zh-p{color:var(--qm-ink)}
+
+.page-qm .sub-note{color:var(--qm-ink2)}
+
+.page-qm .notice{color:var(--qm-ink);border:1px solid var(--qm-line);background:var(--qm-tint);border-radius:0}
+
+.page-qm .mh-method{color:#5f7378}
+
+.page-qm .field label{color:var(--qm2);font-weight:400}
+
+.page-qm .field input,.page-qm .field select{border-color:var(--qm-line);background:var(--card);color:var(--qm-deep);transition:border-color .15s,box-shadow .15s}
+
+.page-qm .field input:focus,.page-qm .field select:focus{border-color:var(--qm);outline:none}
+
+.page-qm .group-label{color:var(--qm2)}
+
+.page-qm .btn{background:var(--qm);color:#fff;box-shadow:none}
+
+.page-qm .btn:hover{background:var(--qm2)}
+
+.page-qm .btn-ghost{background:var(--card);border:1px solid var(--qm);color:var(--qm2);box-shadow:none}
+
+.page-qm .btn-ghost:hover{background:var(--qm-tint)}
+
+.page-qm .qm-tbl td{color:var(--qm-ink);border-color:var(--qm-line)}
+
+.page-qm table.qm-tbl th{color:var(--qm2)}
+
+.page-qm .ai-block{border:0;border-top:1px solid var(--qm-line);border-bottom:1px solid var(--qm-line);border-radius:0;background:transparent;color:var(--qm-ink);box-shadow:none}
+
+.page-qm .ai-head{background:transparent;border-bottom-color:var(--qm-line)}
+
+.page-qm .ai-head h3{color:var(--qm2)}
+
+.page-qm .ai-head .ai-status{color:#5f7378}
+
+.page-qm .ai-block .btn{background:var(--qm);color:#fff;box-shadow:none}
+
+.page-qm .ai-block .btn:hover{background:var(--qm2)}
+
+.page-qm .ai-block .btn.gold,.page-qm .ai-block .btn.soft{background:var(--qm-tint);border-color:var(--qm-line);color:var(--qm-ink);box-shadow:none}
+
+.page-qm .qm-badge{display:inline-block;padding:1px var(--sp-2);border-radius:0;color:#fff;font-size:12px;font-weight:400;margin-right:var(--sp-1)}
+
+.page-qm .qm-tbl-sm{font-size:12px}
+
+.page-qm .qm-rel-xiong{color:var(--red)}
+
+.page-qm .qm-rel-ji{color:var(--gold2)}
+
+.page-qm .qm-wx-wang{color:var(--green)}
+
+.page-qm .qm-wx-ruo{color:var(--red)}
+
+.page-qm .qm-wx-ping{color:var(--ink2)}
+
+.page-qm .ai-block .btn.gold:hover,.page-qm .ai-block .btn.soft:hover{background:var(--card);border-color:var(--qm);color:var(--qm2)}
+
+.page-qm .ai-block .ai-out,.page-qm .ai-block .ai-bubble.user,.page-qm .ai-block .ai-bubble.assistant,.page-qm .ai-block .ai-model-name{color:var(--qm-ink)}
+
+.page-qm .ai-block input,.page-qm .ai-block select{color:var(--qm-ink)}
+
+.page-qm .ai-tab:hover{border-color:var(--qm);color:var(--qm2)}
+
+.page-qm .ai-tab.active{background:var(--qm);border-color:var(--qm);color:#fff}
+
+.page-qm .ai-tab.active:hover{background:var(--qm2);border-color:var(--qm2);color:#fff}
+
+.page-qm .ai-bubble.user{background:var(--qm-tint);border-color:var(--qm)}
+
+.page-qm .ai-bubble.assistant{border-color:var(--qm-line)}
+
+.page-qm .ai-model-row:hover{background:var(--qm-tint)}
+
+.page-qm .ai-tip{color:#5f7378}
+
+@media(max-width:640px){
+  .page-qm .info-box{box-shadow:none}
+}
+
+@media print{
+  .page-qm .info-box,.page-qm .qm-tbl{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-qm {
+    --qm:#487e93;
+    --qm2:#457c91;
+    --qm-deep:#d6dee1;
+    --qm-ink:#cdd2d5;
+    --qm-cinnabar:#d3705f;
+    --qm-line:#414b4d;
+    --qm-tint:#212a2b;
+    --qm-ink2:#9ca7ab;
+  }
+}

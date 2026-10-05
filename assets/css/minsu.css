@@ -1,0 +1,214 @@
+/* 页级样式：minsu
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-ms .page h1{color:var(--ms-deep);font-family:var(--ms-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
+
+.page-ms .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ms-line);margin:0 auto var(--sp-3)}
+
+.page-ms .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ms-line);margin:var(--sp-3) auto 0}
+
+.page-ms .page .lead::after{background:var(--ms-line)}
+
+.page-ms .page .lead{color:var(--ms-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-ms .rel-title{color:var(--ms2)}
+
+.page-ms .ly-zh-p{color:var(--ms-ink)}
+
+.page-ms .sub-note{color:var(--ms-ink2)}
+
+.page-ms .field label{color:var(--ms2);font-weight:400}
+
+.page-ms .field input,.page-ms .field select{border-color:var(--ms-line);background:var(--card);color:var(--ms-deep)}
+
+.page-ms .field input:focus,.page-ms .field select:focus{border-color:var(--ms);outline:none}
+
+.page-ms .page > .form-row{background:transparent}
+
+.page-ms .btn,.page-ms .btn.gold{background:var(--ms);border-color:var(--ms);color:#fff;box-shadow:none}
+
+.page-ms .btn:hover,.page-ms .btn.gold:hover{background:var(--ms2);border-color:var(--ms2);color:#fff;box-shadow:none}
+
+.page-ms .mod-head{border-top-color:var(--ms-line);border-bottom-color:var(--ms-line)}
+
+.page-ms .mod-title,.page-ms .mod-caret{color:var(--ms2)}
+
+.page-ms .mod-sub{color:var(--ms-ink2)}
+
+.page-ms details.mh-ref{border-color:var(--ms-line)}
+
+.page-ms .ms-tbl th{background:transparent;color:var(--ms2);border-bottom:1px solid var(--ms-line)}
+
+.page-ms .ms-tbl td{color:var(--ms-ink);border-color:var(--ms-line)}
+
+.page-ms .ms-buddha,.page-ms .ms-note{border-color:var(--ms-line)}
+
+.page-ms .ms-card-v,.page-ms .ms-bx-pair,.page-ms .ms-buddha-name{color:var(--ms2)}
+
+.page-ms .ms-card{border-color:var(--ms-line)}
+
+.page-ms .ms-card-gold{border-color:var(--ms)}
+
+.page-ms .ms-card-k{font-size:13px;font-weight:600;color:var(--ms2)}
+
+.page-ms .ms-card-s{font-size:11px;color:var(--ms-ink)}
+
+.page-ms .ms-tbl td.ms-c0{color:var(--ms2);font-weight:700}
+
+.page-ms .ms-verse{color:var(--ms-deep);font-size:13px;line-height:1.9}
+
+.page-ms .ms-verse>div{color:var(--ms2);font-weight:600;font-size:13px}
+
+.page-ms .ms-badge.ms-ok{border:0;color:#154021;background:#eef6ef}
+
+.page-ms .ms-badge.ms-warn{border:0;color:#70251c;background:#fbeceb}
+
+.page-ms .ms-badge.ms-plain{border-color:var(--ms-line);color:var(--ms2);background:transparent}
+
+.page-ms .ms-tbl-wrap{position:relative}
+
+.page-ms .ms-card-v{font-size:20px;font-weight:700;color:var(--ms2);line-height:1.3;white-space:nowrap}
+
+.page-ms .ms-tbl-wrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:22px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.9))}
+
+.page-ms .ai-block{
+  border:0;border-top:1px solid var(--ms-line);border-bottom:1px solid var(--ms-line);border-radius:0;
+  background:transparent;color:var(--ms-ink);box-shadow:none;
+}
+
+.page-ms .ai-head{background:transparent;border-bottom-color:var(--ms-line)}
+
+.page-ms .ai-head h3{color:var(--ms2)}
+
+.page-ms .ai-block .btn{background:var(--ms);color:#fff}
+
+.page-ms .ai-block .btn:hover{background:var(--ms2)}
+
+.page-ms .ai-block .btn,.page-ms .ai-block .btn.gold{box-shadow:none}
+
+.page-ms .ai-block .btn.gold,.page-ms .ai-block .btn.soft{background:var(--ms-tint);border-color:var(--ms-line);color:var(--ms-ink);box-shadow:none}
+
+.page-ms .ai-block .btn.gold:hover,.page-ms .ai-block .btn.soft:hover{background:var(--card);border-color:var(--ms);color:var(--ms2)}
+
+.page-ms .ai-block .ai-out,.page-ms .ai-block .ai-bubble.user,.page-ms .ai-block .ai-bubble.assistant,.page-ms .ai-block .ai-model-name,.page-ms .ai-block input,.page-ms .ai-block select{color:var(--ms-ink)}
+
+.page-ms .ai-tab.active{background:var(--ms);border-color:var(--ms);color:#fff}
+
+.page-ms .ai-bubble.user{background:var(--ms-tint);border-color:var(--ms)}
+
+.page-ms .ai-bubble.assistant{border-color:var(--ms-line)}
+
+@media print{
+  .page-ms .ms-tbl th,.page-ms .mod-head,.page-ms .info-box,.page-ms .page > .form-row{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+}
+
+.ms-page #msCnYear{width:76px;align-self:flex-start}
+
+.ms-page .ms-tbl-wrap{margin-top:var(--sp-2);overflow-x:auto}
+
+.ms-page .ms-tbl{width:100%;border-collapse:collapse;font-size:13px;line-height:1.6}
+
+.ms-page .ms-tbl th{text-align:left;color:var(--ms2);font-weight:400;border-bottom:1px solid var(--ms-line);padding:6px 8px;font-size:13px;white-space:nowrap}
+
+.ms-page .ms-tbl td{color:var(--ms-ink);padding:6px 8px;border-bottom:1px solid var(--ms-line);vertical-align:top}
+
+.ms-page .ms-c0{white-space:nowrap;color:var(--ms2)}
+
+.ms-page .ms-bad{color:#70251c}
+
+.ms-page .ms-good{color:#154021}
+
+.ms-page .ms-muted{color:var(--ms-ink2)}
+
+.ms-page .ms-cards{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-2) 0}
+
+.ms-page .ms-card{flex:1 1 150px;min-width:140px;border:0;border-radius:0;padding:var(--sp-1) var(--sp-2) var(--sp-1) 0;background:transparent}
+
+.ms-page .ms-card-k{font-size:12px;color:var(--ms-ink2)}
+
+.ms-page .ms-card-v{font-size:15px;font-weight:400;color:var(--ms2);line-height:1.4}
+
+.ms-page .ms-card-s{font-size:12px;color:var(--ms-ink2)}
+
+.ms-page .ms-card-gold{border-color:var(--ms2)}
+
+.ms-page .ms-card-gold .ms-card-v{font-size:15px} /* 四柱值字数多，字号略小于其余卡值 */
+
+.ms-page .ms-badge{display:inline-block;padding:2px var(--sp-2);border-radius:0;border:1px solid var(--ms-line);font-size:12px;margin:0 var(--sp-1) var(--sp-1) 0;background:transparent}
+
+.ms-page .ms-badge.ms-ok{border-color:#154021;color:#154021}
+
+.ms-page .ms-badge.ms-plain{color:var(--ms-ink)}
+
+.ms-page .ms-judge{border:0;border-top:1px solid var(--ms-line);border-radius:0;padding:var(--sp-2) 0 0;margin:var(--sp-2) 0 0;background:transparent;color:var(--ms-ink);font-size:13px}
+
+.ms-page .ms-judge-row{display:flex;gap:var(--sp-2);padding:var(--sp-1) 0;border-bottom:1px solid var(--ms-line);align-items:baseline}
+
+.ms-page .ms-judge-row:last-child{border-bottom:0}
+
+.ms-page .ms-judge-k{flex:0 0 5.5em;color:var(--ms-ink);white-space:nowrap}
+
+.ms-page .ms-verse{margin:var(--sp-2) 0;padding:0;border:0;background:transparent;border-radius:0;line-height:1.9;color:var(--ms-deep);font-size:14px}
+
+.ms-page .ms-verse>div{font-weight:400;color:var(--ms2);font-size:13px;margin-bottom:2px}
+
+.ms-page h3{font-weight:600;color:var(--ms2);font-size:var(--tier4);margin:var(--sp-3) 0 var(--sp-1)}
+
+.ms-page .ms-buddha{border:0;border-top:1px solid var(--ms-line);border-radius:0;padding:var(--sp-2) 0 0;margin:var(--sp-2) 0 0;background:transparent}
+
+.ms-page .ms-buddha-name{font-weight:400;color:var(--ms2);font-size:15px}
+
+.ms-page .ms-buddha-mantra{font-size:14px;line-height:1.9}
+
+.ms-page .ms-buddha-py{color:var(--ms-ink);font-size:12px}
+
+.ms-page .ms-buddha .ms-note{border:0;background:transparent;padding:var(--sp-2) 0 0;margin-top:var(--sp-2);border-top:1px solid var(--ms-line);border-radius:0}
+
+.ms-page .ms-bx-row{display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:baseline;padding:var(--sp-1) 0;border-bottom:1px solid var(--ms-line)}
+
+.ms-page .ms-bx-row:last-child{border-bottom:0}
+
+.ms-page .ms-bx-pair{font-weight:400;color:var(--ms2);font-size:14px;white-space:nowrap}
+
+.ms-page .ms-note{margin:var(--sp-2) 0 0;padding:0;border:0;border-radius:0;background:transparent;font-size:12px;color:var(--ms-ink);line-height:1.8}
+
+.ms-page .ms-provenance{margin:var(--sp-2) 0 0;padding:var(--sp-1) 0 0;border-top:1px solid var(--ms-line);font-size:12px;color:var(--ms-ink);line-height:1.8}
+
+.ms-page .ms-disclaimer{margin:var(--sp-2) 0 0;padding:var(--sp-1) 0 0;border-top:1px solid var(--ms-line);font-size:12px;color:var(--ms-ink);line-height:1.8}
+
+.ms-page .ms-err{color:#70251c;padding:var(--sp-2) 0}
+
+@media (max-width:640px){
+  .ms-page .ms-cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-1);margin:var(--sp-2) 0}
+  .ms-page .ms-card{min-width:0;padding:var(--sp-2) var(--sp-2);border-radius:0}
+  .ms-page .ms-card-k{font-size:11px}
+  .ms-page .ms-card-v{font-size:16px;line-height:1.25}
+  .ms-page .ms-card-s{font-size:11px}
+  .ms-page .ms-card-gold{grid-column:1 / -1}
+  .ms-page .ms-card-gold .ms-card-v{font-size:13px}
+  .ms-page .ms-tbl-wrap{overflow-x:auto}
+  .ms-page .ms-tbl{min-width:520px}
+  .ms-page .ms-judge-k{flex:0 0 4em}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-ms {
+    --ms:#cf6d71;
+    --ms2:#c7484e;
+    --ms-deep:#e2d4d5;
+    --ms-ink:#d3cfd0;
+    --ms-line:#503f41;
+    --ms-tint:#301c1e;
+    --ms-ink2:#ab9c9c;
+  }
+  .page-ms .ms-badge.ms-ok {
+    border-color:#57b873;
+    color:#57b873;
+    background:transparent;
+  }
+  .page-ms .ms-good {
+    color:#57b873;
+  }
+}

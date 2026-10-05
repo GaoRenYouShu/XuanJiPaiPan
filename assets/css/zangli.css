@@ -1,0 +1,238 @@
+/* 页级样式：zangli
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-zl .page h1{color:var(--zl-deep);font-family:var(--zl-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-zl .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--zl-line);margin:0 auto var(--sp-3)}
+
+.page-zl .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--zl-line);margin:var(--sp-3) auto 0}
+
+.page-zl .page .lead{color:var(--zl-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-zl .page .lead::after{background:var(--zl-line)}
+
+.page-zl .page > .form-row{
+  background:none;border:0;border-radius:0;
+  padding:0;margin-top:var(--sp-2);margin-bottom:0;box-shadow:none;
+  align-items:center;justify-content:center;
+}
+
+.page-zl .page > .form-row .field{flex:0 0 auto;width:auto;max-width:none;
+  flex-direction:row;align-items:center;gap:var(--sp-2)}
+
+.page-zl .page > .form-row .field .dt-wrap{width:auto}
+
+.page-zl .page > .form-row .field label{color:var(--zl2);font-weight:400;margin:0;white-space:nowrap}
+
+.page-zl .page > .form-row .field input,.page-zl .page > .form-row .field select{
+  border-color:var(--zl-line);border-radius:0;padding:4px 10px;transition:border-color .15s,box-shadow .15s}
+
+.page-zl .page > .form-row .field input:focus,.page-zl .page > .form-row .field select:focus{
+  border-color:var(--zl);outline:none}
+
+.page-zl .page > .form-row .btn.gold{background:var(--zl);border-radius:0;padding:5px 14px;box-shadow:none;margin-bottom:0}
+
+.page-zl .page > .form-row .btn.gold:hover{background:var(--zl2)}
+
+.page-zl .btn,.page-zl .btn.gold{background:var(--zl);border-color:var(--zl);color:#fff;box-shadow:none}
+
+.page-zl .btn:hover,.page-zl .btn.gold:hover{background:var(--zl2);color:#fff;box-shadow:none}
+
+.page-zl .cal-nav{margin:var(--sp-3) 0 var(--sp-2)}
+
+.page-zl .cal-title{color:var(--zl-deep);font-family:var(--zl-serif);font-weight:400;font-size:19px;letter-spacing:.2em;text-indent:.2em;padding:0 var(--sp-2)}
+
+.page-zl .nav-btn{background:transparent;border-color:transparent;color:var(--zl);border-radius:0}
+
+.page-zl .nav-btn:hover{background:var(--zl-tint);border-color:transparent;color:var(--zl2);box-shadow:none}
+
+.page-zl .nav-btn:focus-visible{border-color:var(--zl);outline:none}
+
+.page-zl .cal-grid .wd{color:var(--zl);font-family:var(--zl-serif);font-weight:400;
+  letter-spacing:.12em;border-bottom:1px solid var(--zl-line);padding-bottom:var(--sp-1)}
+
+.page-zl .cal-cell.today{background:var(--zl);box-shadow:none}
+
+.page-zl .cal-cell.selected:not(.today){background:var(--zl-tint);border-color:var(--zl)}
+
+.page-zl .cal-cell:hover:not(.today){background:#f3e8dc}
+
+.page-zl .cal-cell.today:hover{background:var(--zl2)}
+
+.page-zl .cal-cell .mk-s{left:var(--sp-1);color:var(--zl)}
+
+.page-zl .cal-cell .mk-f{right:var(--sp-1);color:var(--zl-gold)}
+
+.page-zl .cal-cell .mk-c,.page-zl .cal-cell .mk-q{left:var(--sp-1);top:auto;bottom:var(--sp-1);color:var(--zl-deep)}
+
+.page-zl .cal-cell .mk-r{right:var(--sp-1);top:auto;bottom:var(--sp-1);color:var(--zl-gold)}
+
+.page-zl .cal-cell .festival{color:var(--zl2);font-weight:400}
+
+.page-zl .cal-cell .festival+.ld{display:block}
+
+.page-zl .cal-cell .ld{color:var(--zl-ink2)}
+
+.page-zl .cal-cell.weekend:not(.today) .sd-num{color:var(--zl)}
+
+.page-zl .cal-cell:not(.weekend):not(.today) .sd-num{color:var(--zl-ink)}
+
+.page-zl .today-card{
+  background:transparent;
+  border:0;border-top:1px solid var(--zl-line);border-bottom:1px solid var(--zl-line);
+  border-radius:0;
+  box-shadow:none;
+  padding:var(--sp-4) 0;
+}
+
+.page-zl .today-top{flex-direction:column;gap:var(--sp-3)}
+
+.page-zl .big-date{display:flex;flex-direction:column-reverse;align-items:center}
+
+.page-zl .big-date .d{color:var(--zl);font-family:var(--zl-serif);font-weight:400;font-size:42px}
+
+.page-zl .big-date .ym{font-size:12.5px;letter-spacing:.2em;text-indent:.2em;color:var(--zl-ink2)}
+
+.page-zl .lunar-info .ln{color:var(--zl-deep);font-family:var(--zl-serif);font-weight:400;
+  font-size:22px;letter-spacing:.14em;text-indent:.14em}
+
+.page-zl .lunar-info .zodiac{font-size:12px;letter-spacing:.06em;color:var(--zl-ink2);margin-top:var(--sp-2)}
+
+.page-zl .rel-title{color:var(--zl-deep)}
+
+.page-zl .zl-info{margin-top:var(--sp-3);columns:2;column-gap:var(--sp-5);
+  font-size:14px;border-top:1px solid var(--zl-line)}
+
+.page-zl .zl-i{display:flex;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--zl-line);
+  break-inside:avoid;page-break-inside:avoid}
+
+.page-zl .zl-i>.k{flex:0 0 88px;color:var(--zl2);letter-spacing:.5px}
+
+.page-zl .zl-i>.v{flex:1;min-width:0;color:var(--zl-ink);line-height:1.7}
+
+.page-zl .zl-i>.v.yi{color:var(--green)}
+
+.page-zl .zl-i>.v.ji{color:var(--red)}
+
+.page-zl .zl-info .zl-br{display:inline-block;width:.9em}
+
+.page-zl .sub-note{color:var(--zl-ink2)}
+
+.page-zl .zl-sub-h{font-size:var(--tier4);font-weight:400;color:var(--zl-deep);margin:var(--sp-3) 0 var(--sp-2)}
+
+.page-zl .zl-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 0 var(--sp-2)}
+
+.page-zl .zl-tbl{font-size:13px;border-collapse:collapse;width:100%;max-width:100%}
+
+.page-zl .zl-tbl th,.page-zl .zl-tbl td{border:1px solid var(--zl-line);padding:6px 9px;text-align:left;vertical-align:top;font-weight:400}
+
+.page-zl .zl-tbl th{background:var(--zl-tint);color:var(--zl-deep);white-space:nowrap}
+
+.page-zl .zl-tbl td{color:var(--zl-ink)}
+
+.page-zl .zl-note{color:var(--zl-ink);margin:var(--sp-3) 0 0}
+
+.page-zl #zlDocBody > :first-child{margin-top:var(--sp-3)}
+
+.page-zl #zlDocBody .sub-note{margin:0 0 var(--sp-2)}
+
+.page-zl .zl-yanlag-tbl th:nth-child(1),.page-zl .zl-yanlag-tbl td:nth-child(1){width:6em;white-space:nowrap}
+
+.page-zl .zl-doc-tbl th:nth-child(1),.page-zl .zl-doc-tbl td:nth-child(1){width:7em}
+
+.page-zl .zl-doc-tbl td:nth-child(2){white-space:nowrap}
+
+.page-zl .zl-doc-tbl td:nth-child(4){white-space:nowrap;text-align:center}
+
+.page-zl .zl-losar-tbl th:first-child,.page-zl .zl-losar-tbl td:first-child{text-align:left}
+
+.page-zl .ai-block{
+  border:0;border-top:1px solid var(--zl-line);border-bottom:1px solid var(--zl-line);border-radius:0;
+  background:transparent;color:var(--zl-ink);
+  box-shadow:none;
+}
+
+.page-zl .ai-head{
+  background:transparent;
+  border-bottom-color:var(--zl-line);
+}
+
+.page-zl .ai-head h3{color:var(--zl2);font-family:var(--zl-serif);font-weight:400}
+
+.page-zl .ai-head .ai-status{color:var(--zl-ink2)}
+
+.page-zl .ai-block .btn{background:var(--zl);border-radius:0}
+
+.page-zl .ai-block .btn:hover{background:var(--zl2)}
+
+.page-zl .ai-block .btn.gold,.page-zl .ai-block .btn.soft{background:var(--zl-tint);border-color:var(--zl-line);color:var(--zl-ink)}
+
+.page-zl .ai-block .btn.gold:hover,.page-zl .ai-block .btn.soft:hover{background:var(--card);border-color:var(--zl);color:var(--zl2)}
+
+.page-zl .ai-tab{border-radius:0}
+
+.page-zl .ai-pane .ai-out{border-radius:0}
+
+.page-zl .ai-bubble{border-radius:0}
+
+.page-zl .ai-block input,.page-zl .ai-block select{color:var(--zl-ink)}
+
+.page-zl .ai-tab:hover{border-color:var(--zl);color:var(--zl2)}
+
+.page-zl .ai-tab.active{background:var(--zl);border-color:var(--zl);color:#fff}
+
+.page-zl .ai-tab.active:hover{background:var(--zl2);border-color:var(--zl2);color:#fff}
+
+.page-zl .ai-bubble.user{background:var(--zl-tint);border-color:var(--zl)}
+
+.page-zl .ai-bubble.assistant{border-color:var(--zl-line)}
+
+.page-zl .ai-model-row:hover{background:var(--zl-tint)}
+
+.page-zl .ai-tip{color:var(--zl-ink2)}
+
+.page-zl .ai-block .ai-out,.page-zl .ai-block .ai-bubble.user,.page-zl .ai-block .ai-bubble.assistant,.page-zl .ai-block .ai-model-name{color:var(--zl-ink)}
+
+.page-zl .fold-block>summary.rel-title{margin-top:0}
+
+.page-zl .fold-block>summary.rel-title::before{color:var(--zl)}
+
+@media(max-width:640px){
+  .page-zl .big-date .d{font-size:36px}
+  .page-zl .lunar-info .ln{font-size:19px}
+  .page-zl .zl-info{columns:1}
+  /* 窄屏单栏，标签栏收到 72px（最长标签四字约 58px），值栏多出 16px */
+  .page-zl .zl-i>.k{flex:0 0 72px}
+  .page-zl .zl-info .zl-br{display:block;height:0;width:0}
+  /* -oneline 字段按段装箱：分段符作行内间隙，段按可用宽度入行。
+     段（.zl-s）自成不可断行的行内盒，折行只落在段与段之间。 */
+  .page-zl .zl-info .zl-i.zl-oneline .zl-br{display:inline-block;width:.5em}
+  .page-zl .zl-info .zl-i.zl-oneline .zl-s{display:inline-block}
+  /* 手机端隐去节日行：格宽放不下汉字，长名会被截成带省略号的残句。
+     角标仍逐日点出殊胜与节日，全名由点格后的字段流与盘下详情条给。 */
+  .page-zl .cal-cell .festival{display:none}
+  .page-zl .zl-tbl td:nth-child(3){min-width:16em}
+  .page-zl .zl-losar-tbl{width:auto;max-width:100%}
+  .page-zl .zl-losar-tbl td:nth-child(3){white-space:nowrap;min-width:0}
+}
+
+@media print{
+  .page-zl .cal-grid,.page-zl .today-card{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+  .page-zl .cal-grid .wd{border-bottom-color:var(--line)}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-zl {
+    --zl:#cf4634;
+    --zl2:#cb402c;
+    --zl-deep:#e4d5d3;
+    --zl-ink:#d4d1ce;
+    --zl-ink2:#aaa29c;
+    --zl-gold:#d2a331;
+    --zl-line:#543e3b;
+    --zl-tint:#331c19;
+  }
+}

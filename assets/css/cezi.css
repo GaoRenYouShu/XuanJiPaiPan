@@ -1,0 +1,195 @@
+/* 页级样式：cezi
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-cz .page > .form-row{margin-bottom:var(--sp-2)}
+
+.page-cz .page h1{color:var(--cz-deep);font-family:var(--cz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
+
+.page-cz .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--cz-line);margin:0 auto var(--sp-3)}
+
+.page-cz .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--cz-line);margin:var(--sp-3) auto 0}
+
+.page-cz .page .lead::after{background:var(--cz-line)}
+
+.page-cz .page .lead{color:var(--cz-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-cz .rel-title{color:var(--cz2)}
+
+.page-cz .sub-note{color:var(--cz-ink2)}
+
+.page-cz .field label{color:var(--cz2);font-weight:400}
+
+.page-cz .field input,.page-cz .field select{border-color:var(--cz-line);background:var(--card);color:var(--cz-deep);transition:border-color .15s,box-shadow .15s}
+
+.page-cz .field input.cz-char-input{width:108px}
+
+.page-cz .field input:focus,.page-cz .field select:focus{border-color:var(--cz);outline:none}
+
+.page-cz .btn{background:var(--cz);border-color:var(--cz);color:#fff;box-shadow:none}
+
+.page-cz .btn:hover{background:var(--cz2);border-color:var(--cz2);color:#fff}
+
+.page-cz .info-box{background:transparent;border:0;border-top:1px solid var(--cz-line);border-radius:0;box-shadow:none;padding:0}
+
+.page-cz .ai-block{
+  border:0;border-top:1px solid var(--cz-line);border-bottom:1px solid var(--cz-line);border-radius:0;
+  background:transparent;color:var(--cz-ink);box-shadow:none;
+}
+
+.page-cz .ai-head{background:transparent;border-bottom-color:var(--cz-line)}
+
+.page-cz .ai-block .btn,.page-cz .ai-block .btn.gold{box-shadow:none}
+
+.page-cz .ai-block .btn{background:var(--cz);color:#fff}
+
+.page-cz .ai-block .btn:hover{background:var(--cz2)}
+
+.page-cz .ai-block .btn.gold,.page-cz .ai-block .btn.soft{background:var(--cz-tint);border-color:var(--cz-line);color:var(--cz-ink);box-shadow:none}
+
+.page-cz .ai-block .btn.gold:hover,.page-cz .ai-block .btn.soft:hover{background:var(--card);border-color:var(--cz);color:var(--cz2)}
+
+.page-cz .ai-block .ai-out,.page-cz .ai-block .ai-bubble.user,.page-cz .ai-block .ai-bubble.assistant,.page-cz .ai-block .ai-model-name,.page-cz .ai-block input,.page-cz .ai-block select{color:var(--cz-ink)}
+
+.page-cz .ai-head h3{color:var(--cz2)}
+
+.page-cz .ai-head .ai-status{color:#8a7350}
+
+.page-cz .ai-tab:hover{border-color:var(--cz);color:var(--cz2)}
+
+.cz-head{position:relative;margin-top:var(--sp-4);border-top:1px solid var(--cz-line);border-radius:0;
+  padding:var(--sp-4) 0;display:flex;gap:var(--sp-5);align-items:stretch;
+  background:transparent;box-shadow:none}
+
+.cz-bigwrap{display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);flex-shrink:0}
+
+.cz-big{font-family:var(--font-serif);font-size:88px;line-height:1.1;width:120px;text-align:center;
+  padding:var(--sp-2) var(--sp-1);border:1px solid var(--cz-line);border-radius:0;background:var(--paper2);
+  box-shadow:none}
+
+.cz-py{font-size:15px;color:var(--gold2);letter-spacing:1px}
+
+.cz-meta{flex:1;display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:var(--sp-2) var(--sp-4);align-content:center;
+  padding:var(--sp-1) 0;border-left:1px dashed var(--line);padding-left:var(--sp-5)}
+
+.cz-meta>div{font-size:13.5px;line-height:1.5;display:flex;align-items:baseline;gap:var(--sp-1)}
+
+.cz-em{color:var(--gold2);font-weight:400;flex-shrink:0;min-width:58px}
+
+.cz-grade{width:230px;flex-shrink:0;display:flex;flex-direction:column;gap:var(--sp-2);justify-content:center}
+
+.cz-lv{font-size:34px;font-weight:400;color:var(--cz2);font-family:var(--font-serif);line-height:1.2}
+
+.cz-lv small{font-size:13px;color:var(--ink2);font-family:var(--font)}
+
+.cz-gbar{height:7px;border-radius:0;background:var(--cz-tint);overflow:hidden}
+
+.cz-gbar i{display:block;height:100%;border-radius:0;background:var(--cz);box-shadow:none}
+
+.cz-score{margin:2px 0 0;padding:0;list-style:none}
+
+.cz-score li{margin:var(--sp-1) 0;font-size:12px;color:var(--ink2);display:grid;
+  grid-template-columns:58px 30px 1fr;gap:var(--sp-2);align-items:center}
+
+.cz-score li b{color:var(--gold2);font-weight:400}
+
+.cz-score .bar{height:5px;border-radius:0;background:var(--cz-tint);overflow:hidden}
+
+.cz-score .bar i{display:block;height:100%;border-radius:0;background:var(--cz)}
+
+.page-cz .cz-chai{margin:0;padding:var(--sp-2) 0;border-bottom:1px solid var(--cz-line)}
+
+.cz-chai-row{display:flex;gap:var(--sp-2);align-items:baseline;flex-wrap:wrap;margin:2px 0 var(--sp-1)}
+
+.cz-parts{display:inline-flex;gap:var(--sp-1);flex-wrap:wrap}
+
+.cz-chai .cz-part{margin:0 var(--sp-2)}
+
+.cz-parts .cz-part{margin:0}
+
+.cz-part{font-family:var(--font-serif);font-size:21px;padding:2px var(--sp-2);border:1px solid var(--cz-line);
+  border-radius:0;background:var(--cz-tint);box-shadow:none}
+
+.cz-tag{font-size:12px;color:var(--gold2);border:1px solid var(--cz-line);border-radius:0;padding:1px var(--sp-2);background:var(--cz-tint)}
+
+.cz-chai div:not(.cz-chai-row)>.cz-tag{margin:0 var(--sp-1)}
+
+.cz-luck{font-size:12px;border-radius:0;padding:1px var(--sp-2)}
+
+.cz-luck.ji{color:var(--green);border:1px solid var(--green);background:rgba(46,139,87,.06)}
+
+.cz-luck.ping{color:var(--ink2);border:1px solid var(--line)}
+
+.cz-luck.xiong{color:#c0392b;border:1px solid #c0392b;background:rgba(192,57,43,.05)}
+
+.cz-note-yi{font-size:12px;color:var(--ink2);margin:var(--sp-1) 0 var(--sp-1);line-height:1.7}
+
+.page-cz .info-box.cz-duan{border:0;border-top:1px solid var(--cz-line);border-bottom:1px solid var(--cz-line);padding:var(--sp-2) var(--sp-3) var(--sp-2) 72px}
+
+.cz-duan{font-family:var(--font-serif);font-size:17px;line-height:2;position:relative}
+
+.cz-duan::before{content:'断';position:absolute;left:20px;top:50%;transform:translateY(-50%) rotate(-4deg);
+  width:38px;height:38px;line-height:38px;text-align:center;font-size:19px;color:#fff;background:#b03a2e;
+  border-radius:0;font-family:var(--font-serif);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.92),inset 0 0 0 3px #b03a2e}
+
+.cz-gua-sym{font-size:32px;font-family:var(--font-serif);color:var(--gold2);margin-right:2px}
+
+.page-cz .cz-p{margin:0;padding:var(--sp-2) 0;border-bottom:1px solid var(--cz-line)}
+
+.cz-note-s{font-size:12px;color:var(--ink2)}
+
+.cz-line{font-size:14px}
+
+.cz-line-s{font-size:13px;margin-top:var(--sp-1)}
+
+.cz-line-t{margin-top:var(--sp-1)}
+
+.page-cz .info-box>.cz-note-yi{margin:0;padding:var(--sp-2) 0;border-bottom:1px solid var(--cz-line)}
+
+.page-cz .info-box>.notice{border:0;border-bottom:1px solid var(--cz-line);background:transparent;padding:var(--sp-2) 0;margin:0}
+
+.cz-tag-main{background:var(--cz-tint)}
+
+.cz-sf-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--sp-1) var(--sp-4);font-size:var(--tier4)}
+
+.cz-sf-i{display:flex;gap:var(--sp-1);min-width:0;color:var(--ink2);line-height:1.7}
+
+.cz-sf-i b{font-weight:400;color:var(--cz2)}
+
+@media(max-width:640px){.cz-sf-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.cz-case-table th.cz-case-zi{width:40px}
+
+.cz-tail-note{margin-top:var(--sp-2)}
+
+.cz-err{margin-top:var(--sp-3)}
+
+@media(max-width:640px){
+  .cz-head{flex-direction:column;align-items:center;padding:var(--sp-4) 0}
+  .cz-big{font-size:68px;width:96px}
+  .cz-meta{border-left:0;padding-left:0;grid-template-columns:repeat(2,1fr);width:100%}
+  .cz-grade{width:100%}
+  .cz-lv{font-size:28px}
+  .cz-lv small{display:inline}
+}
+
+.cz-fold>.info-box{margin:0;border:0;border-radius:0;background:transparent;padding:var(--sp-2) 0 0}
+
+.cz-case-table{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.7}
+
+.cz-case-table th{text-align:left;color:var(--gold2);font-weight:400;border-bottom:1px solid var(--line);padding:6px 8px;font-size:13px}
+
+@media (prefers-color-scheme: dark){
+  html .page-cz {
+    --cz:#b27d54;
+    --cz2:#af794c;
+    --cz-deep:#e1dbd6;
+    --cz-ink:#d5d1cd;
+    --cz-gold:#d4b97e;
+    --cz-line:#53493b;
+    --cz-tint:#31291c;
+    --cz-ink2:#aba29c;
+  }
+}

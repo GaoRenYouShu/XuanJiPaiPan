@@ -1,0 +1,470 @@
+/* 页级样式：bazi
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-bazi #fPillar .gz-mini select{padding:0 8px;font-size:13px;line-height:1.35}
+
+.page-bazi .confirm-h{font-weight:400;color:var(--bz2)}
+
+.page-bazi .confirm-tb{font-size:12px}
+
+.page-bazi .confirm-tb th,.page-bazi .confirm-tb td{font-size:12px;padding:5px 8px}
+
+.page-bazi .confirm-tb td .btn{font-size:13px}
+
+.page-bazi .confirm-banner{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:nowrap;color:var(--bz-ink)}
+
+.page-bazi .confirm-banner .btn{flex:0 0 auto}
+
+.page-bazi #out>.confirm-box,.page-bazi #out>.confirm-banner{margin-top:var(--sp-4)}
+
+@media (max-width:640px){
+  .page-bazi .confirm-banner{font-size:13px}
+}
+
+.page-bazi .subnote{font-size:12px;color:var(--bz-ink2);margin:var(--sp-1) 0 var(--sp-3);line-height:1.7}
+
+.page-bazi .subnote.err{color:var(--red)}
+
+.page-bazi #savedPanel .sub-note{margin-top:var(--sp-2)}
+
+.page-bazi .m-h{font-size:var(--tier2);margin:var(--sp-4) 0 var(--sp-1);color:var(--gold2)}
+
+.page-bazi table.otab{width:100%;border-collapse:collapse;margin:var(--sp-1) 0 var(--sp-2);background:var(--card);font-size:13px}
+
+.page-bazi table.otab th,.page-bazi table.otab td{border:1px solid var(--bz-line);padding:6px 8px;vertical-align:top;text-align:left}
+
+.page-bazi table.otab th{background:var(--bz-tint);font-weight:400;white-space:nowrap;text-align:center;font-size:12px}
+
+.page-bazi table.otab td.lbl{background:transparent;font-weight:400;white-space:nowrap;text-align:center;color:var(--bz-deep)}
+
+.page-bazi table.otab td{line-height:1.7}
+
+.page-bazi .xi{color:var(--red);font-weight:bold}
+
+.page-bazi .ji{color:var(--bz2);font-weight:400}
+
+.page-bazi table.stab{width:100%;table-layout:auto;border-collapse:collapse;margin:var(--sp-1) 0 var(--sp-3);font-size:13px}
+
+.page-bazi table.stab th,.page-bazi table.stab td{border:1px solid var(--bz-line);padding:6px 9px;vertical-align:top;text-align:left;line-height:1.8;word-break:normal;overflow-wrap:anywhere}
+
+.page-bazi table.stab th{font-weight:400;white-space:nowrap;text-align:center;color:var(--gold2)}
+
+.page-bazi table.stab td.lbl{font-weight:400;color:var(--gold2)}
+
+.page-bazi table.stab td.nowrap{white-space:nowrap}
+
+.page-bazi table.stab-inds{table-layout:auto}
+
+.page-bazi #mod-yiti table.stab-a2{table-layout:fixed;width:100%}
+
+.page-bazi #mod-yiti table.stab-a2 th:first-child,.page-bazi #mod-yiti table.stab-a2 td:first-child{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+
+.page-bazi #mod-yiti table.stab-a2 th:nth-child(2),.page-bazi #mod-yiti table.stab-a2 td:nth-child(2){white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+
+@media (max-width:760px){
+  .page-bazi table.stab th,.page-bazi table.stab td{padding:2px 4px}
+  /* 表头短标签（五行/宜忌/组合/分类/项目…）不换行，避免被压成单字成行 */
+  .page-bazi table.stab th{white-space:nowrap}
+  /* 普通表：首列固定为 2 个汉字宽（写死，含留白），长内容列占余宽。 首列换行规则按字数判定（JS 在 layoutYitiTables 加类）：≤2 字（日主/五行/宜忌/组合/分类…）整词不折； ≥3 字（宫位十神/祖辈宫/六亲身心…）在 2 字宽处自然折行（每行 ≥2 字，不出现单字成行）。 */
+  /* 列宽方案（table-layout:auto，border-box 计宽）： 非最后一列均为短标签列（五行/宜忌/组合/分类/项目/宫位十神/维度/层级…），固定 3em（=总宽 3 汉字上限，含留白）。 2 字标签整词放下不折、不单字孤行；4 字标签（如宫位十神）在 3em 内自然折行（每行 ≥2 字）。 最后一列是长文本内容列，不锁宽（width:auto），随屏幕自适应，避免内容长时表格被无限拉高/撑破。 对 2 列表（第 1 列短、第 2 列自适应）与 3/4 列表（前面列短、最后列自适应）同时成立。 */
+  .page-bazi #mod-yiti table.stab:not(.stab-a2){table-layout:auto !important}
+  /* 短标签列（非末列，含表头 th）：border-box 固定 3em（=总宽 3 汉字上限）。 内容区 = 3em - padding(8px) ÷ 11px ≈ 2.3~2.5 字，足够 2 字整词放下（不折叠成 1 字/行）； 4 字标签（宫位十神）在 3em 内自然折为“2+2”；min-width=3em 防止 auto 布局把列压窄 <2 字。 */
+  /* 短标签列（非末列，含表头）：默认整词单行（nowrap）不折、无单字孤行； 列宽由 JS(layoutYitiTables) 按本列最长词字数决定并内联写入（≤3 字整词、≥4 字在 2.6em 内折 2+2）。 末列（长文本内容列）不锁宽自适应。stab-ssd（十神经典断语"组合"列）除外，另行换行规则。 */
+  .page-bazi #mod-yiti table.stab:not(.stab-a2):not(.stab-cy):not(.stab-ssd) td:not(:last-child),.page-bazi #mod-yiti table.stab:not(.stab-a2):not(.stab-cy):not(.stab-ssd) th:not(:last-child){box-sizing:content-box !important;white-space:nowrap !important;word-break:normal !important;overflow-wrap:break-word !important}
+  /* 十神经典断语表(stab-ssd)："组合"列固定 4 字内容宽（border-box 计宽，含两端 padding+border）， 超过 4 字即折行（4+2、4+3…），避免长断语名撑宽挤压"判定"列内容空间。 宽度 = 4.2em（4 字内容 + 0.2em 渲染余量） + 10px（左右 padding 8px + border 间距 2px）； 未预留两端间距会导致 4 字词在 3~3.5 字处提前折行（实测 3 字换行），此处显式计入。 */
+  .page-bazi #mod-yiti table.stab-ssd td:first-child,.page-bazi #mod-yiti table.stab-ssd th:first-child{white-space:normal !important;word-break:break-all !important;overflow-wrap:anywhere !important;box-sizing:border-box !important;width:calc(4.2em + 10px) !important;min-width:calc(4.2em + 10px) !important;max-width:calc(4.2em + 10px) !important}
+  /* 职业方向与宜忌表"方向"列(第3列)：电脑端 nowrap 写死，移动端允许换行、最低 5 字宽、约 4 字折行（覆盖上方通用列 nowrap） */
+  .page-bazi #mod-yiti table.stab-cy th:nth-child(3),.page-bazi #mod-yiti table.stab-cy td:nth-child(3){white-space:normal !important;width:auto;min-width:5em;word-break:break-all !important;overflow-wrap:anywhere !important}
+  /* 最后一列（长文本内容列）：不锁宽、自适应；禁用 overflow-wrap:anywhere（会制造单字孤行），用 break-word 不撑破。 */
+  .page-bazi #mod-yiti table.stab:not(.stab-a2) td:last-child,.page-bazi #mod-yiti table.stab:not(.stab-a2) th:last-child{width:auto !important;word-break:normal !important;overflow-wrap:break-word !important}
+  /* 方向列（6.1 职业方向与宜忌）：响应式下允许换行，不 nowrap 撑宽。 */
+  .page-bazi table.stab td.nowrap{width:auto;white-space:normal}
+}
+
+.page-bazi .sub-h{font-size:var(--tier4);color:var(--gold2);margin:var(--sp-2) 0 2px;font-weight:400}
+
+.page-bazi .stab b,.page-bazi .otab b,.page-bazi .bazi-table b,.page-bazi .yun-tbl b,.page-bazi .nayin-rel b,.page-bazi .qtab b{font-weight:400}
+
+.wrap.page-bazi{max-width:1080px;margin:0 auto;padding:0 var(--sp-2)}
+
+@media (max-width:900px){
+  /* 必须归零 body 横向 padding：内联 body{padding:8px 12px} 在桌面端生效，移动端若不重置会叠加到 .wrap+.page 之外， 导致每侧多出 12px 空白（40px vs 其它工具 28px）。归零后与其他排盘工具一致。 */
+  body:where(.bz-root){max-width:none;margin:0;padding:0}
+  .wrap.page-bazi{max-width:none;margin:0;padding:0 var(--sp-3)}
+  .page-bazi .page{margin:0;padding:var(--sp-4)}
+  .page-bazi .opts-row{padding:0;gap:var(--sp-2)}
+  .page-bazi .form-row{padding:0;gap:var(--sp-2);margin-bottom:var(--sp-2)}
+  /* 本页窄屏的表单行行内间距取 --sp-2，出生地组内的行内间距随之同档，
+     同一页之内不再并存 8 与 12 两值；组内三等分的扣除量在 ≤640 段随档走。 */
+  .page-bazi .birth-group,.page-bazi .birth-group.compact{gap:var(--sp-2)}
+  .page-bazi .yun-tbl th,.page-bazi .yun-tbl td{padding:3px 4px}
+  .page-bazi .mod-head{margin-top:var(--sp-3)}
+  
+  /* 移动端：去掉外层边框与内边距、圆角，表格贴边全宽 */
+  .page-bazi .zr-mod-b{padding:var(--sp-1) var(--sp-1) var(--sp-2);background:transparent}
+  .page-bazi .dyn-detail{border:none;border-radius:0;padding:var(--sp-2);background:transparent}
+  .page-bazi details.fld{border:none;border-radius:0;margin:var(--sp-1) 0 var(--sp-2);background:transparent}
+  .page-bazi details.fld summary{padding:var(--sp-1) var(--sp-2);background:transparent;border-radius:0}
+  .page-bazi details.fld .fld-body{padding:var(--sp-1) var(--sp-2)}
+}
+
+.page-bazi #savedPanel{margin:var(--sp-2) 0 var(--sp-1)}
+
+.page-bazi .saved-head{display:flex;align-items:baseline;gap:var(--sp-2);font-size:13px;color:var(--bz-deep);font-weight:400;margin:var(--sp-1) 0 var(--sp-1)}
+
+.page-bazi .saved-tip{font-weight:normal;color:var(--bz-ink2);font-size:12px}
+
+.page-bazi .saved-list{display:table;width:100%;border-collapse:collapse;font-size:13px}
+
+.page-bazi .saved-list .sr{display:table-row}
+
+.page-bazi .saved-list .sc{display:table-cell;padding:var(--sp-1) var(--sp-1);border-bottom:1px solid var(--bz-line);vertical-align:middle}
+
+.page-bazi .saved-list .sc-name{min-width:48px;color:var(--bz-ink);white-space:nowrap}
+
+.page-bazi .saved-list .sc-sex{min-width:36px;color:var(--bz-ink2);text-align:center;white-space:nowrap}
+
+.page-bazi .saved-list .sc-info{color:var(--bz-ink2)}
+
+.page-bazi .saved-list .sc-act{text-align:right;white-space:nowrap}
+
+.page-bazi .saved-list .sr-head .sc{color:var(--bz-ink2);font-weight:400;border-bottom:1px solid var(--bz-line)}
+
+.page-bazi .saved-list .btn-pai{font-size:12px;height:30px;padding:0 6px;line-height:1.4;cursor:pointer;border:1px solid var(--bz-line);background:transparent;color:var(--bz2);border-radius:0}
+
+.page-bazi .saved-list .btn-pai:hover{background:var(--bz-tint);border-color:var(--bz);color:var(--bz2)}
+
+.page-bazi .saved-list .btn-del{font-size:12px;height:30px;padding:0 5px;line-height:1.4;cursor:pointer;border:1px solid var(--bz-line);background:transparent;color:var(--bz-ink2);border-radius:0;margin-left:var(--sp-1)}
+
+.page-bazi .saved-list .btn-del:hover{background:#fff0ee;color:var(--red);border-color:#e6a0a0}
+
+.page-bazi .bazi-top{display:flex;flex-wrap:nowrap;align-items:flex-end;margin-bottom:var(--sp-3)}
+
+.page-bazi .bazi-top .field#fName input{width:96px;align-self:flex-start}
+
+.page-bazi .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
+
+.page-bazi .bazi-top .field select{width:auto;align-self:flex-start}
+
+.page-bazi .bazi-top .field{flex:0 0 auto;width:auto;margin:0;min-width:0}
+
+@media(min-width:641px) and (max-width:970px){
+  .mode-lunar:where(.bz-root) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end}
+  .mode-lunar:where(.bz-root) .bazi-top .field{flex:0 0 auto;min-width:0;max-width:none}
+  /* 出生时间图标布局：图标与输入框同行；输入框全站统一宽 72px */
+  .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
+}
+
+@media(max-width:640px){
+  /* 四柱模式窄屏：改 4 等份栅格，控件宽随格宽伸缩、行行填满，行序与电脑端一致。
+     每两格一组：输入方式＋性别＋姓名、年柱＋月柱、日柱＋时柱、检索跨度＋起止年、排盘＋保存。
+     年柱、起止年这类“一对控件”的组内各占一半、中缝 4px，故单个干支框与单个年份框恒等宽。 */
+  .mode-pillar:where(.bz-root) .bazi-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-2);align-items:end}
+  .mode-pillar:where(.bz-root) .bazi-flow .field,
+  .mode-pillar:where(.bz-root) .bazi-flow #fPillar .field{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:var(--sp-1);width:auto;min-width:0;margin:0}
+  .mode-pillar:where(.bz-root) .bazi-flow .field input,
+  .mode-pillar:where(.bz-root) .bazi-flow .field select,
+  .mode-pillar:where(.bz-root) .bazi-flow .span-field input[type=number],
+  .mode-pillar:where(.bz-root) .bazi-flow .span-field select,
+  .mode-pillar:where(.bz-root) .bazi-flow .field#fName input{width:100%;max-width:none}
+  .mode-pillar:where(.bz-root) .bazi-flow .gz-mini,
+  .mode-pillar:where(.bz-root) .bazi-flow .span-years{display:flex;gap:4px;width:100%}
+  .mode-pillar:where(.bz-root) .bazi-flow .gz-mini select{flex:1 1 0;width:auto;min-width:0}
+  .mode-pillar:where(.bz-root) .bazi-flow .span-years .field{flex:1 1 0;min-width:0}
+  /* 跨度下拉左右各留 8px（与干支下拉同档），可选字区随格宽伸缩：375 及以上可容最长选项
+     “魏晋南北朝 220-589”（墨迹 116.4px），360 下该条末字略切 6px；当前选中项“近代 1864-2103”（89.5px）320 起皆完整 */
+  .mode-pillar:where(.bz-root) .bazi-flow .span-field select{padding-left:8px;padding-right:8px}
+  .mode-pillar:where(.bz-root) .bazi-flow .field#fName,
+  .mode-pillar:where(.bz-root) .bazi-flow #fPillar .field,
+  .mode-pillar:where(.bz-root) .bazi-flow .span-field,
+  .mode-pillar:where(.bz-root) .bazi-flow .span-years,
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn{grid-column:span 2}
+  /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
+  .mode-date:where(.bz-root) .bazi-top,.mode-lunar:where(.bz-root) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2)}
+  /* 已存模式（body 无模式类）同入流式：顶部行与公历/农历同口径，两框之间不留空档 */
+  .mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
+  /* 通用段 .opts-row .field 有 160px 保底，320 视口下两个字段就撑破行，此处按模式收回 */
+  .mode-date:where(.bz-root) .opts-row .field,.mode-lunar:where(.bz-root) .opts-row .field{min-width:0}
+  .mode-date:where(.bz-root) .bazi-top .field select,.mode-lunar:where(.bz-root) .bazi-top .field select,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field select{width:auto;align-self:flex-start}
+  body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2)}
+  .mode-date:where(.bz-root) .bazi-top .field#fName input,.mode-lunar:where(.bz-root) .bazi-top .field#fName input{width:96px;align-self:flex-start}
+  .mode-lunar:where(.bz-root) .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
+  .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
+  /* 农历窄屏压缩定宽：内容均两字，缩框使 农历年+农历月+闰月+农历日+出生时间 能并入两排
+     （行1 输入方式72/性别55/姓名96/农历年76；行2 农历月72/闰月43/农历日68/出生时间112，时间框 72px 全站统一） */
+  .mode-lunar:where(.bz-root) .bazi-top .field#cMode select{width:72px}
+  .mode-lunar:where(.bz-root) .bazi-top .field#cSex select{width:55px}
+  .mode-lunar:where(.bz-root) .bazi-top .field#fLunarM select{width:72px}
+  .mode-lunar:where(.bz-root) .bazi-top .field#fLunarD select{width:68px}
+}
+
+@media(max-width:640px){
+  .mode-date:where(.bz-root) .opts-row,.mode-lunar:where(.bz-root) .opts-row{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-2);align-items:end}
+  .mode-date:where(.bz-root) .opts-row .field#bZiField,.mode-lunar:where(.bz-root) .opts-row .field#bZiField{grid-column:1 / span 2}
+  .mode-date:where(.bz-root) .opts-row .field#bKongField,.mode-lunar:where(.bz-root) .opts-row .field#bKongField{grid-column:3 / span 2}
+  .mode-date:where(.bz-root) .opts-row .field select,.mode-lunar:where(.bz-root) .opts-row .field select{padding:0 6px}
+  .mode-date:where(.bz-root) .opts-row .btn,.mode-lunar:where(.bz-root) .opts-row .btn{grid-column:1 / span 2;width:auto;min-width:0;margin:0;justify-self:stretch}
+  /* 保存钮不另加左外边距：本行间距只由栅格 gap 一处给（--sp-2），
+     加外边距会与 gap 叠加成 12px，同行之内读作两值，且该钮左缘与上排 空亡基准 的左缘错开 */
+  .mode-date:where(.bz-root) .opts-row .btn.btn-ghost,.mode-lunar:where(.bz-root) .opts-row .btn.btn-ghost{grid-column:3 / span 2}
+}
+
+.page-bazi .bazi-linkage{margin:0;background:transparent;border:0;border-top:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
+
+.page-bazi .bazi-linkage:not([open]){border-bottom:1px solid var(--bz-line)}
+
+.page-bazi .bazi-linkage summary{font-size:var(--tier3);color:var(--bz-deep);font-family:var(--bz-serif);font-weight:400;letter-spacing:.2em;cursor:pointer}
+
+.page-bazi .bazi-linkage[open] summary{margin-bottom:var(--sp-1)}
+
+.page-bazi .mh-ref:not(.bazi-linkage){border-color:var(--bz-line)}
+
+.page-bazi #hexWrap .mh-ref>summary{color:var(--bz-deep)}
+
+.page-bazi #hexWrap .mh-ref th,.page-bazi #hexWrap .mh-ref td{border-color:var(--bz-line)}
+
+.page-bazi .link-list{display:flex;flex-direction:column;gap:0;margin-top:var(--sp-1)}
+
+.page-bazi .link-item{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) 0;border:0;border-bottom:1px solid var(--bz-line);border-radius:0;cursor:pointer;transition:background .15s;text-decoration:none;font-size:13px}
+
+.page-bazi .link-item:hover{background:var(--bz-tint)}
+
+.page-bazi .link-item .li-ico{font-size:15px;flex:none;line-height:1}
+
+.page-bazi .link-item .li-name{color:var(--bz2);font-weight:400;font-family:var(--bz-serif);letter-spacing:.05em;white-space:nowrap;flex:none}
+
+.page-bazi .link-item .li-desc{color:var(--bz-ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+
+.page-bazi .link-item .li-tag{font-size:11px;color:var(--bz2);white-space:nowrap;flex:none;margin-left:auto;background:var(--bz-tint);padding:1px var(--sp-1);border-radius:0;line-height:1.5}
+
+@media(max-width:540px){
+  .page-bazi .link-item .li-desc{display:none}
+}
+
+.page-bazi .page h1{color:var(--bz-deep);font-family:var(--bz-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-bazi .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--bz-line);margin:0 auto var(--sp-3)}
+
+.page-bazi .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--bz-line);margin:var(--sp-3) auto 0}
+
+.page-bazi .page .lead{color:var(--bz-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-bazi .page .lead::after{background:var(--bz-line)}
+
+.page-bazi input,.page-bazi select,.page-bazi textarea{border-color:var(--bz-line);transition:border-color .15s;color:var(--bz-ink)}
+
+.page-bazi input:focus,.page-bazi select:focus,.page-bazi textarea:focus{border-color:var(--bz);outline:none}
+
+.page-bazi .field input,.page-bazi .field select,.page-bazi .field textarea{background:var(--card)}
+
+.page-bazi .btn,.page-bazi .btn.gold{background:var(--bz);border-color:var(--bz);color:#fff;box-shadow:none}
+
+.page-bazi .btn:hover,.page-bazi .btn.gold:hover{background:var(--bz2);color:#fff;box-shadow:none}
+
+.page-bazi .page > .form-row .btn.gold{border-radius:0;padding:5px 14px;margin-bottom:0}
+
+.page-bazi .ai-block .btn{border-radius:0}
+
+.page-bazi .birth-group,.page-bazi .birth-group.compact{background:transparent;border:0;border-top:1px solid var(--bz-line);padding:var(--sp-3) 0 0}
+
+@media(max-width:640px){.page-bazi .birth-group,.page-bazi .birth-group.compact{padding-top:var(--sp-2)}}
+
+.page-bazi .birth-group .group-label{color:var(--bz2)}
+
+.page-bazi .btn-ghost,.page-bazi .ai-block .btn.gold,.page-bazi .ai-block .btn.soft{background:var(--bz-tint);border:1px solid var(--bz-line);color:var(--bz-ink)}
+
+.page-bazi .btn-ghost:hover,.page-bazi .ai-block .btn.gold:hover,.page-bazi .ai-block .btn.soft:hover{background:var(--card);border-color:var(--bz);color:var(--bz2)}
+
+.page-bazi .mod-head{border-top-color:var(--bz-line);border-bottom-color:var(--bz-line);margin-bottom:var(--sp-3)}
+
+.page-bazi .mod-head .mod-sub{color:var(--bz-ink2)}
+
+.page-bazi .mod-caret{color:var(--bz)}
+
+.page-bazi .gua-ico{background:transparent;border:0;color:var(--bz2)}
+
+.page-bazi .mod-title,.page-bazi .zr-mod>summary{color:var(--bz2)}
+
+.page-bazi .zr-mod{border:0;border-radius:0;background:transparent;margin:var(--sp-2) 0}
+
+.page-bazi .zr-mod>summary{border-radius:0;padding:var(--sp-2) 0;font-family:var(--bz-serif);font-weight:400;letter-spacing:.1em}
+
+.page-bazi .zr-mod:not([open])>summary{border-bottom:1px solid var(--bz-line)}
+
+.page-bazi .zr-mod-b{border-top:none}
+
+.page-bazi .zr-mod>summary:hover{color:var(--bz)}
+
+.page-bazi .zr-mod>summary::before{color:var(--bz)}
+
+.page-bazi .sub-note,.page-bazi .subnote{color:var(--bz-ink2)}
+
+.page-bazi .bazi-table th{background:var(--bz-tint);color:var(--bz2)}
+
+.page-bazi .bazi-table td:first-child{background:var(--bz-tint);color:var(--bz2)}
+
+.page-bazi .bazi-table th,.page-bazi .bazi-table td{border-color:var(--bz-line)}
+
+.page-bazi .bazi-table .gan,.page-bazi .bazi-table .zhi,.page-bazi .bazi-table .small{color:var(--bz-ink)}
+
+.page-bazi .info-box,.page-bazi .confirm-box{
+  background:transparent;border:0;border-top:1px solid var(--bz-line);
+  border-radius:0;box-shadow:none;
+}
+
+.page-bazi .info-box.yi{border-top-color:var(--green)}
+
+.page-bazi .info-box.ji{border-top-color:var(--red)}
+
+.page-bazi .info-box h4{color:var(--bz2);font-family:var(--bz-serif);font-weight:400;letter-spacing:.2em;border-bottom:1px solid var(--bz-line);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2)}
+
+.page-bazi .info-box p:not(.yi):not(.ji){color:var(--bz-ink)}
+
+.page-bazi .confirm-box{border-color:var(--bz-line)}
+
+.page-bazi .rel-title{color:var(--bz-deep)}
+
+.page-bazi .ly-zh-p{color:var(--bz-ink)}
+
+.page-bazi .det-h{color:var(--bz-deep)}
+
+.page-bazi .life-card{border:0;border-radius:0;background:transparent;padding:0}
+
+.page-bazi .life-card h5{color:var(--bz2);font-family:var(--bz-serif);font-weight:400;letter-spacing:.2em}
+
+.page-bazi .core-box table.stab{margin:0}
+
+.page-bazi .ai-block{
+  border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);border-radius:0;
+  background:transparent;color:var(--bz-ink);box-shadow:none;
+}
+
+.page-bazi .ai-head{background:transparent;border-bottom-color:var(--bz-line)}
+
+.page-bazi .ai-head h3{color:var(--bz2);font-family:var(--bz-serif);font-weight:400}
+
+.page-bazi .ai-head .ai-status{color:var(--bz-ink2)}
+
+.page-bazi .ai-tab{border-radius:0}
+
+.page-bazi .ai-pane .ai-out{border-radius:0}
+
+.page-bazi .ai-bubble{border-radius:0}
+
+.page-bazi .ai-tab:hover{border-color:var(--bz);color:var(--bz2)}
+
+.page-bazi .ai-tab.active{background:var(--bz);border-color:var(--bz);color:#fff}
+
+.page-bazi .ai-tab.active:hover{background:var(--bz2);border-color:var(--bz2);color:#fff}
+
+.page-bazi .ai-bubble.user{background:var(--bz-tint);border-color:var(--bz)}
+
+.page-bazi .ai-bubble.assistant{border-color:var(--bz-line)}
+
+.page-bazi .ai-model-row:hover{background:var(--bz-tint)}
+
+.page-bazi .ai-block .ai-out,.page-bazi .ai-block .ai-bubble.user,.page-bazi .ai-block .ai-bubble.assistant,.page-bazi .ai-block .ai-model-name{color:var(--bz-ink)}
+
+.page-bazi .ai-block input,.page-bazi .ai-block select{color:var(--bz-ink)}
+
+.page-bazi .ai-tip{color:var(--bz-ink2)}
+
+@media print{
+  .page-bazi .info-box,.page-bazi .confirm-box,.page-bazi .ai-block{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+  .page-bazi .mod-head,.page-bazi .zr-mod>summary,.page-bazi .ts-box,.page-bazi .birth-group,.page-bazi .bz-info{border-color:var(--line) !important}
+}
+
+.page-bazi table.stab th,.page-bazi table.otab th{background:var(--bz-tint);color:var(--bz2);border-color:var(--bz-line)}
+
+.page-bazi table.stab td,.page-bazi table.otab td{color:var(--bz-ink);border-color:var(--bz-line)}
+
+.page-bazi .confirm-tb th{font-weight:400;background:var(--bz-tint);color:var(--bz2)}
+
+.page-bazi .confirm-tb td{color:var(--bz-ink);border-color:var(--bz-line)}
+
+.page-bazi .notice{color:var(--bz-ink);background:transparent;border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line)}
+
+.page-bazi :where(.tip){color:var(--bz2)}
+
+.page-bazi .tip:hover{color:var(--bz2);background:var(--bz-tint)}
+
+.page-bazi .ts-box{background:transparent;border:0;
+  border-radius:0;box-shadow:none;padding:var(--sp-3) 0;margin-top:0;text-align:center;color:var(--bz-ink2);letter-spacing:.04em}
+
+.page-bazi .ts-box b{color:var(--bz2)}
+
+.page-bazi .an-v,.page-bazi .an-p,.page-bazi .wf-formula,.page-bazi .struct-note,.page-bazi .struct-item{color:var(--bz-ink)}
+
+.page-bazi .an-p b,.page-bazi .wf-formula b{color:var(--bz2);font-weight:400}
+
+.page-bazi .bazi-table td,.page-bazi .qtab th,.page-bazi .qtab td{color:var(--bz-ink)}
+
+.page-bazi .qtab thead th,.page-bazi .qtab td.lbl{color:var(--bz2)}
+
+.page-bazi .yun-legend-item,.page-bazi .yun-tip,.page-bazi .hex-mean,.page-bazi .score-tbl td.yun-gz{color:var(--bz-ink)}
+
+.page-bazi .qtab td.num{color:var(--bz-ink)}
+
+.page-bazi .qtab .pct,.page-bazi .q-sum{color:var(--bz-ink2)}
+
+.page-bazi .dyn-btn{color:var(--bz-ink)}
+
+.page-bazi .dyn-btn.active{background:var(--bz);color:#fff;box-shadow:none}
+
+.page-bazi .dyn-btn.active .tg,.page-bazi .dyn-btn.active .tz{color:#fff}
+
+.page-bazi .dyn-btn:hover{background:var(--bz-tint)}
+
+.page-bazi .de-off{color:var(--bz-ink2)}
+
+.page-bazi .sex-m,.page-bazi .sex-f{color:var(--bz-ink)}
+
+.page-bazi .warn-note{background:transparent;border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);color:var(--bz2)}
+
+.page-bazi .bz-info{margin-top:var(--sp-3);columns:2;column-gap:var(--sp-5);font-size:14px;border-top:1px solid var(--bz-line)}
+
+.page-bazi .bz-i{display:flex;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--bz-line);break-inside:avoid;page-break-inside:avoid}
+
+.page-bazi .bz-i>.k{flex:0 0 88px;color:var(--bz2);letter-spacing:.5px}
+
+.page-bazi .bz-i>.v{flex:1;min-width:0;color:var(--bz-ink);line-height:1.7}
+
+.page-bazi .bz-i>.v.yi{color:var(--green)}
+
+.page-bazi .bz-i>.v.ji{color:var(--red)}
+
+.page-bazi .bz-info .bz-br{display:inline-block;width:.9em}
+
+.page-bazi .bz-info .bz-seg{display:inline-block;white-space:nowrap}
+
+@media(max-width:640px){
+  .page-bazi .bz-info{columns:1}
+  /* 窄屏单栏，标签栏收到 72px（最长标签三垣 命卦约 62px），值栏多出 16px */
+  .page-bazi .bz-i>.k{flex:0 0 72px}
+  .page-bazi .bz-info .bz-br{display:block;height:0;width:0}
+  /* 三垣三段（命宫、胎元、身宫）都是两字干支，窄屏一行放得下：该字段自带 bz-oneline，
+     分段符退回桌面的 0.9em 间隔，三段同处一行；节气等超出屏宽的字段仍按上一条整行换行。 */
+  .page-bazi .bz-info .bz-i.bz-oneline .bz-br{display:inline-block;width:.9em}
+  .page-bazi .ts-box{letter-spacing:0}
+  /* 窄屏选项行行距收到 --sp-2；出生地组的内边距与桌面同值，由本页出生地分组规则给出 */
+  .page-bazi .opts{gap:var(--sp-2)}
+}
+
+.page-bazi .wheel-wheels{border-top:0;margin-top:0;padding-top:0}
+
+.page-bazi .notice-bottom{color:var(--bz-ink);background:transparent;border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
+
+@media (prefers-color-scheme: dark){
+  html .page-bazi {
+    --bz:#50a27f;
+    --bz2:#4ca080;
+    --bz-deep:#d6e0dc;
+    --bz-ink:#cfd4d1;
+    --bz-ink2:#9fa7a2;
+    --bz-line:#414e48;
+    --bz-tint:#222b28;
+  }
+}

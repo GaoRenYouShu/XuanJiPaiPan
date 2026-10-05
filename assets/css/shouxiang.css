@@ -1,0 +1,115 @@
+/* 页级样式：shouxiang
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-sx .page h1{color:var(--sx-deep);font-family:var(--sx-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-sx .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--sx-line);margin:0 auto var(--sp-3)}
+
+.page-sx .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--sx-line);margin:var(--sp-3) auto 0}
+
+.page-sx .page .lead{color:var(--sx-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-sx .page .lead::after{background:var(--sx-line)}
+
+.page-sx .mod-head{border-top-color:var(--sx-line);border-bottom-color:var(--sx-line)}
+
+.page-sx .field label{color:var(--sx2);font-weight:400}
+
+.page-sx .field select,.page-sx .field input{border-color:var(--sx-line);background:var(--card);color:var(--sx-deep)}
+
+.page-sx .field select:focus,.page-sx .field input:focus{border-color:var(--sx);outline:none}
+
+.page-sx .btn{background:var(--sx)}
+
+.page-sx .btn:hover{background:var(--sx2)}
+
+.page-sx .info-box{background:transparent;border:0;border-top:1px solid var(--sx-line);border-radius:0;box-shadow:none;padding:var(--sp-2) 0 0}
+
+.page-sx .info-box h4{color:var(--sx2);font-family:var(--sx-serif);font-weight:400;letter-spacing:.2em}
+
+.page-sx .info-box p{line-height:1.7}
+
+.page-sx .qtab-scroll{overflow-x:auto}
+
+.page-sx .qtab{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--sx-line)}
+
+.page-sx .qtab th,.page-sx .qtab td{border:0;border-bottom:1px solid var(--sx-line);padding:6px 9px;text-align:left;vertical-align:top;color:var(--sx-ink)}
+
+.page-sx .qtab th{background:var(--sx-tint);font-weight:400;color:var(--sx2);white-space:nowrap}
+
+.page-sx .qtab .lbl{white-space:nowrap;color:var(--sx-ink2)}
+
+.page-sx .sx-note{font-size:12px;color:var(--sx-ink2);margin:var(--sp-1) 0}
+
+.page-sx .mod-body>.form-row{margin-top:var(--sp-2)}
+
+.page-sx .qtab .field{align-items:flex-start}
+
+.page-sx .qtab .field select{width:auto}
+
+.page-sx .qtab td.vmd{vertical-align:middle}
+
+.page-sx .qtab .nw{white-space:nowrap}
+
+.page-sx .sx-dis{font-size:12px;color:var(--sx-ink2);text-align:center;margin-top:var(--sp-4)}
+
+.page-sx figure.sx-fig{display:block;width:min(400px,100%);margin:var(--sp-2) auto}
+
+.page-sx figure.sx-fig img{display:block;width:100%;height:auto;background:var(--card);border:1px solid var(--sx-line)}
+
+.page-sx figure.sx-fig figcaption{margin-top:var(--sp-2);font-size:12px;line-height:1.7;color:var(--sx-ink2);text-align:center}
+
+.page-sx figure.sx-fig svg.sx-jg{display:block;width:100%;height:auto;background:var(--card);border:1px solid var(--sx-line)}
+
+@media(max-width:640px){
+  .page-sx .sx-figrow,.page-mian .sx-figrow{flex-direction:column;align-items:center}
+  .page-sx .sx-figrow .sx-fig,.page-mian .sx-figrow .mian-fig{width:min(400px,100%);max-width:100%}
+  .page-sx .sx-figrow .sx-fig svg,.page-sx .sx-figrow .sx-fig img,.page-mian .sx-figrow .mian-fig svg,.page-mian .sx-figrow .mian-fig img{aspect-ratio:auto}
+}
+
+.page-sx .ai-block{border:0;border-top:1px solid var(--sx-line);border-bottom:1px solid var(--sx-line);border-radius:0;background:transparent;color:var(--sx-ink);box-shadow:none}
+
+.page-sx .ai-head{background:transparent;border-bottom-color:var(--sx-line)}
+
+.page-sx .ai-head h3{color:var(--sx2)}
+
+.page-sx .ai-block .btn{background:var(--sx);color:#fff}
+
+.page-sx .ai-block .btn:hover{background:var(--sx2)}
+
+.page-sx .ai-block .btn.gold,.page-sx .ai-block .btn.soft{background:var(--sx-tint);border-color:var(--sx-line);color:var(--sx-ink);box-shadow:none}
+
+.page-sx .ai-block .btn.gold:hover,.page-sx .ai-block .btn.soft:hover{background:var(--card);border-color:var(--sx);color:var(--sx2)}
+
+.page-sx .ai-block .ai-out,.page-sx .ai-block .ai-bubble.user,.page-sx .ai-block .ai-bubble.assistant,.page-sx .ai-block .ai-model-name,.page-sx .ai-block input,.page-sx .ai-block select{color:var(--sx-ink)}
+
+.page-sx .ai-tab.active{background:var(--sx);border-color:var(--sx);color:#fff}
+
+.page-sx .ai-bubble.user{background:var(--sx-tint);border-color:var(--sx)}
+
+.page-sx .ai-bubble.assistant{border-color:var(--sx-line)}
+
+@media(max-width:640px){
+  .page-sx .qtab th,.page-sx .qtab td{padding:5px 4px}
+  .page-sx .qtab th{white-space:nowrap}
+  .page-sx .qtab-scroll table{width:max-content;min-width:100%}
+  .page-sx .qtab-scroll{padding-bottom:var(--sp-4)}
+}
+
+@media print{
+  .page-sx .qtab th{background:var(--card) !important}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-sx {
+    --sx:#956faa;
+    --sx2:#9268ab;
+    --sx-deep:#dcd7e0;
+    --sx-ink:#d1ced4;
+    --sx-line:#49404f;
+    --sx-tint:#281f2d;
+    --sx-ink2:#a39da9;
+  }
+}

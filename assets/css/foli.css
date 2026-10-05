@@ -1,0 +1,201 @@
+/* 页级样式：foli
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-foli .page h1{color:var(--foli-deep);font-family:var(--foli-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-foli .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--foli-line);margin:0 auto var(--sp-3)}
+
+.page-foli .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--foli-line);margin:var(--sp-3) auto 0}
+
+.page-foli .page .lead{color:var(--foli-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-foli .page .lead::after{background:var(--foli-line)}
+
+.page-foli .page > .form-row{
+  background:none;border:0;border-radius:0;
+  padding:0;margin-top:var(--sp-2);margin-bottom:0;box-shadow:none;
+  align-items:center;justify-content:center;
+}
+
+.page-foli .page > .form-row .field{flex:0 0 auto;width:auto;max-width:none;
+  flex-direction:row;align-items:center;gap:var(--sp-2)}
+
+.page-foli .page > .form-row .field .dt-wrap{width:auto}
+
+.page-foli .page > .form-row .field label{color:var(--foli2);font-weight:400;margin:0;white-space:nowrap}
+
+.page-foli .page > .form-row .field input{border-color:var(--foli-line);border-radius:0;padding:4px 10px;
+  transition:border-color .15s,box-shadow .15s}
+
+.page-foli .page > .form-row .field input:focus{border-color:var(--foli);outline:none}
+
+.page-foli .page > .form-row .btn.gold{background:var(--foli);border-radius:0;padding:5px 14px;box-shadow:none;margin-bottom:0}
+
+.page-foli .page > .form-row .btn.gold:hover{background:var(--foli2)}
+
+.page-foli .btn,.page-foli .btn.gold{background:var(--foli);border-color:var(--foli);color:#fff;box-shadow:none}
+
+.page-foli .btn:hover,.page-foli .btn.gold:hover{background:var(--foli2);color:#fff;box-shadow:none}
+
+.page-foli .cal-nav{margin:var(--sp-3) 0 var(--sp-2)}
+
+.page-foli .cal-title{color:var(--foli-deep);font-family:var(--foli-serif);font-weight:400;font-size:19px;letter-spacing:.2em;text-indent:.2em;padding:0 var(--sp-2)}
+
+.page-foli .nav-btn{background:transparent;border-color:transparent;color:var(--foli);border-radius:0}
+
+.page-foli .nav-btn:hover{background:var(--foli-tint);border-color:transparent;color:var(--foli2);box-shadow:none}
+
+.page-foli .nav-btn:focus-visible{border-color:var(--foli);outline:none}
+
+.page-foli .cal-grid .wd{color:var(--foli);font-family:var(--foli-serif);font-weight:400;
+  letter-spacing:.12em;border-bottom:1px solid var(--foli-line);padding-bottom:var(--sp-1)}
+
+.page-foli .cal-cell.today{background:var(--foli);box-shadow:none}
+
+.page-foli .cal-cell.today.zhai{background:var(--foli)}
+
+.page-foli .cal-cell.selected:not(.today){background:var(--foli-tint);border-color:var(--foli)}
+
+.page-foli .cal-cell:hover:not(.today){background:#f4eedd}
+
+.page-foli .cal-cell.today:hover{background:var(--foli2)}
+
+.page-foli .cal-cell.zhai{background:transparent}
+
+.page-foli .cal-cell .mk-z{left:var(--sp-1);color:var(--foli-cinnabar)}
+
+.page-foli .cal-cell .mk-d{right:var(--sp-1);color:var(--foli)}
+
+.page-foli .cal-cell .festival{color:var(--foli2);font-weight:400}
+
+.page-foli .cal-cell .festival+.ld{display:block}
+
+.page-foli .cal-cell .ld{color:var(--foli-ink2)}
+
+.page-foli .cal-cell.weekend .sd-num{color:var(--foli-cinnabar)}
+
+.page-foli .cal-cell:not(.weekend):not(.today) .sd-num{color:var(--foli-ink)}
+
+.page-foli .today-card{
+  position:relative;overflow:hidden;
+  background:transparent;
+  border:0;border-top:1px solid var(--foli-line);border-bottom:1px solid var(--foli-line);
+  border-radius:0;
+  box-shadow:none;
+  padding:var(--sp-4) 0;
+}
+
+.page-foli .today-top{flex-direction:column;gap:var(--sp-3)}
+
+.page-foli .big-date{display:flex;flex-direction:column-reverse;align-items:center}
+
+.page-foli .big-date .d{color:var(--foli);font-family:var(--foli-serif);font-weight:400;font-size:42px}
+
+.page-foli .big-date .ym{font-size:12.5px;letter-spacing:.2em;text-indent:.2em;color:var(--foli-ink2)}
+
+.page-foli .lunar-info .ln{color:var(--foli-deep);font-family:var(--foli-serif);font-weight:400;
+  font-size:22px;letter-spacing:.14em;text-indent:.14em}
+
+.page-foli .lunar-info .zodiac{font-size:12px;letter-spacing:.06em;color:var(--foli-ink2);margin-top:var(--sp-2)}
+
+.page-foli .rel-title{color:var(--foli-deep)}
+
+.page-foli .foli-info{margin-top:var(--sp-3);columns:2;column-gap:var(--sp-5);
+  font-size:14px;border-top:1px solid var(--foli-line)}
+
+.page-foli .foli-i{display:flex;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--foli-line);
+  break-inside:avoid;page-break-inside:avoid}
+
+.page-foli .foli-i>.k{flex:0 0 88px;color:var(--foli2);letter-spacing:.5px}
+
+.page-foli .foli-i>.k.tip{color:var(--foli2);cursor:pointer}
+
+.page-foli .foli-i>.k.tip:hover{color:var(--red2);background:rgba(168,120,31,.12)}
+
+.page-foli .foli-i>.v{flex:1;min-width:0;color:var(--foli-ink);line-height:1.7}
+
+.page-foli .foli-i>.v.yi{color:var(--green)}
+
+.page-foli .foli-info .foli-br{display:inline-block;width:.9em}
+
+.page-foli .sub-note{color:var(--foli-ink2)}
+
+.page-foli .ai-block{
+  border:0;border-top:1px solid var(--foli-line);border-bottom:1px solid var(--foli-line);border-radius:0;
+  background:transparent;color:var(--foli-ink);
+  box-shadow:none;
+}
+
+.page-foli .ai-head{
+  background:transparent;
+  border-bottom-color:var(--foli-line);
+}
+
+.page-foli .ai-head h3{color:var(--foli2);font-family:var(--foli-serif);font-weight:400}
+
+.page-foli .ai-head .ai-status{color:var(--foli-ink2)}
+
+.page-foli .ai-block .btn{background:var(--foli);border-radius:0}
+
+.page-foli .ai-block .btn:hover{background:var(--foli2)}
+
+.page-foli .ai-block .btn.gold,.page-foli .ai-block .btn.soft{background:var(--foli-tint);border-color:var(--foli-line);color:var(--foli-ink)}
+
+.page-foli .ai-block .btn.gold:hover,.page-foli .ai-block .btn.soft:hover{background:var(--card);border-color:var(--foli);color:var(--foli2)}
+
+.page-foli .ai-tab{border-radius:0}
+
+.page-foli .ai-pane .ai-out{border-radius:0}
+
+.page-foli .ai-bubble{border-radius:0}
+
+.page-foli .ai-tab:hover{border-color:var(--foli);color:var(--foli2)}
+
+.page-foli .ai-tab.active{background:var(--foli);border-color:var(--foli);color:#fff}
+
+.page-foli .ai-tab.active:hover{background:var(--foli2);border-color:var(--foli2);color:#fff}
+
+.page-foli .ai-bubble.user{background:var(--foli-tint);border-color:var(--foli)}
+
+.page-foli .ai-bubble.assistant{border-color:var(--foli-line)}
+
+.page-foli .ai-model-row:hover{background:var(--foli-tint)}
+
+.page-foli .ai-tip{color:var(--foli-ink2)}
+
+.page-foli .ai-block .ai-out,.page-foli .ai-block .ai-bubble.user,.page-foli .ai-block .ai-bubble.assistant,.page-foli .ai-block .ai-model-name{color:var(--foli-ink)}
+
+.page-foli .ai-block input,.page-foli .ai-block select{color:var(--foli-ink)}
+
+@media(max-width:640px){
+  .page-foli .big-date .d{font-size:36px}
+  .page-foli .lunar-info .ln{font-size:19px}
+  .page-foli .foli-info{columns:1}
+  .page-foli .foli-info .foli-br{display:block;height:0;width:0}
+  /* 手机端隐去节日行：格宽 43px 放不下汉字，七字以上的名一律被截成"龙树…"这类
+     带省略号的残句，比不显示更难看。隐去后每格只剩日期、佛历日与斋诞两角标，疏密也松下来。
+     节日名仍在详情区"圣诞节庆"逐日可看，斋日与圣诞另由角标点出，故不是丢信息而是改由点开取。
+     注意 .festival+.ld 是相邻选择器，按 DOM 次序匹配，与本行是否显示无关，佛历日不受影响。 */
+  .page-foli .cal-cell .festival{display:none}
+}
+
+@media print{
+  .page-foli .cal-grid,.page-foli .today-card{background:var(--card) !important;box-shadow:none !important;border-color:var(--line) !important}
+  .page-foli .cal-grid .wd{border-bottom-color:var(--line)}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-foli {
+    --foli:#d39b3f;
+    --foli2:#d19735;
+    --foli-deep:#e3ded3;
+    --foli-ink:#d6d2cd;
+    --foli-ink2:#aea698;
+    --foli-cinnabar:#d2695e;
+    --foli-line:#534c3c;
+    --foli-tint:#322c1a;
+  }
+}

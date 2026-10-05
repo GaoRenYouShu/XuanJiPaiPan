@@ -1,0 +1,214 @@
+/* 页级样式：hehun
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-hh{
+  --hh:#8d3488;          /* 藕荷绛紫主色 */
+  --hh2:#70296b;         /* 深藕：hover、强调、标签字 */
+  --hh-deep:#481945;     /* 藕墨：大标题与小节标题 */
+  --hh-ink:#453044;      /* 藕墨灰：正文字色 */
+  --hh-ink2:#6f4d6d;     /* 次级字色：卷首说明、分值、子注 */
+  --hh-line:#e6d1e5;     /* 藕荷浅线 */
+  --hh-tint:#f7eef6;     /* 藕荷纸淡底 */
+  --hh-alt:#b847b0;      /* 第二人标记：主色同相提亮二十个明度点，守全页单一色相 */
+  --hh-serif:var(--font-serif);
+  --gold:var(--hh);
+  --gold2:var(--hh2);
+  --gold-brown:var(--hh2);
+  --gold-bg:var(--hh-tint);
+  --ink2:var(--hh-ink2);
+  --foot-ink:var(--hh2);
+
+  /* 圆盘令牌（通用件 .wheel 用）：扇面取主色，选中弧取墨档。
+     合婚只论得分率不论吉凶，故吉凶两色并归本页色轴，不落全局绿红 */
+  --wheel-serif:var(--hh-serif);
+  --wheel-line:var(--hh-line);
+  --wheel-arc:var(--hh);
+  --wheel-ink:var(--hh-ink);
+  --wheel-deep:var(--hh-deep);
+  --wheel-ink2:var(--hh-ink2);
+  --wheel-cur:var(--hh);
+  --wheel-core:var(--hh-tint);
+  --wheel-h4:var(--hh2);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);
+  --line:var(--hh-line);--ink:var(--hh-ink)
+}
+
+.page-hh .page h1{color:var(--hh-deep);font-family:var(--hh-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-hh .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--hh-line);margin:0 auto var(--sp-3)}
+
+.page-hh .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--hh-line);margin:var(--sp-3) auto 0}
+
+.page-hh .page .lead{color:var(--hh-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-hh .page .lead::after{background:var(--hh-line)}
+
+.page-hh .hehun-forms{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:var(--sp-3);margin:var(--sp-2) 0 var(--sp-3)}
+
+.page-hh .hh-card{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-3);
+  padding:var(--sp-3) 0;width:fit-content;max-width:100%;
+  background:transparent;border:0;border-top:1px solid var(--hh-line);border-radius:0;box-shadow:none}
+
+.page-hh .hh-card .form-row{justify-content:flex-start;margin:0}
+
+.page-hh .hh-card .birth-group.compact{margin-top:var(--sp-1)}
+
+.page-hh .hh-card .birth-group.compact .group-label{color:var(--hh2)}
+
+.page-hh .hh-card h3{margin:0;font-size:var(--tier2);flex:0 0 auto;font-weight:400}
+
+.page-hh .hh-card h3 .hh-sex-ico{margin-left:var(--sp-1)}
+
+.page-hh .hh-card .field.hh-sex{flex:0 0 auto;width:auto}
+
+.page-hh .hh-card .field.hh-sex select{width:auto;align-self:flex-start}
+
+.page-hh .hh-card.male h3{color:var(--hh2)}
+
+.page-hh .hh-card.female h3{color:var(--hh-alt)}
+
+.page-hh .hh-card .field label{color:var(--hh2);font-weight:400}
+
+.page-hh .page input,.page-hh .page select,.page-hh .page textarea{border-color:var(--hh-line)}
+
+.page-hh .page input:focus,.page-hh .page select:focus,.page-hh .page textarea:focus{border-color:var(--hh);outline:none}
+
+.page-hh .btn,.page-hh .btn.gold{background:var(--hh);border-color:var(--hh);color:#fff;box-shadow:none}
+
+.page-hh .btn:hover,.page-hh .btn.gold:hover{background:var(--hh2);color:#fff;box-shadow:none}
+
+.page-hh .page > .form-row .btn.gold{border-radius:0;padding:0 var(--sp-4);margin-bottom:0}
+
+.page-hh .birth-group{background:transparent;border:0;border-top:1px solid var(--hh-line)}
+
+.page-hh .birth-group.compact{padding:var(--sp-3) 0}
+
+@media(max-width:640px){.page-hh .birth-group,.page-hh .birth-group.compact{padding-top:var(--sp-2)}}
+
+.page-hh .dt-ic{color:var(--hh-ink)}
+
+.page-hh .hh-actions{justify-content:center}
+
+.page-hh .hh-result{margin-top:var(--sp-2);color:var(--hh-ink)}
+
+.page-hh .det-h{color:var(--hh-deep)}
+
+.page-hh .det-sub{color:var(--hh-ink2);font-weight:400;letter-spacing:0}
+
+.page-hh .hh-charts{display:flex;gap:var(--sp-4);flex-wrap:wrap;justify-content:center;margin-bottom:var(--sp-3)}
+
+.page-hh .hh-chart{flex:1 1 300px;min-width:260px;overflow-x:auto;padding:var(--sp-3) 0;
+  background:transparent;border:0;border-top:1px solid var(--hh-line);border-radius:0;box-shadow:none}
+
+.page-hh .hh-chart-title{font-size:14px;font-weight:400;color:var(--hh-deep);text-align:center;letter-spacing:.2em;text-indent:.2em;margin-bottom:var(--sp-2)}
+
+.page-hh .bazi-table th{background:var(--hh-tint);color:var(--hh-deep);font-weight:400}
+
+.page-hh .bazi-table .zhu{background:var(--hh-tint);color:var(--hh-deep);font-weight:400}
+
+.page-hh .bazi-table td{color:var(--hh-ink)}
+
+.page-hh .bazi-table td:first-child{background:var(--hh-tint);color:var(--hh2)}
+
+.page-hh .bazi-table th,.page-hh .bazi-table td{border-color:var(--hh-line)}
+
+.page-hh .bazi-table .gan,.page-hh .bazi-table .zhi,.page-hh .bazi-table .small{color:var(--hh-ink)}
+
+.page-hh .hh-total{color:var(--hh-ink);border-color:var(--hh-line)}
+
+.page-hh .hh-total-cap{color:var(--hh-ink2)}
+
+.page-hh .hh-total-lv{border-top-color:var(--hh-line)}
+
+.page-hh .hh-item,.page-hh .hh-item:last-child{border-color:var(--hh-line)}
+
+.page-hh .hh-name{color:var(--hh2);font-weight:400}
+
+.page-hh .hh-score{color:var(--hh-ink2)}
+
+.page-hh .hh-desc{color:var(--hh-ink)}
+
+.page-hh .hh-adv{border-color:var(--hh-line)}
+
+.page-hh .hh-adv-box,.page-hh .hh-adv-tbl th,.page-hh .hh-adv-tbl td{border-color:var(--hh-line)}
+
+.page-hh .hh-adv-tbl tr+tr th,.page-hh .hh-adv-tbl tr+tr td,
+.page-hh .hh-adv-tbl .hh-adv-sec td{border-color:var(--hh-line)}
+
+.page-hh .hh-adv-tbl td{color:var(--hh-ink)}
+
+.page-hh .wheel .w-c1{font-size:17px;letter-spacing:.04em}
+
+.page-hh .wheel-detail .wd-t{color:var(--hh-deep)}
+
+.page-hh .notice{color:var(--hh-ink)}
+
+.page-hh .hh-rm{color:var(--hh2);font-weight:400}
+
+.page-hh .hh-frombazi{margin:var(--sp-2) 0;color:var(--hh-ink2)}
+
+.page-hh .ai-block{border:0;border-top:1px solid var(--hh-line);border-bottom:1px solid var(--hh-line);
+  border-radius:0;background:transparent;color:var(--hh-ink);box-shadow:none}
+
+.page-hh .ai-head{background:transparent;border-bottom-color:var(--hh-line)}
+
+.page-hh .ai-head h3{color:var(--hh2);font-family:var(--hh-serif);font-weight:400}
+
+.page-hh .ai-head .ai-status{color:var(--hh-ink2)}
+
+.page-hh .ai-block .btn{border-radius:0}
+
+.page-hh .ai-block .btn.gold,.page-hh .ai-block .btn.soft{background:var(--hh-tint);border-color:var(--hh-line);color:var(--hh-ink)}
+
+.page-hh .ai-block .btn.gold:hover,.page-hh .ai-block .btn.soft:hover{background:var(--card);border-color:var(--hh);color:var(--hh2)}
+
+.page-hh .ai-tab{border-radius:0}
+
+.page-hh .ai-pane .ai-out{border-radius:0}
+
+.page-hh .ai-bubble{border-radius:0}
+
+.page-hh .ai-tab:hover{border-color:var(--hh);color:var(--hh2)}
+
+.page-hh .ai-tab.active{background:var(--hh);border-color:var(--hh);color:#fff}
+
+.page-hh .ai-tab.active:hover{background:var(--hh2);border-color:var(--hh2);color:#fff}
+
+.page-hh .ai-bubble.user{background:var(--hh-tint);border-color:var(--hh)}
+
+.page-hh .ai-bubble.assistant{border-color:var(--hh-line)}
+
+.page-hh .ai-model-row:hover{background:var(--hh-tint)}
+
+.page-hh .ai-block input,.page-hh .ai-block select{color:var(--hh-ink)}
+
+.page-hh .ai-tip{color:var(--hh-ink2)}
+
+@media(max-width:640px){
+  .page-hh .hehun-forms{flex-direction:column;align-items:center}
+  .page-hh .hh-card{width:100%;max-width:360px;gap:var(--sp-1) var(--sp-2)}
+  .page-hh .hh-charts{gap:var(--sp-3)}
+  .page-hh .hh-chart{min-width:0}
+  /* 窄屏性别下拉随字段铺满，桌面按内容收缩的规则在两列流式里会留空洞 */
+  .page-hh .hh-card .field.hh-sex select{width:100%;align-self:stretch}
+  /* 出生地组上线与上方控件底的净距须为 12px（第二条：相邻平行线不得小于 12 像素）：
+     卡片在窄屏的 row-gap 给 4px，余下 8px 由本组自带的顶距补足，两处相加恰为 12px */
+  .page-hh .hh-card .birth-group.compact{margin-top:var(--sp-2)}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-hh {
+    --hh:#c053b9;
+    --hh2:#bd4cb5;
+    --hh-deep:#e2d4e1;
+    --hh-ink:#d5cdd4;
+    --hh-ink2:#ac9bab;
+    --hh-line:#513e50;
+    --hh-tint:#2d1f2c;
+    --hh-alt:#d289cc;
+  }
+}

@@ -1,0 +1,135 @@
+/* 页级样式：opensource
+   本页专属的页级规则写在此处，不写进 assets/style.css 的页级段（那一段是存量，只减不增）。
+   引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
+   本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
+
+.page-os .ospage{max-width:920px;margin:0 auto;padding:var(--sp-2) var(--sp-1) 0;--foot-ink:#6f6a63;
+  --gold:#b03a2e;--gold2:#8f2a20;--gold-brown:#8f2a20}
+
+.page-os .os-hero{padding:var(--sp-5) var(--sp-2) var(--sp-4);border-top:3px solid #2b2724;position:relative}
+
+.page-os .os-hero::before{content:'';position:absolute;top:5px;left:0;right:0;border-top:1px solid #2b2724;opacity:.5}
+
+.page-os .os-eyebrow{font-size:12px;letter-spacing:.42em;color:#b03a2e;margin-bottom:var(--sp-2)}
+
+.page-os .ospage h1{font-family:var(--font-serif);font-size:23px;font-weight:600;letter-spacing:.08em;margin:0 0 var(--sp-3);color:var(--ink)}
+
+.page-os .os-lead{font-size:14px;line-height:2.05;color:#6f6a63;max-width:640px;margin:0 0 var(--sp-4)}
+
+.page-os .os-stats{display:flex;border-top:1px solid #e8e3da}
+
+.page-os .os-stat{flex:1;padding:var(--sp-3) var(--sp-2) var(--sp-2);display:flex;flex-direction:column;gap:2px}
+
+.page-os .os-stat+.os-stat{border-left:1px solid #e8e3da}
+
+.page-os .os-stat b{font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--ink)}
+
+.page-os .os-stat b i{font-style:normal;font-size:12px;color:var(--ink2);margin-left:3px;letter-spacing:.1em}
+
+.page-os .os-stat span{font-size:12px;color:var(--ink2);letter-spacing:.22em}
+
+.page-os .os-sec{display:flex;align-items:baseline;gap:var(--sp-3);margin:var(--sp-5) 0 var(--sp-3)}
+
+.page-os .os-sec b{font-family:var(--font-serif);font-size:19px;font-weight:600;letter-spacing:.14em;color:var(--ink)}
+
+.page-os .os-sec span{font-size:12px;color:var(--ink2)}
+
+.page-os .os-sec::after{content:'';flex:1;border-top:1px solid #e8e3da}
+
+.page-os .os-bar{display:flex;height:12px;gap:2px;margin:0 0 var(--sp-2)}
+
+.page-os .os-bar span{height:100%;border-radius:0;transition:filter .15s}
+
+.page-os .os-bar span:hover{filter:brightness(1.15)}
+
+.page-os .os-legend{display:flex;flex-wrap:wrap;gap:2px var(--sp-4);font-size:12px;color:var(--ink2);margin:0 0 var(--sp-1)}
+
+.page-os .os-legend i{display:inline-block;width:8px;height:8px;border-radius:0;margin-right:6px;vertical-align:0}
+
+.page-os .os-tabs{display:flex;gap:var(--sp-4);margin:0 0 var(--sp-1);border-bottom:1px solid #e8e3da}
+
+.page-os .os-tab{background:none;border:none;padding:0 2px 10px;font-family:inherit;font-size:14px;letter-spacing:.15em;color:var(--ink2);cursor:pointer;position:relative}
+
+.page-os .os-tab:hover{color:var(--ink)}
+
+.page-os .os-tab.on{color:#b03a2e}
+
+.page-os .os-tab.on::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#b03a2e}
+
+@media (max-width:640px){
+  .page-os .os-tabs{gap:var(--sp-2);flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .page-os .os-tab{flex:0 0 auto;white-space:nowrap}
+}
+
+.page-os .os-list{display:grid}
+
+.page-os .os-card{display:grid;grid-template-columns:76px 1fr;gap:var(--sp-4);padding:var(--sp-4) var(--sp-2);border-bottom:1px solid #e8e3da;transition:background .15s}
+
+.page-os .os-card:hover{background:#fbf9f3}
+
+.page-os .os-side{text-align:right;padding-top:2px}
+
+.page-os .os-num{font-family:var(--font-serif);font-size:24px;color:var(--ink);line-height:1;display:block;transition:color .15s}
+
+.page-os .os-num i{font-style:normal;font-size:11px;color:var(--ink2);margin-left:2px;letter-spacing:.08em}
+
+.page-os .os-mini{display:block;height:3px;border-radius:0;background:#e9e4d8;margin-top:9px;overflow:hidden}
+
+.page-os .os-mini i{display:block;height:100%;background:#4a443c}
+
+.page-os .os-card:hover .os-num{color:#b03a2e}
+
+.page-os .os-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+
+.page-os .os-name{font-size:16px;font-weight:700;color:var(--ink);margin:0}
+
+.page-os .os-tag{font-size:10.5px;letter-spacing:.2em;color:var(--ink2);white-space:nowrap}
+
+.page-os .os-tag.in{color:#b03a2e}
+
+.page-os .os-tag.ext{color:#55697a}
+
+.page-os .os-lic{font-size:11px;color:var(--ink2);border:1px solid #e3ddcf;border-radius:0;padding:1px 7px;margin-left:auto;white-space:nowrap}
+
+.page-os .os-row{font-size:13.5px;line-height:2;color:#6f6a63;margin:8px 0 0}
+
+.page-os .os-note{font-size:12px;line-height:1.9;color:var(--ink2);margin-top:6px}
+
+.page-os .os-link{color:var(--ink);text-decoration:none;border-bottom:1px solid #d8d2c6;transition:color .15s,border-color .15s}
+
+.page-os .os-link:hover{color:#b03a2e;border-color:#b03a2e}
+
+.page-os .os-link::after{content:' ↗';font-size:11px}
+
+.page-os #footer .os-link::after{content:''}
+
+.page-os .os-colophon{margin-top:var(--sp-5);border-top:3px double #2b2724;padding-top:var(--sp-3)}
+
+.page-os .os-ct{font-size:12px;letter-spacing:.42em;color:#b03a2e;margin-bottom:var(--sp-2)}
+
+.page-os .os-colophon p{margin:0 0 6px;font-size:13px;line-height:2.1;color:#6f6a63}
+
+.page-os .os-empty{grid-column:1/-1;text-align:center;color:var(--ink2);font-size:13px;padding:var(--sp-4)}
+
+@media(max-width:640px){
+  .page-os .os-hero{padding:var(--sp-4) var(--sp-1) var(--sp-3)}
+  .page-os .ospage h1{font-size:23px}
+  .page-os .os-card{grid-template-columns:1fr;gap:var(--sp-2)}
+  .page-os .os-side{display:flex;align-items:baseline;gap:8px;text-align:left}
+  .page-os .os-mini{flex:1;margin-top:0;align-self:center}
+  .page-os .os-lic{margin-left:0}
+}
+
+@media print{
+  .page-os .os-tabs{display:none}
+  .page-os .os-card{break-inside:avoid}
+}
+
+@media (prefers-color-scheme: dark){
+  html .page-os .ospage {
+    --foot-ink:#6f6a63;
+    --gold:#b03a2e;
+    --gold2:#8f2a20;
+    --gold-brown:#8f2a20;
+  }
+}

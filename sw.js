@@ -11,17 +11,17 @@ const SHELL = [
   './index.html',
   './404.html',
   './manifest.webmanifest',
-  './assets/meta.js?v=20260925b',
-  './assets/app.js?v=20261004a',
-  './assets/style.css?v=z390',
-  './assets/lunar.js?v=20260927a',
-  './assets/foli-terms.js?v=20260928b',
-  './assets/daoli-terms.js?v=20261005a',
-  './assets/fonts/noto-serif-sc.css?v=20260927995e',
-  './assets/fonts/nssc-chrome.woff2?v=20260927995e',
-  './assets/fonts/site-sym.css?v=20260929f',
-  './assets/zangli-terms.js?v=20260929h',
-  './assets/zangli-eclipse.js?v=20260929g'
+  './assets/meta.js?v=2740dac0',
+  './assets/app.js?v=20871d52',
+  './assets/style.css?v=b960d03e',
+  './assets/lunar.js?v=9750324b',
+  './assets/foli-terms.js?v=0ed446a1',
+  './assets/daoli-terms.js?v=8dc2a1d0',
+  './assets/fonts/noto-serif-sc.css?v=658c493f',
+  './assets/fonts/nssc-chrome.woff2?v=94dba5c0',
+  './assets/fonts/site-sym.css?v=1faa6aea',
+  './assets/zangli-terms.js?v=ea2d3583',
+  './assets/zangli-eclipse.js?v=ec0a70f8'
 ];
 
 self.addEventListener('install', function (e) {
