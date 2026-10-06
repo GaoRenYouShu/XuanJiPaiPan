@@ -288,12 +288,18 @@ a.btn{display:inline-flex;align-items:center}
 .wx-jin{color:#D4A017}.wx-shui{color:#4190FA}
 /* 空亡：虚灰色，示空亡空设、力量虚浮，不与五行色混 */
 .bazi-table .kong-cell{color:#9aa0a6}
-/* 八字页四柱表 8 列（4柱+大运/流年/流月/流日）：8 个数据列等宽且字体一致（沿用原样式），仅第一列（行标签"四柱"列）去粗 */
+/* 八字页基础信息四柱表：两种列数按出生年分界。1900 年及以后生人并列大运、流年、流月、流日共 8 列，
+   此界之前的历史人物只列本命四柱共 4 列（其岁运早已行尽，与排盘当下无涉）。
+   数据列等宽且字体一致，仅第一列（行标签列）去粗。 */
+.bazi-table.equal4{table-layout:fixed;width:100%}
+.bazi-table.equal4 th:first-child,.bazi-table.equal4 td:first-child{width:14%;padding-left:4px;padding-right:4px;font-weight:400}
 .bazi-table.equal8{table-layout:fixed;width:100%}
 .bazi-table.equal8 th:first-child,.bazi-table.equal8 td:first-child{width:9%;padding-left:4px;padding-right:4px;font-weight:400}
-/* 行标签列写死 9% 在 320 档只有 24px，装不下两字（四柱、主星、天干、地支、藏干）而被挤成各占一行：
+/* 行标签列写死百分比在 320 档装不下两字（主星、天干、地支、藏干）而被挤成各占一行：
    窄屏改按内容定宽，标签不折行，其余列分剩余空间 */
 @media(max-width:640px){
+  .bazi-table.equal4{table-layout:auto}
+  .bazi-table.equal4 th:first-child,.bazi-table.equal4 td:first-child{width:auto;white-space:nowrap}
   .bazi-table.equal8{table-layout:auto}
   .bazi-table.equal8 th:first-child,.bazi-table.equal8 td:first-child{width:auto;white-space:nowrap}
 }
@@ -1075,7 +1081,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 /* 头部箭头：纯字符（同本页年月导航 .nav-btn 语言），无框无底无圆角，悬停才给淡底 */
 /* padding 须显式归零：bazi.html 内联有裸 button{padding:6px 18px}，会污染本共享弹框的头部按钮，
    在 border-box 下把 26px 宽撑成 36px，致头部溢出。显式 padding:0 使各页头部按钮同尺寸。 */
-.dt-head button{background:none;border:0;border-radius:0;width:26px;height:26px;padding:0;font-size:16px;line-height:1;cursor:pointer;font-family:inherit;flex:0 0 auto;color:var(--ink2);transition:background .15s,color .15s}
+.dt-head button{position:relative;background:none;border:0;border-radius:0;width:26px;height:26px;padding:0;font-size:16px;line-height:1;cursor:pointer;font-family:inherit;flex:0 0 auto;color:var(--ink2);transition:background .15s,color .15s}
 .dt-head button:hover{background:var(--tk-tint,var(--gold-bg));color:var(--tk,var(--gold))}
 /* 年步进推至两端、月步进夹住年月控件居中，使两组语义在视觉上分开 */
 .dt-head button[data-act="y-"]{margin-right:auto}
@@ -1087,6 +1093,10 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
    × 与 » 才能在同一水平线上（× 的 top 就是内容区顶部）。padding 归零、行高收紧以在 26px 内居中。 */
 .dt-year{width:66px;height:26px;text-align:center;padding:0 var(--sp-1);line-height:1.1;border:1px solid var(--line);border-radius:0;font-size:13px;font-weight:400;font-family:inherit;background:var(--card);color:var(--ink);flex:0 0 auto;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield}
 .dt-year::-webkit-outer-spin-button,.dt-year::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+/* 年份与月份控件聚焦态随页主题：外扩环禁用（主题段第四条），反馈落在边框加深一档，非主题页回落金线 */
+.dt-year:focus,.dt-month:focus{outline:none;box-shadow:none;border-color:var(--tk,var(--gold))}
+/* 头部步进钮悬停自绘提示：方角、主题色底白字，attr 取按钮 data-tip；原生 title 系统气泡无法随页主题，故弃用 */
+.dt-head button:hover::after{content:attr(data-tip);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:var(--sp-1);padding:var(--sp-1) var(--sp-2);background:var(--tk,var(--gold));color:#fff;font-size:12px;font-weight:400;line-height:1.5;white-space:nowrap;z-index:5;pointer-events:none;border-radius:0}
 /* 月份框按内容定宽：写死 84px 会在"9月"与箭头间留 20 余像素空白。width:auto 让浏览器按最宽选项"12月"+ 原生箭头 + 内边距
    算出自然宽（实测 61px）；min-width 给 64px 的下限，既留出 3px 呼吸、又在字体回落变宽时自动撑开不裁字。
    text-align:center 让选中文本在可见区域居中（Chrome 现代版本支持 select 上的 text-align）。
@@ -1549,14 +1559,17 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   .cal-grid .wd{font-size:12px;padding:var(--sp-1) 0}
   /* 格高与角标带：上下内边距各取 --sp-3，恰是一条角标带的高度（内缩 --sp-1 加字号 8px）；
      余下 40px 供数字与农历日两行居中，与上下两条角标带各留约 4px 净空，角标不再贴字。
-     五历页共用此一值，格高一律 64px，不再各页分叉。 */
-  .cal-cell{padding:var(--sp-3) var(--sp-1);min-height:64px;aspect-ratio:auto;min-width:0}
+     五历页共用此一值，格高一律 64px，不再各页分叉。
+     左右内边距归零：格与格之间由网格 gap 分隔，格内左右各 4px 内距对居中文字无用，
+     留着即在最窄 320 档把格内可用宽压到 20.9px，三字日名必被截。 */
+  .cal-cell{padding:var(--sp-3) 0;min-height:64px;aspect-ratio:auto;min-width:0}
   .cal-cell .sd{font-size:15px;line-height:1}
   /* 窄屏角标只缩字号，四角内缩与桌面同值，跨视口、跨页面位置恒等 */
   .cal-cell .jq-mark,.cal-cell .fest-mark,.cal-cell .mem-mark,.cal-cell .rest-mark,.cal-cell .mk{font-size:8px}
-  /* 农历日字号须留出三字位：佛历、道历、藏历日名作佛十九、道十九、藏十八三字，
-     格内可用宽 28.7px，10px 恰溢出 1.3px 被截成残句；9px 三字 27px，尚余 1.7px */
-  .cal-cell .ld{font-size:9px;line-height:1.15;margin-top:var(--sp-1)}
+  /* 农历日字号须留出三字位：佛历、道历、藏历日名作佛十九、道十九、藏十八三字。
+     最窄 320 档格宽 30.9px、格内可用宽 28.9px，8px 三字 24px，尚余 4.9px；
+     取 9px 时三字 27px，余量不足 2px，字体略一放大即被 ellipsis 截成残句。 */
+  .cal-cell .ld{font-size:8px;line-height:1.15;margin-top:var(--sp-1)}
   .cal-cell .festival{font-size:9.5px;line-height:1.15;margin-top:2px;width:100%;text-align:center}
   /* 窄屏格内只留数字、农历日与角标：节日名与节气名一律隐去（角标已示其类），
      节日改由左上红色"节"点出，纪念日由右下"纪"点出，休班角标让到左下，右上仍归节气。
