@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/xingzhan.css?v=8109d942">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/xingzhan.css?v=cf7e4555">
 
 </head>
 <body>
@@ -80,9 +80,9 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
 <script defer src="assets/astronomy-engine.min.js?v=f41139a8"></script>
 <script defer src="assets/xz-ephem.js?v=819cece7"></script>
@@ -156,7 +156,7 @@ function xzCoordWarn(lonV, latV, lon, lat, tz, place, bads){
 }
 /* 当前年龄（按出生时刻精确到年，供大运与副运定位）；出生时刻在今天尚未到达时钳为 0，防负岁数令小限轮转出第 0 宫 */
 function xzAgeNow(dt){
-  const now = new Date();
+  const now = xjNowDate();
   const born = new Date(dt.y, dt.m - 1, dt.d, dt.hh, dt.mm);
   return Math.max(0, (now - born) / (365.25 * 24 * 3600 * 1000));
 }
@@ -1254,7 +1254,7 @@ function xzCivilFromDays(z){
 function xzAddDays(y, m, d, n){ return xzCivilFromDays(xzDaysFromCivil(y, m, d) + n); }
 function xzYmdStr(y, m, d){ return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
 function xzTodayYmd(){
-  const n = new Date();
+  const n = xjNowDate();
   return xzYmdStr(n.getFullYear(), n.getMonth() + 1, n.getDate());
 }
 /* 行运快照+相位两表（不含时间线，供"查看行运"局部刷新） */
@@ -1279,7 +1279,7 @@ function xzTrSnapHtml(chart, y, m, d){
 }
 /* 时间线：未来约一年慢速行运（木星及以上）对本命敏感点（十星+上升+中天）的相位与换宫 */
 function xzTrTimelineHtml(chart){
-  const t0 = new Date();
+  const t0 = xjNowDate();
   const y = t0.getFullYear(), mo = t0.getMonth() + 1, da = t0.getDate();
   const jdStart = xz_jd(y, mo, da, 12, 0, chart.tz);
   const evs = xz_slowTransitScan(chart, jdStart, 365);
@@ -1301,7 +1301,7 @@ function xzTrTimelineHtml(chart){
   return `<div class="xz-tbl-wrap"><table class="xz-tbl xz-trtbl"><thead><tr><th>日期</th><th>事件</th><th>主题</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function xzTrTimeTitle(chart){
-  const t0 = new Date();
+  const t0 = xjNowDate();
   const cd = xzAddDays(t0.getFullYear(), t0.getMonth() + 1, t0.getDate(), 365);
   return `${xzYmdStr(t0.getFullYear(), t0.getMonth() + 1, t0.getDate())} 至 ${xzYmdStr(cd.y, cd.m, cd.d)}`;
 }
@@ -1572,7 +1572,7 @@ function xzFortuneDayHtml(chart, y, m, d){
     <div class="xz-tbl-wrap"><table class="xz-tbl xz-fttbl"><thead><tr><th>项目</th><th>星象</th><th>引动落点</th><th>读数</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function xzFortuneMonthHtml(chart){
-  const n = new Date();
+  const n = xjNowDate();
   const r = xz_fortuneMonth(chart, n.getFullYear(), n.getMonth() + 1);
   const pct = s => Math.max(0, Math.min(100, s));
   const bar = (nm, s) => `<div class="hh-item">
@@ -1588,7 +1588,7 @@ function xzFortuneMonthHtml(chart){
     <p>本月顺风日：<b>${r.best.join('、')}</b> 日；需谨慎日：<b>${r.hard.join('、')}</b> 日（逐日分按行运相位实算）。</p>`;
 }
 function xzFortuneYearHtml(chart){
-  const y = new Date().getFullYear();
+  const y = xjNowDate().getFullYear();
   const r = xzFtYearOf(chart, y);
   const pct = s => Math.max(0, Math.min(100, s));
   const rows = r.monthAvg.map((s, i) => `<div class="hh-item">
@@ -1719,8 +1719,7 @@ window.addEventListener('load', function () {
     xzBindPlace('xz');
     xzBindPlace('xzB');
     xzPai();
-    mountAI(function(){ return __xz || ''; }, '占星术');
-    shareWait({ page:"xingzhan", title:"在线占星排盘", recast:function(){ try{ xzPai(); }catch(e){} } });
+    mountAI(function(){ return __xz || ''; }, '占星术', { share:{ page:"xingzhan", title:"在线占星排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ xzPai(); }); } } });
   }, 0);
 });
 </script>

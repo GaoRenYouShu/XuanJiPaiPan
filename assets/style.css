@@ -206,9 +206,15 @@ select option{font-family:inherit}
   box-shadow:var(--shadow);
 }
 .page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
-.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4)}
+/* 卷首说明收束件：说明末尾一条竖线，竖线下 16px 一条满宽横线，横线下再 16px 才是页内首行。
+   竖线与横线是一套，有竖线必有横线，两线间距与横线下留白同取 --sp-4，全站同一档。
+   横线由 padding-bottom 留位、绝对定位画在盒底，故不挤动任何内容；线色随本页 --line。
+   紧随说明的首块让出顶线与上内距，分界与留白全由本件承担，一条分界只一个来源。 */
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
 /* 题下竖线：排布全站一致，各页只换线色（--line 在页级段已重定义为本页线色） */
 .page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
 
 /* form */
 /* ===== 输入框宽度规则（顶层，全站唯一口径；页面级不得重定义下列同值项） =====
@@ -456,7 +462,9 @@ a.btn{display:inline-flex;align-items:center}
 .fei-1{color:#4190FA}.fei-2{color:var(--gold-brown)}.fei-3{color:#5DC336}.fei-4{color:#5DC336}
 .fei-5{color:var(--brown)}.fei-6{color:#b8860b}.fei-7{color:#b8860b}.fei-8{color:var(--gold-brown)}.fei-9{color:#F65352}
 
-.notice{background:var(--paper2);border:1px solid var(--line);border-radius:0;padding:var(--sp-3) var(--sp-3);
+/* 提示条：去框改线，上下各一条细线、左右无、底色去除。规范第零条与 387 行把它列为
+   上下都画的四类之一，故上下线是形制终值而非残留；各页只可换线色与内距。 */
+.notice{background:transparent;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;
   font-size:13px;color:var(--ink);margin-top:var(--sp-4)}
 .notice-bottom{margin-top:var(--sp-4);text-align:left;font-weight:400}
 /* 八字联动横幅：从八字页跳转进入时在页面顶部显示命盘背景信息 */

@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/meihua.css?v=fc79fc79">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/meihua.css?v=d2b5d03f">
 
 </head>
 <body>
@@ -76,7 +76,7 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
 <script defer src="assets/jingwen.js?v=ca162203"></script>
@@ -84,7 +84,7 @@
 <script defer src="assets/jingwen-ref.js?v=f5ead9aa"></script>
 <script defer src="assets/jianfan.js?v=0974acc9"></script>
 <script defer src="assets/kangxi.js?v=be55a21c"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 let __mh=null;
 const XT_BITS={1:[1,1,1],2:[1,1,0],3:[1,0,1],4:[1,0,0],5:[0,1,1],6:[0,1,0],7:[0,0,1],8:[0,0,0]};
@@ -628,10 +628,7 @@ window.addEventListener('load', function () {
     document.getElementById('mhSchool').addEventListener('change', qigua);
     document.addEventListener('keydown',function(e){ if(e.key==='Escape'||e.key==='Esc') closeMhHist(); });
     mhUseNow();
-    mountAI(function(){ return __mh||''; }, '梅花易数');
-    if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
-    mhApplyFold();
-    shareWait({ page:'meihua', title:'梅花易数',
+    mountAI(function(){ return __mh||''; }, '梅花易数', { share:{ page:'meihua', title:'梅花易数',
       collect:function(){
         const d={};
         ['mhCat','mhSex','mhSchool','mhMethod','mhNum1','mhNum2','mhNum3','mhChar','mhName','mhYingVal','mhQ','mDate','mTime','mhProv','mhCity','mhDist','mhLng','mhZi'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
@@ -647,7 +644,9 @@ window.addEventListener('load', function () {
         try{ mhFillCity(); mhFillDist(); }catch(e){}
       },
       recast:function(){ try{ qigua(); }catch(e){} }
-    });
+    } });
+    if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
+    mhApplyFold();;
   }, 0);
 });
 </script>

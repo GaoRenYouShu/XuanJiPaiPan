@@ -667,7 +667,7 @@ function tsAiContext(){
   return s;
 }
 
-/* ===== 13. 共享状态（shareWait） ===== */
+/* ===== 13. 共享状态（mountAI 第三参 share） ===== */
 function tsCollect(){
   return { date:$('tsDate').value, hour:$('tsHour') ? $('tsHour').value : '', suiDate:$('tsSuiDate').value, yearDate:$('tsYearDate').value, fortuneDate:$('tsFortuneDate').value };
 }
@@ -747,14 +747,12 @@ function init(){
   $('tsFortuneDate').value = todayStr();
   $('tsFortuneBtn').addEventListener('click', renderFortune);
   renderFortune();
-  if (window.mountAI) window.mountAI(tsAiContext, '太岁生肖');
-  applyTsModState(); /* 恢复折叠状态（渲染完成后） */
-  tsModNavReady = true; /* 打标后才允许写持久化 */
-  window.toggleMod = toggleMod;
-  if (window.shareWait) window.shareWait({
-    page:'taisui', title:'太岁生肖',
-    collect:tsCollect, restore:tsRestore,
-    recast:function(){ renderCheck(); renderYearView(); renderFortune(); }
+  if (window.mountAI) window.mountAI(tsAiContext, '太岁生肖', {
+    share: {
+      page:'taisui', title:'太岁生肖',
+      collect:tsCollect, restore:tsRestore,
+      recast:function(){ renderCheck(); renderYearView(); renderFortune(); }
+    }
   });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

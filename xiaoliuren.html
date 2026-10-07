@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/xiaoliuren.css?v=c3b7abee">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/xiaoliuren.css?v=b178d40f">
 
 </head>
 <body>
@@ -62,12 +62,12 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/jianbi.js?v=24090ae5"></script>
 <script defer src="assets/jianfan.js?v=0974acc9"></script>
 <script defer src="assets/kangxi.js?v=be55a21c"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 const ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const SHI_NAME=['子(23-01)','丑(01-03)','寅(03-05)','卯(05-07)','辰(07-09)','巳(09-11)','午(11-13)','未(13-15)','申(15-17)','酉(17-19)','戌(19-21)','亥(21-23)'];
@@ -383,8 +383,7 @@ window.addEventListener('load', function () {
       const aiFour=(LAST.gFour!==null&&LAST.gFour!==undefined)?('\n占事盘：'+GONG[LAST.gFour].n+'（'+GONG[LAST.gFour].luck+'）'):'';
       const aiMath='\n起课数理（算法）：月'+LAST.lm+'、日'+LAST.ld+'、时'+LAST.shi+'（序号 1 大安 … 6 空亡循环）。月宫='+GONG[LAST.gMonth].n+'，日宫='+GONG[LAST.gDay].n+'，时宫='+fg.n+(LAST.gFour!==null&&LAST.gFour!==undefined?('，占事盘='+GONG[LAST.gFour].n):'')+'。';
       return `小六壬起课（${sch?sch.name:''}）\n农历：${LAST.lunarStr}（月${LAST.lm}日${LAST.ld}时${LAST.shi}）\n月宫：${GONG[LAST.gMonth].n}\n日宫：${GONG[LAST.gDay].n}\n时宫（结果）：${fg.n}（${fg.luck}）${aiFour}\n六神：${fg.sx}　五行：${fg.wx}　方位：${fg.fx}　主数：${GONG_NUM[fg.n]}　颜色：${GONG_COLOR[fg.n]}\n断语：${fg.duan}\n白话提要：${fg.brief}${aiMath}`;
-    }, '小六壬');
-    shareWait({ page:"xiaoliuren", title:"小六壬在线掐算",
+    }, '小六壬', { share:{ page:"xiaoliuren", title:"小六壬在线掐算",
       collect:function(){
         const d={m:document.getElementById('qiMode').value};
         ['dInput','shichen','qNum1','qNum2','qNum3','qChar','school'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
@@ -402,7 +401,7 @@ window.addEventListener('load', function () {
       },
       /* 刷新重出：全站顶层机制回填输入后按此钩子起重课 */
       recast:function(){ try{ query(); }catch(e){} }
-    });
+    } });
   }, 0);
 });
 </script>

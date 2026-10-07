@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/tarot.css?v=3a5a8dfc">
 
 </head>
@@ -57,8 +57,8 @@
 <footer id="footer"></footer>
 <div id="trMask" onclick="if(event.target===this)trClose()"><div class="tr-modal" id="trModalBox"></div></div>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/tarot-data.js?v=3fc8325d"></script>
 <script>
 /* 牌阵位次与位义：role 供位×牌合断（state 状态/past 过去/future 走向/block 阻碍/advice 建议/
@@ -384,8 +384,7 @@ window.addEventListener('load', function () {
      const elPat=[...dom,...lack];
      s+=`\n综合：正位 ${upN} 张、逆位 ${revN} 张，${tone}${dg.length?(' 元素互动：'+dg.join('；')):''}${elPat.length?(' 元素格局：'+elPat.join('；')):''}${tri.length?(' 三牌连判：'+tri.join('；')):''}${echo.length?(' 跨位呼应：'+echo.join('；')):''}`;
      return s;
-    }, '塔罗牌');
-    shareWait({ page:"tarot", title:"在线塔罗牌占卜",
+    }, '塔罗牌', { share:{ page:"tarot", title:"在线塔罗牌占卜",
      collect:function(){
        if(!LAST) return {};
        return {sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))};
@@ -401,7 +400,7 @@ window.addEventListener('load', function () {
        if(!picks.length) return;
        renderSpread(picks,d.sp);
      }
-    });
+    } });
   }, 0);
 });
 </script>

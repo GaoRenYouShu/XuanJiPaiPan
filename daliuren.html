@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/daliuren.css?v=5ab62bff">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/daliuren.css?v=35397a89">
 
 </head>
 <body>
@@ -66,8 +66,8 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 const ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const GAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
@@ -805,8 +805,7 @@ window.addEventListener('load', function () {
       const sha=LAST.o&&LAST.o.sha?`\n神煞：驿马${LAST.o.sha.yima||'-'}，天马${LAST.o.sha.tianma||'-'}，天喜${LAST.o.sha.tianxi||'-'}，天医${LAST.o.sha.tianyi||'-'}，劫煞${LAST.o.sha.jiesha||'-'}，灾煞${LAST.o.sha.zaisha||'-'}，亡神${LAST.o.sha.wangshen||'-'}，破碎${LAST.o.sha.posui||'-'}`:'';
       const benLine = (LAST.o&&LAST.o.benMing&&LAST.o.xingNian)?`\n本命：${LAST.o.benMing.gan}${LAST.o.benMing.zhi}、${LAST.o.sex}、虚岁${LAST.o.xingNian.age}、行年${LAST.o.xingNian.zhi}`:'';
       return `大六壬起课（流派：${sk}）\n日干支：${LAST.dgz}　占时：${LAST.shiZhi}　月将：${LAST.jiang}（${JIANG_NAME[ZHI.indexOf(LAST.jiang)]||''}，${o.jiangKey||''}）\n起贵口诀：${o.guiMode||''}　昼夜分界：${o.dayKey||''}（贵人${LAST.guiZhi}，${LAST.day?'昼占阳贵':'夜占阴贵'}；贵人临地盘${ZHI[o.guiDiIdx]||''}位，天将${LAST.o&&LAST.o.shun?'顺':'逆'}布）\n发用法则：${o.faYong==='shehai'?'涉害优先':'贼克比用'}\n${td}\n四课：\n${keStr}\n${chuan}${benLine}${sha}\n\n【综合判断】\n${read}`;
-    }, '大六壬');
-    shareWait({ page:"daliuren", title:"大六壬在线排盘", recast:function(){ try{ query(); }catch(e){} } });
+    }, '大六壬', { share:{ page:"daliuren", title:"大六壬在线排盘", recast:function(){ try{ query(); }catch(e){} } } });
   }, 0);
 });
 </script>

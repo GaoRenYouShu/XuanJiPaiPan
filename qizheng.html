@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/qizheng.css?v=969d1e35">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/qizheng.css?v=1531a28d">
 
 </head>
 <body>
@@ -83,8 +83,8 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
 <script defer src="assets/astronomy-engine.min.js?v=f41139a8"></script>
 <script defer src="assets/xz-ephem.js?v=819cece7"></script>
@@ -497,10 +497,10 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
   /* 五大模块：总览、躔次、宫煞、格限、综合（择时、双人对照并入综合） */
   const relBody = chartB ? qzRelBody(c, chartB) : '';
   const lnBody = `<div class="qz-tr-bar">
-          <div class="field qz-inline"><label>流年年份</label><input type="number" id="qzLnYear" value="${new Date().getFullYear()}" min="1900" max="2100" class="qz-year"></div>
+          <div class="field qz-inline"><label>流年年份</label><input type="number" id="qzLnYear" value="${xjNowDate().getFullYear()}" min="1900" max="2100" class="qz-year"></div>
           <button class="btn" onclick="qzLnGo()">查看流年</button>
         </div>
-        <div id="qzLnOut">${qzLnHtml(c, new Date().getFullYear())}</div>`;
+        <div id="qzLnOut">${qzLnHtml(c, xjNowDate().getFullYear())}</div>`;
   const zeBody = `<div class="qz-tr-bar">
           <div class="field f-date"><label>开始日期</label><input type="text" class="dt-input" id="qzZeD1" value="${qzTodayYmd()}"></div>
           <div class="field f-date"><label>结束日期</label><input type="text" class="dt-input" id="qzZeD2" value="${qzTodayYmdPlus(29)}"></div>
@@ -531,7 +531,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
 }
 /* ===== 流年盘、择时、双人对照 ===== */
 function qzTodayYmd(){
-  const n = new Date();
+  const n = xjNowDate();
   return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
 }
 function qzTodayYmdPlus(days){
@@ -630,7 +630,7 @@ function qzBuildAiText(c, chartB){
   const curY = c.xianRows.find(r => r.cur);
   if(curY) L.push('今年行度：' + curY.xiu.txt + '，度主' + curY.xiu.duzhu + (curY.hits.length ? '，遇' + curY.hits.join('、') : ''));
   /* 流年盘（当前流年） */
-  const ln = qz_liunian(c, new Date().getFullYear());
+  const ln = qz_liunian(c, xjNowDate().getFullYear());
   if(ln){
     L.push('流年盘' + ln.year + '年（' + ln.yGZ + '，立春 ' + ln.liChun + '）：流曜过本命 ' +
       ln.items.map(it => it.nm + '入' + it.house).join('、') +
@@ -662,7 +662,9 @@ window.addEventListener('load', function () {
     qzBindPlace('qz');
     qzBindPlace('qzB');
     qzPai();
-    mountAI(function(){ return __qz || ''; }, '七政四余');
+    mountAI(function(){ return __qz || ''; }, '七政四余', {
+      share:{ page:"qizheng", title:"七政四余在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ qzPai(); }); } }
+    });
   }, 0);
 });
 </script>

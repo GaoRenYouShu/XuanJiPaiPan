@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/ziwei.css?v=48a32a90">
 </head>
 <body>
@@ -83,9 +83,9 @@
 <footer id="footer"></footer>
 <script defer src="assets/iztro.min.js?v=4b8eca32"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>let __zw=null;
 /* 十四主星五行，全页单一真源 */
 const WX_STAR={'紫微':'土','天机':'木','太阳':'火','武曲':'金','天同':'水','廉贞':'火','天府':'土','太阴':'水','贪狼':'木','巨门':'水','天相':'水','天梁':'土','七杀':'金','破军':'水'};
@@ -176,7 +176,7 @@ function ziweiRead(astro, school, trans, sex){
     const st=(ju&&cnNum[ju])?cnNum[ju]:2;
     const seq=['命宫','兄弟','夫妻','子女','财帛','疾厄','迁移','仆役','官禄','田宅','福德','父母'];
     const bn={}; astro.palaces.forEach(p=>bn[p.name]=p); let ord=seq.map(n=>bn[n]).filter(Boolean); if(fwd){ ord=ord.slice().reverse(); const mi=ord.findIndex(x=>x.name==='命宫'); if(mi>0) ord=ord.slice(mi).concat(ord.slice(0,mi)); }
-    const yr=new Date().getFullYear(); const idx=Math.floor((yr-st)/10);
+    const yr=xjNowDate().getFullYear(); const idx=Math.floor((yr-st)/10);
     const cur=ord[idx];
     if(cur){ const m=meanOf(cur.name); curMean=`当前大限落${cur.name}宫位，主${m||cur.name}`; }
   }catch(e){ curMean=''; }
@@ -347,7 +347,7 @@ function zwBaziLink(astro, school, trans, sex){
     const yg=(astro.chineseDate||'').trim().slice(0,1); const yang='甲丙戊庚壬'.indexOf(yg)>=0; const fwd=(yang&&sex==='男')||(!yang&&sex==='女');
     const cnNum={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6}; const juN=(String(astro.fiveElementsClass||'').match(/[一二三四五六]/)||[])[0]; const st=(juN&&cnNum[juN])?cnNum[juN]:2;
     const seq=['命宫','兄弟','夫妻','子女','财帛','疾厄','迁移','仆役','官禄','田宅','福德','父母']; const bn={}; astro.palaces.forEach(p2=>bn[p2.name]=p2); let ord=seq.map(n=>bn[n]).filter(Boolean); if(fwd){ ord=ord.slice().reverse(); const mi=ord.findIndex(x=>x.name==='命宫'); if(mi>0) ord=ord.slice(mi).concat(ord.slice(0,mi)); }
-    const yr=new Date().getFullYear(); const idx=Math.floor((yr-st)/10); const cur=ord[idx];
+    const yr=xjNowDate().getFullYear(); const idx=Math.floor((yr-st)/10); const cur=ord[idx];
     if(cur){ const wx=palWx(cur), xj=wx?xiJiOf(wx):''; const rel=wx&&dayWx?relOf(dayWx,wx):''; curLimitTxt=`当前${st}岁起大限，今${yr}年落${cur.name}宫（${palMj(cur)}）${wx?('（'+wx+'）'+rel?('　'+rel):''):''}${wx?('　'+xjCls(xj)):''}。`; }
   }catch(e){ curLimitTxt=''; }
   /* 三合派：三方四正（命财官迁）喜忌 */
@@ -598,7 +598,7 @@ function zwDateCalc(astro, dateStr, school){
 }
 /* 大运/流年/流月/流日 日期选择器：选日期 → 输出该日四层运势（默认当前日期），按派别区分 */
 function yunFilter(astro, sex, dayunHtml, school){
-  const today=(function(){ try{ return new Date().toISOString().slice(0,10); }catch(e){ return ''; } })();
+  const today=(function(){ const d=xjNowDate(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); })();
   const dateVal=today;
   const init=zwDateCalc(astro, dateVal, school);
   return `<h3 class="rel-title">运程推演</h3>
@@ -1621,13 +1621,12 @@ window.addEventListener('load', function () {
       if(trEl) trEl.checked=(p.get('bTrue')==='1');
       try{ paipan(); }catch(e){}
     })();
-    mountAI(function(){ return __zw||''; }, '紫微斗数');
+    mountAI(function(){ return __zw||''; }, '紫微斗数', { share:{ page:"ziwei", title:"紫微斗数在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ paipan(); }); } } });
     (function(){
       const apply=zwRelToggle;
       if(document.readyState==='complete') setTimeout(apply,0);
       else window.addEventListener('load',function(){ setTimeout(apply,0); });
-    })();
-    shareWait({ page:"ziwei", title:"紫微斗数在线排盘", recast:function(){ try{ paipan(); }catch(e){} } });
+    })();;
   }, 0);
 });
 </script>

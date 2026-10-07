@@ -112,6 +112,12 @@
   position:relative;overflow:hidden;margin:var(--sp-4) 0;
 }
 
+/* 说明下的首块让出顶线与上内距：本页两组模式块各有一个可见首块，分界归卷首说明收束件 */
+.page-zeri .lead + .zr-mod,
+.page-zeri .lead ~ .zr-mod[hidden] + .zr-mod:not([hidden]),
+.page-zeri .lead + .zr-mod>summary,
+.page-zeri .lead ~ .zr-mod[hidden] + .zr-mod:not([hidden])>summary{border-top:0;padding-top:0}
+
 .page-zeri .zr-mod>summary{padding:var(--sp-3) 0;color:var(--zr2);font-family:var(--font-serif);
   font-weight:400;font-size:var(--tier3);letter-spacing:.2em}
 

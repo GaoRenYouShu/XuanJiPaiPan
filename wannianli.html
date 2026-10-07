@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/wannianli.css?v=6cd7e107">
 </head>
 <body>
@@ -60,13 +60,13 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/shiling.js?v=47791a00"></script>
 <script defer src="assets/tongshu-terms.js?v=f266b8b2"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/holiday.js?v=5a9525d6"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 let cur = new Date();
 let lastSel = '';
@@ -76,7 +76,7 @@ function render(){
   const ct=document.getElementById('calTitle'); if(ct) ct.textContent = y+'年'+(m+1)+'月';
   const first = safeDate(y,m+1,1);
   const daysInMonth = safeDate(y,m+2,0).getDate();
-  const todayStr = new Date().toDateString();
+  const todayStr = xjNowDate().toDateString();
   let cells = ['一','二','三','四','五','六','日'].map(w=>`<div class="wd">${w}</div>`);
   const lead = (first.getDay()+6)%7;              /* 周一起始：周一=0 … 周日=6 */
   for(let i=0;i<lead;i++){
@@ -433,7 +433,7 @@ function showDay(str, el){
   const ySx=lunar.getYearShengXiao(), mSx=lunar.getMonthShengXiao(), dSx=lunar.getDayShengXiao();
   const ngwRow=(lab,ny,gz,wx,sx)=>`<span class="ngw">${lab} ${nayinColorSpan(ny)} ${gzColorSpan(gz)} ${wxColorSpan(wx)} ${sx}</span>`;
   /* 时柱取当前时辰：库 getTimes() 以 00:00 起两小时一辰、末项 23:00 为夜子时，按当前钟点定位该项 */
-  const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
+  const hTimes=lunar.getTimes(), hrNow=xjNowDate().getHours();
   const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
   /* 时令项：无内容的小项不输出（不留“无”占位），其后的项自动上移；
      伏日、数九、梅日点击弹出规则说明。物候行输出“节气 候序 候名”，候名可点、弹出释义；
@@ -505,7 +505,7 @@ window.addEventListener('load', function () {
       const pj=lunar.getPrevJieQi(), nj=lunar.getNextJieQi();
       const jqText=(lunar.getJieQi()?('当前：'+lunar.getJieQi()+'  '):'')+'上：'+pj.getName()+' '+pj.getSolar().toYmd()+'  下：'+nj.getName()+' '+nj.getSolar().toYmd();
       const ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi(), dgz=lunar.getDayInGanZhi();
-      const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
+      const hTimes=lunar.getTimes(), hrNow=xjNowDate().getHours();
       const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
       const ngw=(lab,ny,gz,wx,sx)=>`${lab} ${ny} ${gz} ${wx} ${sx}`;
       const ngwText=[
@@ -515,8 +515,7 @@ window.addEventListener('load', function () {
         ngw('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())
       ].join('\n');
       return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n农历：${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}\n生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座\n月建：${lunar.getMonthInGanZhi()[1]}月\n月相：${lunar.getYueXiang()}\n纳音干支五行生肖：\n${ngwText}\n节气：${jqText}\n时令：${shilingNote(y,m,d).join('、')||'无'}；物候：${shilingWuHou(lunar)||'无'}；经络当令：${shilingDangLing().text}\n节日：${festText}\n二十八宿：${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）\n宜：${lunar.getDayYi().join('、')||'诸事不宜'}\n忌：${lunar.getDayJi().join('、')||'无'}`;
-    }, '万年历');
-    shareWait({ page:"wannianli", title:"万年历在线查询", recast:function(){ try{ if(!lastSel) goToday(); }catch(e){} } });
+    }, '万年历', { share:{ page:"wannianli", title:"万年历在线查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ if(!lastSel) goToday(); }); } } });
   }, 0);
 });
 </script>

@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/zangli.css?v=739bed68">
 </head>
 <body>
@@ -72,8 +72,8 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/zangli-core.js?v=1e05ee9d"></script>
 <script defer src="assets/zangli-data.js?v=7c3880e6"></script>
@@ -624,8 +624,7 @@ window.addEventListener('load', function () {
         + '本月重日：' + (st.leap.length ? st.leap.join('、') : '无') + '\n'
         + '本月缺日：' + (st.skip.length ? st.skip.join('、') : '无') + '\n'
         + '当月殊胜日一览：\n' + (mf.length ? mf.map(function(g){ return g.items.join('\n'); }).join('\n') : '本月无');
-    }, '藏历');
-    shareWait({ page:"zangli", title:"藏历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } });
+    }, '藏历', { share:{ page:"zangli", title:"藏历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } } });
     (function(){
       const box=document.getElementById('zlDocFold'); if(!box) return;
       function save(){ const v=JSON.stringify({doc:box.open});

@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/yunqi.css?v=9856c289">
 
 </head>
@@ -89,8 +89,8 @@
 </main>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/yunqi-engine.js?v=09a7ffcc"></script>
@@ -633,12 +633,11 @@ window.addEventListener('load', function () {
       var opts = '';
       for (var y = YEAR_MAX; y >= YEAR_MIN; y--){ opts += '<option value="' + y + '">' + y + '</option>'; }
       sel.innerHTML = opts;
-      sel.value = String(new Date().getFullYear());
+      sel.value = String(xjNowDate().getFullYear());
       $('yqBtn').addEventListener('click', renderAll);
       renderAll();
-      if (window.mountAI) window.mountAI(yqAiContext, '五运六气');
-      /* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */
-      shareWait({ page:"yunqi", title:"五运六气在线排盘", recast:function(){ try{ renderAll(); }catch(e){} } });
+      if (window.mountAI) window.mountAI(yqAiContext, '五运六气', { share:{ page:"yunqi", title:"五运六气在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ renderAll(); }); } } });
+      /* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */;
       applyYqModState();
       yqModNavReady = true;
       window.toggleMod = toggleMod;

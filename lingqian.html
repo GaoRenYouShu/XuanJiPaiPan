@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/lingqian.css?v=1996b363">
 </head>
 <body>
@@ -47,8 +47,8 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/lingqian-data.js?v=0fe37d31"></script>
 <script>
 const LV_CLS={'上上':'lv-ji','上上签':'lv-ji','上上大吉签':'lv-ji','大吉':'lv-ji','上吉':'lv-ji','上吉签':'lv-ji','上平签':'lv-ji','上签':'lv-ji','上':'lv-ji','中吉':'lv-ji','中上签':'lv-ji','中平':'lv-ping','中平签':'lv-ping','中签':'lv-ping','中':'lv-ping','中下':'lv-xiong','下签':'lv-xiong','下下':'lv-xiong','下吉':'lv-xiong','下':'lv-xiong'};
@@ -126,8 +126,7 @@ window.addEventListener('load', function () {
       if(LAST.fen) s+='逐项：'+Object.keys(LAST.fen).map(k=>`${k}-${LAST.fen[k]}`).join('；');
       if(q) s+=`\n所求：${q}`;
       return s;
-    }, '灵签');
-    shareWait({ page:"lingqian", title:"在线灵签求签",
+    }, '灵签', { share:{ page:"lingqian", title:"在线灵签求签",
       collect:function(){
         if(!LAST) return {};
         return {set:LAST_SET, no:LAST.no, q:(document.getElementById('question')||{}).value||''};
@@ -140,7 +139,7 @@ window.addEventListener('load', function () {
         const sign=set.signs.find(x=>x.no===d.no);
         if(sign) show(sign, d.set);
       }
-    });
+    } });
   }, 0);
 });
 </script>

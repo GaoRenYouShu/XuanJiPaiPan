@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/lenormand.css?v=6c8370f9">
 
 </head>
@@ -66,8 +66,8 @@
 <div id="lnMask" onclick="if(event.target===this)lnClose()"><div class="ln-modal" id="lnModalBox"></div></div>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/leno-data.js?v=09c8f86d"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 const LENO_TONE=c=>c.tone===1?'吉牌':c.tone===-1?'需留意之牌':'中性牌';
 /* 大全景时区（按宫位所在列：1-2 过去、3-4 当下、5-6 未来）与四角、中央 */
@@ -334,8 +334,7 @@ window.addEventListener('load', function () {
       s+=`\n组合成句：${pairs.join('；')}\n关键位：${keyCard.n}（${LENO_TONE(keyCard)}）。请按雷诺曼直白语法组合解读，给出整体判断。`;
      }
      return s;
-    }, '雷诺曼卡');
-    shareWait({ page:"lenormand", title:"雷诺曼卡在线占卜",
+    }, '雷诺曼卡', { share:{ page:"lenormand", title:"雷诺曼卡在线占卜",
      collect:function(){
        if(!LAST) return {};
        return {sp:LAST.sp,q:LAST.q||'',sig:LAST.sig||'f',picks:LAST.picks.map(p=>p.card.no)};
@@ -354,7 +353,7 @@ window.addEventListener('load', function () {
        LAST={q:d.q||'',sp:d.sp,key:document.getElementById('spread').selectedOptions[0].text,sig:(sigSel&&sigSel.value)||'f',picks:null};
        renderSpread(picks,d.sp);
      }
-    });
+    } });
   }, 0);
 });
 </script>

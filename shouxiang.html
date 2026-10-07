@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/shouxiang.css?v=29536272">
 </head>
 <body>
@@ -232,8 +232,8 @@
 </main>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/xiangshu-data.js?v=fb630407"></script>
 <script>
 
@@ -503,11 +503,10 @@ window.addEventListener('load', function () {
     renderChrome('shouxiang.html');
     applySxModState();
     sxModNavReady = true;
-    if (window.mountAI) window.mountAI(sxAiContext, '手相');
-    /* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重出已算的自查 */
-    shareWait({ page:"shouxiang", title:"手相在线自查", recast:function(){
+    if (window.mountAI) window.mountAI(sxAiContext, '手相', { share:{ page:"shouxiang", title:"手相在线自查", recast:function(){
       try{ if ($('sxShouOut').innerHTML) sxShouGo(); }catch(e){}
-    }});
+    }} });
+    /* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重出已算的自查 */;
     })();
   }, 0);
 });

@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/qimen.css?v=71c5315f">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/qimen.css?v=2a91701d">
 
 </head>
 <body>
@@ -141,8 +141,8 @@
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/qimen-engine.js?v=947b2dfd"></script>
 <script defer src="assets/qimen-extra.js?v=234154b3"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 let __qm=null;
 /* 九宫洛书显示顺序：4巽 9离 2坤 / 3震 5中 7兑 / 8艮 1坎 6乾 */
@@ -616,8 +616,7 @@ window.addEventListener('load', function () {
     (function(){const n=new Date();
       document.getElementById('qDate').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
       document.getElementById('qTime').value=`${pad2(n.getHours())}:${pad2(n.getMinutes())}`;paiju();})();
-    mountAI(function(){ return __qm||''; }, '奇门遁甲');
-    shareWait({ page:"qimen", title:"奇门遁甲在线排盘", recast:function(){ try{ paiju(); }catch(e){} } });
+    mountAI(function(){ return __qm||''; }, '奇门遁甲', { share:{ page:"qimen", title:"奇门遁甲在线排盘", recast:function(){ try{ paiju(); }catch(e){} } } });
   }, 0);
 });
 </script>

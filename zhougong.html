@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/zhougong.css?v=9b506e10">
 </head>
 <body>
@@ -115,8 +115,8 @@
 </main>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=7588ea16"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/zhougong-data.js?v=7a1d1b74"></script>
 <script defer src="assets/zhougong-duanm.js?v=481b34c8"></script>
 <script defer src="assets/zhougong.js?v=b36bf216"></script>
@@ -424,8 +424,7 @@ window.addEventListener('load', function () {
     zgRenderStats();
     zgRenderNotes();
     zgDmRenderCats();
-    mountAI(zgAiContext, '周公解梦');
-    shareWait({
+    mountAI(zgAiContext, '周公解梦', { share:{
       page: 'zhougong',
       title: '周公解梦在线查询',
       collect: function(){
@@ -466,7 +465,7 @@ window.addEventListener('load', function () {
       },
       /* 刷新重出：全站顶层机制回填输入后按此钩子重排结果，无关键词则不动 */
       recast:function(){ if (document.getElementById('zgQ').value) zgRenderSearch(); }
-    });
+    } });
   }, 0);
 });
 </script>

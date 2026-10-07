@@ -207,6 +207,34 @@ function shaCat(n){ const base=(n||'').replace(/（[^）]+）$/,''); if(SHA_JI.i
 
 function pad2(n){return (n<10?'0':'')+n;}
 
+/* ===== 起测时刻锚点（分享还原按起测时刻重排，全站统一真源） =====
+   分享 collect 带走排盘有效时刻（xjAnchor），restore 置锚后重排，recast 完成即解除。
+   日常浏览 __xjAnchor 为 null，xjNowDate 取真实当下；结果依赖当下的排盘页一律经
+   xjNowDate 读当下，使还原出的盘面与起测时一致。 */
+window.__xjAnchor = null;
+function xjNowDate(){
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(window.__xjAnchor || ''));
+  if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]);
+  return new Date();
+}
+function xjNowStr(){
+  const d = xjNowDate();
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+function xjShareCollect(){
+  const d = shareDefaultCollect();
+  d.xjAnchor = window.__xjAnchor || xjNowStr();
+  return d;
+}
+function xjShareRestore(d){
+  window.__xjAnchor = (d && d.xjAnchor) ? d.xjAnchor : null;
+  shareDefaultRestore(d);
+}
+function xjShareRecast(recast){
+  try { recast(); } catch (e) {}
+  window.__xjAnchor = null;
+}
+
 /* ===== 共享自定义日期、时间选择器 =====
    Chrome DevTools 响应式模式下原生日期时间选择器无法弹出，此处自建弹层。
    同时把所有"空"的日期、时间输入默认值设为当天、当前时间。 */
@@ -295,14 +323,15 @@ function pad2(n){return (n<10?'0':'')+n;}
     const wd = ['一','二','三','四','五','六','日'];
     const moOpts = Array.from({length:12},(_,i)=>`<option value="${i+1}"${i+1===m?' selected':''}>${i+1}月</option>`).join('');
     body = document.getElementById('dtBody');
-    /* 头部：«» 年步进、‹› 月步进（跨年自动进位），中间为可直输年份与月份下拉 */
+    /* 头部：«» 年步进、‹› 月步进（跨年自动进位），中间为可直输年份与月份下拉；
+       步进钮提示走 data-tip 自绘（CSS 悬停气泡），不用原生 title（系统气泡圆角黑体、无法随页主题） */
     body.innerHTML = `<div class="dt-head">
-        <button data-act="y-" type="button" title="上一年">«</button>
-        <button data-act="m-" type="button" title="上个月">‹</button>
-        <input type="number" id="dtYear" class="dt-year" value="${y}" min="1" max="9999" title="输入年份(1~9999)" data-y="${y}">
-        <select id="dtMonth" class="dt-month">${moOpts}</select>
-        <button data-act="m+" type="button" title="下个月">›</button>
-        <button data-act="y+" type="button" title="下一年">»</button></div>
+        <button data-act="y-" type="button" data-tip="上一年">«</button>
+        <button data-act="m-" type="button" data-tip="上个月">‹</button>
+        <input type="number" id="dtYear" class="dt-year" value="${y}" min="1" max="9999" aria-label="输入年份，1至9999" data-y="${y}">
+        <select id="dtMonth" class="dt-month" aria-label="选择月份">${moOpts}</select>
+        <button data-act="m+" type="button" data-tip="下个月">›</button>
+        <button data-act="y+" type="button" data-tip="下一年">»</button></div>
       <div class="dt-week">${wd.map(w=>`<span>${w}</span>`).join('')}</div>
       <div class="dt-grid">${cells}</div>`;
     body.querySelector('.dt-head').addEventListener('click', e=>{

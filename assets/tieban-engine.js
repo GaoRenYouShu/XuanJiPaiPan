@@ -10,7 +10,7 @@
  *  4 六亲定刻：考刻数 = (父母态序×5 + 手足数×3 + 婚姻态序×7) mod 8，在出生时辰八刻内定位正刻。
  *  5 条文抽演：以皇极总数为纲按类取条；条文编号为全库统一序号（tiaowen 库装载时顺序赋号）。
  *  6 大运：lunar.js EightChar 体系 getEightChar().getYun(gender,1)，性别定顺逆，十年一步。
- *  7 时刻链路与八字排盘页同序：真实钟点 → adjustZiShi 解子时日界 → 真太阳时校正 → 校正后重判子时 → 定四柱。 */
+ *  7 时刻链路与八字排盘页同序：真实钟点 → 真太阳时校正（先于日界）→ adjustZiShi 在真太阳时刻上判定子时日界 → 定四柱。 */
 (function(){
 'use strict';
 
@@ -64,7 +64,6 @@ function _adjustZiShi(y,m,d,h,mi,mode){
   var s;
   if(h===23 && mode!=='early'){ s = Solar.fromYmd(y,m,d).nextDay(1); return {y:s.getYear(),m:s.getMonth(),d:s.getDay(),h:0,mi:mi,note:'晚子时：23时后归次日'}; }
   if(h===23){ return {y:y,m:m,d:d,h:23,mi:mi,note:'早子时：23时仍归当日'}; }
-  if(h===0){ s = Solar.fromYmd(y,m,d).nextDay(1); return {y:s.getYear(),m:s.getMonth(),d:s.getDay(),h:0,mi:mi,note:'00时后归次日'}; }
   return {y:y,m:m,d:d,h:h,mi:mi,note:''};
 }
 
@@ -85,7 +84,7 @@ function locateKe(fumuIdx, sibCount, marryIdx){
  * 入参：公历 y/m/d；时辰起值 zhiH（23,1..21）；刻序 ke（0..7）；性别 sex；
  *       useTrue 是否真太阳时；lng 经度；ziMode 子时算法（late 晚子默认 / early 早子）；
  *       feng 分金序 0..14（一刻十五分金，每分金一分钟，缺省 0）。
- * 链路与八字排盘页同序：真实钟点 → adjustZiShi 解子时日界 → 真太阳时校正 → 校正后重判子时 → 定四柱。 */
+ * 链路与八字排盘页同序：真实钟点 → 真太阳时校正（对出生时刻的物理修正，先于日界）→ adjustZiShi 在真太阳时刻上判定子时日界 → 定四柱。 */
 function compute(y, m, d, zhiH, ke, sex, useTrue, lng, ziMode, feng){
   ziMode = (ziMode === 'early') ? 'early' : 'late';
   feng = (feng == null || isNaN(feng) || feng < 0 || feng > 14) ? 0 : feng;
@@ -97,23 +96,21 @@ function compute(y, m, d, zhiH, ke, sex, useTrue, lng, ziMode, feng){
   var adjust = (typeof adjustZiShi === 'function') ? adjustZiShi : _adjustZiShi;
   var ziIdx = zhiIdxOf(zhiH);
 
-  /* 第一步：子时日界（先于真太阳时，与八字页一致） */
-  var pre = adjust(y, m, d, hh, mm, ziMode);
+  /* 第一步：真太阳时校正（对出生时刻的物理修正，先于子时日界） */
+  var usedTrue = false, adj = 0, adjE = 0, adjLng = 0;
+  var ty = y, tm = m, td = d, th = hh, tmi = mm;
+  if(useTrue && lng != null && typeof trueSolarTime === 'function' && isFinite(lng)){
+    var ts = trueSolarTime(y, m, d, hh, mm, lng);
+    usedTrue = true; adj = ts.totalAdj; adjE = ts.E; adjLng = ts.lngAdj;
+    ty = ts.y; tm = ts.m; td = ts.d; th = ts.h; tmi = ts.mi;
+  }
+  /* 第二步：子时日界在真太阳时刻上判定（与八字页一致） */
+  var pre = adjust(ty, tm, td, th, tmi, ziMode);
   var py = pre.y, pm = pre.m, pd = pre.d, ph = pre.h, pmi = pre.mi;
   var ziNote = pre.note || '';
-  /* 第二步：真太阳时校正 */
-  var usedTrue = false, adj = 0, adjE = 0, adjLng = 0;
-  if(useTrue && lng != null && typeof trueSolarTime === 'function' && isFinite(lng)){
-    var ts = trueSolarTime(py, pm, pd, ph, pmi, lng);
-    usedTrue = true; adj = ts.totalAdj; adjE = ts.E; adjLng = ts.lngAdj;
-    /* 第三步：校正后脱离/进入子时窗口则重判日界（与 bazi-app.js 同口径） */
-    if(inZi(pre.h) !== inZi(ts.h)){
-      var re = adjust(ts.y, ts.m, ts.d, ts.h, ts.mi, ziMode);
-      py = re.y; pm = re.m; pd = re.d; ph = re.h; pmi = re.mi;
-      ziNote = (ziNote ? ziNote + '；' : '') + re.note + '（校正后重判）';
-    }else{
-      py = ts.y; pm = ts.m; pd = ts.d; ph = ts.h; pmi = ts.mi;
-    }
+  /* 校正把时刻送入或送出子时窗口则时辰随之而变，如实提示（与八字页同口径） */
+  if(usedTrue && inZi(hh) !== inZi(ph)){
+    ziNote = (ziNote ? ziNote + '；' : '') + '真太阳时校正后时刻' + (inZi(ph) ? '落入' : '脱离') + '子时窗口，时辰按校正后取';
   }
   /* 早子时 23 点：时柱按当日日干五鼠遁子 */
   var earlyOverride = (ziMode === 'early' && ph === 23);

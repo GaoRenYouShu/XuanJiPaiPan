@@ -248,17 +248,32 @@ function daysOfMonth(yy, mo){
   return [31,28,31,30,31,30,31,31,30,31,30,31][mo-1];
 }
 
-/* ---------- 真太阳时校正（本地天文算法，参考寿星天文历 EoT）----------
+/* ---------- 真太阳时校正（本地天文算法）----------
    真太阳时 = 平太阳时(北京时间) + 均时差(EoT) + (当地经度 - 120°)×4 分
-   均时差采用 NOAA 标准公式（分钟）；不使用原生 new Date，
-   避免公元 1-99 年被浏览器映射为 1900-1999 年。 */
-function trueSolarTime(y,m,d,h,mi,lng){
-  // 年内第几天（1-based），proleptic Gregorian 规则
-  let doy = d;
-  for(let mo=1; mo<m; mo++) doy += daysOfMonth(y, mo);
-  const g = 2*Math.PI/365.24 * (doy - 1);
-  const E = 229.18*(0.000075 + 0.001868*Math.cos(g) - 0.032077*Math.sin(g)
-        - 0.014615*Math.cos(2*g) - 0.040849*Math.sin(2*g));
+   均时差取 Meeus 天文算法式 28.3（黄赤交角、轨道偏心率与太阳平黄经入算，精度约数秒），
+   儒略日按 proleptic Gregorian 直算；不使用原生 new Date，
+   避免公元 1 至 99 年被浏览器映射为 1900 至 1999 年。 */
+function _jdFromYmd(y,m,d){
+  const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3;
+  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;
+}
+function eqOfTimeMin(y,m,d){
+  const RAD=Math.PI/180;
+  const T=(_jdFromYmd(y,m,d)-2451545)/36525;
+  const L0=(280.46646+36000.76983*T+0.0003032*T*T)%360;
+  const M=(357.52911+35999.05029*T-0.0001537*T*T)%360;
+  const e=0.016708634-0.000042037*T-0.0000001267*T*T;
+  const eps=(23.43929111-0.0130042*T-0.00000016*T*T+0.00000044*T*T*T)*RAD;
+  const y2=Math.tan(eps/2)*Math.tan(eps/2);
+  const E=y2*Math.sin(2*L0*RAD)-2*e*Math.sin(M*RAD)
+        +4*e*y2*Math.sin(M*RAD)*Math.cos(2*L0*RAD)
+        -0.5*y2*y2*Math.sin(4*L0*RAD)-1.25*e*e*Math.sin(2*M*RAD);
+  return E/RAD*4;
+}
+function trueSolarTime(y,m,d,h,mi,lng,mode){
+  // 口径 mode：'true' 真太阳时（均时差＋经度差，默认）；'mean' 平太阳时（仅经度差，均时差取 0）
+  mode = mode || 'true';
+  const E = mode==='mean' ? 0 : eqOfTimeMin(y,m,d);
   const lngAdj = (lng - 120) * 4;
   const totalAdj = E + lngAdj;
   // 用分钟偏移校正，避免 Date；最大偏移约正负 120 分钟，跨日由 Solar.nextDay 处理
@@ -277,8 +292,62 @@ function trueSolarTime(y,m,d,h,mi,lng){
     y: solar.getYear(), m: solar.getMonth(), d: solar.getDay(),
     h: corrH, mi: corrMi,
     E: Math.round(E*100)/100, lngAdj: Math.round(lngAdj*100)/100,
-    totalAdj: Math.round(totalAdj*100)/100
+    totalAdj: Math.round(totalAdj*100)/100,
+    mode: mode
   };
+}
+
+/* ---------- 中国夏令时段钟面折算（1986 年至 1991 年全国实行夏令时）----------
+   夏令时段内钟面时间较标准时快一小时，排盘前须折回，否则时柱乃至日柱错一位。
+   起讫为各年官方公布的夏令起讫日（钟面 02:00 起拨快、02:00 讫拨回）：
+   1986 年 5 月 4 日至 9 月 14 日；1987 年 4 月 12 日至 9 月 13 日；1988 年 4 月 10 日至 9 月 11 日；
+   1989 年 4 月 16 日至 9 月 17 日；1990 年 4 月 15 日至 9 月 16 日；1991 年 4 月 14 日至 9 月 15 日。
+   讫日 01:00 至 02:00 的钟面当年两见（夏令读数与标准读数各一次），自动折算取夏令读数并标歧义，供人工改选。 */
+const CN_DST_SPANS = [
+  {y:1986, sm:5,  sd:4,  em:9,  ed:14},
+  {y:1987, sm:4,  sd:12, em:9,  ed:13},
+  {y:1988, sm:4,  sd:10, em:9,  ed:11},
+  {y:1989, sm:4,  sd:16, em:9,  ed:17},
+  {y:1990, sm:4,  sd:15, em:9,  ed:16},
+  {y:1991, sm:4,  sd:14, em:9,  ed:15}
+];
+function _dstDoy(y, m, d){
+  let n = d;
+  for(let mo=1; mo<m; mo++) n += daysOfMonth(y, mo);
+  return n;
+}
+/* 判钟面是否落在夏令时段内：返回 dst 是否在夏令、ambiguous 是否讫日钟面两见 */
+function cnDstState(y, m, d, h, mi){
+  const span = CN_DST_SPANS.find(s=>s.y===y);
+  if(!span) return {dst:false, ambiguous:false};
+  const t = _dstDoy(y,m,d) + (h*60+mi)/1440;
+  const t0 = _dstDoy(y,span.sm,span.sd) + 2/24;
+  const t1 = _dstDoy(y,span.em,span.ed) + 2/24;
+  if(t < t0 || t >= t1) return {dst:false, ambiguous:false};
+  return {dst:true, ambiguous: t >= t1 - 1/24};
+}
+/* 钟面加减分钟并滚动日界（借 Solar.nextDay 处理跨日，避开 Date 的两位数年陷阱） */
+function shiftClockDay(y, m, d, h, mi, deltaMin){
+  let total = h*60 + mi + deltaMin;
+  let dayOffset = 0;
+  while(total >= 1440){ total -= 1440; dayOffset++; }
+  while(total < 0){ total += 1440; dayOffset--; }
+  let solar = Solar.fromYmd(y, m, d);
+  if(dayOffset !== 0) solar = solar.nextDay(dayOffset);
+  return { y: solar.getYear(), m: solar.getMonth(), d: solar.getDay(), h: Math.floor(total/60), mi: total - Math.floor(total/60)*60 };
+}
+/* 夏令时折算主入口：mode 'auto' 命中夏令时段即折回、'on' 强制折回、'off' 不折。
+   返回折算后时刻与提示句（applied 为是否折算、ambiguous 为讫日歧义）。 */
+function applyDstCorrection(y, m, d, h, mi, mode){
+  mode = mode || 'auto';
+  if(mode === 'off') return {y, m, d, h, mi, applied:false, ambiguous:false, note:''};
+  const st = cnDstState(y, m, d, h, mi);
+  if(!st.dst && mode !== 'on') return {y, m, d, h, mi, applied:false, ambiguous:false, note:''};
+  const out = shiftClockDay(y, m, d, h, mi, -60);
+  const fmt = t => String(t).padStart(2,'0');
+  let note = (st.dst ? '夏令时段内钟面 ' : '按夏令时口径钟面 ') + fmt(h) + ':' + fmt(mi) + ' 折为标准时 ' + fmt(out.h) + ':' + fmt(out.mi);
+  if(st.ambiguous) note += '；讫日此钟面当年两见，若折算与实况不符请改选不校正';
+  return {y:out.y, m:out.m, d:out.d, h:out.h, mi:out.mi, applied:true, ambiguous:st.ambiguous, note};
 }
 
 /* ===== 十二支方位（周公解梦、太岁、择日、风水等跨模块共用） =====

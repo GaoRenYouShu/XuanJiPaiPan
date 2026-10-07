@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/daoli.css?v=636d2705">
 </head>
 <body>
@@ -64,12 +64,12 @@
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/tongshu-terms.js?v=f266b8b2"></script>
 <script defer src="assets/daoli-terms.js?v=8dc2a1d0"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
 <script defer src="assets/taisui-data.js?v=8445284e"></script>
 <script defer src="assets/gua.js?v=3aacc2cc"></script>
 <script defer src="assets/jingwen.js?v=ca162203"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 /* ===== 道历术语弹窗体系（与佛历 foli-terms、老黄历 tongshu-terms 同制式，各页自成一份） =====
    释义双真源：道教专有层走 assets/daoli-terms.js（DAO_DICT），通用黄历层走 assets/tongshu-terms.js
@@ -163,7 +163,7 @@ function taiSuiText(ygz,yZhi,suiPo){
 const GAN_TAISHEN={甲:'门',己:'门',乙:'碓磨',庚:'碓磨',丙:'厨灶',辛:'厨灶',丁:'仓库',壬:'仓库',戊:'房',癸:'房'};
 const ZHI_TAISHEN={子:'碓磨',丑:'厕',寅:'户',卯:'门',辰:'厨',巳:'灶',午:'厕',未:'井',申:'仓',酉:'户',戌:'房',亥:'床'};
 function taiShen(gan,zhi){return '占'+GAN_TAISHEN[gan]+'、'+ZHI_TAISHEN[zhi];}
-function curShichen(){const hr=new Date().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
+function curShichen(){const hr=xjNowDate().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
 function gzIndex(gz){return JIAZI60.indexOf(gz)+1;}
 /* 当日卦象：京房纳甲重卦（上卦取日天干纳甲，下卦取日地支纳甲）；卦名取 assets/gua.js，卦辞取 assets/jingwen.js */
 const GAN_NAJIA={甲:1,乙:8,丙:7,丁:2,戊:6,己:3,庚:4,辛:5,壬:1,癸:8};
@@ -252,7 +252,7 @@ function dayStar(y,m,d){
 function hourStar(y,m,d){
   const dz=Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi()[1];
   const g={子:0,午:0,卯:0,酉:0,辰:1,戌:1,丑:1,未:1,寅:2,申:2,巳:2,亥:2}[dz]||0;
-  const si=(Math.floor((new Date().getHours()+1)/2))%12;
+  const si=(Math.floor((xjNowDate().getHours()+1)/2))%12;
   const asc=baiSegment(y,m,d).dir===1;
   const start=asc?[1,4,7][g]:[9,6,3][g];
   let s=asc?((start-1+si)%9)+1:((start-1-si)%9+9)%9+1; return s;
@@ -321,7 +321,7 @@ const DL_SC_IDS={arc:'daoScArc',needle:'daoScNeedle',dot:'daoScDot'};
 function daoShichenWheel(lunar){
   const times=lunar.getTimes();
   DL_SC=times.map((t,i)=>dlScData(t,i,i===times.length-1));
-  const hr=new Date();
+  const hr=xjNowDate();
   DL_SC_CUR=Math.max(0,times.findIndex(t=>hr.getHours()>=+t.getMinHm().slice(0,2)&&hr.getHours()<=+t.getMaxHm().slice(0,2)));
   DL_SC_SEL=DL_SC_CUR;
   const cur=DL_SC[DL_SC_SEL], curSp=dlScSpan(DL_SC_SEL), curDg=dlScMid(DL_SC_SEL);
@@ -719,7 +719,7 @@ function showDay(str, el){
   const GAN_WX={'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
   const ngwRow=(lab,ny,gz,wx,sx)=>`<span class="ngw">${lab} ${nayinColorSpan(ny)} ${gzColorSpan(gz)} ${wxColorSpan(wx)} ${sx}</span>`;
   /* 时柱取当前时辰：库 getTimes() 以 00:00 起两小时一辰、末项 23:00 为夜子时，按当前钟点定位该项 */
-  const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
+  const hTimes=lunar.getTimes(), hrNow=xjNowDate().getHours();
   const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
   const suiPo = Object.keys(ZHI_FANG).find(k=>pairChong(k,yZhi))||'';
   const mingWu=tao.isDayMingWu(), anWu=tao.isDayAnWu();
@@ -849,7 +849,7 @@ window.addEventListener('load', function () {
       const ygz=lunar.getYearInGanZhi(), yZhi=ygz[1];
       const dyGZ=lunar.getDayInGanZhi(), dyGan=dyGZ[0], dyZhi=dyGZ[1];
       const mgz=lunar.getMonthInGanZhi(), mZhi=mgz[1];
-      const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
+      const hTimes=lunar.getTimes(), hrNow=xjNowDate().getHours();
       const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
       const suiPo = Object.keys(ZHI_FANG).find(k=>pairChong(k,yZhi))||'';
       const xing=(XING_TAI[yZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
@@ -935,8 +935,7 @@ window.addEventListener('load', function () {
     ${feiText(hourStar(y,m,d))}
     时辰吉凶：
     ${shichenCopy}`;
-    }, '道历');
-    shareWait({ page:"daoli", title:"道历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } });
+    }, '道历', { share:{ page:"daoli", title:"道历在线查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ if(!lastKey) goToday(); }); } } });
   }, 0);
 });
 </script>

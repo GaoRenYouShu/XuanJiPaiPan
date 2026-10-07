@@ -887,6 +887,8 @@ function injectShare(host, share){
     clearTimeout(noticeEl.__t); noticeEl.__t=setTimeout(function(){ noticeEl.style.display='none'; },6000);
   };
   const payloadJson = function(){ return JSON.stringify({page,title,time:new Date().toISOString(),data:collect()},null,2); };
+  /* 载荷构造器挂出：页面与自测可据此核对分享内容（如起测时刻是否随分享带走） */
+  try { window.__xjSharePayload = payloadJson; } catch(e) {}
   const applyShared = function(data){ (restore)(data.d); if(recast){ try{ recast(); }catch(e){} } };
 
   const mk=function(label,act){ const b=document.createElement('button'); b.type='button'; b.className='btn soft'; b.textContent=label; b.setAttribute('data-xj',act); return b; };
@@ -926,16 +928,6 @@ function injectShare(host, share){
   const m=(location.hash||'').match(/#xj=([A-Za-z0-9\-_]+)/);
   if(m){ try{ const data=JSON.parse(shareB64d(m[1])); if(data&&data.d){ applyShared(data); toastMsg('已从分享链接还原盘面'+(data.p?('（来源：'+data.p+'）'):'')+'。',true); } try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }catch(e){ toastMsg('分享链接解析失败',false); } }
 }
-/* 等待附加功能面板按钮行出现后注入分享工具（供各页在 mountAI 之后调用） */
-function shareWait(share){
-  let n=0;
-  (function tryInject(){
-    const a=document.querySelector('#aiMount .ai-actions')||document.querySelector('.ai-actions');
-    if(a){ injectShare(a, share); return; }
-    if(++n<=20) setTimeout(tryInject,200);
-  })();
-}
-
 /* 附加功能面板默认收起（低频工具区），只在用户主动发起解析时展开，
    刷新恢复与重出一律不动其开合态（重出函数不得改交互态）。 */
 function openAiBlock(){
@@ -967,6 +959,11 @@ function mountAI(getContext, pageTitle, opts){
     </div>
   </details>`;
   const st = host.querySelector('.ai-status'); refreshAiStatus(st);
+  /* 分享工具是附加功能模块的一截，与面板同一次挂载出齐：opts.share 给出即按其
+     collect、restore、recast 走；不给则按缺省（页名取路径、标题取 document.title、
+     采集与还原走全站默认），按钮一行不少。故凡挂出面板者模块必完整，不存在
+     “漏了某次调用所以少半截”的情形。面板 HTML 为本函数同步写入，直接取按钮行即可。 */
+  injectShare(host.querySelector('.ai-actions'), opts.share || {});
   try { mountGeo(); } catch (e){}
   window.__aiGetContext = getContext; window.__aiTitle = pageTitle;
   const histKey = 'ai_history_' + pageTitle;

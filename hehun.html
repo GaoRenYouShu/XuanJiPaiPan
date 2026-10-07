@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=b960d03e">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/hehun.css?v=c70b1088">
 </head>
 <body>
@@ -78,13 +78,13 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=20871d52"></script>
-<script defer src="assets/xuanji-lib.js?v=6e7aefad"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/bazi-data.js?v=47ce1794"></script>
+<script defer src="assets/bazi-data.js?v=b744f51e"></script>
 <script defer src="assets/bazi-rel.js?v=40f7f95a"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script>
 /* 出生地三级联动 + 经度缓存 + 表单持久化（复用 latlng.js 的 PROV 与 bazi-data.js 的 trueSolarTime，单源）
@@ -893,7 +893,7 @@ function hehun(){
       if(idx===2) return;                          // 日主为体非用，不入绊用论
       other.gans.forEach((pg,pidx)=>{
         const he=tianGanHe(g,pg); if(!he) return;
-        if(heHuaOK(he,allGans,allZhis,M.CTX.monthZ)||heHuaOK(he,allGans,allZhis,F.CTX.monthZ)) return;  // 化成立归合化成格项
+        if(heHuaOK(he,allGans,allZhis,M.CTX.monthZ,[g,pg])||heHuaOK(he,allGans,allZhis,F.CTX.monthZ,[g,pg])) return;  // 化成立归合化成格项
         const key=g+'|'+pg; if(seen[key]) return; seen[key]=true;
         const wx=GAN_WX[g];
         if(xi.has(wx)) out.push({kind:'yong', txt:who+POS[idx]+g+'（用神透干）被对方'+POS[pidx]+pg+'合去（合而不化、羁绊），用神受绊，待岁运冲合引动方复起'});
@@ -921,7 +921,7 @@ function hehun(){
     M.gans.forEach((g,i)=>F.gans.forEach((pg,j)=>{
       const he=tianGanHe(g,pg); if(!he) return;
       const key='G'+g+'|'+pg; if(seen[key]) return; seen[key]=true;
-      const ok=heHuaOK(he,allGans,allZhis,M.CTX.monthZ)||heHuaOK(he,allGans,allZhis,F.CTX.monthZ);
+      const ok=heHuaOK(he,allGans,allZhis,M.CTX.monthZ,[g,pg])||heHuaOK(he,allGans,allZhis,F.CTX.monthZ,[g,pg]);
       if(ok) out.push({pair:`${LA}${POS_G[i]}${g}合${LB}${POS_G[j]}${pg}`, hua:he, ri:(i===2&&j===2)});
     }));
     M.zhis.forEach((z,i)=>F.zhis.forEach((pz,j)=>{
@@ -1072,7 +1072,7 @@ function hehun(){
   spec.push(['八宅命卦',mgScore,10,mgD.join('')]);
   // 大运同步（动态层）：引 baziDaYunSteps 唯一真源排双方大运（阳男阴女顺、阴男阳女逆，3日折1年），
   // 按十年年龄带对齐，逐带比双方运干支五行走向：同气相并为同频（境遇同步、同甘共苦），相生为相扶，相克为异向。
-  const curYear=new Date().getFullYear();
+  const curYear=xjNowDate().getFullYear();
   const dyM=baziDaYunSteps({ec:M.ec,sex:M1?1:0,birthYear:M.year,lunar:M.lunar});
   const dyF=baziDaYunSteps({ec:F.ec,sex:F1?1:0,birthYear:F.year,lunar:F.lunar});
   M.dy=dyM; F.dy=dyF;
@@ -1458,9 +1458,8 @@ window.addEventListener('load', function () {
         (h.adv.tips||[]).forEach(x=>{ s+=`相处之道（${x.tag}）：${x.text}\n`; });
       }
       return s;
-    }, '八字合婚');
+    }, '八字合婚', { share:{ page:"hehun", title:"在线八字合婚", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ hehun(); }); } } });
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
-    shareWait({ page:"hehun", title:"在线八字合婚", recast:function(){ try{ hehun(); }catch(e){} } });
   }, 0);
 });
 </script>

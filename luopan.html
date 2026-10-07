@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/luopan.css?v=3215cee5">
 </head>
 <body>
@@ -163,7 +163,7 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
 <script defer src="assets/lunar.js?v=9750324b"></script>
@@ -172,7 +172,7 @@
 <script defer src="assets/fs-luo.js?v=c1c37a8d"></script>
 <script defer src="assets/fs-mag.js?v=bfd7ff0c"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
    引擎以 global.FENGSHUI 暴露；页内别名 FS 须待 defer 脚本执行后取，
@@ -223,7 +223,7 @@ function lpDeclAuto(){
   if(!el) return false;
   if(LP_DECL_TOUCH) return false;
   var c=lpGeoCoord();
-  el.value=c?FS_MAG.decl(c.lat, c.lng, new Date()).toFixed(2):'';
+  el.value=c?FS_MAG.decl(c.lat, c.lng, xjNowDate()).toFixed(2):'';
   return !!c;
 }
 function lpGeoPick(){
@@ -271,7 +271,7 @@ function lpMagOnline(){
   var c=lpGeoCoord(); if(!c) return;
   if(btn){ btn.disabled=true; btn.textContent='取数中'; }
   var got=false;
-  FS_MAG.online(c.lat, c.lng, new Date()).then(v=>{
+  FS_MAG.online(c.lat, c.lng, xjNowDate()).then(v=>{
     if(v==null) return;
     document.getElementById('baseDecl').value=v.toFixed(2);
     /* 在线取回的值亦属手填所得，须一并锁定，否则下次切省即被离线值覆盖 */
@@ -970,7 +970,7 @@ function lpDeclValue(){
   var v=parseFloat((document.getElementById('baseDecl')||{}).value);
   if(isFinite(v)) return v;
   var c=lpGeoCoord();
-  return c?FS_MAG.decl(c.lat,c.lng,new Date()):null;
+  return c?FS_MAG.decl(c.lat,c.lng,xjNowDate()):null;
 }
 function lpDeclCore(sel){
   var d=lpDeclValue();
@@ -1174,8 +1174,7 @@ window.addEventListener('load', function(){
         }
       }catch(e){}
       return s;
-    }, '罗经仪');
-    shareWait({ page:"luopan", title:"罗经仪", recast:function(){ try{ lpApplyBase(); }catch(e){} } });
+    }, '罗经仪', { share:{ page:"luopan", title:"罗经仪", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ lpApplyBase(); }); } } });
   }, 0);
 });
 window.addEventListener('DOMContentLoaded', function(){ FS=window.FENGSHUI; window.FS=FS; if(FS&&window.LUOPAN) lpInit(); });

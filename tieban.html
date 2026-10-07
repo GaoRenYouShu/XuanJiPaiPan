@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
-<link rel="stylesheet" href="assets/css/tieban.css?v=1ed69e8b">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/css/tieban.css?v=499ef30f">
 
 </head>
 <body>
@@ -85,18 +85,18 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/bazi-data.js?v=ef3b7dd2"></script>
+<script defer src="assets/bazi-data.js?v=b744f51e"></script>
 <script defer src="assets/gua.js?v=3aacc2cc"></script>
 <script defer src="assets/jingwen.js?v=ca162203"></script>
 <script defer src="assets/jingwen-ref.js?v=f5ead9aa"></script>
 <script defer src="assets/bazi-duanyu.js?v=00a93550"></script>
 <script defer src="assets/tieban-hegu.js?v=c3375cb5"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/tieban-tiaowen.js?v=e937b4dc"></script>
-<script defer src="assets/tieban-engine.js?v=2f1e0443"></script>
+<script defer src="assets/tieban-engine.js?v=22eaeff0"></script>
 <script>
     const TB_TERMS = {
     hua:{title:'化数',items:{
@@ -439,7 +439,7 @@ function keyLabelOf(cid,key){
 function dyHTML(){
   const d = LAST.dayun;
   if(!d || !d.steps.length) return '<div class="info-box"><p>大运推演不可用'+(d&&d.err?'：'+d.err:'')+'。</p></div>';
-  const thisYear = new Date().getFullYear();
+  const thisYear = xjNowDate().getFullYear();
   let h = '<div class="sub-note">起运：'+(d.ageYears!=null ? d.ageYears+' 年 '+d.ageMonths+' 个月 '+d.ageDays+' 天' : '不可用')+'　'+(d.forward?'顺排（阳男阴女）':'逆排（阴男阳女）')+'　以节气距离三日折一年。</div>';
   h += '<div class="dy-grid">'+d.steps.map(s=>{
     const cur = thisYear>=s.startYear && thisYear<=s.endYear;
@@ -463,7 +463,7 @@ function plainHTML(){
   const fumu = Tieban.pickText('fumu', LAST.H, keyFor('fumu'), 1);
   const caibo = Tieban.pickText('caibo', LAST.H, null, 1);
   const guanlu = Tieban.pickText('guanlu', LAST.H, null, 1);
-  const curStep = LAST.dayun && LAST.dayun.steps ? LAST.dayun.steps.find(s=>new Date().getFullYear()>=s.startYear&&new Date().getFullYear()<=s.endYear) : null;
+  const curStep = LAST.dayun && LAST.dayun.steps ? LAST.dayun.steps.find(s=>xjNowDate().getFullYear()>=s.startYear&&xjNowDate().getFullYear()<=s.endYear) : null;
   const curTx = curStep ? Tieban.pickStepText('dayun', curStep.gz, curStep.startYear, 1) : null;
   const answeredMain = ANS.fumu!=null && ANS.sib!=null && ANS.marry!=null;
   const keStar = answeredMain ? Tieban.locateKe(Tieban.FUMU_KEYS.indexOf(ANS.fumu), ANS.sib, Tieban.MARRY_KEYS.indexOf(ANS.marry)) : null;
@@ -707,7 +707,7 @@ window.addEventListener('load', function () {
         const tx = Tieban.pickStepText('dayun', s.gz, s.startYear, 1);
         return s.gz+' 运 '+s.startAge+'-'+s.endAge+' 岁：'+(tx?(tx.t+'，'+tx.b):'');
       }).join('\n'):'');
-      const thisYear = new Date().getFullYear();
+      const thisYear = xjNowDate().getFullYear();
       const lnLines = (()=>{ let out=[]; for(let i=0;i<8;i++){ const y=thisYear+i; const gz=Solar.fromYmd(y,6,1).getLunar().getYearInGanZhi(); const tx=Tieban.pickStepText('liunian', gz, y, 1); out.push(y+' 年 '+gz+'：'+(tx?(tx.t+'，'+tx.b):'')); } return out.join('\n'); })();
       return `铁板神数推演
     【出生与四柱】公历 ${R.Y}-${pad2(R.M)}-${pad2(R.D)} ${pad2(R.h)}:${pad2(R.mi)}　${R.zhiName}${R.keName}（${R.keRange}）　分金：${FENG_NAMES[R.feng]}、子时算法：${R.ziMode==='early'?'早子时':'晚子时'}
@@ -727,10 +727,9 @@ window.addEventListener('load', function () {
     【流年条文】
     ${lnLines}
     `;
-    }, '铁板神数');
+    }, '铁板神数', { share:{ page:'tieban', title:'铁板神数在线排盘', collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ try{ query(); }catch(e){} }); } } });
     if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
-    tbApplyFold();
-    shareWait({ page:'tieban', title:'铁板神数在线排盘', recast:function(){ try{ query(); }catch(e){} } });
+    tbApplyFold();;
   }, 0);
 });
 </script>

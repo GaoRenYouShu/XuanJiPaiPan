@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/fengshui.css?v=efdd9ce8">
 
 </head>
@@ -349,11 +349,11 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
 <script defer src="assets/fs-mag.js?v=bfd7ff0c"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 /* 八宅命卦（独立内联，不依赖 bazi-data.js） */
 function mingGua(year,isMale){
@@ -412,7 +412,7 @@ function fsGeoPick(){
   const el=document.getElementById('baseDecl');
   if(el && !FS_DECL_TOUCH){
     const c=fsGeoCoord();
-    el.value=c?FS_MAG.decl(c.lat, c.lng, new Date()).toFixed(2):'';
+    el.value=c?FS_MAG.decl(c.lat, c.lng, xjNowDate()).toFixed(2):'';
   }
   fsMagNote();
 }
@@ -458,7 +458,7 @@ function fsMagOnline(){
   const c=fsGeoCoord(); if(!c) return;
   if(btn){ btn.disabled=true; btn.textContent='取数中'; }
   let got=false;
-  FS_MAG.online(c.lat, c.lng, new Date()).then(v=>{
+  FS_MAG.online(c.lat, c.lng, xjNowDate()).then(v=>{
     if(v==null) return;
     document.getElementById('baseDecl').value=v.toFixed(2);
     FS_DECL_TOUCH=true;
@@ -2544,7 +2544,7 @@ function syncZibaiDate(){
 }
 /* 页面加载初始化：填今日日期并全排 */
 function fsNow(){
-  const n=new Date();
+  const n=xjNowDate();
   const de=document.getElementById('baseDate');
   if(de) de.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
     const te=document.getElementById('baseTime');
@@ -3200,8 +3200,7 @@ window.addEventListener('load', function () {
         if(xk) s+=`\n玄空（坐${b.sitShan}向${b.faceShan} ${b.flowYear}年）：${xk.yun.yuan}${xk.yun.yun}运，格局${xk.geju}。`;
       }catch(e){}
       return s;
-    }, '风水');
-    shareWait({ page:"fengshui", title:"风水", recast:function(){ try{ fsNow(); }catch(e){} } });
+    }, '风水', { share:{ page:"fengshui", title:"风水", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ fsNow(); }); } } });
   }, 0);
 });
 </script>

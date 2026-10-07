@@ -735,11 +735,12 @@ function hlInit(){
   document.getElementById('hlNianBtn').addEventListener('click',function(){
     renderLiuNian(); renderLiuYue(); renderLiuRiShi();
   });
-  if(window.mountAI) window.mountAI(heluoAiContext,'河洛理数');
-  if(window.shareWait) window.shareWait({
-    'page':'heluo','title':'河洛理数',
-    'collect':hlCollect,'restore':hlRestore,
-    'recast':function(){ renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); }
+  if(window.mountAI) window.mountAI(heluoAiContext,'河洛理数',{
+    'share':{
+      'page':'heluo','title':'河洛理数',
+      'collect':hlCollect,'restore':hlRestore,
+      'recast':function(){ renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); }
+    }
   });
   const jwHost=document.getElementById('hlJwBody'),jwFold=document.getElementById('hlJwFold');
   if(jwHost&&jwFold&&window.jwRenderInto){

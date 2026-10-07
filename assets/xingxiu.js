@@ -442,7 +442,7 @@
     return s;
   }
 
-  /* ===== 共享状态（shareWait） ===== */
+  /* ===== 共享状态（mountAI 第三参 share） ===== */
   function xxCollect() {
     return {
       mingDate: $('xxMingDate').value,
@@ -460,10 +460,11 @@
     renderToday(); renderTable(); renderGong(); renderYiJi(); renderShan(); renderZhanci(); renderZhanci3Jia(); renderDu(); renderSan36(); renderSky();
     $('xxMingBtn').addEventListener('click', renderMing);
     $('xxYanBtn').addEventListener('click', renderYan);
-    if (window.mountAI) window.mountAI(xxAiContext, '星宿');
-    if (window.shareWait) window.shareWait({
-      page: 'xingxiu', title: '星宿',
-      collect: xxCollect, restore: xxRestore, recast: function () { renderMing(); renderYan(); }
+    if (window.mountAI) window.mountAI(xxAiContext, '星宿', {
+      share: {
+        page: 'xingxiu', title: '星宿',
+        collect: xxCollect, restore: xxRestore, recast: function () { renderMing(); renderYan(); }
+      }
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

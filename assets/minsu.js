@@ -50,7 +50,7 @@
 
   /* ===== 1. 折叠模块 =====
    * 四种占法各占一 section.mod 折叠模块（全站标准折叠模块体系，collapsed 类承载开合），
-   * 此处登记模块位，供 AI 上下文取当前展开项与 shareWait 回填展开状态。 */
+   * 此处登记模块位，供 AI 上下文取当前展开项，并回填展开状态。 */
   var FOLDS = [
     { k: 'chengu', id: 'msmod-chengu', name: '称骨算命' },
     { k: 'fanyue', id: 'msmod-fanyue', name: '犯月查询' },
@@ -626,7 +626,7 @@
     return s;
   }
 
-  /* ===== 9. 共享状态（shareWait） ===== */
+  /* ===== 9. 共享状态（mountAI 第三参 share） ===== */
   function msCollect() {
     var op = openFolds(), i, r = [];
     for (i = 0; i < op.length; i++) r.push(op[i].k);
@@ -786,10 +786,11 @@
     renderFanyue();
     renderBuddha();
     renderSanshi();
-    if (window.mountAI) window.mountAI(msAiContext, '民俗占法');
-    if (window.shareWait) window.shareWait({
-      page: 'minsu', title: '民俗占法',
-      collect: msCollect, restore: msRestore, recast: rerender
+    if (window.mountAI) window.mountAI(msAiContext, '民俗占法', {
+      share: {
+        page: 'minsu', title: '民俗占法',
+        collect: msCollect, restore: msRestore, recast: rerender
+      }
     });
     /* 渲染完成：打标后折叠状态才允许写回，并恢复已存折叠偏好 */
     msInitDone = true;

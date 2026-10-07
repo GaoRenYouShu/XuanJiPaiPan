@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=0c827a54">
+<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
 <link rel="stylesheet" href="assets/css/laohuangli.css?v=52980d90">
 </head>
 <body>
@@ -60,14 +60,14 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=7588ea16"></script>
+<script defer src="assets/app.js?v=d6ca0459"></script>
 <script defer src="assets/shiling.js?v=47791a00"></script>
 <script defer src="assets/tongshu-terms.js?v=f266b8b2"></script>
 <script defer src="assets/holiday.js?v=5a9525d6"></script>
 <script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
 <script defer src="assets/taisui-data.js?v=8445284e"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/ai.js?v=05f6b216"></script>
+<script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 /* ---------- 本地计算辅助 ---------- */
 /* 地支方位：DIZHI_CHONG / pairChong / 太岁常量由 assets/xuanji-lib.js、assets/taisui-data.js 共享提供 */
@@ -213,7 +213,7 @@ const SC_IDS={arc:'lhlScArc',needle:'lhlScNeedle',dot:'lhlScDot'};
 function shichenWheel(lunar){
   const times=lunar.getTimes();
   LHL_SC=times.map((t,i)=>lhlScData(t,i,i===times.length-1));
-  const hr=new Date();
+  const hr=xjNowDate();
   LHL_SC_CUR=Math.max(0,times.findIndex(t=>hr.getHours()>=+t.getMinHm().slice(0,2)&&hr.getHours()<=+t.getMaxHm().slice(0,2)));
   LHL_SC_SEL=LHL_SC_CUR;
   const cur=LHL_SC[LHL_SC_SEL], curSp=scSpan(LHL_SC_SEL), curDg=scMid(LHL_SC_SEL);
@@ -423,7 +423,7 @@ function dayStar(y,m,d){
   const seg=baiSegment(y,m,d);              /* 按查询日所在节气定元 */
   let s=((seg.base-1+seg.dir*off)%9+9)%9+1; return s;
 }
-function curShichen(){const hr=new Date().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
+function curShichen(){const hr=xjNowDate().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
 /* 时飞星入中宫（时家紫白，《协纪辨方书》《选择纪要》通行例）：
    以日支分三组定子时起星：子午卯酉日为仲（冬至后一白、夏至后九紫）、辰戌丑未日为季（冬至后四绿、夏至后六白）、
    寅申巳亥日为孟（冬至后七赤、夏至后三碧）；冬至后顺行、夏至后逆行，一时一星。
@@ -431,7 +431,7 @@ function curShichen(){const hr=new Date().getHours();return ['子','丑','寅','
 function hourStar(y,m,d){
   const dz=Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi()[1];
   const g={子:0,午:0,卯:0,酉:0,辰:1,戌:1,丑:1,未:1,寅:2,申:2,巳:2,亥:2}[dz]||0;
-  const si=(Math.floor((new Date().getHours()+1)/2))%12;
+  const si=(Math.floor((xjNowDate().getHours()+1)/2))%12;
   const asc=baiSegment(y,m,d).dir===1;
   const start=asc?[1,4,7][g]:[9,6,3][g];
   let s=asc?((start-1+si)%9)+1:((start-1-si)%9+9)%9+1; return s;
@@ -472,7 +472,7 @@ function renderGrid(){
   const ct=document.getElementById('calTitle'); if(ct) ct.textContent=Y+'年'+M+'月';
   const first=new Date(Y,M-1,1);
   const dim=new Date(Y,M,0).getDate();
-  const todayStr=new Date().toDateString();
+  const todayStr=xjNowDate().toDateString();
   const selKey=v.split('-').map(Number).join('-');
   let cells=['一','二','三','四','五','六','日'].map(w=>`<div class="wd">${w}</div>`);
   const startWd=(first.getDay()+6)%7;   /* 周一起始：周一=0 … 周日=6 */
@@ -706,8 +706,7 @@ window.addEventListener('load', function () {
     ${feiText(hourStar(y,m,d))}
     时辰吉凶（24小时）：
     ${hh}`;
-    }, '老黄历');
-    shareWait({ page:"laohuangli", title:"老黄历每日宜忌查询", recast:function(){ try{ const _d=document.getElementById('dInput'); if(!_d||!_d.value) setToday(); }catch(e){} } });
+    }, '老黄历', { share:{ page:"laohuangli", title:"老黄历每日宜忌查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ const _d=document.getElementById('dInput'); if(!_d||!_d.value) setToday(); }); } } });
   }, 0);
 });
 </script>
