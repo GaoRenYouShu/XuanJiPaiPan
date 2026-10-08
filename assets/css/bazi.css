@@ -57,6 +57,37 @@
 
 .page-bazi table.stab-inds{table-layout:auto}
 
+/* 双盘对照（照占星 xz-rel-chk、xz-rel2 范式）：勾选行内联、第二盘块虚线框（padding + 1px dashed）；
+   dual-wrap 为勾选行与虚线框的共同包裹：.opts 容器 gap（--sp-3，12px）给"上方内容到本组"的距，
+   组内勾选行与虚线框之间取占星原字（xz-rel-chk 下缘 --sp-2，8px），与占星双人块逐字同档；
+   块内间距照占星实测数据：资料行下缘 --sp-3（12px）、框底缘 0；
+   占星框底不显贴是因其出生地组被页级段改写为去框式、自带 border-top 分隔线收尾，
+   八字第二盘出生地组是 compact 原样（底 padding 0），故补 padding-bottom --sp-2 作框内呼吸，
+   上下对称（框顶 --sp-2、组底 --sp-2）；
+   显隐只有默认态与 is-on 两条；块内字段复用 form-row、field、group-label、birth-group 既有件，
+   对照表 dual-tbl 与岁运引动表同金表头制式 */
+.page-bazi .dual-wrap{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2);flex:1 1 100%}
+.page-bazi .dual-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
+  margin:0;font-size:13px;color:var(--ink2);cursor:pointer;user-select:none}
+.page-bazi .dual-rel-chk input{width:auto;margin:0}
+.page-bazi .dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
+.page-bazi .dual-rel2.is-on{display:block}
+.page-bazi .dual-rel2 .group-label{width:100%;margin:0;color:var(--gold2)}
+.page-bazi .dual-rel2 .form-row{margin-bottom:var(--sp-3)}
+/* 第二盘资料行字段宽度照主盘 bazi-top 与占星 xz-row-inputs 既有规则：字段收内容宽、select 随内容，不铺满 */
+.page-bazi .dual-rel2 .form-row .field{flex:0 0 auto;width:auto;min-width:0}
+.page-bazi .dual-rel2 .form-row .field select{width:auto;align-self:flex-start}
+.page-bazi .dual-tbl{border-collapse:collapse;width:100%;max-width:460px;margin-top:var(--sp-1);font-size:13px;table-layout:fixed}
+.page-bazi .dual-tbl th{background:transparent;color:var(--gold2);padding:6px 6px;text-align:center;font-weight:400;border:1px solid var(--line)}
+.page-bazi .dual-tbl td{border:1px solid var(--line);padding:6px 6px;text-align:center;font-size:13px}
+/* 格局对照表铺满屏幕：全站表格一律 width:100% 吃满容器，禁窄表 */
+.page-bazi .dual-tbl.dual-tbl-full{max-width:none}
+.page-bazi .dual-tbl th:first-child,.page-bazi .dual-tbl td:first-child{width:11em;text-align:left}
+.page-bazi .dual-tbl td:nth-child(2),.page-bazi .dual-tbl td:nth-child(3){text-align:left;line-height:1.5}
+/* 两盘交叉表：主盘、对比盘两列窄，关系列吃余宽 */
+.page-bazi .dual-tbl.dual-tbl-cross th:first-child,.page-bazi .dual-tbl.dual-tbl-cross td:first-child{width:8em}
+.page-bazi .dual-tbl.dual-tbl-cross th:nth-child(2),.page-bazi .dual-tbl.dual-tbl-cross td:nth-child(2){width:8em;text-align:left}
+
 .page-bazi #mod-yiti table.stab-a2{table-layout:fixed;width:100%}
 
 .page-bazi #mod-yiti table.stab-a2 th:first-child,.page-bazi #mod-yiti table.stab-a2 td:first-child{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
@@ -290,6 +321,10 @@
 
 .page-bazi .birth-group,.page-bazi .birth-group.compact{background:transparent;border:0;border-top:1px solid var(--bz-line);padding:var(--sp-3) 0 0}
 
+/* 双盘对照虚线框内例外：第二盘出生地组补框内底部呼吸（主规则底缘 0 是为贴区块顶用的，虚线框内须对称） */
+/* 双盘对照虚线框内例外：第二盘出生地组补框内底部呼吸，取占星实测值 --sp-3（占星 birth-group 底 padding 12px） */
+.page-bazi .dual-rel2 .birth-group,.page-bazi .dual-rel2 .birth-group.compact{padding-bottom:var(--sp-3)}
+
 @media(max-width:640px){.page-bazi .birth-group,.page-bazi .birth-group.compact{padding-top:var(--sp-2)}}
 
 .page-bazi .birth-group .group-label{color:var(--bz2)}
@@ -315,6 +350,13 @@
 .page-bazi .zr-mod:not([open])>summary{border-bottom:1px solid var(--bz-line)}
 
 .page-bazi .zr-mod-b{border-top:none}
+
+/* 模块尾部收束：末件外距逃出包裹层、与段末内距（--sp-3）再叠模块间 8px，纳音→核心解读实测 28px 而他处 8px。
+   末件外距归零、段末内距归零，模块收束后与下一模块之距即标准 8px，与全站模块间节奏一致。 */
+/* 末件外距沿包裹链逃逸（zr-mod-b > 包裹层 > 末件 两级），逐级归零后方达标准 8px */
+.page-bazi .zr-mod-b > :last-child,
+.page-bazi .zr-mod-b > :last-child > :last-child{margin-bottom:0}
+.page-bazi .zr-mod-b{padding-bottom:0}
 
 .page-bazi .zr-mod>summary:hover{color:var(--bz)}
 
@@ -481,6 +523,8 @@
 }
 
 .page-bazi .wheel-wheels{border-top:0;margin-top:0;padding-top:0}
+/* 对比盘量化圆盘一组与主盘一组之间的间距：主盘组在本页上距归零（居本命分析之首），第二盘组按全站 wheel-wheels 上距档 --sp-4 */
+.page-bazi .dual-quant{margin-top:var(--sp-4)}
 
 .page-bazi .notice-bottom{color:var(--bz-ink);background:transparent;border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
 

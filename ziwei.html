@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
-<link rel="stylesheet" href="assets/css/ziwei.css?v=48a32a90">
+<link rel="stylesheet" href="assets/style.css?v=330f4954">
+<link rel="stylesheet" href="assets/css/ziwei.css?v=4ac2ef5f">
 </head>
 <body>
 <div id="topbar"></div>
@@ -83,7 +83,7 @@
 <footer id="footer"></footer>
 <script defer src="assets/iztro.min.js?v=4b8eca32"></script>
 <script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/app.js?v=94c895a9"></script>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script>let __zw=null;
@@ -604,7 +604,7 @@ function yunFilter(astro, sex, dayunHtml, school){
   return `<h3 class="rel-title">运程推演</h3>
     <div class="yf-picker">
       <label>查询日期</label>
-      <input type="date" id="zwYunDate" value="${dateVal||today}">
+      <input type="text" class="dt-input" id="zwYunDate" placeholder="2026-09-30" value="${dateVal||today}">
       <button type="button" id="zwYunBtn" class="btn gold">推算</button>
       <span class="yf-hint">按所选日期推算该日所在大运及流年、流月、流日。</span>
     </div>
@@ -1452,6 +1452,7 @@ function paipan(){
 }
 /* 绑定 大运/流年/流月/流日 日期选择器"推算"按钮（paipan 每次重建 DOM 后重绑，.onclick 最可靠） */
 function bindYunPicker(){
+  if(window.initPickers) initPickers();   /* 运程日期框随盘动态渲染，此处补纳共享日期控件（幂等） */
   const btn=document.getElementById('zwYunBtn');
   const input=document.getElementById('zwYunDate');
   const out=document.getElementById('zwYunOut');

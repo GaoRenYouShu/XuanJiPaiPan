@@ -7,7 +7,6 @@
  *   strength: ["身强","中和偏弱","身弱"]        旺衰命中其一（A.strength）
  *   element : {五行:'>=3'}                     量化五行旺衰档位（弱1/中2/强3，缺0；源自量化四柱能量分，>=3=强）
  *   pattern : ['杀印相生',...]                 组合/结构格局（detectPatterns 计算）
- *   yong    : 'xi'|'ji'                        （预留）用神类
  *   ge      : '正官格'                         格局名（A.geName 包含）
  *   sex     : '男'|'女'                        性别门控
  *   day     : ['乙']                           日干在列表中
@@ -627,7 +626,6 @@
     if (when.dz) { if (when.dz.indexOf(_zhis(BZ)[2]) < 0) return false; }
     if (when.mz) { if (when.mz.indexOf(_zhis(BZ)[1]) < 0) return false; }
     if (when.sz) { if (when.sz.indexOf(_zhis(BZ)[3]) < 0) return false; }   // 时支（"时上偏财坐生旺"类：生旺在时支，非月支）
-    if (when.yong) { /* 预留：首选用神类 */ }
     if (when.step) { if (!_matchStep(when.step, stepCtx)) return false; }
     // zhiAll：四柱地支须同时包含所列全部地支（"子午逢之"须子午俱现；子午异柱必冲，同现=相冲）
     if (when.zhiAll) {
@@ -641,7 +639,7 @@
   // 名称须与 bazi-data.js 神煞计算产出严格一致（文昌贵人/天德贵人/月德贵人/金舆 等是否带"贵人"后缀以引擎实际 push 名为准）。
   const JIYAO_SHA = ['天乙贵人', '天德贵人', '月德贵人', '文昌贵人', '太极贵人', '福星贵人', '天厨贵人', '德秀贵人', '国印贵人', '三奇贵人', '天赦', '金舆'];
 
-  // ---------- 断语库（15 类，统一格式组织） ----------
+  // ---------- 断语库（按类目统一格式组织） ----------
   const DUANYU = {
     心性: [
       { when: { ten: { '正印': '>=2' }, tenTier: { '印星': 2 } }, say: '主人重厚魁梧，功名昭著。', src: '《三命通会·论正印》' },

@@ -451,6 +451,27 @@ if (BAZI_PAGE_UI) (function initBirth(){
   }
   sp.onchange=()=>{ fillCity(); savePillarSel(); }; sc.onchange=()=>{ fillDist(); savePillarSel(); };
   sp.value='北京市'; fillCity();
+  /* 第二盘出生地（双盘对照勾选后使用）：与主盘同一部 PROV 数据源与同构填充逻辑，独立一组下拉；
+     经度写 DUAL_CITY_LNG 供 paipan 第二盘校正取用，与主盘 CITY_LNG 分立不互染 */
+  var DUAL_CITY_LNG=null;
+  window.__dualLngOf=()=>DUAL_CITY_LNG;
+  const dp=document.getElementById('dProv'), dc=document.getElementById('dCity'), dd=document.getElementById('dDist');
+  if(dp && dc && dd){
+    dp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
+    function dFillCity(){ const p=dp.value; if(!PROV[p])return; dc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); dFillDist(); }
+    function dFillDist(){
+      const p=dp.value; if(!PROV[p])return;
+      const c=PROV[p].find(x=>x.c===dc.value)||PROV[p][0];
+      if(!c) return;
+      const pc=(typeof provCenter==='function'&&c.lng==null)?provCenter(p):null;
+      DUAL_CITY_LNG=(c.lng!=null)?c.lng:(pc?pc.lng:null);
+      let html=`<option value="">${c.c}</option>`;
+      distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
+      dd.innerHTML=html;
+    }
+    dp.onchange=dFillCity; dc.onchange=dFillDist;
+    dp.value='北京市'; dFillCity();
+  }
 })();
 
 function paipan(){
@@ -521,6 +542,59 @@ function paipan(){
   if (!built) return;
   BZ = built.BZ;
   CTX = built.CTX;
+  /* 双盘模式（勾选 dualRel）：第二盘与主盘同历法同构输入，独立走同一条日期装配链
+     （公历直取 dDate，农历按第二盘之农历年、月、闰、日转公历），主盘链路不受影响。
+     经度用第二盘自己的出生地（initBirth 的 dProv、dCity、dDist 同源填充，手动经度 dLng 优先），
+     子时口径与年界随主盘选项。 */
+  let dualA2=null, dualBZ2=null;
+  if(typeof dualRelSync==='function' && document.getElementById('dualRel') && document.getElementById('dualRel').checked && (mode==='date'||mode==='lunar')){
+    let dv2;
+    if(mode==='lunar'){
+      const ly2=parseInt(document.getElementById('dLunarY').value,10);
+      const lm2=parseInt(document.getElementById('dLunarM').value,10);
+      const ld2=parseInt(document.getElementById('dLunarD').value,10);
+      const leap2=document.getElementById('dLunarLeap').checked;
+      if(!ly2||!lm2||!ld2){ showFormErr('请完整填写第二盘农历年、月、日'); return; }
+      if(ly2<1900||ly2>2100){ showFormErr('第二盘农历年范围 1900–2100'); return; }
+      if(leap2){
+        let lm02=0; try{ lm02=LunarYear.fromYear(ly2).getLeapMonth(); }catch(e){ lm02=0; }
+        if(lm02!==lm2){ showFormErr('该农历年没有闰'+lm2+'月'+(lm02?('（本年闰月为闰'+lm02+'月）'):'') ); return; }
+      }
+      let lun2;
+      try{ lun2=Lunar.fromYmd(ly2, leap2? -lm2 : lm2, ld2); }
+      catch(e){ showFormErr((e&&e.message)||'第二盘农历日期无效（该月可能不足 '+ld2+' 天）'); return; }
+      const s2=lun2.getSolar();
+      dv2=String(s2.getYear()).padStart(4,'0')+'-'+String(s2.getMonth()).padStart(2,'0')+'-'+String(s2.getDay()).padStart(2,'0');
+    } else {
+      dv2=document.getElementById('dDate').value;
+    }
+    if(!dv2){ showFormErr('请填写第二盘出生日期'); return; }
+    const tv2Raw=document.getElementById('dTime').value;
+    if(!tv2Raw){ showFormErr('请选择第二盘出生时辰'); return; }
+    const tv2Parts=String(tv2Raw).split(':');
+    const tv2HH=parseInt(tv2Parts[0],10), tv2MM=parseInt(tv2Parts[1]||'0',10);
+    if(isNaN(tv2HH)||isNaN(tv2MM)||tv2HH<0||tv2HH>23||tv2MM<0||tv2MM>59){ showFormErr('第二盘时辰超出范围（应为 00:00–23:59）'); return; }
+    const tv2=String(tv2HH).padStart(2,'0')+':'+String(tv2MM).padStart(2,'0');
+    const dsex=parseInt((document.getElementById('dSex')&&document.getElementById('dSex').value)||'1');
+    /* 第二盘经度：手动 dLng 优先，否则取第二盘出生地所算 DUAL_CITY_LNG，缺省回退主盘 lng */
+    const dLngManual=(document.getElementById('dLng')||{}).value;
+    const lng2=(dLngManual!=='' && dLngManual!=null && !isNaN(parseFloat(dLngManual)))?parseFloat(dLngManual)
+      :((typeof window.__dualLngOf==='function' && window.__dualLngOf()!=null)?window.__dualLngOf():lng);
+    try{
+      const built2=buildBaziState({ date:dv2, time:tv2, sex:dsex, ziMode, sunMode, dst:dstMode, yearAxis, lng:lng2, kongAxis });
+      dualBZ2=built2.BZ;
+      dualA2=getAnalysis(dualBZ2);
+      /* 第二盘历法与四柱列一并带出：基础信息字段流（农历、节气、三垣）与四柱表（含大运流年列）与主盘同构渲染 */
+      window.__dualBuilt2=built2;
+      try{
+        const _ls2=built2.lunar.getSolar(), _rs2=built2.stdDate||built2.rawSolar;
+        dualBZ2.lunar = (_ls2.getYear()===_rs2.y&&_ls2.getMonth()===_rs2.m&&_ls2.getDay()===_rs2.d) ? built2.lunar : built2.lunar.next(-1);
+      }catch(e){}
+      window.__dualCols2=(function(){
+        try{ return built2.cols || null; }catch(e){ return null; }
+      })();
+    }catch(e){ showFormErr('第二盘装配失败：'+((e&&e.message)||e)); return; }
+  }
   /* 挂农历对象（表法定配偶方位用；本接口返回里恒有）。
      夜子时、夏令折算或太阳时校正跨日后 lunar 会指向次日，表法须按出生当天农历查 → 不同日时回退前一天；
      比较基准取 stdDate（夏令折算后的标准时日期），使夏令零点前后出生者的农历日归属正确。 */
@@ -529,12 +603,12 @@ function paipan(){
   yearGZcur = built.yearGZ; // date 模式为数组 ['庚','午']，与原 yearGZcur 一致
 
   const rs = built.rawSolar;
-  const R={ mode:'date', y:rs.y, m:rs.m, d:rs.d, h:rs.h, mi:rs.mi, lng, sunMode,
+  const R={ mode, y:rs.y, m:rs.m, d:rs.d, h:rs.h, mi:rs.mi, lng, sunMode,
             raw:built.rawSolar, std:built.stdDate, tsInfo:built.tsInfo,
             ziNote:built.ziNote, dstNote:built.dstNote, axisNote:built.axisNote, lunar:built.lunar,
             pj:built.lunar.getPrevJieQi(), nj:built.lunar.getNextJieQi(),
-            sex, dayGan:built.BZ.dayGan, cols:built.cols, ec:built.ec };
-  const html=renderBaziPage(R, BZ);
+            sex, dayGan:built.BZ.dayGan, cols:built.cols, ec:built.ec,
+            dualA2, dualBZ2, dualBuilt2: (typeof window!=='undefined' ? window.__dualBuilt2 : null) };  const html=renderBaziPage(R, BZ);
   document.getElementById('out').innerHTML=html;
   renderDyn(BZ);
   drawYunChart(BZ);
@@ -568,6 +642,25 @@ function paipan(){
 /* ============ 四柱干支输入模式 + 断事 ============ */
 /* 单一显隐原语：设定某元素是否显示（show=false 则 display:none，否则还原）；全站模式切换统一走此函数 */
 function gs(id, show){ const el=document.getElementById(id); if(el) el.style.display=show?'':'none'; }
+/* ===== 双盘对照第二盘块：勾选展开（照紫微 zwRelToggle、占星 xzRel 范式，显隐只有默认态与 is-on）=====
+   块内日期形态随主盘历法：主盘农历则第二盘同显农历字段，四柱、名人、已存三模式无日期可对照、整块随勾选一并隐藏。 */
+function dualRelToggle(){
+  dualRelSync();
+  /* 勾选变化须触发重排：对照层随勾选挂起或撤下 */
+  if(baziInitDone){ lastPaipanSig=''; try{ if(window.paipan) paipan(); }catch(e){} }
+}
+function dualRelSync(){
+  const chk=document.getElementById('dualRel'), box=document.getElementById('dualRel2');
+  if(!chk||!box) return;
+  const mode=document.getElementById('bMode').value;
+  const dateable=(mode==='date'||mode==='lunar');
+  const on=chk.checked && dateable;
+  box.classList.toggle('is-on', on);
+  const isLunar=(mode==='lunar');
+  gs('dDateWrap', on && !isLunar);
+  ['dLunarYWrap','dLunarMWrap','dLunarLeapWrap','dLunarDWrap'].forEach(id=>gs(id, on && isLunar));
+}
+
 function toggleBaziMode(){
   const mode=document.getElementById('bMode').value;
   const isPillar=mode==='pillar';
@@ -578,7 +671,6 @@ function toggleBaziMode(){
   document.body.classList.toggle('mode-lunar',isLunar);
   document.body.classList.toggle('mode-date',!isPillar && !isSaved && !isLunar);
   /* 出生地相关组（省/市/区、手动经度、真太阳时校正）：仅"公历/农历"输入流程需经换算校正，四柱/已存不显示 */
-  /* 单一判定 isBirthSect 控制整组显隐 */
   const hasBirthSect = (mode==='date' || mode==='lunar') && !isSaved;
   const dsp=isPillar?'none':'';
   /* 公历日期与出生时间两字段按模式切换显隐，走单一显隐原语 gs；姓名框在名人模式复用作人名检索 */
@@ -591,9 +683,12 @@ function toggleBaziMode(){
   if(_bi){ _bi.placeholder=isCeleb?'':'选填'; _bi.autocomplete=isCeleb?'off':'on'; if(isCeleb) _bi.value=''; }
   gs('bCelebGo', isCeleb);
   if(!isCeleb){ const _sg=document.getElementById('celebSug'); if(_sg) _sg.classList.remove('on'); }
-  /* 农历输入组：仅农历模式显示（公历/四柱/已存均隐藏） */
+  /* 农历输入组：仅农历模式显示（公历、四柱、已存均隐藏） */
   ['fLunarY','fLunarM','fLunarLeap','fLunarD'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=isLunar?'':'none'; });
   document.getElementById('fPillar').style.display=isPillar?'':'none';
+  /* 双盘对照第二盘块：勾选才显（照紫微、占星双人合盘范式）；块内日期形态随主盘历法（主盘农历则第二盘同显农历字段），
+     非日期模式（四柱、名人、已存）整块随勾选一并隐藏（对照无源） */
+  dualRelSync();
   /* 出生地整组（省/市/区、手动经度、真太阳时校正）：仅公历/农历且非已存时显示，整组显隐即涵盖内层字段 */
   gs('birthGroup', hasBirthSect);
   gs('optsRow', !isSaved); /* 已存模式下隐藏输入行排盘按钮，改用列表内"排盘" */
@@ -994,8 +1089,8 @@ function restoreYunSel(){
 (function initGzSel(){
   const saved=loadPillarSel();
   const fill=(id,arr,def)=>{ const el=document.getElementById(id); if(!el) return; el.innerHTML=arr.map(x=>`<option value="${x}">${x}</option>`).join(''); let v=def; if(saved && saved[id]!=null && arr.indexOf(saved[id])>=0) v=saved[id]; if(v!=null) el.value=v; };
-  ['pyG','pmG','pdG','ptG'].forEach(id=>fill(id,GAN));
-  ['pyZ','pmZ','pdZ','ptZ'].forEach(id=>fill(id,ZHI_ORDER));
+  ['pyG','pmG','pdG','ptG','dyG','dmG','ddG','dtG'].forEach(id=>fill(id,GAN));
+  ['pyZ','pmZ','pdZ','ptZ','dyZ','dmZ','ddZ','dtZ'].forEach(id=>fill(id,ZHI_ORDER));
   try{
     const now=new Date();
     const yy=now.getFullYear();
@@ -1245,7 +1340,7 @@ mountAI(function(){
   try{ const A=getAnalysis(BZ);
     analysis=`\n格局分析：\n日主强弱：${A.strength}（旺衰评分${A.score.toFixed(1)}）\n五行分布：${['木','火','土','金','水'].map(k=>k+A.cnt[k]).join(' ')}`+
       `\n扶抑用神：喜（${A.fu.xi.join('、')}） 忌（${A.fu.ji.join('、')}）`+
-      `\n调候用神：喜${A.tiao.wx}（${dedupChars(A.tiao.gan)}）`+
+      `\n调候用神：喜${A.tiao.wx}（${A.tiao.zhiGan.join('、')}），${A.tiao.power}`+
       (A.tong?`\n通关用神：${A.tong.wx}（${dedupChars(A.tong.gan)}）`:'')+
       `\n格局：${A.geName}${A.geGanLabel}；格局用神：喜 ${A.geUse.xi}；忌 ${A.geUse.ji}`;
   }catch(e){ analysis=''; }

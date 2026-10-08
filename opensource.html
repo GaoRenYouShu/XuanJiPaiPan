@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=a93d24e9">
+<link rel="stylesheet" href="assets/style.css?v=330f4954">
 <link rel="stylesheet" href="assets/css/opensource.css?v=41f7c36f">
 
 </head>
@@ -85,7 +85,7 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=d6ca0459"></script>
+<script defer src="assets/app.js?v=94c895a9"></script>
 <script>
 
 /* DATA 各条只存基础分 s（非百分比）：页面渲染时按全体基础分动态归一到合计 100.0，
@@ -120,10 +120,10 @@ const DATA=[
   link:'https://cbdb.fas.harvard.edu/',
   fn:'历史名人库古代段的补源：取 CBDB 的 TEI 人物导出，经汉字、字库、名讳三闸清洗后，按全名、朝代、身份短语三项入片，约二十万人，供起名仿前贤参考与同名核验。',
   note:'许可：CC BY-NC-SA 4.0（署名、非商业性使用、相同方式共享）。由哈佛大学、中央研究院与北京大学共建。派生分片单独成文件，文件头随行注明来源与许可；本站源码仍为 MIT，该分片不得改标其他许可，涉商业使用须先取得 CBDB 项目方授权。'},
- {name:'名人八字数据库（ bazi-celebs-db.js ）', type:'in', v:4, s:2.0,
-  link:'',
-  fn:'八字排盘页名人输入方式的生辰数据：收录历史人物四万一千余人，自帝王将相、文人学者至近现代军政科教人物。分两层：生年月日俱全者一万余人可直接排盘，仅生年可考者三万余人如实报出生卒年与年柱。古代段以史载农历日为锚按本站历法引擎换算公历并逐条回验，近现代以公历生日确载为准；时辰仅录史载确凿者，未载者按午时正计并明示用户可改。近现代段另有人工策展层，逐条核校生辰、出生地与史载时辰，政军、文学、戏曲、音乐、科教、实业、体育各界共收百余人，检索即填入出生地并按该地经度回折真太阳时；史未载出生地者按史载地方时排盘，不经经度校正。',
-  note:'本站自产策展数据，随本站源码 MIT 许可分发；收录口径与换算口径见文件头注释。'},
+ {name:'名人八字数据库（ bazi-celebs-db.js ）', type:'in', v:5, s:2.0,
+  link:'https://cbdb.fas.harvard.edu/',
+  fn:'八字排盘页名人输入方式的生辰数据：名录与生年以中国历代人物传记资料库（CBDB）为基础，CBDB 载生年者五万余，其中约一万条并载完整年月日（记农历、写成公历外形，按本站历法引擎回锚），所载止于日，时辰与四柱干支俱缺；其缺处由本站据公开史料、年谱、传记与网络资料（Wikidata、中文维基百科等）搜集校订补全，四柱干支由本站历法引擎按生辰推排。分两层：生年月日俱全者可直接排盘，仅生年可考者如实报出生卒年与年柱。古代段以史载农历日为锚按本站历法引擎换算公历并逐条回验，近现代以公历生日确载为准；时辰只录有据者，按来源分级（史载与传世两级分别措辞），未载者按午时正计并明示用户可改。近现代段另有人工策展层，逐条核校生辰、出生地与史载时辰，政军、文学、戏曲、音乐、科教、实业、体育各界共收百余人，检索即填入出生地并按该地经度回折真太阳时；史未载出生地者按史载地方时排盘，不经经度校正。',
+  note:'许可：CC BY-NC-SA 4.0（署名、非商业性使用、相同方式共享）。名录与生年取自中国历代人物传记资料库（CBDB），由哈佛大学、中央研究院与北京大学共建，涉商业使用须先取得 CBDB 项目方授权。近现代人物另据 Wikidata（CC0）与中文维基百科（CC BY-SA）校补。本站自采自校的生辰、时辰与出生地为本站自产，随本站源码 MIT 许可分发。收录口径与换算口径见文件头注释。'},
  {name:'chinese-poetry（ link-corpus.js、name-classics.js 语料底本 ）', type:'in', v:3, s:6.0,
   link:'https://github.com/chinese-poetry/chinese-poetry',
   fn:'典籍语料底本。先秦至清诗词与经史蒙学的结构化全文，本站取诗经、楚辞、论语、孟子、大学、中庸、全唐诗、宋词、元曲、古文观止、声律启蒙、幼学琼林、百家姓等篇目，繁转简并去标点归一后成姓名学联动语料；典籍名源与起名成词的出处须在此语料中真实命中方可入片。',
@@ -381,7 +381,7 @@ const DATA=[
   fn:'精编拆字字典（2517 字、615 字随问取拆多拆法、934 字六书标注、108 条加笔减笔活拆变象、部件释义表 312 项），叠以康熙数理（复用姓名学 NAME81）、梅花字占起卦（与梅花易数字占完全同源，附 64 卦义、周易卦辞、24 动爻白话爻解与九类事断语，起卦全空间覆盖，互变事类参断为九类乘三态插槽），经文复用 jingwen.js，加以时辰外应与值日冲日应期、九类事综合断语，四项加权得五档评级；未收录字按结构与数理兜底。',
   note:'源码 cezi-engine.js 与 cezi-data.js(cezi.html)。相字十法全收，八卦归象依《说卦传》；卷三取格断语 828 条照录《测字秘牒》（维基文库全文，CC BY-SA 4.0，本页以相同方式共享），卷五散格骨格 64 部件、卷七至理测法 18 案例照录底本，心易谐声、假借、转注三通道，经文照录《周易》，其余拆语自撰演绎。'},
  {name:'app.js 框架、共享日期选择器', type:'self', v:2.5, s:15.8,
-  link:'assets/app.js?v=d6ca0459',
+  link:'assets/app.js?v=94c895a9',
   fn:'统一导航栏与页脚渲染、全站共享的自定义日期时间选择器（解决移动端原生日历无法弹出的问题）、默认当日时间、通用工具函数。',
   note:'源码 app.js，被全站页面统一加载。'},
  {name:'盲派命理数据层（ bazi-mangpai.js ）', type:'self', v:6, s:15.5,

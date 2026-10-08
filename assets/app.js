@@ -756,6 +756,9 @@ function xjShareRecast(recast){
   function place(sel, list){
     var gap = 6, vh = window.innerHeight, vw = window.innerWidth;
     var r = sel.getBoundingClientRect();
+    /* 锚点脱离文档或矩形全零（重建后残留的旧节点）：收起列表并报假，
+       否则 left/top 会算到 (0,0)，列表落在屏幕左上角 */
+    if(!sel.isConnected || (r.width === 0 && r.height === 0)){ close(); return false; }
     list.style.minWidth = Math.round(r.width) + 'px';
     list.style.left = '0px'; list.style.top = '0px';
     list.style.maxHeight = '';
@@ -790,6 +793,7 @@ function xjShareRecast(recast){
   }
   function open(sel){
     close();
+    if(!sel || !sel.isConnected) return;
     var list = document.createElement('div');
     /* 主题标识：与日期弹框共用同一套 dtm-* 变量（--tk 等），使选中项取当前页主体色，
        而非全站写死的 --red，使各页选中项随本页主体色 */
@@ -818,7 +822,7 @@ function xjShareRecast(recast){
       list.appendChild(it);
     });
     document.body.appendChild(list);
-    place(sel, list);
+    if(place(sel, list) === false) return;
     var on = list.querySelector('.sel-opt.on');
     if(on && on.scrollIntoView) on.scrollIntoView({block:'nearest'});
     cur = {sel:sel, list:list, inModal: !!(sel.closest && sel.closest('.modal,.dt-modal,.ai-cfg'))};
@@ -837,6 +841,14 @@ function xjShareRecast(recast){
     if(!sel || skip(sel)){ if(cur) close('onDown no-sel'); return; }
     e.preventDefault();                               /* 拦下原生展开 */
     try{ sel.focus({preventScroll:true}); }catch(_){ sel.focus(); }
+    /* 聚焦先令原控件失焦、触发其 change：日期弹框年份框的 change 会重建弹框内容，
+       被点的月份下拉随之换成新节点，旧引用已脱离文档。按 id 找回新节点再展开，
+       否则列表按脱离节点（全零矩形）定位，落在屏幕左上角 */
+    if(!sel.isConnected && sel.id){
+      var again = document.getElementById(sel.id);
+      if(again && again.tagName === 'SELECT' && !skip(again)) sel = again;
+    }
+    if(!sel.isConnected){ if(cur) close(); return; }
     if(cur && cur.sel === sel){ close('toggle'); return; }
     open(sel);
   }
