@@ -695,7 +695,7 @@ function toggleBaziMode(){
   document.getElementById('bZiField').style.display=(isSaved?'none':dsp);
   /* 夏令时随出生地组整组显隐（同在 birthGroup 内）；太阳时与年界两选项仅公历、农历模式可调 */
   gs('bSunField', !isSaved && !isPillar);
-  /* 夏令时随学术取舍行显隐（与四学术项同列，不随出生地组整组走）：出生地组只装出生地要素，
+  /* 夏令时随时间折算与流派行显隐（与另四项同列，不随出生地组整组走）：出生地组只装出生地要素，
      夏令时是时间折算口径而非出生地取值，两者分列后各自的显隐条件也随之分开 */
   gs('bDstField', !isSaved && !isPillar);
   gs('bYearAxisField', !isSaved && !isPillar);
@@ -831,7 +831,7 @@ function paipanPillar(){
   const tg=document.getElementById('ptG').value, tz=document.getElementById('ptZ').value;
   const sex=parseInt(document.getElementById('bSex').value);
   /* 空亡基准轴：四柱模式同样需从 bKong 读取（日期模式在 paipan 内读取；本函数不读会导致
-     切换轴后空亡行不变，沿用上一次渲染的轴）。并同步学术取舍说明显隐。
+     切换轴后空亡行不变，沿用上一次渲染的轴）。并同步时间折算与流派说明显隐。
      四柱/已存模式固定用日柱六甲空亡（隐藏了基准切换框，强制 day 轴，防残留年柱选择贯穿）。 */
   kongAxis=(document.getElementById('bMode').value==='pillar'||document.getElementById('bMode').value==='saved')?'day':document.getElementById('bKong').value;
   clearFormErr();

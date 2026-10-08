@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=88553e30">
-<link rel="stylesheet" href="assets/css/bazi.css?v=a632518c">
+<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/css/bazi.css?v=cbad38cc">
 
 </head>
 <body class="mode-date bz-root">
@@ -95,9 +95,9 @@
     </div>
     <!-- 双盘对照（照紫微、占星双人合盘范式：勾选展开第二盘块，与主盘同历法同构输入；
          第二盘自带出生地整组（省、市、区、经度），样式取占星虚线框；
-         学术取舍五项（夏令时、子时算法、太阳时、年界、空亡基准）为两盘共享口径、独立成行，双盘勾选后自动适用第二盘；
-         夏令时虽属时间折算，却非出生地要素（不随省市区取值），故与四学术项同列，出生地组只装出生地；
-         块位置在 opts 内、主盘出生地与学术取舍行之后，跟随主盘表单流） -->
+         时间折算与流派五项（夏令时、子时算法、太阳时、年界、空亡基准）为全盘共享口径、独立成行，双盘勾选后自动适用第二盘；
+         夏令时虽属时间折算，却非出生地要素（不随省市区取值），故与另四项同列，出生地组只装出生地；
+         块位置在 opts 内、主盘出生地与时间折算与流派行之后，跟随主盘表单流） -->
     <div class="opts">
       <div class="birth-group compact" id="birthGroup">
         <div class="group-label">出生地（用于经度校正，内置行政区划经度）</div>
@@ -107,9 +107,9 @@
         <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" aria-label="手动经度东经度数" step="0.01" placeholder="出生地" onchange="savePillarSel()"></div>
       </div>
       <div class="opts-row" id="optsRow">
-        <!-- 学术取舍五项成组：题头独占一行，与上方出生地组题头对仗，两块的从属关系一眼可辨。
-             五项皆为时间折算与流派口径（不随省市区取值），故与出生地分列，免被误读出地一项。 -->
-        <div class="group-label">学术取舍（时间折算与流派口径，两盘共用）</div>
+        <!-- 时间折算与流派五项成组：题头独占一行，与上方出生地组题头对仗，两块的从属关系一眼可辨。
+             五项皆不随省市区取值，故与出生地分列，免被误读出地一项。 -->
+        <div class="group-label">时间折算与流派</div>
         <div class="field" id="bDstField"><label for="bDst">夏令时</label>
           <select id="bDst" aria-label="选择夏令时折算口径" onchange="savePillarSel()">
             <option value="auto">自动折算（1986至1991）</option>
@@ -206,7 +206,7 @@
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/bazi-core.js?v=fbcce6c9"></script>
-<script defer src="assets/bazi-app.js?v=f9dea876"></script>
+<script defer src="assets/bazi-app.js?v=6c2d73c8"></script>
 <script>
 /* ================= 岁运清洗：剔除含大运/流年/流月/流日 的应期句 ================= */
 const YUN_JI=/大运|流年|流月|流日/;
