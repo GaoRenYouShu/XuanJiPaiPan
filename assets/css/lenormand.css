@@ -94,6 +94,11 @@
   .page-ln .page > .form-row{flex-direction:column;align-items:stretch}
   .page-ln .page > .form-row .field{flex:1 1 100%;width:100%;min-width:0;max-width:none}
   .page-ln .page > .form-row .field input,.page-ln .page > .form-row .field select{width:100%;max-width:none}
+  /* 牌阵与指标牌两下拉按选项文字取宽：铺满一行则框宽数倍于文字，右侧空出大半。
+     随内容定宽，视口不足时由 max-width 收窄；竖排容器里 align-self 让字段不跟着拉伸。
+     所问之事为长文本输入框，整行铺满系其本分，不在此列。 */
+  .page-ln .page > .form-row .field:has(#spread),.page-ln .page > .form-row .field:has(#sig){flex:0 0 auto;width:auto;align-self:flex-start}
+  .page-ln .page > .form-row .field:has(#spread) select,.page-ln .page > .form-row .field:has(#sig) select{width:auto;max-width:100%}
   /* 抽牌钮占满一行：列向容器里 flex-basis 即主轴（高），写百分比会盖掉 .btn 的 30px 定高，故取 auto */
   .page-ln .page > .form-row .btn{flex:0 0 auto;width:100%}
   .page-ln .leno-box{grid-template-columns:repeat(2,1fr)}

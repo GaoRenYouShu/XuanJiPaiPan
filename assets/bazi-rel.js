@@ -2002,9 +2002,31 @@ function renderChengu(BZ){
   if(c.dv==null) reasons.push('日柱称量需出生日期，当前未确认，已按年月时估算');
   if(!c.yKnown) reasons.push(`年柱${c.yg}骨重数据暂缺，已忽略该柱`);
   const note=reasons.length?`（${reasons.join('；')}）`:'';
+  /* 称骨歌诀：按性别取男卷女卷，键为“两.钱”；数据件 chengu-songs.js 由页面引（民俗页与八字页共用）。
+     七两二钱男卷存甲乙两说，甲说为通行本正文、乙说并列附后；卷或键缺时如实报无，不硬凑。 */
+  let songText='';
+  try{
+    const _male=(BZ.sex===1||BZ.sex==='男'||BZ.sex===true);
+    const _songs=_male?(window.CHENGU_SONGS_M||{}):(window.CHENGU_SONGS_F||{});
+    const _key=c.liangInt+'.'+c.qian;
+    const _song=_songs[_key];
+    if(_song) songText=_song;
+    else if(_male && _key==='7.2' && window.CHENGU_SONGS_M_72B) songText=window.CHENGU_SONGS_M_72B;
+    if(!songText) songText='本骨重档位歌诀未载，见民俗占法页称骨模块全本。';
+    const _notes=window.CHENGU_SONGS_NOTES||{};
+    if(_notes[_key]) songText+='（'+_notes[_key]+'）';
+  }catch(e){ songText='歌诀数据未载，见民俗占法页称骨模块全本。'; }
   let h=`<div class="life-card"><h5>袁天罡称骨</h5>`;
-  // 输出顺序：各柱骨重 → 总骨重（估算盘附括注） → 文化解读 → 法理说明（置末）。
-  h+=`<p class="ly-zh-p">各柱骨重：${parts.join('，')}。总骨重：${c.liangInt}两${c.qian}钱（${c.total}钱）${isEstimate?'（估算值）':''}${note}。文化解读：${c.v.t}。</p>`;
+  // 表格形制与命局断事卡同款（stab 两列，项目、断事）：各行只写该项内容，不再整段一句连排。
+  const rows=[
+    ['各柱骨重', `${parts.join('，')}。`],
+    ['总骨重', `${c.liangInt}两${c.qian}钱（${c.total}钱）${isEstimate?'，估算值':''}${note}。`],
+    ['称骨歌', songText],
+    ['文化解读', `${c.v.t}。`]
+  ];
+  h+='<div class="tbl-wrap"><table class="stab stab-ds"><tr><th>项目</th><th>断事</th></tr>'
+    +rows.map(r=>'<tr><td class="lbl">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')
+    +'</table></div>';
   h+=`</div>`;
   return h;
 }

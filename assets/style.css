@@ -761,6 +761,9 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
    即在同一页之内与上下两行读作两值。 */
 .opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end}
 .opts-row .field{min-width:160px}
+/* 下拉宽度上限 160px为桌面终值：四学术项选项取主干短文案后自然宽 128 至 156，
+   160 封顶与出生地省级同档；响应式下字段框宽不得超桌面值，拉宽即留空白，上限限制死 */
+.opts-row .field select{width:auto;max-width:160px}
 .opts-row .field.chk{align-self:flex-end;padding-bottom:var(--sp-2);min-width:auto}
 .opts-row .btn{flex:0 0 auto;align-self:flex-end}
 .ts-box{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5}
@@ -1363,9 +1366,10 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .remedy-tbl td.lbl.rem-bad{color:var(--red)}
 .remedy-box .rem-yi{padding-left:var(--sp-2)}
 .remedy-box .rem-ji{padding-left:var(--sp-2)}
-/* 响应式：部分表单允许字段 2 列排列 */
+/* 响应式：字段随内容收缩、不按列数拉伸（拉伸会把百余像素的下拉撑到两百余像素，
+   既超桌面终值又于右侧空出大量留白），一行容不下即整字段换行 */
 @media(max-width:600px){
-  .form-row.r2 .field{flex:1 1 48%}
+  .form-row.r2 .field{flex:0 0 auto;width:auto;min-width:0}
   /* r3: 性别/子时/按钮保持单排，不强制分两列 */
   .form-row.r3 .field{flex:0 0 auto}
   .form-row.r3 #bSex{min-width:40px !important;max-width:80px !important}
@@ -1440,7 +1444,9 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 /* 出生地紧凑组：省、市、区县、经度与真太阳时勾选项同排，合婚、八字、择日、六爻等页共用 */
 /* 纵向内边距取 --sp-2（8px），站内带边框容器纵向一律此档；横向留 --sp-4（16px），保持纵向小于横向的比例 */
 .birth-group.compact{gap:var(--sp-2) var(--sp-3);padding:var(--sp-2) var(--sp-4)}
-.birth-group.compact .field{flex:0 1 140px;min-width:60px;max-width:140px;margin:0}
+/* 字段框随控件收缩、不按列数拉伸：全档同值，窄屏不再另立一档（同层重复选择器即由此而来）。
+   一级容不下即整字段换行，故省、市、区县、经度在窄屏与桌面恒同宽、右侧不留空。 */
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
 /* 出生地组内的手填经纬度：定宽族 96px，不随组宽伸展 */
 .birth-group.compact .field input[type="text"]{width:96px}
 .birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
@@ -1449,14 +1455,16 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
    此处不可再给 margin-bottom——否则与 row-gap 叠加成 16px（实测双倍），
    与 .hh-card 作用域（margin:0）及窄屏 media（margin:0）的 8px 口径都不一致 */
 .birth-group.compact .group-label{width:100%;margin:0}
-/* 出生地三级下拉宽度统一（仅桌面 641+；紧凑组 compact）：省/市/区县三框一律 7 个汉字宽
-   （实测 7 字 option 自然宽 137px＝内容 91＋内边距 24＋边框 2＋下拉箭头 20，不裁切），
-   三框等宽左对齐成列；字段框随控件收缩（.field 列容器默认拉伸，width:auto 防空洞）。
-   长地名闭合态在框内截断、展开下拉列表可见全文。窄屏 ≤640 仍走上方 media 的流式布局 */
-@media (min-width:641px){
-  .birth-group.compact .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
-  .birth-group.compact .field select{width:137px;align-self:flex-start}
-}
+/* 出生地三级下拉宽度（全档生效，不随视口分档；紧凑组 compact）：三级一律定宽，
+   响应式下字段框宽不得超桌面值，宽度随视口拉宽即与桌面失配、且右侧空出大量留白。
+   省 137px（最长项 新疆维吾尔自治区，长名闭合态截断、展开下拉列表可见全文）；
+   市 96px（全库最长 乌鲁木齐市 文字 65 加间距恰满 96 档）；区县 137px（与省同值，
+   全库最长县名 15 字 195px 装不下，闭合态截断、展开下拉列表可见全文，定宽取宽度稳定优先，
+   长名全文走下拉列表）。字段值由上方同选择器一条给出，此处只落 select 一级。 */
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+.birth-group.compact .field select[id$="City"]{width:96px}
+.birth-group.compact .field select[id$="Dist"]{width:137px}
 /* 评分总览框、专项条目与进度条：合婚、星盘、紫微、姓名学四页共用，纸本目录语言（去框改线、零投影） */
 .hh-total{position:relative;text-align:center;margin:0 auto var(--sp-4);max-width:360px;padding:var(--sp-4) 0;
   background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
@@ -1499,19 +1507,11 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .hh-adv-pill-g{background:var(--hh)}
 .hh-adv-pill-d{background:var(--hh-deep)}
 @media(max-width:640px){
-  /* 出生地窄屏：省、市、区县流式占满首行，经度与真太阳时校正跟随其后同排；
-     容不下时按字段自然换行，不写死列位。经度定宽 96px，不铺满。
-     行内横向间距取移动端更小档 --sp-2，与全站表单行在窄屏的取值同档（第八节：移动端间距取更小档）；
-     三等分的扣除量随该档走，故格宽算式里的间距一并取 --sp-2，两处不得各行其是。 */
-  .birth-group.compact{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
-  .birth-group.compact .group-label{width:100%;margin:0}
-  .birth-group.compact .field{flex:1 1 calc((100% - var(--sp-2)*2)/3);min-width:0;margin:0;width:auto;max-width:none}
-  /* 三级下拉随三等分走，不按最长选项撑开，省市区恒在一行 */
-  .birth-group.compact .field select{width:100%;min-width:0}
-  /* 手填经纬度恒 96px，不随三等分伸展 */
+  /* 出生地窄屏：三级下拉与经度恒守上方全档定宽（省 137、市 96、区县 137、经度 96），
+     不按列数拉伸、不铺满，故窄屏与桌面同宽、右侧不留空。一行容不下即整字段换行。
+     行内间距取移动端更小档 --sp-2，与全站表单行在窄屏的取值同档（第八节：移动端间距取更小档）。 */
+  .birth-group.compact{gap:var(--sp-2)}
   .birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
-  .birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
-  .birth-group.compact .field.hh-true{flex:0 0 auto;min-width:auto;width:auto}
   .hh-adv{padding:var(--sp-3) 0}
   .hh-adv-tbl th{width:92px;padding:8px 10px}
   .hh-adv-tbl td{padding:8px 10px}

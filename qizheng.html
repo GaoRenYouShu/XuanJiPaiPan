@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=330f4954">
-<link rel="stylesheet" href="assets/css/qizheng.css?v=1531a28d">
+<link rel="stylesheet" href="assets/style.css?v=491e21f7">
+<link rel="stylesheet" href="assets/css/qizheng.css?v=e250dfb7">
 
 </head>
 <body>
@@ -58,8 +58,10 @@
         <div class="field"><label>手动经度</label><input type="text" id="qzLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
         <div class="field"><label>手动纬度</label><input type="text" id="qzLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
       </div>
-      <label class="qz-chk"><input type="checkbox" id="qzTrue" checked> 真太阳时校正（用于定时辰、安命安身；星历按天文口径另算）</label>
-      <label class="qz-chk"><input type="checkbox" id="qzRel" onchange="document.getElementById('qzRel2').classList.toggle('open',this.checked)"> 双人对照盘（勾选后填第二人出生资料，追加命宫互照、命主互临、贵人四余对照）</label>
+      <div class="qz-chks">
+        <div class="field chk hh-true"><input type="checkbox" id="qzTrue" checked aria-label="是否启用真太阳时校正"><label for="qzTrue">真太阳时校正</label><span class="qz-chk-note">用于定时辰、安命安身；星历按天文口径另算。</span></div>
+        <label class="qz-chk"><input type="checkbox" id="qzRel" onchange="document.getElementById('qzRel2').classList.toggle('open',this.checked)"> 双人对照（勾选后填第二人出生资料，追加命宫互照、命主互临、贵人四余对照）</label>
+      </div>
       <div class="qz-rel2" id="qzRel2">
         <div class="qz-row-inputs">
           <div class="field f-date"><label>第二人出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qzBDate"></div>
@@ -337,7 +339,7 @@ function qzPai(){
     return;
   }
   window.__qzChart = c;
-  /* 双人对照盘（勾选时）：第二人坐标手填优先、留空按出生地取数，过宫制、命度法、真太阳时随本命设置 */
+  /* 双人对照（勾选时）：第二人坐标手填优先、留空按出生地取数，过宫制、命度法、真太阳时随本命设置 */
   let chartB = null;
   if(document.getElementById('qzRel').checked){
     const bdv = document.getElementById('qzBDate').value, btv = document.getElementById('qzBTime').value;
@@ -526,7 +528,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
     </section>
     <section class="mod collapsed" id="qzModSyn">
       <div class="mod-head" onclick="qzToggleMod('qzModSyn')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">五、综合</span><span class="mod-sub">择时 双人对照 综合解读</span></div>
-      <div class="mod-body"><h3 class="rel-title">七政择时（天象格局吉时扫描）</h3>${zeBody}${relBody ? `<h3 class="rel-title">双人对照盘</h3>${relBody}` : ''}<h3 class="rel-title">综合解读</h3>${synthMod}</div>
+      <div class="mod-body"><h3 class="rel-title">七政择时（天象格局吉时扫描）</h3>${zeBody}${relBody ? `<h3 class="rel-title">双人对照</h3>${relBody}` : ''}<h3 class="rel-title">综合解读</h3>${synthMod}</div>
     </section>`;
 }
 /* ===== 流年盘、择时、双人对照 ===== */

@@ -396,7 +396,7 @@
   /* 字辈字：名首字下拉与字辈输入框同行在后，两框皆按内容宽，
    * 字段宽度回到 auto 由两者相加决定，不沿用桌面 132px 定值把框撑长 */
   .page-nm .form-row #fBeizi{flex:0 0 auto;width:144px;max-width:100%}
-  .page-nm .form-row #fBeizi #nmBzPos{width:auto;min-width:64px}
+  .page-nm .form-row #fBeizi #nmBzPos{width:auto;min-width:64px;max-width:78px}
   .page-nm .form-row #fBeizi #nmBeizi{width:auto;min-width:44px;max-width:64px}
   /* 五行配额一行五框：按内容排，不铺满 */
   .page-nm .nm-wxrow{gap:var(--sp-2)}
@@ -424,9 +424,10 @@
 
 @media (max-width:600px){
   /* 字辈字段为 label+下拉+输入框横排，r2 的 48% 两列宽装不下会把输入框顶出框外，独占整行；
-     字辈字段定基准宽，可与名字字数同行；下拉 84px 保三字不截断，输入框 44px 单字宽 */
+     字辈字段定基准宽，可与名字字数同行；下拉守桌面 78px（窄屏不得宽于桌面，故不另立 84 档），
+     输入框 44px 单字宽 */
   .page-nm #fBeizi{flex:1 1 140px}
-  .page-nm #nmBzPos{width:84px}
+  .page-nm #nmBzPos{width:78px}
   .page-nm #nmBeizi{width:44px}
   .page-nm #fBeizi input{flex:0 0 44px;min-width:0;width:44px}
   /* 五行配额组整行：r2 的 48% 半行宽只装得下 3 个选框，折成多行撑高页面 */

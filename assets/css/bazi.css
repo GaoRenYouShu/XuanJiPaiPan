@@ -171,7 +171,9 @@
 
 .page-bazi .saved-list .btn-del:hover{background:#fff0ee;color:var(--red);border-color:#e6a0a0}
 
-.page-bazi .bazi-top{display:flex;flex-wrap:nowrap;align-items:flex-end;margin-bottom:var(--sp-3)}
+/* 顶部行（输入方式至出生时间，末接排盘与保存两钮）：全档 flex 换行，容器变窄即整字段换行，
+   不挤压、不缩控件；桌面一行可容，窄屏按字段自然折行，按钮随字段流走最后一行的行尾 */
+.page-bazi .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2);margin-bottom:var(--sp-3)}
 
 .page-bazi .bazi-top .field#fName input{width:96px;align-self:flex-start}
 
@@ -182,8 +184,6 @@
 .page-bazi .bazi-top .field{flex:0 0 auto;width:auto;margin:0;min-width:0}
 
 @media(min-width:641px) and (max-width:970px){
-  .mode-lunar:where(.bz-root) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end}
-  .mode-lunar:where(.bz-root) .bazi-top .field{flex:0 0 auto;min-width:0;max-width:none}
   /* 出生时间图标布局：图标与输入框同行；输入框全站统一宽 72px */
   .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
 }
@@ -213,13 +213,10 @@
   .mode-pillar:where(.bz-root) .bazi-flow .span-years,
   .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn{grid-column:span 2}
   /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
-  .mode-date:where(.bz-root) .bazi-top,.mode-lunar:where(.bz-root) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2)}
-  /* 已存模式（body 无模式类）同入流式：顶部行与公历/农历同口径，两框之间不留空档 */
   .mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
   /* 通用段 .opts-row .field 有 160px 保底，320 视口下两个字段就撑破行，此处按模式收回 */
   .mode-date:where(.bz-root) .opts-row .field,.mode-lunar:where(.bz-root) .opts-row .field{min-width:0}
   .mode-date:where(.bz-root) .bazi-top .field select,.mode-lunar:where(.bz-root) .bazi-top .field select,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field select{width:auto;align-self:flex-start}
-  body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2)}
   .mode-date:where(.bz-root) .bazi-top .field#fName input,.mode-lunar:where(.bz-root) .bazi-top .field#fName input{width:96px;align-self:flex-start}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
   .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
@@ -232,16 +229,11 @@
 }
 
 @media(max-width:640px){
-  .mode-date:where(.bz-root) .opts-row,.mode-lunar:where(.bz-root) .opts-row{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-flow:row dense;gap:var(--sp-2);align-items:end}
-  /* 四选项两两成行：子时算法与太阳时同行、年界与空亡同行，排盘与保存同行收尾；
-     dense 令后置定位项回填前行空位，各钮不孤行、无一钮铺满全行 */
-  .mode-date:where(.bz-root) .opts-row .field#bZiField,.mode-lunar:where(.bz-root) .opts-row .field#bZiField{grid-column:1 / span 2}
-  .mode-date:where(.bz-root) .opts-row .field#bSunField,.mode-lunar:where(.bz-root) .opts-row .field#bSunField{grid-column:3 / span 2}
-  .mode-date:where(.bz-root) .opts-row .field#bYearAxisField,.mode-lunar:where(.bz-root) .opts-row .field#bYearAxisField{grid-column:1 / span 2}
-  .mode-date:where(.bz-root) .opts-row .field#bKongField,.mode-lunar:where(.bz-root) .opts-row .field#bKongField{grid-column:3 / span 2}
-  .mode-date:where(.bz-root) .opts-row .field select,.mode-lunar:where(.bz-root) .opts-row .field select{padding:0 6px}
-  .mode-date:where(.bz-root) .opts-row .btn,.mode-lunar:where(.bz-root) .opts-row .btn{grid-column:1 / span 2;width:auto;min-width:0;margin:0;justify-self:stretch}
-  .mode-date:where(.bz-root) .opts-row .btn.btn-ghost,.mode-lunar:where(.bz-root) .opts-row .btn.btn-ghost{grid-column:3 / span 2}
+  /* 学术取舍四项（子时算法、太阳时、年界、空亡基准）窄屏：撤栅格定位，改 flex 流式换行。
+     四项全档守桌面终值 160px 封顶（通用段 .opts-row .field select 的 max-width），
+     一行容不下即整字段换行，不写死列位、不铺满、不留空。 */
+  .mode-date:where(.bz-root) .opts-row,.mode-lunar:where(.bz-root) .opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+  .mode-date:where(.bz-root) .opts-row .field,.mode-lunar:where(.bz-root) .opts-row .field{flex:0 0 auto;width:auto;min-width:0}
 }
 
 .page-bazi .bazi-linkage{margin:0;background:transparent;border:0;border-top:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
