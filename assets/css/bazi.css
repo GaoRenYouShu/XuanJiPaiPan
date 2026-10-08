@@ -214,8 +214,6 @@
   .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn{grid-column:span 2}
   /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
   .mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
-  /* 通用段 .opts-row .field 有 160px 保底，320 视口下两个字段就撑破行，此处按模式收回 */
-  .mode-date:where(.bz-root) .opts-row .field,.mode-lunar:where(.bz-root) .opts-row .field{min-width:0}
   .mode-date:where(.bz-root) .bazi-top .field select,.mode-lunar:where(.bz-root) .bazi-top .field select,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field select{width:auto;align-self:flex-start}
   .mode-date:where(.bz-root) .bazi-top .field#fName input,.mode-lunar:where(.bz-root) .bazi-top .field#fName input{width:96px;align-self:flex-start}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
@@ -229,18 +227,15 @@
 }
 
 @media(max-width:640px){
-  /* 学术取舍四项（子时算法、太阳时、年界、空亡基准）窄屏：撤栅格定位，改 flex 流式换行。
-     四项全档守桌面终值 160px 封顶（通用段 .opts-row .field select 的 max-width），
+  /* 学术取舍五项（夏令时、子时算法、太阳时、年界、空亡基准）窄屏：撤栅格定位，改 flex 流式换行。
+     宽由通用段按内容给出（字段随控件收缩、select 自然宽），本档只换行内间距一档，
      一行容不下即整字段换行，不写死列位、不铺满、不留空。 */
-  .mode-date:where(.bz-root) .opts-row,.mode-lunar:where(.bz-root) .opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
-  .mode-date:where(.bz-root) .opts-row .field,.mode-lunar:where(.bz-root) .opts-row .field{flex:0 0 auto;width:auto;min-width:0}
+  .mode-date:where(.bz-root) .opts-row,.mode-lunar:where(.bz-root) .opts-row{gap:var(--sp-2)}
 }
 
 .page-bazi .bazi-linkage{margin:0;background:transparent;border:0;border-top:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
 
-/* 夏令时选项居于出生地组经度之后：不参与 compact 组的 140px 定宽钳制（照勾选框字段特例），select 按通用口径以最长选项自然定宽 */
-.page-bazi .birth-group.compact .field.hh-dst{flex:0 0 auto;min-width:auto;width:auto;max-width:none}
-.page-bazi .birth-group.compact .field.hh-dst select{width:auto;max-width:100%}
+/* 夏令时已移出出生地组、归入学舍取舍行（见 .opts-row 通用段），出生地组只装出生地要素 */
 
 /* 名人联想下拉：输入框下浮层，方角细线，条目按 名人姓名加朝代身份 排布；
    检索钮与姓名输入同行，仅名人模式挂出 */

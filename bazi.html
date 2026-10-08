@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=491e21f7">
-<link rel="stylesheet" href="assets/css/bazi.css?v=6ba83b93">
+<link rel="stylesheet" href="assets/style.css?v=88553e30">
+<link rel="stylesheet" href="assets/css/bazi.css?v=a632518c">
 
 </head>
 <body class="mode-date bz-root">
@@ -95,7 +95,8 @@
     </div>
     <!-- 双盘对照（照紫微、占星双人合盘范式：勾选展开第二盘块，与主盘同历法同构输入；
          第二盘自带出生地整组（省、市、区、经度），样式取占星虚线框；
-         学术取舍四项（子时算法、太阳时、年界、空亡基准）为两盘共享口径、独立成行，双盘勾选后自动适用第二盘；
+         学术取舍五项（夏令时、子时算法、太阳时、年界、空亡基准）为两盘共享口径、独立成行，双盘勾选后自动适用第二盘；
+         夏令时虽属时间折算，却非出生地要素（不随省市区取值），故与四学术项同列，出生地组只装出生地；
          块位置在 opts 内、主盘出生地与学术取舍行之后，跟随主盘表单流） -->
     <div class="opts">
       <div class="birth-group compact" id="birthGroup">
@@ -104,44 +105,47 @@
         <div class="field"><label for="bCity">城市</label><select id="bCity" aria-label="选择城市"></select></div>
         <div class="field"><label for="bDist">区县</label><select id="bDist" aria-label="选择区或县"></select></div>
         <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" aria-label="手动经度东经度数" step="0.01" placeholder="出生地" onchange="savePillarSel()"></div>
-        <div class="field hh-dst"><label for="bDst">夏令时</label>
-          <select id="bDst" aria-label="选择夏令时折算口径" onchange="savePillarSel()">
-            <option value="auto" title="1986至1991年夏令时段钟面减1小时">自动折算</option>
-            <option value="on" title="夏令时段钟面时间减1小时">按夏令时</option>
-            <option value="off" title="钟面时间即标准时，不折算">不折算</option>
-          </select>
-        </div>
       </div>
       <div class="opts-row" id="optsRow">
+        <!-- 学术取舍五项成组：题头独占一行，与上方出生地组题头对仗，两块的从属关系一眼可辨。
+             五项皆为时间折算与流派口径（不随省市区取值），故与出生地分列，免被误读出地一项。 -->
+        <div class="group-label">学术取舍（时间折算与流派口径，两盘共用）</div>
+        <div class="field" id="bDstField"><label for="bDst">夏令时</label>
+          <select id="bDst" aria-label="选择夏令时折算口径" onchange="savePillarSel()">
+            <option value="auto">自动折算（1986至1991）</option>
+            <option value="on">按夏令时（钟面减1小时）</option>
+            <option value="off">不折算（钟面即标准时）</option>
+          </select>
+        </div>
         <div class="field" id="bZiField"><label for="bZi">子时算法</label>
           <select id="bZi" aria-label="选择子时归属算法" onchange="savePillarSel();go()">
-            <option value="late" title="23点起归次日日柱">晚子时</option>
-            <option value="early" title="23点起仍归当日日柱">早子时</option>
+            <option value="late">晚子时（23点归次日）</option>
+            <option value="early">早子时（23点归当日）</option>
           </select>
         </div>
         <div class="field" id="bSunField"><label for="bSun">太阳时</label>
           <select id="bSun" aria-label="选择太阳时口径" onchange="savePillarSel();go()">
-            <option value="true" title="均时差加经度差校正">真太阳时</option>
-            <option value="mean" title="仅经度差校正">平太阳时</option>
+            <option value="true">真太阳时（均时差加经度）</option>
+            <option value="mean">平太阳时（仅经度差）</option>
             <option value="off">不校正</option>
           </select>
         </div>
         <div class="field" id="bYearAxisField"><label for="bYearAxis">年界</label>
           <select id="bYearAxis" aria-label="选择年柱换年口径" onchange="savePillarSel();go()">
-            <option value="lichun" title="子平主流口径">立春换年</option>
-            <option value="chunjie" title="正月初一换年">春节换年</option>
-            <option value="dongzhi" title="斗建口径">冬至换年</option>
+            <option value="lichun">立春换年（子平主流）</option>
+            <option value="chunjie">春节换年（正月初一）</option>
+            <option value="dongzhi">冬至换年（斗建口径）</option>
           </select>
         </div>
         <div class="field" id="bKongField"><label for="bKong">空亡基准</label>
           <select id="bKong" aria-label="选择空亡基准轴" onchange="savePillarSel();go()">
-            <option value="day" title="六甲空亡，子平主流">空亡日柱</option>
-            <option value="year" title="十大空亡">空亡年柱</option>
+            <option value="day">空亡日柱（六甲空亡）</option>
+            <option value="year">空亡年柱（十大空亡）</option>
           </select>
         </div>
       </div>
       <div class="dual-wrap">
-      <label class="dual-rel-chk"><input type="checkbox" id="dualRel" onchange="dualRelToggle()"> 双盘对照（勾选后填第二盘出生资料，追加基础信息和本命分析对照；子时算法、太阳时、年界、空亡基准两盘共用）</label>
+      <label class="dual-rel-chk"><input type="checkbox" id="dualRel" onchange="dualRelToggle()"> 双盘对照（勾选后填第二盘出生资料，追加基础信息和本命分析对照）</label>
       <div class="dual-rel2" id="dualRel2">
         <div class="form-row">
           <div class="field" id="dDateWrap"><label for="dDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dDate"></div>
@@ -202,7 +206,7 @@
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/bazi-core.js?v=fbcce6c9"></script>
-<script defer src="assets/bazi-app.js?v=cb647168"></script>
+<script defer src="assets/bazi-app.js?v=f9dea876"></script>
 <script>
 /* ================= 岁运清洗：剔除含大运/流年/流月/流日 的应期句 ================= */
 const YUN_JI=/大运|流年|流月|流日/;

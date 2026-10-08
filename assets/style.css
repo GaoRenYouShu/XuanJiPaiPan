@@ -759,11 +759,16 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 /* 选项行：字段与按钮同为一行内相邻控件，横向间距取与 .form-row 同一档 --sp-3。
    行内字段间距全站只此一档（.form-row 与 .birth-group.compact 皆 12px），本行取 --sp-4
    即在同一页之内与上下两行读作两值。 */
+/* 学术取舍行：五字段按内容定宽，一行容不下即整项换行（不写死列位、不铺满）。
+   组题头独占一行（width:100% 的 flex 项），与出生地组题头对仗。 */
 .opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end}
-.opts-row .field{min-width:160px}
-/* 下拉宽度上限 160px为桌面终值：四学术项选项取主干短文案后自然宽 128 至 156，
-   160 封顶与出生地省级同档；响应式下字段框宽不得超桌面值，拉宽即留空白，上限限制死 */
-.opts-row .field select{width:auto;max-width:160px}
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2)}
+/* 字段框随控件收缩、不按列数拉伸：全档同值，窄屏不再另立一档。
+   旧写 min-width:160px 给字段框保底，而 select 自然宽仅 85 至 98，框内右侧空出六十余像素；
+   定宽保底与按内容定宽是两回事，撤保底改随内容，宽由全量 options 最长项自然定出。
+   select 一律 width:auto，不设上限（上限会截断长选项，长文案应缩文案而非压宽度）。 */
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+.opts-row .field select{width:auto;max-width:100%}
 .opts-row .field.chk{align-self:flex-end;padding-bottom:var(--sp-2);min-width:auto}
 .opts-row .btn{flex:0 0 auto;align-self:flex-end}
 .ts-box{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5}
@@ -1373,7 +1378,6 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   /* r3: 性别/子时/按钮保持单排，不强制分两列 */
   .form-row.r3 .field{flex:0 0 auto}
   .form-row.r3 #bSex{min-width:40px !important;max-width:80px !important}
-  .form-row.r3 #bZi{min-width:100px !important}
   .form-row.r3 .btn{flex:0 0 auto}
 }
 .ai-copy-tip{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);
@@ -3611,9 +3615,6 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn{margin:0}
 /* 窄屏（≤640）：公历、农历、已存三模式顶部行按内容定宽、靠左流式排，放不下整项换行。
    四柱模式顶部行已由上方 .bazi-flow 统一转为 display:contents 汇入流式行，故此处以 body:not(.mode-pillar) 排除。 */
-/* 窄屏选项行：公历/农历模式一致，行1 子时+空亡 各半；行2 排盘+保存 各半。 style.css .opts-row .field{min-width:160px} 会撑破 4 列 grid，必须 min-width:0 重置。 lunar 必须与 date 同规则，否则 mode-lunar 无 mode-date class，opts-row 回退 style.css 默认乱排）
-   窄屏列宽仅 155.5px，子时选项墨迹 131.5、空亡 130，超出通用段 12px 横向内边距的内容区（129.5）。
-   本档把 select 横向内边距收到 6px，让出 12px，文字居中显示无截断；高度仍由通用段给 30px。 */
 /* 关联数术：折叠框不留卡与投影，收起态上下细线夹住题名；条目只留项间细线并由末条收束，标题取松墨宋体宽字距 */
 /* 结果区内的二级折叠框（所选干支详情、终身卦流年卦）：形制由通用段给出，本页只补线色与题色；
    关联数术块是页尾收束件，展开态由列表末条收束、收起态自补下线，不在其列 */

@@ -695,6 +695,9 @@ function toggleBaziMode(){
   document.getElementById('bZiField').style.display=(isSaved?'none':dsp);
   /* 夏令时随出生地组整组显隐（同在 birthGroup 内）；太阳时与年界两选项仅公历、农历模式可调 */
   gs('bSunField', !isSaved && !isPillar);
+  /* 夏令时随学术取舍行显隐（与四学术项同列，不随出生地组整组走）：出生地组只装出生地要素，
+     夏令时是时间折算口径而非出生地取值，两者分列后各自的显隐条件也随之分开 */
+  gs('bDstField', !isSaved && !isPillar);
   gs('bYearAxisField', !isSaved && !isPillar);
   /* 空亡基准下拉：仅公历/农历模式可选日柱/年柱流派；四柱/已存固定用日柱六甲空亡（子平主流），隐藏切换，空亡仍按日柱轴标注 */
   document.getElementById('bKongField').style.display=(isSaved?'none':dsp);
