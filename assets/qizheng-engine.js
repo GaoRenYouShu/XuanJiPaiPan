@@ -491,7 +491,7 @@ function qz_lons7(jd){
   out.qi = qz_norm360((jd - 2451545.0) * QZ_QI_RATE);
   return out;
 }
-function qz_zejiLite(jd, qiHeng){
+function qz_zejiLite(jd, qiHeng, lon, lat){
   const lons = qz_lons7(jd);
   const pl = {};
   QZ_LUM.forEach(l => {
@@ -517,17 +517,18 @@ function qz_zejiLite(jd, qiHeng){
   });
   const ecl = ['sun','moon'].some(k => Math.min(Math.abs(qz_norm180(lons[k] - lons.rahu)), Math.abs(qz_norm180(lons[k] - lons.ketu))) <= 15);
   if(ecl) score -= 6;
-  const alt = qz_sunAlt(jd, lons.sun, 116.41, 39.9); /* 昼夜仅作标注，不参与评分 */
+  /* 昼夜仅作标注，不参与评分；经纬度取本命盘出生地，由调用方传入 */
+  const alt = qz_sunAlt(jd, lons.sun, lon, lat);
   return {jd, score, hits, ecl, dayNight: alt > 0 ? '昼' : '夜',
           strong: QZ_LUM.filter(l => !l.yu && (pl[l.k].state === '庙' || pl[l.k].state === '旺')).map(l => l.nm)};
 }
-function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng){
+function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng, lon, lat){
   const jd1 = qz_toJd(y1, m1, d1, 0, 0, 8), jd2 = qz_toJd(y2, m2, d2, 23, 59, 8);
   if(jd2 <= jd1) return {err: '结束日期须晚于开始日期'};
   if(jd2 - jd1 > 61) return {err: '日期跨度请控制在 60 日以内'};
   const coarse = [];
   for(let jd = jd1; jd <= jd2; jd += 180 / 1440){
-    coarse.push(qz_zejiLite(jd, qiHeng));
+    coarse.push(qz_zejiLite(jd, qiHeng, lon, lat));
   }
   coarse.sort((a, b) => b.score - a.score);
   const refined = [];
@@ -536,7 +537,7 @@ function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng){
       if(t === 0) continue;
       const jd = c0.jd + t;
       if(jd < jd1 || jd > jd2) continue;
-      refined.push(qz_zejiLite(jd, qiHeng));
+      refined.push(qz_zejiLite(jd, qiHeng, lon, lat));
     }
   });
   const all = coarse.concat(refined).sort((a, b) => b.score - a.score);

@@ -1065,15 +1065,20 @@
     return '';
   }
 
+  /* 首屏条数：命中条数随命局而变（实测事业财运一类可至四十余条），全数直出会淹没该节自身的分析文，
+     故首屏只出前十二条。此数是版面阈值，不涉命理，亦不作删留：余条一并输出，收在可点的展开件里，展开即得全数。 */
+  const DUANYU_FOLD_N = 12;
+
   // 单大类断语（内联）：返回可直接嵌入卡片段落或表格单元格的内联 HTML，
   // 不自带外层容器。groupName 取 DUANYU_GROUPS 四大类之一；
   // stepCtx 非空则按步匹配（运势），为空则本命匹配（命局）。
-  // maxPer：该类目最多取 N 条（默认 9，本命四大模块融入用；与调用处实参一致，防止声明值与输出不符）。
+  // maxPer：首屏条数，不是删留条数。命中超出首屏时余条随展开件一并给出，一条不丢；
+  //   未超出则全数直出、不带展开件。缺省取 DUANYU_FOLD_N。
   // plain=true：返回纯文本（断语句 + 出处小括号，无金标/无 sub-note 样式），用于本命四大模块段落内融入；
-  //   plain 缺省仍为原古籍断语金标块（运势每步表内行），行为不变。
+  //   plain 缺省仍出古籍断语金标块（运势每步表内行）。
   function duanyuGroup(groupName, BZ, A, stepCtx, maxPer, plain) {
     const cats = DUANYU_GROUPS[groupName]; if (!cats || !cats.length) return '';
-    const cap = (typeof maxPer === 'number' && maxPer > 0) ? maxPer : 12;
+    const cap = (typeof maxPer === 'number' && maxPer > 0) ? maxPer : DUANYU_FOLD_N;
     // 每类目各自匹配，按权重降序排（核心经典断语 w=3 先于常规 w=1），并打上所属类目标签（供展示排序归并）
     const byCat = cats.map(cat => {
       const res = stepCtx ? matchDuanyuStep(cat, BZ, A, stepCtx) : matchDuanyu(cat, BZ, A, {});
@@ -1081,15 +1086,15 @@
         .sort((a, b) => ((b.w || 1) - (a.w || 1)));
     });
     // 均衡轮询选取：跨类目轮流取一条（cat0[0],cat1[0],cat2[0]...,cat0[1]...），
-    // 仅决定“入选哪些条”，保证少数类目（如性格健康，林泉/华盖）不被前几类吃满上限而截断。
+    // 只定入选先后，不裁条数：cap 之上仍继续收，超出的归入余条，展开即得，故少数类目（如性格健康，林泉/华盖）
+    // 既不会被前几类吃满首屏，也不会因首屏满额而整条丢失。
     const items = [];
-    for (let round = 0; items.length < cap; round++) {
-      let added = false;
+    let deepest = 0;
+    for (const list of byCat) { if (list.length > deepest) deepest = list.length; }
+    for (let round = 0; round < deepest; round++) {
       for (const list of byCat) {
-        if (items.length >= cap) break;
-        if (round < list.length) { items.push({ x: list[round], origIdx: items.length }); added = true; }
+        if (round < list.length) { items.push({ x: list[round], origIdx: items.length }); }
       }
-      if (!added) break; // 所有类目均已取尽
     }
     // 关系键：取断语首句关系短语，（前的命理关系（如 杀印相生 / 官印双清 / 偏财透干），用于跨类目聚合。
     items.forEach(it => { it.relKey = (it.x.say.split('，')[0] || '').trim(); });
@@ -1108,13 +1113,36 @@
     items.sort((a, b) => ((b.x.w || 1) - (a.x.w || 1)) || (relOrder[a.relKey] - relOrder[b.relKey]) || (cats.indexOf(a.x.cat) - cats.indexOf(b.x.cat)) || (a.origIdx - b.origIdx));
     const ordered = items.map(it => it.x);
     if (!ordered.length) return '';
+    const shown = ordered.slice(0, cap), rest = ordered.slice(cap);
     if (plain === true) {
       // 出处 src 数据已自带《》，此处仅作内联配对捕获用，不再外裹书名号；
-      // 中文括号（《》）留给 bazi.html 的 gjRe 解析，避免嵌套成《《》》。
+      // 中文括号（《》）留给 bazi.html 的 gjRe 解析，避免嵌套成《《》。
       const srcClean = x => (x.src || '').replace(/^《+|》+$/g, '');
-      return ordered.map(x => x.say + '（《' + srcClean(x) + '》）').join('<br>');
+      const one = x => x.say + '（《' + srcClean(x) + '》）';
+      const head = shown.map(one).join('<br>');
+      return rest.length ? head + duanyuFold(rest.map(one)) : head;
     }
-    return '<span class="lab-gold">' + groupName + '（古籍断语）</span>' + ordered.map(x => '<br>' + x.say + ' <span class="sub-note">' + x.src + '</span>').join('');
+    const one = x => x.say + ' <span class="sub-note">' + x.src + '</span>';
+    const label = '<span class="lab-gold">' + groupName + '（古籍断语）</span>';
+    const head = shown.map(x => '<br>' + one(x)).join('');
+    return rest.length ? label + head + duanyuFold(rest.map(one)) : label + head;
+  }
+
+  let _foldSeq = 0;
+  /* 余条折叠件：首屏之外的断语全数收在此件内，点开即得，不删不截。
+     开合走原生 checkbox 与 label，无脚本、无事件，故不受重排与刷新影响；
+     折叠只换显隐、不改内容，断语本身恒为终值，版面长短由读者开合自定。
+     余条正文随件同出，只是默认不显，复制所见仍是全数（打印段另有强制展开）。 */
+  function duanyuFold(restLines) {
+    const id = 'duanFold' + (++_foldSeq);
+    return '<br><span class="duan-fold">'
+      + '<input type="checkbox" class="duan-fold-cb" id="' + id + '">'
+      + '<label class="duan-fold-head" for="' + id + '">'
+      + '<span class="duan-fold-more">另有 ' + restLines.length + ' 条，点此展开</span>'
+      + '<span class="duan-fold-shut">收起余下 ' + restLines.length + ' 条</span>'
+      + '</label>'
+      + '<span class="duan-fold-body">' + restLines.join('<br>') + '</span>'
+      + '</span>';
   }
 
   // 步级匹配：仅取含 when.step 的条目（步触发），并复合判定其本命 when 字段。

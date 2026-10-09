@@ -13,11 +13,20 @@
 
 .page-bazi .confirm-tb td .btn{font-size:13px}
 
-.page-bazi .confirm-banner{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:nowrap;color:var(--bz-ink)}
+/* 确认横幅归本页色系：底色取本页浅青（与表头、用户气泡同档），框线取本页线色。
+   全站缺省底色是暖白纸色，与本页松青族并列时是一块异色块。 */
+.page-bazi .confirm-banner{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:nowrap;color:var(--bz-ink);background:var(--bz-tint);border-color:var(--bz-line)}
 
 .page-bazi .confirm-banner .btn{flex:0 0 auto}
 
 .page-bazi #out>.confirm-box,.page-bazi #out>.confirm-banner{margin-top:var(--sp-4)}
+
+/* 排盘与保存两钮换位到年月日时四柱之后：两钮在文档序里紧跟出生时间（公历、农历两模式即此序），
+   四柱模式整行转 display:contents 后诸件同属一条 flex 流，故只给两钮一个 order 即落到四柱之后，
+   不动文档序也就不动另两模式。检索跨度与起止年是检索工具，居末，故取 order:3 让两钮只越过四柱。 */
+.mode-pillar:where(.bz-root) .bazi-flow .btn.bazi-act{order:3;margin:0}
+.mode-pillar:where(.bz-root) .bazi-flow .span-field,
+.mode-pillar:where(.bz-root) .bazi-flow .span-years{order:4}
 
 @media (max-width:640px){
   .page-bazi .confirm-banner{font-size:13px}
@@ -57,36 +66,8 @@
 
 .page-bazi table.stab-inds{table-layout:auto}
 
-/* 双盘对照（照占星 xz-rel-chk、xz-rel2 范式）：勾选行内联、第二盘块虚线框（padding + 1px dashed）；
-   dual-wrap 为勾选行与虚线框的共同包裹：.opts 容器 gap（--sp-3，12px）给"上方内容到本组"的距，
-   组内勾选行与虚线框之间取占星原字（xz-rel-chk 下缘 --sp-2，8px），与占星双人块逐字同档；
-   块内间距照占星实测数据：资料行下缘 --sp-3（12px）、框底缘 0；
-   占星框底不显贴是因其出生地组被页级段改写为去框式、自带 border-top 分隔线收尾，
-   八字第二盘出生地组是 compact 原样（底 padding 0），故补 padding-bottom --sp-2 作框内呼吸，
-   上下对称（框顶 --sp-2、组底 --sp-2）；
-   显隐只有默认态与 is-on 两条；块内字段复用 form-row、field、group-label、birth-group 既有件，
-   对照表 dual-tbl 与岁运引动表同金表头制式 */
-.page-bazi .dual-wrap{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2);flex:1 1 100%}
-.page-bazi .dual-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
-  margin:0;font-size:13px;color:var(--ink2);cursor:pointer;user-select:none}
-.page-bazi .dual-rel-chk input{width:auto;margin:0}
-.page-bazi .dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
-.page-bazi .dual-rel2.is-on{display:block}
-.page-bazi .dual-rel2 .group-label{width:100%;margin:0;color:var(--gold2)}
-.page-bazi .dual-rel2 .form-row{margin-bottom:var(--sp-3)}
-/* 第二盘资料行字段宽度照主盘 bazi-top 与占星 xz-row-inputs 既有规则：字段收内容宽、select 随内容，不铺满 */
-.page-bazi .dual-rel2 .form-row .field{flex:0 0 auto;width:auto;min-width:0}
-.page-bazi .dual-rel2 .form-row .field select{width:auto;align-self:flex-start}
-.page-bazi .dual-tbl{border-collapse:collapse;width:100%;max-width:460px;margin-top:var(--sp-1);font-size:13px;table-layout:fixed}
-.page-bazi .dual-tbl th{background:transparent;color:var(--gold2);padding:6px 6px;text-align:center;font-weight:400;border:1px solid var(--line)}
-.page-bazi .dual-tbl td{border:1px solid var(--line);padding:6px 6px;text-align:center;font-size:13px}
-/* 格局对照表铺满屏幕：全站表格一律 width:100% 吃满容器，禁窄表 */
-.page-bazi .dual-tbl.dual-tbl-full{max-width:none}
-.page-bazi .dual-tbl th:first-child,.page-bazi .dual-tbl td:first-child{width:11em;text-align:left}
-.page-bazi .dual-tbl td:nth-child(2),.page-bazi .dual-tbl td:nth-child(3){text-align:left;line-height:1.5}
-/* 两盘交叉表：主盘、对比盘两列窄，关系列吃余宽 */
-.page-bazi .dual-tbl.dual-tbl-cross th:first-child,.page-bazi .dual-tbl.dual-tbl-cross td:first-child{width:8em}
-.page-bazi .dual-tbl.dual-tbl-cross th:nth-child(2),.page-bazi .dual-tbl.dual-tbl-cross td:nth-child(2){width:8em;text-align:left}
+/* 双盘对照框内底部呼吸：共享件 dual-rel2 只给框顶与两侧，底缘留给页级按其出生地组收尾写法补。
+   八字第二盘出生地组是 compact 原样（底 padding 0），故按占星实测值补 --sp-3，与框顶对称。 */
 
 .page-bazi #mod-yiti table.stab-a2{table-layout:fixed;width:100%}
 
@@ -172,8 +153,10 @@
 .page-bazi .saved-list .btn-del:hover{background:#fff0ee;color:var(--red);border-color:#e6a0a0}
 
 /* 顶部行（输入方式至出生时间，末接排盘与保存两钮）：全档 flex 换行，容器变窄即整字段换行，
-   不挤压、不缩控件；桌面一行可容，窄屏按字段自然折行，按钮随字段流走最后一行的行尾 */
-.page-bazi .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2);margin-bottom:var(--sp-3)}
+   不挤压、不缩控件；桌面一行可容，窄屏按字段自然折行，按钮随字段流走最后一行的行尾。
+   行内间距不在此另立一档：随 .form-row 通用段（桌面 --sp-3、≤900px --sp-2），
+   与下方出生地组、时间折算与流派两行同档，同一页之内不并存两值 */
+.page-bazi .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;margin-bottom:var(--sp-3)}
 
 .page-bazi .bazi-top .field#fName input{width:96px;align-self:flex-start}
 
@@ -211,7 +194,23 @@
   .mode-pillar:where(.bz-root) .bazi-flow #fPillar .field,
   .mode-pillar:where(.bz-root) .bazi-flow .span-field,
   .mode-pillar:where(.bz-root) .bazi-flow .span-years,
-  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn{grid-column:span 2}
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .btn,
+  .mode-pillar:where(.bz-root) .bazi-flow .btn.bazi-act{grid-column:span 2}
+  /* 时间折算与流派：题头与字段各占满一行。该组七项中六项在四柱模式整组隐藏，只剩长生土行一项，
+     故不占格；格宽只四等份之一，按格宽取值会把选项括注切掉（长生土行一项内容一百三十像素、格宽七十八）。
+     控件回到按内容定宽，即桌面端宽度：随内容自适应，不随格宽拉伸，亦不超出桌面端宽度。 */
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .group-label,
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .field{grid-column:1/-1}
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .field select{width:auto;max-width:100%;align-self:flex-start}
+  /* 时间折算与流派行列于检索跨度之前：该行选的是命盘本体的口径（四柱模式只剩长生土行一项），
+     与四柱同类；检索跨度与起止年是检索工具，居末。原序紧跟终止年，读作检索组的一项。 */
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .group-label,
+  .mode-pillar:where(.bz-root) .bazi-flow .opts-row .field{order:1}
+  .mode-pillar:where(.bz-root) .bazi-flow .span-field,
+  .mode-pillar:where(.bz-root) .bazi-flow .span-years{order:2}
+  /* 排盘与保存两钮：窄屏栅格按格定位，order 与 grid-column 同由文档序与格宽给出，
+     两钮占两格并随 order:3 落到四柱之后、检索组之前，与电脑端同序 */
+  .mode-pillar:where(.bz-root) .bazi-flow .btn.bazi-act{order:3;margin:0}
   /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
   .mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
   .mode-date:where(.bz-root) .bazi-top .field select,.mode-lunar:where(.bz-root) .bazi-top .field select,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field select{width:auto;align-self:flex-start}
@@ -312,9 +311,36 @@
 /* 双盘对照虚线框内例外：第二盘出生地组补框内底部呼吸，取占星实测值 --sp-3（占星 birth-group 底 padding 12px） */
 .page-bazi .dual-rel2 .birth-group,.page-bazi .dual-rel2 .birth-group.compact{padding-bottom:var(--sp-3)}
 
+/* 双盘对照整块：对照无源的模式（四柱、名人、已存）由 dualRelSync 挂 is-off 整块撤下。
+   这三个模式勾选也不出第二盘，勾选行文字又长，留下只把该行挤成窄高条。 */
+.page-bazi .dual-wrap.is-off{display:none}
+
 @media(max-width:640px){.page-bazi .birth-group,.page-bazi .birth-group.compact{padding-top:var(--sp-2)}}
 
 .page-bazi .birth-group .group-label{color:var(--bz2)}
+
+/* 断语余条折叠：首屏之外的古籍断语收在此件内，点开全数展开，不删不截。
+   开合由原生 checkbox 与 label 承担（无脚本），盒子移出文档流以免占位，正文留连前后文自然接续。 */
+.duan-fold{display:inline}
+.duan-fold-cb{display:inline-block;width:0;height:0;margin:0;padding:0;border:0;opacity:0;overflow:hidden;vertical-align:middle;-webkit-appearance:none;appearance:none}
+.duan-fold-head{cursor:pointer;color:var(--red2)}
+.duan-fold-head:hover{color:var(--red)}
+.duan-fold-shut{display:none}
+.duan-fold-body{display:none}
+.duan-fold-cb:checked ~ .duan-fold-body{display:inline}
+.duan-fold-cb:checked ~ .duan-fold-head .duan-fold-more{display:none}
+.duan-fold-cb:checked ~ .duan-fold-head .duan-fold-shut{display:inline}
+.duan-fold-cb:focus-visible ~ .duan-fold-head{outline:2px solid var(--gold);outline-offset:2px}
+
+/* 回到今日：岁运可点选至十步大运与百年流年，翻检之后须有一键归位，故与六组按钮同列一件，
+   不另起行占用版心，取描边淡底与同页按钮同形制，免与 .dyn-btn 的选中态（朱底）相混。 */
+.dyn-back{flex-direction:row;align-items:center;margin:0}
+.dyn-today{font-size:12px;padding:var(--sp-1) var(--sp-2);border-radius:0;border:1px solid var(--gold);background:var(--gold-bg);color:var(--gold2);cursor:pointer;line-height:1.5}
+.dyn-today:hover{background:#f1e7cf;color:var(--red2)}
+
+/* 未确认标注：四柱模式出生时间未定，岁运四层按排盘当下定位而非命主本运，故随层题并见一枚小印，
+   免使读者把此刻之干支误认作命主当年当月当日当时之运。取墨绛底淡朱，与.ds-gz 的鎏金题名分层。 */
+.ds-unconfirm{display:inline-block;margin-left:var(--sp-1);padding:0 var(--sp-1);font-size:11px;font-weight:400;line-height:1.5;color:var(--red);background:var(--gold-bg);border:1px solid var(--gold);border-radius:0;vertical-align:1px}
 
 .page-bazi .btn-ghost,.page-bazi .ai-block .btn.gold,.page-bazi .ai-block .btn.soft{background:var(--bz-tint);border:1px solid var(--bz-line);color:var(--bz-ink)}
 
@@ -431,6 +457,9 @@
   .page-bazi .mod-head{break-after:avoid}
   .page-bazi table,.page-bazi tr{break-inside:avoid}
   .page-bazi .an-p{break-inside:avoid}
+  /* 打印一律全数输出：余条折叠件在纸面上无开合可言，故展开正文、隐去开合提示 */
+  .duan-fold-body{display:inline !important}
+  .duan-fold-head{display:none !important}
 }
 
 .page-bazi table.stab th,.page-bazi table.otab th{background:var(--bz-tint);color:var(--bz2);border-color:var(--bz-line)}
@@ -514,6 +543,44 @@
 .page-bazi .dual-quant{margin-top:var(--sp-4)}
 
 .page-bazi .notice-bottom{color:var(--bz-ink);background:transparent;border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
+
+/* 四柱宫位总表、命宫行限表、五派对照视图：三表同制，首列窄而整词不折，内容列自适应。
+   行高随单元格定，故 vertical-align 取 top 使多行内容顶齐，免长短不一的行看起来错位。 */
+.page-bazi table.stab-pm td.lbl,
+.page-bazi table.stab-pm th:first-child,
+.page-bazi table.stab-mgx td:first-child,
+.page-bazi table.stab-mgx th:first-child,
+.page-bazi table.stab-xx td:first-child,
+.page-bazi table.stab-xx th:first-child,
+.page-bazi table.stab-school td.lbl{white-space:nowrap;text-align:center}
+
+.page-bazi table.stab-pm th,
+.page-bazi table.stab-mgx th,
+.page-bazi table.stab-xx th,
+.page-bazi table.stab-school th{white-space:nowrap}
+
+/* 干支与宫支列：等宽排布使四柱八支对齐成列，读表可竖看成对 */
+.page-bazi table.stab-pm td.pm-gz,
+.page-bazi table.stab-mgx td.pm-gz,
+.page-bazi table.stab-xx td.pm-gz{text-align:center;white-space:nowrap;font-size:15px;letter-spacing:.1em}
+
+/* 当前所处之限（大限与小限两表）：淡青底标出，与表头同档色 */
+.page-bazi table.stab-mgx tr.cur,
+.page-bazi table.stab-xx tr.cur{background:var(--bz-tint)}
+
+/* 五派对照：立足点与对本命之判两列长文左对齐折行，喜忌两列窄而居中，列宽按内容分配 */
+.page-bazi table.stab-school{table-layout:auto}
+.page-bazi table.stab-school td:nth-child(2){min-width:14em}
+.page-bazi table.stab-school td:nth-child(4),
+.page-bazi table.stab-school td:nth-child(5){text-align:center}
+
+@media(max-width:640px){
+  /* 窄屏：三表内容列压窄后逐字断行会把术语拆散，改由容器横滚兜底，术语整词可读 */
+  .page-bazi table.stab-pm,
+  .page-bazi table.stab-mgx,
+  .page-bazi table.stab-xx,
+  .page-bazi table.stab-school{min-width:34em}
+}
 
 @media (prefers-color-scheme: dark){
   html .page-bazi {

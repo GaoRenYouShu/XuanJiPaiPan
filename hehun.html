@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
-<link rel="stylesheet" href="assets/css/hehun.css?v=c70b1088">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
+<link rel="stylesheet" href="assets/css/hehun.css?v=b309faa1">
 </head>
 <body>
 <div id="topbar"></div>
@@ -50,7 +50,6 @@
           <div class="field"><label for="mCity">城市</label><select id="mCity" aria-label="第一人选择城市"></select></div>
           <div class="field"><label for="mDist">区县</label><select id="mDist" aria-label="第一人选择区县"></select></div>
           <div class="field hh-lng"><label for="mLng">经度（可选）</label><input type="number" id="mLng" aria-label="第一人手动输入经度" step="0.01" placeholder="出生地"></div>
-          <div class="field chk hh-true"><input type="checkbox" id="mTrue" checked aria-label="第一人是否启用真太阳时校正"><label for="mTrue">真太阳时校正</label></div>
         </div>
       </div>
       <div class="hh-card female" id="hhCard2">
@@ -66,7 +65,44 @@
           <div class="field"><label for="fCity">城市</label><select id="fCity" aria-label="第二人选择城市"></select></div>
           <div class="field"><label for="fDist">区县</label><select id="fDist" aria-label="第二人选择区县"></select></div>
           <div class="field hh-lng"><label for="fLng">经度（可选）</label><input type="number" id="fLng" aria-label="第二人手动输入经度" step="0.01" placeholder="出生地"></div>
-          <div class="field chk hh-true"><input type="checkbox" id="fTrue" checked aria-label="第二人是否启用真太阳时校正"><label for="fTrue">真太阳时校正</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="opts hh-opts">
+      <div class="opts-row" id="hhOptsRow">
+        <div class="group-label">时间折算与流派（两造共用，与八字排盘页同源）</div>
+        <div class="field"><label for="hhDst">夏令时</label>
+          <select id="hhDst" aria-label="选择夏令时折算口径">
+            <option value="auto">自动折算（1986至1991）</option>
+            <option value="on">按夏令时（钟面减1小时）</option>
+            <option value="off">不折算（钟面即标准时）</option>
+          </select>
+        </div>
+        <div class="field"><label for="hhZi">子时算法</label>
+          <select id="hhZi" aria-label="选择子时归属算法">
+            <option value="late">晚子时（23点归次日）</option>
+            <option value="early">早子时（23点归当日）</option>
+          </select>
+        </div>
+        <div class="field"><label for="hhSun">太阳时</label>
+          <select id="hhSun" aria-label="选择太阳时口径">
+            <option value="true">真太阳时（均时差加经度）</option>
+            <option value="mean">平太阳时（仅经度差）</option>
+            <option value="off">不校正</option>
+          </select>
+        </div>
+        <div class="field"><label for="hhYearAxis">年界</label>
+          <select id="hhYearAxis" aria-label="选择年柱换年口径">
+            <option value="lichun">立春换年（子平主流）</option>
+            <option value="chunjie">春节换年（正月初一）</option>
+            <option value="dongzhi">冬至换年（斗建口径）</option>
+          </select>
+        </div>
+        <div class="field"><label for="hhKong">空亡基准</label>
+          <select id="hhKong" aria-label="选择空亡基准轴">
+            <option value="day">空亡日柱（六甲空亡）</option>
+            <option value="year">空亡年柱（十大空亡）</option>
+          </select>
         </div>
       </div>
     </div>
@@ -78,18 +114,20 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/bazi-data.js?v=145837fa"></script>
-<script defer src="assets/bazi-rel.js?v=2d68fcb6"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
+<script defer src="assets/bazi-data.js?v=78cc7963"></script>
+<script defer src="assets/bazi-rel.js?v=5974fd58"></script>
+<script defer src="assets/bazi-core.js?v=a1f22cb6"></script>
+<script defer src="assets/bazi-app.js?v=104362cc"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script>
-/* 出生地三级联动 + 经度缓存 + 表单持久化（复用 latlng.js 的 PROV 与 bazi-data.js 的 trueSolarTime，单源）
-   刷新后恢复用户上次输入的日期/时间/出生地/经度/真太阳时（保留已填不变）
-   无历史时保持页面原有默认：出生地省份默认北京市、日期保留 defaultToday 填的今天 */
+/* 出生地三级联动 + 表单持久化（复用 latlng.js 的 PROV 单源，三级填充走 fillPlaceTrio）
+   刷新后恢复用户上次输入的日期/时间/出生地/经度（保留已填不变）
+   无历史时出生地停在未知地：日期保留 defaultToday 填的今天，出生地须用户自择 */
 /* 性别→卡片联动（全局，onchange 与恢复共用）：图标随性别换（♂/♀），卡片 male/female 点缀色随之切换 */
 function hhSexChanged(n){
   const sel=document.getElementById(n===1?'mSex':'fSex'), card=document.getElementById(n===1?'hhCard1':'hhCard2');
@@ -98,23 +136,18 @@ function hhSexChanged(n){
   card.classList.toggle('male',isM); card.classList.toggle('female',!isM);
   const ico=document.getElementById(n===1?'hhIco1':'hhIco2'); if(ico) ico.textContent=isM?'♂':'♀';
 }
-/* 经度获取：优先手动输入，其次区县经 findLng 统一取数，最后城市值，兜底 120 */
+/* 经度获取：手动经度优先，其次区县经 findLng 统一取数，再次城市值；
+   省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
+   按别人的经度折出来的校正量不著来历，与未校正是两回事。 */
 function hehunLng(lngId,distId,provId,cityId){
   const v=document.getElementById(lngId).value;
   if(v!=='') return parseFloat(v);
   const d=document.getElementById(distId).value;
   if(d!==''){ const f=findLng(document.getElementById(provId).value, document.getElementById(cityId).value, d); if(f!=null) return f; }
-  const sp=document.getElementById(provId),sc=document.getElementById(cityId);
-  if(sp&&sc){ const p=PROV[sp.value], c=p&&p.find(x=>x.c===sc.value); if(c&&c.lng!=null) return c.lng; 
-    // 直辖市等城市级经度 null：回退省级中心经度（120 兜底仅作最终缺省）
-    const pc=provCenter(sp.value); if(pc) return pc.lng; }
-  return 120;
+  return findLng(document.getElementById(provId).value, document.getElementById(cityId).value, '');
 }
 /* 称谓对齐占星/紫微双人合盘：卡位定人称、性别各自选（m卡=第一人、f卡=第二人，支持男男/女女等组合） */
 const LA='第一人', LB='第二人';
-// 十神简称映射：全称→单字（与八字排盘页面一致）
-const TG_ABBR={'比肩':'比','劫财':'劫','食神':'食','伤官':'伤','偏财':'才','正财':'财','七杀':'杀','正官':'官','偏印':'枭','正印':'印'};
-function tgAbbr(n){ return n? (TG_ABBR[n]||n) : ''; }
 // 省级代表点经纬度由 latlng.js 的顶层 PROV_CENTER 统一提供（经纬度统一表，禁止本页自维护）
 /* 两地大圆初始方位角（度，0=正北 顺时针） */
 function geoBearing(lat1,lng1,lat2,lng2){
@@ -130,12 +163,14 @@ function dir8Of(deg){
   ANGLES.forEach(function(p){ const diff=Math.min(Math.abs(d-p[1]),360-Math.abs(d-p[1])); if(diff<min){ min=diff; best=p[0]; } });
   return best;
 }
-// 以双方出生地经纬度（市/县级，缺失则退省中心）测算相对方位：a→b 的大圆初始方位角
+/* 一造之出生地经纬度：省市两级经 coordOf 取数，未定则返回空。
+   只选省不选市即无坐标可言：省级中心是一个无人认领的点，
+   相对方位据此算出的偏差来历不著，故宁缺勿假，下游按未择定处理。 */
 function coordOfPerson(P){
   if(!P||!P.province) return null;
   const c=coordOf(P.province,P.city,P.dist);
   if(c&&c.lng!=null&&c.lat!=null) return c;
-  return provCenter(P.province);
+  return null;
 }
 /* 十六向中心角（°）：在正八向之间插入偏角向，提高相对方位精度
  * 北0 北偏东22.5 东北45 东偏北67.5 东90 东偏南112.5 东南135 南偏东157.5
@@ -255,43 +290,30 @@ function starOf(dm, kind){
   if(kind==='shang'){ const w=WX_SHENG[wDm]; return {shang:stemOfWx(w,!yang), shi:stemOfWx(w,yang)}; }
   return {};
 }
-/* 桃花：寅午戌见卯，申子辰见酉，亥卯未见子，巳酉丑见午（合婚专用表，键域独立于 bazi-data 的 TAOHUA） */
-const HH_TAOHUA={寅:'卯',午:'卯',戌:'卯',申:'酉',子:'酉',辰:'酉',亥:'子',卯:'子',未:'子',巳:'午',酉:'午',丑:'午'};
-function taoHuaZhi(z){ return HH_TAOHUA[z]||''; }
-/* 天乙贵人 */
-const GUIREN={甲:['丑','未'],戊:['丑','未'],庚:['丑','未'],乙:['子','申'],己:['子','申'],丙:['亥','酉'],丁:['亥','酉'],壬:['卯','巳'],癸:['卯','巳'],辛:['寅','午']};
-/* 红艳煞 / 流霞煞（合婚专用表，键域独立于 bazi-data 的 HONGYAN） */
-const HH_HONGYAN={甲:'午',乙:'申',丙:'寅',丁:'未',戊:'辰',己:'辰',庚:'戌',辛:'酉',壬:'子',癸:'申'};
-/* 阴阳差错日 */
-const YINYANG_CUOCUO=['丙子','丁丑','戊寅','辛卯','壬辰','癸巳','丙午','丁未','戊申','辛酉','壬戌','癸亥'];
-/* 童子命口诀全口径（民俗神煞，仅作参考）：季节句"春秋寅子贵，冬夏卯未辰"按月支定季节、查日支/时支；
- * 纳音句"金木马卯合，水火鸡犬多，土命逢辰巳"按年命纳音五行、查日支/时支。
- * 命中判定调用引擎 bazi-data.tongziHit 单源，本页只组织命中文案（季节句名、年命纳音、日/时支）。 */
-function tongziHits(C){
-  const yGz=C.yearGZ||'', mz=(C.CTX&&C.CTX.monthZ)||'';
-  const sea=seasonOf(mz);
-  const j1=(sea==='春'||sea==='秋')?'春秋寅子贵':'冬夏卯未辰';
-  const nw=C.yearNaYin.slice(-1);
-  const hits=[];
-  [[C.dayZhi,'日'],[C.zhis&&C.zhis[3],'时']].forEach(pr=>{
-    const z=pr[0], pos=pr[1];
-    if(z&&tongziHit(yGz,mz,z)) hits.push(pos+'支见'+z+'（'+j1+'；年命'+C.yearNaYin+'，'+nw+'命）');
-  });
-  return hits;
+/* 神煞真源一律取 bazi-data.js（天乙贵人 TIANYI、红艳 HONGYAN、流霞 LIUXIA、阴阳差错 YIN_CHA_YANG、
+ * 桃花 TAOHUA 与 JU_OF），本页不自维护同义表；四柱表与专项同读一源，两处不会分家。 */
+/* 桃花：三合局起，寅午戌见卯、申子辰见酉、亥卯未见子、巳酉丑见午（引擎 TAOHUA 按局五行取）。
+ * 命带判定与四柱表同口径：年支、日支各起一局，任一中桃花支即算命带。 */
+function taoHuaZhi(z){ const ju=JU_OF[z]; return ju?TAOHUA[ju]:''; }
+function taoHuaHit(C){
+  return C.zhis.some(z=>{ const t=taoHuaZhi(z); return t&&C.zhis.includes(t); });
 }
+/* 神煞命中判定：直接读四柱表已算出的神煞清单（pillarShaMerged 全口径，与八字页同一真源），
+ * 不再本页另查一遍，故表里报什么、专项就判什么。清单去查法后缀（纳音）后按名归一。 */
 function shenshaOf(C){
-  const gy=(GUIREN[C.dayGan]||[]).filter(z=>C.zhis.includes(z)).join('、')||'无';
-  const hy=HH_HONGYAN[C.dayGan], hyHit=C.zhis.includes(hy);
-  const lx=LIUXIA[C.dayGan], lxHit=C.zhis.includes(lx);
-  const yyc=YINYANG_CUOCUO.includes(C.dayGZ);
-  const tzHits=tongziHits(C);
-  return {gy, hy:hyHit?hy:'无', lx:lxHit?lx:'无', yyc, tzHits, tz:tzHits.length>0};
+  const all=[...new Set(C.cols.flatMap(col=>col.sha.map(s=>s.replace(/（[^）]+）$/,''))))];
+  const has=n=>all.indexOf(n)>=0;
+  return {all, has,
+    gy:has('天乙贵人'), hy:has('红艳煞'), lx:has('流霞'), yyc:has('阴差阳错'), tz:has('童子'),
+    gu:has('孤鸾'), hl:has('红鸾'), tx:has('天喜'), yc:has('元辰'), yr:has('羊刃'), hg:has('华盖'),
+    gyZhi:C.cols.filter(col=>col.sha.some(s=>s==='天乙贵人')).map(col=>col.z).join('、')};
 }
 /* 专项分析：财官桃花神煞拆分为各项，分别打分，满分随项数动态计算。
  * 性别解耦（支持男男/女女）：卡位定人称（第一人/第二人）、性别各自选；
  * 配偶星各依自身性别取（男以财为配偶星、女以官为配偶星），不依赖对方性别；
- * 伤官见官只对女命论克（男命以财为配偶星、食伤反生财），全男局按"不论"口径取中性偏好；女女组合各论各官、取均定档。 */
-function specialItems(M,F){
+ * 伤官见官只对女命论克（男命以财为配偶星、食伤反生财），全男局按"不论"口径取中性偏好；女女组合各论各官、取均定档。
+ * 两造合盘干支（合化与关系判据共用）由调用方传入，与本函数之外的六维评分读同一份，不各算一遍。 */
+function specialItems(M,F,allGans,allZhis){
   const cnt=(gans,ch)=>gans.filter(g=>g===ch).length;
   function spouseStarItem(C, other, label, otherLabel){
     const male=C.sex==='男';
@@ -331,15 +353,18 @@ function specialItems(M,F){
     const guan=starOf(C.dayGan,'guan'), shang=starOf(C.dayGan,'shang');
     const gZ=cnt(C.gans,guan.zheng), sN=cnt(C.gans,shang.shang);
     let sc; const D=[`${label}伤官${shang.shang}（现${sN}）`];
+    /* 基准 6.5 为中性：伤官不显为无此忌（+2.5）、有官制衡居中（0）、伤官旺而无制为真忌（−3.5），
+       三档拉开，免得此维恒居高档而失去分辨力（原档 9/6/3 均值 8.1，实测近三成样本落在最高档）。 */
     if(sN===0){sc=9;D.push('伤官不显，性情温和，利婚姻');}
-    else if(sN===1&&gZ>=1){sc=6;D.push('伤官有正官制衡，尚平');}
+    else if(sN===1&&gZ>=1){sc=6.5;D.push('伤官有正官制衡，尚平');}
+    else if(sN===1){sc=5;D.push('伤官一位而官星不显，言辞须留三分');}
     else{sc=3;D.push('伤官旺而克官，宜择包容之配偶');}
     return {sc:Math.max(0,Math.min(10,sc)), txt:D.join('；')};
   }
   const itA=spouseStarItem(M,F,LA,LB), itB=spouseStarItem(F,M,LB,LA);
   const females=[[M,LA],[F,LB]].filter(x=>x[0].sex==='女');
   let shangScore, shD;
-  if(!females.length){ shangScore=9; shD='双方皆非女命：男命以财为配偶星、食伤反生财，伤官见官之忌不论，取中性偏好。'; }
+  if(!females.length){ shangScore=6.5; shD='双方皆非女命：男命以财为配偶星、食伤反生财，伤官见官之忌不论，取中性。'; }
   else if(females.length===1){
     const ev=shangGuanEval(females[0][0],females[0][1]);
     shangScore=ev.sc; shD=ev.txt;
@@ -350,42 +375,124 @@ function specialItems(M,F){
     shangScore=Math.round((evs[0].sc+evs[1].sc)/2*2)/2;
     shD=evs.map(e=>e.txt).join('；')+'；两造各论各官、取均定档';
   }
-  const tm=taoHuaZhi(M.dayZhi), tf=taoHuaZhi(F.dayZhi);
-  const tmHit=M.zhis.includes(tm), tfHit=F.zhis.includes(tf);
-  let tScore, tD=[`${LA}桃花${tm}${tmHit?'(命带)':''}；${LB}桃花${tf}${tfHit?'(命带)':''}`];
+  /* 女命格局（《三命通会·论女命》八法八格与择妇诀）：伤官见官一格外，另补官杀混杂、比劫争夫、无官无杀三格；
+     八法之"纯、和、清、贵、浊"为总评语，落于官星纯杂与刑冲有无，故并入本项按格给断；
+     择妇诀诸句取可与四柱直接比对者逐句判（羊刃带伤官、印多夺食、辰戌相见、天干一字、二德坐财）。 */
+  function nvMingGe(C, label){
+    const guan=starOf(C.dayGan,'guan'), shang=starOf(C.dayGan,'shang');
+    const cnt2=(arr,ch)=>arr.filter(g=>g===ch).length;
+    const gZ=cnt2(C.gans,guan.zheng), gQ=cnt2(C.gans,guan.qi);
+    const biN=C.gans.filter((g,i)=>i!==2&&GAN_WX[g]===GAN_WX[C.dayGan]).length;
+    const jieN=C.gans.filter((g,i)=>i!==2&&GAN_WX[g]===WX_SHENG[WX_KE[GAN_WX[C.dayGan]]]).length;
+    const sN=cnt2(C.gans,shang.shang);
+    const yinN=C.gans.filter(g=>{ const w=GAN_WX[g]; return w===WX_SHENG[GAN_WX[C.dayGan]]||WX_KE[w]===GAN_WX[C.dayGan]; }).length;
+    const D=[], hits=[];
+    /* 官杀混杂：正官与七杀并见，夫星不纯 */
+    if(gZ>=1&&gQ>=1){ hits.push('官杀混杂'); D.push('官杀混杂：正官'+guan.zheng+'与七杀'+guan.qi+'并见，夫星不纯，古法主情路多歧，宜专一自守'); }
+    /* 比劫争夫：比肩劫财重，夫星被争 */
+    if(biN+jieN>=2&&(gZ+gQ)>=1){ hits.push('比劫争夫'); D.push('比劫争夫：比劫'+ (biN+jieN) +'位而夫星在局，古法主夫星被争，宜早定名分、少涉多角'); }
+    /* 无官无杀：夫星不现，古谓孤 */
+    if(gZ===0&&gQ===0){ hits.push('无官无杀'); D.push('天干无官无杀，夫星不现，古称"无官无杀（孤）"，主婚缘宜迟、宜自求，不主必孤'); }
+    /* 纯：一官一杀不杂、无刑冲 */
+    if((gZ+gQ)===1&&!C.zhis.some((z,i)=>C.zhis.some((z2,j)=>i<j&&zhiRelSnap(z,z2,C.gans,C.zhis,C.CTX.monthZ).chong))){
+      hits.push('纯'); D.push('夫星纯一而不受刑冲，八法谓之"纯"，为良妇之格');
+    }
+    /* 清：官杀不杂（一官或一杀独透） */
+    if((gZ>=1)!==(gQ>=1)){ D.push('官杀不杂，八法谓之"清"'); }
+    /* 浊：五行失位而正夫不显 */
+    if(gZ===0&&gQ>=1&&sN>=2){ hits.push('浊'); D.push('正夫不显而偏夫丛杂、伤官并旺，八法谓之"浊"，为择妇之忌，宜以德自持'); }
+    /* 择妇诀诸句：羊刃带伤官、满盘是印、辰戌相见、天干一字为忌，天月二德为吉 */
+    if(C.cols.some(c=>c.sha.indexOf('羊刃')>=0)&&sN>0){
+      hits.push('羊刃伤官'); D.push('羊刃带着伤官（择妇诀：羊刃带着伤官，啾唧事多端），口舌多端，宜各自收敛锋芒');
+    }
+    if(yinN>=3){ hits.push('印多'); D.push('满盘是印而食伤受制（择妇诀：满盘则是印，损子必须定），子女之事须顺其自然、勿强求'); }
+    if(C.zhis.indexOf('辰')>=0&&C.zhis.indexOf('戌')>=0){
+      hits.push('辰戌相见'); D.push('辰戌相见（择妇诀：有辰怕见戌，有戌怕见辰），天罗地网相冲，家事宜静守、忌频繁搬迁');
+    }
+    if(C.gans.filter(g=>g===C.gans[0]).length>=3){
+      hits.push('天干一字'); D.push('天干一字连（择妇诀：十二干一字连，孤破祸绵绵），古法主孤，宜广结善缘、勿自囿');
+    }
+    if(C.cols.some(c=>c.sha.some(s=>s.indexOf('月德')>=0||s.indexOf('天德')>=0))){
+      D.push('带天月二德（择妇诀：二德坐偏财，富贵自然来），主旺夫持家');
+    }
+    return {score:hits.filter(h=>['官杀混杂','比劫争夫','浊','羊刃伤官','印多','辰戌相见','天干一字'].includes(h)).length,
+      good:hits.filter(h=>['纯'].includes(h)).length, txt:label+'：'+D.join('；'), hits};
+  }
+  const nvList=females.map(x=>nvMingGe(x[0],x[1]));
+  let nvScore, nvDesc;
+  if(!nvList.length){ nvScore=8; nvDesc='双方皆非女命：八法八格与择妇诀为《三命通会·论女命》专论，此处不适用，取中性偏好。'; }
+  else{
+    const bad=nvList.reduce((a,x)=>a+x.score,0), good=nvList.reduce((a,x)=>a+x.good,0);
+    nvScore=Math.max(0,Math.min(10,7-bad*1.5+good*1));
+    nvDesc=nvList.map(x=>x.txt).join('。')+'。八法八格与择妇诀诸句取《三命通会·论女命》义；古法所断只作先天倾向之参考，不可作宿命铁断。';
+  }
+  /* 桃花：三合局起，年支与日支各起一局（与四柱表同口径），命带以任一支入桃花支为准；
+     两造桃花支之关系按六合、三合、相冲、相同分档，均走引擎关系件判，本页只赋分。 */
+  const tm=taoHuaZhi(M.yearZhi)||taoHuaZhi(M.dayZhi), tf=taoHuaZhi(F.yearZhi)||taoHuaZhi(F.dayZhi);
+  const tmHit=taoHuaHit(M), tfHit=taoHuaHit(F);
+  let tScore, tD=[`${LA}桃花${tm||'无'}${tmHit?'(命带)':''}；${LB}桃花${tf||'无'}${tfHit?'(命带)':''}`];
+  const thRel=(tm&&tf)?zhiRelSnap(tm,tf,allGans,allZhis,M.CTX.monthZ):null;
   if(tm&&tf&&tm===tf){tScore=9;tD.push('双方桃花同支，情趣相投');}
-  else if(tm&&tf&&pairIn(tm,tf,DIZHI_HE6)){tScore=8;tD.push('桃花六合，互相吸引');}
-  else if(tmHit||tfHit){tScore=6;tD.push('一方命带桃花');}
+  else if(thRel&&thRel.he6){tScore=8;tD.push('两造桃花六合，互相吸引');}
+  else if(thRel&&thRel.sanhe!==null){tScore=8;tD.push('两造桃花三合，情意相牵');}
+  else if(thRel&&thRel.chong){tScore=5;tD.push('两造桃花相冲，情热易起波澜，须守分寸');}
+  else if(tmHit&&tfHit){tScore=6;tD.push('双方俱命带桃花，异性缘俱旺，边界感须各自立稳');}
+  else if(tmHit||tfHit){tScore=6;tD.push('一方命带桃花，异性缘好，主动避嫌即是护缘');}
   else{tScore=7;tD.push('双方皆不犯桃花，感情平顺纯净');}
   tScore=Math.max(0,Math.min(10,tScore));
+  /* 神煞：命中判定一律读四柱表已算出的清单（pillarShaMerged 全口径，与八字页同一真源）。
+     合婚相关诸煞分三档：吉神护持、婚恋专煞（孤鸾、阴差阳错、童子、元辰）、性情煞（红艳、流霞、羊刃）。 */
+  /* 神煞：命中判定一律读四柱表已算出的清单（pillarShaMerged 全口径，与八字页同一真源）。
+     基准 6.5 为中性：吉神加分、婚恋专煞扣分，加减幅度按该煞在合婚里的分量定，
+     并设总分下沿 2 分，免多项凶煞并见时被压到 0 而看不出程度差别。 */
   const sm=shenshaOf(M), sf=shenshaOf(F);
-  let sScore=6, sD=[];
-  if(sm.gy!=='无'||sf.gy!=='无'){sScore+=2;sD.push('天乙贵人护持');}
-  if(sm.yyc||sf.yyc){sScore-=2;sD.push('见阴阳差错日，婚恋易生波折');}
-  if(sm.tz&&sf.tz){sScore-=2;sD.push('双方俱犯童子命（民谣口径，仅作参考）：'+LA+sm.tzHits.join('、')+'；'+LB+sf.tzHits.join('、'));}
-  else if(sm.tz||sf.tz){sScore-=1;sD.push((sm.tz?LA:LB)+'犯童子命（民谣口径，仅作参考）：'+(sm.tz?sm.tzHits.join('、'):sf.tzHits.join('、')));}
-  if(sm.hy!=='无'||sf.hy!=='无')sScore-=1;
-  if(sm.lx!=='无'||sf.lx!=='无')sScore-=1;
-  sScore=Math.max(0,Math.min(10,sScore));
-  const smStr=`${LA}：天乙贵人${sm.gy}${sm.yyc?'、阴阳差错日':''}${sm.tz?'、童子命(民谣口径)':''}${sm.hy!=='无'?'、红艳'+sm.hy:''}${sm.lx!=='无'?'、流霞'+sm.lx:''}`;
-  const sfStr=`${LB}：天乙贵人${sf.gy}${sf.yyc?'、阴阳差错日':''}${sf.tz?'、童子命(民谣口径)':''}${sf.hy!=='无'?'、红艳'+sf.hy:''}${sf.lx!=='无'?'、流霞'+sf.lx:''}`;
+  let sScore=6.5, sD=[];
+  const who=(a,b)=>a&&b?'双方俱见':'仅'+(a?LA:LB)+'见';
+  if(sm.gy||sf.gy){sScore+=1.5;sD.push(who(sm.gy,sf.gy)+'天乙贵人护持，长辈缘分是两姓之福');}
+  if(sm.hl||sf.hl||sm.tx||sf.tx){sScore+=1;sD.push(who(sm.hl||sm.tx,sf.hl||sf.tx)+'红鸾天喜，婚姻喜庆之星');}
+  if(sm.yyc||sf.yyc){sScore-=1.5;sD.push(who(sm.yyc,sf.yyc)+'阴阳差错日，婚恋易生波折，择吉可缓');}
+  if(sm.gu||sf.gu){sScore-=1.5;sD.push(who(sm.gu,sf.gu)+'孤鸾煞，婚姻宜迟、宜多沟通经营（《渊海子平》论孤鸾）');}
+  if(sm.tz&&sf.tz){sScore-=1.5;sD.push('双方俱犯童子命（民谣口径，仅作参考），婚仪择吉、心正行端可解大半');}
+  else if(sm.tz||sf.tz){sScore-=0.75;sD.push((sm.tz?LA:LB)+'犯童子命（民谣口径，仅作参考），婚仪择吉而行');}
+  if(sm.yc||sf.yc){sScore-=0.75;sD.push(who(sm.yc,sf.yc)+'元辰大耗，主耗损口舌，日柱见之最须留意');}
+  if(sm.hy||sf.hy){sScore-=0.75;sD.push(who(sm.hy,sf.hy)+'红艳煞，异性缘旺，边界感须自己立');}
+  if(sm.lx||sf.lx){sScore-=0.75;sD.push(who(sm.lx,sf.lx)+'流霞煞，民俗主产育之慎，及时就医不讳');}
+  if(sm.yr||sf.yr){sScore-=0.75;sD.push(who(sm.yr,sf.yr)+'羊刃，性刚宜柔，争执不过夜');}
+  sScore=Math.max(2,Math.min(10,Math.round(sScore*2)/2));
+  /* 逐柱完整神煞清单已由四柱表承担，本条只报与婚配相关者，不重抄全表（免两处各列一遍、条长失读） */
+  const shaBrief=s=>s.all.filter(n=>['天乙贵人','红鸾','天喜','孤鸾','阴差阳错','童子','元辰','红艳煞','流霞','羊刃'].includes(n));
   return [
     itA,
     itB,
     ['伤官见官',shangScore,10,shD],
+    ['女命格局',nvScore,10,nvDesc],
     ['桃花',tScore,10,tD.join('；')],
-    ['神煞',sScore,10,(sD.length?sD.join('；')+'。':'')+smStr+'。'+sfStr]
+    ['神煞',sScore,10,(sD.length?sD.join('；')+'。':'')
+      +`婚配相关者：${LA}${shaBrief(sm).join('、')||'无'}；${LB}${shaBrief(sf).join('、')||'无'}。`
+      +`全盘神煞见上四柱表，共${sm.all.length}类与${sf.all.length}类。`]
   ];
 }
 /* 喜用神比较辅助：喜用集合相等判定（判双方喜用相近） */
 function setEq(a,b){ if(a.size!==b.size) return false; for(const x of a) if(!b.has(x)) return false; return true; }
-function chart(dateId,timeId,lngId,distId,provId,cityId,trueId,sexId){
+/* 专项各项聚合权重（按该项在合婚中的分量定，非按项数平分）：
+ * 本：配偶星、伤官见官、女命格局（夫妻星与女命格局，古法合婚的正面主断）
+ * 中：喜忌法、冲解互济、干合绊用、合化成格、大运同步、婚动应期、子息缘（盘面结构与动态层的实质判据）
+ * 末：桃花、神煞、八宅命卦、宫位法、方向表法（缘分之助与方位之术，参看为多）
+ * 权重只改"该项在总分里占几份"，不改各项满分，故盘下详情条所报的得分与满分仍照原值。 */
+const HH_SPEC_W={
+  '第一人配偶星':1.4,'第二人配偶星':1.4,'伤官见官':1.2,'女命格局':1.2,
+  '喜忌法':1.2,'冲解互济':1.1,'干合绊用':1.0,'合化成格':1.0,'大运同步':1.1,'婚动应期':0.9,'子息缘':0.9,
+  '桃花':0.7,'神煞':0.8,'八宅命卦':0.7,'宫位法':0.6,'方向表法':0.6
+};
+/* 太阳时已开而某一造未定出生地：校正是按经度算的，没有经度就无从校正。
+   提示语同八字页 SUN_NO_PLACE_MSG 口径，惟本页两造并列，故点名是哪一造缺。 */
+const HH_NO_PLACE_MSG='太阳时校正已开，但出生地未定：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
+/* 一造之盘：四柱装配一律委托 buildBaziState（bazi-app.js 的共用装配入口，八字页与姓名学页同用此件），
+ * 故夏令时折算、太阳时三档、子时日界、年界三口径、空亡两基准、神煞全口径俱与八字页同源，
+ * 本页不再自走一条折算链。五行统计与命卦另算，均取引擎单源。 */
+function chart(dateId,timeId,lngId,distId,provId,cityId,sexId){
   const dv=document.getElementById(dateId).value, tv=document.getElementById(timeId).value||'12:00';
   const sexEl=document.getElementById(sexId); const sex=(sexEl&&sexEl.value==='女')?'女':'男';
-  const ymd=(dv||'').split('-').map(Number);
-  if(ymd.length!==3||!ymd[0]||!ymd[1]||!ymd[2]) throw {hehunInput:true, msg:'请先填写完整的出生日期(yyyy-mm-dd)再开始合婚。'};
-  const [y,m,d]=ymd; const [h,mi]=tv.split(':').map(Number);
-  const useTrue=document.getElementById(trueId).checked!==false;
   const lng=hehunLng(lngId,distId,provId,cityId);
   function optText(id){ const e=document.getElementById(id); if(!e) return ''; const s=e.selectedOptions&&e.selectedOptions[0]; return s?(s.textContent||'').trim():String(e.value||'').trim(); }
   const provName=optText(provId), cityName=optText(cityId), distName=optText(distId);
@@ -393,44 +500,43 @@ function chart(dateId,timeId,lngId,distId,provId,cityId,trueId,sexId){
   // 出生地三级连续同名去重（直辖市/省直辖县 省=市=区 名相同只留一个，如"北京市北京市北京市"→"北京市"）
   let birthPlace='', prev='';
   parts.forEach(pd=>{ if(pd!==prev) birthPlace+=pd; prev=pd; });
-  const tsInfo=useTrue?trueSolarTime(y,m,d,h,mi,lng):{y,m,d,h,mi,totalAdj:0};
-  const solar=Solar.fromYmdHms(tsInfo.y,tsInfo.m,tsInfo.d,tsInfo.h,tsInfo.mi,0), lunar=solar.getLunar(), ec=lunar.getEightChar();
-  const pillars=[ec.getYear(),ec.getMonth(),ec.getDay(),ec.getTime()];
-  const gans=[ec.getYear()[0],ec.getMonth()[0],ec.getDay()[0],ec.getTime()[0]];
-  const zhis=[ec.getYear()[1],ec.getMonth()[1],ec.getDay()[1],ec.getTime()[1]];
-  const dayGan=ec.getDayGan(), dayZhi=ec.getDayZhi();
-  const CTX={ dayGan, monthGan:ec.getMonth()[0], yearZ:ec.getYear()[1],
-    monthZ:ec.getMonth()[1], dayZ:dayZhi, gans };
-  const cols=[
-    mkPillar(CTX,'年柱',ec.getYear(),{isYear:true}),
-    mkPillar(CTX,'月柱',ec.getMonth(),{isMonth:true}),
-    mkPillar(CTX,'日柱',ec.getDay(),{isDay:true}),
-    mkPillar(CTX,'时柱',ec.getTime(),{isTime:true})
-  ];
+  /* 生辰完备性由 buildBaziState 前置拦断（年月日俱全方准出盘），残缺与越界日期一律不出盘。
+     出生地未定而太阳时又开者同样拦在出盘之前：没有经度就无从校正，
+     两造任一造如此即整盘不出，免得一造按钟面一造按校正而结论无从对齐。 */
+  const opts=hhOpts();
+  if(lng==null && opts.sunMode!=='off'){
+    const err=new Error(HH_NO_PLACE_MSG); err.hehunInput=true; err.msg=HH_NO_PLACE_MSG; throw err;
+  }
+  const st=buildBaziState({date:dv, time:tv, sex:sex==='女'?0:1, lng, ...opts});
+  const BZ=st.BZ;
+  const pillars=BZ.gans.map((g,i)=>g+BZ.zhis[i]);
+  const year=st.lunar.getSolar().getYear(), mm=st.lunar.getSolar().getMonth(), dd=st.lunar.getSolar().getDay();
   // 五行统计（天干+地支藏干）
   const wx={木:0,火:0,土:0,金:0,水:0};
   pillars.forEach(p=>{ wx[GAN_WX[p[0]]]++; HIDE[p[1]].forEach(g=>wx[GAN_WX[g]]++); });
   // 命卦用年（八宅以立春为界）：调用引擎 mgYearOf（bazi-data 单源，取生日前最近一次立春所在公历年）
-  const mgYear=mgYearOf(y,m,d);
-  return {solar,lunar,ec,pillars,gans,zhis,cols,CTX,year:y,solarYear:solar.getYear(),mgYear,
-    dayGan,dayZhi,yearZhi:ec.getYear()[1],
-    yearGan:ec.getYear()[0],yearGZ:ec.getYear(),
-    sx:lunar.getYearShengXiao(),yearNaYin:ec.getYearNaYin(),wx,sex,
-    tsInfo,lng,birthPlace,province:provName,city:cityName,dist:distName};
+  const mgYear=mgYearOf(year,mm,dd);
+  /* 生肖随年支取，不另走农历一路：生肖相配一维所断之支即 BZ.yearZ，年界口径（立春、春节、冬至）
+     由上方选项行定，显示与评分同出这一支，免出现"标称属兔而断语按辰断"的分叉。
+     立春后春节前一段，本页生肖随年柱走，故引擎那句"生肖按农历取"的并存提示此处改写为合本页口径者。 */
+  const sxOf=z=>LunarUtil.SHENGXIAO[ZHI_ORDER.indexOf(z)+1]||'';
+  const axisNote=st.axisNote&&st.axisNote.indexOf('生肖按农历取')>=0
+    ? '本日在立春后、春节前：年柱与生肖俱按立春取'+BZ.yearGan+BZ.yearZ+'，与农历正月换生肖之说并存，可在上方年界切换春节口径。'
+    : st.axisNote;
+  return {solar:BZ.lunar.getSolar(),lunar:BZ.lunar,ec:BZ.ec,pillars,gans:BZ.gans,zhis:BZ.zhis,cols:st.cols,CTX:st.CTX,
+    year,solarYear:BZ.lunar.getSolar().getYear(),mgYear,
+    dayGan:BZ.dayGan,dayZhi:BZ.dayZ,
+    yearZhi:BZ.yearZ,
+    yearGan:BZ.yearGan,yearGZ:BZ.yearGan+BZ.yearZ,
+    sx:sxOf(BZ.yearZ),yearNaYin:st.cols[0].ny,wx,sex,
+    tsInfo:st.tsInfo,lng,birthPlace,province:provName,city:cityName,dist:distName,
+    notes:[st.dstNote,st.ziNote,axisNote].filter(Boolean)};
 }
-/* 单柱完整信息：与八字排盘页面 renderTable 完全一致（干支/藏干/十神/纳音/地势/自坐/神煞） */
-function mkPillar(ctx,lbl,gz,flags){
-  const z=gz[1];
-  const hide=HIDE[z]||[z];
-  const zMain=(HIDE[z]&&HIDE[z][0])||z;
-  const ssg=flags.isDay?'日主':tenGod(ctx.dayGan,gz[0]);   // 干十神
-  const ssz=hide.map(x=>tenGod(ctx.dayGan,x));             // 藏干十神
-  const ny=nayinOf(gz);
-  const di=getChangSheng(ctx.dayGan,z);   // 地势（日主长生落此支）
-  const di2=getChangSheng(gz[0],z);        // 自坐（本干长生落坐支）
-  const kong=kongWang(gz);
-  const sha=pillarSha({gz,z,isDay:!!flags.isDay,isMonth:!!flags.isMonth,isYear:!!flags.isYear,isTime:!!flags.isTime,gan:gz[0]},ctx)||[];
-  return {lbl,gz,g:gz[0],z,hide,ssz,ssg,ny,di,di2,kong,sha,flags};
+/* 时间折算与流派五项（两造共用）：与八字页同五项、同取值域，一律由本页选项行读入 */
+function hhOpts(){
+  const v=id=>{ const e=document.getElementById(id); return e?e.value:''; };
+  return {dst:v('hhDst')||'auto', ziMode:v('hhZi')||'late', sunMode:v('hhSun')||'true',
+    yearAxis:v('hhYearAxis')||'lichun', kongAxis:v('hhKong')||'day'};
 }
 /* 十神判定走 bazi-data.js 共享真源 tenGod()，与八字排盘页单源同口径 */
 /* ================= 综合建议（结论级聚合） =================
@@ -450,7 +556,6 @@ const HH_REMEDY={
   dayZhiHe:'夫妻宫之合顺势而为：卧室取宅中吉方，床头宜朝本命喜用之方，以居所助宫位之力。',
   dayZhiChong:'同住一处最忌针尖对麦芒：卧室避居日支两冲之方位；聚少离多者反宜小别，逢冲之月少谈大事。',
   comp:'五行互补之道在"缺什么近什么"：缺火多晒太阳、缺水多近水泽、缺木多置绿植、缺金佩戴金属、缺土多用陶瓷黄调，方位颜色行业皆可着力的互补。',
-  xi:'互为喜用是天赐之补：旺方主动分享运势（喜事、进财让旺气流动），弱方领情勿过客气，客气生分反隔喜气。',
   gy:'贵人星现，长辈缘分是两姓之福：节庆礼数周全、往来主动；大事多请教家中长辈，其言往往正中肯綮。',
   gua:'居所门主灶宜按吉方命卦定夺：可先请出双方命卦吉凶方位图比对现居，凶方少动、吉方常坐常卧。',
   cjHe:'既得合解之助，居家宜常聚：对方在侧气场自稳，大事多与对方商量，其气正能化你之躁。',
@@ -464,22 +569,24 @@ const HH_REMEDY={
   shen:'神煞并见多为民俗警语：重在心正行端、婚仪择吉日而行，勿因神煞自扰心境。',
   hhJ:'跨盘合化而化神犯忌：化气之势两盘共担，大事避开化神当旺之年月，平日以双方喜用之行泄化；化神为客不驱主，原局自主、人事为本。',
   gb:'用神被合之解在"借岁运"：合绊之干逢流年冲开则用神复起，重大事宜择用神得引之年；平日以喜用方位、颜色、行业自补，勿在合绊之年强求大事。',
-  gbJi:'忌神被合去之利在"守正"：病处得药更须心正行端，勿因合去忌神而恃无恐，原局之弊仍以自律固本。',
-  xingPo:'刑破主"细节消磨"：日常最能积怨的是小事，守时、守诺、守口气，三守做到，刑破之力自减大半。'
+  gbJi:'忌神被合去之利在"守正"：病处得药更须心正行端，勿因合去忌神而恃无恐，原局之弊仍以自律固本。'
 };
-/* 六档等级单源：等级名、主题五行、色值、总结判语（综合分框与综合建议表共用） */
+/* 六档等级单源：等级名、色值、总结判语（综合分框与综合建议表共用）。
+ * 色取本页单一色轴的明度梯度：低分档淡而沉、高分档浓而亮，与全页藕荷色相不另立色相。
+ * 🔴 不用绿色：绿在婚配语境被读作"被绿"，故优等关系一律避绿；也不用五行色（木绿水蓝土褐金黄火红），
+ *   那套色是五行语义，与合婚等级无关，混用会让读者按五行去解等级。 */
 const HH_LV_META=[
-  {lv:'冲克偏重、下等之配',wx:'木',color:'#5DC336',
+  {lv:'冲克偏重、下等之配',color:'#a99aa8',
    sum:'下等之配：冲克重、吉合少，缘分维系须以情补命、大度包容；命理只是一面镜子，合与不合，终究看人怎么走。'},
-  {lv:'磨合偏重、中下之配',wx:'水',color:'#4190FA',
+  {lv:'磨合偏重、中下之配',color:'#9a7f98',
    sum:'中下之配：冲克多于吉合，相处磨耗偏重，须以真诚沟通与固定规矩化解，不宜过分乐观，也并非无缘。'},
-  {lv:'需要磨合、中等之配',wx:'土',color:'#A07040',
+  {lv:'需要磨合、中等之配',color:'#8d3488',
    sum:'中等之配：吉凶相抵、平稳中性，无大合亦无大冲，感情温度全靠后天经营，多沟通多退让可趋于和谐。'},
-  {lv:'和中有益、中上之配',wx:'金',color:'#D4A017',
+  {lv:'和中有益、中上之配',color:'#a8419f',
    sum:'中上之配：吉多于冲而未成大合，相处舒适、互有补益，用心经营可更上一层。'},
-  {lv:'良缘相济、上等之配',wx:'金',color:'#D4A017',
+  {lv:'良缘相济、上等之配',color:'#c253b8',
    sum:'上等之配：合多于冲，根基与情分俱佳，个别环节有小摩擦，彼此包容则婚姻美满可期。'},
-  {lv:'天作之合、上上之配',wx:'火',color:'#F65352',
+  {lv:'天作之合、上上之配',color:'#d9629a',
    sum:'天作之合：多处真合有化、夫妻宫稳固，冲克鲜少，是难得的良配；愈是良配愈宜珍惜经营，勿恃合而纵。'}
 ];
 function hhLvIndex(composite){
@@ -490,11 +597,11 @@ function hhLvIndex(composite){
   if(composite>=45) return 1;
   return 0;
 }
-function buildAdvice(M,F,items,total,spec,composite,SPEC_W){
+/* 综合建议：结论级聚合，只读两盘条目与综合分，故只收这两样 */
+function buildAdvice(items,spec,composite){
   const byName={}; items.concat(spec).forEach(it=>{ if(!byName[it[0]]) byName[it[0]]=it; });
-  const itSx=byName['生肖相配'], itYz=byName['年柱生克合化'], itNy=byName['年命纳音'],
-        itGan=byName['日干（夫妻主星）'], itZhi=byName['日支（夫妻宫）'], itComp=byName['五行互补'],
-        itShen=byName['神煞'], itSg=byName['伤官见官'];
+  const itSx=byName['生肖相配'],
+        itGan=byName['日干（夫妻主星）'], itZhi=byName['日支（夫妻宫）'], itComp=byName['五行互补'];
   /* 档位：j=得分率≥70% 归亮点、d=<45% 归短板，其间为中性（不进结论，防噪音） */
   const clsOf=n=>{ const it=byName[n]; if(!it) return ''; const r=it[2]?it[1]/it[2]:0; return r>=0.7?'j':(r<0.45?'d':''); };
   const cls={sx:clsOf('生肖相配'), yz:clsOf('年柱生克合化'), ny:clsOf('年命纳音'),
@@ -586,15 +693,12 @@ function buildAdvice(M,F,items,total,spec,composite,SPEC_W){
   return {
     composite: composite, level: HH_LV_META[lv].sum,
     highlights: highlights, weaknesses: weaknesses, tips: tips,
-    its: {sx:itSx, yz:itYz, ny:itNy, gan:itGan, zhi:itZhi, comp:itComp, shen:itShen, sg:itSg,
-      xi:byName['喜忌法'], gw:byName['宫位法'], mg:byName['八宅命卦'],
-      cj:byName['冲解互济'], gb:byName['干合绊用'], hh:byName['合化成格'], yun:byName['大运同步'], yq:byName['婚动应期'], zi:byName['子息缘']},
     lv: lv
   };
 }
 function hehun(){
  try{
-  const M=chart('mDate','mTime','mLng','mDist','mProv','mCity','mTrue','mSex'), F=chart('fDate','fTime','fLng','fDist','fProv','fCity','fTrue','fSex');
+  const M=chart('mDate','mTime','mLng','mDist','mProv','mCity','mSex'), F=chart('fDate','fTime','fLng','fDist','fProv','fCity','fSex');
   const M1=M.sex==='男', F1=F.sex==='男';   // 性别开关（男=true），命卦/大运顺逆/配偶星/子女星全部由此驱动
   let total=0; const items=[];
   // 1 生肖（20）：地支关系由 zhiRelSnap（委托引擎）判定：六合/三合>平和>破>害>刑>冲；合中带刑破降档（合仍为主）
@@ -610,8 +714,7 @@ function hehun(){
     if(hasXing) sxDesc.push('但'+mSx+fSx+'为合中带相刑（'+sxS.xingName+'），合中有伤，情深易生磨');
     if(hasPo) sxDesc.push('且合中带破（'+hhPairSpan('__PO__',mSx,fSx)+'），合中有损，情好易生裂痕');
   } else if(sxS.chong){ sxScore=6; sxDesc.push('生肖相冲（'+hhPairSpan('__CHONG__',mSx,fSx)+'），易生口角，需相互包容'); }
-  else if(sxS.xing){ sxScore=7; sxDesc.push('生肖相刑：'+hhPairSpan('__XING__',mSx,fSx)+'为'+sxS.xingName+'，相处易生暗怨，宜多体谅'); }
-  else if(sxS.hai){ sxScore=8; sxDesc.push('生肖相害（'+hhPairSpan('__HAI__',mSx,fSx)+'），宜多沟通'); }
+  else if(sxS.xing){ sxScore=7; sxDesc.push('生肖相刑：'+hhPairSpan('__XING__',mSx,fSx)+'为'+sxS.xingName+'，相处易生暗怨，宜多体谅'); }  else if(sxS.hai){ sxScore=8; sxDesc.push('生肖相害（'+hhPairSpan('__HAI__',mSx,fSx)+'），宜多沟通'); }
   else if(sxS.po){ sxScore=9; sxDesc.push('生肖相破（'+hhPairSpan('__PO__',mSx,fSx)+'），情谊易受外事扰动，须同心护持'); }
   else if(mSx===fSx){ sxScore=sxS.selfXing?11:13; sxDesc.push('生肖相同'+(sxS.selfXing?'，且为自刑（辰午酉亥），同气相斥、易固执互不相让':'，同属相处，性情相近、习惯相类')); }
   else { sxScore=13; sxDesc.push('生肖平和，无冲无合'); }
@@ -653,15 +756,28 @@ function hehun(){
   else if(gD>0&&zD>0) gzNotes.push('干支俱吉：象实相成，表里如一，两族夫妻两顺');
   ypDesc.push(gzNotes.join('')+'。'+zrNotes.join(''));
   items.push(['年柱生克合化',ypScore,10,`${LA}年柱 ${M.yearGZ}、${LB}年柱 ${F.yearGZ}。${ypDesc.join('')}。`]); total+=ypScore;
-  // 3 年命纳音（15）：同气比和 / 相生分第一人、第二人谁生谁 / 相克分谁克谁（克者势强，古法更忌逆克）
+  // 3 年命纳音（15）：同气为争命 / 相生分谁生谁 / 相克辨顺逆。
+  //   通书口径：男克女为正克（妻为财、夫为妻之靠山），为常；女克男为逆克（违"夫为官、妻为财"之序），为不吉；
+  //   同命为争命，多主不和。故相生两向按受生者得滋养分高低，相克两向按顺逆定轻重，同气一档取中性。
   let nyScore=8, nyDesc=[];
   const wM=M.yearNaYin.slice(-1), wF=F.yearNaYin.slice(-1);
+  const mIsMale=M.sex==='男', fIsMale=F.sex==='男';
   if(wM&&wF){
-    if(wM===wF){nyScore=12;nyDesc.push('纳音同气，比和相亲');}
+    if(wM===wF){nyScore=11;nyDesc.push('纳音同气，古称争命：两强并立、各不相下，须有意识分主从、留余地，非必凶，然不可恃同而纵');}
     else if(WX_SHENG[wM]===wF){nyScore=15;nyDesc.push(LA+'命生'+LB+'命，第一人滋养第二人，家和福泽绵长');}
     else if(WX_SHENG[wF]===wM){nyScore=13;nyDesc.push(LB+'命生'+LA+'命，第二人扶持第一人，相扶得力');}
-    else if(WX_KE[wM]===wF){nyScore=6;nyDesc.push(LA+'命克'+LB+'命，克方势强，情久易生畏，宜以敬化制');}
-    else if(WX_KE[wF]===wM){nyScore=5;nyDesc.push(LB+'命克'+LA+'命，被克者易消沉，宜互敬互让以解');}
+    else if(WX_KE[wM]===wF){
+      const shun=mIsMale&&!fIsMale;   // 男克女为顺克（正克），余者为逆
+      nyScore=shun?8:6;
+      nyDesc.push(LA+'命克'+LB+'命，'+(shun?'男克女为顺克（正克），古法视为常，妻为财、夫为靠山':'此为逆克，古法以违阴阳之序为不吉')
+        +'，克方势强，情久易生畏，宜以敬化制');
+    }
+    else if(WX_KE[wF]===wM){
+      const shun=!mIsMale&&fIsMale;   // 女克男为逆克
+      nyScore=shun?8:6;
+      nyDesc.push(LB+'命克'+LA+'命，'+(shun?'男克女为顺克（正克），古法视为常，妻为财、夫为靠山':'此为逆克，古法以违阴阳之序为不吉')
+        +'，被克者易消沉，宜互敬互让以解');
+    }
     else{nyScore=10;}
   }
   items.push(['年命纳音',nyScore,15,`${LA}“${M.yearNaYin}”、${LB}“${F.yearNaYin}”。${nyDesc.join('')||'纳音相安'}`]); total+=nyScore;
@@ -675,11 +791,18 @@ function hehun(){
   const dzS=zhiRelSnap(M.dayZhi,F.dayZhi,allGans,allZhis,M.CTX.monthZ);
   const dGanKeX=!dgS.he&&(dgS.chong||WX_KE[wxM]===wxF||WX_KE[wxF]===wxM);
   const mingJu=
-    dgS.he&&dzS.he6 ? {ganAdj:0, zhiAdj:0, note:'天合地合：日干五合、日支六合，主星与夫妻宫双合一体，上上名局'} :
+    dgS.he&&dzS.he6 ? {ganAdj:0, zhiAdj:0, note:'天合地合，即古法天地鸳鸯合：日干五合、日支六合，主星与夫妻宫双合一体，上上名局'} :
     dGanKeX&&dzS.chong ? {ganAdj:-3, zhiAdj:-3, note:'天克地冲：干克支冲，主星与夫妻宫俱战，合婚最忌之名局，纵相吸亦大耗'} : null;
   if(dgS.he){
     ganScore=dgS.heHua?25:22;   // 真化力全 25、合绊力半 22（合绊亦主情投，只是行绊）
-    ganDesc.push(dgS.heText+(dgS.heHua?'，夫妻一体、彼此吸引':'，情投而行绊，聚散须防'));
+    /* 五合专名与性情取引擎 TIANGAN_HE_MEAN（《三命通会》论十干合）：甲己中正、乙庚仁义、丙辛威制、
+       丁壬淫慝、戊癸无情；甲乙庚己之合妇人不忌，丁壬戊癸两合古法宜慎，故辨性情后再落判语。 */
+    const heKey=[M.dayGan,F.dayGan].sort().join('');
+    const heMean=TIANGAN_HE_MEAN[heKey]||'';
+    const heName=(heMean.match(/名([^。]+之合)/)||[])[1]||'';
+    const heCare=/淫慝|无情/.test(heMean);
+    ganDesc.push(dgS.heText+(dgS.heHua?'，夫妻一体、彼此吸引':'，情投而行绊，聚散须防')
+      +(heName?'。'+heKey+'为'+heName+(heCare?'（古法此合宜慎，主情热亲昵或貌合情疏，须以敬与信补之）':'（古法此合妇人不忌，主尊崇宽厚或刚柔相济）')+'。':''));
   }
   else if(dgS.chong){ganScore=9;ganDesc.push(`日干${M.dayGan}${F.dayGan}相冲（四冲），性刚相对、针尖麦芒，须各自抑其锋`);}
   else if(wxM===wxF){ganScore=18;ganDesc.push('日干同五行，志趣相投、性情相近'+(M.dayGan===F.dayGan?'，且为比肩，如友如侣':'，一阴一阳，刚柔互补'));}
@@ -806,7 +929,7 @@ function hehun(){
   if(!xiFired) xiDesc.push('双方喜忌互不相犯，各随其势、互不助病');
   xiScore=Math.max(0,Math.min(10,Math.round((6+xiBonus)*2)/2));
   const xiItem=['喜忌法',xiScore,10,xiDesc.join('；')];
-  const spec=specialItems(M,F); spec.push(xiItem);
+  const spec=specialItems(M,F,allGans,allZhis); spec.push(xiItem);
   // 冲解互济（跨盘合解冲，古法"贪合忘冲"之跨盘应用）：
   //   一方原局自相之冲，冲神任一端被对方支合住则该端忘冲：六合、三合成局（对方补齐另两支）为力全之解，
   //   生旺/旺墓半合为力半之解（绊而不解），虚拱不预于解冲；对方重出冲神之端为"争冲"（二支争冲一端），冲战加烈。
@@ -915,6 +1038,8 @@ function hehun(){
   // 凡 heHuaOK（化神透干/得月令/得局，单源）成立者，两盘之气化合为一体：
   // 化神为双方同喜则"化神同气"（大吉），同忌则"化神犯忌"，一喜一忌则利弊各半。
   // 化神显以两盘月令任一得气即认（跨盘推衍口径）；成格以同盘为正，此仅作深缘参看，不夺原局格局之判。
+  // 🔴 一象不两计：日干×日干与日支×日支这两对已由六维"日干（夫妻主星）"与"日支（夫妻宫）"两维
+  //    计分（六合、五合与真化合绊俱在其中），故本项只录其余柱位之合化，那两对仅作参看列出、不参与加减。
   const POS_G=['年干','月干','日干','时干'], POS_Z=['年支','月支','日支','时支'];
   function heHuaPairs(){
     const out=[]; const seen={};
@@ -954,16 +1079,18 @@ function hehun(){
   let hhScore, hhDesc;
   if(!hhPairs.length){ hhScore=6; hhDesc='跨盘干合、支合、三合三会均无合化成立之象（合而不化者只论绊，见干合绊用项；成格须化神得气，本盘未得），平过。'; }
   else{
-    let gain=0; const notes=[];
+    let gain=0; const notes=[]; let riCount=0;
     hhPairs.forEach(p=>{
       const bothXi=mXi.has(p.hua)&&fXi.has(p.hua), bothJi=mJi.has(p.hua)&&fJi.has(p.hua);
-      const riTag=p.ri?'（即六维主星之合，两盘化气一体）':'';
-      if(bothXi){ gain+=2; notes.push(`${p.pair}合化${p.hua}成立${riTag}，化神为双方同喜，两盘之气化而为一，大吉`); }
-      else if(bothJi){ gain-=2; notes.push(`${p.pair}合化${p.hua}成立${riTag}，化神为双方同忌，忌气两盘共受，须以喜用泄化`); }
-      else{ notes.push(`${p.pair}合化${p.hua}成立${riTag}，化神利一损一，利弊各半`); }
+      /* 日干对与日支对已由六维两维计分，此处只录参看、不入加减（一象不两计） */
+      if(p.ri){ riCount++; notes.push(`${p.pair}合化${p.hua}成立（此即六维主星与夫妻宫之合，已在该两维计分，此处只录不重计）`); return; }
+      if(bothXi){ gain+=2; notes.push(`${p.pair}合化${p.hua}成立，化神为双方同喜，两盘之气化而为一，大吉`); }
+      else if(bothJi){ gain-=2; notes.push(`${p.pair}合化${p.hua}成立，化神为双方同忌，忌气两盘共受，须以喜用泄化`); }
+      else{ notes.push(`${p.pair}合化${p.hua}成立，化神利一损一，利弊各半`); }
     });
+    const scored=hhPairs.length-riCount;
     hhScore=Math.max(0,Math.min(10,6+gain));
-    hhDesc=`跨盘合化成立共${hhPairs.length}处。`+notes.join('；')+'。口径：化神显以 heHuaOK 单源判（透干、得月令、得局），两盘月令任一得气即认；跨盘合化为合婚推衍用法，成格以同盘为正，仅作深缘参看。';
+    hhDesc=`跨盘合化成立共${hhPairs.length}处${riCount?`，其中${riCount}处为日干或日支之合、已在六维计分不重计`:''}，计入本项者${scored}处。`+notes.join('；')+'。口径：化神显以 heHuaOK 单源判（透干、得月令、得局），两盘月令任一得气即认；跨盘合化为合婚推衍用法，成格以同盘为正，仅作深缘参看。';
   }
   spec.push(['合化成格',hhScore,10,hhDesc]);
   // 择偶方向判定（宫位法 / 方向表法 / 八宅命卦），核心逻辑：以双方出生地相对方位为"对方实际所在方向"，
@@ -995,7 +1122,8 @@ function hehun(){
     if(gw.pos==='夫妻宫') return who+'：本命夫妻星均不现，取夫妻宫'+gw.zhi+'（'+gw.fang+'），主'+place+'的'+gw.fang;
     return who+'：本命'+gw.star+'透于'+gw.pos+'天干，坐支'+gw.zhi+'（'+gw.fang+'）'+((gw.ganFang&&gw.ganFang!=='中央')?'，天干所主'+gw.ganFang+'方为辅':'')+'，主'+place+'的'+gw.fang;
   }
-  // 出生地相对方位：以双方出生地经纬度（市/县级，缺失则退省中心）测算，男看女、女看男
+  /* 出生地相对方位：以双方出生地经纬度（市/县级）测算，男看女、女看男。
+     省已定而市未定者无坐标可取，按未择定处理，不替双方各挑一处省城充数。 */
   const _hasBirth = !!(M.province&&F.province);
   const _samePlace = !!(M.province===F.province && M.city===F.city && (M.dist||'')===(F.dist||''));
   const mToF = (_hasBirth&&!_samePlace) ? bearDir(coordOfPerson(M),coordOfPerson(F)) : null;
@@ -1031,19 +1159,24 @@ function hehun(){
     zbDesc+='双方出生地同处'+(M.birthPlace||'')+'，方向表相对方位无差，仅录各自落宫方位作参考。';
   }
   // 打分：男女反指方位偏差越小分越高（10分制）
+  // 无判据者（出生地未择定或同址，相对方位无差可比）只列出参看，标记 active=false 不进聚合，
+  // 免一项恒为中值的死项摊薄全盘区分度；此时盘下详情条仍如实说明"无偏差信息量"。
   let gwScore=5, zbScore=5;
-  if(mErr!=null&&fErr!=null){
+  const gwActive=!!(mErr!=null&&fErr!=null);
+  if(gwActive){
     gwScore=Math.max(1,Math.min(10,Math.round(10*(2-(mErr+fErr)/180)/2)));  // 平均偏差→分
   }
+  let zbActive=false;
   if(zbM&&zbF&&mToF&&fToM){
+    zbActive=true;
     const mMatch=mToF&&(zbM.fang===mToF.fang||zbM.chongFang===mToF.fang);
     const fMatch=fToM&&(zbF.fang===fToM.fang||zbF.chongFang===fToM.fang);
     zbScore = (mMatch&&fMatch)?9 : (mMatch||fMatch)?7 : 4;
   } else if(zbM&&zbF&&_hasBirth&&_samePlace){
     zbScore=6; // 出生地同处，方向互证无差异，取中性偏合
   }
-  spec.push(['宫位法',gwScore,10,gwDesc]);
-  spec.push(['方向表法',zbScore,10,zbDesc]);
+  spec.push(['宫位法',gwScore,10,gwDesc,gwActive]);
+  spec.push(['方向表法',zbScore,10,zbDesc,zbActive]);
   // 八宅命卦（专业法）：① 命卦年按立春为界（chart 已折算 mgYear）；② 两命卦相配以大游年八星定婚配吉凶（延年生气天医伏位吉，祸害六煞五鬼绝命凶），
   // 星表引 fengshui-engine.js 的 BAZHAI 唯一真源；③ 命卦只由出生年定、与出生地无关，出生地用于“对方所在方位是否落我命卦吉方”的互证（延年生气天医伏位为吉方）
   let mgD=[];
@@ -1149,7 +1282,14 @@ function hehun(){
   const hdM=hunDongYears(M,M1?[caiY.zheng,caiY.pian]:[caiY.zheng,caiY.qi]), hdF=hunDongYears(F,F1?[guanY.zheng,guanY.pian]:[guanY.zheng,guanY.qi]);
   const resonAll=hdM.filter(x=>hdF.some(y=>Math.abs(y.y-x.y)<=1)).map(x=>x.y);
   const reson=[...new Set(resonAll)];
-  let yqScore=5.5+Math.min(3,reson.length)-((hdM.length===0&&hdF.length===0)?2:0);
+  /* 基准 5 为中性：共振窗口为本维之要（两造婚动同年方是"可成之期"），故按共振年数分四档加减；
+     正例条数只作辅助（十二年内配偶星透干常有三四见，本属常态，不给大分），
+     两侧皆无正例者另扣，表婚动之期全无凭据。 */
+  const yqN=hdM.length+hdF.length;
+  let yqScore=5
+    +(reson.length>=3?2.5:reson.length===2?1.5:reson.length===1?0.5:0)
+    +(yqN>=6?0.5:yqN>=2?0:-0.5)
+    -((yqN===0)?1.5:0);
   yqScore=Math.max(0,Math.min(10,Math.round(yqScore*2)/2));
   const yqDesc=`未来十二年婚动正例（夫妻宫逢合、配偶星透干）：${LA}${hdM.length?hdM.map(x=>x.y+'年（'+x.why+'）').join('、'):'未见'}；${LB}${hdF.length?hdF.map(x=>x.y+'年（'+x.why+'）').join('、'):'未见'}。`
     +(reson.length?('双方共振窗口：'+reson.join('、')+'年，婚缘共振之期。'):'未来十二年双方无共振窗口，婚动之期各异，成婚须人为把握时机。');
@@ -1163,23 +1303,36 @@ function hehun(){
   const mDe=(mCS.indexOf(M.gans[3])>=0)||((HIDE[M.zhis[3]]||[]).some(h=>mCS.indexOf(h)>=0));
   const fDe=(fCS.indexOf(F.gans[3])>=0)||((HIDE[F.zhis[3]]||[]).some(h=>fCS.indexOf(h)>=0));
   const szS=zhiRelSnap(M.zhis[3],F.zhis[3],allGans,allZhis,M.CTX.monthZ);
+  /* 基准 5.5 为中性，按实测分布分档：子女星现三位以上方为"旺"（加分），二位为常见（不加），
+     一位为偏弱、零位为孤绝（各减）。时柱得位与宫位合冲各一档加减。
+     两造子女星俱旺、时柱又合者本属良配之象，然"子息一半在人"，故上沿收在 9.5 不设 10，
+     免命理之言把人事说满（与本条末句口径一致）。 */
   let ziScore=5.5
-    +(mN>=2?1:mN===1?0.5:-2)+(fN>=2?1:fN===1?0.5:-2)
-    +(mDe?0.75:0)+(fDe?0.75:0)
+    +(mN>=3?1.5:mN===2?0.5:mN===1?-0.5:-2)+(fN>=3?1.5:fN===2?0.5:fN===1?-0.5:-2)
+    +(mDe?0.5:0)+(fDe?0.5:0)
     +((szS.he6||szS.sanhe!==null)?1.5:0)
     -(szS.chong?1.5:0)
-    -((szS.xing||szS.hai||szS.po)?0.5:0);
-  ziScore=Math.max(0,Math.min(10,Math.round(ziScore)));
+    -((szS.xing||szS.hai||szS.po)?0.75:0);
+  ziScore=Math.max(0,Math.min(9.5,Math.round(ziScore*2)/2));
   const ziDesc=`${LA}子女星（${M1?'官杀':'食伤'}）${mCS.join('、')}：命局现${mN}位${mDe?'，且落时柱子女宫为得位':''}；${LB}子女星（${F1?'官杀':'食伤'}）${fCS.join('、')}：命局现${fN}位${fDe?'，且落时柱子女宫为得位':''}。`
     +`双方时柱（子女宫）${M.zhis[3]}${F.zhis[3]}：${szS.he6?'六合相谐，子女宫安稳':szS.sanhe!==null?szS.sanhe+'，子女宫相谐':szS.chong?'相冲，子女宫动荡，生育教养事宜须格外用心':(szS.xing||szS.hai||szS.po)?'带'+(szS.xingName||'刑害破')+'，子女宫小有磕绊':'平顺，无合无冲'}。子息之事一半在人，命理只述其势，不作定论。`;
   spec.push(['子息缘',ziScore,10,ziDesc]);
-  let specTotal=0, specMax=0; spec.forEach(it=>{ specTotal+=it[1]; specMax+=it[2]; });
-  const SPEC_W=0.3;                                   // 专项分析计入综合分的权重
+  /* 专项聚合：按项权重加权，且只纳"本盘真能判"之项。
+   * 权重按该项在合婚中的分量定（日柱与配偶星为本、方位与神煞为末），见 HH_SPEC_W。
+   * active=false 者指本盘缺判据（如两造同址则相对方位无从比对、方位表法亦无差可判），
+   * 此类项只列出参看、不进聚合：否则一项恒为中值的死项会稀释全盘区分度（实测方位两项标准差为 0）。 */
+  let specTotal=0, specMax=0, specWSum=0;
+  spec.forEach(it=>{ const w=(HH_SPEC_W[it[0]]||1);
+    if(it[4]===false) return;
+    specTotal+=it[1]*w; specMax+=it[2]*w; specWSum+=w; });
   const specScore100 = specMax? specTotal/specMax*100 : 0;
+  const SPEC_W=0.3;                                   // 专项分析计入综合分的权重
   const composite = Math.round((1-SPEC_W)*total + SPEC_W*specScore100);   // 综合分 = 六维归一×0.7 + 专项归一×0.3（均先归一到/100再加权）
-  const adv=buildAdvice(M,F,items,total,spec,composite,SPEC_W);
-  render(M,F,items,total,spec,composite,specTotal,specMax,SPEC_W,adv);
-  window.__hh={M,F,items,total,spec,composite,specTotal,specMax,specW:SPEC_W,AM:A_M,AF:A_F,xiScore:xiScore,mgM,mgF,adv:adv};
+  const specShown = Math.round(specTotal/specWSum*10)/10;                 // 盘面展示取有效项加权均值（口径与聚合一致）
+  const specShownMax = Math.round(specMax/specWSum*10)/10;
+  const adv=buildAdvice(items,spec,composite);
+  render(M,F,items,total,spec,composite,specShown,specShownMax,SPEC_W,adv);
+  window.__hh={M,F,items,total,spec,composite,specTotal:specShown,specMax:specShownMax,specW:SPEC_W,AM:A_M,AF:A_F,xiScore:xiScore,mgM,mgF,adv:adv};
  }catch(e){ if(e&&e.hehunInput){ document.getElementById('out').innerHTML='<p class="notice">'+e.msg+'</p>'; } else { document.getElementById('out').innerHTML='<p class="notice">合婚出错：'+(e.message||e)+'</p>'; } }
 }
 function wxStr(wx){return Object.keys(wx).map(k=>`${k}${wx[k]}`).join(' ');}
@@ -1203,8 +1356,10 @@ function hhAdviceHTML(adv){
     <div class="hh-adv-box"><table class="hh-adv-tbl"><tbody>${rows.join('')}</tbody></table></div>
   </div>`;
 }
-/* 与八字排盘页面完全一致的排盘表（内容/格式一模一样） */
-function renderTable(cols, M_or_F){
+/* 四柱表：列宽与表头与八字页同制式，主星格作"日主"（两表并排，性别已由表题标明）。
+   神煞格走引擎 shaSpans（bazi-core.js），与八字页同一渲染件：带纳音查法标记与吉凶着色，
+   故 buildBaziState 给出的全口径神煞（含纳音查法一路）此处可点可读。 */
+function renderTable(cols){
   const head=`<tr><th>四柱</th>${cols.map(c=>`<th class="zhu">${c.lbl}</th>`).join('')}</tr>`;
   const xing=`<tr><td class="small">主星</td>${cols.map(c=>{
     if(c.ssg==='日主'){ return `<td class="small"><b class="hh-rm">日主</b></td>`; }
@@ -1218,7 +1373,7 @@ function renderTable(cols, M_or_F){
   const kong=`<tr><td class="small">空亡</td>${cols.map(c=>`<td class="small">${c.kong.join('、')||'无'}</td>`).join('')}</tr>`;
   const dishi=`<tr><td class="small">地势</td>${cols.map(c=>`<td class="small">${c.di||'无'}</td>`).join('')}</tr>`;
   const zizuo=`<tr><td class="small">自坐</td>${cols.map(c=>`<td class="small">${c.di2||'无'}</td>`).join('')}</tr>`;
-  const sha=`<tr><td class="small">神煞</td>${cols.map(c=>`<td class="small">${c.sha.length?c.sha.map(s=>`<span class="tip sha-${shaCat(s)}" onclick="showTip('${s}')">${s}</span>`).join('<br>'):'无'}</td>`).join('')}</tr>`;
+  const sha=`<tr><td class="small">神煞</td>${cols.map(c=>`<td class="small">${c.sha.length?shaSpans(c.sha):'无'}</td>`).join('')}</tr>`;
   return `<table class="bazi-table">${head}${xing}${gan}${zhi}${hide}${nayin}${kong}${dishi}${zizuo}${sha}</table>`;
 }
 /* 六维与专项两盘：骨架照皇极经世元会运世盘的外层与老黄历二十八宿盘，本页只填数据与令牌。
@@ -1306,16 +1461,20 @@ function hhDetailHTML(it){
 function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv){
   // 等级锚定（须与评分模型对齐）：六维全中性盘≈63-66 分（生肖13/20＋年柱6/10＋纳音≈11/15＋日干18/25＋日支12/20＋互补6/10），
   // 故中性盘必须落“中等”，上等门槛 75 显著高于中性、中上 68 为有吉无凶、下等 45 起为真有冲克、45 以下方论缘薄。
-  // 档位判定统一由 hhLvIndex(composite) 给出，等级名/主题五行/色值取 HH_LV_META 单源。
-  const L=HH_LV_META[adv.lv]; const level=L.lv, wx=L.wx;
+  // 档位判定统一由 hhLvIndex(composite) 给出，等级名与色值取 HH_LV_META 单源。
+  const L=HH_LV_META[adv.lv]; const level=L.lv;
   const color=L.color;
-  
+  /* 折算口径提示：夏令时折回、子时归日、年界三口径任一生效时明示所取之值，
+     免得盘面与用户自算的钟面结果对不上而无从分辨（与八字页同报法） */
+  const notes=[...new Set([...M.notes,...F.notes])];
+  const noteHTML=notes.length?`<div class="sub-note hh-note">${notes.join('；')}</div>`:'';
   function pillarTbl(C,who){
     return `<div class="hh-chart"><div class="hh-chart-title">${who}</div>${renderTable(C.cols)}</div>`;
   }
   document.getElementById('out').innerHTML=`
   <div class="hh-result">
     <div class="hh-charts">${pillarTbl(M,LA+' '+sexIco(M.sex))}${pillarTbl(F,LB+' '+sexIco(F.sex))}</div>
+    ${noteHTML}
     <div class="hh-total" style="--hhc:${color}">
       <div class="hh-total-cap">综合分（六维70%+专项加权${Math.round(specW*100)}%=100）</div>
       <div class="hh-total-score" style="color:${color}">得分<b>${composite}</b></div>
@@ -1337,22 +1496,7 @@ function hhPairSpan(base, a, b){
   const t=a+b+word;
   return '<span class="tip" onclick="showTip(\'' + pairTipKey(base,a,b) + '\')">' + t + '</span>';
 }
-/* 四柱表内十神/纳音/神煞点击说明（与八字排盘页一致） */
-function showTip(key, extra){
-  const o=DICT[key];
-  let body='';
-  if(key==='__NAYIN__' && extra){
-    const info=NAYIN_INFO[extra];
-    body=`<h3 class="tip-title">${extra}</h3><div class="tip-body">五行属<b>${info.wx}</b>。<br>${info.d}</div>`;
-  } else if(o){
-    body=tipHtml(key);
-  } else {
-    body=`<h3 class="tip-title">${key}</h3><div class="tip-body">（暂无说明）</div>`;
-  }
-  document.getElementById('modalBody').innerHTML=body;
-  document.getElementById('modalMask').classList.add('show');
-}
-function closeTip(){ const m=document.getElementById('modalMask'); if(m)m.classList.remove('show'); }
+/* 十神、纳音、神煞与关系的点击说明走引擎 showTip（bazi-app.js），与八字页同一弹框件 */
 </script>
 <div class="modal-mask" id="modalMask" onclick="if(event.target===this)closeTip()">
   <div class="modal"><span class="close" onclick="closeTip()">×</span><div id="modalBody"></div></div>
@@ -1367,37 +1511,26 @@ window.addEventListener('load', function () {
     (function initHehunBirth(){
       const SAVE='hehunForm';
       let saved={}; try{ saved=JSON.parse(localStorage.getItem(SAVE))||{}; }catch(e){ saved={}; }
-      function persist(){ try{ const s={}, g=t=>document.getElementById(t); ['m','f'].forEach(x=>{ s[x+'Date']=g(x+'Date').value; s[x+'Time']=g(x+'Time').value; s[x+'Sex']=g(x+'Sex')?g(x+'Sex').value:''; s[x+'Prov']=g(x+'Prov').value; s[x+'City']=g(x+'City').value; s[x+'Dist']=g(x+'Dist').value; s[x+'Lng']=g(x+'Lng').value; s[x+'True']=g(x+'True').checked; }); localStorage.setItem(SAVE,JSON.stringify(s)); }catch(e){} }
-      function bindPersist(t){ ['Date','Time','Lng'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener(k==='Lng'?'input':'change', persist); }); const ok=document.getElementById(t+'True'); if(ok) ok.addEventListener('change', persist); const sxE=document.getElementById(t+'Sex'); if(sxE) sxE.addEventListener('change', persist); }
+      function persist(){ try{ const s={}, g=t=>document.getElementById(t); ['m','f'].forEach(x=>{ s[x+'Date']=g(x+'Date').value; s[x+'Time']=g(x+'Time').value; s[x+'Sex']=g(x+'Sex')?g(x+'Sex').value:''; s[x+'Prov']=g(x+'Prov').value; s[x+'City']=g(x+'City').value; s[x+'Dist']=g(x+'Dist').value; s[x+'Lng']=g(x+'Lng').value; }); localStorage.setItem(SAVE,JSON.stringify(s)); }catch(e){} }
+      function bindPersist(t){ ['Date','Time','Lng'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener(k==='Lng'?'input':'change', persist); }); const sxE=document.getElementById(t+'Sex'); if(sxE) sxE.addEventListener('change', persist); }
       function buildCity(dId,pId,cId,t){
         const sp=document.getElementById(pId),sc=document.getElementById(cId),sd=document.getElementById(dId);
         if(!sp||!sc||!sd) return;
-        sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-        function fillCity(){ const p=sp.value; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-        function fillDist(){
-          const p=sp.value, c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
-          if(!c) return;
-          let html=`<option value="">${c.c}</option>`;
-          distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-          sd.innerHTML=html;
-        }
-        sp.onchange=()=>{ fillCity(); persist(); }; sc.onchange=()=>{ fillDist(); persist(); }; sd.onchange=persist;
+        /* 出生地默认停在未知地：起首若是某地，未动过表单的造便按该地折过一道，
+           校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
+           回填期间不落存档：初始填充与恢复本身不是用户改动，写进去会把上次存的出生地抹成未知地。 */
+        let ready=false;
+        const trio=fillPlaceTrio(sp, sc, sd, ()=>{ if(ready) persist(); });
+        sd.onchange=()=>{ if(ready) persist(); };
         const sv=saved[t+'Prov'], cv=saved[t+'City'], dv=saved[t+'Dist'];
-        if(sv&&PROV[sv]){                         // 有历史：恢复已填省份
-          sp.value=sv; fillCity();
-          if(cv&&PROV[sv].some(c=>c.c===cv)) sc.value=cv;
-          fillDist();
-          if(cv&&dv) sd.value=dv;
-        } else {                                  // 无历史：保持原默认北京市
-          sp.value='北京市'; fillCity();
-        }
+        if(sv&&PROV[sv]) trio.set(sv, cv, dv);
+        ready=true;
       }
-      function restoreOther(t){           // 日期/时间/经度/真太阳时/性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）
-        const g=id=>document.getElementById(id), dt=g(t+'Date'), tm=g(t+'Time'), lg=g(t+'Lng'), tr=g(t+'True'), sx=g(t+'Sex');
+      function restoreOther(t){           // 日期/时间/经度/性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）
+        const g=id=>document.getElementById(id), dt=g(t+'Date'), tm=g(t+'Time'), lg=g(t+'Lng'), sx=g(t+'Sex');
         if(saved[t+'Date']) dt.value=saved[t+'Date'];
         if(saved[t+'Time']) tm.value=saved[t+'Time'];
         if(saved[t+'Lng']) lg.value=saved[t+'Lng'];
-        if(typeof saved[t+'True']==='boolean') tr.checked=saved[t+'True'];
         if(sx){ if(saved[t+'Sex']) sx.value=saved[t+'Sex']; hhSexChanged(t==='m'?1:2); }   // 恢复后同步图标与卡片配色
         bindPersist(t);
       }
@@ -1417,15 +1550,16 @@ window.addEventListener('load', function () {
       const de=document.getElementById(side+'Date'), te=document.getElementById(side+'Time');
       if(de&&dt) de.value=dt;
       if(te&&tm) te.value=tm;
-      /* 出生地（省市区、经度、真太阳时）：同步级联，禁止 setTimeout */
-      const prov=p.get('bProv'), city=p.get('bCity'), dist=p.get('bDist'), lng=p.get('bLng'), trueV=p.get('bTrue');
+      /* 出生地（省市区、经度）：同步级联，禁止 setTimeout。
+         八字页传来的 bTrue 参数随真太阳时勾选一并作废：本页太阳时口径已由上方选项行统管，
+         该参数不再有对应控件，读入即弃。 */
+      const prov=p.get('bProv'), city=p.get('bCity'), dist=p.get('bDist'), lng=p.get('bLng');
       const provEl=document.getElementById(side+'Prov'), cityEl=document.getElementById(side+'City'), distEl=document.getElementById(side+'Dist');
-      const lngEl=document.getElementById(side+'Lng'), trueEl=document.getElementById(side+'True');
+      const lngEl=document.getElementById(side+'Lng');
       if(provEl&&prov){ provEl.value=prov; provEl.onchange(); }
       if(cityEl&&city){ cityEl.value=city; cityEl.onchange(); }
       if(distEl&&dist) distEl.value=dist;
       if(lngEl&&lng) lngEl.value=lng;
-      if(trueEl) trueEl.checked=(trueV==='1');
       const note=document.createElement('div');
       note.className='sub-note hh-frombazi';
       note.textContent='已从八字命盘自动填入'+(sx==='女'||sx==='0'?LB:LA)+'出生信息（含出生地、经度、真太阳时）；请填写另一人资料后点击"开始合婚"。';

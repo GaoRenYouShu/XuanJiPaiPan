@@ -240,7 +240,7 @@ function baziStateOf(dateStr, hourVal){
   try {
     return window.buildBaziState({
       date: dateStr, time: hourVal || '12:00',
-      sex: 1, ziMode: 'late', useTrue: false, lng: 120, kongAxis: 'day'
+      sex: 1, ziMode: 'late', sunMode: 'off', lng: 120, kongAxis: 'day'
     });
   } catch(e){ return null; }
 }

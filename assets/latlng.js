@@ -8,7 +8,20 @@ const PROV_COORD = {"北京市":[{"c":"北京市","lng":null,"lat":null,"d":{"�
 const PROV_CENTER = {"北京市":[116.405285,39.904989],"天津市":[117.190182,39.125596],"河北省":[114.502461,38.045474],"山西省":[112.549248,37.857014],"内蒙古自治区":[111.670801,40.818311],"辽宁省":[123.429096,41.796767],"吉林省":[125.3245,43.886841],"黑龙江省":[126.642464,45.756967],"上海市":[121.472644,31.231706],"江苏省":[118.767413,32.041544],"浙江省":[120.153576,30.287459],"安徽省":[117.283042,31.86119],"福建省":[119.306239,26.075302],"江西省":[115.892151,28.676493],"山东省":[117.000923,36.675807],"河南省":[113.665412,34.757975],"湖北省":[114.298572,30.584355],"湖南省":[112.982279,28.19409],"广东省":[113.280637,23.125178],"广西壮族自治区":[108.320004,22.82402],"海南省":[110.33119,20.031971],"重庆市":[106.504962,29.533155],"四川省":[104.065735,30.659462],"贵州省":[106.713478,26.578343],"云南省":[102.712251,25.040609],"西藏自治区":[91.132212,29.660361],"陕西省":[108.948024,34.263161],"甘肃省":[103.823557,36.058039],"青海省":[101.778916,36.623178],"宁夏回族自治区":[106.278179,38.46637],"新疆维吾尔自治区":[87.617733,43.792818],"台湾省":[121.509062,25.044332],"香港特别行政区":[114.173355,22.320048],"澳门特别行政区":[113.54909,22.198951]};
 /* 坐标取数：区县名与城市名在数据中以现成拼接形式存储，调用方一律传 PROV 内的 c.c / 区县名，
    故城市名、区县名均精确匹配，无需剥后缀重试。 */
+/* 出生地未定：三级下拉的缺省档，值即此常量，取此值者无坐标可言。
+   缺省须是显式的一档"未知地"而非某个真实地点：下拉首项若是某地，未动过表单的盘
+   会按该地经度折过一道而盘面不著一字，误差藏进校正量里，读盘者无从分辨。 */
+const UNKNOWN_PLACE = '未知地';
+/* 出生地是否已定：省、市两级任一停在未知档即未定。
+   区县可空（空即按市级经度，市已选定故仍属定地）；市一级不可空，
+   只选省就出经度等于替用户挑了一座城，那城未必是其出生地。
+   手动经度与省市两级是两条独立的定地途径，故只判这组下拉，不管经度框。 */
+function placeUnset(prov, city){
+  const u = v => v==='' || v==null || v===UNKNOWN_PLACE;
+  return u(prov) || u(city);
+}
 function findLng(prov, city, dist){
+  if(placeUnset(prov, city)) return null;
   const cs = PROV[prov]; if(!cs) return null;
   const c = cs.find(x=>x.c===city);
   if(dist && c && c.d && c.d[dist]!=null) return c.d[dist];
@@ -20,6 +33,7 @@ function findLng(prov, city, dist){
   return null;
 }
 function findLat(prov, city, dist){
+  if(placeUnset(prov, city)) return null;
   const cs = PROV_COORD[prov]; if(!cs) return null;
   const c = cs.find(x=>x.c===city);
   if(dist && c && c.d && c.d[dist]!=null) return c.d[dist];
@@ -30,6 +44,52 @@ function findLat(prov, city, dist){
 }
 function coordOf(prov, city, dist){ return {lng: findLng(prov,city,dist), lat: findLat(prov,city,dist)}; }
 function provCenter(prov){ const v = PROV_CENTER[prov]; return v? {lng:v[0], lat:v[1]} : null; }
+/* 出生地三级下拉的填充与取值，全站各页共用这一份。
+   省、市两级以"未知地"起首且默认停在该档：定地是出盘的前提而非可略的修饰，
+   默认落在真实地点等于替用户选了出生地，随后的经度校正便带着一个无人认领的来历。
+   区县首项是该市名本身，取它即"只定到市"，与定到某区县同属定地，故不算未知。
+   三级联动与坐标取数各页写法不一，散在各页改一次要改十几处且易漏，收在此处一处改到。 */
+function fillPlaceTrio(provEl, cityEl, distEl, onDone){
+  if(!provEl || !cityEl || !distEl) return null;
+  const unknown = '<option value="'+UNKNOWN_PLACE+'">'+UNKNOWN_PLACE+'</option>';
+  function fillDist(){
+    const p = provEl.value;
+    const c = (PROV[p]||[]).find(x=>x.c===cityEl.value);
+    if(!c){
+      distEl.innerHTML = '';
+      distEl.disabled = true;
+      if(onDone) onDone();
+      return;
+    }
+    distEl.disabled = false;
+    distEl.innerHTML = '<option value="">'+c.c+'</option>'+
+      distList(p, c.c).map(k=>'<option value="'+k+'">'+k+'</option>').join('');
+    if(onDone) onDone();
+  }
+  function fillCity(){
+    const p = provEl.value;
+    if(!PROV[p]){ cityEl.innerHTML = unknown; cityEl.disabled = true; fillDist(); return; }
+    cityEl.disabled = false;
+    cityEl.innerHTML = unknown + PROV[p].map(c=>'<option value="'+c.c+'">'+c.c+'</option>').join('');
+    fillDist();
+  }
+  provEl.innerHTML = unknown + provList().map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  provEl.onchange = fillCity;
+  cityEl.onchange = fillDist;
+  cityEl.value = UNKNOWN_PLACE;
+  provEl.value = UNKNOWN_PLACE;
+  fillCity();
+  return {
+    reset(){ provEl.value = UNKNOWN_PLACE; fillCity(); },
+    set(prov, city, dist){
+      if(!prov || !PROV[prov]){ this.reset(); return; }
+      provEl.value = prov; fillCity();
+      if(city && PROV[prov].some(x=>x.c===city)){ cityEl.value = city; fillDist();
+        if(dist) distEl.value = [...distEl.options].some(o=>o.value===dist) ? dist : '';
+      }
+    }
+  };
+}
 /* 省级列表唯一真源：供出生地省份下拉使用。
    按 PROV 原键序返回（港澳台随 PROV_CENTER 自然排列，不强制置底）。
    页面禁止自行遍历 PROV 拼顺序，一律经 provList() 取数。 */

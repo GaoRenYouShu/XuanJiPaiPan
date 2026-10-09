@@ -419,7 +419,6 @@ a.btn{display:inline-flex;align-items:center}
   .dy-list{grid-template-columns:1fr !important}
   .dy-row{flex-wrap:wrap;gap:var(--sp-1) var(--sp-2);padding:var(--sp-2) var(--sp-3)}
   .dy-star{flex-basis:100%;text-align:left !important;margin-top:2px}
-  .palace-detail{grid-template-columns:1fr !important}
   .zp-yun-grid{grid-template-columns:1fr !important}
   /* 手机端紧凑化：基础信息卡片（农历/生肖/命宫/节气）内容与表格内容（td 13px/lh1.4）对齐。
      必须用 #mod-base 提级：基线 .info-box p{13.5px}（文件后部 246 行）同特异性会覆盖此处的 13px，
@@ -619,7 +618,7 @@ a.btn{display:inline-flex;align-items:center}
 .info-box.lq-权{border-top:2px solid #b8860b}.info-box.lq-权 h4{color:#b8860b}
 .info-box.lq-科{border-top:2px solid #2b6cb0}.info-box.lq-科 h4{color:#2b6cb0}
 .info-box.lq-忌{border-top:2px solid var(--red)}.info-box.lq-忌 h4{color:var(--red)}
-.ji-notice{background:#fdecea;border:2px solid var(--red);border-radius:0;padding:var(--sp-2) var(--sp-3);margin:var(--sp-2) 0;color:var(--red);font-weight:700;font-size:14px}
+.ji-notice{background:#fdecea;border:1px solid var(--red);border-radius:0;padding:var(--sp-2) var(--sp-3);margin:var(--sp-2) 0;color:var(--red);font-size:14px}
 /* 大限（大运）列表 */
 /* 大限（大运）：电脑端3列、框宽充足、星曜完整显示（不截断），不过长不留大空白 */
 /* 列数随容器自适应，列宽下限取单行内容的最小宽度，行内容不会撑破列、也不横向溢出 */
@@ -632,20 +631,12 @@ a.btn{display:inline-flex;align-items:center}
 .dy-age{color:var(--ink2);font-size:12px;white-space:nowrap;flex-shrink:0}
 .dy-mean{color:var(--gold-brown);font-size:11.5px;white-space:nowrap;flex-shrink:0;font-weight:400}
 @media(max-width:560px){.dy-mean{white-space:normal}}
-/* 紫微十二宫逐宫详断：桌面2列（内容多，2列更舒展） */
-.palace-detail{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-3);margin-top:var(--sp-2)}
-.palace-detail .info-box{margin:0;background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-3) var(--sp-3);box-shadow:var(--shadow)}
-.palace-detail .info-box h4{font-size:var(--tier4);font-weight:400;color:var(--gold2);margin-bottom:var(--sp-1);line-height:1.35}
-.palace-detail .ly-zh-p{font-size:13px;line-height:1.75;color:var(--ink);margin:0 0 var(--sp-1)}
-.palace-detail .ly-zh-p b{color:var(--gold2);font-weight:400}
-.palace-detail .ly-zh-p .sch-tag{color:var(--gold2);font-weight:400;font-style:normal}
-.palace-detail .ly-zh-p.sub{padding-left:var(--sp-2);font-size:12.5px;color:var(--ink);margin:0 0 var(--sp-1);line-height:1.7}
-.palace-detail .ly-rel{margin-top:2px}
-.palace-detail .ly-rel .ly-zh-p.sub{padding-left:var(--sp-2);font-size:12.5px;color:var(--ink);margin:0 0 var(--sp-1)}
 /* 紫微本命定盘（一眼看懂的重点结论） */
 .zp-ding{background:var(--card);border:1px solid var(--line);border-radius:0;box-shadow:var(--shadow);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-1)}
 .zp-ding .dp-top{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-3)}
-.dp-badge{font-weight:400;font-size:14px;color:#fff;border-radius:0;padding:var(--sp-1) var(--sp-3);letter-spacing:1px}
+/* 定盘徽标：与流年盘 .lq-h 同档（13px、1px 8px、不断行、同高），
+   块高不越正文行高 23.4px，所在行不被撑高；行高与 .lq-h 取同值，两处色块一样大小。 */
+.dp-badge{display:inline-block;font-weight:400;font-size:13px;color:#fff;border-radius:0;padding:1px var(--sp-2);letter-spacing:1px;white-space:nowrap;line-height:1.7}
 .dp-badge.dp-0{background:var(--red)}
 .dp-badge.dp-1{background:#b8860b}
 .dp-badge.dp-2{background:#8a8580}
@@ -669,7 +660,6 @@ a.btn{display:inline-flex;align-items:center}
 /* 大运/流年/流月/流日 日期选择器 */
 .yf-picker{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin:var(--sp-2) 0 var(--sp-2)}
 .yf-picker label{font-size:13px;color:var(--gold2);font-weight:400}
-.yf-picker input[type=date]{height:30px;font-size:13px;padding:0 10px;border:1px solid var(--line);border-radius:0;background:var(--card);color:var(--ink)}
 .yf-picker .btn{background:var(--gold2);color:#fff;border:none;border-radius:0;padding:0 16px;font-size:13px;cursor:pointer;font-weight:700}
 .yf-picker .btn:hover{background:var(--red)}
 .yf-hint{font-size:12px;color:var(--ink2)}
@@ -771,8 +761,54 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .opts-row .field select{width:auto;max-width:100%}
 .opts-row .field.chk{align-self:flex-end;padding-bottom:var(--sp-2);min-width:auto}
 .opts-row .btn{flex:0 0 auto;align-self:flex-end}
+/* 窄屏选项行的行内距收到 --sp-2，与题头到上线同档（移动端间距取更小档）。
+   一行容得下多项后行内距才显出来，故此处一并定死，各页不再各写一档。 */
+@media(max-width:640px){.opts-row{gap:var(--sp-2)}}
+/* 双盘对照（八字、紫微共用）：dual-wrap 是勾选行与虚线框的共同包裹，组内两件之间取 8px；
+   dual-rel-chk 为内联勾选行，dual-rel2 为第二盘块，1px 虚线框、框内四周 8px 呼吸；
+   显隐只两条（默认 display:none，is-on 显块）；框内字段复用 form-row、field、group-label、
+   birth-group 既有件，不另立一套。框内底部呼吸因各页出生地组底缘写法不同，由页级按肤补。 */
+.dual-wrap{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2);flex:1 1 100%}
+.dual-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
+  margin:0;font-size:13px;color:var(--ink2);cursor:pointer;user-select:none}
+.dual-rel-chk input{width:auto;margin:0}
+.dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
+.dual-rel2.is-on{display:block}
+.dual-rel2 .group-label{width:100%;margin:0;color:var(--gold2)}
+.dual-rel2 .form-row{margin-bottom:var(--sp-3)}
+/* 第二盘资料行字段随内容定宽、select 不铺满，与主盘同一口径 */
+.dual-rel2 .form-row .field{flex:0 0 auto;width:auto;min-width:0}
+.dual-rel2 .form-row .field select{width:auto;align-self:flex-start}
+.dual-tbl{border-collapse:collapse;width:100%;max-width:460px;margin-top:var(--sp-1);font-size:13px;table-layout:fixed}
+.dual-tbl th{background:transparent;color:var(--gold2);padding:6px 6px;text-align:center;font-weight:400;border:1px solid var(--line)}
+.dual-tbl td{border:1px solid var(--line);padding:6px 6px;text-align:center;font-size:13px}
+/* 格局对照表铺满容器，禁窄表 */
+.dual-tbl.dual-tbl-full{max-width:none}
+.dual-tbl th:first-child,.dual-tbl td:first-child{width:11em;text-align:left}
+.dual-tbl td:nth-child(2),.dual-tbl td:nth-child(3){text-align:left;line-height:1.5}
+/* 两盘交叉表：主盘、对比盘两列窄，关系列吃余宽 */
+.dual-tbl.dual-tbl-cross th:first-child,.dual-tbl.dual-tbl-cross td:first-child{width:8em}
+.dual-tbl.dual-tbl-cross th:nth-child(2),.dual-tbl.dual-tbl-cross td:nth-child(2){width:8em;text-align:left}
 .ts-box{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5}
 .ts-box b{color:var(--red2)}
+/* 已存列表（八字、紫微共用）：四列定宽与换色由页级肤决定，此处只立可被任何页复用的骨架，
+   颜色一律取全站通用变量，页级若要换肤只改变量不动骨架。 */
+.saved-list{display:table;width:100%;border-collapse:collapse;font-size:13px}
+.saved-list .sr{display:table-row}
+.saved-list .sc{display:table-cell;padding:var(--sp-1) var(--sp-1);border-bottom:1px solid var(--line);vertical-align:middle}
+.saved-list .sc-name{min-width:48px;color:var(--ink);white-space:nowrap}
+.saved-list .sc-sex{min-width:36px;color:var(--ink2);text-align:center;white-space:nowrap}
+.saved-list .sc-info{color:var(--ink2)}
+.saved-list .sc-act{text-align:right;white-space:nowrap}
+.saved-list .sr-head .sc{color:var(--ink2);font-weight:400}
+.saved-list .btn-pai,.saved-list .btn-del{font-size:12px;height:30px;padding:0 6px;line-height:1.4;cursor:pointer;
+  background:transparent;color:var(--ink2);border:1px solid var(--line);border-radius:0}
+.saved-list .btn-del{margin-left:var(--sp-1);padding:0 5px}
+.saved-list .btn-pai:hover{color:var(--gold2);border-color:var(--gold2)}
+.saved-list .btn-del:hover{color:var(--red);border-color:var(--red)}
+/* 输入方式按模式显隐字段：hidden 属性须显式兑现，否则 .form-row 的 display:flex 会压过浏览器默认样式，
+   隐藏形同不生效。全站一处定于此处，各页模式切换都从此过。 */
+[hidden]{display:none !important}
 
 /* 五行统计条（默认单行不换行；.single 强制单行） */
 .wxbar{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3)}
@@ -2069,14 +2105,15 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
   .jz-detail .ly-zh-p{font-size:11.5px;margin:0 0 var(--sp-1)}
   .jz-h{font-size:var(--tier4);margin:0 0 var(--sp-2)}
 }
-/* ===== 命局断事表（stab-ds，仅八字页命局断事卡使用，类名唯一不影响其他页面）=====
+/* ===== 命局断事表（stab-ds，八字页命局断事卡与袁天罡称骨卡共用）=====
  * 项目列宽由 bazi-core.js setupMingJuCol 按真实汉字渲染宽测量后 inline !important 覆盖，
- * 此处为兜底默认（JS 未执行时的基础宽度）：电脑端 4em、响应式 ≤760px 2em。
+ * 此处为兜底默认（JS 未执行时的基础宽度）：电脑端 5.8em、响应式 ≤760px 4.8em。
+ * 两值皆按四字键名单行留出（含内距与边框）：键名不折行，免三字键名折出末行一字。
  * table-layout:fixed 保证列宽严格生效（.stab 默认 auto 时单元格 width 会被内容撑开）。 */
 table.stab.stab-ds{table-layout:fixed !important}
-table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:4em !important;max-width:4em !important;white-space:normal}
+table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !important;max-width:5.8em !important;white-space:normal}
 @media (max-width:760px){
-  table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:2em !important;max-width:2em !important;white-space:normal}
+  table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:4.8em !important;max-width:4.8em !important;white-space:normal}
 }
 
 /* ===== 移动端：表格列宽与对齐精调 =====
@@ -4235,11 +4272,6 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 /* 起卦方式对应的输入组：默认不占位，选中的那组才排出来（显隐走 .is-on，不由 JS 写内联 display） */
 /* 输入宽须高于 style.css 的 .form-row .field input{width:auto}，否则回落浏览器默认约170px */
 /* 历史记录弹层挂 body，不在 .page-mh 内，样式落在弹层自身类上 */
-.modal.mh-hist-modal .mh-hist-empty{padding:var(--sp-3);color:var(--tk-ink,var(--ink2));font-size:var(--tier4);text-align:center}
-.modal.mh-hist-modal .mh-hist-row{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-1) 0;border-bottom:1px solid var(--tk-line,var(--line))}
-.modal.mh-hist-modal .mh-hist-row .mh-hist-t{flex:1;font-size:var(--tier4)}
-.modal.mh-hist-modal .mh-hist-row .btn{height:30px;font-size:var(--tier4)}
-.modal.mh-hist-modal{max-width:560px}
 /* 表格：线条模式，只留行线与容器顶线，左右与竖线一律不画（与六爻同口径，同历法页基础信息条） */
 /* 表间距修饰类须排在 .ly-cat-tbl 之后：同特异性下源序决定胜负，写在前面会被基线的 sp-1 吃掉 */
 /* 键值型表：键列取历法页基础信息条的同款定宽 */
@@ -4252,7 +4284,6 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 /* 爻符：阳爻实画、阴爻断画同取本页主体色 */
 /* 八卦类象全表 */
 /* 历史弹层：口径与六爻页同名类一致，边框随本页梅粉主题 */
-.modal.mh-hist-modal .ly-hist-list > div{border-bottom:1px solid var(--tk-line,var(--line))}
 
 
 
@@ -4475,7 +4506,6 @@ to{opacity:1;transform:none}}
 /* 打印 */
 /* 太乙：模块内小分隔标题间距收敛（≤模块间 20px，保持内紧外松层次） */
 /* 太乙：神将落宫解读小节（盘下方） */
-@media(max-width:1040px){.page-ty .ty16-gridbox .ty16-grid{max-width:400px}}
 /* 太乙：盘下说明小字（图例、据典注、分野注、积年体系说明） */
 /* 太乙：神将落宫表内之辰名着色、宫表首格换行 */
 /* 太乙：主客门吉凶与五行生克之判定着色 */
@@ -4705,12 +4735,9 @@ to{opacity:1;transform:none}}
 
 /* 打印 */
 /* 运势分析：评分卡内的小字标注（日期行、维度权重说明），降一级字色作注脚 */
-.xz-cap{font-size:12px;opacity:.72}
-.xz-cap-blk{font-size:12px;opacity:.72;margin-bottom:var(--sp-1)}
 /* 运势分析：分项条组与说明段承接在小节标题之后的上距，当日评分卡与日期栏拉开 */
 .xz-tr h4 + .hh-items{margin-top:var(--sp-2)}
 .xz-tr .hh-items + p{margin-top:var(--sp-2)}
-.xz-tr .hh-total-xz{margin-top:var(--sp-3)}
 /* 排盘前置校验的警示注记：本页强调色，压过 .sub-note 的次级字色 */
 
   /* 深色主题（跟随系统）：本页令牌与专属规则变体 */

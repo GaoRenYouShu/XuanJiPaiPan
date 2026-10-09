@@ -111,7 +111,7 @@
     try {
       return window.buildBaziState({
         date: dateStr, time: timeVal || '12:00',
-        sex: sex == null ? 1 : sex, ziMode: 'late', useTrue: false, lng: 120, kongAxis: 'day'
+        sex: sex == null ? 1 : sex, ziMode: 'late', sunMode: 'off', lng: 120, kongAxis: 'day'
       });
     } catch (e) { return null; }
   }

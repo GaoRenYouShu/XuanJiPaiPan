@@ -1189,7 +1189,7 @@ function tenShenClose(f, theme){
 
 
 // 本命四大模块融入断语（纯文本，直接进段落；不另起金标块）。group 取 DUANYU_GROUPS 四大类之一。
-// 上限 12 条。
+// 首屏 12 条：此数只定版面长短，不删断语，余条随件收进可点展开的部分，展开即得全数。
 // 年龄门控不限制本命四大模块，故此处取完整本命断语（stepCtx 为空）。
 function dyNatalInto(group, BZ, A, num) {
   if (typeof window === 'undefined' || !window.duanyuGroup) return '';
@@ -1931,14 +1931,16 @@ const BaziState = {
   BZ: null,               // 当前排盘结果（见 baziAnalysis）
   CTX: null,              // 十神/干支上下文（paipan / paipanPillar 写入）
   kongAxis: 'day',        // 空亡基准轴：'day'=日柱六甲空亡（默认）/ 'year'=年柱十大空亡（部分流派）
+  qiYunSect: 1,           // 起运法：1 时辰折算（按整日加时辰档取整）/ 2 分钟折算（按实际分钟连续折算）
+  changShengSect: 1,      // 十二长生土行从属：1 火土同宫（戊随丙、己随丁）/ 2 水土同宫（土随壬，长生在申）
   yearGZcur: null,        // 当前排盘年柱干支（供 kongOf 取年柱旬空）
-  CITY_LNG: 116.41,       // 出生地经度（出生地三级联动写入）
+  CITY_LNG: null,         // 出生地经度（出生地三级联动写入；未选定出生地时为空，不得回退任一省会）
   pillarChosenDate: null, // 四柱模式已确认公历日期串（confirmPillarDate / clearPillarDate 写入）
   lastPaipanSig: null,    // 上次排盘输入签名（去重守卫）
   baziInitDone: false     // 页面初始化完成标志（localStorage 恢复后允许持久化）
 };
 /* 顶层裸名代理到 BaziState：BZ/CTX 等裸名读写即落到单一真源。 */
-['BZ','CTX','kongAxis','yearGZcur','CITY_LNG','pillarChosenDate','lastPaipanSig','baziInitDone']
+['BZ','CTX','kongAxis','qiYunSect','changShengSect','yearGZcur','CITY_LNG','pillarChosenDate','lastPaipanSig','baziInitDone']
   .forEach(function(k){
     Object.defineProperty(window, k, {
       configurable: true,
@@ -1952,13 +1954,26 @@ const BaziState = {
    用于四柱表与所选干支详情的“空亡”统一展示，切换 kongAxis 即整体联动。 */
 function kongOf(gz){ const ref=(kongAxis==='year' && yearGZcur) ? yearGZcur : gz; return kongWang(ref); }
 
+/* 旬首旬空：四柱各取其本旬旬首与旬空。取 EightChar 的 Xun 一族，与四柱表“空亡”行同源同值，
+   故此处只并排展示，不另立算法；柱不明（公元前）时返回空串，由调用方整项略去。 */
+function xunText(ec, part){
+  if(!ec) return '';
+  const cap=part[0].toUpperCase()+part.slice(1);
+  try{
+    const x=ec['get'+cap+'Xun'](), k=ec['get'+cap+'XunKong']();
+    return x&&k ? `${x}旬空${k}` : '';
+  }catch(e){ return ''; }
+}
+/* 四柱旬首旬空一次取齐，供字段流与弹窗两处同取，避免两处各写一遍列名。 */
+function xunVals(ec){ return ['year','month','day','time'].map(p=>xunText(ec,p)); }
+
 /* 性能：排盘输入签名。相同签名且已渲染过则跳过全量重排（见 paipan / paipanPillar 顶部的守卫）。 */
 function paipanSig(){
   const g=id=>{ const e=document.getElementById(id);
     if(!e) return '';
     if(e.type==='checkbox') return e.checked?1:0; /* 复选框读勾选态，不可读 .value（恒为 "on"，会令状态变化被忽略） */
     return (e.value!==undefined ? e.value : ''); };
-  return ['bMode','bDate','bTime','bSex','bDst','bSun','bZi','bYearAxis','bKong','bLng','bProv','bCity','bDist',
+  return ['bMode','bDate','bTime','bSex','bDst','bSun','bZi','bYearAxis','bKong','bQiYun','bCsSect','bLng','bProv','bCity','bDist',
           'bLunarY','bLunarM','bLunarD','bLunarLeap',
           'pyG','pyZ','pmG','pmZ','pdG','pdZ','ptG','ptZ',
           'dualRel','dDate','dTime','dSex','dLng','dLunarY','dLunarM','dLunarD','dLunarLeap',
@@ -1976,6 +1991,16 @@ function qiYunLabel(start){
   const zhouYears=a-1;
   const zhou=zhouYears+(m?(' 岁 '+m+' 个月'):' 岁');
   return `${a} 虚岁${m?(''+m+' 个月'):''}（${start.solar} 交运），折合 ${zhou}（周岁，虚岁减一）`;
+}
+/* 起运法两派并注：本派交运日已由 qiYunLabel 给出，此处补另派之期与差异量级。
+   两派折算比率相同而取整粒度不同，大运干支序列随之全同，唯交运日移易，故只报日差。 */
+function qiYunSectNote(BZ){
+  if(!BZ || !BZ.ec || !(typeof qiYunPair==='function')) return '';
+  let p=null;
+  try{ p=qiYunPair(BZ.ec, BZ.sex); }catch(e){ return ''; }
+  if(!p || !p.altSolar) return '';
+  const diff=p.diffDays===0?'两派同期':('相差 '+p.diffDays+' 日');
+  return `起运法用${p.name}；另派${p.altName}之交运日为 ${p.altSolar}，${diff}。两派折算比率相同而取整粒度不同，大运干支序列全同，唯交运日随之移易。`;
 }
 
 /* 顶层渲染函数：根据 paipan 算好的 BZ 与上下文 R 构建八字页主体 HTML 字符串。
@@ -2283,10 +2308,11 @@ function renderBaziPage(R, BZ = window.BZ){
       } else _yunCols.push(_mkDash('大运'));
       const _nown=baziNowDate(), _cyn=_nown.getFullYear(), _cmn=_nown.getMonth()+1, _cdn=_nown.getDate();
       let _lnGz='', _lmGz='', _lrGz='';
+      /* 岁运三列同出今日 EightChar 一源：元旦至立春之间，今日尚在上一干支年之内，
+         流年若按公历年取 liunianGZ，给出的是立春之后才生效的干支，与同表流月、流日分属两年 */
       try{
-        _lnGz=liunianGZ(_cyn)||'';
         const _lu=Solar.fromYmd(_cyn,_cmn,_cdn).getLunar();
-        if(_lu){ const _ecn=_lu.getEightChar(); _lmGz=_ecn.getMonth()||''; _lrGz=_lu.getDayInGanZhi()||''; }
+        if(_lu){ const _ecn=_lu.getEightChar(); _lnGz=_ecn.getYear()||''; _lmGz=_ecn.getMonth()||''; _lrGz=_lu.getDayInGanZhi()||''; }
       }catch(e){}
       _yunCols.push(_lnGz?mkYunCol('流年',_lnGz,BZ):_mkDash('流年'));
       _yunCols.push(_lmGz?mkYunCol('流月',_lmGz,BZ):_mkDash('流月'));
@@ -2296,9 +2322,11 @@ function renderBaziPage(R, BZ = window.BZ){
   }
   html+=renderTable(_cols, '四柱', _showYun?'equal8':'equal4');
   const shenshaSummary=renderShenshaSummary(cols, '四柱基础信息表');
-  // 基础信息字段流：农历、生肖、星座、二十八宿、三垣、命卦、节气
+  // 基础信息字段流：农历、生肖、星座、二十八宿、三垣、命卦、节气、旬首旬空
   // 与命局速览（日主、格局、喜用、身强身弱、旺衰评分）并为一条双栏字段流（与老黄历、道历同构）。
   let infoFlow='';
+  /* 四柱旬首旬空一次取齐：字段流与 BZ.meta 两处同取一值，柱不明（公元前）时四项皆空，整项由调用方略去。 */
+  const xv=xunVals(R.ec);
   if(R.lunar && R.ec){
     const {lunar,pj,nj,y,m,d}=R;
     const isBC=!!R.isBC;
@@ -2321,6 +2349,8 @@ function renderBaziPage(R, BZ = window.BZ){
         +bi('命卦', `<span class="tip" onclick="showTip('__MINGGUA__')">${mg.gua}宫 ${mg.group}</span>`);
     }
     infoFlow+=bi('节气', `当令 ${pj.getName()} ${pj.getSolar().toYmd()}<span class="bz-br"></span>下一节 ${nj.getName()} ${nj.getSolar().toYmd()}`);
+    /* 柱不明（公元前）时四项皆空，整项略去，不留空行；所值之项按 年 月 日 时 四段横排，释义见弹窗。 */
+    if(xv.some(p=>p)) infoFlow+=bi('旬首旬空', `<span class="tip" onclick="showTip('__XUN__')">${['年','月','日','时'].map((t,i)=>xv[i]?seg(t,xv[i]):'').filter(s=>s).join('<span class="bz-br"></span>')}</span>`, 'bz-oneline');
   }
   // BZ.meta：两模式统一在此设置，供复制排盘与 AI 模块取用
   BZ.meta={ sex:sex?'男':'女',
@@ -2331,6 +2361,7 @@ function renderBaziPage(R, BZ = window.BZ){
     jieQi: R.pj?`当令${R.pj.getName()}`:'', pillars: cols.map(c=>c.gz).join(' '),
     dayGanWx:GAN_WX[dayGan], xiu: R.lunar?`${R.lunar.getXiu()}${R.lunar.getZheng()}${R.lunar.getAnimal()}（${R.lunar.getXiuLuck()}）`:'',
     shenGong: R.ec?R.ec.getShenGong():'',
+    xun: {year:xv[0], month:xv[1], day:xv[2], time:xv[3]},
     wenChang:WENCHANG[dayGan], wenChangFang:ZHI_FANG[WENCHANG[dayGan]], tianYi:(TIANYI[dayGan]||[]).join('、') };
   infoFlow+=renderOverview(BZ, _yd);
   if(infoFlow) html+=`<div class="bz-info">${infoFlow}</div>`;
@@ -2417,8 +2448,23 @@ function renderBaziPage(R, BZ = window.BZ){
 function gzIndexOf(gz){ for(let k=0;k<60;k++){ if(GAN[k%10]===gz[0]&&ZHI_ORDER[k%12]===gz[1]) return k; } return 0; }
 function gzAtIndex(k){ const i=((k%60)+60)%60; return GAN[i%10]+ZHI_ORDER[i%12]; }
 /* 流年干支：公元 4 年为甲子年，按天文年直接取模。
-   干支年以立春为界，故公历年初至立春之间的日期，其年柱应取上一年，由调用方按需处理。 */
+   y 为干支年序（非公历年序）：liunianGZ(y) 给出的是该干支年自立春起的柱。 */
 function liunianGZ(y){ return gzAtIndex(y-4); }
+/* 流年锚定：公历年 y 对应的流年柱。年柱已按所选年界（立春、春节、冬至）定毕，
+   故由年柱反查锚点，三口径一式通用。立春前出生者年柱属上一干支年，
+   流年若径按公历年起算，整条序列较命局脱一位，出生当年的流年与年柱亦自相龃龉。 */
+function liunianAtYear(BZ, y){
+  const by=(BZ&&typeof BZ.birthYear==='number')?BZ.birthYear:null;
+  if(by===null) return liunianGZ(y);
+  const gz=BZ.yearGan&&BZ.yearZ?(BZ.yearGan+BZ.yearZ):'';
+  if(!gz) return liunianGZ(y);
+  let off=0;
+  if(liunianGZ(by)!==gz){
+    if(liunianGZ(by-1)===gz) off=-1;
+    else if(liunianGZ(by+1)===gz) off=1;
+  }
+  return liunianGZ(y+off);
+}
 function isValidGZ(g,z){ for(let k=0;k<60;k++){ if(GAN[k%10]===g&&ZHI_ORDER[k%12]===z) return true; } return false; }
 /* 五虎遁：年干定寅月天干；五鼠遁：日干定子时天干 */
 function wuHuDun(yg){ const m={'甲':'丙','己':'丙','乙':'戊','庚':'戊','丙':'庚','辛':'庚','丁':'壬','壬':'壬','戊':'甲','癸':'甲'}; return m[yg]; }
@@ -2671,7 +2717,7 @@ function duanShiMingJu(BZ){
  *      不同汉字渲染宽有 ±2px 微差，余量防临界标签溢出）；
  *   3. inline !important 写入首行 th 与所有首列 td。
  * 处理两类表：
- *   table.stab.stab-ds（命局断事"项目"列）：电脑 n=4 / 手机 n=2；table-layout:fixed，列宽由 width 决定。
+ *   table.stab.stab-ds（命局断事与袁天罡称骨"项目"列）：取本表最长标签的单行实宽；table-layout:fixed，列宽由 width 决定。
  *   table.stab.stab-gw（十神宫位，基础关系"宫位"列、六亲星"六亲"列）与 table.stab.stab-ssd（十神断语"关系"列）：
  *   首列宽跟随 stab-ds 基准（与"命局断事"一致），电脑+响应式均同值；stab-gw/stab-ssd 保持 auto 布局、仅 min-width 防内容列压缩。
  *     auto 布局下第二列长文本会把首列压到单字宽（min-content），须 min-width 防压缩。 */
@@ -2693,7 +2739,8 @@ function setupMingJuCol(){
     document.body.appendChild(probe);
     let textW = 1;
     t.querySelectorAll('td.lbl').forEach(td=>{
-      const s = (td.textContent || '').trim().slice(0, n);
+      const full = (td.textContent || '').trim();
+      const s = n>0 ? full.slice(0, n) : full;
       if(!s) return;
       probe.textContent = s;
       const w = probe.getBoundingClientRect().width;
@@ -2718,11 +2765,13 @@ function setupMingJuCol(){
   };
   /* 防异常环境（无中文字体时渲染成豆腐块）：夹取合理区间 */
   const clamp = (w, lo, hi) => Math.max(lo, Math.min(hi, w));
-  /* 1. 命局断事 stab-ds：以首列实测宽为准（基准），电脑 n=4 / 手机 n=2 */
-  let baseCol = isMob ? 36 : 64;
+  /* 1. 命局断事 stab-ds：首列取各表最长标签的单行实宽，诸表同取其一。
+     键列标签一律单行：三字标签若按"两字一行"折，末行必落一字成行，属排版事故，
+     故不按字数折行取宽，窄屏亦不例外（列宽上限随之下调空间，仍由 clamp 兜底防极端字体）。 */
+  let baseCol = isMob ? 40 : 56;
   const dsTables = document.querySelectorAll('table.stab.stab-ds');
-  dsTables.forEach(t=>{ const w = measureCol(t, isMob ? 2 : 4); if(w>0) baseCol = w; });
-  baseCol = clamp(baseCol, isMob ? 30 : 56, isMob ? 60 : 110);
+  dsTables.forEach(t=>{ const w = measureCol(t, 0); if(w > baseCol) baseCol = w; });
+  baseCol = clamp(baseCol, isMob ? 40 : 56, isMob ? 88 : 110);
   dsTables.forEach(t=> applyCol(t, baseCol, true));
   /* 2. 十神宫位，基础关系(stab-gw) 首列宽跟随 stab-ds 基准（电脑+手机都一致）
      十神断语(stab-ssd) 例外："组合"列不走 applyCol（移动端由 CSS @media 控制 4 字折行，
@@ -2739,7 +2788,12 @@ function setupMingJuCol(){
     });
   });
 }
-/* 无出生日期时：静态大运序列 + 各大运断事 */
+/* 无出生日期时：静态大运序列 + 各大运断事，并补出流年、流月、流日、流时四层。
+   出生时间未确认则起运岁数与换运之年俱不可定，大运只按顺逆排布柱序，不标岁年。
+   流年四层改按排盘当下的公历时刻定位：今日干支即流日、其所在节气月即流月、其所在干支年即流年、
+   现时时辰即流时，四层同出今日一源，与基础信息表岁运四列、baziYunDong 当前流年同值。
+   所列干支与命局的生克合冲是实断，但"此年此月此日属命主何运"须待出生时间确认方能落到岁运之上，
+   故四层一律标注未确认，不使读者误作命主本运。 */
 function renderPillarDaYun(BZ){
   const yang=GAN.indexOf(BZ.yearGan)%2===0;
   const male=(BZ.sex===1||BZ.sex===true);
@@ -2747,13 +2801,34 @@ function renderPillarDaYun(BZ){
   const k0=gzIndexOf(BZ.monthGan+BZ.monthZ);
   const steps=[];
   for(let i=1;i<=10;i++){ const k=forward?(k0+i)%60:((k0-i)%60+60)%60; steps.push(GAN[k%10]+ZHI_ORDER[k%12]); }
+  const _now=baziNowDate(), _cy=_now.getFullYear(), _cm=_now.getMonth()+1, _cd=_now.getDate();
+  let lnGZ='', lmGZ='', lrGZ='', ltGZ='';
+  try{
+    const _lu=Solar.fromYmd(_cy,_cm,_cd).getLunar();
+    const _ecn=_lu.getEightChar();
+    lnGZ=_ecn.getYear()||''; lmGZ=_ecn.getMonth()||''; lrGZ=_lu.getDayInGanZhi()||'';
+  }catch(e){}
+  /* 现时时辰支：子时跨 23 至 1 时，故先加一时再折半取整 */
+  const _ltZ=ZHI_ORDER[Math.floor(((_now.getHours()+1)%24)/2)];
+  if(lrGZ) ltGZ=wuShuDun(lrGZ[0], ZHI_ORDER.indexOf(_ltZ));
+  const _un='<span class="ds-unconfirm">未确认</span>';
   let html=`<h3 class="rel-title">运程推演</h3>`;
-  html+=`<div class="sub-note">四柱模式（未确认出生时间）：大运按${forward?'顺行':'逆行'}排布，起运岁数需确认出生时间方可推算。流年流月流日请在上方候选时间中确认出生时间后重排。</div>`;
+  html+=`<div class="sub-note">四柱模式（未确认出生时间）：大运按${forward?'顺行':'逆行'}排布，起运岁数与换运之年需确认出生时间方可推算，故只排柱序、不标岁年。`
+    + `流年、流月、流日、流时按排盘当下（${_cy}年${_cm}月${_cd}日 ${_ltZ}时）定位，是此刻之干支，而非命主当年当月当日当时之运。`
+    + `以下四层一律标注${_un}：干支与命局的生克合冲是实断，落在命主何运之上则须先确认出生时间。</div>`;
   html+=`<div class="dyn-block"><span class="dyn-label">大运（静态）</span><div class="dyn-static">`;
   steps.forEach((gz,i)=>{ html+=`<div class="dyn-static-item"><span class="g">${gz}</span>${ssSpan(gz, BZ)}<span class="cs">第${i+1}运</span></div>`; });
   html+=`</div></div>`;
+  const _layer=(lbl, gz, note)=>`<div class="dyn-block"><span class="dyn-label">${lbl}${_un}</span><div class="dyn-static">`
+    +`<div class="dyn-static-item"><span class="g">${gz||'无'}</span>${gz?ssSpan(gz, BZ):''}<span class="cs">${note}</span></div></div></div>`;
+  html+=_layer('流年', lnGZ, '当前干支年');
+  html+=_layer('流月', lmGZ, '当前节气月');
+  html+=_layer('流日', lrGZ, `${_cy}年${_cm}月${_cd}日`);
+  html+=_layer('流时', ltGZ, `${_ltZ}时`);
   html+=`<h4 class="det-h">各大运整体倾向</h4><div class="info-box ds-box">`;
   steps.forEach((gz,i)=>{ html+=`<p class="ly-zh-p"><span class="ds-gz">第${i+1}运 ${gz}</span> 整体倾向：<b class="tend">${duanVerdict(gz,'大运',BZ)}</b></p>`; });
+  const _cur=(lbl, gz)=>{ if(!gz) return ''; return `<p class="ly-zh-p"><span class="ds-gz">当前${lbl} ${gz}</span> 整体倾向：<b class="tend">${duanVerdict(gz,lbl,BZ)}</b>（${_un}：出生时间未确认，非命主本运）</p>`; };
+  html+=_cur('流年', lnGZ)+_cur('流月', lmGZ)+_cur('流日', lrGZ)+_cur('流时', ltGZ);
   html+=`</div>`;
   return html;
 }
@@ -2804,7 +2879,7 @@ function mkYunCol(lbl, gz, BZ){
   const ctx={dayGan:dg, yearZ:BZ.yearZ, monthZ:mz, dayZ:dz, monthGan:mg, gans:BZ.gans, sex:BZ.sex};
   // 空亡口径必须与四柱列一致：day 轴取各柱自身旬空，year 轴取年柱旬空（读页面 bKong，缺省走 day）
   let _ka='day'; try{ const _el=document.getElementById('bKong'); if(_el) _ka=_el.value; }catch(e){}
-  const _kong= _ka==='year' ? kongWang(BZ.yearGan+BZ.yearZ) : kongWang(gz);
+  const _kong= (_ka==='year' && BZ.yearGan && BZ.yearZ) ? kongWang(BZ.yearGan+BZ.yearZ) : kongWang(gz);
   return {
     lbl, gz, g, z, hide, ssz, ssg,
     ny: nayinOf(gz),
@@ -3244,9 +3319,9 @@ function renderDualTable(BZ2, D2){
       const _yc=[];
       _yc.push((_bestDy && _bestDy.gz) ? mkYunCol('大运', _bestDy.gz, BZ2) : _mkDash('大运'));
       try{
-        const _lnGz=liunianGZ(_cy)||'';
         const _lu=Solar.fromYmd(_cy,_now.getMonth()+1,_now.getDate()).getLunar();
         const _ecn=_lu.getEightChar();
+        const _lnGz=_ecn.getYear()||'';
         _yc.push(_lnGz?mkYunCol('流年',_lnGz,BZ2):_mkDash('流年'));
         _yc.push(_ecn.getMonth()?mkYunCol('流月',_ecn.getMonth(),BZ2):_mkDash('流月'));
         _yc.push(_lu.getDayInGanZhi()?mkYunCol('流日',_lu.getDayInGanZhi(),BZ2):_mkDash('流日'));
@@ -3256,7 +3331,7 @@ function renderDualTable(BZ2, D2){
   }catch(e){}
   out+=renderTable(cols2, '四柱', (cols2.length>4)?'equal8':'equal4');
   if(typeof renderShenshaSummary==='function'){ try{ out+=renderShenshaSummary(cols2, '对比盘四柱表'); }catch(e){} }
-  // 信息字段流（农历、生肖、星座、二十八宿、三垣、命卦、节气）与速览五项（日主、格局、喜用、身强身弱、旺衰评分）
+  // 信息字段流（农历、生肖、星座、二十八宿、三垣、命卦、节气、旬首旬空）与速览五项（日主、格局、喜用、身强身弱、旺衰评分）
   let flow='';
   if(D2 && D2.lunar && D2.ec){
     const lunar=D2.lunar, ec=D2.ec;
@@ -3273,6 +3348,10 @@ function renderDualTable(BZ2, D2){
     flow+=bi('三垣', `<span class="tip" onclick="showTip('__PALACE__')">${seg('命宫',ec.getMingGong())}<span class="bz-br"></span>${seg('胎元',ec.getTaiYuan())}<span class="bz-br"></span>${seg('身宫',ec.getShenGong())}</span>`, 'bz-oneline');
     if(mg) flow+=bi('命卦', `<span class="tip" onclick="showTip('__MINGGUA__')">${mg.gua}宫 ${mg.group}</span>`);
     if(pj&&nj) flow+=bi('节气', `当令 ${pj.getName()} ${pj.getSolar().toYmd()}<span class="bz-br"></span>下一节 ${nj.getName()} ${nj.getSolar().toYmd()}`);
+    /* 对比盘此值不挂弹窗：__XUN__ 弹窗读主盘 BZ.meta，挂上会把主盘四柱之旬错当成对比盘之旬，
+       故只列本盘四柱所值，释义见主盘字段流同项。 */
+    const x2=xunVals(ec);
+    if(x2.some(p=>p)) flow+=bi('旬首旬空', ['年','月','日','时'].map((t,i)=>x2[i]?seg(t,x2[i]):'').filter(s=>s).join('<span class="bz-br"></span>'), 'bz-oneline');
   }
   if(A2){
     const dg2=BZ2.dayGan, dwx2=GAN_WX[dg2]||'';
@@ -3480,8 +3559,11 @@ const dn=t=>{ if(!_D2A) return ''; let s=''; try{ s=(typeof t==='function')?t():
     <div class="an-row an-muku"><span class="an-k">墓库 财库 十二长生 空亡</span><span class="an-v">墓库：${A.muku&&A.muku.note?A.muku.note:'无'}<br>财库：${endDot(((A.muku&&A.muku.caiKuWhere)?A.muku.caiKuWhere:'无')+((A.muku&&A.muku.caiKuKaihe)?('。'+A.muku.caiKuKaihe):'')+((A.muku&&A.muku.kuTuShuo)?('。'+A.muku.kuTuShuo):''))}<br>十二长生：${A.changsheng||'无'}<br>空亡：${A.kongwang||'无'}${dn(()=>{ const _t=v=>String(v==null?"":v).replace(/[。；，、s]+$/,""); return `墓库 ${_t(_D2A.muku&&_D2A.muku.note)||"无"}；十二长生 ${_t(_D2A.changsheng)||"无"}；空亡 ${_t(_D2A.kongwang)||"无"}`; })}</span></div>
     <div class="an-row an-muku"><span class="an-k">神煞</span><span class="an-v">${renderBenmingClickable(cols)}${A.shaTend||''} ${coreShenshaHtml(cols)}<br>${wt}${dn(()=>_D2C?(renderBenmingClickable(_D2C)+(_D2A.shaTend||'')+' '+coreShenshaHtml(_D2C)):'')}</span></div>
     ${renderPalaces(BZ, A)}
+    ${renderPillarMapTable(BZ)}
+    ${renderMingGongTable(BZ, A)}
   </div>
   <h4 class="det-h">各流派解读格局</h4>${renderSchoolDiffInner(A,BZ)}
+  ${renderSchoolTable(A,BZ)}
   ${window.__dualA2 ? renderDualGe(window.__dualA1, window.__dualA2, BZ, window.__dualBZ2) : ''}
 </div></details>`;
   return h;
@@ -3694,7 +3776,7 @@ function _yunCfgYear(BZ = window.BZ){
 /* 二级（流月，选中年）：大运(该年恒定) / 流月 / 综合；点击某月继续下钻"流日" */
 function _yunCfgMonth(year, BZ = window.BZ){
   const A=getAnalysis(BZ);
-  const YG=liunianGZ(year);
+  const YG=liunianAtYear(BZ, year);
   const dayunGZ=_dayunGZatYear(year);
   const dyP=dayunGZ?pillarScoreParts(dayunGZ,A):null; const dayunScore=dyP?dyP.full:SCORE_BASE; const dayunReason=dyP?dyP.parts.join(' '):'基准 50';
   const pts=[];
@@ -3709,7 +3791,7 @@ function _yunCfgMonth(year, BZ = window.BZ){
 /* 三级（流日，选中月）：大运(恒定) / 流月(恒定) / 流日 / 综合；横轴按节气月真实起讫列日 */
 function _yunCfgDay(year, month, BZ = window.BZ){
   const A=getAnalysis(BZ);
-  const YG=liunianGZ(year);
+  const YG=liunianAtYear(BZ, year);
   const mz=YUN_MZ[month-1]; const mGZ=monthGanOf(YG[0],mz)+mz; const mP=pillarScoreParts(mGZ,A); const monthScore=mP.full; const monthReason=mP.parts.join(' ');
   const dayunGZ=_dayunGZatYear(year); const dyP=dayunGZ?pillarScoreParts(dayunGZ,A):null; const dayunScore=dyP?dyP.full:SCORE_BASE; const dayunReason=dyP?dyP.parts.join(' '):'基准 50';
   /* 流日取月柱恰为 mGZ 的全部公历日（连续一段，约三十日）：寅月起于本年立春、丑月讫于次年立春，
@@ -3840,6 +3922,21 @@ function relMingSpecial(gz, lvl){
 /* ==================== 四、大运流年 ==================== */
 /* 运势曲线 / 所选干支三表 / 岁运引动。 */
 
+/* 命宫行限注：命宫为一命之枢，大限十年一宫、小限一年一宫，顺逆同四柱大运（阳男阴女顺行、阴男阳女逆行），
+   用以补大运流年之未逮。宫支五行比照综合用神有效喜忌定喜忌，与三垣同口径。
+   命宫未出（四柱模式未确认出生时间、公元前）或虚岁超出百二十者本项不出。 */
+function mingGongXianNote(BZ, A){
+  const base=mingGongBase(BZ);
+  if(!base) return '';
+  const age=BZ.birthYear?(baziNowDate().getFullYear()-BZ.birthYear+1):0;
+  if(!(age>=1 && age<=120)) return '';
+  const dx=mingGongDaXian(BZ, age), xx=xiaoXianZhi(BZ, age);
+  if(!dx || !xx) return '';
+  const xi=A.synthesis.xiWxEff||[], ji=A.synthesis.jiWxEff||[];
+  const tag=z=>{ const w=ZHI_WX[z]||''; return (xi.indexOf(w)>=0)?'喜用':((ji.indexOf(w)>=0)?'忌神':'中平'); };
+  return `<div class="sub-note">${endDot(`命宫${base.gz}（${dx.dir}）起限：大限在${dx.zhi}宫，${dx.from}至${dx.to}岁，${tag(dx.zhi)}；今${age}岁，小限在${xx}宫，${tag(xx)}`)}</div>`;
+}
+/* ============ 岁运引动（大运十步：用忌、关键引动、吉凶）============ */
 function renderYunDong(BZ, A, yd){
   const LP=String.fromCharCode(65288); // 全角左括号，用码点构造，避免源码同行出现两个开括号触发禁用字符扫描
   const RP=String.fromCharCode(65289); // 全角右括号，同上
@@ -3848,12 +3945,28 @@ function renderYunDong(BZ, A, yd){
   return `<h3 class="rel-title">岁运引动</h3><div class="an-plain">
     <div class="an-row an-yun"><span class="an-v">
       <div class="sub-note">${endDot('起运：'+qiYunLabel(yunData.start)+' '+A.geYunNote)}</div>
+      ${(()=>{ const n=qiYunSectNote(BZ); return n?`<div class="sub-note">${esc(endDot(n))}</div>`:''; })()}
+      ${mingGongXianNote(BZ, A)}
       <div class="yun-scroll"><table class="yun-tbl yd"><thead><tr><th>大运</th><th>用忌</th><th>关键引动</th><th>吉凶</th></tr></thead><tbody>
-      ${yunData.steps.map(s=>s.empty?`<tr class="yun-empty"><td colspan="4" data-label="说明">未起运（${s.age}岁前）：承原局之气；此阶段无大运可依，逐岁以小运论，见运程推演。</td></tr>`:(()=>{ const copeAge=(s.age==null)?null:s.age+4; return `<tr class="${BZ.dyGZ&&s.gz===BZ.dyGZ?'cur':''}"><td class="yun-gz" data-label="大运">${s.gz}<span class="yun-age">${YANG.indexOf(s.gz[0])>=0?'阳运':'阴运'}</span><br><span class="yun-age">${s.age}岁</span>${s.year?`<br><span class="yun-age">约 ${s.year}–${s.year+9} 年</span>`:''}${s.yunFlip&&s.yunFlip.flipped?'<br><span class="yun-flip-tag">喜忌随运翻</span>':''}</td><td class="yun-yongji" data-label="用忌">${s.eff.replace(LP,'<br>').replace(RP,'')}</td><td class="yun-key" data-label="关键引动">${yunKeyCell(s, copeAge)}${s.yunFlip&&s.yunFlip.flipped?'<div class="sub-note">'+s.yunFlip.note+'</div>':''}<br><span class="yd-extra">此运走${yunStateBadge(s.rating)}。总体${s.rating==='吉'?'可':'宜'}${yunResultText(s.rating)}${s.rating==='中'?'适':''}。${yunCopingText(s.rating, copeAge)}。</span></td><td class="ev-jx" data-label="吉凶">${yunRatingTag(s.rating)}</td></tr>`; })()).join('')}
+      ${yunData.steps.map(s=>s.empty?`<tr class="yun-empty"><td colspan="4" data-label="说明">未起运（${s.age}岁前）：承原局之气；此阶段无大运可依，逐岁以小运论，见运程推演。</td></tr>`:(()=>{ const copeAge=(s.age==null)?null:s.age+4; return `<tr class="${BZ.dyGZ&&s.gz===BZ.dyGZ?'cur':''}"><td class="yun-gz" data-label="大运">${s.gz}<span class="yun-age">${YANG.indexOf(s.gz[0])>=0?'阳运':'阴运'}</span><br><span class="yun-age">${s.age}岁</span>${s.year?`<br><span class="yun-age">约 ${s.year}–${s.year+9} 年</span>`:''}${s.year?`<br><span class="yun-age">交脱运 ${s.year-1}–${s.year}</span>`:''}${s.yunFlip&&s.yunFlip.flipped?'<br><span class="yun-flip-tag">喜忌随运翻</span>':''}</td><td class="yun-yongji" data-label="用忌">${s.eff.replace(LP,'<br>').replace(RP,'')}</td><td class="yun-key" data-label="关键引动">${yunKeyCell(s, copeAge)}${s.yunFlip&&s.yunFlip.flipped?'<div class="sub-note">'+s.yunFlip.note+'</div>':''}<br><span class="yd-extra">此运走${yunStateBadge(s.rating)}。总体${s.rating==='吉'?'可':'宜'}${yunResultText(s.rating)}${s.rating==='中'?'适':''}。${yunCopingText(s.rating, copeAge)}。</span></td><td class="ev-jx" data-label="吉凶">${yunRatingTag(s.rating)}</td></tr>`; })()).join('')}
       </tbody></table></div>
       ${yunData.liuNian&&!yunData.liuNian.empty?`<div class="sub-note">${endDot('流年 '+yunData.liuNian.year+'（'+yunData.liuNian.gz+'）：'+yunData.liuNian.eff.replace(LP,'<br>').replace(RP,'')+'，状态 '+yunStateBadge(yunData.liuNian.rating)+(yunData.liuNian.keys.length?('；'+yunData.liuNian.keys.join('；')):'；与原局干支无明显冲合刑害，气机静守'))+(yunData.liuNian.yunFlip&&yunData.liuNian.yunFlip.flipped?('。'+yunData.liuNian.yunFlip.note):'')}</div>`:''}
     </span></div>
   </div>`;
+}
+
+/* ============ 流年神煞逐年排 ============
+   以流年干支为一柱，走与本命四柱同一神煞表（pillarShaMerged 四轴合并），
+   只列命局四柱未具者，故逐年所见皆该年新引之神煞，命局已具者不复述。
+   年龄门控同岁运断语⑥神煞临运：童年与晚年剔除婚恋情缘类，免落于小儿与老者身上。 */
+function lnShaNew(BZ, gz, age){
+  let cur=[];
+  try{ cur=pillarShaMerged({gz, z:gz[1], gan:gz[0], isDay:false, isMonth:false, isYear:false, isTime:false}, window.CTX)||[]; }catch(e){ cur=[]; }
+  const st=baziAgeStage(age);
+  if(st==='child'||st==='late') cur=cur.filter(x=>!/桃花|咸池|红艳|红鸾|天喜|孤鸾|八专|九丑|阴差阳错|童子/.test(x));
+  const bare=x=>String(x).replace(/（[^）]*）$/,'');
+  const had=new Set([].concat(BZ.shaYear||[],BZ.shaMonth||[],BZ.shaDay||[],BZ.shaTime||[]).map(bare));
+  return cur.filter(x=>!had.has(bare(x)));
 }
 
 /* ============ 所选干支详情，流年事件（所选大运十年完整展示，不折叠）============ */
@@ -3862,7 +3975,7 @@ function renderYunEvent(BZ, A, yd, selDyGz){
   const _HIST = !(BZ.birthYear>0 && baziNowDate().getFullYear()-BZ.birthYear+1<=120);
   const birthYear=BZ.birthYear;
   const cy=baziNowDate().getFullYear();
-  const rowHTML=(period, step, isCur, age)=>`<tr class="${isCur?'cur':''}"><td class="ev-period">${period}</td><td>${yunStateBadge(step.rating)}</td><td class="ev-result">${yunResultText(step.rating)}</td><td class="ev-coping">${yunCopingText(step.rating, age)}。${yunAreaText(step.lifeTrig, age)}</td></tr>`;
+  const rowHTML=(period, step, isCur, age, extra)=>`<tr class="${isCur?'cur':''}"><td class="ev-period">${period}</td><td>${yunStateBadge(step.rating)}</td><td class="ev-result">${yunResultText(step.rating)}</td><td class="ev-coping">${yunCopingText(step.rating, age)}。${yunAreaText(step.lifeTrig, age)}${extra||''}</td></tr>`;
   let h=`<h4 class="det-h">流年事件</h4>`;
   // 流年事件表（当前所处大运的十年，完整展示）
   const dyStep = yd.steps.find(s=>!s.empty && s.gz===selDyGz);
@@ -3872,7 +3985,7 @@ function renderYunEvent(BZ, A, yd, selDyGz){
     for(let y=dyStep.year; y<dyStep.year+10; y++) years.push(y);
     h+=`<div class="yun-scroll"><table class="yun-tbl yun-ev"><thead><tr><th>时间段</th><th>状态</th><th>结果</th><th>应对</th></tr></thead><tbody>`;
     years.forEach(y=>{
-      const gz=liunianGZ(y);
+      const gz=liunianAtYear(BZ, y);
       const ev=evalGZ(BZ,A,{gz,gan:gz[0],zhi:gz[1],age:y-birthYear+1,year:y,kind:'流年'});
       // 与当前大运卡已述的子句不再逐年复述（跨模块去重：本表只留逐年新增引动）
       if(dyStep && dyStep.lifeTrig && ev.lifeTrig){
@@ -3886,7 +3999,14 @@ function renderYunEvent(BZ, A, yd, selDyGz){
       }
       const age=y-birthYear+1;
       const period = _HIST ? `<span class="ev-gz">${gz}</span>` : `<span class="ev-y">${y} 年</span><span class="ev-age">${age} 岁</span>`;
-      h+=rowHTML(period, ev, (y===cy), age);
+      /* 逐年补项：小限宫位（命宫行度，一年一宫）、大运交脱之年、流年新逢神煞 */
+      const bits=[];
+      if(age>=1 && age<=120){ const xx=xiaoXianZhi(BZ, age); if(xx) bits.push('小限在'+xx+'宫'); }
+      if(dyStep && y===dyStep.year-1) bits.push('脱运之年，旧运将尽');
+      if(dyStep && y===dyStep.year) bits.push('交运之年，新运初交');
+      const sha=lnShaNew(BZ, gz, age);
+      if(sha.length) bits.push('流年新逢'+sha.join('、'));
+      h+=rowHTML(period, ev, (y===cy), age, bits.length?('<br>'+bits.join('；')+'。'):'');
     });
     h+=`</tbody></table></div>`;
   }
@@ -3947,9 +4067,15 @@ function currentDyIndex(BZ = window.BZ){
     const sy=(dy._sy!=null?dy._sy:0); if(sy && sy<=cy) best=j; else if(sy>cy) break; }
   return best;
 }
+/* 回到今日：岁运点选可遍及十步大运与百年流年，翻检之后须有一键归位，
+   故按当下公历重走一遍默认定位（今岁之运、今年、本月节气月、今日、现时时辰）。 */
+function pickDyToday(BZ = window.BZ){
+  if(!BZ || !BZ.dys) return;
+  pickDy(currentDyIndex(BZ), BZ);
+}
 function renderDyn(BZ = window.BZ){
   const {ec,sex}=BZ;
-  const yun=ec.getYun(sex); const dys=yun.getDaYun(11); // 取11个对象(index 0~10)，其中index 1~10为10个真实大运
+  const yun=ec.getYun(sex, qiYunSectOf()); const dys=yun.getDaYun(11); // 取11个对象(index 0~10)，其中index 1~10为10个真实大运
   BZ.dys=dys; BZ.yun=yun; BZ.dyGZ=BZ.lnGZ=BZ.lmGZ=BZ.lrGZ=null; BZ.ltGZ=BZ.ltZhi=null;
   // 大运起始年：lunar.js 的 DaYun.getStartYear()/getLiuNian() 在多次调用时会被惰性改写（同批对象被 getAnalysis 触碰后即偏移），
   // 故改用确定性的算术推导：起运公历年 + (真实大运序-1)*10（index 1~10 为真实大运，每步严格10年）。
@@ -3959,6 +4085,8 @@ function renderDyn(BZ = window.BZ){
   const _by=BZ.birthYear||0;
   const _qyAge=_by?(_startYear-_by+1):yun.getStartYear();
   let html=`<div class="sub-note">${endDot('起运：'+qiYunLabel({age:_qyAge, month:yun.getStartMonth(), solar:yun.getStartSolar().toYmd()}))}</div>`;
+  const _qySectNote=qiYunSectNote(BZ);
+  if(_qySectNote) html+=`<div class="sub-note">${esc(endDot(_qySectNote))}</div>`;
   html+=`<div class="dyn-block"><span class="dyn-label">大运</span><div class="dyn-row" id="dys"></div></div>`;
   html+=`<div class="dyn-block"><span class="dyn-label">小运</span><div class="dyn-row" id="xys"></div></div>`;
   html+=`<div class="dyn-block"><span class="dyn-label">流年</span><div class="dyn-row" id="lns"></div></div>`;
@@ -3967,6 +4095,7 @@ function renderDyn(BZ = window.BZ){
   html+=`<div class="dyn-block"><span class="dyn-label">流时</span><div class="dyn-row" id="lts"></div></div>`;
   /* 流日与流时两组按钮相邻，共用其后的一条提示行：只说一次点选方式，不逐组重复 */
   html+=`<div class="sub-note lr-hint" id="lrHint">先选上方“流月”：其下列出该节气月逐日干支；点选流日，列出当日十二时辰干支。点选任一干支，查看与命局关系。</div>`;
+  html+=`<div class="dyn-block dyn-back"><button class="btn dyn-today" type="button" onclick="pickDyToday()">回到今日</button></div>`;
   html+=`<div class="sub-note" id="selDate">当前所选：-</div>`;
   html+=`<div id="dynDetail"></div>`;
   document.getElementById('dyn').innerHTML=html;
@@ -4037,7 +4166,16 @@ function pickLn(j, BZ = window.BZ){
   document.getElementById('lms').innerHTML=html;
   document.getElementById('lrs').innerHTML='';
   const _lh=document.getElementById('lrHint'); if(_lh) _lh.textContent='先选上方“流月”：其下列出该节气月逐日干支；点选流日，列出当日十二时辰干支。点选任一干支，查看与命局关系。';
-  pickLm(0, BZ);
+  /* 流月默认落在当下节气月（所选流年为今年时），排盘后即见本月，不必按月序逐月回找；
+     与基础信息表岁运四列、baziYunDong 当前流年同出今日一源。所选非今年则按月序首月。 */
+  const _tn=baziNowDate();
+  let _km=0;
+  if(BZ.curYear===_tn.getFullYear()){
+    let _curMGZ='';
+    try{ _curMGZ=Solar.fromYmd(_tn.getFullYear(),_tn.getMonth()+1,_tn.getDate()).getLunar().getEightChar().getMonth(); }catch(e){}
+    if(_curMGZ){ const _i=lms.findIndex(x=>x && x.getGanZhi()===_curMGZ); if(_i>=0) _km=_i; }
+  }
+  pickLm(_km, BZ);
   if(typeof baziInitDone!=='undefined' && baziInitDone && typeof savePillarSel==='function') savePillarSel(); /* 岁运点选即持久化，刷新后可恢复 */
 }
 /* 小运与流年逐年同索引（同年、同岁），两者恒锁步。syncXy 只切高亮与状态，详情面板由紧随其后的
@@ -4089,8 +4227,14 @@ function pickLm(k, BZ = window.BZ){
     const span=(minKey===null)?'' : `（公历 ${Math.floor(minKey/10000)}-${String(Math.floor(minKey/100)%100).padStart(2,'0')}-${String(minKey%100).padStart(2,'0')} 至 ${Math.floor(maxKey/10000)}-${String(Math.floor(maxKey/100)%100).padStart(2,'0')}-${String(maxKey%100).padStart(2,'0')}）`;
     lrHintEl.textContent = `流月（${gz}）已列 ${lrCount} 个流日${span}；点选流日，列出当日十二时辰干支（按日干五鼠遁）。点选任一干支，查看与命局关系。`;
   }
-  const first=document.querySelector('#lrs .dyn-btn');
-  if(first){ try{ first.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true})); }catch(e){ first.click(); } }
+  /* 流日默认落在今日（该流月覆盖今日时），排盘后即见本日，不必在整月日序里逐日回找；
+     与基础信息表岁运四列、baziYunDong 当前流日同出今日一源。该月不覆盖今日则按日序首日。 */
+  const _tn2=baziNowDate();
+  const _today=_tn2.getFullYear()*10000+(_tn2.getMonth()+1)*100+_tn2.getDate();
+  const _td=document.getElementById('lr_'+_tn2.getFullYear()+'_'+(_tn2.getMonth()+1)+'_'+_tn2.getDate());
+  const _first=document.querySelector('#lrs .dyn-btn');
+  const _hit=(_td && minKey!==null && _today>=minKey && _today<=maxKey)?_td:_first;
+  if(_hit){ try{ _hit.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true})); }catch(e){ _hit.click(); } }
   else updateDetail(BZ, CTX);
   if(typeof baziInitDone!=='undefined' && baziInitDone && typeof savePillarSel==='function') savePillarSel(); /* 岁运点选即持久化，刷新后可恢复 */
 }
@@ -4155,14 +4299,14 @@ function buildYunData(BZ = window.BZ){
     const k=(idx0+step*Math.floor((y-n0)/10))%60;
     return _GAN[k%10]+_ZHI[k%12];
   }
-  /* 流年干支取全局 liunianGZ(y)（立春为干支年界） */
+  /* 流年干支取 liunianAtYear（立春为干支年界，锚点随所选年柱） */
   const minEnd = birthYear+100;                                     // 至少覆盖到 100 岁
   const endYear = dys.length ? (n0-1 + Math.ceil((minEnd-n0+1)/10)*10) : minEnd; // 向上取到完整大运周期末年
   const A=getAnalysis(BZ);
   const data=[];
   for(let y=birthYear; y<=endYear; y++){
     const dyGZ=dayunGZat(y);
-    const lnGZ=liunianGZ(y);
+    const lnGZ=liunianAtYear(BZ, y);
     const dyP=dyGZ?pillarScoreParts(dyGZ,A):null;
     const lnP=lnGZ?pillarScoreParts(lnGZ,A):null;
     const dayunScore=dyP?dyP.full:SCORE_BASE;
@@ -5473,6 +5617,115 @@ function renderFamilyCard(BZ, ctx){
     '6、家庭经营方向<br>'+sF6,
     '7、家庭子女缘分<br>'+sF7
   ];
+}
+
+/* ============ 四柱宫位总表 ============
+   一柱七维一览：读顶层真源 PILLAR_MAP（bazi-data.js），本件只排版不另立值。
+   本命四柱各列一栏，六亲宫位、人生阶段、四柱之喻、神煞落宫、社会圈层、身心层次、
+   财富阶段、环境远近八维逐行对照，补各柱单读只见其一、四柱并读方见其势之缺。
+   置于本命分析喜用格局之内，与三垣（命宫胎元身宫）相邻：四柱为体、三垣为用，同段并读。 */
+function renderPillarMapTable(BZ){
+  const PM=window.PILLAR_MAP||{};
+  const cols=['年柱','月柱','日柱','时柱'];
+  if(!cols.every(k=>PM[k])) return '';
+  const dims=Object.keys(PM['年柱']);
+  const head=cols.map(k=>`<th>${k}</th>`).join('');
+  const rows=dims.map(d=>`<tr><td class="lbl">${d}</td>`
+    + cols.map(k=>`<td>${PM[k][d]||''}</td>`).join('')+'</tr>').join('');
+  /* 四柱干支抬头行：柱位与盘上四柱对照，读表不必回翻上方 */
+  const gzRow=cols.map((k,i)=>`<td class="pm-gz">${(BZ.gans[i]||'')+(BZ.zhis[i]||'')}</td>`).join('');
+  return `<h4 class="det-h">四柱宫位总表</h4>`
+    +`<div class="tbl-wrap"><table class="stab stab-pm"><thead><tr><th>维度</th>${head}</tr>`
+    +`<tr><th>本命</th>${gzRow}</tr></thead><tbody>${rows}</tbody></table></div>`
+    +`<div class="sub-note">${endDot('四柱各主一段人生、一类六亲、一方环境，本表并陈八维，供四柱合看：一柱之短可为他柱之长所济，一柱之旺亦须防其偏。')}</div>`;
+}
+
+/* ============ 命宫行限表 ============
+   命宫为一命之枢，大限十年一宫、小限一年一宫，顺逆同四柱大运（阳男阴女顺行、阴男阳女逆行）。
+   本表把十二宫的起止虚岁一次列全，免逐岁点算：读某岁即查该岁落在何宫。
+   取值一律走真源 mingGongBase / mingGongDaXian（bazi-data.js），本件只把行度铺成表。 */
+function renderMingGongTable(BZ, A){
+  const base=mingGongBase(BZ);
+  if(!base) return '';
+  const xi=(A&&A.synthesis&&A.synthesis.xiWxEff)||[], ji=(A&&A.synthesis&&A.synthesis.jiWxEff)||[];
+  const tag=z=>{ const w=ZHI_WX[z]||''; return xi.indexOf(w)>=0?'喜用':(ji.indexOf(w)>=0?'忌神':'中平'); };
+  const ageNow=BZ.birthYear?(baziNowDate().getFullYear()-BZ.birthYear+1):0;
+  /* 十二宫自命宫起排：第 n 宫（n 自 0 起）之支即命宫支顺逆推 n 位，虚岁区间 n×10+1 至 n×10+10 */
+  const rows=[];
+  for(let n=0;n<12;n++){
+    const zhi=ZHI_ORDER[(((base.i0+(base.fwd?n:-n))%12)+12)%12];
+    const from=n*10+1, to=n*10+10;
+    const cur=(ageNow>=from&&ageNow<=to);
+    const t=tag(zhi);
+    rows.push(`<tr${cur?' class="cur"':''}><td>第${n+1}限</td><td class="pm-gz">${zhi}宫</td>`
+      +`<td>${from} 至 ${to} 岁</td><td>${t==='喜用'?kXi(t):(t==='忌神'?kJi(t):kMid(t))}</td>`
+      +`<td>${cur?('今 '+ageNow+' 岁在此限'):''}</td></tr>`);
+  }
+  /* 小限逐岁表：命宫起一岁一宫，与本表同源（xiaoXianZhi），列当前前后各六岁供就近查 */
+  let xxRows='';
+  if(ageNow>=1 && ageNow<=120){
+    const from=Math.max(1, ageNow-6), to=Math.min(120, ageNow+6);
+    const cells=[];
+    for(let a=from;a<=to;a++){
+      const z=xiaoXianZhi(BZ, a);
+      if(!z) continue;
+      const t=tag(z);
+      cells.push(`<tr${a===ageNow?' class="cur"':''}><td>${a} 岁</td><td class="pm-gz">${z}宫</td>`
+        +`<td>${t==='喜用'?kXi(t):(t==='忌神'?kJi(t):kMid(t))}</td></tr>`);
+    }
+    xxRows=`<h4 class="det-h">小限逐岁（今前后各六岁）</h4>`
+      +`<div class="tbl-wrap"><table class="stab stab-xx"><thead><tr><th>虚岁</th><th>小限宫</th><th>喜忌</th></tr></thead><tbody>${cells.join('')}</tbody></table></div>`;
+  }
+  return `<h4 class="det-h">命宫行限表</h4>`
+    +`<div class="sub-note">${endDot(`命宫 ${base.gz}（${base.fwd?'顺行':'逆行'}）起限：大限十年一宫、小限一年一宫，顺逆同四柱大运，阳男阴女顺行、阴男阳女逆行。`)}</div>`
+    +`<div class="tbl-wrap"><table class="stab stab-mgx"><thead><tr><th>限次</th><th>宫支</th><th>虚岁区间</th><th>喜忌</th><th>当前</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`
+    +xxRows
+    +`<div class="sub-note">${endDot('大限言十年之总纲，小限言一岁之细节，二者皆补大运流年之未逮；宫支五行比照综合用神有效喜忌定喜忌，与三垣同口径。')}</div>`;
+}
+
+/* ============ 五派对照视图 ============
+   子平格局、盲派、调候、新派、病药五派各有所本，原分三段散在命局层（各流派解读格局）、
+   所选干支层（各流派解读运势）、喜忌层；本视图把五派的立足点、本派喜忌与对同一命局的分歧
+   收成一表，免逐段翻检方能对读。
+   五派喜忌取自 schoolXiJi（本文件），逐派立论取自 renderSchoolDiffInner 的同一批结构化字段，
+   本件不另设判法，只作并陈。 */
+function renderSchoolTable(A, BZ){
+  const S=schoolXiJi(A, BZ);
+  const dg=BZ.dayGan;
+  const seasonName={'寅':'春','卯':'春','辰':'春','巳':'夏','午':'夏','未':'夏','申':'秋','酉':'秋','戌':'秋','亥':'冬','子':'冬','丑':'冬'}[BZ.monthZ];
+  const zhiGan=(A.tiao&&A.tiao.zhiGan)||[];
+  const fuXi=(A.fu&&A.fu.xiCats)||[], fuJi=(A.fu&&A.fu.jiCats)||[];
+  const show=w=>(w&&w.length)?w.join('、'):'无';
+  const P=[
+    ['子平格局派','以月令立格，格局为体，成败系于用神是否清纯、有无冲破损伤',
+      `本命以“${A.geName}”立格${A.geGanLabel}，清浊“${stripCat(A.geQing)}”、层次“${stripCat(A.geLevel)}”`,
+      S.ziping],
+    ['盲派','不以日主旺衰论命，以体用宾主与做功效率立论，财官为用',
+      `财官五行为喜、不立五行忌神；功在制化合冲墓五法得其财官`,
+      S.mang],
+    ['调候派','以寒暖燥湿为纲，取法《穷通宝鉴》日干月令之表',
+      `${seasonName}生人，调候用神 ${A.tiao.wx}${zhiGan.length?('（具体用 '+zhiGan.join('、')+'）'):''}`,
+      S.tiao],
+    ['新派（民国）','以日主旺衰为纲，量化平衡求中和',
+      `旺衰评分 ${A.score.toFixed(1)}、${A.strength}；得令${A.sanDe.ling?'是':'否'}、得地 ${A.sanDe.di}、得势 ${A.sanDe.shi}`,
+      {xi:fuXi, ji:fuJi}],
+    ['病药派（滴天髓中和）','有病方为贵，无伤不是奇，以病药与五行缺衡为凭',
+      A.bingYao&&A.bingYao.bing?(`病在“${A.bingYao.bing}”、药取“${A.bingYao.yao}”`):`${A.geName}一气成势，病药法不取五行制衡`,
+      S.bingyao]
+  ];
+  const rows=P.map(p=>`<tr><td class="lbl">${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td>`
+    +`<td class="pm-gz">${show(p[3].xi)}</td><td class="pm-gz">${show(p[3].ji)}</td></tr>`).join('');
+  /* 共识与分歧：综合用神得几法共识、何法相左，取 synthesis 已算好的结构化字段 */
+  let cross='';
+  if(A.synthesis&&A.synthesis.primary){
+    cross=`首选用神“${A.synthesis.primary.wx}”得 ${A.synthesis.primary.methods.join('、')} 共识（${A.synthesis.primary.count} 法）`;
+    if(A.synthesis.secondary) cross+=`；次选“${A.synthesis.secondary.wx}”（${A.synthesis.secondary.methods.join('、')}）`;
+    cross+=A.synthesis.conflicts.length?( `；分歧在 ${A.synthesis.conflicts.map(c=>c.wx).join('、')}，岁运逢之须看何者为急。`):'；诸法无明显冲突，主次分明、同向可用。';
+  } else cross='五法用神暂无明确共识，宜就原局细节斟酌。';
+  return `<h4 class="det-h">五派对照视图</h4>`
+    +`<div class="tbl-wrap"><table class="stab stab-school"><thead><tr><th>流派</th><th>立足点</th><th>对本命之判</th><th>本派喜</th><th>本派忌</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    +`<div class="sub-note">${endDot('共识与分歧：'+cross)}</div>`
+    +`<div class="sub-note">${endDot('五派各有所本、所见互有出入，同看方见全貌；喜忌取各自方法论所出，不共用合成喜忌，读盘时按所宗一派为准，余派作参照。')}</div>`;
 }
 
 function renderCoreAnalysis(BZ){

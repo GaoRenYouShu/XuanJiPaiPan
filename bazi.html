@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
-<link rel="stylesheet" href="assets/css/bazi.css?v=cbad38cc">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
+<link rel="stylesheet" href="assets/css/bazi.css?v=c115a067">
 
 </head>
 <body class="mode-date bz-root">
@@ -60,8 +60,10 @@
       <div class="field chk" id="fLunarLeap" style="display:none"><input type="checkbox" id="bLunarLeap" aria-label="闰月"><label for="bLunarLeap">闰月</label></div>
       <div class="field" id="fLunarD" style="display:none"><label for="bLunarD">农历日</label><select id="bLunarD" aria-label="农历日"><option value="1">初一</option><option value="2">初二</option><option value="3">初三</option><option value="4">初四</option><option value="5">初五</option><option value="6">初六</option><option value="7">初七</option><option value="8">初八</option><option value="9">初九</option><option value="10">初十</option><option value="11">十一</option><option value="12">十二</option><option value="13">十三</option><option value="14">十四</option><option value="15">十五</option><option value="16">十六</option><option value="17">十七</option><option value="18">十八</option><option value="19">十九</option><option value="20">二十</option><option value="21">廿一</option><option value="22">廿二</option><option value="23">廿三</option><option value="24">廿四</option><option value="25">廿五</option><option value="26">廿六</option><option value="27">廿七</option><option value="28">廿八</option><option value="29">廿九</option><option value="30">三十</option></select></div>
       <div class="field" id="fTime"><label for="bTime">出生时间</label><input type="time" id="bTime" aria-label="出生时间" value="12:00"></div>
-      <button class="btn" onclick="go()">排盘</button>
-      <button class="btn btn-ghost" type="button" onclick="saveBaziEntry()">保存</button>
+      <!-- 排盘与保存两钮：四柱模式下由样式换位到年月日时四柱之后（见 bazi.css 四柱模式段），
+           公历、农历两模式仍随出生时间之后，与"先填资料、后出盘"的落笔次序一致 -->
+      <button class="btn bazi-act" onclick="go()">排盘</button>
+      <button class="btn btn-ghost bazi-act" type="button" onclick="saveBaziEntry()">保存</button>
     </div>
     <div class="form-row bazi-pillar" id="fPillar" style="display:none">
       <div class="field"><label for="pyG">年柱</label><div class="gz-mini"><select id="pyG" class="gz-g" aria-label="年柱天干" onchange="savePillarSel()"></select><select id="pyZ" class="gz-z" aria-label="年柱地支" onchange="savePillarSel()"></select></div></div>
@@ -107,8 +109,8 @@
         <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" aria-label="手动经度东经度数" step="0.01" placeholder="出生地" onchange="savePillarSel()"></div>
       </div>
       <div class="opts-row" id="optsRow">
-        <!-- 时间折算与流派五项成组：题头独占一行，与上方出生地组题头对仗，两块的从属关系一眼可辨。
-             五项皆不随省市区取值，故与出生地分列，免被误读出地一项。 -->
+        <!-- 时间折算与流派七项成组：题头独占一行，与上方出生地组题头对仗，两块的从属关系一眼可辨。
+             七项皆不随省市区取值，故与出生地分列，免被误读出地一项。 -->
         <div class="group-label">时间折算与流派</div>
         <div class="field" id="bDstField"><label for="bDst">夏令时</label>
           <select id="bDst" aria-label="选择夏令时折算口径" onchange="savePillarSel()">
@@ -141,6 +143,18 @@
           <select id="bKong" aria-label="选择空亡基准轴" onchange="savePillarSel();go()">
             <option value="day">空亡日柱（六甲空亡）</option>
             <option value="year">空亡年柱（十大空亡）</option>
+          </select>
+        </div>
+        <div class="field" id="bQiYunField"><label for="bQiYun">起运法</label>
+          <select id="bQiYun" aria-label="选择起运折算口径" onchange="savePillarSel();go()">
+            <option value="1">时辰折算（整日加时辰档）</option>
+            <option value="2">分钟折算（4320 分折年）</option>
+          </select>
+        </div>
+        <div class="field" id="bCsSectField"><label for="bCsSect">长生土行</label>
+          <select id="bCsSect" aria-label="选择十二长生土行从属" onchange="savePillarSel();go()">
+            <option value="1">火土同宫（子平主流）</option>
+            <option value="2">水土同宫（土长生申）</option>
           </select>
         </div>
       </div>
@@ -191,22 +205,22 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/bazi-data.js?v=145837fa"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
+<script defer src="assets/bazi-data.js?v=78cc7963"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
-<script defer src="assets/bazi-rel.js?v=2d68fcb6"></script>
+<script defer src="assets/bazi-rel.js?v=5974fd58"></script>
 <script defer src="assets/bazi-shishen.js?v=bd3fa1ec"></script>
 <script defer src="assets/chengu-songs.js?v=26b3fa97"></script>
-<script defer src="assets/bazi-duanyu.js?v=7335b43b"></script>
+<script defer src="assets/bazi-duanyu.js?v=92a2f945"></script>
 <script defer src="assets/gua.js?v=3aacc2cc"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
 <script defer src="assets/bazi-mangpai.js?v=95208e1d"></script>
 <script defer src="assets/bazi-celebs-db.js?v=3c066304"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/bazi-core.js?v=fbcce6c9"></script>
-<script defer src="assets/bazi-app.js?v=6c2d73c8"></script>
+<script defer src="assets/bazi-core.js?v=a1f22cb6"></script>
+<script defer src="assets/bazi-app.js?v=104362cc"></script>
 <script>
 /* ================= 岁运清洗：剔除含大运/流年/流月/流日 的应期句 ================= */
 const YUN_JI=/大运|流年|流月|流日/;
@@ -2089,12 +2103,19 @@ function celebPlaceText(birth){
   return [p[0],_seg,_dst].filter(Boolean).join('');
 }
 /* 名人出生地经度：由三级地名现查全站坐标真源，库内只存地名不存坐标，免各处重复维护经度表。
+   库载只到省者按该省代表经度回折：这一层精度由 celebPlaceNote 在页面上明写，
+   读者知其所据是省域代表点而非具体市县，与用户自填出生地未定之情不同，不算暗兜底。
    查不出经度者返回 null，调用方按不校正处理。 */
 function celebLng(birth){
   const p=birth&&birth.bp;
   if(!p||!p[0]||typeof findLng!=='function') return null;
   const l=findLng(p[0],p[1]||'',p[2]||'');
-  return (typeof l==='number'&&!isNaN(l))?l:null;
+  if(typeof l==='number'&&!isNaN(l)) return l;
+  if(!p[1]&&!p[2]){
+    const pc=provCenter(p[0]);
+    if(pc&&typeof pc.lng==='number'&&!isNaN(pc.lng)) return pc.lng;
+  }
+  return null;
 }
 /* 直辖市判定：省下只有一个市且市名与省名同，即省与市是一回事（北京、天津、上海、重庆）。
    由坐标真源的表形推得，不另立名单，免得两处维护不一致。 */
@@ -2137,7 +2158,9 @@ function celebHourSrc(birth){
 /* 名人出生地归位：库载出生地者按三级地名回填出生地组并开真太阳时，按该地经度回折；
    无库载出生地者关掉太阳时校正，古人记时用地方时，史载时辰本身即当地时间，
    再按某一经度折一次反而是错盘。两种情形都显式设口径：不设则沿用上一次检索或本地存留的
-   出生地，古代人物会按别人的经度折算，出的盘无从说明其来历。 */
+   出生地，古代人物会按别人的经度折算，出的盘无从说明其来历。
+   库载只到省者市一级无从落位，改把手动经度框填上该省代表经度：经度在框里看得见，
+   配 celebPlaceNote 那句省域精度的说明，读盘者知其所据，不属暗兜底。 */
 function applyCelebPlace(birth){
   const p=birth&&birth.bp;
   const su=document.getElementById('bSun');
@@ -2147,14 +2170,13 @@ function applyCelebPlace(birth){
     if(bl) bl.value='';
     return;
   }
-  const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
-  if(sp&&sc&&sd&&PROV[p[0]]){
-    sp.value=p[0]; sp.dispatchEvent(new Event('change',{bubbles:true}));
-    if(p[1] && PROV[p[0]].some(x=>x.c===p[1])){ sc.value=p[1]; sc.dispatchEvent(new Event('change',{bubbles:true})); }
-    if(p[2]){ sd.value=p[2]; sd.dispatchEvent(new Event('change',{bubbles:true})); }
+  if(window.__baziPlaceTrio) window.__baziPlaceTrio.set(p[0], p[1], p[2]);
+  if(bl) bl.value='';
+  if(!p[1]&&!isMunicipal(p[0])){
+    const pc=provCenter(p[0]);
+    if(bl&&pc&&pc.lng!=null) bl.value=String(pc.lng);
   }
   if(su) su.value='true';
-  if(bl) bl.value='';
 }
 /* 检索未得出完备生辰时的收尾：清空结果区与排盘状态。
    本分支的提示直写 formErr 的 textContent 而不走 showFormErr，

@@ -355,3 +355,22 @@ function applyDstCorrection(y, m, d, h, mi, mode){
    与老黄历页岁煞行 ZHI_FANG、择日引擎 ZHI_BAGUA、风水页 taiSuiFang 口径一致；
    bazi-data.js 另有同名 const（八字域内部使用），加载顺序在 xuanji-lib 之前或之后的页面均以本表为跨模块消费真源 */
 window.ZHI_FANG = window.ZHI_FANG || {子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北'};
+
+/* ===== 周次（万年历、老黄历、道历共用；取数走 lunar.js 的 SolarWeek 与 SolarMonth） =====
+   一周以周一起例，与三页日历格首列同为周一（getStart 即周首序数，周一为 1）。
+   月内第几周按所在月计、年内第几周按所在年计，两途并存不取其一；
+   跨月之周的首日有两种口径：getFirstDay 可跨出本月，getFirstDayInMonth 只取落在本月的第一天。 */
+function weekLine(y, m, d){
+  if(typeof Solar === 'undefined') return '';
+  const w = Solar.fromYmd(y, m, d).getSolarWeek(1);
+  return w.toFullString() + '　周首' + w.getStart() + '　年内第' + w.getIndexInYear() + '周'
+    + '　本周起' + w.getFirstDay().toYmd() + '　本月内首日' + w.getFirstDayInMonth().toYmd()
+    + '　本月占' + w.getDaysInMonth().length + '天';
+}
+/* 当月周数：取 SolarMonth.getWeeks，月首月尾各有一段跨月之周，故周数常比整周数多一 */
+function monthWeekCount(y, m){
+  if(typeof SolarMonth === 'undefined') return 0;
+  return SolarMonth.fromYm(y, m).getWeeks(1).length;
+}
+window.weekLine = weekLine;
+window.monthWeekCount = monthWeekCount;

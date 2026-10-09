@@ -297,11 +297,31 @@ function xjShareRecast(recast){
     return dt;
   }
   window.safeDate = safeDate;
+  /* 公历日期串合法性（全站共享判据，各页排盘前自取）：
+     只认 yyyy-mm-dd 三段俱全、月日确在该月实有范围内的一段。日之上界按当月日数定，闰年自判。
+     为什么要这一件：日期输入框走自建弹层（readOnly），钟面上不会打出 2 月 31 日，
+     但日期串另有三条外部来路，页面无从拦：分享链接的 URL 参数、localStorage 恢复的旧值、
+     四柱反查回填。这些值直接喂给历法库时，2024-02-31 会被静默折算成 2 月 29 日并照常出盘，
+     用户拿到的是一张看似正常、实非其所填之日的盘，且无从分辨。故各页排盘入口先过本判据。
+     年份不设下界：四柱反查会走到公元前，那里以负的天文年表示。 */
+  function xjValidDate(v){
+    const p=String(v==null?'':v).trim().split('-');
+    if(p.length!==3) return false;
+    const y=Number(p[0]), m=Number(p[1]), d=Number(p[2]);
+    if(!isFinite(y)||!isFinite(m)||!isFinite(d)) return false;
+    if(m<1||m>12||d<1) return false;
+    const leap=(y%4===0&&y%100!==0)||y%400===0;
+    return d<=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31][m-1];
+  }
+  window.xjValidDate = xjValidDate;
   function todayStr(){ const n=new Date(); return `${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`; }
 
   function openDatePicker(input){
     ensureDom();
     let val = input.value || todayStr();
+    /* 存量非法值（URL 参数或旧存档带进来的 2 月 31 日一类）先归位到今日，
+       免弹层按非法月日渲染、钟面点选后落回一个错日而不自知 */
+    if(!xjValidDate(val)) val = todayStr();
     let parts = val.split('-').map(Number);
     let y = parts[0], m = parts[1];
     if(!y || !m){ const n=new Date(); y=n.getFullYear(); m=n.getMonth()+1; }
@@ -421,8 +441,26 @@ function xjShareRecast(recast){
       const open = ()=>{ if(isTime) openTimePicker(inp); else openDatePicker(inp); };
       ic.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); open(); });
       inp.addEventListener('click', e=>{ e.preventDefault(); open(); });
+      /* 日期框落盘前先过合法性判据：非法串（URL 参数或旧存档带来的 2 月 31 日一类）
+         归位到今日，并派发 change 令本页按合法值重排。挂在初始化这一层，则各页无需各写一遍，
+         也不会出现某页忘了判而静默折算出一张错日之盘。时辰框不判。 */
+      if(!isTime && !xjValidDate(inp.value)) inp.value = todayStr();
     });
   };
+
+  /* 存量非法日期兜底：initPickers 只扫 dt-input，其余日期型输入（如各页自定的文本框）
+     由本件在加载后统一扫一遍。页面脚本多在自己 load 回调里读值，故本件排在它们之前。 */
+  function sweepInvalidDates(){
+    document.querySelectorAll('input[type="text"]').forEach(inp=>{
+      if(!inp.value || inp.dataset.dtSwept) return;
+      if(!/^\d{1,5}-\d{1,2}-\d{1,2}$/.test(inp.value)) return;
+      inp.dataset.dtSwept = '1';
+      if(!xjValidDate(inp.value)) inp.value = todayStr();
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', sweepInvalidDates);
+  else sweepInvalidDates();
+  window.addEventListener('load', sweepInvalidDates);
 
   /* 骨架屏：日历网格加载占位（JS 渲染前显示，render() 自动替换） */
   window.injectSkeleton = function(){
@@ -860,4 +898,96 @@ function xjShareRecast(recast){
     if(skip(sel)) return;
     if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); open(sel); }
   }, true);
+})();
+
+/* 时间折算与流派行的控件宽：窄屏与平板（视口不超过 970）按"选项文案去掉括注"的实宽取值，
+   框内只显括注之前的一段（夏令时只显自动折算），点开下拉仍见全内容；桌面端不动，保持按全量选项自然宽。
+   按全量选项自然宽取值时框宽一百七十六至二百零二像素，一行只容得下一项、七项占七行；
+   按括注前文案取值时框宽八十七至一百像素，一行容得下三项、七项占三行。
+   宽度以真实字形实测，不写死字号与字数：取该下拉各选项括注前文案的最大渲染宽，
+   加内距、边框与原生箭头实宽，再留六像素余量（余量须小于一个汉字宽，否则括注会露头）。 */
+(function(){
+  var arrowW = null;
+  function textWidth(s, cs){
+    var probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:-99999px;white-space:nowrap;'
+      + 'font-family:' + cs.fontFamily + ';font-size:' + cs.fontSize + ';font-weight:' + cs.fontWeight + ';'
+      + 'letter-spacing:' + (cs.letterSpacing || 'normal') + ';';
+    document.body.appendChild(probe);
+    probe.textContent = s;
+    var w = probe.getBoundingClientRect().width;
+    document.body.removeChild(probe);
+    return w;
+  }
+  /* 原生箭头占宽：以只含一字选项的临时下拉实测，取其自然宽减该字实宽与内距边框 */
+  function measureArrow(){
+    if(arrowW !== null) return arrowW;
+    arrowW = 20;
+    try{
+      var t = document.createElement('select');
+      t.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:-99999px';
+      var o = document.createElement('option'); o.textContent = '甲'; t.appendChild(o);
+      document.body.appendChild(t);
+      var cs = getComputedStyle(t);
+      var pad = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0)
+              + (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
+      var box = t.getBoundingClientRect().width;
+      var tw = textWidth('甲', cs);
+      document.body.removeChild(t);
+      arrowW = Math.max(0, box - pad - tw);
+    }catch(e){ arrowW = 20; }
+    return arrowW;
+  }
+  /* 受管下拉：一是带时间折算与流派题头的整行（.opts-row），
+     二是散在别页表单行里的子时算法下拉（该下拉全站同构，选项值恒为 late 与 early 一对，
+     见八字、合婚、紫微、铁板、择日、姓名、六爻、梅花、河洛九页），按此标记一并纳入 */
+  function targets(){
+    var out = [], i, j, s;
+    var add = function(x){ if(x && out.indexOf(x) < 0) out.push(x); };
+    var rows = document.querySelectorAll('.opts-row select');
+    for(i = 0; i < rows.length; i++) add(rows[i]);
+    var all = document.querySelectorAll('select');
+    for(i = 0; i < all.length; i++){
+      s = all[i];
+      var hasLate = false, hasEarly = false;
+      for(j = 0; j < s.options.length; j++){
+        if(s.options[j].value === 'late') hasLate = true;
+        if(s.options[j].value === 'early') hasEarly = true;
+      }
+      if(hasLate && hasEarly) add(s);
+    }
+    return out;
+  }
+  function fit(){
+    var narrow = window.innerWidth <= 970;
+    var sels = targets();
+    for(var i = 0; i < sels.length; i++){
+      var s = sels[i];
+      if(!narrow){
+        s.style.removeProperty('width');
+        s.style.removeProperty('padding-right');
+        continue;
+      }
+      /* 右内距归零：没有内距可容原生箭头，各引擎一律从文字区取箭头实宽，
+         占位即等于下面实测的箭头占宽，宽度才算得准 */
+      s.style.setProperty('padding-right', '0', 'important');
+      var cs = getComputedStyle(s);
+      var pad = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0)
+              + (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
+      var textW = 1;
+      for(var k = 0; k < s.options.length; k++){
+        var head = String(s.options[k].textContent || '').split('（')[0].replace(/\s+$/, '');
+        if(!head) continue;
+        var w = textWidth(head, cs);
+        if(w > textW) textW = w;
+      }
+      s.style.setProperty('width', Math.ceil(textW + pad + measureArrow()) + 6 + 'px', 'important');
+    }
+  }
+  function run(){ try{ fit(); }catch(e){} }
+  var timer = 0;
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  window.addEventListener('resize', function(){ clearTimeout(timer); timer = setTimeout(run, 150); });
+  window.fitOptRowCol = run;
 })();

@@ -39,6 +39,107 @@
     return (CAT_GODS[cat] || [cat]).reduce((s, g) => s + (tenE[g] || 0), 0);
   }
 
+  // 十神名 → 所属十神门
+  const GOD_CLASS = {};
+  Object.keys(CAT_GODS).forEach(k => { CAT_GODS[k].forEach(g => { GOD_CLASS[g] = k; }); });
+
+  // 调候用神之五行归于哪一门十神：生我者印、同我者比劫、我生者食伤、我克者财、克我者官杀
+  function _tiaoCatOf(BZ, wx) {
+    if (!wx || !BZ || !BZ.dayGan) return '';
+    const W = (typeof window !== 'undefined') ? window : {};
+    const gw = (typeof GAN_WX !== 'undefined') ? GAN_WX : W.GAN_WX;
+    const sh = (typeof WX_SHENG !== 'undefined') ? WX_SHENG : W.WX_SHENG;
+    const ke = (typeof WX_KE !== 'undefined') ? WX_KE : W.WX_KE;
+    if (!gw || !sh || !ke) return '';
+    const dwx = gw[BZ.dayGan] || '';
+    if (!dwx) return '';
+    if (wx === dwx) return '比劫';
+    if (sh[wx] === dwx) return '印星';
+    if (ke[wx] === dwx) return '官杀';
+    if (sh[dwx] === wx) return '食伤';
+    if (ke[dwx] === wx) return '财星';
+    return '';
+  }
+
+  /* 合化归集：天干五合、地支六合、三合局，逐条判化与不化，并按十神门归集。
+     化否一依 heHuaOK（化神透干、得令、得根三者居其一且不被克破），与四柱干支关系卡同一口径。
+     半合与拱局须待岁运补足三支方成，原局不列。结果按 BZ 记一槽缓存，四卡连调同一局不重算。 */
+  let _heHuaMemo = { BZ: null, val: null };
+  function _heHuaOf(BZ) {
+    const EMPTY = { heHua: {}, heBan: {}, list: [] };
+    if (!BZ || !BZ.dayGan) return EMPTY;
+    if (_heHuaMemo.BZ === BZ) return _heHuaMemo.val;
+    const W = (typeof window !== 'undefined') ? window : {};
+    const tg = (typeof tenGod !== 'undefined') ? tenGod : W.tenGod;
+    const zm = (typeof zhiMain !== 'undefined') ? zhiMain : W.zhiMain;
+    const hh = (typeof heHuaOK !== 'undefined') ? heHuaOK : W.heHuaOK;
+    const th = (typeof TIANGAN_HE !== 'undefined') ? TIANGAN_HE : W.TIANGAN_HE;
+    const h6 = (typeof DIZHI_HE6 !== 'undefined') ? DIZHI_HE6 : W.DIZHI_HE6;
+    const h3 = (typeof DIZHI_SANHE !== 'undefined') ? DIZHI_SANHE : W.DIZHI_SANHE;
+    const dg = BZ.dayGan, gans = BZ.gans || [], zhis = BZ.zhis || [];
+    const heHua = {}, heBan = {}, list = [];
+    const push = (cls, wx, ok, txt) => {
+      if (!cls || !wx) return;
+      const m = ok ? heHua : heBan;
+      if (!m[cls]) m[cls] = [];
+      if (m[cls].indexOf(wx) < 0) m[cls].push(wx);
+      list.push({ cls: cls, wx: wx, ok: ok, txt: txt });
+    };
+    const run = (groups, isZhi) => {
+      (groups || []).forEach(g => {
+        const wx = g[g.length - 1], members = g.slice(0, g.length - 1);
+        const src = isZhi ? zhis : gans;
+        const idx = members.map(x => src.indexOf(x));
+        if (idx.some(i => i < 0)) return;
+        const ok = hh ? hh(wx, gans, zhis, BZ.monthZ, isZhi ? null : members, BZ.siLing) : false;
+        const lbl = members.join('');
+        const seen = [];
+        idx.forEach(i => {
+          const t = tg ? tg(dg, isZhi ? (zm ? zm(src[i]) : src[i]) : src[i]) : '';
+          const c = GOD_CLASS[t] || '';
+          if (c && seen.indexOf(c) < 0) seen.push(c);
+        });
+        seen.forEach(c => push(c, wx, ok, lbl + (ok ? ('合化' + wx) : '合而不化')));
+      });
+    };
+    run(th, false); run(h6, true); run(h3, true);
+    const val = { heHua: heHua, heBan: heBan, list: list };
+    _heHuaMemo = { BZ: BZ, val: val };
+    return val;
+  }
+
+  // 调候偏端：由程度断语前二字定，调候用神之五行不参与此判
+  const TIAO_ABS = { '寒（': '寒', '燥热': '热', '偏湿': '湿', '偏燥': '燥' };
+
+  /* 调候归集：取用之神落哪一门十神、与扶抑喜忌是同路还是相左、原局有力与否、寒暖燥湿偏于何端。
+     喜忌与裁决一律读 A.tiao 与 A.synthesis，不在此另判主从，与调候用神卡同一口径。 */
+  function _tiaoOf(ctx) {
+    if (!ctx || !ctx.BZ || !ctx.BZ.dayGan) return null;
+    const A = ctx.A;
+    const T = (A && A.tiao) || null;
+    if (!T || !T.wx) return null;
+    const xi = (typeof effXi === 'function') ? (effXi(A) || []) : (ctx.fuXi || []);
+    const ji = (typeof effJi === 'function') ? (effJi(A) || []) : (ctx.fuJi || []);
+    const cat = _tiaoCatOf(ctx.BZ, T.wx);
+    return {
+      wx: T.wx,
+      gan: T.gan || [],
+      grade: T.grade || '',
+      abs: TIAO_ABS[(T.grade || '').slice(0, 2)] || '',
+      ruling: T.ruling || '',
+      rulingNote: T.rulingNote || '',
+      powerTier: T.powerTier || 5,
+      powerShort: T.powerShort || '',
+      powerWhy: T.powerWhy || '',
+      cat: cat,
+      xj: xi.indexOf(T.wx) >= 0 ? '喜' : (ji.indexOf(T.wx) >= 0 ? '忌' : '中'),
+      xi: xi.indexOf(T.wx) >= 0,
+      ji: ji.indexOf(T.wx) >= 0,
+      bias: (T.grade || '').indexOf('尚均') < 0
+    };
+  }
+
+
   // 由 BZ 构造标准判定上下文（喜忌 + 十神能量）；opt 可覆盖（如单测）
   function buildCtx(BZ, opt) {
     opt = opt || {};
@@ -158,19 +259,32 @@
   /* ============================ 2.5 十神断语资产（表二，顶层一处定义）============================ */
   // 用途：事业/婚姻/健康/家庭 与"十神相互关系"表统一调用。只做判定（满足关系+含义），不含古籍出处。
   // 判定三要素（声明式）：cn(十神类计数) × xj(五行喜忌) × en(能量档，可省)；strong 判身强/弱。
-  // ctx 契约：{ BZ, A, fuXi, fuJi, tenCnt, xjWx, tenE, strength }
-  //   tenCnt: {官杀:n,印星:n,食伤:n,财星:n,比劫:n}; xjWx: {官杀五行:'喜'|'忌'|'中'...};
-  //   tenE: 十神能量(0-100); strength: '强'|'中'|'弱'
+  // ctx 契约：{ BZ, A, fuXi, fuJi, tenCnt, gCnt, xjWx, tenE, strength, isMale,
+  //             posCells, godPos, relPos, chongPairs, hePairs, xingPairs, haiPairs,
+  //             yangRen, shaMap, csMap, tenChong, tenSha, csTen, tiao, heHua, heBan }
+  //   tenCnt: {官杀:n,印星:n,食伤:n,财星:n,比劫:n}; gCnt: {十神:n} 单神计数；
+  //   xjWx: {官杀:'喜'|'忌'|'中'...}; tenE: 十神能量(0-100); strength: '强'|'中'|'弱'
+  //   tiao: 调候归集 {wx, grade, bias, ruling, powerTier, powerShort, powerWhy, cat, xj, xi, ji}
+  //   heHua/heBan: 合化归集 {十神门:[化神五行]}，化与不化（绊）分置
   // need 字段（均满足才输出）：
   //   cn: {类:比较串}           十神类计数（>=/< /==）
+  //   g:  {十神:比较串}         单神计数
   //   xj: {类:'喜'|'忌'}        该类五行喜忌（用 xjWx）
   //   none:{类:...}             该类计数为 0
   //   en: {类:'旺'|'有力'|'虚'|...}  能量档（可选；按 REL.TH 分）
   //   strong: ['强'|'中'|'弱']
+  //   sex: '男'|'女'            性别门控
   //   pos: {类:柱位}            某类十神落于某柱（柱位=年柱/月柱/日柱/时柱；可加 干/支 后缀如 日干/日支；可数组=落于任一；! 前缀=否定）
   //   nopos:{类:柱位}           某类十神不落于该柱（等价 pos 的 ! 前缀，语义更直白）
   //   zhi: {类:地支字}          该类十神所坐地支为指定字（如 辰戌丑未=入墓库；可数组）
   //   nofzhi:{类:地支字}        该类十神所坐地支非指定字
+  //   relChong/relXing/relSanXing/relSelfXing/relHai/relHe/relPo/relAnhe：柱位或 'any'
+  //   relChongPair/relHePair/relXingPair/relHaiPair：柱位对，如 ['日支','时支']
+  //   yangren: true|柱位|数组   羊刃落处
+  //   shensha:{神煞名:true|柱位|数组}；cs:{长生位:柱位|数组}
+  //   tenChong:{类:true}；tenSha:{类:'神煞名'|数组}；csTen:{类:'长生位'|数组}
+  //   tiao: {ruling:值|数组, cat:十神门|数组, xj:'喜'|'忌'|'中', powerTier:'<=2'|'>=3', bias:true|false}
+  //   heHua:{类:五行|true}；heBan:{类:五行|true}
   REL.tenCombo = {
     DATAS: [],
     _evalCmp(rules, ctx) {
@@ -304,6 +418,44 @@
           const specs = Array.isArray(want) ? want : [want];
           if (!specs.some(s => list.indexOf(s) >= 0)) return false;
         }
+      }
+      // 调候：ctx.tiao 未归集时按 ctx.A.tiao 现算，富瘦两种 ctx 同一口径
+      if (rules.tiao) {
+        const T = ctx.tiao || _tiaoOf(ctx);
+        if (!T) return false;
+        const asArr = v => Array.isArray(v) ? v : [v];
+        if (rules.tiao.ruling !== undefined && !asArr(rules.tiao.ruling).some(r => r === T.ruling)) return false;
+        if (rules.tiao.cat !== undefined && !asArr(rules.tiao.cat).some(c => c === T.cat)) return false;
+        if (rules.tiao.abs !== undefined && !asArr(rules.tiao.abs).some(a => a === T.abs)) return false;
+        if (rules.tiao.xj !== undefined && T.xj !== rules.tiao.xj) return false;
+        if (rules.tiao.xi !== undefined && T.xi !== !!rules.tiao.xi) return false;
+        if (rules.tiao.ji !== undefined && T.ji !== !!rules.tiao.ji) return false;
+        if (rules.tiao.bias !== undefined && T.bias !== !!rules.tiao.bias) return false;
+        // powerTier 写 '<=2' 表调候有力（透出得根），'>=3' 表虚浮至不现
+        if (rules.tiao.powerTier !== undefined) {
+          const m = String(rules.tiao.powerTier).match(/^(>=|<=|==|>|<)?\s*(\d+)/);
+          if (!m) return false;
+          const n = +m[2], op = m[1] || '<=';
+          const ok = (op==='<=' ? T.powerTier<=n : op==='>=' ? T.powerTier>=n : op==='>' ? T.powerTier>n : op==='<' ? T.powerTier<n : T.powerTier===n);
+          if (!ok) return false;
+        }
+      }
+      // 合化：heHua 为化、heBan 为合而不化（绊），按十神门取，true 表任一门有之
+      const _heHit = (want, m) => {
+        m = m || {};
+        if (want === true) return Object.keys(m).length > 0;
+        for (const k in want) {
+          const v = want[k], list = m[k] || [];
+          if (v === true) { if (!list.length) return false; continue; }
+          const specs = Array.isArray(v) ? v : [v];
+          if (!specs.some(s => list.indexOf(s) >= 0)) return false;
+        }
+        return true;
+      };
+      if (rules.heHua !== undefined || rules.heBan !== undefined) {
+        const H = ctx.he || (ctx.heHua ? ctx : _heHuaOf(ctx.BZ) || {});
+        if (rules.heHua !== undefined && !_heHit(rules.heHua, ctx.heHua || H.heHua)) return false;
+        if (rules.heBan !== undefined && !_heHit(rules.heBan, ctx.heBan || H.heBan)) return false;
       }
       return true;
     },
@@ -552,7 +704,10 @@
         });
         Object.keys(tenSha).forEach(k=>{ tenSha[k]=[...new Set(tenSha[k])]; });
         Object.keys(csTen).forEach(k=>{ csTen[k]=[...new Set(csTen[k])]; });
-        return { BZ, A, fuXi:[...xi], fuJi:[...ji], tenCnt, gCnt, xjWx, tenE, strength, isMale, posCells, godPos, relPos, chongPairs, hePairs, xingPairs, haiPairs, yangRen, shaMap, csMap, tenChong, tenSha, csTen };
+        // ── 调候归集与合化归集：供 tiao/heHua/heBan 判定键取用 ──
+        const he=_heHuaOf(BZ);
+        const tiao=_tiaoOf({BZ, A, fuXi:[...xi], fuJi:[...ji]});
+        return { BZ, A, fuXi:[...xi], fuJi:[...ji], tenCnt, gCnt, xjWx, tenE, strength, isMale, posCells, godPos, relPos, chongPairs, hePairs, xingPairs, haiPairs, yangRen, shaMap, csMap, tenChong, tenSha, csTen, tiao, he };
       }catch(e){ return null; }
     }
   };
@@ -560,8 +715,8 @@
   const _xjWxOf = k => ({'官杀':'官杀','印星':'印星','食伤':'食伤','财星':'财星','比劫':'比劫'}[k]);
 
   // ， 表二数据：十神关系断语（判定式，去古籍出处），
-  // 原则：只用"十神类计数/单神计数 × 五行喜忌 × 能量档 × 身强弱"可可靠判定的；
-  //       依赖 合/化/羊刃/宫位 等 ctx 暂不提供信息的条目，宁缺毋滥，待 ctx 扩展后再补（不产出误判断语）。
+  // 判定要素：十神类计数/单神计数 × 五行喜忌 × 能量档 × 身强弱 × 落柱与地支字，
+  //           兼取刑冲合害、羊刃、神煞、十二长生、调候、合化等 ctx 已归集之项。
   // A 官杀系
   (function(){ const t=REL.tenCombo.DATAS, P=(name,say,need,themes)=>t.push({name,say,need,...(themes||{})});
     // 判定条件按命理打磨：官印须有力方成"相生"；杀印须杀旺印化；官星遇劫须比劫有力方达得夺；财旺生官须身非弱方任。
@@ -1062,8 +1217,8 @@
   })();
 
   // ， 十神经典断语：依据《十神断命》素材整理，判定式、去古籍出处 ，
-  // 原则：只增不删、不覆盖现有同名组合；条件只用 cn/g/xj/en/strong/sex/pos/nopos/zhi/nofzhi 可靠判定，
-  //       依赖刑冲合害等 ctx 暂不提供的条目宁缺毋滥，不产出误判断语。
+  // 只增不删、不覆盖现有同名组合；除计数与喜忌外，刑冲合害、羊刃、神煞、长生、调候、合化
+  // 皆由 ctx 归集后直接判定，故无待补之缺。
   // ============ 事业财运（career） ============
   (function(){ const t=REL.tenCombo.DATAS, P=(name,say,need,themes)=>t.push({name,say,need,...(themes||{})});
     P('正官清贵','正官为喜用而清透有力，主官运亨通、事业稳定，宜公职、管理岗位，循正途升阶得位。',
@@ -1459,6 +1614,104 @@
     P('七杀有制子得力','男命七杀（子星）得食神制化，子星有力、子女有成、晚运可依。',
       {sex:'男',g:{'七杀':1,'食神':1}},
       {family:'男命七杀（子星）得食神制化，子星有力、子女有成、晚运可依。',cats:['family']});
+  })();
+
+  // ， 调候贯穿：调候取用与扶抑之裁决、用干有力与否、寒暖燥湿之偏，逐门接入四方向断语 ，
+  // 裁决一律读 A.tiao.ruling（bazi-data.js 一处裁决），此间只转述其果，不自判主从。
+  (function(){ const t=REL.tenCombo.DATAS, P=(name,say,need,themes)=>t.push({name,say,need,...(themes||{})});
+    const _T=ctx=>ctx.tiao||_tiaoOf(ctx)||{};
+    const _note=ctx=>{ const x=_T(ctx); return (x.bias?('命局'+x.grade+'，'):'')+x.rulingNote; };
+    // ── 调候与扶抑之裁决：五态互斥，据 tiao.ruling 各取其一
+    P('一物两用','调候用神即日主喜用，一物两用，扶抑与调候同归一路，最为得力。',
+      {tiao:{ruling:'一物两用'}},
+      {describe:_note, cats:['career','marry','health','family']});
+    P('调候扶抑并行','调候与扶抑无直接冲突，两法各行其是、并行不悖。',
+      {tiao:{ruling:'并行不悖'}},
+      {describe:_note, cats:['career','marry','health','family']});
+    P('调候为急','寒暖燥湿之偏当急，调候用神虽为日主所忌，仍先调候而后扶抑，岁运见之可济其偏。',
+      {tiao:{ruling:'调候为急'}},
+      {describe:_note, cats:['career','marry','health','family']});
+    P('通关调和','调候与扶抑两法相左，所幸局有通关之神且正合喜用，取之则两不相犯、一举两得。',
+      {tiao:{ruling:'通关调和'}},
+      {describe:_note, cats:['career','marry','health','family']});
+    P('调候退居为辅','寒暖燥湿之偏不急或调候用干原局不得力，故从扶抑为主，调候退居为辅、待岁运引出方论。',
+      {tiao:{ruling:'扶抑为主'}},
+      {describe:_note, cats:['career','marry','health','family']});
+    // ── 调候用干有力与否：五级力度，透干得根者方为有力
+    P('调候有力','调候用干透出、四柱得根，寒暖之偏原局可济，调候之力不待岁运。',
+      {tiao:{powerTier:'<=2'}},
+      {describe(ctx){ const x=_T(ctx); return '调候取'+x.wx+'（'+(x.gan||[]).join('、')+'），'+x.powerWhy+'，寒暖之偏原局可济，不待岁运。'; },
+       cats:['career','health','family']});
+    P('调候虚浮','调候用干虽透而四柱无根，力浮待助，寒暖之偏须岁运扶之方济。',
+      {tiao:{powerTier:'==3'}},
+      {describe(ctx){ const x=_T(ctx); return '调候取'+x.wx+'（'+(x.gan||[]).join('、')+'），'+x.powerWhy+'，寒暖之偏须岁运扶之方济。'; },
+       cats:['career','health']});
+    P('调候待引','调候用干未透、仅藏支中，原局虽有而不得用，须岁运引出方验。',
+      {tiao:{powerTier:'==4'}},
+      {describe(ctx){ const x=_T(ctx); return '调候取'+x.wx+'（'+(x.gan||[]).join('、')+'），'+x.powerWhy+'，原局虽有而不得用。'; },
+       cats:['career','health']});
+    P('调候不现','调候用干四柱皆无，原局寒暖之偏无以自济，须待岁运补救。',
+      {tiao:{powerTier:'==5'}},
+      {describe(ctx){ const x=_T(ctx); return '调候取'+x.wx+'（'+(x.gan||[]).join('、')+'），'+x.powerWhy+'，原局寒暖之偏无以自济。'; },
+       cats:['career','health']});
+    // ── 调候用神落于何门十神：该门十神因调候而增其分量
+    const TIAO_CAT={ '印星':'寒暖之偏赖印星以济，宜文教、学术、典籍之途，靠山与学养即调候之资',
+      '官杀':'寒暖之偏赖官杀以济，宜公职、管理、循正途取位，名位与规矩即调候之资',
+      '财星':'寒暖之偏赖财星以济，宜经营、实业、以财养局，财货之流转即调候之资',
+      '食伤':'寒暖之偏赖食伤以济，宜才艺、技术、以才立身，泄秀与表达即调候之资',
+      '比劫':'寒暖之偏赖比劫以济，宜合伙、同侪共济，同辈之助即调候之资' };
+    Object.keys(TIAO_CAT).forEach(function(cat){
+      P('调候取'+cat.slice(0,2),'调候用神落在'+cat+'一门，'+TIAO_CAT[cat]+'。',
+        {tiao:{cat:cat}},
+        {describe(ctx){ const x=_T(ctx); return '调候取'+x.wx+'，落于'+cat+'一门：'+TIAO_CAT[cat]+'。'; },
+         cats:['career','family']});
+    });
+    // ── 寒暖燥湿之偏（健康方向）：偏端与用神之五行两事，各依 tiao 现判
+    P('命局偏寒','命局偏寒，气血易凝滞、手足易冷，宜温养、远寒凉生冷，岁运见暖其象自缓。',
+      {tiao:{abs:'寒'}},
+      {describe(ctx){ const x=_T(ctx); return '命局'+x.grade+'，气血易凝滞、手足易冷，宜温养、远寒凉生冷，岁运见暖其象自缓。'; },
+       cats:['health']});
+    P('命局偏热','命局偏燥热，津液易耗、心火易亢，宜清凉滋润、远辛辣燥烈，岁运见润其象自和。',
+      {tiao:{abs:'热'}},
+      {describe(ctx){ const x=_T(ctx); return '命局'+x.grade+'，津液易耗、心火易亢，宜清凉滋润、远辛辣燥烈，岁运见润其象自和。'; },
+       cats:['health']});
+    P('命局偏湿','命局偏湿，脾湿困重、身重易倦，宜温燥健脾、少处潮湿之地。',
+      {tiao:{abs:'湿'}},
+      {describe(ctx){ const x=_T(ctx); return '命局'+x.grade+'，脾湿困重、身重易倦，宜温燥健脾、少处潮湿之地。'; },
+       cats:['health']});
+    P('命局偏燥','命局偏燥，肺燥津伤、皮毛易损，宜润燥生津、少近燥烈之境。',
+      {tiao:{abs:'燥'}},
+      {describe(ctx){ const x=_T(ctx); return '命局'+x.grade+'，肺燥津伤、皮毛易损，宜润燥生津、少近燥烈之境。'; },
+       cats:['health']});
+  })();
+
+  // ， 合化贯穿：天干五合、地支六合、三合局逐条判化与否，按十神门归集后入断语 ，
+  // 化否一依 heHuaOK，与四柱干支关系卡同一口径；半合与拱局须待岁运补足，原局不列。
+  (function(){ const t=REL.tenCombo.DATAS, P=(name,say,need,themes)=>t.push({name,say,need,...(themes||{})});
+    const _heTxt=(ctx,cls,ok)=>{
+      const he=ctx.he||_heHuaOf(ctx.BZ)||{};
+      return (he.list||[]).filter(x=>x.cls===cls&&x.ok===ok).map(x=>x.txt).join('、');
+    };
+    const HUA={'财星':'财之厚薄须依化神之喜忌再论，原局之财不作本气论',
+      '官杀':'名位之得失须依化神之喜忌再论，原局之官不作本气论',
+      '印星':'学养与靠山须依化神之喜忌再论，原局之印不作本气论',
+      '食伤':'才思之发越须依化神之喜忌再论，原局之食伤不作本气论',
+      '比劫':'同辈之助须依化神之喜忌再论，原局之比劫不作本气论'};
+    const BAN={'财星':'财虽在而难动用，须岁运冲开或化神得力方显',
+      '官杀':'名位有绊、难畅其用，须岁运冲开或化神得力方显',
+      '印星':'学养与靠山有绊、难畅其用，须岁运冲开或化神得力方显',
+      '食伤':'才思有绊、发越不畅，须岁运冲开或化神得力方显',
+      '比劫':'同辈之助有绊、难畅其用，须岁运冲开或化神得力方显'};
+    Object.keys(HUA).forEach(function(cls){
+      P(cls.slice(0,2)+'合化',cls+'一门参与合化，合而化之者其性随化神而转。',
+        {heHua:(function(){ const o={}; o[cls]=true; return o; })()},
+        {describe(ctx){ return cls+'一门见合化：'+_heTxt(ctx,cls,true)+'。合而化之则其性随化神而转，'+HUA[cls]+'。'; },
+         cats:['career','marry']});
+      P(cls.slice(0,2)+'合绊',cls+'一门合而不化，合绊住其用。',
+        {heBan:(function(){ const o={}; o[cls]=true; return o; })()},
+        {describe(ctx){ return cls+'一门合而不化：'+_heTxt(ctx,cls,false)+'。合绊住其用，'+BAN[cls]+'。'; },
+         cats:['career','marry']});
+    });
   })();
 
   // 十神断语只保留四字经典关系断语（官印相生/比劫夺财/食伤泄秀…）。

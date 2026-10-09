@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
-<link rel="stylesheet" href="assets/css/heluo.css?v=010db278">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
+<link rel="stylesheet" href="assets/css/heluo.css?v=720b60c5">
 </head>
 <body>
 <div id="topbar"></div>
@@ -41,7 +41,8 @@
     <div class="mod-body">
     <div class="form-row">
       <div class="field"><label for="hlDate">公历生日</label><input type="text" class="dt-input" id="hlDate" aria-label="公历生日" placeholder="2026-09-08"></div>
-      <div class="field"><label for="hlHour">出生时辰</label><select id="hlHour" aria-label="出生时辰"><option value="">未知（不立元堂）</option><option value="00:30">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
+      <div class="field"><label for="hlHour">出生时辰</label><select id="hlHour" aria-label="出生时辰"><option value="">未知（不立元堂）</option><option value="00:00">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
+      <div class="field"><label for="hlZi">子时算法</label><select id="hlZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
       <div class="field"><label for="hlSex">性别</label><select id="hlSex" aria-label="性别"><option value="1">男</option><option value="2">女</option></select></div>
       <button id="hlBtn" class="btn gold" type="button">排命卦</button>
     </div>
@@ -55,11 +56,11 @@
     </div>
   </section>
   <section class="mod collapsed" id="hlmod-nian">
-    <div class="mod-head" onclick="toggleMod('hlmod-nian')"><span class="mod-caret">▾</span><span class="mod-title">流年分析</span><span class="mod-sub">年月日时一次同查、逐层变爻定气数</span></div>
+    <div class="mod-head" onclick="toggleMod('hlmod-nian')"><span class="mod-caret">▾</span><span class="mod-title">流年流月</span><span class="mod-sub">年月日时一次同查、逐层变爻定气数</span></div>
     <div class="mod-body">
     <div class="form-row">
       <div class="field"><label for="hlQDate">查询日期（公历）</label><input type="text" class="dt-input" id="hlQDate" aria-label="查询日期" placeholder="2026-09-08"></div>
-      <div class="field"><label for="hlRiHour">流时（时辰）</label><select id="hlRiHour" aria-label="流时时辰"><option value="">全日十二时</option><option value="00:30">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
+      <div class="field"><label for="hlRiHour">流时（时辰）</label><select id="hlRiHour" aria-label="流时时辰"><option value="">全日十二时</option><option value="00:00">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
       <button id="hlNianBtn" class="btn gold" type="button">查年月日时卦</button>
     </div>
     <div id="hlNianOut"></div>
@@ -69,6 +70,12 @@
     <div id="hlRiOut"></div>
     </div>
   </section>
+  <section class="mod collapsed" id="hlmod-hecan">
+    <div class="mod-head" onclick="toggleMod('hlmod-hecan')"><span class="mod-caret">▾</span><span class="mod-title">合参结论</span><span class="mod-sub">大运流年流月三层叠加、宜忌与着力点</span></div>
+    <div class="mod-body">
+    <div id="hlHeOut"></div>
+    </div>
+  </section>
   <details class="mh-ref" id="hlJwFold">
     <summary>六十四卦经文检索</summary>
     <div id="hlJwBody"></div>
@@ -76,15 +83,16 @@
 </main>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=94c895a9"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
 <script defer src="assets/gua.js?v=3aacc2cc"></script>
-<script defer src="assets/jingwen.js?v=ca162203"></script>
+<script defer src="assets/jingwen.js?v=81077ace"></script>
 <script defer src="assets/jingwen-ref.js?v=f5ead9aa"></script>
-<script defer src="assets/heluo-data.js?v=86c99b1f"></script>
-<script defer src="assets/heluo.js?v=54788756"></script>
+<script defer src="assets/heluo-data.js?v=38d7ae9a"></script>
+<script defer src="assets/heluo-terms.js?v=2258d361"></script>
+<script defer src="assets/heluo.js?v=9bb3ae9c"></script>
 <script>
 
 

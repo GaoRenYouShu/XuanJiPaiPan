@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/luopan.css?v=3215cee5">
 </head>
 <body>
@@ -47,9 +47,9 @@
       </div>
       <div class="birth-group compact" id="lpGeoGroup">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
-        <div class="field"><label>省份</label><select id="lpProv" onchange="lpGeoProv()"></select></div>
-        <div class="field"><label>城市</label><select id="lpCity" onchange="lpGeoCity()"></select></div>
-        <div class="field"><label>区县</label><select id="lpDist" onchange="lpGeoPick()"></select></div>
+        <div class="field"><label>省份</label><select id="lpProv"></select></div>
+        <div class="field"><label>城市</label><select id="lpCity"></select></div>
+        <div class="field"><label>区县</label><select id="lpDist"></select></div>
         <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="lpLng" step="0.01" placeholder="所在地" onchange="lpGeoPick()"></div>
         <div class="field hh-lng"><label>纬度（可选）</label><input type="number" id="lpLat" step="0.01" placeholder="所在地" onchange="lpGeoPick()"></div>
       </div>
@@ -163,15 +163,15 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=94c895a9"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
 <script defer src="assets/luopan.js?v=bee48c48"></script>
 <script defer src="assets/fs-luo.js?v=c1c37a8d"></script>
 <script defer src="assets/fs-mag.js?v=bfd7ff0c"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
 <script>
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
@@ -179,26 +179,9 @@
    故置 DOMContentLoaded 内取，确保 fengshui-engine 已挂 FENGSHUI，其余页面级别量由本页自管。 */
 var LP_DECL_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null, LP_LV_MAX=5;
 var FS=null;
-function lpGeoFillCity(){
-  var sp=document.getElementById('lpProv'), sc=document.getElementById('lpCity');
-  if(!sp||!sc) return;
-  sc.innerHTML=(PROV[sp.value]||[]).map(c=>'<option value="'+c.c+'">'+c.c+'</option>').join('');
-  lpGeoFillDist();
-}
-function lpGeoFillDist(){
-  var sp=document.getElementById('lpProv'), sc=document.getElementById('lpCity'), sd=document.getElementById('lpDist');
-  if(!sd) return;
-  var c=(PROV[sp.value]||[]).find(x=>x.c===sc.value);
-  if(!c){ sd.innerHTML=''; return; }
-  var ds=distList(sp.value, c.c);
-  /* 首项恒为该市之名（与全站各页同口径），值空即回落市级坐标；
-     该市未收区县坐标时于名后缀明，不改词、不留空表。 */
-  var html='<option value="">'+c.c+(ds.length?'':'（未收区县）')+'</option>';
-  ds.forEach(k=>{ html+='<option value="'+k+'">'+k+'</option>'; });
-  sd.innerHTML=html;
-}
-function lpGeoProv(){ lpGeoFillCity(); lpGeoPick(); }
-function lpGeoCity(){ lpGeoFillDist(); lpGeoPick(); }
+/* 所在地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地取磁偏角，
+   来历不著。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
+   手填经纬度与三级下拉是两条独立的定地途径，故手填框不归它管。 */
 function lpGeoCoord(){
   var lo=parseFloat((document.getElementById('lpLng')||{}).value);
   var la=parseFloat((document.getElementById('lpLat')||{}).value);
@@ -281,11 +264,13 @@ function lpMagOnline(){
     if(got) lpApplyBase(); else lpMagNote();
   });
 }
+/* 所在地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地取磁偏角，
+   来历不著。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
+   手填经纬度与三级下拉是两条独立的定地途径，故手填框不归它管。 */
 function lpGeoInit(){
   var sp=document.getElementById('lpProv'); if(!sp) return;
-  sp.innerHTML=provList().map(p=>'<option value="'+p+'">'+p+'</option>').join('');
-  sp.value='北京市';
-  lpGeoFillCity(); lpGeoPick();
+  window.__lpPlaceTrio=fillPlaceTrio(sp, document.getElementById('lpCity'), document.getElementById('lpDist'), lpGeoPick);
+  lpGeoPick();
 }
 function lpFillBase(){
   var sitEl=document.getElementById('baseSit'), faceEl=document.getElementById('baseFace');
@@ -1106,12 +1091,8 @@ function lpIpPrefill(){
     try{ if(localStorage.getItem('lp_geo_manual')==='1') return; }catch(e){ return; }
     var pl=(typeof placeOf==='function')?placeOf(g.region, g.city):{prov:null, city:null};
     if(!pl.prov) return;
-    var pEl=document.getElementById('lpProv');
-    if(!pEl) return;
-    pEl.value=pl.prov;
-    lpGeoFillCity();
-    var cEl=document.getElementById('lpCity');
-    if(pl.city&&cEl){ cEl.value=pl.city; lpGeoFillDist(); }
+    if(!window.__lpPlaceTrio) return;
+    window.__lpPlaceTrio.set(pl.prov, pl.city, '');
     lpGeoPick();
   }).catch(function(){});
 }

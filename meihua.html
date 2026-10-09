@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
-<link rel="stylesheet" href="assets/css/meihua.css?v=d2b5d03f">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
+<link rel="stylesheet" href="assets/css/meihua.css?v=d186c33c">
 
 </head>
 <body>
@@ -50,8 +50,8 @@
     </div>
     <div class="birth-group compact mh-group-gap">
       <div class="group-label">当地（用于真太阳时校正，内置行政区划经度）</div>
-      <div class="field"><label>省份</label><select id="mhProv" onchange="mhFillCity()"></select></div>
-      <div class="field"><label>城市</label><select id="mhCity" onchange="mhFillDist()"></select></div>
+      <div class="field"><label>省份</label><select id="mhProv"></select></div>
+      <div class="field"><label>城市</label><select id="mhCity"></select></div>
       <div class="field"><label>区县</label><select id="mhDist"></select></div>
       <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="mhLng" step="0.01" placeholder="当地"></div>
       <div class="field chk hh-true"><input type="checkbox" id="mhTrue" checked><label for="mhTrue">真太阳时校正</label></div>
@@ -76,10 +76,10 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/jingwen.js?v=ca162203"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
+<script defer src="assets/jingwen.js?v=81077ace"></script>
 <script defer src="assets/gua.js?v=3aacc2cc"></script>
 <script defer src="assets/jingwen-ref.js?v=f5ead9aa"></script>
 <script defer src="assets/jianfan.js?v=0974acc9"></script>
@@ -374,31 +374,22 @@ function mhMethodChange(){
     document.getElementById(id).classList.toggle('is-on', m===MH_METHOD_FIELD[id]);
   });
 }
-function mhFillCity(){
-  const p=document.getElementById('mhProv').value;
-  const sc=document.getElementById('mhCity');
-  sc.innerHTML=(typeof PROV!=='undefined'&&PROV[p])?PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''):'';
-  mhFillDist();
-}
-function mhFillDist(){
-  const p=document.getElementById('mhProv').value, c=(typeof PROV!=='undefined'&&PROV[p])?PROV[p].find(x=>x.c===document.getElementById('mhCity').value):null;
-  const cc=c?c.c:'';
-  const sd=document.getElementById('mhDist');
-  sd.innerHTML='<option value="">'+(cc||'')+'</option>'+(cc?(typeof distList==='function'?distList(p,cc):[]).map(k=>`<option value="${k}">${k}</option>`).join(''):'');
-}
+/* 当地经度：手动经度优先，其次省市区经 findLng 取数（城市级坐标为空者已由它回退省级中心）；
+   省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
+   按别人的经度折出来的时刻不著来历，与未校正是两回事。 */
 function mhLocalLng(){
   const lng=parseFloat(document.getElementById('mhLng').value);
   if(!isNaN(lng)) return lng;
   const p=document.getElementById('mhProv').value, c=document.getElementById('mhCity').value, d=document.getElementById('mhDist').value;
   try{ const v=findLng(p,c,d||undefined); if(v!=null) return v; }catch(e){}
-  try{ const pc=provCenter(p); if(pc) return pc.lng; }catch(e){}
-  return 120;
+  return null;
 }
+/* 三级下拉默认停在未知地：起首若是某地，未动过表单的卦便按该地折过一道，
+   校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
 function initMhRegion(){
   const pp=document.getElementById('mhProv');
   if(!pp) return;
-  pp.innerHTML=(typeof provList==='function'?provList():Object.keys(PROV||{})).map(k=>`<option value="${k}">${k}</option>`).join('');
-  mhFillCity();
+  window.__mhPlaceTrio=fillPlaceTrio(pp, document.getElementById('mhCity'), document.getElementById('mhDist'), null);
 }
 function qigua(){
   const method=document.getElementById('mhMethod').value;
@@ -406,15 +397,20 @@ function qigua(){
   let [y,m,d]=dv?dv.split('-').map(Number):[0,0,0];
   let [h,mi]=tv?tv.split(':').map(Number):[0,0];
   let useTrueTxt='';
-  /* 真太阳时：勾选时按当地经度校正起卦时刻（仅时间起卦生效，跨日自动调整） */
+  /* 真太阳时：勾选时按当地经度校正起卦时刻（仅时间起卦生效，跨日自动调整）；
+     当地未定即无经度可校，此时不折一道按钟面出盘，并在起卦时间行注明未校 */
+  let mhNoPlace='';
   if(method==='time'&&dv&&tv&&(document.getElementById('mhTrue')||{}).checked===true){
     try{
       if(typeof trueSolarTime==='function'){
         const lng=mhLocalLng();
-        const ts=trueSolarTime(y,m,d,h,mi,lng);
-        useTrueTxt=' 当地真太阳时 '+ts.y+'-'+pad2(ts.m)+'-'+pad2(ts.d)+' '+pad2(ts.h)+':'+pad2(ts.mi);
-        y=ts.y; m=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
-        dv=y+'-'+pad2(m)+'-'+pad2(d); tv=pad2(h)+':'+pad2(mi);
+        if(lng==null){ mhNoPlace='（当地未定，未作真太阳时校正，按钟面时刻）'; }
+        else{
+          const ts=trueSolarTime(y,m,d,h,mi,lng);
+          useTrueTxt=' 当地真太阳时 '+ts.y+'-'+pad2(ts.m)+'-'+pad2(ts.d)+' '+pad2(ts.h)+':'+pad2(ts.mi);
+          y=ts.y; m=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
+          dv=y+'-'+pad2(m)+'-'+pad2(d); tv=pad2(h)+':'+pad2(mi);
+        }
       }
     }catch(e){}
   }
@@ -557,7 +553,7 @@ function qigua(){
   }
   document.getElementById('out').innerHTML=`
   <table class="ly-cat-tbl ly-zh-tbl mh-info-tbl mh-tbl-gap-lg"><tbody>
-    <tr><th>起卦信息</th><td>${method==='time'?(useTrueTxt?`北京时间 ${dv} ${tv}　${useTrueTxt.trim()}`:`${dv} ${tv}　农历${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${lunar.getTimeZhi()}时`):`${method==='num'?'报数起卦':'字占起卦'}：${method==='num'?`数${unum||0}、${lnum||0}、${dnum||0}`:`字“${method==='char'?document.getElementById('mhChar').value:document.getElementById('mhName').value}”`}`}</td></tr>
+    <tr><th>起卦信息</th><td>${method==='time'?((useTrueTxt||mhNoPlace)?`北京时间 ${dv} ${tv}　${(useTrueTxt.trim()||mhNoPlace)}`:`${dv} ${tv}　农历${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${lunar.getTimeZhi()}时`):`${method==='num'?'报数起卦':'字占起卦'}：${method==='num'?`数${unum||0}、${lnum||0}、${dnum||0}`:`字“${method==='char'?document.getElementById('mhChar').value:document.getElementById('mhName').value}”`}`}</td></tr>
     <tr><th>卦爻</th><td>上卦 ${upName}(${up})　下卦 ${lowName}(${low})　动爻第${dong}爻</td></tr>
     <tr><th>体用</th><td>体卦 ${tiName}（${wxColorSpan(_tiWx)}）　<span class="${_relObj.cls}">${_relObj.rel}</span>　用卦 ${yongName}（${wxColorSpan(_yongWx)}）　<span class="mh-true-tip">（动爻所在为用，另一为体）</span>　<span class="${_relObj.cls}">${_relObj.judge}</span></td></tr>
   </tbody></table>
@@ -641,7 +637,7 @@ window.addEventListener('load', function () {
           if(el.type==='checkbox') el.checked=d[k]==='1'; else el.value=d[k];
         });
         try{ mhMethodChange(); }catch(e){}
-        try{ mhFillCity(); mhFillDist(); }catch(e){}
+        if(window.__mhPlaceTrio) window.__mhPlaceTrio.set(d.mhProv, d.mhCity, d.mhDist);
       },
       recast:function(){ try{ qigua(); }catch(e){} }
     } });

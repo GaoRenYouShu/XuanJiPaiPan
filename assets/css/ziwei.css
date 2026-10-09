@@ -49,6 +49,14 @@
 
 .page-zw .btn:hover,.page-zw .btn.gold:hover{background:var(--zw2);color:#fff;box-shadow:none}
 
+/* 次级按钮走描边款，与实底主按钮分开；八字页 .btn-ghost 同款，两页主次一致。 */
+.page-zw .btn-ghost{background:var(--zw-tint);border:1px solid var(--zw-line);color:var(--zw-ink)}
+
+.page-zw .btn-ghost:hover{background:var(--card);border-color:var(--zw);color:var(--zw2)}
+
+/* 姓名只填短名，取内容宽 96px 不随字段拉伸；八字页 .field#fName input 同值。 */
+.page-zw .form-row .field#zNameField input{width:96px;align-self:flex-start}
+
 .page-zw .dt-ic{color:var(--zw-ink)}
 
 .page-zw .ai-block .btn{border-radius:0}
@@ -64,16 +72,24 @@
 
 .page-zw .birth-group .group-label{color:var(--zw2)}
 
-.page-zw .zw-rel2 .group-label{width:100%;margin:0;color:var(--zw2)}
+/* 双盘对照走全站共享件 dual-wrap、dual-rel-chk、dual-rel2（定义见 style.css 通用段），
+   本页只覆皮肤：题头与勾选行取紫微墨色，虚线框线取紫微线色，框内底部呼吸与八字同值。
+   本页各块平铺于 .page，无容器给距，故与上方时间折算行之间在此显式给 12px，
+   与八字页该件在 .opts 弹性列内由 row-gap 得出的间距同值。 */
+.page-zw .dual-wrap{margin-top:var(--sp-3)}
 
-.page-zw .zw-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
-  margin:var(--sp-1) 0 var(--sp-2);font-size:13px;color:var(--zw-ink);cursor:pointer;user-select:none}
+/* 已存模式只列已存命盘、不出盘，双人合盘无盘可对照，整块随该模式撤下 */
+.page-zw .dual-wrap.is-off{display:none}
 
-.page-zw .zw-rel-chk input{width:auto;margin:0}
+.page-zw .dual-rel-chk{color:var(--zw-ink)}
 
-.page-zw .zw-rel2{display:none}
+.page-zw .dual-rel2{border-color:var(--zw-line)}
 
-.page-zw .zw-rel2.is-on{display:block}
+.page-zw .dual-rel2 .group-label{color:var(--zw2)}
+
+/* 框内出生地组只留底部呼吸，不叠页级下距：页级 .birth-group 的 margin-bottom 是给
+   主出生地组的（与下一块拉开），框内这组由虚线框自身收底，故归零，与八字页同值。 */
+.page-zw .dual-rel2 .birth-group,.page-zw .dual-rel2 .birth-group.compact{padding-bottom:var(--sp-3);margin-bottom:0}
 
 .page-zw #out > .zp-v{margin-top:var(--sp-4);padding:var(--sp-3) 0;border-top:1px solid var(--zw-line)}
 
@@ -129,12 +145,41 @@
 
 .page-zw .info-box h4{color:var(--zw2);font-family:var(--zw-serif);font-weight:400;letter-spacing:.2em;border-bottom:1px solid var(--zw-line);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2)}
 
-.page-zw .palace-detail .info-box{background:transparent;border:0;
-  border-top:1px solid var(--zw-line);border-radius:0;box-shadow:none;padding:var(--sp-3) 0}
+/* 十二宫逐宫详断两列流式：各宫按自身内容定高，两列各自成流。等高栅格会把同排两卡拉齐，
+   短宫下缘因此拉出大片空白（实测十二卡合计七百余像素）；流式两列互不牵连，短宫只占自身高度。 */
+.page-zw .palace-detail{display:block;columns:2;column-gap:var(--sp-3);margin-top:var(--sp-2)}
 
-.page-zw .palace-detail .info-box h4{color:var(--zw2);font-weight:400}
+/* 宫卡内部就是一张键值表：卡整块去线，分界由表框承担（与本页定盘、小限诸卡同形）。
+   卡内上下内距与表上下距一并归零，卡与卡之间只隔卡下距一处，不叠第二个来源。 */
+.page-zw .palace-detail .info-box{margin:0 0 var(--sp-3);background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;break-inside:avoid;page-break-inside:avoid}
+
+.page-zw .palace-detail .zp-yun-tbl{margin:0}
+
+/* 末卡下距归零：区块边界由模块间距一处承担，末卡再留一条即与之叠成 28px */
+.page-zw .palace-detail .info-box:last-child{margin-bottom:0}
+
+/* 卡内题头紧接表框：分界归表框一处承担，题头不再画下线（两条相距不足 12px 即读作重线），
+   上下距只留 margin 一处，题头底到表顶 8px。 */
+.page-zw .palace-detail .info-box h4{color:var(--zw2);font-weight:400;border-bottom:0;padding-bottom:0}
+
+/* 窄屏一列：两列在手机宽度下每列不足三百像素，键值表的长文列被压到逐字折行 */
+@media(max-width:560px){.page-zw .palace-detail{columns:1}}
 
 .page-zw .zp-yun-tbl{background:transparent}
+
+/* 运程推演查询行的控件取站内控件同款：30px 高、1px 实线、无圆角，与 .field input 同口径。
+   input 不继承父级字体（浏览器默认 Arial），故 font-family 须显式声明；同排 select 由通用段
+   select{font-family:inherit} 承担，此处并列同写以免两条路径分叉。 */
+.page-zw .yf-picker input,.page-zw .yf-picker select{height:30px;font-family:var(--font);font-size:13px;padding:0 var(--sp-3);border:1px solid var(--zw-line);border-radius:0;background:var(--card);color:var(--zw-ink);box-sizing:border-box}
+
+/* 运程五层格栅：表入格栅后其自身上下距与格栅 gap 会叠加（实测上下各多出 4px 与 12px），
+   故格内各表上下距一律归零，间距只由 gap 一处提供。 */
+.page-zw .zp-yun-grid > .zp-yun-tbl{margin-top:0;margin-bottom:0}
+
+/* 十三时辰对照表：本次所排那一档点金标出，其余同色，便于逐档比对定时 */
+.page-zw .zw-timing th,.page-zw .zw-timing td{border-color:var(--zw-line);color:var(--zw-ink);white-space:nowrap}
+
+.page-zw .zw-timing tr.cur td{background:var(--zw-tint);color:var(--zw-deep)}
 
 .page-zw .zp-yun-tbl th,.page-zw .zp-yun-tbl td{border-color:var(--zw-line)}
 
@@ -185,6 +230,12 @@
 
 .page-zw .zw-key{color:var(--zw2)}
 
+/* 流曜表：宫位与本命宫两列是短标签（四字以内），须按整词取宽。
+   通用件 .zp-yun-tbl td.lbl 带 overflow-wrap:anywhere，其最小内容宽退化为一字，
+   浏览器遂把这两列压到不足四字宽而折行（实测 52.89px 容不下 52px 的四字）；
+   此处把折行机会收回，最小内容宽即整词宽，列宽不再被挤，富余宽只归流曜一列。 */
+.page-zw .zw-yao-tbl td.lbl{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+
 .page-zw .zw-note{color:var(--zw-ink2);font-size:12px}
 
 .page-zw .zw-xi{color:var(--green)}
@@ -192,8 +243,6 @@
 .page-zw .zw-ji{color:var(--red)}
 
 .page-zw .info-box p{color:var(--zw-ink)}
-
-.page-zw .yf-picker input{border-color:var(--zw-line)}
 
 /* 运程日期框走全站共享日期控件（.dt-wrap 内定宽 96px）：包裹层收内容宽，
    不随 flex:1 1 auto 撑开，免把推算按钮顶到行末 */
@@ -265,7 +314,7 @@
   /* 合盘各表首列：表头长句在窄屏被 nowrap 撑到两百余像素，把右侧分值挤成窄条，故窄屏放开换行并左对齐 */
   .page-zw .zw-hp-tbl th,.page-zw .zw-hp-total .zp-yun-tbl th{white-space:normal;text-align:left}
   /* 双人合盘勾选行：整行说明文字长，窄屏独占一行随文字折行，复选框不被挤到文字中间 */
-  .page-zw .zw-rel-chk{display:flex}
+  .page-zw .dual-rel-chk{display:flex}
   .page-zw .zp-yun-tbl th,.page-zw .zp-yun-tbl td{padding:var(--sp-1) var(--sp-2)}
   /* 正文与大运表的值按标点整段换行，末字不再独占一行 */
   .page-zw .ly-zh-p,.page-zw .zp-yun-tbl td{word-break:keep-all}
@@ -290,3 +339,15 @@
     --zw-tint2:#ebe2f2;
   }
 }
+/* 已存列表取全站骨架（style.css 的 .saved-list），本肤只按本页 --zw-* 变量换色，
+   不改骨架规则；八字页另有自己的 .page-bazi 前缀一套，两页互不干扰 */
+.page-zw .saved-list{margin:var(--sp-2) 0 var(--sp-1)}
+.page-zw .saved-list .sc{border-bottom:1px solid var(--zw-line)}
+.page-zw .saved-list .sc-name{color:var(--zw-ink)}
+.page-zw .saved-list .sc-info{color:var(--zw-ink2)}
+.page-zw .saved-list .sr-head .sc{color:var(--zw-ink2)}
+.page-zw .saved-list .btn-pai,.page-zw .saved-list .btn-del{border:1px solid var(--zw-line);color:var(--zw2)}
+.page-zw .saved-list .btn-pai:hover{background:var(--zw-tint);color:var(--zw2);border-color:var(--zw)}
+.page-zw .saved-list .btn-del:hover{color:var(--red);border-color:var(--red)}
+/* 四柱模式的校验提示：与候选日同排，取次级字色，仅在校验不通过时才现 */
+.page-zw .zw-pillar-msg{align-self:flex-end;padding-bottom:var(--sp-2);font-size:12px;color:var(--zw-ink2);max-width:280px;line-height:1.5}

@@ -52,9 +52,33 @@ function hlSimplify(v,base){
   while(v>base) v-=base;
   return v%10===0 ? v/10 : v%10;
 }
-/* 爻辞、卦辞读取（jingwen.js 顶层 const，词法共享；未加载时静默为空） */
+/* 爻辞、卦辞与象辞读取（jingwen.js 顶层 const，词法共享；未加载时静默为空） */
 function hlGci(name){ return (typeof GUA_CI!=='undefined'&&GUA_CI[name])||''; }
 function hlYci(name,pos){ return (typeof YAO_CI!=='undefined'&&YAO_CI[name+HL_YAO_POS[pos-1]])||''; }
+function hlDax(name){ return (typeof GUA_DAXIANG!=='undefined'&&GUA_DAXIANG[name])||''; }
+function hlXiaox(name,pos){ return (typeof YAO_XIAOXIANG!=='undefined'&&YAO_XIAOXIANG[name+HL_YAO_POS[pos-1]])||''; }
+
+/* ---------- 0.1 卦画与卦气 ---------- */
+/* 六爻自下而上成卦，画爻自上而下排（上爻居顶），故六爻倒序输出 */
+function hlGuaDraw(bits,pos){
+  let s='<div class="hl-draw">';
+  for(let p=6;p>=1;p--){
+    const yang=bits[p-1]===1;
+    s+='<div class="hl-yao'+(pos===p?' hl-yao-cur':'')+'">'
+      +'<span class="yb'+(yang?'':' gap')+'" role="img" aria-label="'+(yang?'阳爻':'阴爻')+'">'
+      +(yang?'':'<span></span><span></span>')+'</span>'
+      +'<span class="hl-yao-name">'+hlYaoLabel(bits,p)+'</span></div>';
+  }
+  return s+'</div>';
+}
+/* 卦气旺相休囚死：以卦之上下卦五行属应生月五行相较，各判一次 */
+function hlGuaQi(info,monthZhi){
+  const zw=(typeof ZHI_WX!=='undefined'&&ZHI_WX)||{};
+  const mw=zw[monthZhi]||'土';
+  const up=HL_TRIGRAM_WX[info.upper],lo=HL_TRIGRAM_WX[info.lower];
+  return '<span class="hl-qi">上卦'+info.upper+'属'+up+'，'+HL_wxState(up,mw)
+    +'；下卦'+info.lower+'属'+lo+'，'+HL_wxState(lo,mw)+'（生'+monthZhi+'月，月令属'+mw+'，'+hlTipSpan('旺相休囚死')+'）</span>';
+}
 
 /* ---------- 1. 日期与节气工具 ---------- */
 function hlMs(solar){
@@ -108,18 +132,24 @@ function hlParseDate(str){
   if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d) throw new Error('该日期不存在，请核对');
   return {'y':y,'mo':mo,'d':d};
 }
-/* 时辰下拉值到时支序（0 子 至 11 亥），空为未知 */
+/* 时辰下拉值到时支序（0 子 至 11 亥），空为未知。下拉值即该时辰中点钟点 */
 function hlHourIdx(v){
-  const map={'00:30':0,'02:00':1,'04:00':2,'06:00':3,'08:00':4,'10:00':5,
+  const map={'00:00':0,'02:00':1,'04:00':2,'06:00':3,'08:00':4,'10:00':5,
              '12:00':6,'14:00':7,'16:00':8,'18:00':9,'20:00':10,'22:00':11};
   return map[v]==null?-1:map[v];
 }
 
 /* ---------- 2. 核心推算 ---------- */
-function calcHeluo(y,mo,d,hourIdx,male){
+function calcHeluo(y,mo,d,hourIdx,male,ziMode){
   const hourKnown=hourIdx>=0;
-  /* 出生时刻取该时辰中段（子 01 时、丑 03 时依此类推；未知用正午） */
-  const solar=Solar.fromYmdHms(y,mo,d,hourKnown?hourIdx*2+1:12,0,0);
+  /* 出生时刻取该时辰中点（子 0 时、丑 2 时依此类推；未知用正午）。
+   * 子时跨两日：早子时取当日 0 点、晚子时取次日 0 点，日柱随之而变 */
+  let ey=y,emo=mo,ed=d;
+  if(hourKnown&&hourIdx===0&&ziMode==='late'){
+    const nx=new Date(y,mo-1,d+1);
+    ey=nx.getFullYear(); emo=nx.getMonth()+1; ed=nx.getDate();
+  }
+  const solar=Solar.fromYmdHms(ey,emo,ed,hourKnown?hourIdx*2:12,0,0);
   const lunar=solar.getLunar();
   const gzY=lunar.getYearInGanZhiByLiChun();
   const gzM=lunar.getMonthInGanZhiExact();
@@ -244,8 +274,11 @@ function calcHeluo(y,mo,d,hourIdx,male){
     let age=dayuns.length?dayuns[dayuns.length-1].to+1:1;
     for(let k=0;k<6;k++){
       const yangG=bits[pos-1]===1,dur=yangG?9:6;
+      /* 段首岁之年干阴阳：流年链首岁的阳年阴年之分只由这一段的首岁定一次，
+       * 段内其余各岁的卦皆由此链进，不再逐年另判 */
+      const segYang='甲丙戊庚壬'.indexOf(hlYearGanZhi(lichunYear+age-1)[0])>=0;
       dayuns.push({'n':dayuns.length+1,'tag':tag,'gua':gname,'bits':bits,'pos':pos,
-        'yang':yangG,'from':age,'to':age+dur-1});
+        'yang':yangG,'yangYear':segYang,'from':age,'to':age+dur-1});
       age+=dur; pos=pos%6+1;
     }
   }
@@ -254,7 +287,7 @@ function calcHeluo(y,mo,d,hourIdx,male){
     pushDayun(houName,houBits,houYtPos,'后天');
   }
 
-  return {'y':y,'mo':mo,'d':d,'hourIdx':hourIdx,'hourKnown':hourKnown,'male':male,
+  return {'y':y,'mo':mo,'d':d,'hourIdx':hourIdx,'hourKnown':hourKnown,'male':male,'ziMode':ziMode,
     'gzY':gzY,'gzM':gzM,'gzD':gzD,'gzT':hourKnown?lunar.getTimeInGanZhi():'',
     'yearGan':yearGan,'yangYear':yangYear,'monthZhi':monthZhi,'lichunYear':lichunYear,'yuan':yuan,
     'pillars':pillars,'tian':tian,'di':di,'tianNum':tianNum,'diNum':diNum,
@@ -307,9 +340,8 @@ function hlLiuNian(h,Y){
   if(!seg) return null;
   const i=sui-seg.from+1;
   const gz=hlYearGanZhi(Y);
-  const yangYear='甲丙戊庚壬'.indexOf(gz[0])>=0;
-  const r=hlLiuNianChain(seg,i,yangYear);
-  return {'Y':Y,'sui':sui,'seg':seg,'i':i,'gz':gz,'yangYear':yangYear,
+  const r=hlLiuNianChain(seg,i,seg.yangYear);
+  return {'Y':Y,'sui':sui,'seg':seg,'i':i,'gz':gz,'yangYear':seg.yangYear,
     'bits':r.bits,'name':hexInfo(r.bits).name,'pos':r.pos};
 }
 /* 大运段全序列（每岁卦名与元堂） */
@@ -318,8 +350,7 @@ function hlLiuNianSeg(h,seg){
   for(let s=seg.from;s<=seg.to;s++){
     const Y=h.lichunYear+s-1,i=s-seg.from+1;
     const gz=hlYearGanZhi(Y);
-    const yangYear='甲丙戊庚壬'.indexOf(gz[0])>=0;
-    const r=hlLiuNianChain(seg,i,yangYear);
+    const r=hlLiuNianChain(seg,i,seg.yangYear);
     rows.push({'sui':s,'Y':Y,'gz':gz,'name':hexInfo(r.bits).name,'bits':r.bits,'pos':r.pos});
   }
   return rows;
@@ -423,21 +454,25 @@ function hlShiGua(riBits,riPos,shiIdx){
 }
 
 /* ---------- 7. 渲染 ---------- */
-/* 卦卡：卦题 → 本卦含义 → 卦曰 → 六爻表 → 此爻阶段。
+/* 卦卡：卦题 → 卦画与卦气 → 本卦含义 → 卦曰象曰 → 六爻表 → 此爻阶段。
    两句白话由已排出的卦名与爻位派生，读者先见白话、再见经文，时辰未知时元堂不立、该句不出 */
-function hlGuaCard(name,bits,pos,title){
-  const info=hexInfo(bits),gci=hlGci(name),sense=hlHexSense(name);
+function hlGuaCard(name,bits,pos,title,monthZhi){
+  const info=hexInfo(bits),gci=hlGci(name),sense=hlHexSense(name),dax=hlDax(name);
   let rows='';
   for(let p=1;p<=6;p++){
     const cur=pos===p;
     rows+='<tr'+(cur?' class="hl-cur"':'')+'><td>'+hlYaoLabel(bits,p)+'</td><td>'
       +hlEsc(hlYci(name,p))+'</td>'+(cur?'<td class="hl-tag">元堂</td>':'<td></td>')+'</tr>';
   }
+  const xx=pos>=1?hlXiaox(name,pos):'';
   return '<div class="hl-gua-card"><h4>'+hlEsc(title||'')+'：'+hlEsc(name)+'（'+info.upper+'上'+info.lower+'下）</h4>'
+    +'<div class="hl-gua-top">'+hlGuaDraw(bits,pos)
+    +(monthZhi?'<div class="hl-qi-line">'+hlGuaQi(info,monthZhi)+'</div>':'')+'</div>'
     +(sense?hlJd('本卦含义：'+sense+'。'):'')
     +(gci?'<p class="hl-gci">卦曰：'+hlEsc(gci)+'</p>':'')
+    +(dax?'<p class="hl-gci">'+hlTipSpan('大象')+'：'+hlEsc(dax)+'</p>':'')
     +'<table class="hl-tbl hl-yao-tbl"><tbody>'+rows+'</tbody></table>'
-    +(pos>=1?hlJd('此爻阶段：元堂在'+hlYaoLabel(bits,pos)+'，'+HL_YAO_WEI[pos]+'。'):'')
+    +(pos>=1?hlJd('此爻阶段：元堂在'+hlYaoLabel(bits,pos)+'，'+HL_YAO_WEI[pos]+'。'+(xx?hlTipSpan('小象')+'：'+hlEsc(xx)+'。':'')):'')
     +'</div>';
 }
 function hlTable(headers,rows,curRow){
@@ -455,6 +490,31 @@ function hlTable(headers,rows,curRow){
 function hlHexSense(name){ return (typeof HL64_SENSE!=='undefined'&&HL64_SENSE[name])||''; }
 function hlJd(s){ return '<p class="sub-note hl-jd">'+s+'</p>'; }
 
+/* ---------- 术语释义弹窗 ---------- */
+/* 术语在释义表（heluo-terms.js）内即可点，点开弹该词释义；未收者原样输出，不误导。
+ * 弹窗用站内 .modal-mask 与 .modal 全局样式，与佛历、万年历各页同制式，各页自成一份 */
+function hlTipSpan(name,show){
+  if(typeof heluoMean!=='function') return show||name;
+  if(!heluoMean(name)) return show||name;
+  return '<span class="tip" onclick="hlShowTip(\''+name+'\')">'+(show||name)+'</span>';
+}
+function hlCloseTip(){ const m=document.getElementById('hlMask'); if(m) m.classList.remove('show'); }
+function hlShowTip(name){
+  let mask=document.getElementById('hlMask');
+  if(!mask){
+    mask=document.createElement('div'); mask.id='hlMask'; mask.className='modal-mask';
+    mask.setAttribute('role','dialog');
+    mask.innerHTML='<div class="modal"><span class="close" onclick="hlCloseTip()" aria-label="关闭">×</span><div id="hlTipBody"></div></div>';
+    mask.addEventListener('click',function(e){ if(e.target===mask) hlCloseTip(); });
+    document.body.appendChild(mask);
+  }
+  const o=heluoMean(name);
+  document.getElementById('hlTipBody').innerHTML='<h3 class="tip-title">'+(o?o.t:name)+'</h3>'
+    +'<div class="tip-body">'+(o?o.d:'（暂无说明）')+'</div>';
+  mask.classList.add('show');
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') hlCloseTip(); });
+
 /* 起卦模块 */
 function renderQigua(){
   const out=document.getElementById('hlQgOut');
@@ -462,10 +522,13 @@ function renderQigua(){
     const dv=hlParseDate(document.getElementById('hlDate').value);
     const hourIdx=hlHourIdx(document.getElementById('hlHour').value);
     const male=document.getElementById('hlSex').value!=='2';
-    const h=calcHeluo(dv.y,dv.mo,dv.d,hourIdx,male);
+    const ziEl=document.getElementById('hlZi');
+    const ziMode=(ziEl&&ziEl.value)||'late';
+    const h=calcHeluo(dv.y,dv.mo,dv.d,hourIdx,male,ziMode);
     HL_STATE.calc=h;
     const yuanName=['上元','中元','下元'][h.yuan];
-    let s='<div class="hl-bazi-line">公历 '+h.y+'年'+h.mo+'月'+h.d+'日'+(h.hourKnown?HL_ZHI_ORDER[h.hourIdx]+'时':'（未知时辰）')+'，'+(h.male?'男命':'女命')+'</div>';
+    let s='<div class="hl-bazi-line">公历 '+h.y+'年'+h.mo+'月'+h.d+'日'+(h.hourKnown?HL_ZHI_ORDER[h.hourIdx]+'时':'（未知时辰）')+'，'+(h.male?'男命':'女命')
+      +(h.hourKnown&&h.hourIdx===0?'（'+(h.ziMode==='late'?'晚子时，日柱归次日':'早子时，日柱归当日')+'）':'')+'</div>';
     s+=hlJd('此盘宜问一生禀赋与性情底色，以及某段岁月的气数偏向（大运、流年、流月、流日、流时逐层变爻）；不宜问具体事件的成败与应期。河洛理数排出的是气的节律与着力处，不是事件的判决。');
     s+='<p class="sub-note">四柱：年柱 '+h.gzY+'、月柱 '+h.gzM+'、日柱 '+h.gzD+(h.hourKnown?'、时柱 '+h.gzT+'。':'、时柱未知（按时柱不入取数推）。');
     if(h.refineNote) s+=hlEsc(h.refineNote)+'。';
@@ -474,23 +537,23 @@ function renderQigua(){
       return [p.tag+'柱 '+p.gz,'干取数 '+p.gn,'支取数 '+p.zn[0]+'、'+p.zn[1]];
     });
     s+=hlTable(['四柱','干取数','支取数'],rows);
-    s+='<div class="hl-sum-line">天数（奇数之和）'+h.tian+'，化简得 '+h.tianNum+(h.tianNum===5?'，中宫寄'+h.tianGua:'，为'+h.tianGua)+'；地数（偶数之和）'+h.di+'，化简得 '+h.diNum+(h.diNum===5?'，中宫寄'+h.diGua:'，为'+h.diGua)+'</div>';
+    s+='<div class="hl-sum-line">'+hlTipSpan('天数')+'（奇数之和）'+h.tian+'，化简得 '+h.tianNum+(h.tianNum===5?'，中宫寄'+h.tianGua:'，为'+h.tianGua)+'；'+hlTipSpan('地数')+'（偶数之和）'+h.di+'，化简得 '+h.diNum+(h.diNum===5?'，中宫寄'+h.diGua:'，为'+h.diGua)+'</div>';
     if(h.tianNum===5||h.diNum===5){
-      s+='<p class="sub-note">'+h.lichunYear+'年属'+yuanName+'（'+(1864+h.yuan*60)+'至'+(1923+h.yuan*60)+'年）。中宫寄卦：'+yuanName+(h.yuan===1?(h.yangYear===h.male?'阳男阴女':'阴男阳女'):(h.male?'男':'女'))+'寄'+(h.tianNum===5?h.zhongTian:h.zhongDi)+'。</p>';
+      s+='<p class="sub-note">'+h.lichunYear+'年属'+yuanName+'（'+(1864+h.yuan*60)+'至'+(1923+h.yuan*60)+'年）。'+hlTipSpan('中宫寄卦')+'：'+yuanName+'属'+hlTipSpan('三元')+'，'+(h.yuan===1?(h.yangYear===h.male?'阳男阴女':'阴男阳女'):(h.male?'男':'女'))+'寄'+(h.tianNum===5?h.zhongTian:h.zhongDi)+'。</p>';
     }
-    s+=hlGuaCard(h.xianName,h.xianBits,h.xianYtPos,'先天本命卦');
-    s+='<p class="sub-note">'+(h.tianUp?'天数卦为上卦、地数卦为下卦':'地数卦为上卦、天数卦为下卦')+'（'+(h.yangYear?'阳年':'阴年')+(h.male?'男':'女')+'命）。'+(h.hourKnown?'元堂在'+hlYaoLabel(h.xianBits,h.xianYtPos)+'（第'+h.xianYtPos+'爻）。':'时辰未知，元堂不立。')+'</p>';
-    s+=hlJd('先天本命卦是全盘的根基，示禀赋与一生气象的底色。上卦'+h.upName+'（'+HL_TRIGRAM_SENSE[h.upName]+'），下卦'+h.loName+'（'+HL_TRIGRAM_SENSE[h.loName]+'），两卦相叠成'+h.xianName+'。'+(h.hourKnown?'元堂一爻是气数聚焦之处，其后大运流年皆由此爻推出。':'时辰未知则元堂不立，仅见命卦大体，补全生时即可细断。'));
+    s+=hlGuaCard(h.xianName,h.xianBits,h.xianYtPos,'先天本命卦',h.monthZhi);
+    s+='<p class="sub-note">'+(h.tianUp?'天数卦为上卦、地数卦为下卦':'地数卦为上卦、天数卦为下卦')+'（'+(h.yangYear?'阳年':'阴年')+(h.male?'男':'女')+'命）。'+(h.hourKnown?hlTipSpan('元堂')+'在'+hlYaoLabel(h.xianBits,h.xianYtPos)+'（第'+h.xianYtPos+'爻，'+hlTipSpan('爻位',HL_YAO_WEI[h.xianYtPos])+'）。':'时辰未知，元堂不立。')+'</p>';
+    s+=hlJd(hlTipSpan('先天卦')+'是全盘的根基，示禀赋与一生气象的底色。上卦'+h.upName+'（'+HL_TRIGRAM_SENSE[h.upName]+'），下卦'+h.loName+'（'+HL_TRIGRAM_SENSE[h.loName]+'），两卦相叠成'+h.xianName+'。'+(h.hourKnown?'元堂一爻是气数聚焦之处，其后大运流年皆由此爻推出。':'时辰未知则元堂不立，仅见命卦大体，补全生时即可细断。'));
     if(h.hourKnown){
-      if(h.zhizunNote) s+='<p class="sub-note hl-zz">'+hlEsc(h.zhizunNote)+'。</p>';
-      s+=hlGuaCard(h.houName,h.houBits,h.houYtPos,'后天卦');
+      if(h.zhizunNote) s+='<p class="sub-note hl-zz">'+hlTipSpan('至尊卦')+'：'+hlEsc(h.zhizunNote)+'。</p>';
+      s+=hlGuaCard(h.houName,h.houBits,h.houYtPos,'后天卦',h.monthZhi);
       s+='<p class="sub-note">'+(h.zhizunNote?'（本命系至尊卦，从特例）':'')+'元堂以同一生时重查，在'+hlYaoLabel(h.houBits,h.houYtPos)+'。</p>';
-      s+=hlJd('后天卦示先天禀赋落入现实之后的走向：变元堂一爻、上下两卦互换，喻境遇既易、气质随之而转，其元堂与先天同以生时重查。');
+      s+=hlJd(hlTipSpan('后天卦')+'示先天禀赋落入现实之后的走向：变元堂一爻、上下两卦互换，喻境遇既易、气质随之而转，其元堂与先天同以生时重查。');
     }
     s+='<h4 class="det-h">元气与化工</h4>';
-    s+='<p class="sub-note">元气自年柱取：天元气（年干'+h.gzY[0]+'）得 '+h.qiTian+'，命中卦'+(h.hasQiTian?'得之，为有元气':'不得')+'；地元气（年支'+h.gzY[1]+'）得 '+h.qiDi+'，命中卦'+(h.hasQiDi?'得之，为有元气':'不得')+'。反元气为 '+h.fanTian+'（天）、'+h.fanDi+'（地），命中卦'+((h.hasFanTian||h.hasFanDi)?'得之':'不得')+'。</p>';
+    s+='<p class="sub-note">'+hlTipSpan('元气')+'自年柱取：天元气（年干'+h.gzY[0]+'）得 '+h.qiTian+'，命中卦'+(h.hasQiTian?'得之，为有元气':'不得')+'；地元气（年支'+h.gzY[1]+'）得 '+h.qiDi+'，命中卦'+(h.hasQiDi?'得之，为有元气':'不得')+'。'+hlTipSpan('反元气')+'为 '+h.fanTian+'（天）、'+h.fanDi+'（地），命中卦'+((h.hasFanTian||h.hasFanDi)?'得之':'不得')+'。</p>';
     if(h.hgGua){
-      s+='<p class="sub-note">化工自月令取：生在'+hlEsc(h.hgDesc)+'，化工为 '+h.hgGua+'，命中卦'+(h.hasHg?'得之，为有化工':'不得')+'；反化工为 '+h.hgFan+'，命中卦'+(h.hasHgFan?'得之':'不得')+'。</p>';
+      s+='<p class="sub-note">'+hlTipSpan('化工')+'自月令取：生在'+hlEsc(h.hgDesc)+'，化工为 '+h.hgGua+'，命中卦'+(h.hasHg?'得之，为有化工':'不得')+'；'+hlTipSpan('反化工')+'为 '+h.hgFan+'，命中卦'+(h.hasHgFan?'得之':'不得')+'。</p>';
     }
     s+=hlJd('元气取自年柱干支所化之卦，'+(h.hasQiTian||h.hasQiDi?'命中卦得之者，根基受扶、禀气厚实，行事多底气。':'命中卦不得，非不美，仅示先天助力较薄，根基更多系于自身。')+'化工取自出生月令之气，'+(h.hasHg?'命中卦得之者，行事合时、易得境遇之助。':'命中卦不得，示与生月之气联系较疏，成败更多系于后天经营。')+'反元气、反化工为消散之气，命中得之宜防虚耗。得与不得只述气数厚薄，不定吉凶。');
     out.innerHTML=s;
@@ -513,7 +576,7 @@ function renderDayun(){
   const curSeg=hlFindSeg(h.dayuns,curSui);
   const curIdx=curSeg?h.dayuns.indexOf(curSeg):-1;
   out.innerHTML=hlTable(['段','虚岁','卦','起爻','行度'],rows,curIdx)
-    +hlJd('阳爻一运管九年、阴爻一运管六年，阳运行度舒缓、阴运行度紧凑，故各段长短不同。先天段循本命卦展开，多关禀赋根基；后天段循后天卦展开，多关转向之后的发展。段内行至哪一爻，便以该爻的爻位义看这段运的着力处。'
+    +hlJd(hlTipSpan('大运')+'以阳爻一运管九年、阴爻一运管六年，阳运行度舒缓、阴运行度紧凑，故各段长短不同。先天段循本命卦展开，多关禀赋根基；后天段循后天卦展开，多关转向之后的发展。段内行至哪一爻，便以该爻的爻位义看这段运的着力处。'
       +(curSeg?'按今年推，当前虚岁 '+curSui+'，行'+curSeg.tag+'卦 '+curSeg.gua+' '+hlYaoLabel(curSeg.bits,curSeg.pos)+'爻运（'+curSeg.from+'至'+curSeg.to+'岁），'+HL_YAO_WEI[curSeg.pos]+'。':''));
 }
 
@@ -538,8 +601,8 @@ function renderLiuNian(){
       throw new Error('该年在命主大运之外（大运起于 1 岁、止于 '+last+' 岁）');
     }
     let s='<div class="hl-bazi-line">'+Y+'年（'+ln.gz+'，'+(ln.yangYear?'阳年':'阴年')+'），虚岁 '+ln.sui+'，行'+ln.seg.tag+'卦 '+ln.seg.gua+' '+hlYaoLabel(ln.seg.bits,ln.seg.pos)+'爻运，段内第 '+ln.i+' 岁</div>';
-    s+=hlGuaCard(ln.name,ln.bits,ln.pos,'流年卦');
-    s+='<p class="sub-note">当年新变之爻即流年卦元堂，在'+hlYaoLabel(ln.bits,ln.pos)+'。</p>';
+    s+=hlGuaCard(ln.name,ln.bits,ln.pos,'流年卦',hlQueryLoc().loc.zhi);
+    s+='<p class="sub-note">当年新变之爻即'+hlTipSpan('流年')+'卦元堂，在'+hlYaoLabel(ln.bits,ln.pos)+'（'+hlTipSpan('爻位',HL_YAO_WEI[ln.pos])+'）。</p>';
     const rows=hlLiuNianSeg(h,ln.seg).map(function(r,idx){
       return [r.sui+' 岁',r.Y+'年（'+r.gz+'）',r.name,hlYaoLabel(r.bits,r.pos)];
     });
@@ -567,7 +630,7 @@ function renderLiuYue(){
       return [HL_YUE_NAMES[mm.m-1],bounds[i].zhi+'月',hlFmtMs(bounds[i].start)+' 起',mm.name,hlYaoLabel(mm.bits,mm.pos)];
     });
     out.innerHTML=hlTable(['月','月支','节入','月卦','元堂'],rows,mSel-1)
-      +hlJd('一年十二个月的卦都从流年卦逐爻变出：单月自元堂上一位起挨次上行，双月取对应单月元堂的应爻，月月不同。看某月运势，即以该月卦与其元堂爻位参详，元堂所在即当月气数焦点。'
+      +hlJd('一年十二个月的卦都从'+hlTipSpan('流年')+'卦逐爻变出：单月自元堂上一位起挨次上行，双月取对应单月元堂的'+hlTipSpan('应爻')+'，月月不同。看某月运势，即以该月卦与其元堂'+hlTipSpan('爻位')+'参详，元堂所在即当月气数焦点。'
         +(function(){ const nowLoc=hlLocateMonth(Date.now()); if(nowLoc&&nowLoc.Y===Y){ const cm=months[nowLoc.m-1]; return '按节气，当前正值'+HL_YUE_NAMES[nowLoc.m-1]+'（'+nowLoc.zhi+'月），月卦 '+cm.name+'，元堂'+hlYaoLabel(cm.bits,cm.pos)+'。'; } return ''; })());
   }catch(e){
     out.innerHTML='<p class="hl-err">'+hlEsc(e.message)+'</p>';
@@ -586,8 +649,8 @@ function renderLiuRiShi(){
     const yue=hlLiuYueList(ln.bits,ln.pos)[loc.m-1];
     const ri=hlDayGua(yue.bits,yue.pos,loc.dd);
     let s='<div class="hl-bazi-line">'+loc.Y+'年流年卦 '+ln.name+'；'+HL_YUE_NAMES[loc.m-1]+'（'+loc.zhi+'月）月卦 '+yue.name+'，元堂'+hlYaoLabel(yue.bits,yue.pos)+'；查询日为节入后第 '+loc.dd+' 日</div>';
-    s+=hlGuaCard(ri.name,ri.bits,ri.pos,'值日卦');
-    s+='<p class="sub-note">新变之爻即日卦元堂，在'+hlYaoLabel(ri.bits,ri.pos)+'。</p>';
+    s+=hlGuaCard(ri.name,ri.bits,ri.pos,'值日卦',loc.zhi);
+    s+='<p class="sub-note">新变之爻即'+hlTipSpan('值日卦')+'元堂，在'+hlYaoLabel(ri.bits,ri.pos)+'。</p>';
     const near=[],curIdx={i:0};
     for(let k=-3;k<=3;k++){
       const dd=loc.dd+k;
@@ -608,9 +671,69 @@ function renderLiuRiShi(){
       +hlTable(['时辰','时卦','元堂'],shiRows,shiIdx);
     if(shiIdx>=0){
       const cur=hlShiGua(ri.bits,ri.pos,shiIdx);
-      s+='<p class="sub-note">'+HL_ZHI_ORDER[shiIdx]+'时为'+(shiIdx<6?'阳时':'阴时')+'，时卦 '+cur.name+'，元堂在'+hlYaoLabel(cur.bits,cur.pos)+'。</p>';
+      s+='<p class="sub-note">'+HL_ZHI_ORDER[shiIdx]+'时为'+(shiIdx<6?'阳时':'阴时')+'，'+hlTipSpan('时卦')+' '+cur.name+'，元堂在'+hlYaoLabel(cur.bits,cur.pos)+'。</p>';
     }
     s+=hlJd('值日卦示查询当日的气象，日卦元堂即当日气数所聚。时卦再细分到时辰，一卦管六日、每日又分十二时，层层变出，愈细者愈近当下，宜先看日卦定基调，再看所选时辰的卦与爻定缓急。');
+    out.innerHTML=s;
+  }catch(e){
+    out.innerHTML='<p class="hl-err">'+hlEsc(e.message)+'</p>';
+  }
+}
+
+/* ---------- 7.5 合参结论 ---------- */
+/* 大运、流年、流月三层同参：大运定这一段的大势，流年定这一年，流月定当月。
+ * 三层元堂所落位段（初二为根基、三四为人事、五上为成局）定气数是聚是散、是进是收；
+ * 宜忌由当月元堂爻位与当月卦气各取一条合成，着力点由当月爻位给出。皆从已排出的卦爻派生 */
+function hlYaoTier(pos){
+  return pos<=2?{'n':'下段','d':'根基与内里','i':0}
+    :pos<=4?{'n':'中段','d':'交接与人事','i':1}
+    :{'n':'上段','d':'成局与收束','i':2};
+}
+/* 卦气：当月卦的上下卦五行各对月令判一次，取较盛的一条为该月卦气 */
+function hlQiStateOf(bits,monthZhi){
+  const info=hexInfo(bits),zw=(typeof ZHI_WX!=='undefined'&&ZHI_WX)||{};
+  const mw=zw[monthZhi]||'土',rank=['旺','相','休','囚','死'];
+  const us=HL_wxState(HL_TRIGRAM_WX[info.upper],mw),ls=HL_wxState(HL_TRIGRAM_WX[info.lower],mw);
+  return {'up':us,'lo':ls,'best':rank.indexOf(us)<=rank.indexOf(ls)?us:ls};
+}
+function renderHeCan(){
+  const out=document.getElementById('hlHeOut');
+  const h=HL_STATE.calc;
+  if(!h||!h.hourKnown){ out.innerHTML='<p class="sub-note">先在起卦模块排出命卦并给出生时，再查合参结论。</p>'; return; }
+  try{
+    const q=hlQueryLoc(),Y=q.loc.Y,mSel=q.loc.m;
+    const ln=hlLiuNian(h,Y);
+    if(!ln) throw new Error('该年在命主大运之外，合参不立');
+    const yue=hlLiuYueList(ln.bits,ln.pos)[mSel-1];
+    const seg=ln.seg;
+    const tS=hlYaoTier(seg.pos),tN=hlYaoTier(ln.pos),tY=hlYaoTier(yue.pos);
+    const qs=hlQiStateOf(yue.bits,q.loc.zhi);
+    const yj=HL_YAO_YIJI[yue.pos],qy=HL_QI_YIJI[qs.best];
+
+    /* 三层位段同参：同段则气聚，逐层上行则事进，逐层下行则事收，错落则宜择一而专 */
+    let tend;
+    if(tS.i===tN.i&&tN.i===tY.i) tend='三层元堂同落'+tS.n+'（'+tS.d+'），气数聚在一处，这一年宜集中办成一件事，不宜分散用力。';
+    else if(tS.i<tN.i&&tN.i<=tY.i) tend='三层元堂自'+tS.n+'向'+tY.n+'逐层上行，事在推进之中，宜顺势加力，把已起的事推到成局。';
+    else if(tS.i>tN.i&&tN.i>=tY.i) tend='三层元堂自'+tS.n+'向'+tY.n+'逐层回收，事在收束之中，宜知止而退，把成果落到地、为下一局留余地。';
+    else tend='三层元堂错落（大运'+tS.n+'、流年'+tN.n+'、流月'+tY.n+'），气数分散于'+tY.d+'与'+tS.d+'之间，宜择一事专攻，忌同时铺开多头。';
+    /* 元堂重位：流年与大运同爻则本爻当令，流月与流年同爻或应爻则当月即全年气数所聚 */
+    let focus='';
+    if(ln.pos===seg.pos) focus='流年元堂与大运爻同在'+hlYaoLabel(ln.bits,ln.pos)+'，大运本爻当令，这一年是该段运里最吃劲的一年。';
+    else if(yue.pos===ln.pos) focus='流月元堂与流年元堂同在'+hlYaoLabel(yue.bits,yue.pos)+'，当月即全年气数所聚之月。';
+    else focus='流月元堂'+hlYaoLabel(yue.bits,yue.pos)+'与流年元堂'+hlYaoLabel(ln.bits,ln.pos)+(HL_ying(yue.pos)===ln.pos?'恰为应爻，内外呼应，当月之事与全年之气互相牵动。':'各居其位，当月在全年之外另起一头，宜当月事当月了。');
+
+    let s='<div class="hl-bazi-line">'+Y+'年'+HL_YUE_NAMES[mSel-1]+'（'+q.loc.zhi+'月）：行'+seg.tag+'卦 '+seg.gua+' '+hlYaoLabel(seg.bits,seg.pos)+'爻运，流年'+ln.name+'，流月'+yue.name+'</div>';
+    const rows=[
+      [hlTipSpan('大运')+'（'+seg.from+'至'+seg.to+'岁）',seg.gua,hlYaoLabel(seg.bits,seg.pos),HL_YAO_WEI[seg.pos]],
+      [hlTipSpan('流年')+'（'+Y+'年）',ln.name,hlYaoLabel(ln.bits,ln.pos),HL_YAO_WEI[ln.pos]],
+      [hlTipSpan('流月')+'（'+HL_YUE_NAMES[mSel-1]+'）',yue.name,hlYaoLabel(yue.bits,yue.pos),HL_YAO_WEI[yue.pos]]
+    ];
+    s+=hlTable(['层','卦','元堂','爻位义'],rows,2);
+    s+=hlJd(tend+focus+'底色上，'+(h.hasQiTian||h.hasQiDi?'命卦得'+hlTipSpan('元气')+'，根基受扶、行事有底气；':'命卦未得'+hlTipSpan('元气')+'，根基更多系于自身；')+(h.hasHg?'得'+hlTipSpan('化工')+'，行事合时、易得境遇之助。':'未得'+hlTipSpan('化工')+'，成败更多系于后天经营。'));
+    s+='<div class="hl-sum-line">当月卦气：'+qs.best+'（上卦'+hlQiStateOf(yue.bits,q.loc.zhi).up+'、下卦'+qs.lo+'，生'+q.loc.zhi+'月）</div>';
+    s+='<div class="hl-sum-line">宜：'+yj['宜']+'；'+qy['宜']+'。</div>';
+    s+='<div class="hl-sum-line">忌：'+yj['忌']+'；'+qy['忌']+'。</div>';
+    s+=hlJd('着力点：'+HL_YAO_LI[yue.pos]+'。当月元堂在'+hlYaoLabel(yue.bits,yue.pos)+'，'+HL_YAO_WEI[yue.pos]+'；卦气'+qs.best+'，'+(qs.best==='旺'||qs.best==='相'?'气盛可用，宜把要事排在前头。':'气衰宜守，宜把力气用在养蓄与整理上。'));
     out.innerHTML=s;
   }catch(e){
     out.innerHTML='<p class="hl-err">'+hlEsc(e.message)+'</p>';
@@ -638,6 +761,8 @@ function heluoAiContext(){
           const yue=hlLiuYueList(lnn.bits,lnn.pos)[loc.m-1];
           const ri=hlDayGua(yue.bits,yue.pos,loc.dd);
           s+='所查日 '+dv.y+'年'+dv.mo+'月'+dv.d+'日属'+loc.zhi+'月第 '+loc.dd+' 日，月卦 '+yue.name+'，值日卦 '+ri.name+'，元堂'+hlYaoLabel(ri.bits,ri.pos)+'。';
+          s+='三层合参：大运'+lnn.seg.gua+' '+hlYaoLabel(lnn.seg.bits,lnn.seg.pos)+'，流年'+lnn.name+' '+hlYaoLabel(lnn.bits,lnn.pos)+'，流月'+yue.name+' '+hlYaoLabel(yue.bits,yue.pos)
+            +'；当月宜 '+HL_YAO_YIJI[yue.pos]['宜']+'，忌 '+HL_YAO_YIJI[yue.pos]['忌']+'，着力在 '+HL_YAO_LI[yue.pos]+'。';
         }
       }
     }catch(e){}
@@ -664,7 +789,7 @@ function hlRestore(d){
       el.value=d[k];
     }
   });
-  renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi();
+  renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan();
 }
 
 /* ---------- 9. 初始化 ---------- */
@@ -728,18 +853,18 @@ try{ document.addEventListener('toggle',function(e){ if(e.target&&e.target.tagNa
 function hlInit(){
   document.getElementById('hlDate').value=hlTodayStr();
   document.getElementById('hlQDate').value=hlTodayStr();
-  renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi();
+  renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan();
   document.getElementById('hlBtn').addEventListener('click',function(){
-    renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi();
+    renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan();
   });
   document.getElementById('hlNianBtn').addEventListener('click',function(){
-    renderLiuNian(); renderLiuYue(); renderLiuRiShi();
+    renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan();
   });
   if(window.mountAI) window.mountAI(heluoAiContext,'河洛理数',{
     'share':{
       'page':'heluo','title':'河洛理数',
       'collect':hlCollect,'restore':hlRestore,
-      'recast':function(){ renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); }
+      'recast':function(){ renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan(); }
     }
   });
   const jwHost=document.getElementById('hlJwBody'),jwFold=document.getElementById('hlJwFold');

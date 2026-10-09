@@ -49,8 +49,11 @@
 
 .page-hh .hehun-forms{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:var(--sp-3);margin:var(--sp-2) 0 var(--sp-3)}
 
+/* 卡只有上线、没有下线，底部留白不构成"线内呼吸"，只是与下一块的间距；那一份间距已由
+   容器的 gap 与 margin-bottom 提供，再写一份即两源叠加成 24px。末卡底到时间折算与流派
+   因此落回同组档 12px，与八字页该行在 .opts 弹性列内由 row-gap 得出的间距同值。 */
 .page-hh .hh-card{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-3);
-  padding:var(--sp-3) 0;width:fit-content;max-width:100%;
+  padding:var(--sp-3) 0 0;width:fit-content;max-width:100%;
   background:transparent;border:0;border-top:1px solid var(--hh-line);border-radius:0;box-shadow:none}
 
 .page-hh .hh-card .form-row{justify-content:flex-start;margin:0}
@@ -90,6 +93,13 @@
 @media(max-width:640px){.page-hh .birth-group,.page-hh .birth-group.compact{padding-top:var(--sp-2)}}
 
 .page-hh .dt-ic{color:var(--hh-ink)}
+
+/* 时间折算与流派是一整个页面区块，其后与"开始合婚"按钮属区块间档；共享件 .opts 的
+   margin-bottom 是同组档 --sp-2，够不上这一处。此处按钮是表单的收尾动作块，与结果区
+   同列在它之后，取 --sp-4 方与其另一侧（按钮底到结果区 16px）对称，免得按钮贴向选项
+   而离结果区远。本页按钮独立成行（八字页同类按钮在 .opts-row 内，无此缝），故这一处
+   是页级取值，不动共享件终值。 */
+.page-hh .hh-opts{margin-bottom:var(--sp-4)}
 
 .page-hh .hh-actions{justify-content:center}
 
@@ -198,6 +208,23 @@
   /* 出生地组上线与上方控件底的净距须为 12px（第二条：相邻平行线不得小于 12 像素）：
      卡片在窄屏的 row-gap 给 4px，余下 8px 由本组自带的顶距补足，两处相加恰为 12px */
   .page-hh .hh-card .birth-group.compact{margin-top:var(--sp-2)}
+}
+
+/* 打印：合婚结论为本页正文，表单与附加功能一律不出纸。
+   全站通用打印段已隐藏 .form-row/.opts/.notice 与附加面板，此处补本页专属三处：
+   一、两卡之外的表单残件（性别行、出生地组）与折算口径提示条；
+   二、两盘由左右并排改上下顺序流，免缩到纸上不可读；
+   三、两表与盘、建议表逐块防截断，条目行不跨页。 */
+@media print{
+  .page-hh .hh-card,.page-hh .hh-actions,.page-hh .hh-note,.page-hh .hh-frombazi{display:none !important}
+  .page-hh .hh-charts{display:block;margin-bottom:var(--sp-3)}
+  .page-hh .hh-chart{min-width:0;overflow:visible;padding:0 0 var(--sp-3)}
+  .page-hh .wheel-wheels{display:block}
+  .page-hh .wheel-block{break-inside:avoid;margin-bottom:var(--sp-3)}
+  .page-hh .wheel-block .wheel{max-width:340px;margin:0 auto}
+  .page-hh .hh-total,.page-hh .hh-adv,.page-hh .wheel-detail{break-inside:avoid}
+  .page-hh .hh-adv-tbl tr{break-inside:avoid}
+  .page-hh .bazi-table,.page-hh .bazi-table tr{break-inside:avoid}
 }
 
 @media (prefers-color-scheme: dark){

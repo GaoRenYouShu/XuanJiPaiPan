@@ -52,29 +52,37 @@ function _apiKongOf(gz, kongAxis, yearGZRef) {
  * 站内 paipan()/paipanPillar()、对外 getBazi() 与姓名学等他页调用尽归此处，
  * 不各写一份，免得口径分叉。 */
 var BIRTH_INCOMPLETE_MSG = '生辰不完整，不出盘：四柱须年月日时八个干支齐全，或公历年月日俱全（时辰无考时按午时正计）。请补全后再排盘。';
+/* 太阳时已开而出生地未定：校正是按经度算的，没有经度就无从校正。
+   此时须补出生地（省市区或手动经度任一），或把太阳时取不校正按钟面标准时出盘。 */
+var SUN_NO_PLACE_MSG = '太阳时校正已开，但未定出生地：请在出生地组选择省、市、区县，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
 function _hasFullPillars(ps){
   return !!(ps && ps.length >= 4 && ps.every(function(p){ return p && String(p).length >= 2; }));
 }
-/* 日期串完备性判定：只认公历年月日三段俱全且月日为合法数字的一段。
+/* 日期串完备性判定：只认公历年月日三段俱全、且该日确在当月的一段。
    年份不设下界：四柱反查会走到公元前，那里以负的天文年表示。
-   缺失（空串）与越界（13 月、32 日）都判不完备：前者会被日期解析补成今天，
-   后者会被历法库静默折算到相邻日期，两者都是把残缺数据算成一张看似正常的盘。 */
+   缺失（空串）与越界（13 月、32 日、2 月 31 日）都判不完备：前者会被日期解析补成今天，
+   后者会被历法库静默折算到相邻日期（闰年的 2 月 31 日折成 2 月 29 日），两者都是把残缺数据
+   算成一张看似正常的盘，故须在入口拦断。日之上界按当月实有日数定，闰年由历法算术自判。 */
 function _hasFullDate(date){
   var p = String(date == null ? '' : date).trim().split('-');
   if (p.length !== 3) return false;
   var y = Number(p[0]), m = Number(p[1]), d = Number(p[2]);
   if (!isFinite(y) || !isFinite(m) || !isFinite(d)) return false;
-  if (m < 1 || m > 12 || d < 1 || d > 31) return false;
-  return true;
+  if (m < 1 || m > 12 || d < 1) return false;
+  var leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  var dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+  return d <= dim;
 }
 
 /* ---------- 内部：四柱装配（站点 paipan() 委托本函数） ---------- */
 function _apiBuildFromDate(input) {
   var sex = input.sex == null ? 1 : Number(input.sex);
   var ziMode = input.ziMode || 'late';
-  /* 太阳时口径：'true' 真太阳时、'mean' 平太阳时、'off' 不校正；缺省 off（钟面即标准时） */
-  var sunMode = input.sunMode || 'off';
-  if(['true','mean','off'].indexOf(sunMode)<0) sunMode='off';
+  /* 太阳时口径：'true' 真太阳时、'mean' 平太阳时、'off' 不校正。
+     缺省与页面下拉首项同为 true，站内外一处口径，不因入口不同而给出两张盘。
+     经度缺省东经 120 度即标准时区基准：真太阳时在此只余均时差一项，平太阳时校正为零。 */
+  var sunMode = input.sunMode || 'true';
+  if(['true','mean','off'].indexOf(sunMode)<0) sunMode='true';
   var lng = input.lng == null ? 120 : Number(input.lng);
   var kongAxis = input.kongAxis || 'day';
   /* 年界口径：'lichun' 立春换年（默认）、'chunjie' 春节换年（正月初一）；
@@ -122,8 +130,8 @@ function _apiBuildFromDate(input) {
   var lunar = solar.getLunar();
   var ec = lunar.getEightChar();
   var dayGan = ec.getDayGan();
-  var yearGZ = ec.getYear(), monthGZ = ec.getMonth(), dayGZ = ec.getDay(), timeGZ = ec.getTime();
-  var yearZ = yearGZ[1], monthZ = monthGZ[1], dayZ = dayGZ[1], timeZ = timeGZ[1];
+  var yearGZ = ec.getYear(), monthGZ = ec.getMonth(), dayGZ = ec.getDay();
+  var yearZ = yearGZ[1], monthZ = monthGZ[1], dayZ = dayGZ[1];
   var yearGZfull = yearGZ[0] + yearGZ[1];
 
   /* 年界口径：春节换年时年柱改按农历正月初一取（立春至春节之间出生者年柱退一位），
@@ -166,21 +174,12 @@ function _apiBuildFromDate(input) {
   }
   var yOverride = axisNote.indexOf('年界：')===0;
 
-  /* 早子时 23 点：时柱按当日日干遁 */
-  var timeOverride = null;
-  if (ziMode === 'early' && adj.h === 23) {
-    var tg = wuShuDun(dayGan, 0), tHide = HIDE['子'];
-    timeOverride = {
-      gz: tg, g: tg[0], z: '子', hide: tHide,
-      ssz: tHide.map(function (x) { return tenGod(dayGan, x); }),
-      ssg: tenGod(dayGan, tg[0]), ny: nayinOf(tg),
-      di: getChangSheng(dayGan, '子'), di2: getChangSheng(tg[0], '子'),
-      kong: _apiKongOf(tg, kongAxis, yearGZ)
-    };
-  }
-  var _tStem = timeOverride ? timeOverride.gz[0] : timeGZ[0];
+  /* 早子时 23 点：历法库对该时刻一律出次日子时之柱，而本派日柱归当日，其时柱当按当日日干遁子。
+     时柱干支在此一次定毕，藏干、十神、纳音、地势、空亡俱随此柱按基元导出，下游不再改写。 */
+  var timeGZ = (ziMode === 'early' && adj.h === 23) ? wuShuDun(dayGan, 0) : ec.getTime();
+  var timeZ = timeGZ[1];
   var CTX = { dayGan: dayGan, monthGan: monthGZ[0], yearZ: yearZ, monthZ: monthZ, dayZ: dayZ,
-    gans: [yearGZ[0], monthGZ[0], dayGZ[0], _tStem], sex: sex };
+    gans: [yearGZ[0], monthGZ[0], dayGZ[0], timeGZ[0]], sex: sex };
 
   function mkCol(lbl, gz, hide, ssz, ssg, ny, di, di2, kong, z, flags) {
     flags = flags || {};
@@ -200,14 +199,9 @@ function _apiBuildFromDate(input) {
     mkCol('月柱', monthGZ, ec.getMonthHideGan(), ec.getMonthShiShenZhi(), ec.getMonthShiShenGan(), ec.getMonthNaYin(), ec.getMonthDiShi(), getChangSheng(monthGZ[0], monthZ), _apiKongOf(monthGZ, kongAxis, yearGZ), monthZ, { isMonth: true }),
     mkCol('日柱', dayGZ, ec.getDayHideGan(), ec.getDayShiShenZhi(), '日主', ec.getDayNaYin(), ec.getDayDiShi(), getChangSheng(dayGZ[0], dayZ), _apiKongOf(dayGZ, kongAxis, yearGZ), dayZ, { isDay: true })
   ];
-  if (timeOverride) {
-    cols.push({ lbl: '时柱', gz: timeOverride.gz, g: timeOverride.g, z: timeOverride.z,
-      hide: timeOverride.hide, ssz: timeOverride.ssz, ssg: timeOverride.ssg, ny: timeOverride.ny,
-      di: timeOverride.di, di2: timeOverride.di2, kong: timeOverride.kong, flags: { isTime: true },
-      sha: pillarShaMerged({ gz: timeOverride.gz, z: timeOverride.z, isTime: true, gan: timeOverride.gz[0] }, CTX) });
-  } else {
-    cols.push(mkCol('时柱', timeGZ, ec.getTimeHideGan(), ec.getTimeShiShenZhi(), ec.getTimeShiShenGan(), ec.getTimeNaYin(), ec.getTimeDiShi(), getChangSheng(timeGZ[0], timeZ), _apiKongOf(timeGZ, kongAxis, yearGZ), timeZ, { isTime: true }));
-  }
+  cols.push(mkCol('时柱', timeGZ, HIDE[timeZ]||[], (HIDE[timeZ]||[]).map(function (x) { return tenGod(dayGan, x); }),
+    tenGod(dayGan, timeGZ[0]), nayinOf(timeGZ), getChangSheng(dayGan, timeZ), getChangSheng(timeGZ[0], timeZ),
+    _apiKongOf(timeGZ, kongAxis, yearGZ), timeZ, { isTime: true }));
 
   var BZ = { ec: ec, sex: sex, dayGan: dayGan, monthGan: monthGZ[0], yearGan: yearGZ[0],
     yearZ: yearZ, monthZ: monthZ, dayZ: dayZ, timeZ: timeZ,
@@ -322,8 +316,8 @@ function _apiLiuNian(BZ, An, dySteps, fromYear, toYear) {
  *     time   出生时间（钟面时间），默认 12:00
  *     sex    1 男、0 女，默认 1
  *     ziMode 子时口径，late 晚子时（默认）、early 早子时
- *     sunMode 太阳时口径，'true' 真太阳时、'mean' 平太阳时、'off' 不校正；缺省 off
- *     lng    出生地经度，sunMode 非 'off' 时使用，默认 120
+ *     sunMode 太阳时口径，'true' 真太阳时（默认，与页面下拉首项同）、'mean' 平太阳时、'off' 不校正
+ *     lng    出生地经度，sunMode 非 'off' 时使用，默认 120（标准时区基准，只余均时差一项）
  *     kongAxis 空亡基准轴，day=日柱六甲空亡（默认）、year=年柱十大空亡
  *     yearAxis 年界口径，'lichun' 立春换年（默认）、'chunjie' 春节换年（正月初一）、'dongzhi' 冬至换年
  *     dst    夏令时口径，'auto' 命中 1986 至 1991 年夏令时段自动折回（默认）、'on' 强制折回、'off' 不折
@@ -436,41 +430,22 @@ var BAZI_PAGE_UI = !!document.getElementById('bMode');
 if (BAZI_PAGE_UI) renderChrome('bazi.html'); /* 页面级单例，见顶部“页面级可变状态说明” */
 if (BAZI_PAGE_UI) (function initBirth(){
   const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  function fillCity(){ const p=sp.value; if(!PROV[p])return; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-  function fillDist(){
-    const p=sp.value; if(!PROV[p])return;
-    const c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
-    if(!c) return;
-    // 城市级经度兜底：city.lng 为 null（直辖市等）时回退省级中心经度，杜绝 null°E
-    const pc=(typeof provCenter==='function'&&c.lng==null)?provCenter(p):null;
-    CITY_LNG=(c.lng!=null)?c.lng:(pc?pc.lng:null);
-    let html=`<option value="">${c.c}</option>`;
-    distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-    sd.innerHTML=html;
-  }
-  sp.onchange=()=>{ fillCity(); savePillarSel(); }; sc.onchange=()=>{ fillDist(); savePillarSel(); };
-  sp.value='北京市'; fillCity();
+  /* 出生地默认停在"未知地"，须择定省市才出经度：起首若是某地，未动过表单的盘便按该地折过一道，
+     校正量的来历盘上不著一字。联动取值与三级填充走 latlng.js 的 fillPlaceTrio，各页同一份。 */
+  const trio=fillPlaceTrio(sp, sc, sd, ()=>{
+    CITY_LNG=findLng(sp.value, sc.value, sd.value);
+    savePillarSel();
+  });
+  window.__baziPlaceTrio=trio;
   /* 第二盘出生地（双盘对照勾选后使用）：与主盘同一部 PROV 数据源与同构填充逻辑，独立一组下拉；
      经度写 DUAL_CITY_LNG 供 paipan 第二盘校正取用，与主盘 CITY_LNG 分立不互染 */
   var DUAL_CITY_LNG=null;
   window.__dualLngOf=()=>DUAL_CITY_LNG;
   const dp=document.getElementById('dProv'), dc=document.getElementById('dCity'), dd=document.getElementById('dDist');
   if(dp && dc && dd){
-    dp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-    function dFillCity(){ const p=dp.value; if(!PROV[p])return; dc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); dFillDist(); }
-    function dFillDist(){
-      const p=dp.value; if(!PROV[p])return;
-      const c=PROV[p].find(x=>x.c===dc.value)||PROV[p][0];
-      if(!c) return;
-      const pc=(typeof provCenter==='function'&&c.lng==null)?provCenter(p):null;
-      DUAL_CITY_LNG=(c.lng!=null)?c.lng:(pc?pc.lng:null);
-      let html=`<option value="">${c.c}</option>`;
-      distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-      dd.innerHTML=html;
-    }
-    dp.onchange=dFillCity; dc.onchange=dFillDist;
-    dp.value='北京市'; dFillCity();
+    window.__baziDualTrio=fillPlaceTrio(dp, dc, dd, ()=>{
+      DUAL_CITY_LNG=findLng(dp.value, dc.value, dd.value);
+    });
   }
 })();
 
@@ -518,16 +493,24 @@ function paipan(){
   const dstMode=(_dstEl&&_dstEl.value)||'auto';
   const yearAxis=(_yaxEl&&_yaxEl.value)||'lichun';
   kongAxis=document.getElementById('bKong').value; /* 空亡基准轴：day=日柱六甲空亡 / year=年柱十大空亡（写回全局，供 updateDetail 的 kongOf 使用） */
+  qiYunSect=(document.getElementById('bQiYun')||{}).value==='2'?2:1; /* 起运法：1 时辰折算、2 分钟折算（写回全局，供 baziDaYunSteps 与 renderDyn 取用） */
+  changShengSect=(document.getElementById('bCsSect')||{}).value==='2'?2:1; /* 十二长生土行从属：1 火土同宫、2 水土同宫 */
   const manualLng=document.getElementById('bLng').value;
   let [y,m,d]=dv.split('-').map(Number);
   let [h,mi]=tv.split(':').map(Number);
 
   const distName=document.getElementById('bDist').value;
+  /* 经度三源：手动经度、区县所在行政区划经度、出生地组联动写入的 CITY_LNG。
+     三源皆空即出生地未知，此时不得回退任一城市经度顶上：那样会把一张按北京（或任一地）
+     折过的盘当成命主本人的盘给出，误差藏在校正量里而盘面无一字说明其来历。 */
   let lng;
   if(manualLng!=='') lng=parseFloat(manualLng);
   else if(distName!==''){ lng=findLng(document.getElementById('bProv').value, document.getElementById('bCity').value, distName); }
   else lng=CITY_LNG;
-  if(lng==null||isNaN(lng)) lng=CITY_LNG;
+  if(lng==null||isNaN(lng)){
+    if(sunMode!=='off'){ showFormErr(SUN_NO_PLACE_MSG); return; }
+    lng=null;
+  }
 
   /* 装配委托 buildBaziState（与第三方 getBazi 同源，单一真源，避免双份装配逻辑）。
      渲染期 kongOf 仍读全局 kongAxis / yearGZcur，此处继续写这两个全局，
@@ -576,10 +559,13 @@ function paipan(){
     if(isNaN(tv2HH)||isNaN(tv2MM)||tv2HH<0||tv2HH>23||tv2MM<0||tv2MM>59){ showFormErr('第二盘时辰超出范围（应为 00:00–23:59）'); return; }
     const tv2=String(tv2HH).padStart(2,'0')+':'+String(tv2MM).padStart(2,'0');
     const dsex=parseInt((document.getElementById('dSex')&&document.getElementById('dSex').value)||'1');
-    /* 第二盘经度：手动 dLng 优先，否则取第二盘出生地所算 DUAL_CITY_LNG，缺省回退主盘 lng */
+    /* 第二盘经度：手动 dLng 优先，其次第二盘自己出生地所算 DUAL_CITY_LNG。
+       第二盘未定出生地时不回退主盘经度：那等于把第二盘按第一人的出生地折一道，
+       两盘之差异里便混进一处无人认领的校正量，对照读盘者无从分辨。 */
     const dLngManual=(document.getElementById('dLng')||{}).value;
     const lng2=(dLngManual!=='' && dLngManual!=null && !isNaN(parseFloat(dLngManual)))?parseFloat(dLngManual)
-      :((typeof window.__dualLngOf==='function' && window.__dualLngOf()!=null)?window.__dualLngOf():lng);
+      :((typeof window.__dualLngOf==='function')?window.__dualLngOf():null);
+    if(lng2==null && sunMode!=='off'){ showFormErr('第二盘'+SUN_NO_PLACE_MSG); return; }
     try{
       const built2=buildBaziState({ date:dv2, time:tv2, sex:dsex, ziMode, sunMode, dst:dstMode, yearAxis, lng:lng2, kongAxis });
       dualBZ2=built2.BZ;
@@ -654,6 +640,10 @@ function dualRelSync(){
   if(!chk||!box) return;
   const mode=document.getElementById('bMode').value;
   const dateable=(mode==='date'||mode==='lunar');
+  /* 对照无源（四柱、名人、已存）时整块撤下：这三个模式勾选也不出第二盘，
+     勾选行文字又长，留在版面上只把该行挤成窄高条。与第二盘块同一判据，一处给出。 */
+  const wrap=document.querySelector('.dual-wrap');
+  if(wrap) wrap.classList.toggle('is-off', !dateable);
   const on=chk.checked && dateable;
   box.classList.toggle('is-on', on);
   const isLunar=(mode==='lunar');
@@ -701,6 +691,10 @@ function toggleBaziMode(){
   gs('bYearAxisField', !isSaved && !isPillar);
   /* 空亡基准下拉：仅公历/农历模式可选日柱/年柱流派；四柱/已存固定用日柱六甲空亡（子平主流），隐藏切换，空亡仍按日柱轴标注 */
   document.getElementById('bKongField').style.display=(isSaved?'none':dsp);
+  /* 起运法与长生土行同列时间折算与流派行：起运法需出生时刻折算，四柱模式未确认出生时间故随之隐藏；
+     长生土行只论日干与各地支，四柱模式照常可选，仅已存模式隐藏 */
+  gs('bQiYunField', !isSaved && !isPillar);
+  gs('bCsSectField', !isSaved);
   const sp=document.getElementById('savedPanel'); if(sp) sp.style.display=isSaved?'':'none';
   if(isSaved){ renderSavedPanel(); }
   /* 持久化当前页面模式（独立于条目 mode，避免刷新后丢失"已存"选择） */
@@ -834,6 +828,8 @@ function paipanPillar(){
      切换轴后空亡行不变，沿用上一次渲染的轴）。并同步时间折算与流派说明显隐。
      四柱/已存模式固定用日柱六甲空亡（隐藏了基准切换框，强制 day 轴，防残留年柱选择贯穿）。 */
   kongAxis=(document.getElementById('bMode').value==='pillar'||document.getElementById('bMode').value==='saved')?'day':document.getElementById('bKong').value;
+  qiYunSect=(document.getElementById('bQiYun')||{}).value==='2'?2:1; /* 四柱模式同读起运法，两派交运日并列由此定 */
+  changShengSect=(document.getElementById('bCsSect')||{}).value==='2'?2:1;
   clearFormErr();
   if(!yg||!yz||!mg||!mz||!dg||!dz||!tg||!tz){ showFormErr('请完整填写四柱干支'); return; }
   if(!isValidGZ(yg,yz)){ showFormErr('年柱 '+yg+yz+' 不是有效的六十甲子组合，请检查。'); return; }
@@ -911,6 +907,8 @@ function savePillarSel(){
   try{ const ya=document.getElementById('bYearAxis'); if(ya) o.bYearAxis=ya.value; }catch(e){}
   try{ const zi=document.getElementById('bZi'); if(zi) o.bZi=zi.value; }catch(e){}
   try{ const k=document.getElementById('bKong'); if(k) o.bKong=k.value; }catch(e){}
+  try{ const qy=document.getElementById('bQiYun'); if(qy) o.bQiYun=qy.value; }catch(e){}
+  try{ const cs=document.getElementById('bCsSect'); if(cs) o.bCsSect=cs.value; }catch(e){}
   try{ const lng=document.getElementById('bLng'); if(lng) o.bLng=lng.value; }catch(e){}
   try{ const pv=document.getElementById('bProv'); if(pv) o.bProv=pv.value; }catch(e){}
   try{ const ct=document.getElementById('bCity'); if(ct) o.bCity=ct.value; }catch(e){}
@@ -1134,14 +1132,13 @@ function restoreYunSel(){
     try{ const ya=document.getElementById('bYearAxis'); if(ya && saved.bYearAxis) ya.value=saved.bYearAxis; }catch(e){}
     try{ const zi=document.getElementById('bZi'); if(zi && saved.bZi) zi.value=saved.bZi; }catch(e){}
     try{ const k=document.getElementById('bKong'); if(k && saved.bKong) k.value=saved.bKong; }catch(e){}
+    try{ const qy=document.getElementById('bQiYun'); if(qy && saved.bQiYun) qy.value=saved.bQiYun; }catch(e){}
+    try{ const cs=document.getElementById('bCsSect'); if(cs && saved.bCsSect) cs.value=saved.bCsSect; }catch(e){}
     try{ const lng=document.getElementById('bLng'); if(lng && saved.bLng!==undefined && saved.bLng!==null) lng.value=saved.bLng; }catch(e){}
-    /* 恢复出生地三级联动：先设省→触发填市、区，再设市→触发填区，最后设区；并保存最终态 */
+    /* 恢复出生地三级联动：省→市→区逐段落位，未存过或已不存在的省市停在"未知地" */
     try{
-      if(saved.bProv && PROV[saved.bProv]){
-        const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
-        sp.value=saved.bProv; sp.dispatchEvent(new Event('change'));
-        if(saved.bCity){ sc.value=saved.bCity; sc.dispatchEvent(new Event('change')); }
-        if(saved.bDist!==undefined && saved.bDist!==null){ sd.value=saved.bDist; }
+      if(window.__baziPlaceTrio && saved.bProv){
+        window.__baziPlaceTrio.set(saved.bProv, saved.bCity, saved.bDist);
         savePillarSel();
       }
     }catch(e){}
@@ -1231,6 +1228,8 @@ function showTip(key, extra){
     body=bzXiuTip(extra);
   } else if(key==='__PALACE__'){
     body=bzPalaceTip();
+  } else if(key==='__XUN__'){
+    body=bzXunTip();
   } else if(key==='__MINGGUA__'){
     body=bzMingGuaTip();
   } else if(key==='__GEJU__'){
@@ -1247,10 +1246,11 @@ function showTip(key, extra){
 function closeTip(){ document.getElementById('modalMask').classList.remove('show'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
 
-/* ---------- 基础信息字段流弹窗：二十八宿、三垣、命卦、格局 ----------
-   四项皆字段流的值型条目，弹窗先述术语之义、再列本命所值。
+/* ---------- 基础信息字段流弹窗：二十八宿、三垣、旬首旬空、命卦、格局 ----------
+   五项皆字段流的值型条目，弹窗先述术语之义、再列本命所值。
    取数一律问现有真源，不另存副本：宿曜全名、四象与吉凶歌取 lunar.js 的 LunarUtil，
-   三垣取 bazi-core.js 的 PALACE_DEF，命卦取 bazi-data.js 的 mingGuaDate 与 bazi-core.js 的 MING_GUA_DETAIL，
+   三垣取 bazi-core.js 的 PALACE_DEF，旬首旬空取 bazi-core.js 的 xunText（与四柱表“空亡”行同源），
+   命卦取 bazi-data.js 的 mingGuaDate 与 bazi-core.js 的 MING_GUA_DETAIL，
    格局取 bazi-rel.js 的 getAnalysis（清浊、层次、喜忌三处的剥括号口径与喜用格局段一致）。 */
 function bzXiuTip(nm){
   const L=(typeof LunarUtil!=='undefined')?LunarUtil:null;
@@ -1273,6 +1273,16 @@ function bzPalaceTip(){
   const lines=['三垣为命宫、胎元、身宫之合称，出于四柱之外而补四柱之未备：命宫言其志，胎元言其根，身宫言其行。'];
   rows.forEach(p=>{ lines.push(`<b>${p[0]} ${p[1]}</b>：${PD[p[0]]||''}`); });
   return `<h3 class="tip-title">三垣</h3><div class="tip-body">${lines.join('<br>')}</div>`;
+}
+function bzXunTip(){
+  const B=(typeof window!=='undefined')?window.BZ:null;
+  const M=(B&&B.meta&&B.meta.xun)?B.meta.xun:{};
+  const rows=[['年柱',M.year],['月柱',M.month],['日柱',M.day],['时柱',M.time]].filter(p=>p[1]);
+  if(!rows.length) return '<h3 class="tip-title">旬首旬空</h3><div class="tip-body">（暂无说明）</div>';
+  const lines=['六十甲子分六旬，每旬以甲日起首，旬内十日而地支余二，余出之两支即旬空；所值之柱主虚而不实。'];
+  rows.forEach(p=>{ lines.push(`<b>${p[0]}</b> ${p[1]}`); });
+  lines.push('四柱各论本柱之旬，不与他柱相袭；与四柱表“空亡”行同源同值。');
+  return `<h3 class="tip-title">旬首旬空</h3><div class="tip-body">${lines.join('<br>')}</div>`;
 }
 function bzMingGuaTip(){
   const bad='<h3 class="tip-title">命卦</h3><div class="tip-body">（暂无说明）</div>';
@@ -1323,7 +1333,10 @@ function htmlToText(html){
   }).filter(function(l){ return l.length>0; }).join('\n');
 }
 
-mountAI(function(){
+/* 附加功能面板挂载：与文件内其余页面级语句同守 BAZI_PAGE_UI 一闸（他页复用本件只为取
+   buildBaziState 等排盘 API，不挂本页 UI）。不守此闸则他页加载本件时会去调本页才有的
+   mountAI，而该函数在其后加载的 ai.js 里，故必报未定义。 */
+if (BAZI_PAGE_UI) mountAI(function(){
   if(!BZ||!BZ.meta) return '';
   const m=BZ.meta;
   const wx=BZ.wxCnt?Object.keys(BZ.wxCnt).map(k=>`${k}${BZ.wxCnt[k]}`).join(' '):'';

@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/opensource.css?v=41f7c36f">
 
 </head>
@@ -85,7 +85,7 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
 <script>
 
 /* DATA 各条只存基础分 s（非百分比）：页面渲染时按全体基础分动态归一到合计 100.0，
@@ -199,7 +199,7 @@ const DATA=[
  {name:'八字排盘核心( bazi-core.js )', type:'self', v:8.5, s:25.5,
   link:'assets/bazi-core.js',
   fn:'四柱结构解析、十神、宫位、五行流转，命局断事（婚姻、健康、家庭、事业四模块表格化），大运流年起法，与 bazi-data、bazi-rel、bazi-shishen 协同完成整张八字盘的断语输出。',
-  note:'源码 bazi-core.js（八字、姓名学两页加载）。与 bazi-rel.js 的 REL.tenCombo 断语引擎、bazi-shishen.js 定向句真源联动。'},
+  note:'源码 bazi-core.js（八字、合婚、姓名学、铁板神数四页加载）。与 bazi-rel.js 的 REL.tenCombo 断语引擎、bazi-shishen.js 定向句真源联动。'},
  {name:'八字旺衰、喜用神判定、合婚', type:'self', v:8, s:34.6,
   link:'assets/bazi-data.js',
   fn:'基于日主五行与四柱干支（含藏干、十神、禄刃）统计五行生克得分，判定身强身弱、喜用神（喜与忌）类别，并据此做八字合婚之喜用互补、五行冲合、十神互补等专项比对。',
@@ -207,7 +207,7 @@ const DATA=[
  {name:'十神断语引擎（ bazi-rel.js、bazi-shishen.js ）', type:'self', v:7.5, s:31.3,
   link:'assets/bazi-rel.js',
   fn:'REL.tenCombo 经典组合判定引擎（官印、杀印、食伤泄秀、比劫夺财等数十组，含刑冲害合、神煞、十二长生扩展判定），逐条输出十神经典断语与人生议题四模块定向句；bazi-shishen.js 为婚姻、健康、家庭定向断语真源。',
-  note:'源码 bazi-rel.js 与 bazi-shishen.js。断语依据《三命通会》《渊海子平》等古籍体系与素材整理，含权重排序（核心组合、方向专断、常规补充）。'},
+  note:'源码 bazi-rel.js 与 bazi-shishen.js（bazi-rel.js 由八字、合婚、太岁、民俗、铁板神数五页加载，铁板页据以取真典断语与五行能量档）。断语依据《三命通会》《渊海子平》等古籍体系与素材整理，含权重排序（核心组合、方向专断、常规补充）。'},
  {name:'奇门遁甲引擎', type:'self', v:7.5, s:19.4,
   link:'assets/qimen-engine.js',
   fn:'实现阴阳遁局数排盘、三奇六仪、九星、八门、八神、值符值使、天地人神四盘及落宫推算，提供问事、出行、择方等简要断语。',
@@ -296,10 +296,10 @@ const DATA=[
   link:'assets/minsu-data.js',
   fn:'称骨算命、犯月查询、本命佛、号码吉凶四模块的数据与逻辑：称骨骨重算法真源在 bazi-rel.js，本处只存《袁天罡称骨歌》男卷女卷全本歌诀；犯月以《玉匣记》系坊本通行口诀为准，败子歌与骨髓破歌两套并收；本命佛八尊十二生肖映射多源一致，真言以唐密汉译通行音为准。',
   note:'源码 minsu-data.js、minsu.js、chengu-songs.js。歌诀异文随条入笺注。'},
- {name:'河洛理数引擎与数据（ heluo.js、heluo-data.js ）', type:'self', v:5.5, s:14.2,
+ {name:'河洛理数引擎与数据（ heluo.js、heluo-data.js、heluo-terms.js ）', type:'self', v:5.5, s:14.2,
   link:'assets/heluo.js',
-  fn:'干支取数、数配卦、三元寄卦、元堂表、两至逆表、至尊卦特例与元气化工诀的排算，口径为多源互校后的通行排法；四柱取 lunar.js 立春界年干支与节气月支，卦名爻位复用 gua.js，卦辞爻辞直读 jingwen.js。',
-  note:'源码 heluo.js、heluo-data.js。'},
+  fn:'干支取数、数配卦、三元寄卦、元堂表、两至逆表、至尊卦特例与元气化工诀的排算，口径为多源互校后的通行排法；四柱取 lunar.js 立春界年干支与节气月支，卦名爻位复用 gua.js，卦辞爻辞直读 jingwen.js。术语释义表 heluo-terms.js 为河洛页可点术语的释义单一真源，分取数起卦、元堂爻位、气数四项、运程四层、卦气象辞五部分。',
+  note:'源码 heluo.js、heluo-data.js、heluo-terms.js。'},
  {name:'铁板神数引擎与条文（ tieban-engine.js、tieban-tiaowen.js、tieban-hegu.js ）', type:'self', v:5.5, s:14.2,
   link:'assets/tieban-engine.js',
   fn:'干支化数以太玄经数（甲己子午九、乙庚丑未八、丙辛寅申七、丁壬卯酉六、戊癸辰戌五、巳亥单四数），每时辰八刻按先天八卦数取刻修正数，刻下再分十五分金；六亲考刻与条文抽演按考刻结论过滤同类条文。',
@@ -315,7 +315,7 @@ const DATA=[
  {name:'八字装配入口与命理断语库（ bazi-app.js、bazi-duanyu.js ）', type:'self', v:7, s:25.1,
   link:'assets/bazi-app.js',
   fn:'装配入口对外暴露 BaziAPI，以纯数据方式返回结构化 JSON，不含 HTML 与 DOM 操作，供第三方调用；命理断语库以结构化条件 when、改写模板 say 与古籍出处 src 三段组织，条件判定复用引擎已算字段，不照搬古籍原文而改述其意。',
-  note:'源码 bazi-app.js、bazi-duanyu.js。断语库被八字、铁板神数、姓名学三页共用。'},
+  note:'源码 bazi-app.js、bazi-duanyu.js。断语库被八字、铁板神数、姓名学三页共用；装配入口被八字、合婚、民俗、太岁、铁板神数五页加载，四柱与时间折算口径由各页共用一套。'},
  {name:'灵签数据( lingqian-data.js )', type:'self', v:4.5, s:11.6,
   link:'assets/lingqian-data.js',
   fn:'整理三山国王、观音、月老、关公等灵签签文与解签条目，供灵签模块随机抽取并解读。签文为传世通本整理（公版古籍）。',
@@ -381,7 +381,7 @@ const DATA=[
   fn:'精编拆字字典（2517 字、615 字随问取拆多拆法、934 字六书标注、108 条加笔减笔活拆变象、部件释义表 312 项），叠以康熙数理（复用姓名学 NAME81）、梅花字占起卦（与梅花易数字占完全同源，附 64 卦义、周易卦辞、24 动爻白话爻解与九类事断语，起卦全空间覆盖，互变事类参断为九类乘三态插槽），经文复用 jingwen.js，加以时辰外应与值日冲日应期、九类事综合断语，四项加权得五档评级；未收录字按结构与数理兜底。',
   note:'源码 cezi-engine.js 与 cezi-data.js(cezi.html)。相字十法全收，八卦归象依《说卦传》；卷三取格断语 828 条照录《测字秘牒》（维基文库全文，CC BY-SA 4.0，本页以相同方式共享），卷五散格骨格 64 部件、卷七至理测法 18 案例照录底本，心易谐声、假借、转注三通道，经文照录《周易》，其余拆语自撰演绎。'},
  {name:'app.js 框架、共享日期选择器', type:'self', v:2.5, s:15.8,
-  link:'assets/app.js?v=94c895a9',
+  link:'assets/app.js?v=73b06f06',
   fn:'统一导航栏与页脚渲染、全站共享的自定义日期时间选择器（解决移动端原生日历无法弹出的问题）、默认当日时间、通用工具函数。',
   note:'源码 app.js，被全站页面统一加载。'},
  {name:'盲派命理数据层（ bazi-mangpai.js ）', type:'self', v:6, s:15.5,

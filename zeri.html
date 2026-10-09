@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/zeri.css?v=424e8b24">
 
 </head>
@@ -212,11 +212,11 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/bazi-data.js?v=145837fa"></script>
-<script defer src="assets/bazi-rel.js?v=2d68fcb6"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
+<script defer src="assets/bazi-data.js?v=78cc7963"></script>
+<script defer src="assets/bazi-rel.js?v=5974fd58"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
 <script defer src="assets/zeri-engine.js?v=be10976f"></script>
 <script defer src="assets/zeri-zaoming.js?v=33d0e3f9"></script>
@@ -362,7 +362,8 @@ function query(){
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">查询出错：'+(e.message||e)+'</p>'; }
 }
 /* ============ 模块② 命主喜用神 ============ */
-let CITY_LNG=116.41;
+let CITY_LNG=null;
+let ZR_USER_PLACE=null;
 let USER_XI=[], USER_JI=[], USER_USE='', USER_DWX='', USER_NAYIN_WX='', USER_NAYIN='', USER_READY=false, USER_MING_GZ='';
 function buildUserBZ(){
   const dv=document.getElementById('bDate').value;
@@ -376,13 +377,12 @@ function buildUserBZ(){
   let [h,mi]=tv.split(':').map(Number);
   let lng;
   if(manualLng!=='') lng=parseFloat(manualLng);
-  else {
-    const f=findLng(document.getElementById('bProv').value, document.getElementById('bCity').value, document.getElementById('bDist').value);
-    lng = (f!=null) ? f : 116.41;
-  }
-  if(isNaN(lng)) lng=116.41;
+  else lng=findLng(document.getElementById('bProv').value, document.getElementById('bCity').value, document.getElementById('bDist').value);
+  if(lng!=null && isNaN(lng)) lng=null;
+  /* 出生地未定即无经度可校：此时按钟面标准时排盘，并在结论旁注明未校，
+     不回退东经 120 度，那是替用户坐到别人家的经度上折一道，折了多少盘面一字不著。 */
   let adj={y,m,d,h,mi};
-  if(useTrue){ const ts=trueSolarTime(y,m,d,h,mi,lng); adj={y:ts.y,m:ts.m,d:ts.d,h:ts.h,mi:ts.mi}; }
+  if(useTrue && lng!=null){ const ts=trueSolarTime(y,m,d,h,mi,lng); adj={y:ts.y,m:ts.m,d:ts.d,h:ts.h,mi:ts.mi}; }
   const zadj=adjustZiShi(adj.y,adj.m,adj.d,adj.h,adj.mi,ziMode); adj=zadj;
   const solar=Solar.fromYmdHms(adj.y,adj.m,adj.d,adj.h,adj.mi,0);
   const lunar=solar.getLunar();
@@ -395,7 +395,7 @@ function buildUserBZ(){
     const tg=wuShuDun(dayGan,0);
     timeStem=tg[0]; timeZ='子';
   }
-  return {sex, dayGan, gans:[yearGZ[0],monthGZ[0],dayGZ[0],timeStem], zhis:[yearZ,monthZ,dayZ,timeZ], monthZ, yearGZ:yearGZ[0]+yearZ};
+  return {sex, dayGan, gans:[yearGZ[0],monthGZ[0],dayGZ[0],timeStem], zhis:[yearZ,monthZ,dayZ,timeZ], monthZ, yearGZ:yearGZ[0]+yearZ, sunOff:useTrue&&lng==null};
 }
 function calcUserXi(){
   const out=document.getElementById('xiOut');
@@ -412,11 +412,11 @@ function calcUserXi(){
     <p class="ly-zh-p">日主 <span class="zr-k">${BZ.dayGan}（${USER_DWX}）</span>　首选用神：<span class="zr-k">${USER_USE}</span></p>
     <p class="ly-zh-p">喜神（生扶用神）：<span class="zr-good">${xiStr}</span>　忌神：<span class="zr-bad">${jiStr}</span></p>
     <p class="ly-zh-p">本命年命纳音：<span class="zr-k">${USER_NAYIN}（${USER_NAYIN_WX||'无'}）</span></p>
+    ${BZ.sunOff?'<p class="ly-zh-p zr-mini">（未定出生地，未作太阳时校正，按钟面标准时）</p>':''}
     <p class="ly-zh-p zr-mini">（扶抑法，含调候、通关、病药、格局综合；日主${A.strength}）</p>
   </div>`;
 }
 /* ============ 模块③ 真太岁方位 ============ */
-const SITE_LNG=116.41;
 let TS_RES=null;
 function calcTaisui(){
   const mode=document.getElementById('tsMode').value;
@@ -562,23 +562,10 @@ var ZM_HOURS=[
 function zmFmtD(dt){ return dt.getFullYear()+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate()); }
 /* 出生地三级联动绑定：宝宝（pfx=''）、父（'F'）、母（'M'）三处共用同一套省市县逻辑，
    避免复制三份 fillCity/fillDist。经度由 findLng 取；手动经度优先，见 zmReadParent 与 zmRun。 */
-function zmBindGeo(pfx, defaultProv){
+function zmBindGeo(pfx){
   var sp=document.getElementById('zm'+pfx+'Prov'), sc=document.getElementById('zm'+pfx+'City'), sd=document.getElementById('zm'+pfx+'Dist');
-  if(!sp||!sc||!sd||!PROV[defaultProv]) return;
-  sp.innerHTML=provList().map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
-  function fillCity(){
-    sc.innerHTML=PROV[sp.value].map(function(c){ return '<option value="'+c.c+'">'+c.c+'</option>'; }).join('');
-    fillDist();
-  }
-  function fillDist(){
-    var c=PROV[sp.value].find(function(x){ return x.c===sc.value; })||PROV[sp.value][0];
-    if(!c) return;
-    var html='<option value="">'+c.c+'</option>';
-    distList(sp.value,c.c).forEach(function(k){ html+='<option value="'+k+'">'+k+'</option>'; });
-    sd.innerHTML=html;
-  }
-  sp.onchange=fillCity; sc.onchange=fillDist;
-  sp.value=defaultProv; fillCity();
+  if(!sp||!sc||!sd) return null;
+  return fillPlaceTrio(sp, sc, sd, null);
 }
 function initZaomingUI(){
   if(ZM_INIT) return;
@@ -595,9 +582,9 @@ function initZaomingUI(){
   if(fEl && !fEl.value) fEl.value=zmFmtD(n);
   if(tEl && !tEl.value) tEl.value=zmFmtD(new Date(n.getTime()+21*86400000));
   /* 宝宝、家长一、家长二三处出生地均按同一逻辑初始化（家长出生地用于真太阳时经度校正） */
-  zmBindGeo('', '北京市');
-  zmBindGeo('P1', '北京市');
-  zmBindGeo('P2', '北京市');
+  zmBindGeo('');
+  zmBindGeo('P1');
+  zmBindGeo('P2');
   wrap.addEventListener('change', zmSyncHours);
   zmSyncHours();
 }
@@ -741,6 +728,8 @@ function renderZm(){
   var pInfo = hasParent
     ? degradeHtml+'已纳入家长缘分（'+[(ctx.parent1?ctx.parent1.label:''),(ctx.parent2?ctx.parent2.label:'')].filter(Boolean).join('、')+'完整八字）'
     : '未填家长信息，家长缘分层不参与（其余三层按剩余权重等比放大）';
+  /* 宝宝出生地未定而真太阳时开着：整批候选按钟面标准时排，明写出来免被当作已校正 */
+  var noPlaceNote = (ctx.useTrue && ctx.lng==null) ? '　宝宝出生地未定，全部候选按钟面标准时排盘，未作太阳时校正。' : '';
   var cards=top.map(function(it,i){
     var r=it.res, g=r.grade; var dKey=it.y+'-'+it.m+'-'+it.d; var dNote=diffNotes[dKey]||'';
     var diffHtml = dNote ? ('<div class="zm-diff">'+dNote+'</div>') : '';
@@ -790,7 +779,7 @@ function renderZm(){
       +'</div>';
   }).join('');
   out.innerHTML='<h4 class="jz-h">造命排盘：综合判定（共 '+res.count+' 个候选：'+res.days+' 天 × '+ctx.hours.length+' 时辰）</h4>'
-    +'<p class="sub-note">'+pInfo+'；'+(ctx.TS?('已纳入流年太岁（'+ctx.TS.zhi+'）岁破三煞避凶'):'未纳入太岁避凶')+'。</p>'
+    +'<p class="sub-note">'+pInfo+'；'+(ctx.TS?('已纳入流年太岁（'+ctx.TS.zhi+'）岁破三煞避凶'):'未纳入太岁避凶')+'。'+noPlaceNote+'</p>'
     +'<p class="sub-note zm-dis">择时为医生许可窗口内的优选参考，非逆天改命；早产与医学指征优先。本结果不构成医疗建议，分娩时机请以产科医生判断为准。</p>'
     +'<div class="zm-tabs">'
     +'<button type="button" class="zm-tab '+(ZM_VIEW==='rank'?'active':'')+'" onclick="zmSetView(\'rank\')">整体排名（前 30）</button>'
@@ -844,20 +833,9 @@ window.addEventListener('load', function () {
     (function initUserBirth(){
       const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
       if(!sp) return;
-      sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-      function fillCity(){ const p=sp.value; sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-      function fillDist(){
-        const p=sp.value, c=PROV[p].find(x=>x.c===sc.value)||PROV[p][0];
-        if(!c) return;
-        /* 城市级经度兜底：city.lng 为 null（直辖市等）时回退省级中心，杜绝 null°E */
-        const pc=(typeof provCenter==='function'&&c.lng==null)?provCenter(p):null;
-        CITY_LNG=(c.lng!=null)?c.lng:(pc?pc.lng:null);
-        let html=`<option value="">${c.c}</option>`;
-        distList(p, c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-        sd.innerHTML=html;
-      }
-      sp.onchange=fillCity; sc.onchange=fillDist;
-      sp.value='北京市'; fillCity();
+      ZR_USER_PLACE=fillPlaceTrio(sp, sc, sd, ()=>{
+        CITY_LNG=findLng(sp.value, sc.value, sd.value);
+      });
     })();
     document.getElementById('tsMode').addEventListener('change',function(){
       document.getElementById('tsYear').value='';
@@ -874,11 +852,8 @@ window.addEventListener('load', function () {
       if(de&&dt) de.value=dt;
       if(te&&tm) te.value=tm;
       if(se&&sx) se.value=(sx==='女'||sx==='0')?'0':'1';
-      const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
       const lngEl=document.getElementById('bLng'), trEl=document.getElementById('bTrue');
-      if(sp&&p.get('bProv')){ sp.value=p.get('bProv'); if(typeof sp.onchange==='function') sp.onchange(); else sp.dispatchEvent(new Event('change')); }
-      if(sc&&p.get('bCity')){ sc.value=p.get('bCity'); if(typeof sc.onchange==='function') sc.onchange(); else sc.dispatchEvent(new Event('change')); }
-      if(sd&&p.get('bDist')) sd.value=p.get('bDist');
+      if(ZR_USER_PLACE) ZR_USER_PLACE.set(p.get('bProv'), p.get('bCity'), p.get('bDist'));
       if(lngEl&&p.get('bLng')) lngEl.value=p.get('bLng');
       if(trEl) trEl.checked=(p.get('bTrue')==='1');
       try{ calcUserXi(); }catch(e){}

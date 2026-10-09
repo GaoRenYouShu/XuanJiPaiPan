@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/liuyao.css?v=3ec9d835">
 
 </head>
@@ -101,10 +101,10 @@
       <div class="birth-group compact">
         <div class="group-label">当地（用于真太阳时校正，内置行政区划经度）</div>
         <div class="field"><label>省份</label>
-          <select id="lyProv" aria-label="选择省份" onchange="lyFillCity()"></select>
+          <select id="lyProv" aria-label="选择省份"></select>
         </div>
         <div class="field"><label>城市</label>
-          <select id="lyCity" aria-label="选择城市" onchange="lyFillDist()"></select>
+          <select id="lyCity" aria-label="选择城市"></select>
         </div>
         <div class="field"><label>区县</label>
           <select id="lyDist" aria-label="选择区县"></select>
@@ -167,10 +167,10 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/xuanji-lib.js?v=196b0c51"></script>
-<script defer src="assets/jingwen.js?v=ca162203"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
+<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
+<script defer src="assets/jingwen.js?v=81077ace"></script>
 <script defer src="assets/gua.js?v=3aacc2cc"></script>
 <script defer src="assets/jingwen-ref.js?v=f5ead9aa"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
@@ -669,20 +669,10 @@ function clearStep(){
   const b=document.querySelector('#lyStepField button[onclick^="recordStep"]');
   if(b) b.disabled=false;
 }
-function lyFillCity(){
-  const p=document.getElementById('lyProv').value;
-  const sc=document.getElementById('lyCity');
-  sc.innerHTML=PROV[p].map(c=>`<option value="${c.c}">${c.c}</option>`).join('');
-  lyFillDist();
-}
-function lyFillDist(){
-  const p=document.getElementById('lyProv').value, c=PROV[p].find(x=>x.c===document.getElementById('lyCity').value)||PROV[p][0];
-  if(!c) return;
-  const sd=document.getElementById('lyDist');
-  sd.innerHTML='<option value="">'+c.c+'</option>'+distList(p,c.c).map(k=>`<option value="${k}">${k}</option>`).join('');
-}
 function lyLocalLng(){
-  /* 手动经度优先，留空则取当地（省/市/区县）经度，兜底省级中心 */
+  /* 手动经度优先，其次省市区经 findLng 取数（城市级坐标为空者已由它回退省级中心）；
+     省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
+     按别人的经度折出来的时刻不著来历，与未校正是两回事。 */
   const lng=parseFloat(document.getElementById('lyLng').value);
   if(!isNaN(lng)) return lng;
   const p=document.getElementById('lyProv').value, c=document.getElementById('lyCity').value, d=document.getElementById('lyDist').value;
@@ -690,8 +680,7 @@ function lyLocalLng(){
     const v=findLng(p,c,d||undefined);
     if(v!=null) return v;
   }catch(e){}
-  try{ const pc=provCenter(p); if(pc) return pc.lng; }catch(e){}
-  return 120;
+  return null;
 }
 function lyMethodChange(){
   const v=document.getElementById('lyMethod').value;
@@ -764,12 +753,11 @@ function lyInitMethod(){
   document.getElementById('lyBianQinGong').checked=bqg==='1';
   /* 起卦时间默认当前（空则由 defaultToday 填今天日期，此处补当前时刻） */
   if(!document.getElementById('lyTime').value) lyUseNow();
-  /* 省市区联动 */
+  /* 省市区联动：默认停在未知地，须择定省市才出经度（fillPlaceTrio 各页同一份）。
+     起首若是某地，未动过表单的盘便按该地折过一道，校正量的来历盘上不著一字。 */
   if(typeof PROV!=='undefined'){
-    const sp=document.getElementById('lyProv');
-    sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-    sp.value='北京市';
-    lyFillCity();
+    const sp=document.getElementById('lyProv'), sc=document.getElementById('lyCity'), sd=document.getElementById('lyDist');
+    window.__lyPlaceTrio=fillPlaceTrio(sp, sc, sd, null);
   }
   lyMethodChange();
 }
@@ -801,13 +789,18 @@ function cast(){
   const rawNow=lyCastNow();
   let now=rawNow;
   /* 真太阳时：按当地（省市区/手动经度）校正起卦时刻，跨日自动调整；
-     先于起卦取数完成，保证"时间起卦"亦用校正后时刻 */
+     先于起卦取数完成，保证"时间起卦"亦用校正后时刻。
+     当地未定即无经度可校，此时不折一道按钟面出盘，并在起卦时间行注明未校。 */
+  let lyNoPlace='';
   if(useTrue){
     try{
       if(typeof trueSolarTime==='function'){
         const lng=lyLocalLng();
-        const ts=trueSolarTime(now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes(),lng);
-        now=new Date(ts.y,ts.m-1,ts.d,ts.h,ts.mi);
+        if(lng==null){ lyNoPlace='（当地未定，未作真太阳时校正，按钟面时刻）'; }
+        else{
+          const ts=trueSolarTime(now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes(),lng);
+          now=new Date(ts.y,ts.m-1,ts.d,ts.h,ts.mi);
+        }
       }
     }catch(e){}
   }
@@ -1537,7 +1530,7 @@ function cast(){
   const sexNote=(cat==='婚姻')?('（'+(SEX==='f'?'女占以官鬼为夫星为用':'男占以妻财为妻星为用')+'）'):'';
   const panelHtml=`
   <table class="ly-cat-tbl ly-zh-tbl ly-tbl-gap-lg"><tbody>
-    <tr><th class="ly-th-time">起卦时间</th><td>北京时间 ${rawNow.getFullYear()}-${pad2(rawNow.getMonth()+1)}-${pad2(rawNow.getDate())} ${pad2(rawNow.getHours())}:${pad2(rawNow.getMinutes())}${useTrue?(' 当地真太阳时 '+now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate())+' '+pad2(now.getHours())+':'+pad2(now.getMinutes())):''}，${gzColorSpan(lunar.getYearInGanZhi()+'年'+lunar.getMonthInGanZhi()+'月'+dgz+'日'+hourGZ+'时')}</td></tr>
+    <tr><th class="ly-th-time">起卦时间</th><td>北京时间 ${rawNow.getFullYear()}-${pad2(rawNow.getMonth()+1)}-${pad2(rawNow.getDate())} ${pad2(rawNow.getHours())}:${pad2(rawNow.getMinutes())}${useTrue?(' 当地真太阳时 '+now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate())+' '+pad2(now.getHours())+':'+pad2(now.getMinutes())):''}${lyNoPlace}，${gzColorSpan(lunar.getYearInGanZhi()+'年'+lunar.getMonthInGanZhi()+'月'+dgz+'日'+hourGZ+'时')}</td></tr>
     <tr><th>起卦方式</th><td>${({'coin':'铜钱摇卦','num':'数字起卦','time':'时间起卦','baoshu':'报数起卦','specify':'指定六爻','step':'逐爻摇卦','name':'姓名起卦'}[method]||method)}，${s.name}</td></tr>
     <tr><th>本卦</th><td>${ben.usym}${ben.lsym} "${ben.name}"，${bp.palace}${bp.type}</td></tr>
     <tr><th>变卦</th><td>${bianP.usym}${bianP.lsym} "${bianP.name}"，${zp.palace}</td></tr>
@@ -1691,9 +1684,7 @@ function loadLyHistory(i){
     document.getElementById('lyTrue').checked=(h.useTrue==='1');
     if(h.date) document.getElementById('lyDate').value=h.date;
     if(h.time) document.getElementById('lyTime').value=h.time;
-    if(h.prov){ document.getElementById('lyProv').value=h.prov; lyFillCity(); }
-    if(h.city){ document.getElementById('lyCity').value=h.city; lyFillDist(); }
-    if(h.dist) document.getElementById('lyDist').value=h.dist;
+    if(h.prov && window.__lyPlaceTrio) window.__lyPlaceTrio.set(h.prov, h.city, h.dist);
     if(h.lng) document.getElementById('lyLng').value=h.lng;
     if(h.q) document.getElementById('q').value=h.q;
     window.__lyRestoreLines=h.lines;

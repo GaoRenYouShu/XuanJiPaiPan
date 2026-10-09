@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/xingming.css?v=8cfb9c85">
 </head>
 <body>
@@ -139,8 +139,8 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=94c895a9"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
 <script>
 </script>
 <script>
@@ -225,61 +225,35 @@ function luckTxt(l){ return D.LUCK_LABEL[l]||'半吉'; }
    与八字排盘页同一计算链（buildBaziState + getAnalysis），喜忌唯一真源为 synthesis
    （普通格扶抑、特殊格顺势）；出生地经纬度取自全站唯一坐标表 latlng.js，供真太阳时校正 */
 var NM_XI_NOTE='';
+var NM_PLACE=null;
+/* 出生地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地折过一道，
+   校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
 function nmBirthInit(){
   var sp=document.getElementById('nmBProv'), sc=document.getElementById('nmBCity'), sd=document.getElementById('nmBDist');
-  sp.innerHTML=provList().map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
-  sp.onchange=function(){ nmFillCity(false); };
-  sc.onchange=function(){ nmFillDist(false); };
-  sp.value=(provList().indexOf('北京市')>=0)?'北京市':provList()[0];
-  nmFillCity(false);
-}
-/* 省份 → 城市 → 区县级联。
-   keep=true 时尽量保留当前市/区县选择，供存档或 URL 回填后调用（否则省份一变，市县选项不匹配会显示空白）。
-   省份取不到时回落到首省，绝不抛错，本函数抛错会让三个下拉全空且其后的初始化整段中断。 */
-function nmFillCity(keep){
-  var sp=document.getElementById('nmBProv'), sc=document.getElementById('nmBCity');
-  if(!sp||!sc) return;
-  var pv=sp.value;
-  if(!pv||!PROV[pv]){ pv=provList()[0]; sp.value=pv; }
-  var cv=(keep&&sc.value)||'';
-  sc.innerHTML=PROV[pv].map(function(c){ return '<option value="'+c.c+'">'+c.c+'</option>'; }).join('');
-  if(cv) sc.value=cv;
-  if(!sc.value) sc.value=PROV[pv][0].c;
-  nmFillDist(keep);
-}
-function nmFillDist(keep){
-  var sp=document.getElementById('nmBProv'), sc=document.getElementById('nmBCity'), sd=document.getElementById('nmBDist');
-  if(!sp||!sc||!sd) return;
-  var pv=sp.value; if(!pv||!PROV[pv]) return;
-  var c=PROV[pv].find(function(x){ return x.c===sc.value; })||PROV[pv][0];
-  if(!c) return;
-  var dv=keep?sd.value:null;
-  var html='<option value="">'+c.c+'</option>';
-  distList(pv, c.c).forEach(function(k){ html+='<option value="'+k+'">'+k+'</option>'; });
-  sd.innerHTML=html;
-  if(dv!=null) sd.value=dv;   /* 区县空值合法（首项即"全市"），故仅在 keep 时回填 */
+  NM_PLACE=fillPlaceTrio(sp, sc, sd, null);
 }
 function nmBirthLng(){
   var manual=document.getElementById('nmBLng').value.trim();
   if(manual!==''){ var v=parseFloat(manual); if(!isNaN(v)) return v; }
   var dist=document.getElementById('nmBDist').value;
   if(dist!=='') return findLng(document.getElementById('nmBProv').value, document.getElementById('nmBCity').value, dist);
-  var provKey=document.getElementById('nmBProv').value;
-  var provData=provKey?PROV[provKey]:null;
-  if(!provData) return null;
-  var c=provData.find(function(x){ return x.c===document.getElementById('nmBCity').value; });
-  if(c&&c.lng!=null) return c.lng;
-  var pc=typeof provCenter==='function'?provCenter(document.getElementById('nmBProv').value):null;
-  return pc?pc.lng:null;
+  return findLng(document.getElementById('nmBProv').value, document.getElementById('nmBCity').value, '');
 }
+/* 未定出生地即无经度可校：此时按钟面标准时出盘并在结论旁注明未校，
+   不回退东经 120 度，那是替用户坐到别人家的经度上折一道，折了多少盘面一字不著。 */
+function nmSunModeOf(lng, useTrue){
+  return (useTrue && lng!=null && !isNaN(lng)) ? 'true' : 'off';
+}
+var NM_NO_PLACE_NOTE='（未定出生地，按钟面标准时出盘，未作太阳时校正）';
 function nmXiCalc(){
   var d=document.getElementById('nmBDate').value, t=document.getElementById('nmBTime').value;
   if(!d||!t){ LINK_XI=[]; LINK_JI=[]; NM_XI_NOTE=''; nmXiRender(); return; }
   var useTrue=document.getElementById('nmBTrue').checked;
   var lng=nmBirthLng(), lngNote='';
-  if(lng==null||isNaN(lng)){ lng=120; lngNote=useTrue?'（未填出生地，按东经 120° 校正）':''; }
+  var sunMode=nmSunModeOf(lng, useTrue);
+  if(useTrue && sunMode==='off') lngNote=NM_NO_PLACE_NOTE;
   var built=buildBaziState({date:d, time:t, sex:document.getElementById('nmSex').value==='女'?0:1,
-    ziMode:document.getElementById('nmBZi').value, useTrue:useTrue, lng:lng, kongAxis:'day'});
+    ziMode:document.getElementById('nmBZi').value, sunMode:sunMode, lng:lng, kongAxis:'day'});
   var An=getAnalysis(built.BZ);
   var s=An.synthesis||{};
   LINK_XI=(s.xiWxEff&&s.xiWxEff.length)?s.xiWxEff.slice():[];
@@ -297,10 +271,9 @@ function nmXiCalc2(){
   if(!d||!t){ LINK_XI2=[]; LINK_JI2=[]; NM_XI_NOTE2=''; return; }
   var useTrue=document.getElementById('nmBTrue').checked;
   var lng=nmBirthLng();
-  if(lng==null||isNaN(lng)) lng=120;
   try{
     var built=buildBaziState({date:d, time:t, sex:document.getElementById('nmSex').value==='女'?0:1,
-      ziMode:document.getElementById('nmBZi').value, useTrue:useTrue, lng:lng, kongAxis:'day'});
+      ziMode:document.getElementById('nmBZi').value, sunMode:nmSunModeOf(lng, useTrue), lng:lng, kongAxis:'day'});
     var An=getAnalysis(built.BZ);
     var s=An.synthesis||{};
     LINK_XI2=(s.xiWxEff&&s.xiWxEff.length)?s.xiWxEff.slice():[];
@@ -340,11 +313,8 @@ function nmBirthFromUrl(){
   document.getElementById('nmBDate').value=d;
   document.getElementById('nmBTime').value=t;
   var sx=p.get('sex'); if(sx) document.getElementById('nmSex').value=sx;
-  var sp=document.getElementById('nmBProv'), sc=document.getElementById('nmBCity'), sd=document.getElementById('nmBDist');
   var pr=p.get('bProv'), ci=p.get('bCity'), di=p.get('bDist');
-  if(pr){ sp.value=pr; sp.onchange(); }
-  if(ci){ sc.value=ci; sc.onchange(); }
-  if(di) sd.value=di;
+  if(NM_PLACE) NM_PLACE.set(pr, ci, di);
   var bl=p.get('bLng'); if(bl) document.getElementById('nmBLng').value=bl;
   document.getElementById('nmBTrue').checked=(p.get('bTrue')==='1');
   return true;
@@ -765,10 +735,12 @@ function query(){
       if(!window.NAME_ZODIAC) return '';
       var bd=document.getElementById('nmBDate').value;
       if(!bd) return '';
+      var bzLng=nmBirthLng();
       var bz=buildBaziState({date:bd, time:document.getElementById('nmBTime').value||'12:00',
         sex:document.getElementById('nmSex').value==='女'?0:1,
-        ziMode:document.getElementById('nmBZi').value, useTrue:document.getElementById('nmBTrue').checked,
-        lng:nmBirthLng()||120, kongAxis:'day'}).BZ;
+        ziMode:document.getElementById('nmBZi').value,
+        sunMode:nmSunModeOf(bzLng, document.getElementById('nmBTrue').checked),
+        lng:bzLng, kongAxis:'day'}).BZ;
       var zk=window.NAME_ZODIAC.zodiacFromBranch(bz.zhis[0]);
       if(!zk) return '';
       var a=window.NAME_ZODIAC.analyzeName((LAST.xs||[]).concat(LAST.ms||[]).join(''), zk);
@@ -2238,16 +2210,16 @@ window.addEventListener('load', function () {
     (function(){
       var STACK=[
         'assets/lunar.js?v=9750324b',
-        'assets/bazi-data.js?v=145837fa',
-        'assets/bazi-rel.js?v=2d68fcb6',
+        'assets/bazi-data.js?v=78cc7963',
+        'assets/bazi-rel.js?v=5974fd58',
         'assets/bazi-shishen.js?v=bd3fa1ec',
-        'assets/bazi-duanyu.js?v=7335b43b',
+        'assets/bazi-duanyu.js?v=92a2f945',
         'assets/gua.js?v=3aacc2cc',
-        'assets/xuanji-lib.js?v=196b0c51',
+        'assets/xuanji-lib.js?v=19587c73',
         'assets/wheel.js?v=b5e657ab',
         'assets/ai.js?v=64c5c537',
-        'assets/bazi-core.js?v=fbcce6c9',
-        'assets/bazi-app.js?v=6c2d73c8',
+        'assets/bazi-core.js?v=a1f22cb6',
+        'assets/bazi-app.js?v=104362cc',
         'assets/jianbi.js?v=24090ae5',
         'assets/jianfan.js?v=0974acc9',
         'assets/kangxi.js?v=be55a21c',

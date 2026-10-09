@@ -27,8 +27,8 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
-<link rel="stylesheet" href="assets/css/xingzhan.css?v=cf7e4555">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
+<link rel="stylesheet" href="assets/css/xingzhan.css?v=50710429">
 
 </head>
 <body>
@@ -80,31 +80,26 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
 <script defer src="assets/astronomy-engine.min.js?v=f41139a8"></script>
 <script defer src="assets/xz-ephem.js?v=819cece7"></script>
 <script defer src="assets/xingzhan-data.js?v=2e70ab07"></script>
 <script>
 let __xz = '';
 /* 出生地三级联动：provList/PROV/distList 由 latlng.js 提供，坐标单源禁止本页自维护。
-   bindPlace('xz') 绑本命行，bindPlace('xzB') 绑第二人合盘行（#1180） */
+   bindPlace('xz') 绑本命行，bindPlace('xzB') 绑第二人合盘行（#1180）。
+   默认停在未知地，须择定省市才出坐标：起首若是某地，未动过表单的盘便按该地起宫，来历不著。 */
 function xzBindPlace(pre){
   const sp=document.getElementById(pre+'Prov'),sc=document.getElementById(pre+'City'),sd=document.getElementById(pre+'Dist');
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  function fillCity(){ sc.innerHTML=PROV[sp.value].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-  function fillDist(){
-    const c=PROV[sp.value].find(x=>x.c===sc.value)||PROV[sp.value][0];
-    if(!c) return;
-    let html=`<option value="">${c.c}</option>`;
-    distList(sp.value,c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-    sd.innerHTML=html;
-  }
-  sp.onchange=fillCity; sc.onchange=fillDist;
-  sp.value='北京市'; fillCity();
+  if(!sp||!sc||!sd) return null;
+  return fillPlaceTrio(sp, sc, sd, null);
 }
+/* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
+   缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
+const XZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。星盘的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
 /* 手动经纬度宽容解析：接受十进制、度分（°′）、度分秒、W/E/S/N 与中文“西经/东经/南纬/北纬”
    前缀等多种写法。返回 {v, ok, bad}：ok 时 v 为十进制度（负=西经/南纬）；
    有内容但无法解析时 ok=false、bad=原文（供警示），空串返回 {ok:null}。
@@ -474,8 +469,10 @@ function xzPai(){
     if(lon === null) lon = c.lng;
     if(lat === null) lat = c.lat;
   }
-  if(lon === null) lon = 120;
-  if(lat === null) lat = 0;
+  if(lon === null || lat === null){
+    document.getElementById('out').innerHTML = '<p class="notice">' + XZ_NO_PLACE_MSG + '</p>';
+    return;
+  }
   /* 出生地描述（手动填全时为空，仅境外手填场景）：随排盘显示坐标来源 */
   let placeLabel = '';
   if(prov && PROV[prov] && (lonV === '' || latV === '')){
@@ -511,8 +508,10 @@ function xzPai(){
       if(blon === null) blon = c.lng;
       if(blat === null) blat = c.lat;
     }
-    if(blon === null) blon = 120;
-    if(blat === null) blat = 0;
+    if(blon === null || blat === null){
+      document.getElementById('out').innerHTML = '<p class="notice">第二人' + XZ_NO_PLACE_MSG + '</p>';
+      return;
+    }
     if(bprov && PROV[bprov] && (blonV === '' || blatV === '')){
       const bc = document.getElementById('xzBCity').value, bd2 = document.getElementById('xzBDist').value;
       placeB = bd2 ? `${bprov} ${bc} ${bd2}` : `${bprov} ${bc}`;

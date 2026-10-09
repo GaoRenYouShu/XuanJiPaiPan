@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/qizheng.css?v=e250dfb7">
 
 </head>
@@ -85,31 +85,25 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
 <script defer src="assets/ai.js?v=64c5c537"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
 <script defer src="assets/astronomy-engine.min.js?v=f41139a8"></script>
 <script defer src="assets/xz-ephem.js?v=819cece7"></script>
 <script defer src="assets/qizheng-data.js?v=f5285a63"></script>
-<script defer src="assets/qizheng-engine.js?v=a957408d"></script>
+<script defer src="assets/qizheng-engine.js?v=5adb9db5"></script>
 <script>
 let __qz = '';
 /* ===== 出生地三级联动（latlng.js 单源） ===== */
 function qzBindPlace(pre){
   pre = pre || 'qz';
   const sp=document.getElementById(pre+'Prov'),sc=document.getElementById(pre+'City'),sd=document.getElementById(pre+'Dist');
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  function fillCity(){ sc.innerHTML=PROV[sp.value].map(c=>`<option value="${c.c}">${c.c}</option>`).join(''); fillDist(); }
-  function fillDist(){
-    const c=PROV[sp.value].find(x=>x.c===sc.value)||PROV[sp.value][0];
-    if(!c) return;
-    let html=`<option value="">${c.c}</option>`;
-    distList(sp.value,c.c).forEach(k=> html+=`<option value="${k}">${k}</option>`);
-    sd.innerHTML=html;
-  }
-  sp.onchange=fillCity; sc.onchange=fillDist;
-  sp.value='北京市'; fillCity();
+  if(!sp||!sc||!sd) return null;
+  return fillPlaceTrio(sp, sc, sd, null);
 }
+/* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
+   缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
+const QZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。七政四余的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
 /* 手动经纬度宽容解析（同星占页逻辑） */
 function qzCoordParse(s, isLat){
   if(s == null || s.trim() === '') return {ok: null};
@@ -320,8 +314,10 @@ function qzPai(){
     if(lon === null) lon = cc.lng;
     if(lat === null) lat = cc.lat;
   }
-  if(lon === null) lon = 120;
-  if(lat === null) lat = 0;
+  if(lon === null || lat === null){
+    document.getElementById('out').innerHTML = '<p class="notice">' + QZ_NO_PLACE_MSG + '</p>';
+    return;
+  }
   let placeLabel = '';
   if(prov && PROV[prov] && (lonV === '' || latV === '')){
     const city = document.getElementById('qzCity').value, dist = document.getElementById('qzDist').value;
@@ -354,8 +350,10 @@ function qzPai(){
       if(blon === null) blon = bc.lng;
       if(blat === null) blat = bc.lat;
     }
-    if(blon === null) blon = 120;
-    if(blat === null) blat = 0;
+    if(blon === null || blat === null){
+      document.getElementById('out').innerHTML = '<p class="notice">第二人' + QZ_NO_PLACE_MSG + '</p>';
+      return;
+    }
     chartB = qz_compute({y: bp[0], m: bp[1], d: bp[2], hh: bt[0], mm: bt[1],
       sex: document.getElementById('qzBSex').value, tz: 8, lon: blon, lat: blat,
       qiHeng, mingFa, trueSolar});
@@ -581,7 +579,7 @@ function qzZeGo(){
   out.innerHTML = '<p class="notice">扫描中，约需数秒，请稍候……</p>';
   setTimeout(() => {
     try{
-      const r = qz_zejiScan(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], window.__qzChart.qiHeng);
+      const r = qz_zejiScan(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], window.__qzChart.qiHeng, window.__qzChart.lon, window.__qzChart.lat);
       out.innerHTML = r.err ? '<p class="notice">' + qzEsc(r.err) + '</p>' : qzZeHtml(r);
     }catch(e){
       out.innerHTML = '<p class="notice">择时失败：' + qzEsc(e.message) + '</p>';

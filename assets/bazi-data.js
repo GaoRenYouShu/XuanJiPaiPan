@@ -278,11 +278,24 @@ function adjustZiShi(y,m,d,h,mi,mode){
 
 /* ---------- 十二长生（日干在某地支的状态）---------- */
 const CHANGSHENG = ['长生','沐浴','冠带','临官','帝旺','衰','病','死','墓','绝','胎','养'];
-/* 十二长生（火土同宫派，子平主流）：戊土随丙长生在寅、己土随丁长生在酉；
-   阳干顺行、阴干逆行（阴干长生为次等根，流派依《渊海子平》）。另有水土同宫派（土长生申），本站不采用。 */
+/* 十二长生（阳干顺行、阴干逆行，阴干长生为次等根，流派依《渊海子平》）。
+   土行长生之位两派并列：
+     火土同宫派（子平主流，本站默认）戊随丙长生在寅、己随丁长生在酉，土与火同生旺库；
+     水土同宫派（土随壬水，长生在申）戊随壬长生在申、己随癸长生在卯，土与水同生旺库。
+   两派之争只在土之生旺库，其余八干两派全同。 */
 const CS_START = {甲:'亥',乙:'午',丙:'寅',丁:'酉',戊:'寅',己:'酉',庚:'巳',辛:'子',壬:'申',癸:'卯'};
+const CS_START_SHUI = {甲:'亥',乙:'午',丙:'寅',丁:'酉',戊:'申',己:'卯',庚:'巳',辛:'子',壬:'申',癸:'卯'};
+const CS_SECT = {1:'火土同宫', 2:'水土同宫'};
+function changShengSectOf(){
+  const st=(typeof window!=='undefined')?window.changShengSect:null;
+  return (2===st)?2:1;
+}
+function changShengSectName(sect){ return CS_SECT[sect]||CS_SECT[1]; }
+function csStartOf(gan){
+  return (2===changShengSectOf()) ? CS_START_SHUI[gan] : CS_START[gan];
+}
 function getChangSheng(gan, zhi){
-  const start = CS_START[gan];
+  const start = csStartOf(gan);
   const si = ZHI_ORDER.indexOf(start), zi = ZHI_ORDER.indexOf(zhi);
   if(si<0||zi<0) return '';
   const yang = YANG.indexOf(gan) >= 0;
@@ -504,7 +517,7 @@ function pillarSha(col, ctx, opts){
   if(FEIREN[refGan]===z) out.push('飞刃');
   if(HONGYAN[refGan]===z) out.push('红艳煞');
   if(LIUXIA[refGan]===z) out.push('流霞');
-  if(CS_START[refGan]===z) out.push('学堂');                              // 长生位
+  if(csStartOf(refGan)===z) out.push('学堂');                             // 长生位，随土行两派而移
   { const sg=shiShenGan(refGan); if(sg && LU[sg]===z) out.push('词馆'); } // 食神之禄
   { const zy=zhengYinGan(refGan); if(zy && LU[zy]===z) out.push('国印贵人'); }
   if(JINYU[refGan]===z) out.push('金舆');
@@ -1169,6 +1182,62 @@ function siLingOf(mz, dayNo){
   return {gan:last[0], wx:GAN_WX[last[0]], dayNo};
 }
 /* 由出生时刻所在日取司令：日序 = 该日与前一节入节日相差天数加一；无日期（四柱未确认）时返回 null */
+/* 藏干深浅：HIDE 只定"某支藏哪些干"，是成员表，此一层静态不妨；
+   各藏干之深浅（发力之多寡）则不恒定，须随出生节令而移，此即本站补算之处。
+   辰戌丑未四库居四季之末，所藏杂而不专，深浅随节令的变化尤著：辰藏戊乙癸，春末乙木乘旺、
+   癸水为冬之余气渐退、戊土则入夏方起；未戌丑准此，各以所值之季定三味之孰深孰浅。
+   故同出一库，月初生与月末生者其藏干深浅并不相同，非一张固定本中余之表所能尽。
+   SILING 载月支藏干轮流当值之日数辖段，即节令深浅之真源：辖段中点为其气最深之日，
+   出生日离此愈远则气愈薄；本月全无辖段者为寄气，薄至八五折。算法三层相叠：
+   (1) 当季旺相休囚死：月支本气定当季之宜忌，旺相者加深、休囚死者转浅，四支通行；
+   (2) 司令辖段远近：出生日距某藏干当值辖段之中点愈远则其气愈薄，薄者减至八五折、最深增至一成五；
+   (3) 司令当值：出生恰在某干当值之辖段内者，再乘司令权重。
+   非四库之支（子午卯酉、寅申巳亥）体气较专，不受此项微调，只行第 (1) 条之旺衰损益。
+   返回键为天干、值为权系数之对象，取值恒为正。 */
+const HIDE_DEPTH_WX = {旺:1.20, 相:1.10, 休:0.90, 囚:0.80, 死:0.70};
+const HIDE_KU = ['辰','戌','丑','未'];                 // 四季库支，藏干杂乱，深浅随节令而移
+const HIDE_FAR = 0.85, HIDE_NEAR_FULL = 1.15, HIDE_COMMAND = 1.15;
+function hideDepth(z, mz, si){
+  const hs=HIDE[z]||[z];
+  const out={};
+  const siGan=si&&si.gan;
+  /* 司令辖段：月支藏干各自当值之日数区间，取 SILING 累加即得 [起, 止] */
+  let segs=null;
+  if(si && SILING[mz]){
+    segs={}; let acc=0;
+    SILING[mz].forEach(([g,n])=>{ if(segs[g]==null) segs[g]=[acc+1,acc+n]; acc+=n; });
+  }
+  const month=wangXiang(mz);
+  hs.forEach((h,hi)=>{
+    out[h]=(hi===0?0.5:(hi===1?0.3:0.2));
+  });
+  Object.keys(out).forEach(h=>{ out[h]*=(HIDE_DEPTH_WX[month[GAN_WX[h]]]||1); });
+  if(HIDE_KU.indexOf(z)>=0 && segs && si.dayNo!=null){
+    Object.keys(out).forEach(h=>{
+      const sg=segs[h];
+      let f=1;
+      if(sg){
+        /* 距当值之远近：当值辖段中点为最深，出生日离该中心愈远气愈薄。
+           辖段长最多三十日，故以三十日归一化，再夹于八五折与一成五之间。 */
+        const mid=(sg[0]+sg[1])/2, spread=(sg[1]-sg[0]+1), half=Math.max(spread,30)/2;
+        const dist=Math.abs(si.dayNo-mid);
+        f=1+(1-Math.min(1,dist/half))*(HIDE_NEAR_FULL-1);
+      }else{
+        f=HIDE_FAR;   // 本月不当值者为寄气，薄至八五折
+      }
+      out[h]*=Math.max(HIDE_FAR,f);
+    });
+  }
+  if(siGan && out[siGan]!=null) out[siGan]*=HIDE_COMMAND;
+  return out;
+}
+/* 取某支某一藏干之深浅权：mz 为月支、si 为 siLingOfSolar 结果（四柱未确认日期时为 null） */
+function hideWeightOf(z, h, hs, mz, si){
+  const d=hideDepth(z, mz, si);
+  if(d[h]!=null) return d[h];
+  const hi=(hs||[]).indexOf(h);
+  return hi===0?0.5:(hi===1?0.3:0.2);
+}
 function siLingOfSolar(sol, mz){
   try{
     if(!sol||!sol.getJulianDay||!mz) return null;
@@ -1687,7 +1756,7 @@ function juShi(zhis){
 /* 旺衰三因子（得令，得地，得势）：抽为纯函数，原局与行运两套盘面共用同一部口径。
    ms 为月令司令之五行（无出生日期者按月支本气）；gans、zhis 为待评之干支序列，
    原局传四柱，行运传四柱加大运与流年两支。返回三因子分，明细另由调用方按需生成。 */
-function strengthFactors(dg, dwx, gans, zhis, ms, siGan){
+function strengthFactors(dg, dwx, gans, zhis, ms, siGan, hideCtx){
   const sub={ling:0,di:0,shi:0};
   if(ms===dwx){ sub.ling+=4; }
   else if(WX_SHENG[ms]===dwx){ sub.ling+=3; }
@@ -1697,7 +1766,10 @@ function strengthFactors(dg, dwx, gans, zhis, ms, siGan){
   /* 得地：地支藏干根气，两处加权：
      一、柱位有别（子平以坐下最亲）：日支最重、时支次之、年支再次，各乘柱位系数；
      二、月支另计：司令当值之干已由得令承担，其余藏干依人元司事退气减权（本气半权、中气三成、余气二成），
-     当值者主事、退气者减力，故月支不按普通柱位计，免与得令双计。 */
+     当值者主事、退气者减力，故月支不按普通柱位计，免与得令双计。
+     藏干深浅非恒定：库支（辰戌丑未）逢季末，所藏随节令而损益，逢司令当值者益深，
+     故乘 hideDepth 之节令权，而非径取固定本中余。 */
+  const _hct=hideCtx||{};
   const POSW=[0.9,0,1.2,1.05];   // 年支、月支（另计）、日支、时支
   zhis.forEach((z,i)=>{
     const hs=HIDE[z]||[z];
@@ -1710,10 +1782,11 @@ function strengthFactors(dg, dwx, gans, zhis, ms, siGan){
       if(i===1){
         const skip=siGan||hs[0];          // 已由得令计者不再计得地
         if(h===skip) return;
-        sub.di+=base*(hi===0?0.5:(hi===1?0.3:0.2));
+        sub.di+=base*hideWeightOf(z,h,hs,_hct.mz,_hct.si);
         return;
       }
-      sub.di+=base*POSW[i];
+      const nom=hi===0?0.5:(hi===1?0.3:0.2);   // 本中余基准位，节令深浅以此为基准乘出
+      sub.di+=base*POSW[i]*(hideWeightOf(z,h,hs,_hct.mz,_hct.si)/nom);
     });
   });
   /* 得势：天干透出之力，两处修正：
@@ -1752,7 +1825,7 @@ function strengthFactors(dg, dwx, gans, zhis, ms, siGan){
     else if(z===renZ){ sub.di+=w.ren; }
   });
   // 长生（生源）根：力量次之。阳干长生（甲亥、丙寅、庚巳、壬申）为有力之根，阴干长生（乙午、丁酉、辛子、癸卯）为次等根。
-  const csZ = CS_START[dg];
+  const csZ = csStartOf(dg);
   if(csZ){
     const csW = {2:{y:2.2,n:1.4}, 3:{y:1.6,n:1.0}, 0:{y:1.3,n:0.8}};
     const yang=YANG.indexOf(dg)>=0;
@@ -1819,7 +1892,7 @@ function baziAnalysis(BZ){
   else if(WX_KE[lingWx]===dwx){ basis.push(`月令${lingWx}克日主  得令 −1`); }
   else if(WX_KE[dwx]===lingWx){ basis.push(`日主克月令${lingWx}，我克为耗  得令 −2`); }
   /* 三因子由 strengthFactors 一处分算（原局与行运同一部口径），此处只补逐项明细供展示，不另计分。 */
-  Object.assign(sub, strengthFactors(dg, dwx, gans, zhis, lingWx, si?si.gan:null));
+  Object.assign(sub, strengthFactors(dg, dwx, gans, zhis, lingWx, si?si.gan:null, {mz:mz, si:si}));
   const POSW=[0.9,0,1.2,1.05];   // 年支、月支（另计）、日支、时支
   zhis.forEach((z,i)=>{
     const hs=HIDE[z]||[z];
@@ -1832,12 +1905,16 @@ function baziAnalysis(BZ){
       if(i===1){
         const skip=si?si.gan:hs[0];          // 已由得令计者不再计得地
         if(h===skip) return;
-        const w=hi===0?0.5:(hi===1?0.3:0.2); // 本气半权、中气三成、余气二成
-        basis.push(`月支${z}藏干${h}（${hw}）${kind}  得地 +${(base*w).toFixed(1)}（退气×${w}）`);
+        const w=hideWeightOf(z,h,hs,mz,si);  // 本气半权、中气三成、余气二成，再乘节令深浅
+        const alt=hi===0?0.5:(hi===1?0.3:0.2);
+        const den=w>alt?'当令加深':(w<alt?'失时转浅':'节令持平');
+        basis.push(`月支${z}藏干${h}（${hw}）${kind}  得地 +${(base*w).toFixed(2)}（退气×${w.toFixed(2)}，${den}）`);
         return;
       }
-      const w=POSW[i];
-      basis.push(`地支${z}藏干${h}（${hw}）${kind}  得地 +${(base*w).toFixed(2)}（柱位×${w}）`);
+      const nom=hi===0?0.5:(hi===1?0.3:0.2);   // 本中余基准位，节令深浅以此为基准乘出
+      const dep=hideWeightOf(z,h,hs,mz,si)/nom;
+      const w=POSW[i]*dep;
+      basis.push(`地支${z}藏干${h}（${hw}）${kind}  得地 +${(base*w).toFixed(2)}（柱位×${POSW[i]}${dep!==1?`，节令深浅×${dep.toFixed(2)}`:''}）`);
     });
   });
   const rootWx=new Set();
@@ -1869,7 +1946,7 @@ function baziAnalysis(BZ){
     if(z===luZ){ basis.push(`地支${z}为日主${dg}之禄（临官、稳固之强根）  得地 +${w.lu}`); }
     else if(z===renZ){ basis.push(`地支${z}为日主${dg}之刃（帝旺、极致之强根）  得地 +${w.ren}`); }
   });
-  const csZ = CS_START[dg];
+  const csZ = csStartOf(dg);
   if(csZ){
     const csW = {2:{y:2.2,n:1.4}, 3:{y:1.6,n:1.0}, 0:{y:1.3,n:0.8}};
     [0,2,3].forEach(i=>{
@@ -2724,6 +2801,8 @@ function baziAnalysis(BZ){
   else if(strongCs.includes(csStates[1].s)) csNote+=`月令临${csStates[1].s}，日主得令之基；`;
   if(primary){ const wx=primary.wx, rep=GAN_OF_WX[wx][0];
     csNote+=`再参喜用${wx}之长生：`+BZ.zhis.map((z,i)=>`${PALACE[i]}支${z}（${getChangSheng(rep,z)}）`).join('；')+'。'; }
+  const csSectTxt=changShengSectNote(BZ.gans);
+  if(csSectTxt) csNote+=csSectTxt;
   const kw=kongWang(BZ.gans[2]+BZ.zhis[2]);
   const kwSet=new Set(kw);
   let kwNote=`以日柱（${BZ.gans[2]+BZ.zhis[2]}）论，旬空 ${kw.join('、')}。`;
@@ -2916,9 +2995,81 @@ function baziAnalysis(BZ){
   return {strength,strengthNote,score,strengthFine,godLevels,cnt,fu,tiao,tong,geName,geGan,geGanLabel,geUse,geOuter,isZaGe,geOuterNote,geOuterDoubt,geQing,geLevel,geLevelNote,geBreak,geXiang,geSha,geShaNote,geYunNote,geZaGe,geZaGeAll,sanDe,quotes,scoreBasis:basis,subLing:sub.ling,subDi:sub.di,subShi:sub.shi,juScore,juLines:ju.lines,strengthRule,congC,bingYao,structDisease,structNote,specialStruct,xiWx,jiWx,synthesis,outer,yunXiJi,muku:{list:mukuList,note:mukuNote,caiku:caiKuNote,kuTuShuo:kuTuShuo,caiKuZhi:caiKuZhi,caiKuWhere:caiKuWhere,caiKuKaihe:caiKuKaihe,caiKuBrief:caiKuBrief},changsheng:csNote,kongwang:kwNote,shaTend:shaTendNote,siLing:si};
 }
 
+/* ============ 起运法两派 ============
+   两派折算比率相同（三日折一岁、一日折四月、一时辰折十日），差别只在取整的粒度：
+   时辰派按整日数与整时辰档取整，分钟派按实际分钟连续折算，故两派之交运时刻有差。
+   差异量级：实测多在数日内，大者十余日；大运干支序列两派全同，唯交节之先后有别。 */
+const QIYUN_SECT = {1:'时辰折算', 2:'分钟折算'};
+function qiYunSectOf(){
+  const st=(typeof window!=='undefined')?window.qiYunSect:null;
+  return (2===st)?2:1;
+}
+function qiYunSectName(sect){ return QIYUN_SECT[sect]||QIYUN_SECT[1]; }
+/* 长生土行两派并注：只报土干（戊己）两派之别，其余八干两派全同故不赘 */
+function changShengSectNote(gans){
+  const tu=(gans||[]).filter(g=>g==='戊'||g==='己');
+  if(!tu.length) return '';
+  const cur=changShengSectOf(), alt=(2===cur)?1:2;
+  const pairs=tu.map(g=>{
+    const a=cur===2?CS_START_SHUI[g]:CS_START[g], b=alt===2?CS_START_SHUI[g]:CS_START[g];
+    return `${g}长生${a}（另派${b}）`;
+  });
+  return `十二长生土行用${changShengSectName(cur)}派：${pairs.join('、')}；另派${changShengSectName(alt)}则土随水，生旺库随之移易，余八干两派全同。`;
+}
+/* 本派与其另派之交运日并列，供起运行注明差异量级 */
+function qiYunPair(ec, sex){
+  const sect=qiYunSectOf(), altSect=(2===sect)?1:2;
+  const cur=ec.getYun(sex, sect), alt=ec.getYun(sex, altSect);
+  const curSolar=cur.getStartSolar(), altSolar=alt.getStartSolar();
+  const diff=(curSolar&&altSolar)?Math.abs(curSolar.subtractMinute(altSolar)):0;
+  return {sect, name:qiYunSectName(sect), altSect, altName:qiYunSectName(altSect),
+    altSolar:altSolar?altSolar.toYmd():'', diffDays:Math.abs(Math.round(diff/1440))};
+}
+
+/* ============ 盖头、截脚 ============
+   干支同柱而五行相克者：天干克地支为盖头，地支克天干为截脚。
+   大运前五年天干主事、后五年地支主事，故盖头者前五年得力而后五年减力，截脚者反之；
+   流年只一年，则盖头者天干之力专、地支之力减，截脚者地支之力专、天干之力减。 */
+function ganZhiGaiJie(gz){
+  if(!gz || gz.length<2) return '';
+  const gw=GAN_WX[gz[0]], zw=ZHI_WX[gz[1]];
+  if(!gw || !zw) return '';
+  if(WX_KE[gw]===zw) return '盖头';
+  if(WX_KE[zw]===gw) return '截脚';
+  return '';
+}
+
+/* ============ 命宫小限与命宫大限 ============
+   小限与大限皆自命宫起：小限一年一宫、大限十年一宫，顺逆同四柱大运之定向（阳男阴女顺行、阴男阳女逆行）。
+   命宫为一命之枢，二者皆其行度，用于补大运流年之未逮：大限言十年之总纲，小限言一岁之细节。
+   命宫未出（四柱模式未确认出生时间、公元前）时返回空，本项整块不出。 */
+function mingGongBase(BZ){
+  const mg=(BZ && ((BZ.ec && BZ.ec.getMingGong && BZ.ec.getMingGong()) || (BZ.meta && BZ.meta.mingGong))) || '';
+  if(!mg || mg.length<2) return null;
+  const i0=ZHI_ORDER.indexOf(mg[1]);
+  if(i0<0) return null;
+  const isMale=(BZ.sex===1||BZ.sex==='男'||BZ.sex===true);
+  return {gz:mg, i0, fwd:(YANG.indexOf(BZ.yearGan)>=0)===isMale};
+}
+/* 小限：自命宫起，一岁一宫，顺逆依命宫行度；以虚岁取宫。 */
+function xiaoXianZhi(BZ, age){
+  const base=mingGongBase(BZ);
+  if(!base || !age || age<1) return '';
+  const n=Math.floor(age)-1;
+  return ZHI_ORDER[(((base.i0+(base.fwd?n:-n))%12)+12)%12];
+}
+/* 命宫大限：自命宫起，一宫十年，顺逆同小限；返回本宫、所辖虚岁区间与行向。 */
+function mingGongDaXian(BZ, age){
+  const base=mingGongBase(BZ);
+  if(!base || !age || age<1) return null;
+  const n=Math.floor((age-1)/10);
+  return {gz:base.gz, zhi:ZHI_ORDER[(((base.i0+(base.fwd?n:-n))%12)+12)%12],
+    from:n*10+1, to:n*10+10, dir:base.fwd?'顺行':'逆行'};
+}
+
 /* ============ 岁运引动：从 lunar 库取大运序列（复用 buildYunData 的锚点步进避开首步空值） ============ */
 function baziDaYunSteps(BZ){
-  const yun=BZ.ec.getYun(BZ.sex);
+  const yun=BZ.ec.getYun(BZ.sex, qiYunSectOf());
   const dys=yun.getDaYun(11);                 // index 0 起运前，1~10 真实大运
   const _GAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
   const _ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
@@ -2965,6 +3116,14 @@ function evalGZ(BZ, A, step, baseGZ){
     const keys=[];
     const dg=BZ.dayGan, dwx=GAN_WX[dg];
     if(ganAll.includes(g)) keys.push(`天干${g}（${GAN_WX[g]}）正为<span class="tip sha-ji">用神</span>天干，引动<span class="tip sha-ji">用神</span>透干力增`);
+    /* 盖头、截脚：岁运干支同柱而五行相克，干克支则支力减、支克干则干力减；
+       大运十年分前后两段（前段重天干、后段重地支），流年只一年，故措辞随层而别。 */
+    const gaiJie=ganZhiGaiJie(step.gz);
+    if(gaiJie && (step.kind==='大运'||step.kind==='流年')){
+      const mech=(gaiJie==='盖头')?`天干${g}克地支${z}，天干之力专、地支之力减`:`地支${z}克天干${g}，地支之力专、天干之力减`;
+      const seg=(step.kind==='大运')?`；大运前五年重天干、后五年重地支，故${gaiJie==='盖头'?'前段得力而后段减力':'前段减力而后段得力'}`:'';
+      keys.push(`${step.kind}${step.gz}${gaiJie}（${mech}）${seg}`);
+    }
     const MU=['辰','戌','丑','未'];
     let muTouched=false;
     // 地支与命局各支的关系（冲、合/刑、害/破、暗合，并把墓库逢冲合标注为“库开”）
@@ -2980,7 +3139,10 @@ function evalGZ(BZ, A, step, baseGZ){
       if(pairIn(z,pz,DIZHI_HE6)){
         const hg=DIZHI_HE6.find(grp=>(grp[0]===z&&grp[1]===pz)||(grp[0]===pz&&grp[1]===z));
         const muAnno=(MU.includes(z)||MU.includes(pz))?'（墓库引动）':'';
-        keys.push(`支${z}合${PALACE[idx]}支${pz}${hg&&hg[2]?('（合化'+hg[2]+'）'):''}${muAnno}`);
+        /* 岁运层合化与命局同判：岁运之干支一并计入化神之透干与得根，化神不透、不得根又不当令者作合而不化（绊） */
+        const huaWx=(hg&&hg[2])||'';
+        const huaOK=huaWx?heHuaOK(huaWx, BZ.gans.concat([g]), BZ.zhis.concat([z]), BZ.monthZ, null, BZ.siLing):false;
+        keys.push(`支${z}合${PALACE[idx]}支${pz}${huaWx?(huaOK?('（合化'+huaWx+'）'):'（合而不化，绊）'):''}${muAnno}`);
         if(MU.includes(z)) muTouched=true;
       }
       if(pairIn(z,pz,DIZHI_XING) && !pairIn(z,pz,DIZHI_CHONG)) keys.push(`支${z}刑${PALACE[idx]}支${pz}（${xingKindOf(z,pz)}），刑伤、是非、牵绊`);
@@ -2998,11 +3160,24 @@ function evalGZ(BZ, A, step, baseGZ){
           if(jiEff.has(w)) keys.push(`支${z}引动三合${w}局（<span class="tip sha-xiong">忌神</span>${w}聚会成势），库开则<span class="tip sha-xiong">忌神</span>显现`);
           else if(xiEff.has(w)) keys.push(`支${z}引动三合${w}局（<span class="tip sha-ji">用神</span>${w}聚会得力），大运助喜用`);
         } else if(others.filter(c=>BZ.zhis.includes(c)).length===1){
-          const w=triMap[tri]; const ok=heHuaOK(w,BZ.gans,BZ.zhis,BZ.monthZ,null,BZ.siLing);
+          const w=triMap[tri]; const ok=heHuaOK(w,BZ.gans.concat([g]),BZ.zhis.concat([z]),BZ.monthZ,null,BZ.siLing);
           if(ok){ if(jiEff.has(w)) keys.push(`支${z}半合、拱${w}局（<span class="tip sha-xiong">忌神</span>${w}化神显，岁运引动为病）`); else if(xiEff.has(w)) keys.push(`支${z}半合、拱${w}局（<span class="tip sha-ji">用神</span>${w}化神显，岁运引动则吉）`); }
         }
       }
     }
+    /* 三刑逢冲：三刑（寅巳申、丑戌未）已全者，岁运之支冲其三刑之一，刑上添冲；
+       命局只带两支者，岁运之支补齐三刑，而三刑之内本有相冲两支，刑中即带冲。两路皆主刑伤官非、变动剧烈。 */
+    [['寅','巳','申'],['丑','戌','未']].forEach(tri=>{
+      const inChart=tri.filter(x=>BZ.zhis.includes(x));
+      if(inChart.length<2) return;
+      const chongPair=tri.filter(x=>tri.some(y=>y!==x && pairIn(x,y,DIZHI_CHONG)));
+      if(inChart.length===3){
+        const hit=chongPair.filter(x=>pairIn(z,x,DIZHI_CHONG));
+        if(hit.length) keys.push(`命局${tri.join('')}三刑已全，岁运${z}来冲${hit.join('、')}，三刑逢冲、刑冲并见，主刑伤官非、变动剧烈`);
+      } else if(tri.includes(z)){
+        keys.push(`命局${inChart.join('')}已带半刑，岁运${z}至而${tri.join('')}三刑齐全，且${chongPair.join('、')}本相冲，刑中带冲，主刑伤官非、变动剧烈`);
+      }
+    });
     // 墓库闭库、入墓（仅当该墓库支未与命局冲、合时补注）
     if(MU.includes(z) && !muTouched){
       const storeWx={'辰':'水','戌':'火','丑':'金','未':'木'}[z];
@@ -3020,8 +3195,11 @@ function evalGZ(BZ, A, step, baseGZ){
     BZ.gans.forEach((pg,idx)=>{
       const wa=GAN_WX[g], wb=GAN_WX[pg];
       const he=tianGanHe(g,pg);
-      if(he && !ganSeen['he'+pg]){ ganSeen['he'+pg]=true; const ok=heHuaOK(he,BZ.gans,BZ.zhis,BZ.monthZ,[g,pg],BZ.siLing);
+      if(he && !ganSeen['he'+pg]){ ganSeen['he'+pg]=true; const ok=heHuaOK(he,BZ.gans.concat([g]),BZ.zhis.concat([z]),BZ.monthZ,[g,pg],BZ.siLing);
         keys.push(`天干${g}与${ganPl(pg)}${ok?('合化'+he):'合而不化（绊）'}，气机交合、羁绊`); }
+      /* 鸳鸯合：岁运与命局同柱天干五合、地支六合两两相应，古称鸳鸯合（天地合），主和合顺遂、人事易得默契相助 */
+      if(he && pairIn(z,BZ.zhis[idx],DIZHI_HE6) && !ganSeen['yy'+idx]){ ganSeen['yy'+idx]=true;
+        keys.push(`天干${g}合${PALACE[idx]}干${pg}、地支${z}合${PALACE[idx]}支${BZ.zhis[idx]}，干支俱合，成鸳鸯合，主和合顺遂、人事易得默契相助`); }
       const tdc=(WX_KE[wa]===wb||WX_KE[wb]===wa) && pairIn(z,BZ.zhis[idx],DIZHI_CHONG);
       if(pairIn(g,pg,TIANGAN_CHONG) && !tdc && !ganSeen['ch'+pg]){ ganSeen['ch'+pg]=true; keys.push(`天干${g}与${ganPl(pg)}相冲，干头交战`); }
       if(tdc && !ganSeen['tdc'+pg]){ ganSeen['tdc'+pg]=true; keys.push(`天干${g}与${ganPl(pg)}相战，且支${z}成天克地冲，引动剧烈`); }
@@ -3169,10 +3347,14 @@ function baziYunDong(BZ, A, dy, liuNianYear){
   if(_HIST) return {start:dy.start, steps, liuNian};
   const ty=(typeof liuNianYear==='number')?liuNianYear:baziNowDate().getFullYear();
   try{
-    /* 流年干支：以"立春"为干支年界（非公历元旦）。公历年 ty 的流年 = 该年立春后生效的干支，
-       周期公式 (ty-4) mod 60 与 lunar.js getYearInGanZhi（立春感知）在 1900–2100 全区间一致。
-       按立春界推算，1月（立春前）也给出与"年内主流年"一致的干支，避免跨年歧义。 */
-    const gzLn=liunianGZ(ty);
+    /* 流年干支：以立春为干支年界（非公历元旦）。元旦至立春之间，今日尚在上一干支年之内，
+       公历年的周期公式给出的是立春之后才生效的柱，故改问今日 EightChar 之年柱，
+       与四柱表岁运三列同源同值。 */
+    const gzLn=(function(){
+      const _nd=baziNowDate();
+      try{ return Solar.fromYmd(_nd.getFullYear(), _nd.getMonth()+1, _nd.getDate()).getLunar().getEightChar().getYear(); }
+      catch(e){ return liunianGZ(ty); }
+    })();
     /* 流年之扶抑净值须与其所寄之大运并计：大运管十年、流年管一年而同参，流年不另起炉灶。 */
     const _ay=(typeof getActiveYun==='function')?getActiveYun(BZ):null;
     const _baseGZ=(_ay&&_ay.step&&_ay.step.gz)||'';

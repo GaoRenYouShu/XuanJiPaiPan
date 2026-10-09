@@ -27,7 +27,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
 <link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=dbac644e">
+<link rel="stylesheet" href="assets/style.css?v=4c1ff867">
 <link rel="stylesheet" href="assets/css/fengshui.css?v=efdd9ce8">
 
 </head>
@@ -58,9 +58,9 @@
       </div>
       <div class="birth-group compact">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
-        <div class="field"><label>省份</label><select id="fsProv" onchange="fsGeoProv()"></select></div>
-        <div class="field"><label>城市</label><select id="fsCity" onchange="fsGeoCity()"></select></div>
-        <div class="field"><label>区县</label><select id="fsDist" onchange="fsGeoPick()"></select></div>
+        <div class="field"><label>省份</label><select id="fsProv"></select></div>
+        <div class="field"><label>城市</label><select id="fsCity"></select></div>
+        <div class="field"><label>区县</label><select id="fsDist"></select></div>
         <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="fsLng" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
         <div class="field hh-lng"><label>纬度（可选）</label><input type="number" id="fsLat" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
       </div>
@@ -348,8 +348,8 @@
 </div>
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/latlng.js?v=433c42be"></script>
-<script defer src="assets/app.js?v=94c895a9"></script>
+<script defer src="assets/latlng.js?v=e4604c5c"></script>
+<script defer src="assets/app.js?v=73b06f06"></script>
 <script defer src="assets/fengshui-engine.js?v=5900e254"></script>
 <script defer src="assets/fs-mag.js?v=bfd7ff0c"></script>
 <script defer src="assets/wheel.js?v=b5e657ab"></script>
@@ -375,24 +375,14 @@ function mingGuaYear(y,m,d){
 }
 /* 盘下详情条：通用件 .wheel-detail 制式 */
 function fwDetail(id,html){ const e=document.getElementById(id); if(e) e.innerHTML=html; }
-function fsGeoFillCity(){
-  const sp=document.getElementById('fsProv'), sc=document.getElementById('fsCity');
-  if(!sp||!sc) return;
-  sc.innerHTML=(PROV[sp.value]||[]).map(c=>`<option value="${c.c}">${c.c}</option>`).join('');
-  fsGeoFillDist();
-}
-function fsGeoFillDist(){
-  const sp=document.getElementById('fsProv'), sc=document.getElementById('fsCity'), sd=document.getElementById('fsDist');
-  if(!sd) return;
-  const c=(PROV[sp.value]||[]).find(x=>x.c===sc.value);
-  if(!c){ sd.innerHTML=''; return; }
-  let html=`<option value="">${c.c}</option>`;
-  distList(sp.value, c.c).forEach(k=>{ html+=`<option value="${k}">${k}</option>`; });
-  sd.innerHTML=html;
-}
-function fsGeoProv(){ fsGeoFillCity(); fsGeoPick(); }
-function fsGeoCity(){ fsGeoFillDist(); fsGeoPick(); }
-/* 取所在地经纬度：手填两项齐全即优先，否则按省市区经 latlng.js 取数 */
+/* 所在地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地取磁偏角，
+   来历不著。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
+   手填经纬度与三级下拉是两条独立的定地途径，故手填框不归它管。 */
+function fsGeoProv(){ fsGeoPick(); }
+function fsGeoCity(){ fsGeoPick(); }
+/* 取所在地经纬度：手填两项齐全即优先，否则按省市区经 latlng.js 取数。
+   所在地未定即无坐标可取，返回空而磁偏角留空不折算（磁偏角框空即古法直读磁北），
+   不回退任一城市坐标：按别人的所在地折出来的磁偏角不著来历。 */
 function fsGeoCoord(){
   const lo=parseFloat((document.getElementById('fsLng')||{}).value);
   const la=parseFloat((document.getElementById('fsLat')||{}).value);
@@ -470,9 +460,7 @@ function fsMagOnline(){
 }
 function fsGeoInit(){
   const sp=document.getElementById('fsProv'); if(!sp) return;
-  sp.innerHTML=provList().map(p=>`<option value="${p}">${p}</option>`).join('');
-  sp.value='北京市';
-  fsGeoFillCity();
+  window.__fsPlaceTrio=fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
   fsGeoPick();
 }
 /* 全局基础设定读取 */
