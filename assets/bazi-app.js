@@ -1356,7 +1356,7 @@ if (BAZI_PAGE_UI) mountAI(function(){
   try{ const A=getAnalysis(BZ);
     analysis=`\n格局分析：\n日主强弱：${A.strength}（旺衰评分${A.score.toFixed(1)}）\n五行分布：${['木','火','土','金','水'].map(k=>k+A.cnt[k]).join(' ')}`+
       `\n扶抑用神：喜（${A.fu.xi.join('、')}） 忌（${A.fu.ji.join('、')}）`+
-      `\n调候用神：喜${A.tiao.wx}（${A.tiao.zhiGan.join('、')}），${A.tiao.power}`+
+      `\n调候用神：喜${A.tiao.zhiGan.join('、')}（五行属 ${(A.tiao.xiWx||[]).join('、')}），${A.tiao.power}`+
       (A.tong?`\n通关用神：${A.tong.wx}（${dedupChars(A.tong.gan)}）`:'')+
       `\n格局：${A.geName}${A.geGanLabel}；格局用神：喜 ${A.geUse.xi}；忌 ${A.geUse.ji}`;
   }catch(e){ analysis=''; }

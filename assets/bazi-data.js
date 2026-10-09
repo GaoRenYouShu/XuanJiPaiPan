@@ -2013,6 +2013,15 @@ function baziAnalysis(BZ){
   tiao={wx:_thWx, reason:{冬:'冬月严寒，水寒金冷，寒暖之偏当调',夏:'夏月燥热，火炎土燥，燥湿之偏当调',
     秋:'秋月金旺，燥气渐起，燥湿之偏当调',春:'春月寒湿犹存，寒暖之偏当调'}[s]};
   tiao.gan = TH;
+  /* 调候喜忌：喜为取用诸干所属五行（去重，主佐并列即同喜），
+     忌为"克取用五行者"减去取用自身所含之五行。
+     后一步不可省：《穷通宝鉴》逐格取用多为主佐并用（如戊土酉月取丙癸、甲木寅月取丙癸），
+     佐干之五行往往正是主干的克制方（癸水克丙火），若机械地只取主干五行再判其受克方为忌，
+     则同一格里"用丙癸"与"忌水"并列，页面上自相矛盾。一百二十格中此类四十格。
+     故忌神取"取用之外的克制方"：克取用五行而其五行不在取用之内者方为忌。 */
+  const _thWxAll=[...new Set(TH.map(g=>GAN_WX[g]))];
+  tiao.xiWx=_thWxAll;
+  tiao.jiWx=_thWxAll.map(w=>keWxOfC(w)).filter(w=>w && _thWxAll.indexOf(w)<0);
   // 调候深化：由全局水火(寒暖)与燥湿土判定程度，而非仅看季节
   // 寒暖以月令季节为纲（夏月偏热、冬月偏寒），水火个数只做修正，午月天干多水不得判"寒"
   const _sHot=(s==='夏')?2:(s==='冬')?-2:0;   // 夏月火势占优、冬月火势受抑
@@ -2903,28 +2912,39 @@ function baziAnalysis(BZ){
      偏不急或调候无力者从扶抑，调候退居为辅、待岁运引出；有通关之神者为两法搭桥，两不相犯。
      裁决只在此一处，下游各卡读 tiao.ruling 与 tiao.rulingNote，不得再自判主从。 */
   if(tiao){
-    const _tWx=tiao.wx;
+    /* 裁决按取用诸干所属五行整集判，不按首位单判：取用多为主佐并用（如丙癸同取），
+       其中一位与扶抑相左、另一位相合是常事，只看首位会得出"整派与扶抑相左"的失真结论。 */
+    const _tAll=tiao.xiWx;
+    const _tXi=_tAll.filter(w=>_xiEff.has(w));      // 取用中正合日主喜用者
+    const _tJi=_tAll.filter(w=>_jiEff.has(w));      // 取用中与日主喜忌相左者
+    const _tLead=_tJi[0]||_tAll[0];                 // 论相左时以相左的那位为主，无则取首位
     const _pianJi = grade.indexOf('尚均')<0;                    // 寒暖燥湿确有偏颇，非尚均者其偏当急
     const _youLi = tiao.powerTier<=2;                            // 调候用干透出且四柱有根
-    const _tong = (tong && tong.wx && tong.wx!==_tWx && _xiEff.has(tong.wx)) ? tong.wx : '';
-    if(_xiEff.has(_tWx)){
+    const _tong = (tong && tong.wx && _tAll.indexOf(tong.wx)<0 && _xiEff.has(tong.wx)) ? tong.wx : '';
+    if(_tJi.length===0 && _tXi.length){
       tiao.ruling='一物两用';
-      tiao.rulingNote='调候用神即日主喜用，一物两用，扶抑与调候同归一路，最为得力。';
-    } else if(!_jiEff.has(_tWx)){
+      tiao.rulingNote='调候取用即日主喜用，一物两用，扶抑与调候同归一路，最为得力。';
+    } else if(_tJi.length===0){
       tiao.ruling='并行不悖';
       tiao.rulingNote='调候与扶抑无直接冲突，两法各行其是、并行不悖。';
+    } else if(_tXi.length){
+      /* 主佐并用而两法各取其一：相左者与相合者并存，须并陈，不把整派判作与扶抑相左 */
+      tiao.ruling='两法各取其一';
+      tiao.rulingNote='⚠调候取用中“'+_tJi.join('、')+'”为日主忌神、“'+_tXi.join('、')+'”正合日主喜用，'
+        +'主佐并用而两法各取其一：岁运见'+_tXi.join('、')+'则扶抑与调候一举两得，见'+_tJi.join('、')
+        +'则以济'+tiao.reason.replace(/[，。].*$/,'')+'之偏为先，虽稍犯扶抑之忌不为大害。';
     } else if(_pianJi && _youLi){
       tiao.ruling='调候为急';
-      tiao.rulingNote='⚠调候用神“'+_tWx+'”虽为日主忌神，然'+tiao.reason+'，且调候用干透出得根、有力可倚，'
-        +'故先调候而后扶抑：岁运见'+_tWx+'以济其偏，虽稍犯扶抑之忌不为大害。';
+      tiao.rulingNote='⚠调候取用“'+_tLead+'”虽为日主忌神，然'+tiao.reason+'，且调候用干透出得根、有力可倚，'
+        +'故先调候而后扶抑：岁运见'+_tLead+'以济其偏，虽稍犯扶抑之忌不为大害。';
     } else if(_tong){
       tiao.ruling='通关调和';
-      tiao.rulingNote='⚠调候用神“'+_tWx+'”为日主忌神，两法相左；所幸局有通关之神“'+_tong+'”且正合日主喜用，'
+      tiao.rulingNote='⚠调候取用“'+_tLead+'”为日主忌神，两法相左；所幸局有通关之神“'+_tong+'”且正合日主喜用，'
         +'取'+_tong+'通关则扶抑与调候两不相犯，一举两得。';
     } else {
       tiao.ruling='扶抑为主';
-      tiao.rulingNote='⚠调候用神“'+_tWx+'”为日主忌神，'+(_youLi?'然寒暖燥湿尚均，调候之偏不急':'而调候用干'+tiao.powerShort+'、原局不得力，虽有偏而无以济')
-        +'，故从扶抑为主：以'+([..._xiEff].join('、')||'月令用神')+'为用，调候退居为辅、待岁运引出'+_tWx+'方论。';
+      tiao.rulingNote='⚠调候取用“'+_tLead+'”为日主忌神，'+(_youLi?'然寒暖燥湿尚均，调候之偏不急':'而调候用干'+tiao.powerShort+'、原局不得力，虽有偏而无以济')
+        +'，故从扶抑为主：以'+([..._xiEff].join('、')||'月令用神')+'为用，调候退居为辅、待岁运引出'+_tLead+'方论。';
     }
     tiao.conflict=tiao.rulingNote;
   }

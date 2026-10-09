@@ -13,7 +13,7 @@ const PROV_CENTER = {"北京市":[116.405285,39.904989],"天津市":[117.190182,
    会按该地经度折过一道而盘面不著一字，误差藏进校正量里，读盘者无从分辨。 */
 const UNKNOWN_PLACE = '未知地';
 /* 出生地是否已定：省、市两级任一停在未知档即未定。
-   区县可空（空即按市级经度，市已选定故仍属定地）；市一级不可空，
+   区县可停在未知地（即按市级经度，市已选定故仍属定地）；市一级不可空，
    只选省就出经度等于替用户挑了一座城，那城未必是其出生地。
    手动经度与省市两级是两条独立的定地途径，故只判这组下拉，不管经度框。 */
 function placeUnset(prov, city){
@@ -45,32 +45,28 @@ function findLat(prov, city, dist){
 function coordOf(prov, city, dist){ return {lng: findLng(prov,city,dist), lat: findLat(prov,city,dist)}; }
 function provCenter(prov){ const v = PROV_CENTER[prov]; return v? {lng:v[0], lat:v[1]} : null; }
 /* 出生地三级下拉的填充与取值，全站各页共用这一份。
-   省、市两级以"未知地"起首且默认停在该档：定地是出盘的前提而非可略的修饰，
-   默认落在真实地点等于替用户选了出生地，随后的经度校正便带着一个无人认领的来历。
-   区县首项是该市名本身，取它即"只定到市"，与定到某区县同属定地，故不算未知。
-   三级联动与坐标取数各页写法不一，散在各页改一次要改十几处且易漏，收在此处一处改到。 */
+   三级一律以"未知地"起首，且默认停在该档：定地是出盘的前提而非可略的修饰，
+   起首落在真实地点等于替用户选了出生地，随后的经度校正便带着一个无人认领的来历。
+   择定省级之后，市一级自动落到该省首市：首市随省而变、在下拉里看得见，
+   是"用户已择省"之后的顺次展开，与起首硬落一个固定城市（换省也不动）是两回事。
+   区县不自动落位，停在未知地即按市级经度出数，市已选定故仍属定地；
+   市一级仍不可空，须用户择定，只择省而不点市者不出经度。 */
 function fillPlaceTrio(provEl, cityEl, distEl, onDone){
   if(!provEl || !cityEl || !distEl) return null;
   const unknown = '<option value="'+UNKNOWN_PLACE+'">'+UNKNOWN_PLACE+'</option>';
   function fillDist(){
     const p = provEl.value;
     const c = (PROV[p]||[]).find(x=>x.c===cityEl.value);
-    if(!c){
-      distEl.innerHTML = '';
-      distEl.disabled = true;
-      if(onDone) onDone();
-      return;
-    }
-    distEl.disabled = false;
-    distEl.innerHTML = '<option value="">'+c.c+'</option>'+
-      distList(p, c.c).map(k=>'<option value="'+k+'">'+k+'</option>').join('');
+    if(!c){ distEl.innerHTML = unknown; if(onDone) onDone(); return; }
+    distEl.innerHTML = unknown
+      + distList(p, c.c).map(k=>'<option value="'+k+'">'+k+'</option>').join('');
     if(onDone) onDone();
   }
   function fillCity(){
     const p = provEl.value;
-    if(!PROV[p]){ cityEl.innerHTML = unknown; cityEl.disabled = true; fillDist(); return; }
-    cityEl.disabled = false;
+    if(!PROV[p]){ cityEl.innerHTML = unknown; fillDist(); return; }
     cityEl.innerHTML = unknown + PROV[p].map(c=>'<option value="'+c.c+'">'+c.c+'</option>').join('');
+    cityEl.value = PROV[p][0].c;
     fillDist();
   }
   provEl.innerHTML = unknown + provList().map(p=>'<option value="'+p+'">'+p+'</option>').join('');
@@ -84,9 +80,11 @@ function fillPlaceTrio(provEl, cityEl, distEl, onDone){
     set(prov, city, dist){
       if(!prov || !PROV[prov]){ this.reset(); return; }
       provEl.value = prov; fillCity();
-      if(city && PROV[prov].some(x=>x.c===city)){ cityEl.value = city; fillDist();
-        if(dist) distEl.value = [...distEl.options].some(o=>o.value===dist) ? dist : '';
-      }
+      /* 存档所载之市若不在本省表内（表未收该市），一律停在未知地，不沿用择省时自动落的首市：
+         沿用会把首市的经度当成存档所载之地的经度，来历不著。 */
+      cityEl.value = (city && PROV[prov].some(x=>x.c===city)) ? city : UNKNOWN_PLACE;
+      fillDist();
+      if(dist && [...distEl.options].some(o=>o.value===dist)) distEl.value = dist;
     }
   };
 }

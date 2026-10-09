@@ -3549,7 +3549,7 @@ const dn=t=>{ if(!_D2A) return ''; let s=''; try{ s=(typeof t==='function')?t():
       }
       return `喜${((_D2A.fu&&_D2A.fu.xi)||[]).join('、')||'无'}，忌${((_D2A.fu&&_D2A.fu.ji)||[]).join('、')||'无'}`;
     })}</span></div>
-    <div class="an-row"><span class="an-k">调候用神</span><span class="an-v">喜 <b class="${WX_CLASS[A.tiao.wx]}">${A.tiao.wx}</b>（具体用 ${A.tiao.zhiGan.map(g=>`<b class="${WX_CLASS[A.tiao.wx]}">${g}</b>`).join('、')}）${A.tiao.d}<br><span class="sub-note">用干落处：${A.tiao.power}${A.tiao.powerGan?('，落在 '+A.tiao.powerGan):''}。</span><br><span class="sub-note">全局寒暖燥湿：${A.tiao.grade}。${A.tiao.reason}。${earthWetDryNote(BZ)?(' '+earthWetDryNote(BZ)):''}此就全局气候之偏而言，与《穷通宝鉴》按日干月令逐格取用者两事，取用从表、气候从局，两不相掩。</span><div class="sub-note">调候与扶抑：${A.tiao.ruling}。${A.tiao.rulingNote}</div>${dn(()=>`喜 ${_D2A.tiao.wx}（具体用 ${(_D2A.tiao.zhiGan||[]).join('、')}），用干${_D2A.tiao.powerShort||''}`)}</span></div>
+    <div class="an-row"><span class="an-k">调候用神</span><span class="an-v">喜 ${A.tiao.zhiGan.map(g=>`<b class="${WX_CLASS[GAN_WX[g]]}">${g}</b>`).join('、')}（五行属 ${A.tiao.zhiGan.map(g=>`<b class="${WX_CLASS[GAN_WX[g]]}">${GAN_WX[g]}</b>`).filter((v,i,a)=>a.indexOf(v)===i).join('、')}）${A.tiao.d}<br><span class="sub-note">用干落处：${A.tiao.power}${A.tiao.powerGan?('，落在 '+A.tiao.powerGan):''}。</span><br><span class="sub-note">全局寒暖燥湿：${A.tiao.grade}。${A.tiao.reason}。${earthWetDryNote(BZ)?(' '+earthWetDryNote(BZ)):''}此就全局气候之偏而言，与《穷通宝鉴》按日干月令逐格取用者两事，取用从表、气候从局，两不相掩。</span><div class="sub-note">调候与扶抑：${A.tiao.ruling}。${A.tiao.rulingNote}</div>${dn(()=>`喜 ${(_D2A.tiao.zhiGan||[]).join('、')}（五行属 ${(_D2A.tiao.xiWx||[]).join('、')}），用干${_D2A.tiao.powerShort||''}`)}</span></div>
     <div class="an-row"><span class="an-k">通关用神</span><span class="an-v">${A.tong? (A.tong.note + `<br><span class="sub-note">真假：${endDot(A.tong.zhen)}</span>` + (A.tong.order&&A.tong.order.length>1?`<br><span class="sub-note">${endDot('化解顺序：'+A.tong.order.map((o,i)=>`${i+1}. ${o.war}，取“${o.mediator}”${o.sameAsPrimary?'（即首选用神，一举两得）':''}`).join('；'))}</span>`:'')) : '五行无显著相战，无需强制通关。'}${dn(()=>_D2A.tong?`取 ${_D2A.tong.wx} 通关`:'五行无显著相战，无需通关')}</span></div>
     <div class="an-row"><span class="an-k">病药用神</span><span class="an-v">${A.bingYao.note}${dn(()=>`病 ${_D2A.bingYao.bing}，药 ${_D2A.bingYao.yao}`)}</span></div>
     ${A.structDisease && A.structDisease.length ? `<div class="an-row an-struct"><span class="an-k">结构病药</span><span class="an-v"><div class="struct-note">${A.structNote}</div>${A.structDisease.map(d=>`<div class="struct-item"><span class="sd-tag sd-${d.kind}">${REL.gz.clsLabel(d.cls)}（${d.sev}）</span> ${d.why}${d.yaoWx?(' 化解：补“'+d.yaoWx+'”'+(d.yaoText?('，'+d.yaoText):'')):(d.yaoText?(' 化解：'+d.yaoText):'')}</div>`).join('')}${dn(()=>{ const _sd=_D2A.structDisease||[]; return _sd.length?_sd.map(d=>REL.gz.clsLabel(d.cls)+'（'+d.sev+'）').join('、'):'结构尚和'; })}</span></div>` : `<div class="an-row an-struct"><span class="an-k">结构病药</span><span class="an-v"><div class="struct-note">${A.structNote}</div>${dn(()=>{ const _sd=_D2A.structDisease||[]; return _sd.length?_sd.map(d=>REL.gz.clsLabel(d.cls)+"（"+d.sev+"）").join("、"):"结构尚和"; })}</span></div>`}
@@ -4038,7 +4038,7 @@ function renderRemedy(BZ){
   const favWx=[...(A.synthesis&&A.synthesis.xiWxEff&&A.synthesis.xiWxEff.length?A.synthesis.xiWxEff:(A.fu.xiWx||[]))];
   if(!favWx.length){
     // 中和日主：扶抑不拘，取调候、通关、格局用神之五行作为补救参考
-    if(A.tiao&&A.tiao.wx) favWx.push(A.tiao.wx);
+    if(A.tiao&&A.tiao.xiWx&&A.tiao.xiWx.length) A.tiao.xiWx.forEach(w=>{ if(w&&!favWx.includes(w)) favWx.push(w); });
     if(A.tong&&A.tong.wx) favWx.push(A.tong.wx);
     if(A.geUse&&A.geUse.xiWx) A.geUse.xiWx.forEach(w=>{ if(w&&!favWx.includes(w)) favWx.push(w); });
   }
@@ -4813,14 +4813,17 @@ function schoolXiJi(A, BZ){
     geXi=(A.geUse&&A.geUse.xiWx)||[]; geJi=(A.geUse&&A.geUse.jiWx)||[];
     if(!geXi.length) geXi=A.xiWx||[]; if(!geJi.length) geJi=A.jiWx||[];
   }
-  const tiaoWx=A.tiao&&A.tiao.wx;
-  const tiaoJi=tiaoWx?[keWxOf(tiaoWx)].filter(Boolean):[];
+  /* 调候喜忌：走 tiao.xiWx / tiao.jiWx（bazi-data.js 由取用诸干所属五行与"克取用者"推得，
+     忌已减去取用自身所含之五行，故不会出现"用丙癸而忌水"的自相矛盾）。
+     不在此处另取 WX_KE[tiao.wx] 当忌：那会把主佐并用之佐干判成忌。 */
+  const tiaoXi=(A.tiao&&A.tiao.xiWx)||[];
+  const tiaoJi=(A.tiao&&A.tiao.jiWx)||[];
   const byXi=(A.bingYao&&A.bingYao.yao)?[A.bingYao.yao]:[];
   const byJi=(A.bingYao&&A.bingYao.bing)?[A.bingYao.bing]:[];
   return {
     ziping:{xi:geXi, ji:geJi},
     mang:{xi:[WX_KE[GAN_WX[BZ.dayGan]], Object.keys(WX_KE).find(w=>WX_KE[w]===GAN_WX[BZ.dayGan])].filter(Boolean), ji:[]},   // 盲派财官本位（bazi-mangpai.js xiGz 口径）：财官五行为喜，不立五行忌神
-    tiao:{xi:tiaoWx?[tiaoWx]:[], ji:tiaoJi},
+    tiao:{xi:tiaoXi, ji:tiaoJi},
     xin:{xi:fuXiWx, ji:fuJiWx},         // 新派旺衰扶抑 = 扶抑
     bingyao:{xi:byXi, ji:byJi}
   };
@@ -4877,12 +4880,11 @@ function renderSchoolDiffInner(A, BZ){
   mang+=` 本派以财官五行为喜（${S.mang.xi.join('、')||'无'}），不立五行忌神。得失不以旺衰论，以做功能否成立、制化是否得用为断。`;
 
   // 调候派
-  const tiaoZhiGan=A.tiao.zhiGan||[];
-  let tiao=`${seasonName}生人，${tiaoGrade.indexOf('尚均')>=0?'全局寒暖燥湿尚均':'全局寒暖燥湿以“'+tiaoGrade+'”为偏'}，${A.tiao.reason}。调候用神为 ${A.tiao.wx}（具体用 ${tiaoZhiGan.join('、')||A.tiao.wx}），取法从《穷通宝鉴》日干月令之表、不由季节一概而论。${A.tiao.d}`;
+  let tiao=`${seasonName}生人，${tiaoGrade.indexOf('尚均')>=0?'全局寒暖燥湿尚均':'全局寒暖燥湿以“'+tiaoGrade+'”为偏'}，${A.tiao.reason}。调候取用 ${A.tiao.gan.join('、')}（五行属 ${(A.tiao.xiWx||[]).join('、')}），取法从《穷通宝鉴》日干月令之表、不由季节一概而论。${A.tiao.d}`;
   tiao+=` 调候药${A.tiao.power}${A.tiao.powerGan?('，落在 '+A.tiao.powerGan):''}。`;
-  tiao+=` 调候与扶抑两法${A.tiao.ruling==='并行不悖'||A.tiao.ruling==='一物两用'?('相成，'+A.tiao.ruling):('相左，裁决从'+A.tiao.ruling)}：`+A.tiao.rulingNote.replace(/^⚠/,'');
+  tiao+=` 调候与扶抑两法${A.tiao.ruling==='并行不悖'||A.tiao.ruling==='一物两用'?('相成，'+A.tiao.ruling):('相左，裁决：'+A.tiao.ruling)}：`+A.tiao.rulingNote.replace(/^⚠/,'');
   tiao+=` 调候一透则全局皆活，调候受伤则诸法皆滞；两法相左时不两存，按上列裁决定主从，不可执一。`;
-  tiao+=` 本派喜 ${S.tiao.xi.join('、')||'无'}（调候用神）、忌 ${S.tiao.ji.join('、')||'无'}（克调候用神者，损其调候之力）。`;
+  tiao+=` 本派喜 ${S.tiao.xi.join('、')||'无'}（取用诸干所属五行）、忌 ${S.tiao.ji.join('、')||'无'}（克取用五行而其五行不在取用之内者，损其调候之力）。`;
 
   // 新派
   let xin=`新派以日主旺衰为纲，本命旺衰评分 ${A.score.toFixed(1)}，${A.strength}。三得，得令${A.sanDe.ling?'✓（月令'+BZ.monthZ+'助日主）':'✗（月令不助）'}、得地 ${A.sanDe.di}、得势 ${A.sanDe.shi}。`;
@@ -5693,7 +5695,6 @@ function renderSchoolTable(A, BZ){
   const S=schoolXiJi(A, BZ);
   const dg=BZ.dayGan;
   const seasonName={'寅':'春','卯':'春','辰':'春','巳':'夏','午':'夏','未':'夏','申':'秋','酉':'秋','戌':'秋','亥':'冬','子':'冬','丑':'冬'}[BZ.monthZ];
-  const zhiGan=(A.tiao&&A.tiao.zhiGan)||[];
   const fuXi=(A.fu&&A.fu.xiCats)||[], fuJi=(A.fu&&A.fu.jiCats)||[];
   const show=w=>(w&&w.length)?w.join('、'):'无';
   const P=[
@@ -5704,7 +5705,7 @@ function renderSchoolTable(A, BZ){
       `财官五行为喜、不立五行忌神；功在制化合冲墓五法得其财官`,
       S.mang],
     ['调候派','以寒暖燥湿为纲，取法《穷通宝鉴》日干月令之表',
-      `${seasonName}生人，调候用神 ${A.tiao.wx}${zhiGan.length?('（具体用 '+zhiGan.join('、')+'）'):''}`,
+      `${seasonName}生人，调候取用 ${A.tiao.gan.join('、')}（五行属 ${(A.tiao.xiWx||[]).join('、')}）`,
       S.tiao],
     ['新派（民国）','以日主旺衰为纲，量化平衡求中和',
       `旺衰评分 ${A.score.toFixed(1)}、${A.strength}；得令${A.sanDe.ling?'是':'否'}、得地 ${A.sanDe.di}、得势 ${A.sanDe.shi}`,
@@ -5792,7 +5793,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     switch(scName){
       case '子平格局派': return geUseXiCats.indexOf(cat)>=0?'喜':(geUseJiCats.indexOf(cat)>=0?'忌':'中');
       case '盲派': return (cat==='财星'||cat==='官杀')?'喜':'中';
-      case '调候派': return wx===A.tiao.wx?'喜':(WX_KE[wx]===A.tiao.wx?'忌':'中');
+      case '调候派': return (A.tiao.xiWx||[]).indexOf(wx)>=0?'喜':((A.tiao.jiWx||[]).indexOf(wx)>=0?'忌':'中');
       case '新派（民国）': { const strong=(A.strength||'').indexOf('弱')<0; const MODE={'印星':'生','比劫':'扶','食伤':'泄','财星':'耗','官杀':'克'}; const m=MODE[cat]; if(!m) return '中'; return strong?((m==='泄'||m==='耗'||m==='克')?'喜':'忌'):((m==='生'||m==='扶')?'喜':'忌'); }
       case '病药派': return wx===A.bingYao.bing?'忌':(wx===A.bingYao.yao?'喜':'中');
       default: return '中';
@@ -5801,7 +5802,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   function keyHe(scName, x){   // 天干合：该派关键对象被合 → 优先解读（用神/调候字/药神/官杀财）
     const wx=GAN_WX[x];
     switch(scName){
-      case '调候派': return wx===A.tiao.wx?('调候用神'+x+'逢合，寒暖之济受阻'):'';
+      case '调候派': return (A.tiao.xiWx||[]).indexOf(wx)>=0?(x+'为调候取用，逢合则寒暖之济受阻'):'';
       case '病药派': return wx===A.bingYao.yao?('药神'+x+'逢合，制'+A.bingYao.bing+'之力减、偏枯复现'):'';
       case '子平格局派': return geUseXiCats.indexOf(shenCat(tenGod(dg,x)))>=0?(x+'用神逢合、力减'):'';
       case '盲派': { const c=shenCat(tenGod(dg,x)); return c==='官杀'?'官杀逢合，功名事有牵绊':(c==='财星'?'财星逢合，求财事有牵绊':''); }
@@ -5877,7 +5878,9 @@ function buildSchoolsDeep(BZ, sel, selMeta){
           break;
         }
         case '调候派': {
-          if(pt.gWx===A.tiao.wx||pt.zWx===A.tiao.wx) out.push(hasDong?`${pillar}受${rw}（调候用神${A.tiao.wx}所在），调候受扰、寒暖有偏`:`${pillar}被合（调候用神${A.tiao.wx}所在），调候受绊`);
+          /* 命中取用诸干之一即算调候所在；取用诸干可能不止一位（主佐并用），故按集判不按首位判 */
+          const _thHit=(pt.gWx&&(A.tiao.xiWx||[]).indexOf(pt.gWx)>=0)||(pt.zWx&&(A.tiao.xiWx||[]).indexOf(pt.zWx)>=0);
+          if(_thHit) out.push(hasDong?`${pillar}受${rw}（调候取用${A.tiao.gan.join('')}所在），调候受扰、寒暖有偏`:`${pillar}被合（调候取用${A.tiao.gan.join('')}所在），调候受绊`);
           break;
         }
         case '新派（民国）': {
@@ -5915,8 +5918,10 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   }
   function geTag(v){ if(v.g==='喜'&&v.z==='喜')return '喜'; if(v.g==='忌'&&v.z==='忌')return '忌'; if((v.g==='喜'&&v.z==='忌')||(v.g==='忌'&&v.z==='喜'))return 'mix'; return (v.g==='喜'||v.z==='喜')?'喜':(v.g==='忌'||v.z==='忌')?'忌':'中'; }
   function mangXi(gz){ return (window.MangPai&&MangPai.xiGz)?MangPai.xiGz(gz, dg):(function(){ const tc=tenCat(gz); return shenCat(tc.g)==='财星'||shenCat(tc.g)==='官杀'||shenCat(tc.z)==='财星'||shenCat(tc.z)==='官杀'; })(); }
-  function tiaoXi(gz){ return GAN_WX[gz[0]]===A.tiao.wx||ZHI_WX[gz[1]]===A.tiao.wx; }
-  function tiaoJi(gz){ return WX_KE[GAN_WX[gz[0]]]===A.tiao.wx||WX_KE[ZHI_WX[gz[1]]]===A.tiao.wx; }
+  /* 调候喜忌：走 tiao.xiWx / tiao.jiWx（取用诸干所属五行与"克取用者"减去取用所含五行）。
+     不取 WX_KE[A.tiao.wx] 当忌：主佐并用之格，佐干五行正是主干的克制方，机械判克即自相矛盾。 */
+  function tiaoXi(gz){ return (A.tiao.xiWx||[]).indexOf(GAN_WX[gz[0]])>=0||(A.tiao.xiWx||[]).indexOf(ZHI_WX[gz[1]])>=0; }
+  function tiaoJi(gz){ return (A.tiao.jiWx||[]).indexOf(GAN_WX[gz[0]])>=0||(A.tiao.jiWx||[]).indexOf(ZHI_WX[gz[1]])>=0; }
   function bingXi(gz){ return GAN_WX[gz[0]]===A.bingYao.yao||ZHI_WX[gz[1]]===A.bingYao.yao; }
   function bingJi(gz){ return GAN_WX[gz[0]]===A.bingYao.bing||ZHI_WX[gz[1]]===A.bingYao.bing; }
   // 每步神煞（支相对命局触发：驿马/桃花/天乙贵人/文昌）+ 十二长生含义：进每步解说，补"事象"
@@ -6222,7 +6227,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     const tag=tagBy(s.gz, tiaoXi, tiaoJi), up=upperOf(s); let x='';
     if(!up){
       if(tag==='中') x+=`${s.gz}于寒暖燥湿无大碍，顺原局`;
-      else { x+= tag==='喜'?`${s.gz}逢调候用神${A.tiao.wx}，寒暖燥湿得济、调候之急得解，身心舒坦、谋事顺`:`${s.gz}克调候之药${A.tiao.wx}，调候受损、寒热偏颇加重，健康情绪宜调护`; x+=(tiaoWeight()?('；'+tiaoWeight()):''); }
+      else { x+= tag==='喜'?`${s.gz}逢调候取用${A.tiao.gan.join('')}，寒暖燥湿得济、调候之急得解，身心舒坦、谋事顺`:`${s.gz}克调候取用${A.tiao.gan.join('')}，调候受损、寒热偏颇加重，健康情绪宜调护`; x+=(tiaoWeight()?('；'+tiaoWeight()):''); }
     }else{
       x+=selfVerdictOf('调候派', s, tag);
       x+=pairVerdict(s,F,'调候派')+pairFix(s,'调候派', tag);
@@ -6316,7 +6321,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   const schools=[
     {name:'子平格局派', useSha:false, base:`本命以${A.geName}立格。${geBaiOf(A)}用神取${A.geUse.xi}、所忌${A.geUse.ji||'未明'}。行运宜顺用神之势：遇用神旺之大运流年则格局得力、诸事顺遂，遇忌神破格之运则宜守成、防根基动摇。${geLevelSays}${geBreakSays}${geXiangSays}相神${xiangShenQing()}。`, f:fGe},
     {name:'盲派', useSha:true, base:`重心法“做功”：本局${mangDone?'财官透干（或地支有根）、日主可担，做功得力、富贵可期':'财官虚浮无根、或日主偏弱，做功乏力、劳而少得，宜踏实积累、待岁运引出财官方见成效'}；能制化财官、为我所用，方是真得。`, f:fMang},
-    {name:'调候派', useSha:false, base:`${season}生人，寒暖燥湿之偏以${A.tiao.wx}为${kXi('调候')}用神，调候之急为${tiaoGrade}；调候字状态：${tiaoState()}${tiaoWeight()?('，'+tiaoWeight()):''}；调候得宜则舒坦，失宜则乖蹇。`, f:fTiao},
+    {name:'调候派', useSha:false, base:`${season}生人，寒暖燥湿之偏以${A.tiao.gan.join('、')}（${(A.tiao.xiWx||[]).join('、')}）为${kXi('调候')}取用，调候之急为${tiaoGrade}；调候字状态：${tiaoState()}${tiaoWeight()?('，'+tiaoWeight()):''}；调候得宜则舒坦，失宜则乖蹇。`, f:fTiao},
     {name:'新派（民国）', useSha:false, base:`日主${A.strength}（旺衰评分 ${A.score.toFixed(1)}），扶抑以${fuXi.join('、')}为${kXi('喜')}、以${fuJi.join('、')||'无明忌'}为${kJi('忌')}；日主得衡则吉、失衡则凶。`, f:fXin},
     {name:'病药派', useSha:false, base:`偏枯之${kJi('病')}在${A.bingYao.bing}、救偏之${kXi('药')}在${A.bingYao.yao}。${A.structDisease&&A.structDisease.length?('本局结构'+kJi('病')+'：'+(A.structDisease.filter(d=>d.kind==='病').map(d=>d.rel).join('、')||'无')+'，结构'+kXi('药')+'：'+(A.structDisease.filter(d=>d.kind==='药').map(d=>d.rel).join('、')||'无')+'。'):'运岁引药则解、引病则重。'}`, f:fBing},
   ];
@@ -6324,7 +6329,8 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   function verdictOf(sc, s){ const tc=tenCat(s.gz); const gCat=shenCat(tc.g), zCat=shenCat(tc.z); const w=GAN_WX[s.gz[0]], zw=ZHI_WX[s.gz[1]];
     if(sc.name==='子平格局派'){ const v=geVect(s.gz); if(v.g==='喜'&&v.z==='喜') return '喜'; if(v.g==='忌'&&v.z==='忌') return '忌'; if((v.g==='喜'&&v.z==='忌')||(v.g==='忌'&&v.z==='喜')) return '中'; return (v.g==='喜'||v.z==='喜')?'喜':(v.g==='忌'||v.z==='忌')?'忌':'中'; }
     if(sc.name==='盲派'){ if(gCat==='财星'||gCat==='官杀'||zCat==='财星'||zCat==='官杀') return '喜'; return '中'; }
-    if(sc.name==='调候派'){ if(w===A.tiao.wx||zw===A.tiao.wx) return '喜'; if(WX_KE[w]===A.tiao.wx||WX_KE[zw]===A.tiao.wx) return '忌'; return '中'; }
+    if(sc.name==='调候派'){ const _xi=A.tiao.xiWx||[], _ji=A.tiao.jiWx||[];
+      if(_xi.indexOf(w)>=0||_xi.indexOf(zw)>=0) return '喜'; if(_ji.indexOf(w)>=0||_ji.indexOf(zw)>=0) return '忌'; return '中'; }
     if(sc.name==='新派（民国）'){ const t=tc.tag; if(t.indexOf('喜')>=0&&t.indexOf('忌')>=0) return '中'; if(t==='喜'||t==='喜喜') return '喜'; if(t==='忌'||t==='忌忌') return '忌'; return '中'; }
     if(sc.name==='病药派'){ const hitB=(w===A.bingYao.bing)||(zw===A.bingYao.bing); const hitY=(w===A.bingYao.yao)||(zw===A.bingYao.yao); if(hitB&&!hitY) return '忌'; if(hitY&&!hitB) return '喜'; return '中'; }
     return '中';
@@ -6355,7 +6361,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         return child?(inf?`${s.gz}不见财官，根基如常`:`${s.gz}不见财官，课业如常`):`${s.gz}不见财官，财官不显`;
       }
       case '调候派': {
-        if(tag==='喜') return `${s.gz}引调候${A.tiao.wx}，寒暖得济`;
+        if(tag==='喜') return `${s.gz}引调候取用${A.tiao.gan.join('')}，寒暖得济`;
         if(tag==='忌') return `${s.gz}逆调候、寒暖失度`;
         return `${s.gz}与调候无涉，寒暖如常`;
       }
@@ -6390,7 +6396,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     switch(scName){
       case '调候派': {
         const season={'寅':'春','卯':'春','辰':'春','巳':'夏','午':'夏','未':'夏','申':'秋','酉':'秋','戌':'秋','亥':'冬','子':'冬','丑':'冬'}[z];
-        if(season==='冬') return `；值${z}月寒气当令，调候${A.tiao.wx}尤为要紧`;
+        if(season==='冬') return `；值${z}月寒气当令，调候取用${A.tiao.gan.join('、')}尤为要紧`;
         if(season==='夏') return `；值${z}月燥气当令，调候之水尤为要紧`;
         return '';
       }
@@ -6529,7 +6535,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   const SC_OPT = {
     '子平格局派': { xiCats: Array.from(geUseXiCats), jiCats: Array.from(geUseJiCats) },
     '盲派':         { xiCats: ['财星','官杀'], jiCats: [] },
-    '调候派':       { xiWx: [A.tiao.wx], jiWx: [keWxOf(A.tiao.wx)].filter(Boolean) },
+    '调候派':       { xiWx: (A.tiao.xiWx||[]), jiWx: (A.tiao.jiWx||[]) },
     '新派（民国）': { xiCats: Array.from(xiSet), jiCats: Array.from(jiSet) },
     '病药派':       { xiWx: [A.bingYao.yao], jiWx: [A.bingYao.bing] }
   };
