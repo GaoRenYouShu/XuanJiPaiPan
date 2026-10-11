@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>算法数据 玄机排盘</title>
 <meta name="description" content="算法数据：本站引用的开源算法库、数据来源与各自的开源协议说明。">
@@ -18,17 +18,17 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script defer src="assets/meta.js?v=2740dac0"></script>
-<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=10cf4858">
-<link rel="icon" href="assets/logo/favicon.ico?v=6a2ce483" sizes="32x32">
-<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png?v=ee691450">
+<script defer src="assets/meta.js"></script>
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
+<link rel="icon" href="assets/logo/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=a78a985e">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
-<link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=e5c65c4b">
-<link rel="stylesheet" href="assets/css/opensource.css?v=41f7c36f">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
+<link rel="stylesheet" href="assets/fonts/site-sym.css">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/css/opensource.css">
 
 </head>
 <body class="page-os">
@@ -84,8 +84,8 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/app.js?v=73b06f06"></script>
+<script defer src="assets/lunar.js"></script>
+<script defer src="assets/app.js"></script>
 <script>
 
 /* DATA 各条只存基础分 s（非百分比）：页面渲染时按全体基础分动态归一到合计 100.0，
@@ -381,9 +381,17 @@ const DATA=[
   fn:'精编拆字字典（2517 字、615 字随问取拆多拆法、934 字六书标注、108 条加笔减笔活拆变象、部件释义表 312 项），叠以康熙数理（复用姓名学 NAME81）、梅花字占起卦（与梅花易数字占完全同源，附 64 卦义、周易卦辞、24 动爻白话爻解与九类事断语，起卦全空间覆盖，互变事类参断为九类乘三态插槽），经文复用 jingwen.js，加以时辰外应与值日冲日应期、九类事综合断语，四项加权得五档评级；未收录字按结构与数理兜底。',
   note:'源码 cezi-engine.js 与 cezi-data.js(cezi.html)。相字十法全收，八卦归象依《说卦传》；卷三取格断语 828 条照录《测字秘牒》（维基文库全文，CC BY-SA 4.0，本页以相同方式共享），卷五散格骨格 64 部件、卷七至理测法 18 案例照录底本，心易谐声、假借、转注三通道，经文照录《周易》，其余拆语自撰演绎。'},
  {name:'app.js 框架、共享日期选择器', type:'self', v:2.5, s:15.8,
-  link:'assets/app.js?v=73b06f06',
+  link:'assets/app.js',
   fn:'统一导航栏与页脚渲染、全站共享的自定义日期时间选择器（解决移动端原生日历无法弹出的问题）、默认当日时间、通用工具函数。',
   note:'源码 app.js，被全站页面统一加载。'},
+ {name:'前端错误捕获（ errcapture.js ）', type:'self', v:1, s:4.8,
+  link:'assets/errcapture.js',
+  fn:'线上 JS 报错进本地环形缓冲（浏览器 localStorage，容量五十条，控制台 XUANJI.errDump() 可查看本页已记录的报错），由 app.js 开头最先挂载，装载失败静默不碍排盘。上报字段只有报错信息、所在文件与行列号、页面地址与浏览器标识，不含堆栈与任何排盘数据。',
+  note:'源码 errcapture.js，经 app.js 动态挂载。外发已启用（上报主机见"站外数据服务"分组的收件条）；堆栈与任何排盘数据均不出站。'},
+ {name:'访问统计装载（ cf-beacon.js ）', type:'self', v:1, s:2.0,
+  link:'assets/cf-beacon.js',
+  fn:'装载 Cloudflare Web Analytics 统计信标：无 cookie、无指纹，采集页面地址、来源与浏览器粗类（国家、浏览器、设备类别），不含任何排盘数据。',
+  note:'源码 cf-beacon.js，经 app.js 动态挂载。统计信标装载与否由站点令牌决定；上报主机见"站外数据服务"分组的统计收件条。'},
  {name:'盲派命理数据层（ bazi-mangpai.js ）', type:'self', v:6, s:15.5,
   link:'assets/bazi-mangpai.js',
   fn:'盲派专属数据与判定真源，按理法（做功五法、宾主、墓库开闭）、象法（十神类象、纳音象）、技法（口诀神煞链、犯太岁、空亡落宫、虚透、借势）归集，供各流派解读格局与各流派解读运势的盲派视角调用；不以日主旺衰论命，以财官本位、做功效率立论。',
@@ -417,7 +425,7 @@ const DATA=[
   fn:'《皇极经世书》观物篇三十五起十六篇声音唱和数据件：声表十声、音表十二音逐位录字，声一百六十位去黑方四十八用一百一十二、音一百九十二位去黑方四十用一百五十二，唱和动数一万七千零二十四；提供单字声律检索（简繁互通）与唱和矩阵分声组音组浏览。表文以维基文库四库本卷07上原典唱和诸图为底本，通行归纳本互校，内置位数自校验。',
   note:'源码 huangji-shengyin.js，由 huangji.html 加载。表文为四库本原文录字，属研究交流性质，仅供参考。'},
  {name:'AI 解读( ai.js )', type:'self', v:1, s:6.3,
-  link:'assets/ai.js?v=64c5c537',
+  link:'assets/ai.js',
   fn:'将当前排盘数据组装为结构化提示词，接入用户配置的 AI 服务生成智能解读；含模型配置面板与自定义接口。',
   note:'源码 ai.js。AI 解读为可选增强，未配置时不影响全部排盘功能。'},
  {name:'真太阳时( latlng.js )', type:'self', v:2, s:9.8,
@@ -448,7 +456,13 @@ const DATA=[
   note:'许可：免费公共接口（无需密钥，非开源项目）。四源全部取不到则不显示。结果按会话缓存 sessionStorage，同一标签页只请求一次，避免逐页重复外发请求。'},
  {name:'地磁偏角查询（ geomag.bgs.ac.uk ）', type:'ext', link:'https://geomag.bgs.ac.uk/web_service/GMModels/wmm/2025/',
   fn:'风水两页磁偏角的在线校验源。英国地质调查局按 WMM2025 模型返回给定经纬度与日期的磁偏角、磁倾角、总强度及各自年变率。本站以本地 WMM2025 离线计算为主，此接口仅供点“在线校验磁偏角”时取官方值比对，并显示两者差异。',
-  note:'许可：免费公共接口（无需密钥，非开源项目，版权归英国地质调查局）。请求不带 cookie（credentials: omit），只上传经纬度与日期，不上传任何排盘数据；取不到即静默回退离线值，不影响任何排盘功能。'}
+  note:'许可：免费公共接口（无需密钥，非开源项目，版权归英国地质调查局）。请求不带 cookie（credentials: omit），只上传经纬度与日期，不上传任何排盘数据；取不到即静默回退离线值，不影响任何排盘功能。'},
+ {name:'前端报错收件（ sentry.io ）', type:'ext', link:'https://sentry.io/',
+  fn:'线上 JS 报错的外发收件端。errcapture.js 捕获到报错时，把报错内容发往 Sentry（ sentry.io ）的报错收件端点，内容只有报错信息、所在文件与行列号、页面地址与浏览器标识，不含堆栈（堆栈含内部函数名，按站点红线缺省不出站），也不含任何排盘数据，不带 cookie。',
+  note:'许可：Sentry 开发者档免费额度（按月限量，超限丢弃不收费）。单次页面会话限发十条，防错误风暴；DSN 为设计给前端使用的公开凭据，仅用于定位报错，不含任何密钥。控制台 XUANJI.errDump() 可查看本页已记录的报错。'},
+ {name:'访问统计收件（ Cloudflare ）', type:'ext', link:'https://www.cloudflare.com/web-analytics/',
+  fn:'页面访问统计的上报端。cf-beacon.js 装载信标后，页面地址、来源与浏览器粗类（国家、浏览器、设备类别）由其发往 static.cloudflareinsights.com。无 cookie、无指纹、不采集个人标识，不含任何排盘数据。',
+  note:'许可：Cloudflare Web Analytics 免费档。统计信标装载与否由站点令牌决定，令牌空即不装载、零外发。'}
 ];
 
 /* 分组真源：权重条色、图例、分组标题与条目标签统一取此，DATA 只存内容不存色 */

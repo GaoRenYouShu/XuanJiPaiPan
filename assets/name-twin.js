@@ -437,7 +437,7 @@ window.NAME_TWIN = (function(){
     });
 
     if(!out.length){
-      /* 全部候选都已在先前批次列出（剔尽）而非无候选：返回空名单交页面出列尽提示 */
+
       if(total) return { ok:true, method:'split', list:[], candidateCount:total };
       return { ok:false, reason: fixed
         ? '“' + fixed + '”未能拆出两个宜入名的部件：或字典只作形声与象形拆、或部件不宜入名（隶、折、口、鸟一类）、或与姓同字、或命中避讳。'
@@ -949,7 +949,7 @@ window.NAME_TWIN = (function(){
     }
 
     if(!out.length){
-      /* 全部候选已在先前批次列出（剔尽）而非无候选：交空名单由页面出列尽提示 */
+
       if(total) return { ok:true, method:'idiom', list:[], candidateCount:total };
       return { ok:false, reason: fixed
         ? '该成语在此条件下拆不出合格的两名：或与姓氏同字、或命中避讳、或两名完全相同。'

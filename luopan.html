@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>罗经仪 玄机排盘</title>
 <meta name="description" content="罗经仪在线排盘：三盘三针立向盘、百二十分金、穿山七十二龙、透地六十龙、先天后天八卦、洛书九宫、三元九运紫白飞星、二十八宿、三合水法、八宅游年、天星消砂纳水与磁偏角校准，附新手引导与实时指南针，供传统文化研究参考。">
@@ -18,17 +18,17 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script defer src="assets/meta.js?v=2740dac0"></script>
-<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=10cf4858">
-<link rel="icon" href="assets/logo/favicon.ico?v=6a2ce483" sizes="32x32">
-<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png?v=ee691450">
+<script defer src="assets/meta.js"></script>
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
+<link rel="icon" href="assets/logo/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=a78a985e">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
-<link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=e5c65c4b">
-<link rel="stylesheet" href="assets/css/luopan.css?v=3215cee5">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
+<link rel="stylesheet" href="assets/fonts/site-sym.css">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/css/luopan.css">
 </head>
 <body>
 <div id="topbar"></div>
@@ -163,16 +163,16 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/app.js?v=73b06f06"></script>
-<script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
-<script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/fengshui-engine.js?v=5900e254"></script>
-<script defer src="assets/luopan.js?v=bee48c48"></script>
-<script defer src="assets/fs-luo.js?v=c1c37a8d"></script>
-<script defer src="assets/fs-mag.js?v=bfd7ff0c"></script>
-<script defer src="assets/latlng.js?v=5d3cd7eb"></script>
-<script defer src="assets/ai.js?v=64c5c537"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/wheel.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/lunar.js"></script>
+<script defer src="assets/fengshui-engine.js"></script>
+<script defer src="assets/luopan.js"></script>
+<script defer src="assets/fs-luo.js"></script>
+<script defer src="assets/fs-mag.js"></script>
+<script defer src="assets/latlng.js"></script>
+<script defer src="assets/ai.js"></script>
 <script>
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
    引擎以 global.FENGSHUI 暴露；页内别名 FS 须待 defer 脚本执行后取，
@@ -433,7 +433,7 @@ function lpRealDetailRender(deg, beta, gamma){
       case 'jieSha': return '四路劫煞线：'+(v.hit?'<span class="wd-x">坐度落'+v.shan+'山，正压劫煞线</span>':'坐度落'+v.shan+'山，不在劫煞线上');
       case 'diMu': return '地母九星 '+v.star+'（'+v.gua+'宫）';
       case 'zheng': return '地盘正针 '+v.shan+'山';
-      case 'chuan': return v.kong?'<span class="wd-x">穿山大空亡龙（不可立向）</span>':'穿山七十二龙 '+v.gz+'龙（纳音'+v.nayin+'，'+(function(){ var jx=FS.longJx(v); var c=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+' '+jx.jx+'</span>'; })()+'）';
+      case 'chuan': return v.kong?'<span class="wd-x">穿山大空亡龙（不可立向）</span>':'穿山七十二龙 '+v.gz+'龙（纳音'+v.nayin+'，'+(function(){ var jx=FS.longJx(v); var c=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+jx.jx+'</span>'; })()+'）';
       case 'fen': return '百二十分金 '+v.gz+'（纳音'+v.nayin+'，'+(function(){ var c=(v.wang==='旺'||v.wang==='相')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+'</span>'; })()+'）';
       case 'zhong': return '人盘中针 '+v.shan+'山（消砂）';
       case 'laiGong': return '赖公五行 '+v.wx;
@@ -696,7 +696,7 @@ function lpChuanDetail(){
   var seg=rs.map(function(r){
     if(r.kong) return '<span class="wd-x">大空亡龙（八干四维正中，无干支所配）</span>';
     var jx=FS.longJx(r), cls=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x';
-    return r.gz+'（'+r.start+'°至'+r.end+'° '+r.nayin+' <span class="'+cls+'">'+r.wang+' '+jx.jx+'</span>）';
+    return r.gz+'（'+r.start+'°至'+r.end+'° '+r.nayin+' <span class="'+cls+'">'+r.wang+jx.jx+'</span>）';
   }).join(' ');
   LUOPAN.detail('lpChuanDetail',
     shan+'山 本山三龙 '+seg
@@ -729,7 +729,7 @@ function lpTouDetail(){
   var seg=rs.map(function(r){
     var jx=FS.longJx(r), cls=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x';
     var half=r.half?'（半交）':'';
-    return r.gz+'（'+r.start+'°至'+r.end+'°'+half+' '+r.nayin+' <span class="'+cls+'">'+r.wang+' '+jx.jx+'</span>）';
+    return r.gz+'（'+r.start+'°至'+r.end+'°'+half+' '+r.nayin+' <span class="'+cls+'">'+r.wang+jx.jx+'</span>）';
   }).join(' ');
   LUOPAN.detail('lpTouDetail', shan+'山 相交之龙 '+seg
     +'<span class="wd-br"></span>'

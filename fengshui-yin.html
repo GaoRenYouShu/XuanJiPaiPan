@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>阴宅风水 玄机排盘</title>
 <meta name="description" content="阴宅风水在线排盘：峦头寻龙点穴纲要、玄空飞星坐向立极、二十四山坐山立极、仙命配山禄马贵人、流年太岁三煞避忌、安葬择日避忌（重丧复日四离四绝）、三合水法、八煞黄泉桃花水、二十八宿分金合仙命，供传统文化研究参考。">
@@ -18,17 +18,17 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script defer src="assets/meta.js?v=2740dac0"></script>
-<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=10cf4858">
-<link rel="icon" href="assets/logo/favicon.ico?v=6a2ce483" sizes="32x32">
-<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png?v=ee691450">
+<script defer src="assets/meta.js"></script>
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
+<link rel="icon" href="assets/logo/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=a78a985e">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
-<link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=e5c65c4b">
-<link rel="stylesheet" href="assets/css/fengshui-yin.css?v=2a89f41e">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
+<link rel="stylesheet" href="assets/fonts/site-sym.css">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/css/fengshui-yin.css">
 
 </head>
 <body>
@@ -298,18 +298,18 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/lunar.js?v=9750324b"></script>
-<script defer src="assets/latlng.js?v=5d3cd7eb"></script>
-<script defer src="assets/app.js?v=73b06f06"></script>
-<script defer src="assets/wheel.js?v=b5e657ab"></script>
-<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
-<script defer src="assets/fengshui-engine.js?v=5900e254"></script>
-<script defer src="assets/fs-luo.js?v=c1c37a8d"></script>
-<script defer src="assets/fs-mag.js?v=bfd7ff0c"></script>
-<script defer src="assets/bazi-data.js?v=253f87fc"></script>
-<script defer src="assets/bazi-rel.js?v=5974fd58"></script>
-<script defer src="assets/zeri-engine.js?v=be10976f"></script>
-<script defer src="assets/ai.js?v=64c5c537"></script>
+<script defer src="assets/lunar.js"></script>
+<script defer src="assets/latlng.js"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/wheel.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/fengshui-engine.js"></script>
+<script defer src="assets/fs-luo.js"></script>
+<script defer src="assets/fs-mag.js"></script>
+<script defer src="assets/bazi-data.js"></script>
+<script defer src="assets/bazi-rel.js"></script>
+<script defer src="assets/zeri-engine.js"></script>
+<script defer src="assets/ai.js"></script>
 <script>
 /* 罗经立向盘（三盘三针）骨架 528：圈数多于他盘（周天刻度、正兼向度数带、三盘三针三环、
    百二十分金共六层），440 骨架可用径向仅 104 单位而六层按站内层宽需 183 单位，装不下，
@@ -328,8 +328,6 @@ function fwDetail(id,html){ const e=document.getElementById(id); if(e) e.innerHT
 /* 所在地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地取磁偏角，
    来历不著。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
    手填经纬度与三级下拉是两条独立的定地途径，故手填框不归它管。 */
-function fsGeoProv(){ fsGeoPick(); }
-function fsGeoCity(){ fsGeoPick(); }
 /* 取所在地经纬度：手填两项齐全即优先，否则按省市区经 latlng.js 取数。
    所在地未定即无坐标可取，返回空而磁偏角留空不折算（磁偏角框空即古法直读磁北），
    不回退任一城市坐标：按别人的所在地折出来的磁偏角不著来历。 */
@@ -410,7 +408,7 @@ function fsMagOnline(){
 }
 function fsGeoInit(){
   const sp=document.getElementById('fsProv'); if(!sp) return;
-  window.__fsPlaceTrio=fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
+  fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
   fsGeoPick();
 }
 /* 全局基础设定读取 */

@@ -3272,8 +3272,6 @@ function dualCrossPairs(BZ1, BZ2){
   }));
   return out;
 }
-function fullTen(dg,wx){ return tenGod(dg, GAN_OF_WX[wx][0]); }
-
 /* ── 双盘跟随件（每模块主盘件之后紧跟第二盘对应件，方便对照，不入集中大块）──
    全走既有形制：四柱表同一 renderTable、圆盘同一 bzQuantWheel 与 bzChangShengWheel（ID 加盘别后缀防撞）、
    关系同一 rel chip、对照表铺满屏幕（禁窄表）。
@@ -6050,7 +6048,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     try{ list=window.matchDuanyuStep('岁运',BZ,A,sc)||[]; }catch(e){ return ''; }
     // 按权重降序（重要断语优先输出），再进入跨层去重与截取
     list.sort((a, b) => ((b.w || 1) - (a.w || 1)));
-    // 先按跨层去重集筛掉已述者，取够条数后才登记，避免被截断的条目被误标"已述"而在后续层永久消失
+
     const cand=[];
     list.forEach(x=>{ const t=(x.say||''); if(t && !saidDuan.has(t)) cand.push({t, s:x.src}); });
     const out=cand.slice(0,4).map(x=>{ saidDuan.add(x.t); return String(x.t).replace(/[。；]+$/,''); });

@@ -443,7 +443,7 @@ if (BAZI_PAGE_UI) (function initBirth(){
   window.__dualLngOf=()=>DUAL_CITY_LNG;
   const dp=document.getElementById('dProv'), dc=document.getElementById('dCity'), dd=document.getElementById('dDist');
   if(dp && dc && dd){
-    window.__baziDualTrio=fillPlaceTrio(dp, dc, dd, ()=>{
+    fillPlaceTrio(dp, dc, dd, ()=>{
       DUAL_CITY_LNG=findLng(dp.value, dc.value, dd.value);
     });
   }

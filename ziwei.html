@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>紫微斗数 玄机排盘</title>
 <meta name="description" content="紫微斗数在线排盘：自动安十二宫、十四主星与辅佐煞曜、四化飞星、大限流年，命宫身宫一目了然，命盘解读供传统文化研究参考。">
@@ -18,17 +18,17 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="玄机排盘">
 <meta name="twitter:card" content="summary_large_image">
-<script defer src="assets/meta.js?v=2740dac0"></script>
-<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg?v=10cf4858">
-<link rel="icon" href="assets/logo/favicon.ico?v=6a2ce483" sizes="32x32">
-<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png?v=ee691450">
+<script defer src="assets/meta.js"></script>
+<link rel="icon" type="image/svg+xml" href="assets/logo/favicon.svg">
+<link rel="icon" href="assets/logo/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png?v=a78a985e">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2?v=94dba5c0">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css?v=658c493f">
-<link rel="stylesheet" href="assets/fonts/site-sym.css?v=1faa6aea">
-<link rel="stylesheet" href="assets/style.css?v=e5c65c4b">
-<link rel="stylesheet" href="assets/css/ziwei.css?v=f46d2695">
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
+<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
+<link rel="stylesheet" href="assets/fonts/site-sym.css">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/css/ziwei.css">
 </head>
 <body>
 <div id="topbar"></div>
@@ -141,17 +141,17 @@
   </div>
 </div>
 <footer id="footer"></footer>
-<script defer src="assets/iztro.min.js?v=4b8eca32"></script>
-<script defer src="assets/latlng.js?v=5d3cd7eb"></script>
-<script defer src="assets/app.js?v=73b06f06"></script>
-<script defer src="assets/lunar.js?v=9750324b"></script>
+<script defer src="assets/iztro.min.js"></script>
+<script defer src="assets/latlng.js"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/lunar.js"></script>
 <!-- 时间折算与流派：夏令时、太阳时在 xuanji-lib.js，子时算法在 bazi-data.js，与八字页同一真源。
      四柱模式的六十甲子校验、五虎遁、五鼠遁与四柱反查在 bazi-core.js，同为八字页真源。
      三件皆纯函数库、顶层不碰 DOM；bazi-data.js 顶层只解 GAN_WX 等干支常量，须排在 app.js 之后。 -->
-<script defer src="assets/bazi-data.js?v=253f87fc"></script>
-<script defer src="assets/bazi-core.js?v=50a4c6d4"></script>
-<script defer src="assets/xuanji-lib.js?v=19587c73"></script>
-<script defer src="assets/ai.js?v=64c5c537"></script>
+<script defer src="assets/bazi-data.js"></script>
+<script defer src="assets/bazi-core.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/ai.js"></script>
 <script>let __zw=null;
 /* 十四主星五行，全页单一真源 */
 const WX_STAR={'紫微':'土','天机':'木','太阳':'火','武曲':'金','天同':'水','廉贞':'火','天府':'土','太阴':'水','贪狼':'木','巨门':'水','天相':'水','天梁':'土','七杀':'金','破军':'水'};
@@ -1540,10 +1540,7 @@ function zwClockToPalace(y,m,d,h,mi,lng,dstMode,sunMode,ziMode){
     cur={y:ts.y,m:ts.m,d:ts.d,h:ts.h,mi:ts.mi};
     notes.push('太阳时校正 '+(ts.totalAdj>=0?'+':'')+ts.totalAdj+' 分（均时差 '+ts.E+'、经度差 '+ts.lngAdj+'）');
   }
-  /* 子时归属只在 23 点一侧分歧：晚子时取 iztro 时辰 index 12，日柱按时干遁（与次日子时同柱），
-     农历日与时辰标签仍是 23 点生人的本相；早子时取 index 0，日柱归当日。
-     adjustZiShi 是八字域写法（八字无晚子 index，只能推进日期来改日柱），此处只取它的流派判定与说明口径，
-     不采用其日期推进：两路四柱实测一致，而推进日期会把 23 点生人误标成次日早子时。 */
+
   const zi=adjustZiShi(cur.y,cur.m,cur.d,cur.h,cur.mi,ziMode);
   if(zi.note) notes.push(zi.note);
   const ti=(cur.h>=23)?(ziMode==='late'?12:0):(cur.h<1?0:Math.floor((cur.h+1)/2));
@@ -1958,8 +1955,11 @@ function paipan(){
     const starNote=(p.majorStars||[]).length?(p.majorStars||[]).map(s=>s.name+(s.brightness?('（'+s.brightness+'）'):'')).join('、'):'空宫';
     const mrow=ZIWEI_PAL_MEAN.find(r=>r[0]===p.name);
     const meanTxt=mrow?mrow[1].split('、')[0]:'';
-    return `<div class="dy-row"><span class="dy-name">${p.name}</span><span class="dy-gz">${p.heavenlyStem}${p.earthlyBranch}</span><span class="dy-age">${rg[0]}–${rg[1]}岁</span><span class="dy-star">${starNote}</span>${meanTxt?`<span class="dy-mean">主${meanTxt}</span>`:''}</div>`;
+    return `<tr><td class="lbl">${p.name}</td><td>${p.heavenlyStem}${p.earthlyBranch}</td><td>${rg[0]}–${rg[1]}岁</td><td>${starNote}</td><td>${meanTxt||''}</td></tr>`;
   }).join('');
+  /* 大限与小限同是逐宫列岁数的一张表，故同形：表框承担全部边界，容器不再另画一条顶线。 */
+  const dyTable=`<div class="info-box zp-ding"><div class="zp-yunout"><table class="zp-yun-tbl"><thead><tr><th>宫位</th><th>宫干支</th><th>所辖大限</th><th>主星</th><th>所主</th></tr></thead><tbody>${dayunHtml}</tbody></table></div>
+    <p class="ly-zh-p sub-note">大限十年行一宫，自命宫起${forward?'顺':'逆'}行；看该十年以该宫星曜、四化与所主为本，再与流年、小限合参。</p></div>`;
   /* 小限岁数落宫：逐宫列该宫所辖的十个虚岁（盘上 ages），供按岁查宫。
      小限一年一宫，与十年一宫的大限同看，故与大限并置。 */
   const xxRows=astro.palaces.slice().sort((x,y)=>(x.ages||[0])[0]-(y.ages||[0])[0]).map(p=>{
@@ -2013,7 +2013,7 @@ function paipan(){
       return `<div class="info-box lqkj-line" style="border-top:2px solid ${clr}"><span class="lq-h" style="background:${clr}">${nm}</span><span class="lq-b">${mj}</span></div>`;
     }).join('');
     schoolExtra=`<h3 class="rel-title">三方四正会照（三合派）</h3><div class="lqkj-grid">${sanheCards}</div>`;
-    commonTop=schoolExtra; daYunSection=`<h3 class="rel-title">大限（大运，每宫十年，自命宫起${forward?'顺行':'逆行'}）</h3><div class="dy-list">${dayunHtml}</div>${xxSection}`;
+    commonTop=schoolExtra; daYunSection=`<h3 class="rel-title">大限（大运，每宫十年，自命宫起${forward?'顺行':'逆行'}）</h3>${dyTable}${xxSection}`;
   } else {
     const colorMap={禄:'lq-禄',权:'lq-权',科:'lq-科',忌:'lq-忌'};
     const huaList=ORDER.map(o=>{
@@ -2025,7 +2025,7 @@ function paipan(){
     astro.palaces.forEach(p=>{(p.majorStars||[]).concat(p.minorStars||[]).forEach(s=>{ if(s.mutagen==='忌') jiPalace=p.name; });});
     commonTop = `<h3 class="rel-title">四化飞星</h3><div class="lqkj-grid">${huaList}</div>`
       +(jiPalace?`<div class="ji-notice">⚠ 化忌入${jiPalace}：忌冲之地宜静不宜动，观禄忌交驰与忌之冲合以断人事起伏。</div>`:'');
-    daYunSection=`<h3 class="rel-title">大限（大运，每宫十年，自命宫起${forward?'顺行':'逆行'}）</h3><div class="dy-list">${dayunHtml}</div>${xxSection}`;
+    daYunSection=`<h3 class="rel-title">大限（大运，每宫十年，自命宫起${forward?'顺行':'逆行'}）</h3>${dyTable}${xxSection}`;
   }
   const zr=ziweiRead(astro, school, trans, sex);
   /* ===== 十二宫逐宫详断、星曜白皮书、三方四正落座 =====

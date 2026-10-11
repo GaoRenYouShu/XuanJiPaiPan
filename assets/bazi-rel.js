@@ -2129,19 +2129,6 @@ function ageAdaptText(area, text, age){
   return out;
 }
 
-/* 人生议题卡片的年龄适配：对每条 item 拆出 "X、标题<br>" 前缀、只对内容做 drop/replace，
-   再拼回标题，杜绝 ageAdaptText 把前缀连同含 drop 词的整段一并吞掉的 bug。
-   标题前缀形如 "1、本命基调<br>" / "7、名利层级<br>"（renderCareer 出参的形态）。 */
-function ageAdaptItem(text, age){
-  if(age==null) return text;
-  const st = baziAgeStage(age); if(!st || st==='adult') return text;
-  const m = String(text||'').match(/^(\d+、[^<]*<br>)([\s\S]*)$/);
-  if(!m) return window.ageAdaptText ? window.ageAdaptText('', text, age) : text;
-  // 第二参数 area 已不重要，ageAdaptText 用 age 走档位，不依赖 area
-  const adapt = (window.ageAdaptText || ageAdaptText)('', m[2], age);
-  return m[1] + adapt;
-}
-
 function ageGateEvents(events, age){
   if(age==null || !events) return events;
   const st = baziAgeStage(age); if(!st || st==='adult') return events;
@@ -2153,8 +2140,6 @@ function ageGateEvents(events, age){
 window.ageCardNote = ageCardNote;
 
 window.ageAdaptText = ageAdaptText;
-
-window.ageAdaptItem = ageAdaptItem;
 
 window.ageGateEvents = ageGateEvents;
 
@@ -2719,19 +2704,6 @@ function renderShiShenPos(BZ){
   }
 
   window.wxRel = wxRel;
-
-  /* ---------- 某五行相对日主的关系（标准短语）---------- */
-  function relToDay(dwx, w){
-    if(!w) return '';
-    if(w === dwx) return '比和';
-    if(WX_KE[w] === dwx) return '被日主所克';
-    if(WX_KE[dwx] === w) return '克日主';
-    if(WX_SHENG[w] === dwx) return '生日主';
-    if(WX_SHENG[dwx] === w) return '日主所生';
-    return '';
-  }
-
-  window.relToDay = relToDay;
 
   /* ---------- 某五行相对日主的关系（短关系词，供 marry 模块组句）---------- */
   function relShort(dwx, X){
