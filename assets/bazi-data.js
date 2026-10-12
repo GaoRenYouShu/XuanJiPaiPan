@@ -416,6 +416,12 @@ const TIANDE={寅:'丁',卯:'申',辰:'壬',巳:'辛',午:'亥',未:'甲',申:'�
 const TIANDE_HE={寅:'壬',卯:'巳',辰:'丁',巳:'丙',午:'寅',未:'己',申:'戊',酉:'亥',戌:'辛',亥:'庚',子:'申',丑:'乙'};
 // 披麻（年支后三位，即年支+9）：子酉、丑戌、寅亥、卯子、辰丑、巳寅、午卯、未辰、申巳、酉午、戌未、亥申
 const PIMA={子:'酉',丑:'戌',寅:'亥',卯:'子',辰:'丑',巳:'寅',午:'卯',未:'辰',申:'巳',酉:'午',戌:'未',亥:'申'};
+// 勾绞（《三命通会·卷三·论勾绞》：阳男阴女顺行，命前三辰为勾、后三辰为绞；阴男阳女逆行，勾绞互换。按年支或日支立极查四柱余支）
+const GOU_JIAO_SHUN={}, GOU_JIAO_NI={};
+ZHI_ORDER.forEach((b,i)=>{
+  GOU_JIAO_SHUN[b]={勾煞:ZHI_ORDER[(i+3)%12], 绞煞:ZHI_ORDER[(i+9)%12]};
+  GOU_JIAO_NI[b]={勾煞:ZHI_ORDER[(i+9)%12], 绞煞:ZHI_ORDER[(i+3)%12]};
+});
 // 元辰（又名大耗）：阳男阴女用 A，阴男阳女用 B，年支查余支
 const YUAN_CHEN_A={子:'未',丑:'申',寅:'酉',卯:'戌',辰:'亥',巳:'子',午:'丑',未:'寅',申:'卯',酉:'辰',戌:'巳',亥:'午'};
 const YUAN_CHEN_B={子:'巳',丑:'午',寅:'未',卯:'申',辰:'酉',巳:'戌',午:'亥',未:'子',申:'丑',酉:'寅',戌:'卯',亥:'辰'};
@@ -557,11 +563,9 @@ function pillarSha(col, ctx, opts){
     const isMale = (ctx.sex===1 || ctx.sex===true);
     const ym = (ygYang===isMale) ? YUAN_CHEN_A : YUAN_CHEN_B;
     if(ym[refZhi]===z) out.push('元辰');
-  }
-  const refZhiJu=JU_OF[refZhi];
-  if(refZhiJu){ const yang=YANG.indexOf(refZhi)>=0;
-    const gou=yang?refZhiJu[2]:refZhiJu[0], jiao=yang?refZhiJu[0]:refZhiJu[2];
-    if(z===gou) out.push('勾煞'); if(z===jiao) out.push('绞煞');
+    const gj = (ygYang===isMale) ? GOU_JIAO_SHUN : GOU_JIAO_NI;   // 阳男阴女顺行，阴男阳女逆行
+    const gjb = gj[refZhi];
+    if(gjb){ if(gjb.勾煞===z) out.push('勾煞'); if(gjb.绞煞===z) out.push('绞煞'); }
   }
   // 天罗地网：地支查法 vs 纳音查法
   if(tldw==='diZhi'){
@@ -1321,6 +1325,7 @@ const SHA_MEAN = {
    * 专主神煞只保留有传统命理依据的方向（如羊刃按宫位分野论日支夫妻、年祖上/月父母/时子孙），
    * 无相关含义的方向一律不写、不输出，严禁生造硬编（消费点 m[area] 字段存在性过滤，代码零改动）。
    * 判定方法：结合大模型（《三命通会》《渊海子平》等古籍知识）核对，宁缺毋滥。
+   * 标源口径：古籍有明文可据者 src 记其篇目；古籍无明文、由本站按传统推演补足者 src 记"本站依古法推演"，不冒称古籍原文。
    * 依据：《三命通会》神煞各论，羊刃"在年祖上破败、在月父母刑伤、在日夫妻不和、在时子孙不肖"按宫位分野；
    * 咸池主酒色情欲、驿马主动迁奔波、华盖主孤高技艺，神煞天然只在一二领域论事。 */
   '天乙贵人':{base:'命中最吉之神，主逢凶化吉、得贵人相助，日干见特定地支即得（《三命通会》：天乙乃天上之神，吉神之最）',career:'多遇贵人、事业得助，宜借力上位',marry:'得长辈媒妁之助、婚缘有贵人牵线',health:'逢凶化吉、得医得助，病厄易解',family:'父母为贵人、得长辈荫庇',src:'《三命通会·论天乙贵人》'},
@@ -1337,12 +1342,15 @@ const SHA_MEAN = {
   '华盖':{base:'主聪明孤高、喜艺术宗教玄学，性近僧道、孤芳自赏（《三命通会·论将星华盖》：多主孤寡）',career:'技艺专精、好玄学数术，宜专业深耕',marry:'感情偏出世、宜精神契合',health:'性孤喜静、防孤郁，宜主动社交',src:'《三命通会·论将星华盖》'},
   '天德贵人':{base:'月支对应之德神，主转危为安、逢凶化吉，最解凶煞（《三命通会·论天德贵人》）',career:'逢凶化吉、德望服众，危中有救',marry:'婚姻有德解、化险为夷',health:'病得化解、厄难有解',family:'家宅得庇、平安顺遂',src:'《三命通会·论天德贵人》'},
   '月德贵人':{base:'月支三合局之阳干，主仁慈、化灾、添福（《三命通会·论月德贵人》）',career:'慈和得助、逢凶化吉，人缘为福',marry:'夫妻仁和、少口角',health:'病得化解、体气安和',family:'家宅平安、亲慈子孝',src:'《三命通会·论月德贵人》'},
+  '天德合':{base:'天德之干取其五合之干（四维之月则以所合之支代干），吉同天德而力稍逊，主逢凶化吉、和合助益，无天德而有天德合亦能解厄（《协纪辨方书·义例》天德表之合干）',career:'逢凶化吉、和合得助，危中有人解围',marry:'婚缘得和合、嫌隙易解',health:'灾病有解、得医得助',family:'家宅得和、亲缘化解隔阂',src:'《协纪辨方书·义例》'},
+  '月德合':{base:'月德之干取其五合之干（寅午戌月丙合辛、申子辰月壬合丁、亥卯未月甲合己、巳酉丑月庚合乙），吉同月德而力稍逊，主和合、助益、化灾（《协纪辨方书·义例》月德表之合干）',career:'慈和得助、人和事顺，宜以柔克刚',marry:'夫妻和合、口角易散',health:'病得化解、体气安和',family:'家宅和睦、亲邻相助',src:'《协纪辨方书·义例》'},
   '天赦':{base:'春戊寅、夏甲午、秋戊申、冬甲子，主罪过消解、逢凶化吉（《三命通会·论天赦》）',career:'罪过可赦、事多转机，危中有救',health:'灾厄易解、逢凶化吉',src:'《三命通会·论天赦》'},
   '三奇贵人':{base:'天干顺布甲戊庚、乙丙丁、壬癸辛，主奇才异能、富贵清奇（《三命通会·论三奇》）',career:'格局清奇、人中之秀、异路功名',src:'《三命通会·论三奇》'},
   '德秀贵人':{base:'月令三合局五行透干，主慈善、聪秀、逢凶化吉（《三命通会·论德秀》）',career:'才秀德备、利文途清贵',family:'子女秀慧、家教有方',src:'《三命通会·论德秀贵人》'},
   /* ， 武权类 ， */
   '将星':{base:'三合局之中神，主组织领导才能、有权威（《三命通会·论将星华盖》）',career:'掌权统御、有领导才，宜管理军警之业',src:'《三命通会·论将星华盖》'},
   '羊刃':{base:'日干帝旺之地，刚烈逞强，吉则掌权、凶则伤灾（《三车一览》：主伤残之灾，亦主刑法犯罪）。阴干取支有帝旺派与禄前派两说，本站并列同出',career:'掌权果决、敢作敢为，宜武职竞争',marry:'羊刃临日支主夫妻不和，性刚易争、宜多让（宫位分野）',health:'性刚易伤、男防血光女防刑克',family:'羊刃临年祖上破败、月父母刑伤、时子孙不肖，家防刚烈宜柔济（宫位分野）',src:'《三命通会·论羊刃》'},
+  '羊刃（禄前派）':{base:'阴干羊刃之禄前一辰取法（乙辰、丁未、己未、辛戌、癸丑），刚烈逞强同论而锋芒稍敛，吉则掌权、凶则伤灾（《三车一览》：羊刃常居禄前一辰）。与帝旺派分歧只在阴干，本站两派并列同出',career:'掌权果决、敢作敢为，宜武职竞争',marry:'羊刃临日支主夫妻不和，性刚易争、宜多让（宫位分野）',health:'性刚易伤、男防血光女防刑克',family:'羊刃临年祖上破败、月父母刑伤、时子孙不肖，家防刚烈宜柔济（宫位分野）',src:'《三车一览》'},
   '魁罡':{base:'庚戌、庚辰、壬辰、戊戌四日，主刚烈果决、掌权、性严（《三命通会·论魁罡》）',career:'性刚果决、掌权有声，宜纪律之业',health:'性刚气盛、宜疏解情绪',src:'《三命通会·论魁罡》'},
   '金神':{base:'乙丑、己巳、癸酉三日，主刚毅、武贵，遇火乡发福（《三命通会·论金神》）',career:'刚毅有为、逆境奋发，遇火乡发福',src:'《三命通会·论金神》'},
   '进神':{base:'甲子、甲午、己卯、己酉四日，其气方进，主奋发向前、性急果决，谋事一往无前（《三命通会·论进神》）',career:'敢闯敢进、乘势而上，宜开创进取之事',marry:'感情主动、进展神速，防急进而失稳',src:'《三命通会·论进神》'},
@@ -1353,13 +1361,12 @@ const SHA_MEAN = {
   '十恶大败':{base:'十日大败，主花钱无度、仓库空虚（《三命通会·论十恶大败》）',career:'防财库虚耗、不宜冒进求财',family:'家财防空、宜勤俭',src:'《三命通会·论十恶大败》'},
   '劫煞':{base:'三合局绝位，主狡黠多变、偶有不测劫夺（《三命通会·论劫煞》）',career:'财防劫夺、动中防失',health:'防意外劫夺、出行谨慎',src:'《三命通会·论劫煞》'},
   '元辰':{base:'年支查余支，主耗损、口舌、颠倒不安，性喜酒色（《三命通会·论元辰》）',career:'防是非暗昧、口舌耗损',marry:'防情缘暗昧、口角是非',health:'防心神不宁、酒色伤身',family:'家防口舌、宜静守',src:'《三命通会·论元辰》'},
-  '勾煞':{base:'勾连纠缠之神，主牵绊、是非、官讼（《三命通会·论勾绞》）',career:'防勾连是非、合同牵绊',family:'家防纠缠、宜明断',src:'《三命通会·论勾绞》'},
-  '绞煞':{base:'绞绕束缚之神，主困顿、纠缠、身心不宁（《三命通会·论勾绞》）',career:'防纠缠官非、困顿阻隔',health:'防身心不宁、宜舒展',src:'《三命通会·论勾绞》'},
+  '勾煞':{base:'阳男阴女命前三辰、阴男阳女命后三辰，主勾连牵绊、是非、刑狱之灾（《三命通会·卷三·论勾绞》：勾绞主刑狱、勾连、是非之灾）',career:'防勾连是非、合同牵绊',health:'防官非缠身、宜明断',family:'家防纠缠、宜明断',src:'《三命通会·卷三·论勾绞》'},
+  '绞煞':{base:'与勾煞同出，阳男阴女命后三辰、阴男阳女命前三辰，主绞绕困顿、身心不宁（《三命通会·卷三·论勾绞》：勾绞主刑狱、勾连、是非之灾）',career:'防纠缠官非、困顿阻隔',health:'防身心不宁、宜舒展',src:'《三命通会·卷三·论勾绞》'},
   /* ， 情缘类（婚恋神煞）， */
   '红鸾':{base:'主婚恋喜庆、姻缘早动，桃花之正配（《星平会海》：红鸾主婚配喜庆）',marry:'桃花喜庆、姻缘早动，婚缘有喜',src:'《星平会海》'},
   '天喜':{base:'主喜事临门、化解忧疑，与红鸾相辅（《星平会海》：天喜主喜庆）',marry:'婚恋多喜庆、喜事临门',src:'《星平会海》'},
-  '桃花':{base:'主异性缘、情欲、人缘，吉则潇洒多情、凶则风流惹祸（《三命通会·论咸池》：多性巧、耽酒色）',career:'人缘旺、宜社交公关之业',marry:'人缘异性缘佳、须防纷扰',health:'防酒色耗神、宜节制',src:'《三命通会·论咸池》'},
-  '咸池':{base:'桃花之别名，主风流多情、异性缘浓（《三命通会·论咸池》：如生旺则美容仪、耽酒色）',career:'交际得利、宜人脉之业',marry:'桃花艳丽、感情多采，须专一',health:'防情欲耗神、宜养心',src:'《三命通会·论咸池》'},
+  '桃花':{base:'一名咸池，主异性缘、情欲、人缘，吉则潇洒多情、凶则风流惹祸（《三命通会·卷三·论咸池》：多性巧、耽酒色，查法申子辰见酉、寅午戌见卯、巳酉丑见午、亥卯未见子）',career:'人缘旺、宜社交公关之业',marry:'人缘异性缘佳、须防纷扰',health:'防酒色耗神、宜节制',src:'《三命通会·卷三·论咸池》'},
   '红艳煞':{base:'主异性缘浓、风情多欲，亦主浪漫才情（《渊海子平·论红艳》）',career:'才情浪漫、宜文艺之业',marry:'情缘外露、易有偏缘，宜守正',src:'《渊海子平·论红艳》'},
   '孤鸾':{base:'又名孤鸾煞。主女克夫、男克妻，婚姻多迟或多变（《渊海子平·论孤鸾》）',marry:'婚姻宜迟、宜多沟通经营',health:'性孤防郁、宜外向',src:'《渊海子平·论孤鸾》'},
   '阴差阳错':{base:'主婚姻不顺、门户差错、是非牵缠（《三命通会·论女命》）',career:'事多阴错阳差、宜守正',marry:'婚缘迟误、宜包容晚成',src:'《三命通会·论女命》'},
@@ -1372,7 +1379,6 @@ const SHA_MEAN = {
   '血刃':{base:'血刃临支，主血光刑伤，防刀伤、手术、产厄（《三命通会》血刃歌诀）',career:'宜避刀兵之业、慎风险',health:'防血光、手术、意外伤，出行运动谨慎',src:'《三命通会》血刃歌诀'},
   '飞刃':{base:'羊刃对冲之地，性烈易伤，主血光刑伤（《三命通会·论羊刃》衍）',career:'宜避风险行业、慎动',health:'防血光意外伤、宜谨慎',src:'《三命通会·论羊刃》衍'},
   '天医':{base:'月支后一位，主医药、逢凶化吉，多从事医卜星相或体弱得医（《三命通会·论天医》）',career:'宜医药养生之业、救人得福',health:'与医药有缘、弱处得医',src:'《三命通会·论天医》'},
-  '天刑':{base:'主刑伤、官非之象，宜修身慎行（《三命通会·论天刑》）',career:'防刑责是非、宜守规矩',health:'防刑伤、手术，宜慎行',src:'《三命通会·论天刑》'},
   '灾煞':{base:'与将星对冲，主灾患刑伤、防意外血光（《三命通会·论灾煞》）',career:'防灾祸变故、宜稳守',health:'防灾厄意外、慎出行',src:'《三命通会·论灾煞》'},
   '亡神':{base:'主心思深沉、谋略，过旺则易惹官非口舌（《三命通会·论亡神》）',career:'谋略深沉、宜幕后策划',family:'家宅宜静、防口舌',src:'《三命通会·论亡神》'},
   '天罗':{base:'戌亥为天罗，主困滞、网罗，男命尤忌（《三命通会·论天罗地网》）',career:'防困滞网罗、官非之灾',health:'防牢狱官非之灾、慎行',src:'《三命通会·论天罗地网》'},
@@ -1383,7 +1389,11 @@ const SHA_MEAN = {
   '披麻':{base:'年支后三位，主孝服丧事、破财伤病（《渊海子平》流年神煞）',health:'防伤病、宜护养',family:'防孝服之忧、宜慎',src:'《渊海子平》流年神煞'},
   /* ， 日格类 ， */
   '十灵日':{base:'甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未十日，主灵慧聪颖、悟性高、近五术玄学（《渊海子平》日格）',career:'性灵慧、宜术数玄学策划之业',src:'《渊海子平》日格'},
-  '六秀日':{base:'丙午、丁未、戊子、戊午、己丑、己未六日，主聪明秀气、才貌双全、人缘佳（《渊海子平》日格）',career:'才貌清秀、利文艺台前之业',marry:'姿仪动人、缘多人喜',src:'《渊海子平》日格'}
+  '六秀日':{base:'丙午、丁未、戊子、戊午、己丑、己未六日，主聪明秀气、才貌双全、人缘佳（《渊海子平》日格）',career:'才貌清秀、利文艺台前之业',marry:'姿仪动人、缘多人喜',src:'《渊海子平》日格'},
+  /* ， 日格废转类（凶） ， */
+  '四废':{base:'春庚申辛酉、夏壬子癸亥、秋甲寅乙卯、冬丙午丁巳，四季各有废日，日柱逢之主身弱多病、百事无成（《三命通会·卷三·论四废》）。逢生旺之岁运可扶起，逢死绝之岁运尤忌',career:'精力不济、谋事难成，宜守不宜攻',health:'主身弱多病，宜护养固本',src:'《三命通会·卷三·论四废》'},
+  '天转':{base:'春乙卯、夏丙午、秋辛酉、冬壬子，五行极旺而当令转极之日，盛极而衰，主大凶，忌出行、经商、建筑、嫁娶。日柱逢之，格局有制者减其凶',career:'盛极防折、宜守成避险，忌冒进扩张',health:'防突发之厄、出行宜慎',src:'本站依古法推演'},
+  '地转':{base:'春辛卯、夏戊午、秋癸酉、冬丙子，与天转同类，五行极旺而转，主大凶，格局无制者多磨难。日柱逢之，与天转同参',career:'防反复折腾、宜稳守待时',health:'防积劳成疾、宜调养',src:'本站依古法推演'}
 };
 
 /* 十二长生 顶层真源表：十二长生状态 → {base 本义, 四卡解读, src 古籍}
@@ -1554,7 +1564,7 @@ const DICT = {
   '三奇贵人':{t:'三奇贵人',d:'天干顺布甲戊庚、乙丙丁、壬癸辛。主奇才异能、富贵清奇。'},
   '十灵日':{t:'十灵日',d:'甲辰、乙亥、丙辰、丁酉、戊午、庚戌、庚寅、辛亥、壬寅、癸未十日。主灵慧聪颖、直觉敏锐，善察言观色、悟性高，多近五术玄学。'},
   '六秀日':{t:'六秀日',d:'丙午、丁未、戊子、戊午、己丑、己未六日。主聪明秀气、多才多艺、相貌俊秀、人缘佳。'},
-  '天转':{t:'天转',d:'春乙卯、夏丙午、秋辛酉、冬壬子。五行极旺之转日，盛极而衰，古诀谓“行人在路须忧死”，主大凶，忌出行、经商、建筑、嫁娶。'},
+  '天转':{t:'天转',d:'春乙卯、夏丙午、秋辛酉、冬壬子。五行极旺之转日，盛极而衰，主大凶，忌出行、经商、建筑、嫁娶。'},
   '地转':{t:'地转',d:'春辛卯、夏戊午、秋癸酉、冬丙子。与天转同类，五行极旺而转，主大凶，格局无制者多磨难。'},
   /* 十二长生 */
   '长生':{t:'长生',d:'万物始生，主生机、朝气，如人之初生。'},
@@ -2332,6 +2342,33 @@ function baziAnalysis(BZ){
     BZ.zhis.forEach(z=>{ (HIDE[z]||[]).forEach(h=>{ if(cats.includes(tenOfGan(h))) root.push(h); }); });
     return {tou, root:[...new Set(root)], any:tou.length>0||root.length>0};
   };
+  /* 成局之查：三合局、三会方皆聚一方之气，某五行得之则势成（支元相合之通例，非专篇断语，故不标篇目）。
+     破格之神与救应之神同此一查：破神得局则破格之势益甚，救神得局则救应有力。 */
+  const juOfWx=(w)=>{
+    if(!w) return '';
+    const g=DIZHI_SANHE.find(x=>x[3]===w && x.slice(0,3).every(z=>BZ.zhis.includes(z)));
+    if(g) return g.slice(0,3).join('')+'三合'+w+'局';
+    const h=DIZHI_SANHUI.find(x=>x[3]===w && x.slice(0,3).every(z=>BZ.zhis.includes(z)));
+    return h?h.slice(0,3).join('')+'三会'+w+'方':'';
+  };
+  /* 受伤之查：一神虽在，尚有自身难保两途，被他干合去则绊住而不得施为，根支逢冲则根气动摇。
+     救应之神与相神同此一查，受伤者不得作有力论（救而不行）。日主不预此列：日干合官合财乃
+     日主自用其财官，非他神被伤，与 catPresent 排除日干同一口径。 */
+  const hurtOf=(gan)=>{
+    if(!gan||gan===dg) return '';
+    const hePair=TIANGAN_HE.find(p=>p[0]===gan||p[1]===gan);
+    const mate=hePair?(hePair[0]===gan?hePair[1]:hePair[0]):'';
+    if(mate && gans.includes(mate) && mate!==gan && mate!==dg) return {text:gan+'被'+mate+'合去', kind:'合'};
+    /* 根支须藏有此干方为其根：相神、救神之候选常是数类并集，若按类取支，会取到只藏同类他干之支，
+       判语却直书"某宫此干之根"，便成无据之说。 */
+    const rootZ=BZ.zhis.filter(z=>(HIDE[z]||[]).indexOf(gan)>=0);
+    for(const z of rootZ){
+      const c=DIZHI_CHONG.find(p=>p[0]===z||p[1]===z);
+      const o=c?(c[0]===z?c[1]:c[0]):null;
+      if(o && BZ.zhis.includes(o)) return {text:z+'宫'+gan+'之根逢'+o+'冲', kind:'冲'};
+    }
+    return '';
+  };
   if(geOuter){
     geLevel='成格（特殊格）';
     geLevelNote='专旺、从、两气、化气等外格，一气专凝或化气成形，格局成立；破格之患在岁运逆其势（专旺逢逆克、化气格逢印比扶身或克化神）';
@@ -2367,22 +2404,42 @@ function baziAnalysis(BZ){
       const poAt=catPresent(poCats), jiuAt=catPresent(jiuCats);
       if(!poAt.any) return;                       // 破格之神未现，此条不成立
       if(poAt.root.length && !poAt.tou.length) return;   // 仅藏支未透，破而不显，不作破论
+      /* 破格之势不止透干一端：破神之五行在地支成三合三会，则聚成一方之气，虽只一干透出、
+        其势已厚，与数干并透同观（论救应须先量破格之力，力厚者救应亦须更力）。 */
+      const poJu=juOfWx(GAN_WX[poAt.tou[0]]||'');
+      /* 救应之神亦有两等自损：被他干合去则绊住不为我用，根支逢冲则根气动摇。二者皆令
+         "有救"降等为"救而不行"，方合"救应须得力"之义，不使纸上之救误作局中之救。 */
+      const jiuGan=jiuAt.tou[0]||jiuAt.root[0]||'';
+      const _jh=jiuGan?hurtOf(jiuGan):'';
+      const jiuHurt=_jh?_jh.text:'';
+      const jiuKind=_jh?_jh.kind:'';
+      const jiuJu=juOfWx(GAN_WX[jiuGan]||'');
+      const jiuLbl=jiuGan?('（'+jiuGan+'）'):'';
       let power;
-      if(jiuAt.tou.length && jiuAt.root.length) power='有救';
+      if(jiuAt.tou.length && jiuAt.root.length) power=jiuHurt?'救而不行':'有救';
       else if(jiuAt.any) power='救而力弱';
       else power='无救';
-      const jiuGan=jiuAt.tou[0]||jiuAt.root[0]||'';
-      geBreakList.push({po:b.po, poGan:poAt.tou[0]||poAt.root[0]||'', why:b.why,
-        jiu:b.jiu, jiuGan, how:b.how, power,
+      /* 救神得局只于有救一路言"救之有力"：救而力弱、救而不行既已降等，再称有力便与本句自相矛盾。
+         力弱一路亦不隐救神受伤之实（被合被冲皆使救应更难），故受伤之由两句并入。 */
+      const jiuJuSays=(jiuJu&&power==='有救')?('，救应'+jiuJu+'，救之有力'):'';
+      const jiuHurtSays=jiuHurt?('，'+jiuHurt):'';
+      geBreakList.push({po:b.po, poGan:poAt.tou[0]||poAt.root[0]||'', why:b.why, poJu,
+        jiu:b.jiu, jiuGan, how:b.how, power, jiuHurt, jiuJu,
         note:b.why+'（'+b.po+(poAt.tou.length?('透'+poAt.tou.join('')):('藏支'+poAt.root.join('')))+'）'
-          + (power==='有救' ? ('，所幸'+b.jiu+(jiuGan?('（'+jiuGan+'）'):'')+'透干得根、'+b.how+'，破而有救、格成而带疾')
-             : power==='救而力弱' ? ('，'+b.jiu+'虽有而力弱（'+b.how+'），救应须待岁运引出')
+          + (poJu?('，'+poJu+'，破格之势聚而益甚'):'')
+          + jiuJuSays
+          + (power==='有救' ? ('，所幸'+b.jiu+jiuLbl+'透干得根、'+b.how+'，破而有救、格成而带疾')
+             : power==='救而不行' ? ('，'+b.jiu+jiuLbl+'虽有而'+jiuHurt+'，救而不行，须岁运解其'+jiuKind+'、方得施救')
+             : power==='救而力弱' ? ('，'+b.jiu+jiuLbl+'虽有而力弱'+jiuHurtSays+'（须'+b.how+'），救应须待岁运引出')
              : ('，四柱无'+b.jiu+'可救（须'+b.how+'），格破无用，宜顺破格之势、待岁运补救'))});
     });
     const hasPo=geBreakList.length>0;
-    const worst=hasPo?geBreakList.find(b=>b.power==='无救')||geBreakList.find(b=>b.power==='救而力弱')||geBreakList[0]:null;
+    /* 救而不行与无救同归破格：救神被合被冲则绊住而不得施为，纸上之救非局中之救，
+       与"无救"结局一致。故降等次第以无救、救而不行为一等（破格），救而力弱为又一等（带疾）。 */
+    const worst=hasPo?geBreakList.find(b=>b.power==='无救')||geBreakList.find(b=>b.power==='救而不行')||geBreakList.find(b=>b.power==='救而力弱')||geBreakList[0]:null;
+    const poDead=hasPo && (worst.power==='无救'||worst.power==='救而不行');
     if(guTou&&guRoot){
-      if(hasPo && worst.power==='无救'){
+      if(poDead){
         geLevel='破格';
         geLevelNote='用神虽透干得根，然'+worst.note+'。';
       } else if(hasPo){
@@ -2393,7 +2450,7 @@ function baziAnalysis(BZ){
       }
     }
     else if(isPo){ geLevel='破格'; geLevelNote='用神虚浮不上局，且局中'+[...breakWx].map(w=>w+'行').join('、')+(rootChong?'冲克用神之根':'成势专破此格（'+geName+'）')+'，格局被破，宜制化破格之力、借岁运扶用神。'; }
-    else if(hasPo && worst.power==='无救'){
+    else if(poDead){
       geLevel='破格'; geLevelNote='用神未透干不得根，兼'+worst.note+'。';
     }
     else if(hasPo){
@@ -2411,34 +2468,50 @@ function baziAnalysis(BZ){
     if(geOuter||isZaGe) return null;
     const useCats=extractCats(geUse.xi), jiCatsOf=extractCats(geUse.ji);
     if(!useCats.length) return null;
+    /* 相神不得取忌神之类：生用神者是相、制忌护用者亦是相，然某类既列本格之忌、又不在喜用之中，
+       则取之为相便与本格忌法自相矛盾（月劫格忌比劫争财，食伤之生源恰是比劫，若径取比劫为相，
+       便是以本格所忌者为相）。故候选先汰去入忌而未入喜之类；既入喜者从喜，与本格喜忌冲突消解同口径。 */
+    const notJi=(c)=>!(jiCatsOf.includes(c) && !useCats.includes(c));
     // 生用神之类：十神链上一环（官得财生、印得官生、财得食生……按用神类反推其生源）
     const SHENG_PAIR={'官杀':'财星','财星':'食伤','印星':'官杀','食伤':'比劫','比劫':'印星'};
-    const srcCat=useCats.map(c=>SHENG_PAIR[c]).filter(Boolean);
+    const srcCat=useCats.map(c=>SHENG_PAIR[c]).filter(c=>c&&notJi(c));
     // 制忌护用之类：克忌神之类（忌伤官者印制之、忌七杀者食制之、忌比劫者官制之、忌枭者财制之）
     const KEJI_PAIR={'伤官':'印星','食神':'偏印','七杀':'食神','官杀':'食神','比劫':'官杀','财星':'比劫','偏印':'财星'};
     const guardCats=[...new Set(jiCatsOf.flatMap(c=>{
       const g=[];
-      Object.keys(KEJI_PAIR).forEach(k=>{ if(c.indexOf(k)>=0 && KEJI_PAIR[k] && !useCats.includes(KEJI_PAIR[k])) g.push(KEJI_PAIR[k]); });
+      Object.keys(KEJI_PAIR).forEach(k=>{ if(c.indexOf(k)>=0 && KEJI_PAIR[k] && !useCats.includes(KEJI_PAIR[k]) && notJi(KEJI_PAIR[k])) g.push(KEJI_PAIR[k]); });
       return g;
     }))].filter(Boolean);
     const pickCats=[...new Set([...srcCat, ...guardCats])];
     if(!pickCats.length) return null;
     const at=catPresent(pickCats);
-    /* 格已破而无救者，相神不得再言辅格而活：破格无救则相神无从辅起，
-       只可说他神得力、可为岁运救应之备，免与破格结论两处各说各话。 */
-    const poHopeless=geBreak.some(b=>b.power==='无救');
+    /* 格已破而无救、或救而不行者，相神不得再言辅格而活：格破则相神无从辅起，
+       只可说他神得力、可为岁运救应之备，免与破格结论两处各说各话。
+       两途之实不同：无救者局中本无救神可引，救而不行者救神在而绊住，判语各依其因，
+       若于无救之盘亦称"救应不行"，便是无据之说（无救应可言其行与不行）。 */
+    const poNoJiu=geBreak.some(b=>b.power==='无救');
+    const poHopeless=poNoJiu||geBreak.some(b=>b.power==='救而不行');
+    const poSays=poNoJiu?'格已破而无救':'格已破、救应不行';
+    /* 相神被伤：相神自身被合去或根支逢冲，则辅格之职不得行，与破格无救者同归降等一路。
+       相神受伤之由一并入判语，使读者知降等起于何支何干，而非只得一结论。 */
+    const _xh=at.tou.length?hurtOf(at.tou[0]):'';
+    const xiangHurt=_xh?_xh.text:'';
     let tier, why;
     if(poHopeless){
       tier='备用';
-      why=(at.tou.length && at.root.length)?('相神'+(at.tou[0]||'')+'透干得根，然格已破而无救，相神无从辅格，可为岁运补救之备')
-        :(at.tou.length?'相神透干而无根，兼格已破而无救，宜待岁运既补相神亦解破格'
-        :(at.root.length?'相神藏支未透，兼格已破而无救，岁运引出方有可为':'相神原局不现，兼格已破而无救，成格全赖岁运'));
+      why=(at.tou.length && at.root.length)?('相神'+(at.tou[0]||'')+'透干得根，然'+poSays+'，相神无从辅格，可为岁运补救之备')
+        :(at.tou.length?('相神透干而无根，兼'+poSays+'，宜待岁运既补相神亦解破格')
+        :(at.root.length?('相神藏支未透，兼'+poSays+'，岁运引出方有可为'):('相神原局不现，兼'+poSays+'，成格全赖岁运')));
     }
-    else if(at.tou.length && at.root.length){ tier='有力'; why='相神透干得根，辅格有力，格局因之而活'; }
+    else if(at.tou.length && at.root.length){
+      if(xiangHurt){ tier='受伤'; why='相神透干得根，然'+xiangHurt+'，相神被伤、辅格之职不得行，宜岁运解之'; }
+      else { tier='有力'; why='相神透干得根，辅格有力，格局因之而活'; }
+    }
     else if(at.tou.length){ tier='力浮'; why='相神透干而无根，辅格之力浮，须岁运培根'; }
     else if(at.root.length){ tier='待引'; why='相神藏支未透，须岁运引出方显其用'; }
     else { tier='不现'; why='相神原局不现，格局孤立，成格与否全赖岁运'; }
-    return {cats:pickCats, tou:at.tou, root:at.root, tier, why};
+    /* hurt 只随受伤一档出：力浮、待引诸档并未言被伤，若一并带出便成无据之由。 */
+    return {cats:pickCats, tou:at.tou, root:at.root, tier, why, hurt:tier==='受伤'?xiangHurt:''};
   })();
   // 病药法（日主视角）：《滴天髓》重“偏枯”，核心是全局失衡之根源。
   // 偏枯之“病”= 对日主有害（忌神：克、泄/耗）且数量最多之五行，它正是失衡来源；
