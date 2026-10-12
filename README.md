@@ -6,7 +6,7 @@
 [![GitHub Pages](https://github.com/GaoRenYouShu/XuanJiPaiPan/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/GaoRenYouShu/XuanJiPaiPan/deployments)
 [![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel)](https://xuanjipaipan.vercel.app/)
 [![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare)](https://xuanjipaipan.pages.dev/)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/39651e9e-35f7-4f29-a2ab-0d41fdeab4f4/deploy-status)](https://app.netlify.com/projects/gregarious-duckanoo-ed4d5b/deploys)
+[![Netlify](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.netlify.app%2F&label=Netlify&logo=netlify)](https://xuanjipaipan.netlify.app/)
 
 [![许可](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=许可)](LICENSE)
 [![最近提交](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
