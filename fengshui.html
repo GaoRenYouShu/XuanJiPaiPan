@@ -40,32 +40,32 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">基础设定（全页共用，改后自动联动）</div>
       <div class="fs-row">
-          <div class="field"><label>出生日期</label><input type="text" class="dt-input fs-inp-w130" id="baseDate" onchange="syncZibaiDate()"></div>
-        <div class="field"><label>出生时间</label><input type="time" id="baseTime" onchange="syncZibaiDate()"></div>
-        <div class="field"><label>性别</label><select id="baseSex" onchange="fsApplyBase()"><option value="1">男</option><option value="0">女</option></select></div>
-        <div class="field"><label>场所类型</label><select id="baseType" onchange="fsApplyBase()">
+          <div class="field"><label for="baseDate">出生日期</label><input type="text" class="dt-input fs-inp-w130" id="baseDate" onchange="syncZibaiDate()"></div>
+        <div class="field"><label for="baseTime">出生时间</label><input type="time" id="baseTime" onchange="syncZibaiDate()"></div>
+        <div class="field"><label for="baseSex">性别</label><select id="baseSex" onchange="fsApplyBase()"><option value="1">男</option><option value="0">女</option></select></div>
+        <div class="field"><label for="baseType">场所类型</label><select id="baseType" onchange="fsApplyBase()">
           <option value="house">住宅别墅</option>
           <option value="office">办公室</option>
           <option value="shop">商铺门店</option>
           <option value="factory">厂房车间</option>
         </select></div>
-        <div class="field"><label>坐山</label><select id="baseSit" onchange="fsApplyBase()"></select></div>
-        <div class="field"><label>向首</label><select id="baseFace" onchange="fsApplyBase()"></select></div>
-        <div class="field"><label>门位</label><select id="baseDoor" onchange="fsApplyBase()"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="fsApplyBase()"></div>
-        <div class="field"><label>流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
-        <div class="field"><label>宅运换运</label><select id="baseYun" onchange="fsApplyBase()" title="玄空宅运由起宅（改运）之年定，不随流年；默认随流年取当运"><option value="">随流年（默认）</option><option value="1">一运（1864-1883）</option><option value="2">二运（1884-1903）</option><option value="3">三运（1904-1923）</option><option value="4">四运（1924-1943）</option><option value="5">五运（1944-1963）</option><option value="6">六运（1964-1983）</option><option value="7">七运（1984-2003）</option><option value="8">八运（2004-2023）</option><option value="9">九运（2024-2043）</option></select></div>
+        <div class="field"><label for="baseSit">坐山</label><select id="baseSit" onchange="fsApplyBase()"></select></div>
+        <div class="field"><label for="baseFace">向首</label><select id="baseFace" onchange="fsApplyBase()"></select></div>
+        <div class="field"><label for="baseDoor">门位</label><select id="baseDoor" onchange="fsApplyBase()"></select></div>
+        <div class="field"><label for="baseDeg">实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseYear2">流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseYun">宅运换运</label><select id="baseYun" onchange="fsApplyBase()" title="玄空宅运由起宅（改运）之年定，不随流年；默认随流年取当运"><option value="">随流年（默认）</option><option value="1">一运（1864-1883）</option><option value="2">二运（1884-1903）</option><option value="3">三运（1904-1923）</option><option value="4">四运（1924-1943）</option><option value="5">五运（1944-1963）</option><option value="6">六运（1964-1983）</option><option value="7">七运（1984-2003）</option><option value="8">八运（2004-2023）</option><option value="9">九运（2024-2043）</option></select></div>
       </div>
       <div class="birth-group compact">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
-        <div class="field"><label>省份</label><select id="fsProv"></select></div>
-        <div class="field"><label>城市</label><select id="fsCity"></select></div>
-        <div class="field"><label>区县</label><select id="fsDist"></select></div>
-        <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="fsLng" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
-        <div class="field hh-lng"><label>纬度（可选）</label><input type="number" id="fsLat" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
+        <div class="field"><label for="fsProv">省份</label><select id="fsProv"></select></div>
+        <div class="field"><label for="fsCity">城市</label><select id="fsCity"></select></div>
+        <div class="field"><label for="fsDist">区县</label><select id="fsDist"></select></div>
+        <div class="field hh-lng"><label for="fsLng">经度（可选）</label><input type="number" id="fsLng" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
+        <div class="field hh-lng"><label for="fsLat">纬度（可选）</label><input type="number" id="fsLat" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
       </div>
       <div class="fs-row">
-        <div class="field"><label>磁偏角（东正西负）</label><input type="number" id="baseDecl" step="0.01" class="fs-inp-w90" placeholder="选所在地自动取" oninput="fsDeclTouch()" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseDecl">磁偏角（东正西负）</label><input type="number" id="baseDecl" step="0.01" class="fs-inp-w90" placeholder="选所在地自动取" oninput="fsDeclTouch()" onchange="fsApplyBase()"></div>
         <button class="btn soft" id="fsMagBtn" onclick="fsMagOnline()">重新取当地磁偏角</button>
       </div>
       <div class="fs-hint" id="fsMagNote"></div>
@@ -74,8 +74,8 @@
 <div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☵</span><span class="mod-title">第一层 定运</span><span class="mod-sub">年月日时紫白飞星</span></div>
 <div class="mod-body">
     <div class="fs-row">
-      <div class="field"><label>公历日期</label><input type="text" class="dt-input fs-inp-w130" id="zbDate" onchange="drawZiBai()"></div>
-      <div class="field"><label>时辰（选填，未选默认子时）</label><select id="zbHour" onchange="drawZiBai()"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
+      <div class="field"><label for="zbDate">公历日期</label><input type="text" class="dt-input fs-inp-w130" id="zbDate" onchange="drawZiBai()"></div>
+      <div class="field"><label for="zbHour">时辰（选填，未选默认子时）</label><select id="zbHour" onchange="drawZiBai()"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
       <button class="btn" id="zbTab0" onclick="fsZbTab(0)">年飞星</button>
       <button class="btn" id="zbTab1" onclick="fsZbTab(1)">月飞星</button>
       <button class="btn" id="zbTab2" onclick="fsZbTab(2)">日飞星</button>
@@ -91,10 +91,10 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">玄空飞星盘（山向盘）</h3>
@@ -109,8 +109,8 @@
     <div id="shOut"></div>
 <h3 class="rel-title">消亡水（先后天卦位水口）</h3>
     <div class="fs-row">
-      <div class="field"><label>来水位（二十四山）</label><select id="xwLai"></select></div>
-      <div class="field"><label>去水位（二十四山）</label><select id="xwQu"></select></div>
+      <div class="field"><label for="xwLai">来水位（二十四山）</label><select id="xwLai"></select></div>
+      <div class="field"><label for="xwQu">去水位（二十四山）</label><select id="xwQu"></select></div>
       <button class="btn gold" onclick="drawXiaoWang()">断消亡水</button>
     </div>
     <div id="xwOut"></div>
@@ -120,7 +120,7 @@
     <div id="lfOut"></div>
 <h3 class="rel-title">二十八宿分金</h3>
     <div class="fs-row">
-      <div class="field"><label>宅主出生年（选填）</label><input type="number" id="fjXm" value="" min="1800" max="2100" class="fs-inp-w100" placeholder="选填"></div>
+      <div class="field"><label for="fjXm">宅主出生年（选填）</label><input type="number" id="fjXm" value="" min="1800" max="2100" class="fs-inp-w100" placeholder="选填"></div>
       <button class="btn gold" onclick="drawXiuFen()">查宿度分金</button>
     </div>
     <div id="fjOut"></div>
@@ -132,41 +132,41 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">八宅吉凶方位</h3>
     <div id="bazhaiOut"></div>
 <h3 class="rel-title">阳宅三要</h3>
     <div class="fs-row">
-      <div class="field"><label>起星法</label><select id="yzMethod" onchange="fsReSanYao()"><option value="sit">以坐山起伏位</option><option value="door">以门起伏位</option></select></div>
-      <div class="field"><label>门方位</label><select id="yzDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
-      <div class="field"><label>主方位</label><select id="yzMain" onchange="fsReSanYao()"><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
-      <div class="field"><label>灶座</label><select id="yzStove" title="灶座真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
-      <div class="field"><label>灶向</label><select id="yzStoveDir" title="灶向真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
+      <div class="field"><label for="yzMethod">起星法</label><select id="yzMethod" onchange="fsReSanYao()"><option value="sit">以坐山起伏位</option><option value="door">以门起伏位</option></select></div>
+      <div class="field"><label for="yzDoor">门方位</label><select id="yzDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
+      <div class="field"><label for="yzMain">主方位</label><select id="yzMain" onchange="fsReSanYao()"><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
+      <div class="field"><label for="yzStove">灶座</label><select id="yzStove" title="灶座真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
+      <div class="field"><label for="yzStoveDir">灶向</label><select id="yzStoveDir" title="灶向真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
       <button class="btn gold" onclick="fsReSanYao()">断三要</button>
     </div>
     <div id="sanyaoOut"></div>
 <h3 class="rel-title">穿宫九星（竹节贯井法）</h3>
     <div class="fs-row">
-      <div class="field"><label>大门方位</label><select id="cgDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
-      <div class="field"><label>进数（层数）</label><select id="cgN" onchange="drawChuanGong()"><option value="3">3 进</option><option value="4">4 进</option><option value="5" selected>5 进</option><option value="6">6 进</option><option value="7">7 进</option><option value="8">8 进</option><option value="9">9 进</option></select></div>
+      <div class="field"><label for="cgDoor">大门方位</label><select id="cgDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
+      <div class="field"><label for="cgN">进数（层数）</label><select id="cgN" onchange="drawChuanGong()"><option value="3">3 进</option><option value="4">4 进</option><option value="5" selected>5 进</option><option value="6">6 进</option><option value="7">7 进</option><option value="8">8 进</option><option value="9">9 进</option></select></div>
       <button class="btn gold" onclick="drawChuanGong()">穿宫</button>
     </div>
     <div id="cgOut"></div>
 <h3 class="rel-title">阳宅六事（门路灶井厕磨，附安床）</h3>
     <div class="fs-row">
-      <div class="field"><label>门</label><select id="lsDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
-      <div class="field"><label>路</label><select id="lsRoad" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label>灶座</label><select id="lsStove" class="fs-lb-stove" title="与三要同源（灶座真值在三要），改此处三要联动" onchange="fsSetLocalStove(this)"></select></div>
-      <div class="field"><label>灶口（向）</label><select id="lsStoveDir" class="fs-lb-stovedir" title="与三要同源（灶向真值在三要），改此处三要联动" onchange="fsSetLocalStoveDir(this)"></select></div>
-      <div class="field"><label>床</label><select id="lsBed" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label>井（饮水位）</label><select id="lsWell" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label>坑厕（卫生间）</label><select id="lsWc" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label>碓磨（洗衣机）</label><select id="lsMill" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsDoor">门</label><select id="lsDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
+      <div class="field"><label for="lsRoad">路</label><select id="lsRoad" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsStove">灶座</label><select id="lsStove" class="fs-lb-stove" title="与三要同源（灶座真值在三要），改此处三要联动" onchange="fsSetLocalStove(this)"></select></div>
+      <div class="field"><label for="lsStoveDir">灶口（向）</label><select id="lsStoveDir" class="fs-lb-stovedir" title="与三要同源（灶向真值在三要），改此处三要联动" onchange="fsSetLocalStoveDir(this)"></select></div>
+      <div class="field"><label for="lsBed">床</label><select id="lsBed" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsWell">井（饮水位）</label><select id="lsWell" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsWc">坑厕（卫生间）</label><select id="lsWc" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsMill">碓磨（洗衣机）</label><select id="lsMill" onchange="drawLiuShi()"></select></div>
       <button class="btn gold" onclick="drawLiuShi()">断六事</button>
     </div>
     <div id="lsOut"></div>
@@ -178,17 +178,17 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">流年飞星叠宅运盘（岁运叠断）</h3>
     <div id="sdOut"></div>
     <div class="sub-note fs-bordertop fs-t-gold-b">流年太岁、岁破、三煞、年五黄方位与本命真太岁</div>
     <div class="fs-row">
-      <div class="field"><label>本命真太岁（选填）</label><input type="number" id="nsBirth" value="" min="1900" max="2100" class="fs-inp-w130" placeholder="留空只算流年"></div>
+      <div class="field"><label for="nsBirth">本命真太岁（选填）</label><input type="number" id="nsBirth" value="" min="1900" max="2100" class="fs-inp-w130" placeholder="留空只算流年"></div>
       <button class="btn gold" onclick="drawNianSha()">查方位</button>
     </div>
     <div id="nianshaOut"></div>
@@ -200,90 +200,90 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">阳宅形煞自检（外部峦头核对）</h3>
-    <div class="xl-row"><span class="xl-nm">天斩煞</span><span class="xl-d">两幢高楼之间的狭窄缝隙正对本宅门窗，缝愈窄愈长愈凶<b>（应：血光官非、疾厄）</b><i>化解：正对处设屏风、山海镇或高身绿植遮挡，缝隙方门窗少开</i></span><select id="xs-1" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">路冲枪煞</span><span class="xl-d">道路、长巷直冲大门或主要窗牖，如枪直刺<b>（应：损丁、车厄、是非）</b><i>化解：门内设玄关屏风挡煞、门楣置凸镜，冲大门者尤忌</i></span><select id="xs-2" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">反弓煞</span><span class="xl-d">门前道路或河流反弓外撇，形似弯弓背我<b>（应：退财、情义淡薄）</b><i>化解：反弓方置石敢当或高绿植，其方宜静不宜开门</i></span><select id="xs-3" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">割脚煞</span><span class="xl-d">道路、河流紧贴宅基逼临而过，无余地带<b>（应：根基不稳、财不聚）</b><i>化解：贴身方植绿缓冲，气口移离逼临方</i></span><select id="xs-4" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">穿堂煞</span><span class="xl-d">大门直对阳台、后门或大窗，前后通透一望而尽<b>（应：不聚气、财来财去）</b><i>化解：玄关设屏风、柜阻隔，使纳气回旋</i></span><select id="xs-5" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">横梁压顶</span><span class="xl-d">床、沙发、书桌、灶台、神位上方横梁外露<b>（应：压迫疾痛、运滞）</b><i>化解：移位居梁外或吊顶包梁，坐卧忌在梁下</i></span><select id="xs-6" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">尖角冲射</span><span class="xl-d">邻屋墙角、屋脊、塔尖、招牌尖角正对门窗（尖角、壁刀煞）<b>（应：疾痛、口舌）</b><i>化解：正对窗置凸镜、绿植；对坐卧之位久者宜改位</i></span><select id="xs-7" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">镰刀煞</span><span class="xl-d">高架桥、天桥弧形反弓割本宅，车流如镰<b>（应：意外血光）</b><i>化解：近桥侧厚帘双层玻璃，置铜器化金气</i></span><select id="xs-8" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">孤阴独阳</span><span class="xl-d">紧邻医院、殡仪馆、庙宇、监狱、警局、变电站等孤阴孤阳之所<b>（应：运滞、心神不宁）</b><i>化解：邻近方实墙封闭少开窗，宅内明亮人常聚</i></span><select id="xs-9" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
-    <div class="xl-row"><span class="xl-nm">声光电磁</span><span class="xl-d">高架车流噪音、霓虹光污染、高压电塔基站逼近<b>（应：心神不宁、健康受损）</b><i>化解：邻方隔音遮光，卧位移离电磁源</i></span><select id="xs-10" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">天斩煞</span><span class="xl-d">两幢高楼之间的狭窄缝隙正对本宅门窗，缝愈窄愈长愈凶<b>（应：血光官非、疾厄）</b><i>化解：正对处设屏风、山海镇或高身绿植遮挡，缝隙方门窗少开</i></span><select id="xs-1" aria-label="天斩煞 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">路冲枪煞</span><span class="xl-d">道路、长巷直冲大门或主要窗牖，如枪直刺<b>（应：损丁、车厄、是非）</b><i>化解：门内设玄关屏风挡煞、门楣置凸镜，冲大门者尤忌</i></span><select id="xs-2" aria-label="路冲枪煞 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">反弓煞</span><span class="xl-d">门前道路或河流反弓外撇，形似弯弓背我<b>（应：退财、情义淡薄）</b><i>化解：反弓方置石敢当或高绿植，其方宜静不宜开门</i></span><select id="xs-3" aria-label="反弓煞 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">割脚煞</span><span class="xl-d">道路、河流紧贴宅基逼临而过，无余地带<b>（应：根基不稳、财不聚）</b><i>化解：贴身方植绿缓冲，气口移离逼临方</i></span><select id="xs-4" aria-label="割脚煞 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">穿堂煞</span><span class="xl-d">大门直对阳台、后门或大窗，前后通透一望而尽<b>（应：不聚气、财来财去）</b><i>化解：玄关设屏风、柜阻隔，使纳气回旋</i></span><select id="xs-5" aria-label="穿堂煞 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">横梁压顶</span><span class="xl-d">床、沙发、书桌、灶台、神位上方横梁外露<b>（应：压迫疾痛、运滞）</b><i>化解：移位居梁外或吊顶包梁，坐卧忌在梁下</i></span><select id="xs-6" aria-label="横梁压顶 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">尖角冲射</span><span class="xl-d">邻屋墙角、屋脊、塔尖、招牌尖角正对门窗（尖角、壁刀煞）<b>（应：疾痛、口舌）</b><i>化解：正对窗置凸镜、绿植；对坐卧之位久者宜改位</i></span><select id="xs-7" aria-label="尖角冲射 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">镰刀煞</span><span class="xl-d">高架桥、天桥弧形反弓割本宅，车流如镰<b>（应：意外血光）</b><i>化解：近桥侧厚帘双层玻璃，置铜器化金气</i></span><select id="xs-8" aria-label="镰刀煞 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">孤阴独阳</span><span class="xl-d">紧邻医院、殡仪馆、庙宇、监狱、警局、变电站等孤阴孤阳之所<b>（应：运滞、心神不宁）</b><i>化解：邻近方实墙封闭少开窗，宅内明亮人常聚</i></span><select id="xs-9" aria-label="孤阴独阳 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
+    <div class="xl-row"><span class="xl-nm">声光电磁</span><span class="xl-d">高架车流噪音、霓虹光污染、高压电塔基站逼近<b>（应：心神不宁、健康受损）</b><i>化解：邻方隔音遮光，卧位移离电磁源</i></span><select id="xs-10" aria-label="声光电磁 犯否" onchange="drawXingSha()"><option value="">未核</option><option value="无">未犯</option><option value="近">近犯（重）</option><option value="远">远犯（轻）</option></select></div>
     <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawXingSha()">断形煞</button><button class="btn" onclick="fsXingShaAllOk()">十项均已核，未犯</button></div>
     <div id="xsOut"></div>
 <h3 class="rel-title">金锁玉关（过路阴阳）</h3>
     <div class="jsy-24">
       <div class="jsy-grp">
         <div class="jsy-gua">坎北<i>喜砂</i></div>
-        <select class="jsy-q" data-sids="jsy-n,jsy-z,jsy-g" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>壬</span><select id="jsy-n"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>子</span><select id="jsy-z"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>癸</span><select id="jsy-g"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x1"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-n,jsy-z,jsy-g" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>壬</span><select aria-label="壬山砂水" id="jsy-n"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>子</span><select aria-label="子山砂水" id="jsy-z"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>癸</span><select aria-label="癸山砂水" id="jsy-g"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x1"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">坤西南<i>喜砂</i></div>
-        <select class="jsy-q" data-sids="jsy-w,jsy-k,jsy-s" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>未</span><select id="jsy-w"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>坤</span><select id="jsy-k"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>申</span><select id="jsy-s"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x2"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-w,jsy-k,jsy-s" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>未</span><select aria-label="未山砂水" id="jsy-w"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>坤</span><select aria-label="坤山砂水" id="jsy-k"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>申</span><select aria-label="申山砂水" id="jsy-s"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x2"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">震东<i>喜砂</i></div>
-        <select class="jsy-q" data-sids="jsy-j,jsy-m,jsy-y" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>甲</span><select id="jsy-j"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>卯</span><select id="jsy-m"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>乙</span><select id="jsy-y"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x3"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-j,jsy-m,jsy-y" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>甲</span><select aria-label="甲山砂水" id="jsy-j"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>卯</span><select aria-label="卯山砂水" id="jsy-m"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>乙</span><select aria-label="乙山砂水" id="jsy-y"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x3"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">巽东南<i>喜砂</i></div>
-        <select class="jsy-q" data-sids="jsy-c,jsy-xun,jsy-si" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>辰</span><select id="jsy-c"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>巽</span><select id="jsy-xun"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>巳</span><select id="jsy-si"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x4"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-c,jsy-xun,jsy-si" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>辰</span><select aria-label="辰山砂水" id="jsy-c"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>巽</span><select aria-label="巽山砂水" id="jsy-xun"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>巳</span><select aria-label="巳山砂水" id="jsy-si"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x4"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">乾西北<i>喜水</i></div>
-        <select class="jsy-q" data-sids="jsy-xu,jsy-qian,jsy-hai" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>戌</span><select id="jsy-xu"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>乾</span><select id="jsy-qian"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>亥</span><select id="jsy-hai"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x6"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-xu,jsy-qian,jsy-hai" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>戌</span><select aria-label="戌山砂水" id="jsy-xu"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>乾</span><select aria-label="乾山砂水" id="jsy-qian"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>亥</span><select aria-label="亥山砂水" id="jsy-hai"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x6"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">兑西<i>喜水</i></div>
-        <select class="jsy-q" data-sids="jsy-geng,jsy-you,jsy-xin" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>庚</span><select id="jsy-geng"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>酉</span><select id="jsy-you"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>辛</span><select id="jsy-xin"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x7"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-geng,jsy-you,jsy-xin" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>庚</span><select aria-label="庚山砂水" id="jsy-geng"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>酉</span><select aria-label="酉山砂水" id="jsy-you"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>辛</span><select aria-label="辛山砂水" id="jsy-xin"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x7"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">艮东北<i>喜水</i></div>
-        <select class="jsy-q" data-sids="jsy-chou,jsy-gen,jsy-yin" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>丑</span><select id="jsy-chou"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>艮</span><select id="jsy-gen"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>寅</span><select id="jsy-yin"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x8"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-chou,jsy-gen,jsy-yin" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>丑</span><select aria-label="丑山砂水" id="jsy-chou"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>艮</span><select aria-label="艮山砂水" id="jsy-gen"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>寅</span><select aria-label="寅山砂水" id="jsy-yin"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x8"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <div class="jsy-grp">
         <div class="jsy-gua">离南<i>喜水</i></div>
-        <select class="jsy-q" data-sids="jsy-bing,jsy-wu,jsy-ding" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
-        <div class="jsy-shan"><span>丙</span><select id="jsy-bing"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>午</span><select id="jsy-wu"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-shan"><span>丁</span><select id="jsy-ding"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
-        <div class="jsy-x"><span>形</span><select id="jsy-x9"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
+        <select aria-label="三山粗选" class="jsy-q" data-sids="jsy-bing,jsy-wu,jsy-ding" onchange="jsyQuick(this)"><option value="">粗选</option><option value="砂">三山均砂</option><option value="水">三山均水</option><option value="">未详</option></select>
+        <div class="jsy-shan"><span>丙</span><select aria-label="丙山砂水" id="jsy-bing"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>午</span><select aria-label="午山砂水" id="jsy-wu"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-shan"><span>丁</span><select aria-label="丁山砂水" id="jsy-ding"><option value="">未选</option><option value="砂">砂</option><option value="水">水</option></select></div>
+        <div class="jsy-x"><span>形</span><select aria-label="形 吉凶" id="jsy-x9"><option value="">未填</option><option value="吉">佳</option><option value="凶">差</option></select></div>
       </div>
       <button class="btn gold" onclick="drawJsy()">断砂水</button>
     </div>
@@ -293,7 +293,7 @@
     <div class="fs-row fs-mt-2"><button class="btn gold" onclick="addLtRow()">添加形物</button><button class="btn gold" onclick="drawLuantou()">断峦头</button></div>
     <div id="ltOut"></div>
 <h3 class="rel-title">宅形自检（《阳宅十书》图诀）</h3>
-    <div class="fs-row"><div class="field"><label>宅形</label><select id="zxSel" onchange="drawZhaiXing()"></select></div></div>
+    <div class="fs-row"><div class="field"><label for="zxSel">宅形</label><select id="zxSel" onchange="drawZhaiXing()"></select></div></div>
     <div id="zxOut"></div>
 <h3 class="rel-title">阳宅布局建议（综合）</h3>
     <div id="yzOut"></div>
@@ -301,7 +301,7 @@
     <div id="cuiOut"></div>
 <h3 class="rel-title">理法综合裁决（跨派主从）</h3>
     <div class="fs-row">
-      <div class="field"><label>裁决主法</label><select id="zjPreset" onchange="drawZhenJue()">
+      <div class="field"><label for="zjPreset">裁决主法</label><select id="zjPreset" onchange="drawZhenJue()">
         <option value="">默认（立向、门、催动玄空主，灶八宅主）</option>
         <option value="xk">玄空主</option>
         <option value="bz">八宅主</option>
@@ -2220,11 +2220,11 @@ function addLtRow(){
   const typeOpts='<option value="">选形物</option>'+LT_TYPES.map(t=>`<option value="${t}">${t}</option>`).join('');
   const div=document.createElement('div');
   div.className='lt-row';
-  div.innerHTML=`<select class="lt-type" onchange="drawLuantou()">${typeOpts}</select>
-    <span class="lt-f">方位<select class="lt-dir" onchange="drawLuantou()">${dirOpts}</select></span>
-    <span class="lt-f">距离<input type="number" class="lt-dist" min="0" step="1" placeholder="米" onchange="drawLuantou()"></span>
-    <span class="lt-f">朝向<select class="lt-ang" onchange="drawLuantou()"><option value="0">正对</option><option value="30">斜对</option><option value="60">侧对（不论）</option></select></span>
-    <span class="lt-f">高低<select class="lt-h" onchange="drawLuantou()"><option value="">未填</option><option value="高">高于宅</option><option value="同">约同</option><option value="低">低于宅</option></select></span>
+  div.innerHTML=`<select class="lt-type" aria-label="形物" onchange="drawLuantou()">${typeOpts}</select>
+    <span class="lt-f">方位<select class="lt-dir" aria-label="方位" onchange="drawLuantou()">${dirOpts}</select></span>
+    <span class="lt-f">距离<input type="number" class="lt-dist" aria-label="距离（米）" min="0" step="1" placeholder="米" onchange="drawLuantou()"></span>
+    <span class="lt-f">朝向<select class="lt-ang" aria-label="朝向" onchange="drawLuantou()"><option value="0">正对</option><option value="30">斜对</option><option value="60">侧对（不论）</option></select></span>
+    <span class="lt-f">高低<select class="lt-h" aria-label="高低" onchange="drawLuantou()"><option value="">未填</option><option value="高">高于宅</option><option value="同">约同</option><option value="低">低于宅</option></select></span>
     <button class="btn" type="button" onclick="this.parentNode.remove();drawLuantou()">删</button>`;
   box.appendChild(div);
 }
@@ -2558,7 +2558,7 @@ function fsRoomVal(g){ const el=document.getElementById('fsRoom-'+g); return (el
 function fsRoomTxt(g){ const r=fsRoomVal(g); return r?(r+'（'+g+'宫）'):(g+'宫'); }
 function fillRoomRow(){
   const host=document.getElementById('fsRoomRow'); if(!host||host.dataset.done) return;
-  host.innerHTML=FS_ROOM_PAL.map(p=>`<span class="fs-room-i"><label>${p[0]}${p[1]}</label><input type="text" id="fsRoom-${p[0]}" maxlength="6" placeholder="房间名" onchange="fsDrawFinal()"></span>`).join('');
+  host.innerHTML=FS_ROOM_PAL.map(p=>`<span class="fs-room-i"><label for="fsRoom-${p[0]}">${p[0]}${p[1]}</label><input type="text" id="fsRoom-${p[0]}" maxlength="6" placeholder="房间名" onchange="fsDrawFinal()"></span>`).join('');
   host.dataset.done='1';
 }
 function jumpMod(id){

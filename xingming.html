@@ -37,37 +37,37 @@
     <h1>姓名学</h1>
     <div class="lead">以字义、音律、意境评名，参五格数理与八字喜用，可起名与双胞胎联名。</div>
     <div class="form-row r2">
-      <div class="field"><label>姓名模式</label>
+      <div class="field"><label for="nmMode">姓名模式</label>
         <select id="nmMode" onchange="GEN_BACK=false;switchMode()">
           <option value="han">汉字姓名（姓+名）</option>
           <option value="long">长姓名（译名连写）</option>
           <option value="gen">起名推荐</option>
           <option value="twin">联名推荐（双胞胎、多子女）</option>
         </select></div>
-      <div class="field" id="fSex"><label>性别（选填，仅联动展示）</label>
+      <div class="field" id="fSex"><label for="nmSex">性别（选填，仅联动展示）</label>
         <select id="nmSex">
           <option value="">不填</option>
           <option value="男">男</option>
           <option value="女">女</option>
         </select></div>
-      <div class="field" id="fXing"><label>姓氏（支持复姓）</label><input type="text" id="nmXing" maxlength="2" placeholder="张、欧阳"></div>
-      <div class="field" id="fMing"><label>名（1-2 字）</label><input type="text" id="nmMing" maxlength="2" placeholder="明、雨桐"></div>
-      <div class="field nm-hide" id="fLong"><label>全名（音译连写，可含间隔号）</label><input type="text" id="nmLong" maxlength="30" placeholder="如：买买提 艾力"></div>
-      <div class="field nm-hide" id="fCmp"><label>对比姓名（选填）</label><input type="text" id="nmCmp" maxlength="4"></div>
-      <div class="field nm-hide" id="fAvoid"><label>避讳长辈名（选填）</label><input type="text" id="nmAvoid" maxlength="16"></div>
-      <div class="field nm-hide" id="fBeizi"><label>字辈字（选填）</label><select id="nmBzPos"><option value="0" selected>名首字</option><option value="1">名次字</option></select><input type="text" id="nmBeizi" maxlength="1"></div>
-      <div class="field nm-hide" id="fGenLen"><label>名字字数</label>
+      <div class="field" id="fXing"><label for="nmXing">姓氏（支持复姓）</label><input type="text" id="nmXing" maxlength="2" placeholder="张、欧阳"></div>
+      <div class="field" id="fMing"><label for="nmMing">名（1-2 字）</label><input type="text" id="nmMing" maxlength="2" placeholder="明、雨桐"></div>
+      <div class="field nm-hide" id="fLong"><label for="nmLong">全名（音译连写，可含间隔号）</label><input type="text" id="nmLong" maxlength="30" placeholder="如：买买提 艾力"></div>
+      <div class="field nm-hide" id="fCmp"><label for="nmCmp">对比姓名（选填）</label><input type="text" id="nmCmp" maxlength="4"></div>
+      <div class="field nm-hide" id="fAvoid"><label for="nmAvoid">避讳长辈名（选填）</label><input type="text" id="nmAvoid" maxlength="16"></div>
+      <div class="field nm-hide" id="fBeizi"><label for="nmBzPos">字辈字（选填）</label><select id="nmBzPos"><option value="0" selected>名首字</option><option value="1">名次字</option></select><input type="text" id="nmBeizi" maxlength="1" aria-label="字辈字" placeholder="如：安、恩"></div>
+      <div class="field nm-hide" id="fGenLen"><label for="nmGenLen">名字字数</label>
         <select id="nmGenLen">
           <option value="1">单字</option>
           <option value="2" selected>双字</option>
         </select></div>
-      <div class="field nm-hide" id="fGenCnt"><label>推荐数量（每页）</label>
+      <div class="field nm-hide" id="fGenCnt"><label for="nmGenCnt">推荐数量（每页）</label>
         <select id="nmGenCnt">
           <option value="12">每页 12 名</option>
           <option value="24" selected>每页 24 名</option>
           <option value="36">每页 36 名</option>
         </select></div>
-      <div class="field nm-hide" id="fGenPg"><label>单次页数</label>
+      <div class="field nm-hide" id="fGenPg"><label for="nmGenPages">单次页数</label>
         <select id="nmGenPages">
           <option value="3">3 页</option>
           <option value="4" selected>4 页</option>
@@ -75,11 +75,11 @@
         </select></div>
       <div class="field nm-hide" id="fGenWx">
         <div class="nm-wxrow">
-          <span class="wx"><label>金</label><select id="nmWx0"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
-          <span class="wx"><label>木</label><select id="nmWx1"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
-          <span class="wx"><label>水</label><select id="nmWx2"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
-          <span class="wx"><label>火</label><select id="nmWx3"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
-          <span class="wx"><label>土</label><select id="nmWx4"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
+          <span class="wx"><label for="nmWx0">金</label><select id="nmWx0"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
+          <span class="wx"><label for="nmWx1">木</label><select id="nmWx1"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
+          <span class="wx"><label for="nmWx2">水</label><select id="nmWx2"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
+          <span class="wx"><label for="nmWx3">火</label><select id="nmWx3"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
+          <span class="wx"><label for="nmWx4">土</label><select id="nmWx4"><option value="" selected>不限</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></span>
         </div></div>
       <!-- 联名模式专用：适用对象（含性别取向，故联名模式下隐去“性别”一项，免得两处重复）、联名法、共用字 -->
       <div class="field nm-hide" id="fTwinKind"><label for="nmTwinKind">适用对象</label>
@@ -103,7 +103,7 @@
            首、末位置下拉只对共用一字有意义，其余联名法隐去。 -->
       <div class="field nm-hide" id="fTwinFix"><label for="nmTwinFix" id="nmTwinFixLabel">共用字（选填，留空随机）</label>
         <div class="nm-twin-shared-row">
-          <select id="nmTwinPos"><option value="tail" selected>共用末字</option><option value="head">共用首字</option></select>
+          <select id="nmTwinPos" aria-label="共用字位置"><option value="tail" selected>共用末字</option><option value="head">共用首字</option></select>
           <input type="text" id="nmTwinFix" maxlength="1" placeholder="如：安、恩">
         </div></div>
       <!-- 出生日期、出生时辰、子时算法移出“出生信息”框，按 日期→时辰→第二名时辰→子时算法 排列；

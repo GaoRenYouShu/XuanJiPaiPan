@@ -40,22 +40,22 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">基础设定（全页共用，改后自动联动）</div>
       <div class="fs-row">
-        <div class="field"><label>仙命出生年</label><input type="number" id="baseYear" value="1940" min="1800" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
-        <div class="field"><label>坐山</label><select id="baseSit" onchange="fsApplyBase()"></select></div>
-        <div class="field"><label>向首</label><select id="baseFace" onchange="fsApplyBase()"></select></div>
-        <div class="field"><label>安葬流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
-        <div class="field"><label>罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseYear">仙命出生年</label><input type="number" id="baseYear" value="1940" min="1800" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseSit">坐山</label><select id="baseSit" onchange="fsApplyBase()"></select></div>
+        <div class="field"><label for="baseFace">向首</label><select id="baseFace" onchange="fsApplyBase()"></select></div>
+        <div class="field"><label for="baseYear2">安葬流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseDeg">罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="fsApplyBase()"></div>
       </div>
       <div class="birth-group compact">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
-        <div class="field"><label>省份</label><select id="fsProv"></select></div>
-        <div class="field"><label>城市</label><select id="fsCity"></select></div>
-        <div class="field"><label>区县</label><select id="fsDist"></select></div>
-        <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="fsLng" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
-        <div class="field hh-lng"><label>纬度（可选）</label><input type="number" id="fsLat" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
+        <div class="field"><label for="fsProv">省份</label><select id="fsProv"></select></div>
+        <div class="field"><label for="fsCity">城市</label><select id="fsCity"></select></div>
+        <div class="field"><label for="fsDist">区县</label><select id="fsDist"></select></div>
+        <div class="field hh-lng"><label for="fsLng">经度（可选）</label><input type="number" id="fsLng" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
+        <div class="field hh-lng"><label for="fsLat">纬度（可选）</label><input type="number" id="fsLat" step="0.01" placeholder="所在地" onchange="fsGeoPick()"></div>
       </div>
       <div class="fs-row">
-        <div class="field"><label>磁偏角（东正西负）</label><input type="number" id="baseDecl" step="0.01" class="fs-inp-w90" placeholder="选所在地自动取" oninput="fsDeclTouch()" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseDecl">磁偏角（东正西负）</label><input type="number" id="baseDecl" step="0.01" class="fs-inp-w90" placeholder="选所在地自动取" oninput="fsDeclTouch()" onchange="fsApplyBase()"></div>
         <button class="btn soft" id="fsMagBtn" onclick="fsMagOnline()">重新取当地磁偏角</button>
       </div>
       <div class="fs-hint" id="fsMagNote"></div>
@@ -177,10 +177,10 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">峦头纲要：向（以向收堂气）</h3>
@@ -189,7 +189,7 @@
     </tbody></table></div>
 <h3 class="rel-title">法脉主线与大利坐向</h3>
     <div class="fs-row">
-      <div class="field"><label>立向法脉主线</label><select id="fxLine" onchange="drawDaJu();drawFinal();"><option value="sanhe">三合古法（杨公）</option><option value="xuankong">玄空飞星（沈氏）</option></select></div>
+      <div class="field"><label for="fxLine">立向法脉主线</label><select id="fxLine" onchange="drawDaJu();drawFinal();"><option value="sanhe">三合古法（杨公）</option><option value="xuankong">玄空飞星（沈氏）</option></select></div>
     </div>
     <div id="djOut"></div>
 <h3 class="rel-title">玄空飞星盘（山向盘）</h3>
@@ -208,10 +208,10 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">三合水法（长生十二宫）</h3>
@@ -229,10 +229,10 @@
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
       <div class="fs-row">
-        <div class="field"><label>坐山</label><select class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°，选填" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
       </div>
     </div>
 <h3 class="rel-title">仙命配山（配山合局、禄马贵人方）</h3>
@@ -246,7 +246,7 @@
     <div class="sub-note">本步为阴宅用事择日，与本站<a href="zeri.html">择日排盘页</a>同源。本页在择日通用避忌之上，另加安葬专忌（安葬大利月、补龙扶山相主、分事避忌）与本页上下文三项（仙命、坐山向首、入首龙）。择日分单独计算，不与前七步位置分混算：位置已定而日期未得吉，只须改日，不必弃地；反之亦然。</div>
 <h3 class="rel-title">真太岁方位（安葬流年避忌）</h3>
     <div class="fs-row">
-      <div class="field"><label>祭主出生年</label><input type="number" id="nsBirth" value="" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="drawNianSha()"></div>
+      <div class="field"><label for="nsBirth">祭主出生年</label><input type="number" id="nsBirth" value="" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="drawNianSha()"></div>
       <button class="btn gold" onclick="drawNianSha()">查方位</button>
     </div>
     <div id="nianshaOut"></div>
@@ -254,30 +254,30 @@
     <div id="yueOut"></div>
 <h3 class="rel-title">安葬择日避忌（分事核对：破土、安葬、立碑）</h3>
     <div class="fs-row">
-      <div class="field"><label>用事（分事各择）</label><select id="zrEvent" onchange="drawZeRi();drawBuLong();drawFinal();"><option value="破土">破土（开金井）</option><option value="安葬">安葬（下葬乘气）</option><option value="立碑">立碑（竖碑勒石）</option></select></div>
-      <div class="field"><label>日期</label><input type="text" class="dt-input fs-inp-w130" id="zrDate" onchange="drawZeRi();drawBuLong();drawFinal();"></div>
-      <div class="field"><label>下葬时辰（选填）</label><select id="zrHour" onchange="drawZeRi();drawBuLong();drawFinal();"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
-      <div class="field"><label>祭主出生年</label><input type="number" id="zrJiZhu" value="" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="drawZeRi();drawBuLong();drawFinal();"></div>
+      <div class="field"><label for="zrEvent">用事（分事各择）</label><select id="zrEvent" onchange="drawZeRi();drawBuLong();drawFinal();"><option value="破土">破土（开金井）</option><option value="安葬">安葬（下葬乘气）</option><option value="立碑">立碑（竖碑勒石）</option></select></div>
+      <div class="field"><label for="zrDate">日期</label><input type="text" class="dt-input fs-inp-w130" id="zrDate" onchange="drawZeRi();drawBuLong();drawFinal();"></div>
+      <div class="field"><label for="zrHour">下葬时辰（选填）</label><select id="zrHour" onchange="drawZeRi();drawBuLong();drawFinal();"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
+      <div class="field"><label for="zrJiZhu">祭主出生年</label><input type="number" id="zrJiZhu" value="" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="drawZeRi();drawBuLong();drawFinal();"></div>
       <button class="btn gold" onclick="drawZeRi();drawBuLong();drawFinal();">核此日</button>
     </div>
     <div id="zeriOut"></div>
 <h3 class="rel-title">补龙扶山相主（造命三纲）</h3>
     <div class="fs-row">
-      <div class="field"><label>入首龙（选填，按罗盘二十四山格定）</label><select id="blLong" onchange="drawBuLong();drawFinal();"></select></div>
+      <div class="field"><label for="blLong">入首龙（选填，按罗盘二十四山格定）</label><select id="blLong" onchange="drawBuLong();drawFinal();"></select></div>
     </div>
     <div id="blOut"></div>
 <h3 class="rel-title">成课择吉（期限内候选日课评分排序）</h3>
     <div class="fs-row">
-      <div class="field"><label>坐山</label><select id="ckSit" onchange="ckSyncBase()"></select></div>
-      <div class="field"><label>向首</label><select id="ckFace" onchange="ckSyncBase()"></select></div>
-      <div class="field"><label>入首龙（不填按坐山代论）</label><select id="ckLong" onchange="ckSyncLong()"></select></div>
-      <div class="field"><label>仙命出生年</label><input type="number" id="ckXm" min="1800" max="2100" class="fs-inp-w100" onchange="ckSyncXm()"></div>
-      <div class="field"><label>祭主出生年</label><input type="number" id="ckJz" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="ckSyncJz()"></div>
-      <div class="field"><label>用事时辰</label><select id="ckHour" onchange="drawKeCe();"><option value="-1">只论日柱</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
+      <div class="field"><label for="ckSit">坐山</label><select id="ckSit" onchange="ckSyncBase()"></select></div>
+      <div class="field"><label for="ckFace">向首</label><select id="ckFace" onchange="ckSyncBase()"></select></div>
+      <div class="field"><label for="ckLong">入首龙（不填按坐山代论）</label><select id="ckLong" onchange="ckSyncLong()"></select></div>
+      <div class="field"><label for="ckXm">仙命出生年</label><input type="number" id="ckXm" min="1800" max="2100" class="fs-inp-w100" onchange="ckSyncXm()"></div>
+      <div class="field"><label for="ckJz">祭主出生年</label><input type="number" id="ckJz" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="ckSyncJz()"></div>
+      <div class="field"><label for="ckHour">用事时辰</label><select id="ckHour" onchange="drawKeCe();"><option value="-1">只论日柱</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
     </div>
     <div class="fs-row">
-      <div class="field"><label>起始日期</label><input type="text" class="dt-input fs-inp-w120" id="ckFrom" placeholder="2026-09-30" onchange="drawKeCe();"></div>
-      <div class="field"><label>结束日期</label><input type="text" class="dt-input fs-inp-w120" id="ckTo" placeholder="2026-09-30" onchange="drawKeCe();"></div>
+      <div class="field"><label for="ckFrom">起始日期</label><input type="text" class="dt-input fs-inp-w120" id="ckFrom" placeholder="2026-09-30" onchange="drawKeCe();"></div>
+      <div class="field"><label for="ckTo">结束日期</label><input type="text" class="dt-input fs-inp-w120" id="ckTo" placeholder="2026-09-30" onchange="drawKeCe();"></div>
       <button class="btn gold" onclick="drawKeCe()">选成课</button>
     </div>
     <div id="ckOut"></div>
@@ -472,7 +472,7 @@ function renderXlInput(){
     <div class="xl-row">
       <span class="xl-nm">${it.name}</span>
       <span class="xl-d">${it.tip}</span>
-      <select id="${it.id}" onchange="drawXingLuan();drawFinal();">${it.opts.map(o=>'<option value="'+o.v+'">'+o.t+'</option>').join('')}</select>
+      <select id="${it.id}" aria-label="${it.name} 情形" onchange="drawXingLuan();drawFinal();">${it.opts.map(o=>'<option value="'+o.v+'">'+o.t+'</option>').join('')}</select>
     </div>`).join('');
   });
 }

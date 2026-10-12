@@ -39,38 +39,38 @@
     <div class="lead">输入出生时间，排西洋本命星盘、行运运势与印度占星，可双人合盘。</div>
     <div class="xz-form">
       <div class="xz-row-inputs">
-        <div class="field f-date"><label>出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzDate"></div>
-        <div class="field f-time"><label>出生时间</label><input type="time" id="xzTime" value="12:00"></div>
-        <div class="field f-sex"><label>性别</label><select id="xzSex"><option>男</option><option>女</option></select></div>
-        <div class="field f-tz"><label>时区</label><input type="number" id="xzTz" value="8" step="0.5"></div>
-        <div class="field f-house"><label>宫位制</label><select id="xzHouse"><option value="whole">整宫制</option><option value="placidus">Placidus 分宫制</option></select></div>
+        <div class="field f-date"><label for="xzDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzDate"></div>
+        <div class="field f-time"><label for="xzTime">出生时间</label><input type="time" id="xzTime" value="12:00"></div>
+        <div class="field f-sex"><label for="xzSex">性别</label><select id="xzSex"><option>男</option><option>女</option></select></div>
+        <div class="field f-tz"><label for="xzTz">时区</label><input type="number" id="xzTz" value="8" step="0.5"></div>
+        <div class="field f-house"><label for="xzHouse">宫位制</label><select id="xzHouse"><option value="whole">整宫制</option><option value="placidus">Placidus 分宫制</option></select></div>
         <div class="xz-btns">
           <button class="btn" onclick="xzPai()">排盘</button>
         </div>
       </div>
       <div class="birth-group compact">
         <div class="group-label">出生地（用于经纬度与上升星座，手填经纬度优先）</div>
-        <div class="field"><label>省份</label><select id="xzProv"></select></div>
-        <div class="field"><label>城市</label><select id="xzCity"></select></div>
-        <div class="field"><label>区县</label><select id="xzDist"></select></div>
-        <div class="field"><label>手动经度</label><input type="text" id="xzLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
-        <div class="field"><label>手动纬度</label><input type="text" id="xzLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
+        <div class="field"><label for="xzProv">省份</label><select id="xzProv"></select></div>
+        <div class="field"><label for="xzCity">城市</label><select id="xzCity"></select></div>
+        <div class="field"><label for="xzDist">区县</label><select id="xzDist"></select></div>
+        <div class="field"><label for="xzLon">手动经度</label><input type="text" id="xzLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
+        <div class="field"><label for="xzLat">手动纬度</label><input type="text" id="xzLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
       </div>
       <label class="xz-rel-chk"><input type="checkbox" id="xzRel" onchange="document.getElementById('xzRel2').style.display=this.checked?'':'none'"> 双人合盘（勾选后填第二人出生资料，追加 Synastry 比较盘、Composite 组合盘、Davison 时空中点盘）</label>
       <div class="xz-rel2" id="xzRel2" style="display:none">
         <div class="xz-row-inputs">
-          <div class="field f-date"><label>出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzBDate"></div>
-          <div class="field f-time"><label>出生时间</label><input type="time" id="xzBTime" value="12:00"></div>
-          <div class="field f-sex"><label>性别</label><select id="xzBSex"><option>男</option><option>女</option></select></div>
-          <div class="field f-tz"><label>时区</label><input type="number" id="xzBTz" value="8" step="0.5"></div>
+          <div class="field f-date"><label for="xzBDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzBDate"></div>
+          <div class="field f-time"><label for="xzBTime">出生时间</label><input type="time" id="xzBTime" value="12:00"></div>
+          <div class="field f-sex"><label for="xzBSex">性别</label><select id="xzBSex"><option>男</option><option>女</option></select></div>
+          <div class="field f-tz"><label for="xzBTz">时区</label><input type="number" id="xzBTz" value="8" step="0.5"></div>
         </div>
         <div class="birth-group compact">
           <div class="group-label">出生地（用于经纬度与上升星座，手填经纬度优先）</div>
-          <div class="field"><label>省份</label><select id="xzBProv"></select></div>
-          <div class="field"><label>城市</label><select id="xzBCity"></select></div>
-          <div class="field"><label>区县</label><select id="xzBDist"></select></div>
-          <div class="field"><label>手动经度</label><input type="text" id="xzBLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
-          <div class="field"><label>手动纬度</label><input type="text" id="xzBLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
+          <div class="field"><label for="xzBProv">省份</label><select id="xzBProv"></select></div>
+          <div class="field"><label for="xzBCity">城市</label><select id="xzBCity"></select></div>
+          <div class="field"><label for="xzBDist">区县</label><select id="xzBDist"></select></div>
+          <div class="field"><label for="xzBLon">手动经度</label><input type="text" id="xzBLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
+          <div class="field"><label for="xzBLat">手动纬度</label><input type="text" id="xzBLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
         </div>
       </div>
     </div>

@@ -45,10 +45,10 @@
       <summary><span class="zr-mod-n">①</span> 黄道吉日</summary>
       <div class="zr-mod-b">
         <div class="form-row r3">
-          <div class="field"><label>起始日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="from"></div>
-          <div class="field"><label>结束日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="to"></div>
-          <div class="field"><label>所办事项</label><select id="event"></select></div>
-          <div class="field"><label>流派</label><select id="zrSchool"></select></div>
+          <div class="field"><label for="from">起始日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="from"></div>
+          <div class="field"><label for="to">结束日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="to"></div>
+          <div class="field"><label for="event">所办事项</label><select id="event"></select></div>
+          <div class="field"><label for="zrSchool">流派</label><select id="zrSchool"></select></div>
           <button class="btn gold" onclick="query()">查吉日</button>
         </div>
         <div id="out"></div>
@@ -58,9 +58,9 @@
       <summary><span class="zr-mod-n">②</span> 命主喜用神</summary>
       <div class="zr-mod-b">
         <div class="form-row r3">
-          <div class="field"><label>出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="bDate"></div>
-          <div class="field"><label>出生时间</label><input type="time" id="bTime" value="12:00"></div>
-          <div class="field"><label>性别</label>
+          <div class="field"><label for="bDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="bDate"></div>
+          <div class="field"><label for="bTime">出生时间</label><input type="time" id="bTime" value="12:00"></div>
+          <div class="field"><label for="bSex">性别</label>
             <select id="bSex"><option value="1">男</option><option value="0">女</option></select>
           </div>
           <div class="field"><label for="bZi">子时算法</label>
@@ -73,10 +73,10 @@
         </div>
         <div class="birth-group compact">
           <div class="group-label">出生地（用于真太阳时经度校正）</div>
-          <div class="field"><label>省份</label><select id="bProv"></select></div>
-          <div class="field"><label>城市</label><select id="bCity"></select></div>
-          <div class="field"><label>区县</label><select id="bDist"></select></div>
-          <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="bLng" step="0.01" placeholder="出生地"></div>
+          <div class="field"><label for="bProv">省份</label><select id="bProv"></select></div>
+          <div class="field"><label for="bCity">城市</label><select id="bCity"></select></div>
+          <div class="field"><label for="bDist">区县</label><select id="bDist"></select></div>
+          <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" step="0.01" placeholder="出生地"></div>
           <div class="field chk hh-true"><input type="checkbox" id="bTrue" checked><label for="bTrue">真太阳时校正</label></div>
         </div>
         <div id="xiOut"></div>
@@ -86,8 +86,8 @@
       <summary><span class="zr-mod-n">③</span> 真太岁方位</summary>
       <div class="zr-mod-b">
         <div class="form-row">
-          <div class="field"><label>年份</label><input type="text" class="dt-input" placeholder="默认当年" id="tsYear"></div>
-          <div class="field"><label>论法</label>
+          <div class="field"><label for="tsYear">年份</label><input type="text" class="dt-input" placeholder="默认当年" id="tsYear"></div>
+          <div class="field"><label for="tsMode">论法</label>
             <select id="tsMode">
               <option value="liu">流年太岁（当年）</option>
               <option value="zhen">本命真太岁（出生年）</option>
@@ -102,25 +102,25 @@
       <summary><span class="zr-mod-n">④</span> 精择吉日</summary>
       <div class="zr-mod-b">
         <div class="form-row">
-          <div class="field"><label>坐山（造葬动土填）</label>
+          <div class="field"><label for="shan">坐山（造葬动土填）</label>
             <select id="shan"><option value="">不按坐山</option></select>
           </div>
-          <div class="field"><label>入首龙（造葬选填）</label>
+          <div class="field"><label for="laiLong">入首龙（造葬选填）</label>
             <select id="laiLong"><option value="">不按来龙</option></select>
           </div>
-          <div class="field"><label>分金（安葬填）</label>
+          <div class="field"><label for="fenJin">分金（安葬填）</label>
             <select id="fenJin"><option value="">不辨分金</option></select>
           </div>
-          <div class="field"><label>仙命年（安葬填）</label>
+          <div class="field"><label for="xmYear">仙命年（安葬填）</label>
             <input type="number" id="xmYear" min="1900" max="2100" />
           </div>
-          <div class="field field-off" data-school="玄空紫白派"><label>建造元运（玄空填）</label>
+          <div class="field field-off" data-school="玄空紫白派"><label for="yuanYun">建造元运（玄空填）</label>
             <select id="yuanYun"><option value="">不按宅盘</option><option>一运</option><option>二运</option><option>三运</option><option>四运</option><option>五运</option><option>六运</option><option>七运</option><option>八运</option><option>九运</option></select>
           </div>
-          <div class="field field-off" data-school="玄空紫白派"><label>向方（玄空填）</label>
+          <div class="field field-off" data-school="玄空紫白派"><label for="xiangShan">向方（玄空填）</label>
             <select id="xiangShan"><option value="">不按向方</option></select>
           </div>
-          <div class="field"><label>用事时辰（可选）</label>
+          <div class="field"><label for="zhongShi">用事时辰（可选）</label>
             <select id="zhongShi"><option value="">不选则只论日柱</option></select>
           </div>
           <div class="field chk"><input type="checkbox" id="noTs"><label for="noTs">不校太岁方位</label></div>
@@ -133,9 +133,9 @@
       <summary><span class="zr-mod-n">①</span> 窗口与可用时辰</summary>
       <div class="zr-mod-b">
         <div class="form-row r3">
-          <div class="field"><label>窗口起始</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmFrom"></div>
-          <div class="field"><label>窗口结束</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmTo"></div>
-          <div class="field"><label>宝宝性别</label>
+          <div class="field"><label for="zmFrom">窗口起始</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmFrom"></div>
+          <div class="field"><label for="zmTo">窗口结束</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmTo"></div>
+          <div class="field"><label for="zmSex">宝宝性别</label>
             <select id="zmSex"><option value="1">男</option><option value="0">女</option></select>
           </div>
           <div class="field"><label for="zmZi">子时算法</label>
@@ -157,10 +157,10 @@
         </div>
         <div class="birth-group compact">
           <div class="group-label">宝宝出生地（用于真太阳时经度校正）</div>
-          <div class="field"><label>省份</label><select id="zmProv"></select></div>
-          <div class="field"><label>城市</label><select id="zmCity"></select></div>
-          <div class="field"><label>区县</label><select id="zmDist"></select></div>
-          <div class="field hh-lng"><label>经度（可选）</label><input type="number" id="zmLng" step="0.01" placeholder="出生地"></div>
+          <div class="field"><label for="zmProv">省份</label><select id="zmProv"></select></div>
+          <div class="field"><label for="zmCity">城市</label><select id="zmCity"></select></div>
+          <div class="field"><label for="zmDist">区县</label><select id="zmDist"></select></div>
+          <div class="field hh-lng"><label for="zmLng">经度（可选）</label><input type="number" id="zmLng" step="0.01" placeholder="出生地"></div>
           <div class="field chk hh-true"><input type="checkbox" id="zmTrue" checked><label for="zmTrue">真太阳时校正</label></div>
         </div>
         <div class="form-row zm-run-row">
@@ -177,12 +177,12 @@
             <div class="zm-parent-h">家长一</div>
             <div class="form-row">
               <div class="field zm-sex"><label for="zmP1Sex">性别</label><select id="zmP1Sex"><option selected>男</option><option>女</option></select></div>
-              <div class="field"><label>出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmP1Date"></div>
-              <div class="field"><label>出生时间</label><input type="time" id="zmP1Time" value="12:00"></div>
-              <div class="field"><label>省份</label><select id="zmP1Prov"></select></div>
-              <div class="field"><label>城市</label><select id="zmP1City"></select></div>
-              <div class="field"><label>区县</label><select id="zmP1Dist"></select></div>
-              <div class="field"><label>手动经度</label><input type="number" id="zmP1Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
+              <div class="field"><label for="zmP1Date">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmP1Date"></div>
+              <div class="field"><label for="zmP1Time">出生时间</label><input type="time" id="zmP1Time" value="12:00"></div>
+              <div class="field"><label for="zmP1Prov">省份</label><select id="zmP1Prov"></select></div>
+              <div class="field"><label for="zmP1City">城市</label><select id="zmP1City"></select></div>
+              <div class="field"><label for="zmP1Dist">区县</label><select id="zmP1Dist"></select></div>
+              <div class="field"><label for="zmP1Lng">手动经度</label><input type="number" id="zmP1Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
               <div class="field chk hh-true"><input type="checkbox" id="zmP1True" checked><label for="zmP1True">真太阳时校正</label></div>
             </div>
           </div>
@@ -190,12 +190,12 @@
             <div class="zm-parent-h">家长二</div>
             <div class="form-row">
               <div class="field zm-sex"><label for="zmP2Sex">性别</label><select id="zmP2Sex"><option>男</option><option selected>女</option></select></div>
-              <div class="field"><label>出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmP2Date"></div>
-              <div class="field"><label>出生时间</label><input type="time" id="zmP2Time" value="12:00"></div>
-              <div class="field"><label>省份</label><select id="zmP2Prov"></select></div>
-              <div class="field"><label>城市</label><select id="zmP2City"></select></div>
-              <div class="field"><label>区县</label><select id="zmP2Dist"></select></div>
-              <div class="field"><label>手动经度</label><input type="number" id="zmP2Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
+              <div class="field"><label for="zmP2Date">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmP2Date"></div>
+              <div class="field"><label for="zmP2Time">出生时间</label><input type="time" id="zmP2Time" value="12:00"></div>
+              <div class="field"><label for="zmP2Prov">省份</label><select id="zmP2Prov"></select></div>
+              <div class="field"><label for="zmP2City">城市</label><select id="zmP2City"></select></div>
+              <div class="field"><label for="zmP2Dist">区县</label><select id="zmP2Dist"></select></div>
+              <div class="field"><label for="zmP2Lng">手动经度</label><input type="number" id="zmP2Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
               <div class="field chk hh-true"><input type="checkbox" id="zmP2True" checked><label for="zmP2True">真太阳时校正</label></div>
             </div>
           </div>

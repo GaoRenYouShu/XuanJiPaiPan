@@ -37,9 +37,9 @@
     <h1>皇极经世</h1>
     <div class="lead">邵雍元会运世推演任意公历年（含公元前）的卦气归属，附皇极尺。</div>
     <div class="form-row hj-query-row">
-      <div class="field"><label>选择日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="选择日期" onchange="onDateChange()"></div>
-      <div class="field"><label>年份直达（支持公元前）</label><input type="text" id="yInput" placeholder="2026前2357" aria-label="年份直达" onkeydown="if(event.key==='Enter')jumpYear()"></div>
-      <div class="field"><label>年界口径</label><select id="yBound" aria-label="年界口径" onchange="onBoundChange()">
+      <div class="field"><label for="dInput">选择日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="选择日期" onchange="onDateChange()"></div>
+      <div class="field"><label for="yInput">年份直达（支持公元前）</label><input type="text" id="yInput" placeholder="2026前2357" aria-label="年份直达" onkeydown="if(event.key==='Enter')jumpYear()"></div>
+      <div class="field"><label for="yBound">年界口径</label><select id="yBound" aria-label="年界口径" onchange="onBoundChange()">
         <option value="greg">公历1月1日</option>
         <option value="lunar">农历正月初一</option>
         <option value="lichun">立春</option>
@@ -107,7 +107,7 @@
       <div class="jw-search"><input class="jw-input" id="hjSyQ" type="text" placeholder="输入单字，如 多、龍、皃" aria-label="声律检索"><button class="btn gold" type="button" id="hjSyGo">检索</button></div>
       <div id="hjSyHits"></div>
       <h4 class="det-h">唱和矩阵（分声组音组浏览）</h4>
-      <div class="form-row"><div class="field"><label>声组</label><select id="hjSySb" aria-label="声组"></select></div><div class="field"><label>音组</label><select id="hjSyYb" aria-label="音组"></select></div></div>
+      <div class="form-row"><div class="field"><label for="hjSySb">声组</label><select id="hjSySb" aria-label="声组"></select></div><div class="field"><label for="hjSyYb">音组</label><select id="hjSyYb" aria-label="音组"></select></div></div>
       <div id="hjSyBlock"></div>
     </details>
     <details class="hj-ref" id="hjTermRef"><summary>术语速查与白话解读</summary><div id="plainRef"></div>
@@ -545,11 +545,11 @@ document.getElementById('out').innerHTML=
     +anchorTable
     +'<h3 class="rel-title">六日七分法</h3>'
         +'<div class="sub-note">孟喜卦气说：去坎离震兑四正，余六十卦各主六日七分（365.25÷60≈6.0875日），以冬至为历元、复卦当值，逐卦顺先天圆图推日。此系汉易卦气说，与邵雍以元经会的值卦分属两系，并列参照。输入月日即得当日卦气归属。</div>'
-        +'<div class="form-row"><div class="field"><label>月</label><input id="hjQfM" type="number" min="1" max="12" value="12" aria-label="月"></div><div class="field"><label>日</label><input id="hjQfD" type="number" min="1" max="31" value="22" aria-label="日"></div><button class="btn gold" type="button" onclick="hjQiFen()">推算</button></div>'
+        +'<div class="form-row"><div class="field"><label for="hjQfM">月</label><input id="hjQfM" type="number" min="1" max="12" value="12" aria-label="月"></div><div class="field"><label for="hjQfD">日</label><input id="hjQfD" type="number" min="1" max="31" value="22" aria-label="日"></div><button class="btn gold" type="button" onclick="hjQiFen()">推算</button></div>'
         +'<div id="hjQfOut"></div>'
         +'<h3 class="rel-title">八字联动</h3>'
         +'<div class="sub-note">皇极经世以元会运世观天地大局，八字以四柱五行观个人命局，两系对象不同、尺度悬殊，本页不代作吉凶互断。填入出生年，即出该年的元会运世定位与值年卦，可与八字排盘页的流年大运互参。</div>'
-        +'<div class="form-row"><div class="field"><label>出生年（公历）</label><input id="hjBzYear" type="text" placeholder="2026" aria-label="出生年（格式同年份直达，如 2026 或 前2357）"></div><button class="btn gold" type="button" onclick="hjBzLink()">查定位</button><a class="btn" href="bazi.html">打开八字排盘</a></div>'
+        +'<div class="form-row"><div class="field"><label for="hjBzYear">出生年（公历）</label><input id="hjBzYear" type="text" placeholder="2026" aria-label="出生年（格式同年份直达，如 2026 或 前2357）"></div><button class="btn gold" type="button" onclick="hjBzLink()">查定位</button><a class="btn" href="bazi.html">打开八字排盘</a></div>'
         +'<div id="hjBzOut"></div>'
         +'<h3 class="rel-title">原书年表检索</h3>'
     +'<div class="sub-note">原书以运经世一千五百三十九条记事，跨运一次检索：输入人名、地名或事类关键词，即列其全部年份、干支与元会运世定位，并出原书记事。检索词简繁互通，所列记事一律转写简体。年表止于后周显德六年己未（公元959），宋初以后原书不载。</div>'
@@ -557,19 +557,19 @@ document.getElementById('out').innerHTML=
     +'<div id="hjChronHits"></div>'
     +'<h3 class="rel-title">年份互查</h3>'
     +'<div class="sub-note">填一个年份，出该年的元会运世定位、原书年表本年记事、本世三十年的原书全部记事，以及前后最近的两条大事锚点。原书纪年与通行史年之差随史事而不同、非整体平移，故此处不设换算系数，只把两套并列在同年之下供对读。</div>'
-    +'<div class="form-row"><div class="field"><label>年份</label><input id="hjLookQ" type="text" placeholder="618 前1122" autocomplete="off" aria-label="互查年份" onkeydown="if(event.key===\'Enter\')hjYearLook()"></div><button class="btn gold" type="button" onclick="hjYearLook()">互查</button></div>'
+    +'<div class="form-row"><div class="field"><label for="hjLookQ">年份</label><input id="hjLookQ" type="text" placeholder="618 前1122" autocomplete="off" aria-label="互查年份" onkeydown="if(event.key===\'Enter\')hjYearLook()"></div><button class="btn gold" type="button" onclick="hjYearLook()">互查</button></div>'
     +'<div id="hjLookOut"></div>'
     +'<h3 class="rel-title">时间跨度计算</h3>'
     +'<div class="sub-note">填起讫两年，出相距年数、折合几世几运、两端的元会运世定位与所值之卦，并报本段在原书年表中的记事条数。世以三十年、运以三百六十年为单位，故唐二百八十九年不出一运一类跨度感可在此逐段验算。</div>'
-    +'<div class="form-row"><div class="field"><label>起年</label><input id="hjSpanA" type="text" placeholder="618 前2357" autocomplete="off" aria-label="起年" onkeydown="if(event.key===\'Enter\')hjSpan()"></div><div class="field"><label>讫年</label><input id="hjSpanB" type="text" placeholder="618 前2357" autocomplete="off" aria-label="讫年" onkeydown="if(event.key===\'Enter\')hjSpan()"></div><button class="btn gold" type="button" onclick="hjSpan()">计算</button></div>'
+    +'<div class="form-row"><div class="field"><label for="hjSpanA">起年</label><input id="hjSpanA" type="text" placeholder="618 前2357" autocomplete="off" aria-label="起年" onkeydown="if(event.key===\'Enter\')hjSpan()"></div><div class="field"><label for="hjSpanB">讫年</label><input id="hjSpanB" type="text" placeholder="618 前2357" autocomplete="off" aria-label="讫年" onkeydown="if(event.key===\'Enter\')hjSpan()"></div><button class="btn gold" type="button" onclick="hjSpan()">计算</button></div>'
     +'<div id="hjSpanOut"></div>'
     +'<h3 class="rel-title">以元经会（逐世干支方阵，一元 4320 世）</h3>'
     +'<div class="sub-note">以元经会逐世定位：一元十二会、每会三十运、每运十二世，合四千三百二十世。世序 N 自 1 至 4320，会内运序自 1 至 30。可按世序 N 直达，或选会支、填会内运序、选世支三项定位；整会一览列该会三十运三百六十世，整运一览列该运十二世。</div>'
     +'<div class="form-row">'
-    +'<div class="field"><label>世序 N</label><input id="hjYjhN" type="number" min="1" max="4320" placeholder="1" aria-label="世序N"></div>'
-    +'<div class="field"><label>会支</label><select id="hjYjhHui" aria-label="会支"></select></div>'
-    +'<div class="field"><label>会内运序</label><input id="hjYjhYun" type="number" min="1" max="30" placeholder="1" aria-label="会内运序"></div>'
-    +'<div class="field"><label>世支</label><select id="hjYjhShi" aria-label="世支"></select></div>'
+    +'<div class="field"><label for="hjYjhN">世序 N</label><input id="hjYjhN" type="number" min="1" max="4320" placeholder="1" aria-label="世序N"></div>'
+    +'<div class="field"><label for="hjYjhHui">会支</label><select id="hjYjhHui" aria-label="会支"></select></div>'
+    +'<div class="field"><label for="hjYjhYun">会内运序</label><input id="hjYjhYun" type="number" min="1" max="30" placeholder="1" aria-label="会内运序"></div>'
+    +'<div class="field"><label for="hjYjhShi">世支</label><select id="hjYjhShi" aria-label="世支"></select></div>'
     +'<button class="btn gold" type="button" onclick="hjYjhGo()">定位</button>'
     +'<button class="btn" type="button" onclick="hjYjhHuiAll()">整会一览</button>'
     +'<button class="btn" type="button" onclick="hjYjhYunAll()">整运一览</button>'

@@ -38,16 +38,16 @@
     <h1>铁板神数</h1>
     <div class="lead">传为邵雍皇极一脉：八字化数、六亲考刻定正刻，抽演铁板条文附河洛卦象。</div>
     <div class="form-row">
-      <div class="field"><label>出生日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="出生日期"></div>
-      <div class="field"><label>时辰</label><select id="hInput" aria-label="时辰" onchange="onHourChange()">
+      <div class="field"><label for="dInput">出生日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="出生日期"></div>
+      <div class="field"><label for="hInput">时辰</label><select id="hInput" aria-label="时辰" onchange="onHourChange()">
         <option value="23">子(23-01)</option><option value="1">丑(01-03)</option><option value="3">寅(03-05)</option>
         <option value="5">卯(05-07)</option><option value="7">辰(07-09)</option><option value="9">巳(09-11)</option>
         <option value="11">午(11-13)</option><option value="13">未(13-15)</option><option value="15">申(15-17)</option>
         <option value="17">酉(17-19)</option><option value="19">戌(19-21)</option><option value="21">亥(21-23)</option>
       </select></div>
-      <div class="field"><label>刻分</label><select id="kInput" aria-label="刻分"></select></div>
-      <div class="field"><label>分金</label><select id="fInput" aria-label="分金"></select></div>
-      <div class="field"><label>性别</label><select id="sexInput" aria-label="性别"><option>男</option><option>女</option></select></div>
+      <div class="field"><label for="kInput">刻分</label><select id="kInput" aria-label="刻分"></select></div>
+      <div class="field"><label for="fInput">分金</label><select id="fInput" aria-label="分金"></select></div>
+      <div class="field"><label for="sexInput">性别</label><select id="sexInput" aria-label="性别"><option>男</option><option>女</option></select></div>
       <button class="btn" onclick="query()">起盘</button>
     </div>
     <div class="birth-group compact">
@@ -269,10 +269,10 @@ function quizHTML(){
   const childOpts = [['','未答'],[0,'无或迟得'],[1,'1 个'],[2,'2 个'],[3,'3 个'],[4,'4 个'],[5,'5 个及以上']];
   const opt = (arr,cur) => arr.map(o=>'<option value="'+o[0]+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+o[1]+'</option>').join('');
   return '<div class="ke-quiz">'
-    +'<div class="field"><label>父母存亡</label><select id="qFumu" onchange="onAns()">'+opt(fumuOpts,ANS.fumu)+'</select></div>'
-    +'<div class="field"><label>手足总数（含本人）</label><select id="qSib" onchange="onAns()">'+opt(sibOpts,ANS.sib)+'</select></div>'
-    +'<div class="field"><label>婚姻状况</label><select id="qMarry" onchange="onAns()">'+opt(marryOpts,ANS.marry)+'</select></div>'
-    +'<div class="field"><label>子女数（参考）</label><select id="qChild" onchange="onAns()">'+opt(childOpts,ANS.child)+'</select></div>'
+    +'<div class="field"><label for="qFumu">父母存亡</label><select id="qFumu" onchange="onAns()">'+opt(fumuOpts,ANS.fumu)+'</select></div>'
+    +'<div class="field"><label for="qSib">手足总数（含本人）</label><select id="qSib" onchange="onAns()">'+opt(sibOpts,ANS.sib)+'</select></div>'
+    +'<div class="field"><label for="qMarry">婚姻状况</label><select id="qMarry" onchange="onAns()">'+opt(marryOpts,ANS.marry)+'</select></div>'
+    +'<div class="field"><label for="qChild">子女数（参考）</label><select id="qChild" onchange="onAns()">'+opt(childOpts,ANS.child)+'</select></div>'
     +'</div>';
 }
 /* 考刻视图：定刻卡 + 八刻表（正刻由三问考刻数定位，必在盘面时辰内）
