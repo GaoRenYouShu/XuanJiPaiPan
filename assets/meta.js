@@ -15,13 +15,22 @@
   set('meta[property="og:url"]', 'content', url);
   set('meta[property="og:image"]', 'content', img);
 
-  /* PWA：注入 manifest 链接并注册 Service Worker（本件为全站统一入口，故挂于此而非各页手写） */
+  /* PWA：注入 manifest 链接并注册 Service Worker（本件为全站统一入口，故挂于此而非各页手写）。
+     SW 只在正式站注册：本地 http 与预览站不注册，并主动清掉历史注册，查验所见即磁盘文件，
+     不会出现缓存回退导致的过期内容。 */
   var m = document.createElement('link');
   m.rel = 'manifest';
   m.href = dir + 'manifest.webmanifest';
   document.head.appendChild(m);
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
+      var live = location.hostname === 'gaorenyoushu.github.io' && location.pathname.indexOf('/XuanJiPaiPan-preview') !== 0;
+      if (!live) {
+        navigator.serviceWorker.getRegistrations().then(function (rs) {
+          rs.forEach(function (r) { r.unregister(); });
+        }).catch(function () {});
+        return;
+      }
       navigator.serviceWorker.register(dir + 'sw.js').catch(function () {});
     });
   }

@@ -86,6 +86,18 @@
   function _allSha(BZ) {
     return (BZ.shaYear || []).concat(BZ.shaMonth || [], BZ.shaDay || [], BZ.shaTime || []);
   }
+  /* 旬空落柱判定：第 i 柱之支是否落旬空。
+     取旬之柱须异于被查之柱：旬空由该旬干支推得，一柱之支恒不在本柱旬空之内，查本柱必为空集。
+     日柱取年柱旬空（十大空亡，日支须借他柱之旬方得论空），余柱取日柱旬空
+     （《三命通会·卷三·论空亡》以日柱为主查年月时支）。
+     旬空直取 kongWang 而非 kongOf：kongOf 随页面空亡基准轴翻转，断语引的是定法，不随轴改判。 */
+  function _pillarKong(BZ, i) {
+    const gs = _gans(BZ), zs = _zhis(BZ);
+    const z = zs[i]; if (!z) return false;
+    const base = i === 2 ? (gs[0] || '') + (zs[0] || '') : (gs[2] || '') + (zs[2] || '');
+    if (base.length < 2) return false;
+    try { const k = kongWang(base); return !!k && k.indexOf(z) >= 0; } catch (e) { return false; }
+  }
   // 十神类→成员清单（供 _countTen 类名扩展开销，使 when.ten 支持类名如 '财星'/'官杀' 等）
   const TEN_CLASS_MEMBERS = {
     '比劫': ['比肩', '劫财'],
@@ -223,7 +235,9 @@
     const dz = (gs[2] || '') + (zs[2] || '');
     if (['庚辰', '壬辰', '戊戌', '庚戌'].indexOf(dz) >= 0) P.add('魁罡');
     const sha = _allSha(BZ);
-    ['驿马', '华盖', '空亡', '桃花', '文昌', '天乙贵人', '禄神', '羊刃', '天德', '月德'].forEach(s => { if (sha.some(x => x.indexOf(s) >= 0)) P.add(s); });
+    ['驿马', '华盖', '桃花', '文昌', '天乙贵人', '禄神', '羊刃', '天德', '月德'].forEach(s => { if (sha.some(x => x.indexOf(s) >= 0)) P.add(s); });
+    // 空亡不入神煞名录（旬空非神煞，名录永无其名），另按旬空直判，四柱任一柱落旬空即论命带空亡
+    if (_pillarKong(BZ, 0) || _pillarKong(BZ, 1) || _pillarKong(BZ, 2) || _pillarKong(BZ, 3)) P.add('空亡');
     // 神煞重见/组合（神煞与神煞、神煞与冲刑害合的关系断语）：
     // 计数按实有神煞（filter(Boolean) 防空串），"重重/重见"须 >=2 才有资格论"重"。
     const _shaN = n => sha.filter(Boolean).filter(x => x.indexOf(n) >= 0).length;
@@ -274,10 +288,14 @@
     // 羊刃带诸恶煞：羊刃（sha）与任一恶煞（劫煞/灾煞/岁煞/元辰/飞刃）并见（《三命通会·论羊刃》"羊刃带诸恶煞尤凶"）
     const _ESHA = ['劫煞', '灾煞', '岁煞', '元辰', '飞刃'];
     if (_shaN('羊刃') >= 1 && _ESHA.some(n => _shaN(n) >= 1)) P.add('羊刃带恶煞');
-    // 库马：驿马星（年支/日支起）落于辰戌丑未库地支（《三命通会·论驿马》"库马主少年之喜"）
+    // 旺马/生马：驿马星（年支/日支起）落日干十二长生之帝旺/长生
+    //（《三命通会·卷三·论驿马》"旺马资壮岁之荣，生马老方得遂"。
+    //  马星本支恒落寅申巳亥四孟支，而墓库恒为辰戌丑未四季支，二者不相交，故库马无盘可落，不立此名。）
     const YIMA_P = { '申': '寅', '子': '寅', '辰': '寅', '寅': '申', '午': '申', '戌': '申', '亥': '巳', '卯': '巳', '未': '巳', '巳': '亥', '酉': '亥', '丑': '亥' };
     const yimaStar = YIMA_P[zs[0]] || YIMA_P[zs[2]];
-    if (yimaStar && '辰戌丑未'.indexOf(yimaStar) >= 0) P.add('库马');
+    const yimaCs = yimaStar ? (G.getChangSheng ? G.getChangSheng(dg, yimaStar) : '') : '';
+    if (yimaCs === '帝旺') P.add('旺马');
+    if (yimaCs === '长生') P.add('生马');
     const dzm = zhiMain(zs[2] || '');
     const dTen = tenGod(dg, dzm);
     if (dTen === '七杀') P.add('日坐七杀');
@@ -394,7 +412,7 @@
     gs.forEach(pg => { if (pg && GAN_HE_T[g] === pg) { const t = tenGod(dg, pg); if (t === '正财' || t === '偏财') heCai = true; } });
     // 步支落日柱旬空
     let empty = false;
-    try { const k = G.kongOf ? G.kongOf((gs[2] || '') + (zs[2] || '')) : null; if (k && k.indexOf(z) >= 0) empty = true; } catch (e) { empty = false; }
+    try { const k = kongWang((gs[2] || '') + (zs[2] || '')); if (k && k.indexOf(z) >= 0) empty = true; } catch (e) { empty = false; }
     const suiYunBingLin = !!(E.yunGz && gz === E.yunGz && s.lvl === '流年');
     const yunJiaoTuo = !!E.yunLast;
     const age = (typeof E.age === 'number' && isFinite(E.age)) ? E.age : null;
@@ -480,7 +498,8 @@
       const yg = _gans(BZ)[0], yz = _zhis(BZ)[0];
       const yTens = [tenGod(dg, yg), tenGod(dg, zhiMain(yz || ''))].filter(Boolean);
       for (const t in when.yearTen) {
-        const c = yTens.filter(x => x === t).length;
+        const mem = TEN_CLASS_MEMBERS[t] || [t];
+        const c = yTens.filter(x => mem.some(m => m === x)).length;
         if (!_cmp(c, when.yearTen[t])) return false;
       }
     }
@@ -535,14 +554,7 @@
       for (const t of when.hideTen) { if (touGods.indexOf(t) >= 0) return false; }
     }
     // szEmpty：时支落旬空（"时落空亡"断语，空亡须落在时柱，防全柱空亡误触发）
-    if (when.szEmpty) {
-      try {
-        const sg = _gans(BZ)[3], sz2 = _zhis(BZ)[3];
-        if (!sg || !sz2) return false;
-        const k = G.kongOf ? G.kongOf(sg + sz2) : null;
-        if (!k || k.indexOf(sz2) < 0) return false;
-      } catch (e) { return false; }
-    }
+    if (when.szEmpty) { if (!_pillarKong(BZ, 3)) return false; }
     // shiGan：时柱天干须为该十神（防"时上偏财"类断语误出）
     if (when.shiGan) {
       const dg = BZ.dayGan, sg = _gans(BZ)[3];
@@ -593,16 +605,11 @@
       const dg = BZ.dayGan;
       const touGods = _gans(BZ).filter(g => g).map(g => tenGod(dg, g));
       const dzTen = tenGod(dg, zhiMain(_zhis(BZ)[2] || ''));
-      if (!when.touOrDayZhiTen.some(t => touGods.indexOf(t) >= 0 || dzTen === t)) return false;
+      const has = t => touGods.some(g => g === t) || dzTen === t;
+      if (!when.touOrDayZhiTen.some(t => has(t) || (TEN_CLASS_MEMBERS[t] || []).some(has))) return false;
     }
-    // dayEmpty：日支落日柱旬空（"夫妻宫落空亡"类断语专用，断语说宫位，条件必须查宫位，不得用全柱空亡冒充）
-    if (when.dayEmpty) {
-      try {
-        const dz2 = _zhis(BZ)[2]; if (!dz2) return false;
-        const k = G.kongOf ? G.kongOf((_gans(BZ)[2] || '') + dz2) : null;
-        if (!k || k.indexOf(dz2) < 0) return false;
-      } catch (e) { return false; }
-    }
+    // dayEmpty：日支落旬空（"夫妻宫落空亡"类断语专用，断语说宫位，条件必须查宫位，不得用全柱空亡冒充）
+    if (when.dayEmpty) { if (!_pillarKong(BZ, 2)) return false; }
     // dayZhiXingHai：日支参与三刑或六害（"夫妻宫犯刑害"类断语专用，同上，宫位必须落在日支）
     if (when.dayZhiXingHai) {
       const dz2 = _zhis(BZ)[2]; if (!dz2) return false;
@@ -650,9 +657,9 @@
       { when: { ten: { '七杀': '>=1' }, strength: ["身强"], tenTier: { '官杀': 2 } }, say: '偏官七杀，势压三公，喜酒色而偏争好斗、爱轩昂而扶弱欺强、情性如虎、急躁如风。', src: '《渊海子平·相心赋》' },
       { when: { pattern: ['魁罡'] }, say: '魁罡聚众，发福非常，主为人性格聪明，文章振发，临事果断，秉权好杀。', src: '《三命通会·卷六·魁罡》' },
       { when: { ten: { '偏财': '>=1' }, sz: ['寅', '申', '巳', '亥'], shiGan: ['偏财'] }, say: '偏财格，主人慷慨，不甚吝财，与人有情而多诈。', src: '《三命通会·论偏财》' },
-      { when: { pattern: ['空亡'] }, say: '凡带此煞，生旺则气度宽大，动招虚名，长大肥满，多意外无心之福。', src: '《三命通会·论空亡》' },
+      { when: { pattern: ['空亡'], strength: ["身强", "中和偏强"] }, say: '凡带此煞，生旺则气度宽大，动招虚名，长大肥满，多意外无心之福。', src: '《三命通会·论空亡》' },
       { when: { ten: { '偏印': '>=1' } }, say: '枭印当权，使心机而始勤终惰、好学艺而多学少成。', src: '《渊海子平·相心赋》' },
-      { when: { pattern: ['华盖', '空亡'] }, say: '凡人命得华盖，多主孤寡，总贵亦不免孤独，作僧道艺术论。', src: '《三命通会·论将星华盖》' },
+      { when: { pattern: ['华盖'] }, say: '凡人命得华盖，多主孤寡，总贵亦不免孤独，作僧道艺术论。', src: '《三命通会·论将星华盖》' },
       { when: { ten: { '正财': '>=1', '偏财': '>=1' }, touGanAny: ['正财', '偏财'] }, say: '偏正财露，轻财好义，爱人趋奉、好说是非、嗜酒贪花，亦系如此。', src: '《渊海子平·相心赋》' },
       { when: { day: ['乙', '丁', '己', '辛', '癸'], ten: { '正印': '>=1', '食神': '>=1' } }, say: '阴日食神暗合正印，官印不要明显，但得食神纯粹，主贵而有禄，富而有寿。', src: '《相心赋》' },
       { when: { pattern: ['桃花'] }, say: '一名败神，一名桃花煞，其神之奸邪淫鄙，如生旺则美容仪，耽酒色，疏财好欢，破散家业，唯务贪淫；如死绝，落魄不检，言行狡诈。', src: '《三命通会·论咸池》' },
@@ -712,7 +719,7 @@
       { when: { ten: { '偏财': '>=1' }, pattern: ['驿马'] }, say: '驿马者，三命中发用，喜庆之神。若人遇之，君子常居荣位，小人主丰赡。大小运行年至此，主得官及迁改之喜。', src: '《三命通会·论驿马》' },
       { when: { pattern: ['身旺财多'], ten: { '偏财': '>=1' } }, say: '偏财元是众人财，最忌干支兄弟来，身强财旺皆为福，若带官星更妙哉！', src: '《三命通会·论偏财》' },
       { when: { ten: { '正官': '>=2' } }, say: '正官为六格之首，止许一位，多则不宜。', src: '《三命通会·论正官》' },
-      { when: { pattern: ['空亡'], sha: ['桃花'] }, say: '命中有空亡与咸池，沐浴多者是野鄙艺人。', src: '《神煞大全》' },
+      { when: { pattern: ['空亡'], sha: ['桃花'] }, say: '命中有空亡与桃花，多为民间艺人。', src: '《神煞大全》' },
       /* 纯阴纯阳，事业格局（《滴天髓阐微》）：若欠合神财官贵为偏气，虽豪亦俗，非俊秀才器 */
       { when: { yy: '纯阳', jiTen: ['财星', '官杀'] }, say: '八字纯阴纯阳，柱中因欠合神财官等贵，用神既偏且强，虽豪亦俗，非俊秀才器。', src: '《滴天髓阐微》', w: 2 },
       { when: { yy: '纯阴', jiTen: ['财星', '官杀'] }, say: '八字纯阴纯阳，柱中因欠合神财官等贵，用神既偏且强，虽豪亦俗，非俊秀才器。', src: '《滴天髓阐微》', w: 2 },
@@ -728,10 +735,10 @@
       { when: { ten: { '正财': '>=1', '偏印': '>=1' }, tenTier: { '财星': 2 } }, say: '财星破印，宜逢比劫之乡。', src: '《子平真诠·论印绶》' },
       { when: { strength: ["身强","中和偏强"], ten: { '正财': '>=1' }, hideTen: ['正财', '偏财'] }, say: '财神忌透只宜藏，身旺逢之大吉昌，切忌比劫相遇会，一生名利被分张。', src: '《三命通会·论正财》' },
       /* 富格类（扩充）：身财两停/财官相生身强主富，皆《三命通会·论贫贱凶恶》真实取则，核心权重优先入选 */
-      { when: { strength: ["身强","中和偏强"], pattern: ['财官相生'], tenTier: { '财星': 3 } }, say: '财旺生官，富而且贵。', src: '《三命通会·论贫贱凶恶》', w: 3 },
+      { when: { strength: ["身强","中和偏强"], pattern: ['财官相辅'], tenTier: { '财星': 3 } }, say: '财旺生官，富而且贵。', src: '《三命通会·论贫贱凶恶》', w: 3 },
       { when: { strength: ["身强","中和偏强"], ten: { '正财': '>=2' }, xiTen: ['财星'] }, say: '财星得位正当权，日主高强名利全，印绶若逢相济助，金珠满柜福绵绵。', src: '《三命通会·论正财》', w: 3 },
       { when: { pattern: ['食伤生财'], strength: ["身强","中和偏强"], tenTier: { '食伤': 2 } }, say: '食神生旺最堪夸，惟行水木土金佳。', src: '《三命通会·论食神》', w: 2 },
-      { when: { ten: { '偏财': '>=1' }, tenTier: { '财星': 3 }, xiTen: ['财星'], pattern: ['财官相生'], strength: ["身强","中和偏强"] }, say: '偏财身旺要官星，运入乡发利名。', src: '《三命通会·论偏财》', w: 2 },
+      { when: { ten: { '偏财': '>=1' }, tenTier: { '财星': 3 }, xiTen: ['财星'], pattern: ['财官相辅'], strength: ["身强","中和偏强"] }, say: '偏财身旺要官星，运入乡发利名。', src: '《三命通会·论偏财》', w: 2 },
       /* 月令建禄逢财官发福（《四言独步》） */
       { when: { ge: '建禄格', ten: { '财星': '>=1' }, tenAny: { '正官': 1, '七杀': 1 } }, say: '月令建禄，不住祖屋；一见财官，自然发福。', src: '《四言独步》', w: 2 },
       /* 财利，身旺/劫财类断语 */
@@ -766,7 +773,7 @@
       { when: { strength: ["身强","中和偏强"], ten: { '正财': '==0', '偏财': '==0', '正官': '==0', '七杀': '==0' } }, say: '身旺无依，僧道之辈。', src: '《三命通会·卷十二·精微论》', w: 2 },
       { when: { ten: { '正官': '>=1', '正印': '==0', '偏印': '==0' } }, say: '有官无印，即非真官。', src: '《三命通会·卷十·看命口诀》', w: 1 },
       { when: { ten: { '正官': '>=4' } }, say: '四位纯官，仕宦虚名。', src: '《三命通会·卷十·看命口诀》', w: 2 },
-      { when: { ge: '建禄格', touGan: ['正财', '偏财', '正官', '七杀'] }, say: '建禄生提月，财官喜透天。', src: '《五言独步》', w: 2 },
+      { when: { ge: '建禄格', touGanAny: ['正财', '偏财', '正官', '七杀'] }, say: '建禄生提月，财官喜透天。', src: '《五言独步》', w: 2 },
       /* 功名，神煞武将断语 */
       { when: { ten: { '七杀': '>=1' }, sha: ['亡神', '劫煞'] }, say: '官遇亡劫兼七煞，当为武将。', src: '《三命通会·卷十二·惊神论》', w: 2 },
       /* 天元一气（四柱天干全同）：罕见贵格，勿以比肩论 ，《三命通会·卷六·一气生成》 */
@@ -847,7 +854,7 @@
       { when: { pattern: ['桃花逢合'] }, say: '桃花带合，风流儒雅之人。', src: '《三命通会·卷十二·精微论》' },
       { when: { pattern: ['桃花逢刑冲'] }, say: '桃花逢刑冲：多为财色招惹灾。', src: '《神煞大全》' },
       { when: { pattern: ['墙外桃花'] }, say: '桃花在日时，称为外桃花，夫妻多纷争；尤岁运再逢。', src: '《神煞大全》' },
-      { when: { sha: ['咸池'] }, say: '桃花入命：欲望强，易耽于酒色，桃花易犯，一生须防情事风波危害。', src: '《神煞大全》' },
+      { when: { sha: ['桃花'] }, say: '桃花入命：欲望强，易耽于酒色，桃花易犯，一生须防情事风波危害。', src: '《神煞大全》' },
     ],
     婚配: [
       /* 核心经典断语（w=3/2，首先输出），阴差阳错/伤官太重/印绶重逢/官星桃花 */
@@ -952,7 +959,7 @@
       { when: { pattern: ['华盖时胎'] }, say: '华盖星辰兄弟寡，天上孤高之宿也；生来若在时与胎，便是过房庶出者。', src: '《三命通会·论将星华盖》' },
       { when: { pattern: ['伤官伤尽'] }, say: '伤官虽凶，乃我所生，自家之物，伤尽则能生财，财旺则能生官，造化展转有情。', src: '《三命通会·论伤官》' },
       { when: { ten: { '偏印': '>=1', '食神': '>=1' }, jiTen: ['印星'], tenTier: { '印星': 2 } }, say: '偏印临而夺食伤，主孤贫。', src: '《三命通会·论偏印》' },
-      { when: { pattern: ['空亡'] }, say: '空亡坐死绝之地，则一生成败飘泊；若我身得生旺之气，则不能为祸。', src: '《三命通会·论空亡》' },
+      { when: { pattern: ['空亡'], strength: ["身弱", "中和偏弱"] }, say: '空亡坐死绝之地，则一生成败飘泊；若我身得生旺之气，则不能为祸。', src: '《三命通会·论空亡》' },
       { when: { pattern: ['华盖'] }, say: '华盖虽吉亦有妨，或为孽子或孤孀。', src: '《三命通会·论将星华盖》' },
       /* 林泉，劫煞遇魁罡断语 */
       { when: { pattern: ['魁罡'], sha: ['劫煞'] }, say: '劫煞遇魁罡，巫医术士。', src: '《三命通会·卷十二·惊神论》', w: 2 },
@@ -967,7 +974,8 @@
       { when: { pattern: ['驿马'] }, say: '生马未必有马，背禄未必无禄。看其旺库，不问背生。', src: '《三命通会·论驿马》' },
       { when: { pattern: ['驿马逢冲'] }, say: '驿马逢冲：心猿意马，奔波，忙碌，乃天涯之客。流年驿马逢冲：此年多奔波，有迁异职动之机，并多见出国或远行。', src: '《神煞大全》' },
       { when: { pattern: ['驿马', '互禄天乙'] }, say: '互禄共天乙贵神，同其马位，更得诸煞相并，官秉大权，贵居廊庙。', src: '《三命通会·论驿马》' },
-      { when: { pattern: ['库马'] }, say: '库马主少年之喜，旺马资壮岁之荣，生马老方得遂而官卑任远矣。', src: '《三命通会·论驿马》' },
+      { when: { pattern: ['旺马'] }, say: '旺马资壮岁之荣。', src: '《三命通会·论驿马》' },
+      { when: { pattern: ['生马'] }, say: '生马老方得遂。', src: '《三命通会·论驿马》' },
       { when: { zhiAll: ['子', '午'] }, say: '子午逢之，他乡外立。', src: '《玉照定真经》' },
       { when: { pattern: ['月胎岁合'] }, say: '月胎岁合，祖立他门。', src: '《玉照定真经》' },
       { when: { ten: { '七杀': '>=1' }, pattern: ['驿马'], element: { '金': '>=1' } }, say: '有马头带剑，谓驿马上见庚辛或纳音，见金，主名振边疆。', src: '《三命通会·论驿马》' },
@@ -1117,6 +1125,7 @@
     if (plain === true) {
       // 出处 src 数据已自带《》，此处仅作内联配对捕获用，不再外裹书名号；
       // 中文括号（《》）留给 bazi.html 的 gjRe 解析，避免嵌套成《《》。
+      // 书名号在此是本页解析所赖的记法，非装饰：gjRe 认《》为出处起止，无《之条会整条落表或并入邻条。
       const srcClean = x => (x.src || '').replace(/^《+|》+$/g, '');
       const one = x => x.say + '（《' + srcClean(x) + '》）';
       const head = shown.map(one).join('<br>');

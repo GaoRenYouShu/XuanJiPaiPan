@@ -112,6 +112,9 @@
      同一页之内不再并存 8 与 12 两值；组内三等分的扣除量在 ≤640 段随档走。 */
   .page-bazi .birth-group,.page-bazi .birth-group.compact{gap:var(--sp-2)}
   .page-bazi .yun-tbl th,.page-bazi .yun-tbl td{padding:3px 4px}
+  /* 岁运引动表在移动端列宽契约内（按内容定宽、长列撞上限换行）：用忌列忌喜语句一行较长，
+     内容层设上限迫其折行，列随内容收窄到表格自有方案的 5em 档，免挤占关键引动列的首屏宽。 */
+  .page-bazi .yun-tbl.yd th:nth-child(2) .xj-tc,.page-bazi .yun-tbl.yd td:nth-child(2) .xj-tc{max-width:5em}
   .page-bazi .mod-head{margin-top:var(--sp-3)}
   
   /* 移动端：去掉外层边框与内边距、圆角，表格贴边全宽 */
@@ -184,7 +187,7 @@
   .mode-pillar:where(.bz-root) .bazi-flow .span-field select,
   .mode-pillar:where(.bz-root) .bazi-flow .field#fName input{width:100%;max-width:none}
   .mode-pillar:where(.bz-root) .bazi-flow .gz-mini,
-  .mode-pillar:where(.bz-root) .bazi-flow .span-years{display:flex;gap:4px;width:100%}
+  .mode-pillar:where(.bz-root) .bazi-flow .span-years{display:flex;gap:var(--sp-1);width:100%}
   .mode-pillar:where(.bz-root) .bazi-flow .gz-mini select{flex:1 1 0;width:auto;min-width:0}
   .mode-pillar:where(.bz-root) .bazi-flow .span-years .field{flex:1 1 0;min-width:0}
   /* 跨度下拉左右各留 8px（与干支下拉同档），可选字区随格宽伸缩：375 及以上可容最长选项
@@ -333,10 +336,10 @@
 .duan-fold-cb:focus-visible ~ .duan-fold-head{outline:2px solid var(--gold);outline-offset:2px}
 
 /* 回到今日：岁运可点选至十步大运与百年流年，翻检之后须有一键归位，故与六组按钮同列一件，
-   不另起行占用版心，取描边淡底与同页按钮同形制，免与 .dyn-btn 的选中态（朱底）相混。 */
-.dyn-back{flex-direction:row;align-items:center;margin:0}
-.dyn-today{font-size:12px;padding:var(--sp-1) var(--sp-2);border-radius:0;border:1px solid var(--gold);background:var(--gold-bg);color:var(--gold2);cursor:pointer;line-height:1.5}
-.dyn-today:hover{background:#f1e7cf;color:var(--red2)}
+   不另起行占用版心。底色随页级按钮兜底规则取主色实底，按钮一律背景色块，
+   本件只调字号与内距。上一行是流日流时共用的提示行，只有上距没有下距，块间一档由本件上距自给。 */
+.dyn-back{flex-direction:row;align-items:center;margin:var(--sp-2) 0 0}
+.dyn-today{font-size:12px;padding:var(--sp-1) var(--sp-2);cursor:pointer;line-height:1.5}
 
 /* 未确认标注：四柱模式出生时间未定，岁运四层按排盘当下定位而非命主本运，故随层题并见一枚小印，
    免使读者把此刻之干支误认作命主当年当月当日当时之运。取墨绛底淡朱，与.ds-gz 的鎏金题名分层。 */
@@ -501,7 +504,9 @@
 
 .page-bazi .dyn-btn.active .tg,.page-bazi .dyn-btn.active .tz{color:#fff}
 
-.page-bazi .dyn-btn:hover{background:var(--bz-tint)}
+/* 悬停换浅底只给未选中之钮：选中态（主色实底白字）若同吃悬停浅底，白字落在浅底上即不可读；
+   选中钮悬停不换底，与全局 .dyn-btn 的 active 压过 hover 同一口径。 */
+.page-bazi .dyn-btn:not(.active):hover{background:var(--bz-tint)}
 
 .page-bazi .de-off{color:var(--bz-ink2)}
 

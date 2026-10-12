@@ -79,10 +79,12 @@ function _apiBuildFromDate(input) {
   var sex = input.sex == null ? 1 : Number(input.sex);
   var ziMode = input.ziMode || 'late';
   /* 太阳时口径：'true' 真太阳时、'mean' 平太阳时、'off' 不校正。
-     缺省与页面下拉首项同为 true，站内外一处口径，不因入口不同而给出两张盘。
+     缺省与页面下拉首项同为 off（不校正），太阳时一项不入存档恢复，每次加载即回首项：
+     校正需出生地经度，未填出生地即被拦在排盘之前，缺省校正使每个未填出生地的访客都卡一步，
+     故缺省只出钟面标准时，要校正者自选并填经度。
      经度缺省东经 120 度即标准时区基准：真太阳时在此只余均时差一项，平太阳时校正为零。 */
-  var sunMode = input.sunMode || 'true';
-  if(['true','mean','off'].indexOf(sunMode)<0) sunMode='true';
+  var sunMode = input.sunMode || 'off';
+  if(['true','mean','off'].indexOf(sunMode)<0) sunMode='off';
   var lng = input.lng == null ? 120 : Number(input.lng);
   var kongAxis = input.kongAxis || 'day';
   /* 年界口径：'lichun' 立春换年（默认）、'chunjie' 春节换年（正月初一）；
@@ -626,8 +628,9 @@ function paipan(){
 }
 
 /* ============ 四柱干支输入模式 + 断事 ============ */
-/* 单一显隐原语：设定某元素是否显示（show=false 则 display:none，否则还原）；全站模式切换统一走此函数 */
-function gs(id, show){ const el=document.getElementById(id); if(el) el.style.display=show?'':'none'; }
+/* 单一显隐原语：设定某元素是否显示（show=false 则挂 hidden，否则摘下）；全站模式切换统一走此函数。
+   hidden 的兑现由通用段 [hidden] 一条给出，故此处只置属性，不写内联样式。 */
+function gs(id, show){ const el=document.getElementById(id); if(el) el.hidden=!show; }
 /* ===== 双盘对照第二盘块：勾选展开（照紫微 zwRelToggle、占星 xzRel 范式，显隐只有默认态与 is-on）=====
    块内日期形态随主盘历法：主盘农历则第二盘同显农历字段，四柱、名人、已存三模式无日期可对照、整块随勾选一并隐藏。 */
 function dualRelToggle(){
@@ -662,7 +665,6 @@ function toggleBaziMode(){
   document.body.classList.toggle('mode-date',!isPillar && !isSaved && !isLunar);
   /* 出生地相关组（省/市/区、手动经度、真太阳时校正）：仅"公历/农历"输入流程需经换算校正，四柱/已存不显示 */
   const hasBirthSect = (mode==='date' || mode==='lunar') && !isSaved;
-  const dsp=isPillar?'none':'';
   /* 公历日期与出生时间两字段按模式切换显隐，走单一显隐原语 gs；姓名框在名人模式复用作人名检索 */
   gs('fDate', !isSaved && !isLunar && !isCeleb && !isPillar);
   gs('fTime', !isSaved && !isCeleb && !isPillar);
@@ -674,15 +676,15 @@ function toggleBaziMode(){
   gs('bCelebGo', isCeleb);
   if(!isCeleb){ const _sg=document.getElementById('celebSug'); if(_sg) _sg.classList.remove('on'); }
   /* 农历输入组：仅农历模式显示（公历、四柱、已存均隐藏） */
-  ['fLunarY','fLunarM','fLunarLeap','fLunarD'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=isLunar?'':'none'; });
-  document.getElementById('fPillar').style.display=isPillar?'':'none';
+  ['fLunarY','fLunarM','fLunarLeap','fLunarD'].forEach(id=>gs(id, isLunar));
+  gs('fPillar', isPillar);
   /* 双盘对照第二盘块：勾选才显（照紫微、占星双人合盘范式）；块内日期形态随主盘历法（主盘农历则第二盘同显农历字段），
      非日期模式（四柱、名人、已存）整块随勾选一并隐藏（对照无源） */
   dualRelSync();
   /* 出生地整组（省/市/区、手动经度、真太阳时校正）：仅公历/农历且非已存时显示，整组显隐即涵盖内层字段 */
   gs('birthGroup', hasBirthSect);
   gs('optsRow', !isSaved); /* 已存模式下隐藏输入行排盘按钮，改用列表内"排盘" */
-  document.getElementById('bZiField').style.display=(isSaved?'none':dsp);
+  gs('bZiField', !isSaved && !isPillar);
   /* 夏令时随出生地组整组显隐（同在 birthGroup 内）；太阳时与年界两选项仅公历、农历模式可调 */
   gs('bSunField', !isSaved && !isPillar);
   /* 夏令时随时间折算与流派行显隐（与另四项同列，不随出生地组整组走）：出生地组只装出生地要素，
@@ -690,12 +692,12 @@ function toggleBaziMode(){
   gs('bDstField', !isSaved && !isPillar);
   gs('bYearAxisField', !isSaved && !isPillar);
   /* 空亡基准下拉：仅公历/农历模式可选日柱/年柱流派；四柱/已存固定用日柱六甲空亡（子平主流），隐藏切换，空亡仍按日柱轴标注 */
-  document.getElementById('bKongField').style.display=(isSaved?'none':dsp);
+  gs('bKongField', !isSaved && !isPillar);
   /* 起运法与长生土行同列时间折算与流派行：起运法需出生时刻折算，四柱模式未确认出生时间故随之隐藏；
      长生土行只论日干与各地支，四柱模式照常可选，仅已存模式隐藏 */
   gs('bQiYunField', !isSaved && !isPillar);
   gs('bCsSectField', !isSaved);
-  const sp=document.getElementById('savedPanel'); if(sp) sp.style.display=isSaved?'':'none';
+  gs('savedPanel', isSaved);
   if(isSaved){ renderSavedPanel(); }
   /* 持久化当前页面模式（独立于条目 mode，避免刷新后丢失"已存"选择） */
   try{ localStorage.setItem(PAGE_MODE_KEY, mode); }catch(e){}
@@ -711,19 +713,7 @@ function toggleBaziMode(){
     if(window.paipan) setTimeout(()=>{ const _o=document.getElementById('out'); if(_o && _o.innerHTML===''){ try{ paipan(); }catch(e){} } }, 0);
   }
   /* 已存模式下让姓名框随面板隐藏（姓名仅在输入模式下参与保存） */
-  const fm=document.getElementById('fName'); if(fm) fm.style.display=isSaved?'none':'';
-  /* 641-970px：农历模式强制分两排，在姓名后插入换行标记 */
-  if(isLunar){
-    const top=document.querySelector('.bazi-top');
-    const nameEl=document.getElementById('fName');
-    const lunarYEl=document.getElementById('fLunarY');
-    if(top && nameEl && lunarYEl && !top.dataset.breakInjected){
-      const br=document.createElement('br');
-      br.style.display='none';
-      top.insertBefore(br, lunarYEl);
-      top.dataset.breakInjected='1';
-    }
-  }
+  gs('fName', !isSaved);
 }
 /* 读取检索跨度（起始年、终止年，历史年可负），做合法性判定：-2697~9999，无公元 0 年，保证 start<=end */
 function getPillarSpan(){
@@ -902,7 +892,6 @@ function savePillarSel(){
   try{ const m=document.getElementById('bLunarM'); if(m) o.bLunarM=m.value; }catch(e){}
   try{ const d=document.getElementById('bLunarD'); if(d) o.bLunarD=d.value; }catch(e){}
   try{ const lp=document.getElementById('bLunarLeap'); if(lp) o.bLunarLeap=lp.checked; }catch(e){}
-  try{ const su=document.getElementById('bSun'); if(su) o.bSun=su.value; }catch(e){}
   try{ const ds=document.getElementById('bDst'); if(ds) o.bDst=ds.value; }catch(e){}
   try{ const ya=document.getElementById('bYearAxis'); if(ya) o.bYearAxis=ya.value; }catch(e){}
   try{ const zi=document.getElementById('bZi'); if(zi) o.bZi=zi.value; }catch(e){}
@@ -1015,7 +1004,7 @@ function saveBaziEntry(){
   /* 不强制切到已存模式：保留当前输入，便于连续保存多条；以按钮闪示确认 */
   const btn=document.querySelector('button[onclick="saveBaziEntry()"]');
   if(btn){ const old=btn.textContent; btn.textContent='已保存 ✓'; setTimeout(()=>{ if(btn.textContent==='已保存 ✓') btn.textContent=old; },1200); }
-  const tip=document.getElementById('savedTip'); if(tip && document.getElementById('savedPanel').style.display!=='none') tip.textContent='已保存"'+(name||'未命名')+'"';
+  const tip=document.getElementById('savedTip'); if(tip && !document.getElementById('savedPanel').hidden) tip.textContent='已保存"'+(name||'未命名')+'"';
 }
 const LUNAR_M={'1':'正月','2':'二月','3':'三月','4':'四月','5':'五月','6':'六月','7':'七月','8':'八月','9':'九月','10':'十月','11':'十一月','12':'十二月'};
 const LUNAR_D={'1':'初一','2':'初二','3':'初三','4':'初四','5':'初五','6':'初六','7':'初七','8':'初八','9':'初九','10':'初十','11':'十一','12':'十二','13':'十三','14':'十四','15':'十五','16':'十六','17':'十七','18':'十八','19':'十九','20':'二十','21':'廿一','22':'廿二','23':'廿三','24':'廿四','25':'廿五','26':'廿六','27':'廿七','28':'廿八','29':'廿九','30':'三十'};
@@ -1127,7 +1116,6 @@ function restoreYunSel(){
     try{ const m=document.getElementById('bLunarM'); if(m && saved.bLunarM) m.value=saved.bLunarM; }catch(e){}
     try{ const d=document.getElementById('bLunarD'); if(d && saved.bLunarD) d.value=saved.bLunarD; }catch(e){}
     try{ const lp=document.getElementById('bLunarLeap'); if(lp && typeof saved.bLunarLeap==='boolean') lp.checked=saved.bLunarLeap; }catch(e){}
-    try{ const su=document.getElementById('bSun'); if(su && saved.bSun) su.value=saved.bSun; }catch(e){}
     try{ const ds=document.getElementById('bDst'); if(ds && saved.bDst) ds.value=saved.bDst; }catch(e){}
     try{ const ya=document.getElementById('bYearAxis'); if(ya && saved.bYearAxis) ya.value=saved.bYearAxis; }catch(e){}
     try{ const zi=document.getElementById('bZi'); if(zi && saved.bZi) zi.value=saved.bZi; }catch(e){}
@@ -1310,7 +1298,7 @@ function bzGeJuTip(){
   const ge=A.geOuter||A.geName||'普通格';
   const xi=(A.geUse&&A.geUse.xi)||'依格局而定', ji=(A.geUse&&A.geUse.ji)||'依格局而定';
   const lines=['格局以月令为纲，取月令藏干与日主之关系立格，格定而后喜忌有所依，为八字论命之骨干。',
-    `本命以${ge}立格${A.geGanLabel||''}，清浊${stripCat(A.geQing)}，层次${stripCat(A.geLevel)}。喜${xi}，忌${ji}。`];
+    `本命以${ge}立格${A.geGanLabel||''}，清浊${stripCat(A.geQing)}，层次${A.geLevel}。喜${xi}，忌${ji}。`];
   const note=stripCat(A.geLevelNote);
   if(note) lines.push(note);
   if(A.geOuterNote) lines.push(A.geOuterNote);

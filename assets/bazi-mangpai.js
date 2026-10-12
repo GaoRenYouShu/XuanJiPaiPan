@@ -9,18 +9,18 @@
  *   三合局 DIZHI_SANHE、十二长生 getChangSheng）一律引用 bazi-data.js 真源，
  *   将星华盖、灾劫煞、禄神在函数内由真源派生，不另建同义表。
  * 加载序：bazi-data.js 与 xuanji-lib.js 之后、bazi-core.js 之前（见 bazi.html）。
- *   依赖（window 全局）：GAN_WX、HIDE、tenGod、shenCat、zhiMain、zhiOpp、
- *   pairIn、DIZHI_CHONG、DIZHI_XING、DIZHI_SANHE、YANGREN、HONGLUAN、
+ *   依赖（window 全局）：GAN_WX、HIDE、TIANGAN_HE、tenGod、shenCat、
+ *   zhiMain、zhiOpp、pairIn、DIZHI_CHONG、DIZHI_XING、DIZHI_SANHE、YANGREN、HONGLUAN、
  *   ZAISHA、JIESHA、getChangSheng（一律函数内运行时取用，本文件顶层零依赖），
  *   任何加载环境不白屏。
  * 对外接口 window.MangPai：
  *   数据：TEN_IMAGE 十神类象；ZUOGONG 做功五法；BINZHU 宾主；KU 墓库；
- *         SHA_NOTE 口诀神煞释义；TAISUI_NOTE 犯太岁五条；NY_XIANG 纳音象；
- *         KONG_GONG 空亡落宫；XU_TOU 虚透释义；JIE_NOTE 借势两态
+ *        SHA_NOTE 口诀神煞释义；TAISUI_NOTE 犯太岁五条；NY_XIANG 纳音象；
+ *        KONG_GONG 空亡落宫；XU_TOU 虚透释义；JIE_NOTE 借势两态
  *   判定：xiGz 财官本位喜；xiangText 干支象；zuoGongTxt 做功方式；
- *         binZhuText 宾主落宫；kuOf 财官墓库；xuTouOf 虚透；
- *         borrowable 借财官；shaChain 口诀神煞链；kongText 空亡文本；
- *         nayinXiang 纳音象文本
+ *        binZhuText 宾主落宫；kuOf 财官墓库；xuTouOf 虚透；
+ *        borrowable 借财官；shaChain 口诀神煞链；kongText 空亡文本；
+ *        nayinXiang 纳音象文本；gongChain 体用宾主做功链
  * 消费方：bazi-core.js 各流派解读格局（盲派段）、各流派解读运势（fMang 机制群）。
  *   去重（saidDuan）与年龄门控属调用方职责，本层纯函数、无运行时状态。
  * ========================================================================== */
@@ -60,6 +60,19 @@
     '月柱': { wei: '宾', child: '功落宾位月柱，须借父母之助、家中有援', adult: '功落宾位月柱，须借父母兄弟之平台使力' },
     '日柱': { wei: '主', child: '功落主位，应在自身、同学之事', adult: '功落主位，应在自身、配偶、子女之事' },
     '时柱': { wei: '主', child: '功落主位，应在自身、同学之事', adult: '功落主位，应在自身、配偶、子女之事' }
+  };
+
+  /* ============================ 理法：体用 ============================ */
+  /* 体为我之身与我所恃之力：日主与比劫、印星、食伤，皆自家之物；
+     用为我所求之物：财星、官杀，须以体去取、去制、去化方为我有。
+     体用既定，再看宾主：年月为宾、日时为主；体在宾是借外境之力，体在主是自身之力。
+     做功即"以体取用"，取之之法即五法。十神类名之体用归属以此表为唯一口径。 */
+  const TI_YONG = { '比劫': '体', '印星': '体', '食伤': '体', '财星': '用', '官杀': '用' };
+  /* 体用相对之辞：体之十神名入句用"我之…"，用之十神名入句用"我所求之…"；宁缺毋滥，不识者不出 */
+  const TI_YONG_WORD = {
+    '比肩': '同气', '劫财': '手足', '正印': '荫庇', '偏印': '偏学',
+    '食神': '才艺', '伤官': '锋芒', '正财': '正途之财', '偏财': '外财',
+    '正官': '名位', '七杀': '威权'
   };
 
   /* ============================ 理法：墓库 ============================ */
@@ -217,6 +230,155 @@
     return out;
   }
 
+  /* 体用宾主做功链（本命）：定体、定用、定法、断成否四步相扣，末附口径。
+     宁缺毋滥：底盘（日主与四柱干支）不全则整条不出，不臆测、不补空话。 */
+  function gongChain(BZ) {
+    if (!BZ || !BZ.dayGan || !BZ.gans || BZ.gans.length < 4 || !BZ.zhis || BZ.zhis.length < 4) return null;
+    const dg = BZ.dayGan, PAL = ['年柱', '月柱', '日柱', '时柱'];
+    const cat = g => shenCat(tenGod(dg, g));
+    // 体用之分一以 TI_YONG 表为口径，不在此另立一套十神名单
+    const yongOf = g => TI_YONG[cat(g)] || '';
+    const isCG = g => yongOf(g) === '用';
+    const isTi = g => yongOf(g) === '体';
+    const word = t => TI_YONG_WORD[t] || t;
+
+    // 一、定体定用：日主为体之主，比劫印星食伤为体之字，财官为用；干上不现方退查支藏
+    const tiG = [], yoG = [], yoZ = [];
+    for (let i = 0; i < 4; i++) {
+      if (i === 2) continue;
+      const g = BZ.gans[i]; if (!g) continue;
+      if (isTi(g)) tiG.push({ g, p: i, t: tenGod(dg, g) });
+      else if (isCG(g)) yoG.push({ g, p: i, t: tenGod(dg, g) });
+    }
+    for (let i = 0; i < 4; i++) {
+      const z = BZ.zhis[i]; if (!z) continue;
+      if ((HIDE[z] || []).some(x => isCG(x))) yoZ.push({ z, p: i });
+    }
+    const yongArr = yoG.length ? yoG : yoZ;
+    const yongXian = yoG.length ? '透干而现' : (yoZ.length ? '藏支待引' : '不现');
+
+    // 二、体之根：四支藏干与日主同五行即有根，临官为禄、帝旺为旺，禄旺之根方为强根
+    const rootZ = [], strongZ = [];
+    (BZ.zhis || []).forEach(z => {
+      if (!(HIDE[z] || []).some(x => GAN_WX[x] === GAN_WX[dg])) return;
+      rootZ.push(z);
+      const cs = (typeof getChangSheng === 'function') ? getChangSheng(dg, z) : '';
+      if (cs === '临官' || cs === '帝旺') strongZ.push(z);
+    });
+    const tiLi = strongZ.length ? `得禄旺之根（${Array.from(new Set(strongZ)).join('、')}）而有力` : (rootZ.length ? '有根而力平' : '无根而力薄');
+
+    // 三、宾主：体用各落何位，与 BINZHU 同口径（年月宾、日时主），不另立一说
+    const weiOf = arr => {
+      if (!arr || !arr.length) return null;
+      const ps = Array.from(new Set(arr.map(o => o.p))).sort((a, b) => a - b);
+      const labs = ps.map(p => PAL[p]);
+      const weis = Array.from(new Set(labs.map(l => (BINZHU[l] && BINZHU[l].wei) || '主')));
+      return { labs: labs.join('、'), both: weis.length > 1, zhu: weis.indexOf('主') >= 0 };
+    };
+    const weiSay = (w, isYong) => {
+      if (!w) return '';
+      if (w.both) return isYong ? '内外皆可取' : '自身与外境之力并用';
+      if (w.zhu) return isYong ? '是自家囊中之物' : '是自身之力';
+      return isYong ? '须往外去取' : '是借外境之力';
+    };
+
+    // 四、定法：五法各按命局实构而立，非五法并用；序依 ZUOGONG 制、化、合、冲、墓。
+    // 每法自带"得行与否"与其由：制化二法以体之字发力，字须通根，虚透则无力（盲派谓虚透之字不做功，
+    // 此与子平"虚浮降档"之论不同，此处一依盲派）；合法是日主自家去合，日主之力已在体之根一档论过；
+    // 墓看库门开否；化与合看柱位远近（同 bazi-rel.js 官印杀印同柱、紧贴、夹日、隔柱之分）
+    const fa = [];
+    const faAdd = (t, xing, why) => fa.push({ t, xing, why });
+    const pick = c => tiG.find(o => cat(o.g) === c);
+    const sG = pick('食伤'), bG = pick('比劫'), pG = pick('印星');
+    const gG = yoG.find(o => cat(o.g) === '官杀'), cG = yoG.find(o => cat(o.g) === '财星');
+    // 制：制神虚透无根则制之无力，不得径许功成
+    const zhiSay = (my, tgt, okSay, badSay) => `以我之${word(my.t)}${my.g}制${word(tgt.t)}${tgt.g}，` + (xuTouOf(BZ, my.g)
+      ? `${my.g}虚透无根、${badSay}，须待岁运通根`
+      : okSay);
+    if (sG && gG) faAdd(zhiSay(sG, gG, '以我生之技制住克我之力，功最直接', '制之无力'),
+      !xuTouOf(BZ, sG.g), `${word(sG.t)}${sG.g}虚透无根`);
+    else if (bG && cG) faAdd(zhiSay(bG, cG, '以同气之力取我所克之财', '制财无力'),
+      !xuTouOf(BZ, bG.g), `${word(bG.t)}${bG.g}虚透无根`);
+    else if (sG && cG) {
+      // 生财：食伤为体、财为用，泄我之气以通于我所求，功缓而持久（ZUOGONG 化法"化泄引通"之注），
+      // 不另立第六法。食伤已用于制法者不重计：一体之字只任一法，制法最捷故制优先
+      const sXu = xuTouOf(BZ, sG.g);
+      faAdd(`以我之${word(sG.t)}${sG.g}生${word(cG.t)}${cG.g}，` + (sXu
+        ? `${sG.g}虚透无根、生财无力，须待岁运通根`
+        : '以才艺技艺生财、以技易财，功缓而持久'), !sXu, `${word(sG.t)}${sG.g}虚透无根`);
+    }
+    if (pG && gG) {
+      // 化：干支同宫最得力，官杀在前、印承于后为紧贴，官杀在年、印在时则夹日，余则隔柱而化力见减
+      // （同 bazi-rel.js 杀印同根同支、官印紧贴、官年印时夹日、隔柱见减四档之口径）
+      const keWo = gG.t === '七杀' ? '杀' : '官';
+      const zang = (p, c) => (HIDE[BZ.zhis[p]] || []).some(x => cat(x) === c);
+      const huaSay = (zang(gG.p, '印星') || zang(pG.p, '官杀')) ? `${keWo}印相生、同宫而化最得力，克我之力转成凭恃`
+        : (gG.p + 1 === pG.p ? `${keWo}印相生、紧贴相生、气流通到日干，克我之力转成凭恃`
+          : ((gG.p === 0 && pG.p === 3) ? `${keWo}印相生、${keWo}在年而印在时夹日，气亦流通到日干，克我之力转成凭恃`
+            : `${keWo}印相生而隔柱，化力见减、贵气流转见缓`));
+      const pXu = xuTouOf(BZ, pG.g);
+      faAdd(`以我之${word(pG.t)}${pG.g}化${word(gG.t)}${gG.g}，` + (pXu
+        ? `${pG.g}虚透无根、化之无力，须待岁运通根`
+        : huaSay), !pXu, `${word(pG.t)}${pG.g}虚透无根`);
+    }
+    if (typeof TIANGAN_HE !== 'undefined') {
+      TIANGAN_HE.forEach(h => {
+        const other = (h[0] === dg) ? h[1] : ((h[1] === dg) ? h[0] : '');
+        if (!other) return;
+        // 日主五合之干（甲己、乙庚、丙辛、丁壬、戊癸）无一不是财官，故不另判所合是否财官
+        // 同干重见则取紧邻日柱之柱（月柱、时柱）为先，遥合与贴合力量不同，不并作一条
+        const ps = (BZ.gans || []).map((g, i) => (i !== 2 && g === other) ? i : -1).filter(i => i >= 0);
+        if (!ps.length) return;
+        const p = ps.indexOf(1) >= 0 ? 1 : (ps.indexOf(3) >= 0 ? 3 : ps[0]);
+        faAdd(`日主${dg}合${word(tenGod(dg, other))}${other}` + ((p === 1 || p === 3)
+          ? '，紧邻日柱而合、合到手，财官自来'
+          : '，遥合而不贴，得之见迟、合而力轻'), true, '');
+      });
+    }
+    // 冲法：须是藏有财官之支逢冲，方谓冲开财官；库支逢冲归墓法论开库，此处不重计一功。
+    // 透干之柱其支未必藏财官，以透干所在支冒称财官之支便是无据之说
+    if (typeof pairIn === 'function' && typeof DIZHI_CHONG !== 'undefined') {
+      const hit = yoZ.find(o => !KU[o.z] && (BZ.zhis || []).some(pz => pz !== o.z && pairIn(o.z, pz, DIZHI_CHONG)));
+      if (hit) faAdd(`财官之支${hit.z}（藏${(HIDE[hit.z] || []).filter(isCG).join('、')}）在命局逢冲，冲开战克中取财官，功猛而带伤`, true, '');
+    }
+    // 墓法：同一库支在四支中重见只论一次，不叠床架屋；库门未开则藏而待引，不当下便算功成
+    Array.from(new Set(BZ.zhis || [])).forEach(z => {
+      const k = kuOf(BZ, z);
+      if (k) faAdd(k.text, k.open, `支${z}库门未开`);
+    });
+    const faXing = fa.filter(f => f.xing), faWei = fa.filter(f => !f.xing);
+
+    // 五、断成否：体、用、法三者俱备方许言做功成立，缺一则各归其档，不一律称吉。
+    // 诸法有得行有不得行者，只以得行之法成其功，不得行之法另作"其余之法须待岁运"交代，
+    // 不因一法不行而没了他法之功，也不把待岁运之辞混入总断
+    const weiSay2 = faWei.length ? `；另有不得行之法须待岁运（${faWei.map(f => f.why).join('；')}）` : '';
+    let chengT;
+    if (yongXian === '不现') chengT = '四柱干支不见财官，无可用做功，须待岁运引出财官方有可论';
+    else if (tiLi.indexOf('无根') >= 0) chengT = `日主${tiLi}，虽有财官在前而力不逮，宜先固本、借岁运通根再论`;
+    else if (!faXing.length && fa.length) chengT = `体${tiLi}、用${yongXian}，而取用之法不得行于今（${faWei.map(f => f.why).join('；')}），须待岁运引出方有其功`;
+    else if (!fa.length) chengT = '有体有用而五法皆不得行，财官在前而无取之之径，宜守常积势、勿强求';
+    else chengT = `体${tiLi}、用${yongXian}、取用之法得行，三者俱备，做功成立，财官可得其手${weiSay2}`;
+
+    // 体之宫必含日柱（日主自坐主位），体之字落年月则兼借外境之力；用之宫按财官所落之柱
+    const tiW = weiOf([{ p: 2 }].concat(tiG)), yoW = weiOf(yongArr);
+    const mergeName = arr => Array.from(new Set(arr.map(o => word(o.t) + o.g))).join('、');
+    const tiName = '日主' + dg + (tiG.length ? '并' + mergeName(tiG) : '');
+    const yoName = yoG.length ? mergeName(yoG) : (yoZ.length ? '支藏之财官' : '财官');
+    const faTxt = fa.length ? fa.map(f => f.t).join('；') : '五法皆不得行';
+    let text = `体为${tiName}（皆我之身与所恃）`;
+    if (tiW) text += `，落${tiW.labs}、${weiSay(tiW, false)}`;
+    text += `，日主${tiLi}；`;
+    if (yongXian === '不现') text += '四柱不见财官，无可为用';
+    else {
+      text += `用为${yoName}（皆我所求），${yongXian}`;
+      if (yoW) text += `、落${yoW.labs}、${weiSay(yoW, true)}`;
+    }
+    text += `。取用之法：${faTxt}。`;
+    text += `断：${chengT}。`;
+    text += '（体用宾主与做功五法出自盲师口传、段建业整理之体系，此条据此推演）';
+    return { text };
+  }
+
   /* 空亡落宫文本（kongArr 由调用方按页面空亡轴算出后传入） */
   function kongText(BZ, kongArr) {
     if (!kongArr || !kongArr.length) return '';
@@ -230,7 +392,8 @@
 
   const MangPai = {
     TEN_IMAGE, ZUOGONG, BINZHU, KU, SHA_NOTE, TAISUI_NOTE, NY_XIANG, KONG_GONG, XU_TOU, JIE_NOTE,
-    xiGz, xiangText, zuoGongTxt, binZhuText, kuOf, xuTouOf, borrowable, shaChain, kongText, nayinXiang
+    xiGz, xiangText, zuoGongTxt, binZhuText, kuOf, xuTouOf, borrowable, shaChain, kongText, nayinXiang,
+    gongChain
   };
   if (typeof window !== 'undefined') window.MangPai = MangPai;
   if (typeof module !== 'undefined' && module.exports) module.exports = MangPai;
