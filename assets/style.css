@@ -209,12 +209,16 @@ select option{font-family:inherit}
 /* 卷首说明收束件：说明末尾一条竖线，竖线下 16px 一条满宽横线，横线下再 16px 才是页内首行。
    竖线与横线是一套，有竖线必有横线，两线间距与横线下留白同取 --sp-4，全站同一档。
    横线由 padding-bottom 留位、绝对定位画在盒底，故不挤动任何内容；线色随本页 --line。
-   紧随说明的首块让出顶线与上内距，分界与留白全由本件承担，一条分界只一个来源。 */
+   紧随说明的首块让出顶线与上内距，分界归本件，一条分界只一个来源；
+   首块为折叠模块时盒顶即横线、题头内距取基档（见下条），该 16px 由外边距抵消。 */
 .page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
 /* 题下竖线：排布全站一致，各页只换线色（--line 在页级段已重定义为本页线色） */
 .page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
 .page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
 html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+/* 让位块为折叠模块（section.mod）时：外边距抵消、题头内距取基档，题头盒顶即收束件横线，
+   悬停高亮自该线起，高度与其余折叠块一致（题名上下居中） */
+html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));padding-top:var(--sp-2)}
 
 /* form */
 /* ===== 输入框宽度规则（顶层，全站唯一口径；页面级不得重定义下列同值项） =====
@@ -3299,7 +3303,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* ===== 太岁生肖页 岁星青 主题（taisui.html，.page-ts 作用域） =====
    全部规则限定 .page-ts 作用域，避免与八字页 .ts-box、择日页 .page-zeri .ts-tbl 冲突。
    小字号文字取 --ts-ink（加深墨色）与 --ts-gold（随主题取岁星青），修小字发虚。 */
-.page-ts{--ts:#2f6e40;--ts2:#265a34;--ts-deep:#1d3f28;--ts-ink:#33403a;--ts-gold:#2f6e40;--ts-line:#d5e2d8;--ts-tint:#eff5f0;--gold2:var(--ts2);--gold:var(--ts);--gold-brown:var(--ts2);--gold-bg:var(--ts-tint)
+.page-ts{--ts:#2f6e40;--ts2:#265a34;--ts-deep:#1d3f28;--ts-ink:#33403a;--ts-gold:#2f6e40;--ts-line:#d5e2d8;--ts-tint:#eff5f0;--gold2:var(--ts2);--gold:var(--ts);--gold-brown:var(--ts2);--gold-bg:var(--ts-tint);
   --ts-ink2:#4f6d57;  /* 次级字色：卷首说明、副注、标注 */
   --ts-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */;--line:var(--ts-line);--ink:var(--ts-ink)}
 

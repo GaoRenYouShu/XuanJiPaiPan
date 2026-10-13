@@ -754,7 +754,12 @@ function init(){
       recast:function(){ renderCheck(); renderYearView(); renderFortune(); }
     }
   });
+  applyTsModState(); /* 恢复折叠状态（渲染完成后） */
+  tsModNavReady = true; /* 打标后才允许写持久化 */
 }
+/* 内联 onclick 走全局作用域：本文件为 IIFE，须显式挂到 window，
+   覆盖 bazi-app.js（本页也加载）注册的同名全局（其绑定 BAZI_MOD_KEY，键位与本页不同） */
+window.toggleMod = toggleMod;
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
 })();
