@@ -70,9 +70,9 @@
         <option value="early">早子时（23点归当日）</option>
       </select></div>
       <div class="field"><label for="sunInput">太阳时</label><select id="sunInput" aria-label="选择太阳时口径">
+        <option value="off">不校正</option>
         <option value="true">真太阳时（均时差加经度）</option>
         <option value="mean">平太阳时（仅经度差）</option>
-        <option value="off">不校正</option>
       </select></div>
       <div class="field"><label for="yearInput">年界</label><select id="yearInput" aria-label="选择年柱换年口径">
         <option value="lichun">立春换年（子平主流）</option>
@@ -229,7 +229,7 @@ function onHourChange(){ ADOPT = null; rebuildKeOptions(); query(); }
 /* ============ 时刻与流派口径（与八字排盘页同五项，取值真源同 xuanji-lib.js 与 bazi-data.js） ============ */
 function readZiMode(){ const v=(document.getElementById('ziInput')||{}).value; return v === 'early' ? 'early' : 'late'; }
 function readFeng(){ const f = parseInt(document.getElementById('fInput').value,10); return isNaN(f)?0:f; }
-function readSunMode(){ const v=(document.getElementById('sunInput')||{}).value; return (v==='mean'||v==='off')?v:'true'; }
+function readSunMode(){ const v=(document.getElementById('sunInput')||{}).value; return (v==='true'||v==='mean')?v:'off'; }
 function readDstMode(){ const v=(document.getElementById('dstInput')||{}).value; return (v==='on'||v==='off')?v:'auto'; }
 function readYearAxis(){ const v=(document.getElementById('yearInput')||{}).value; return (v==='chunjie'||v==='dongzhi')?v:'lichun'; }
 function readQiYunSect(){ const v=(document.getElementById('qyInput')||{}).value; return v==='2'?2:1; }
@@ -243,6 +243,9 @@ function readOpts(){
     dst: readDstMode(), yearAxis: readYearAxis(), qiYunSect: readQiYunSect()
   };
 }
+/* 太阳时已开而未定出生地：校正是按经度算的，没有经度就无从校正，拦在起盘之前；
+   提示语同八字页 SUN_NO_PLACE_MSG 口径。 */
+const TB_NO_PLACE_MSG='太阳时校正已开，但未定出生地：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
 /* ============ 状态 ============ */
 let LAST = null;
 let TB_PLACE = null;
@@ -650,6 +653,9 @@ function query(){
     const parts = v.split('-').map(Number);
     const y = parts[0], m = parts[1], d = parts[2];
     if(!y || !m || !d){ document.getElementById('out').innerHTML='<p class="notice">日期格式不正确，请重新选择。</p>'; return; }
+    /* 太阳时开而未定出生地即拦在起盘之前（与八字、合婚、紫微三页同口径）：没有经度就无从校正，
+       免下拉标着真太阳时而出的是钟面时。 */
+    if(readSunMode()!=='off' && resolveLng()==null){ document.getElementById('out').innerHTML='<p class="notice">'+TB_NO_PLACE_MSG+'</p>'; return; }
     const zhiH = parseInt(document.getElementById('hInput').value,10);
     const keIn = parseInt(document.getElementById('kInput').value,10);
     const sex = document.getElementById('sexInput').value;
@@ -705,7 +711,7 @@ function applyLinkParams(){
   if(pv && TB_PLACE) TB_PLACE.set(pv, ct, ds);
   const lng = p.get('bLng');
   if(lng && isFinite(Number(lng))) document.getElementById('bLng').value = lng;
-  /* 时刻折算口径随八字页联动值回填；未带值者按本页缺省（真太阳时、自动夏令时、立春、晚子、时辰折算） */
+  /* 时刻折算口径随八字页联动值回填；未带值者按本页缺省（不校正、自动夏令时、立春、晚子、时辰折算） */
   const sun = p.get('bSun');
   if(sun==='true'||sun==='mean'||sun==='off') document.getElementById('sunInput').value = sun;
   else if(p.get('bTrue')==='0') document.getElementById('sunInput').value = 'off';

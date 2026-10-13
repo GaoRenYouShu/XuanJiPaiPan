@@ -107,9 +107,9 @@
       </div>
       <div class="field" id="zSunField"><label for="zSun">太阳时</label>
         <select id="zSun" aria-label="选择太阳时口径" onchange="paipan()">
+          <option value="off">不校正</option>
           <option value="true">真太阳时（均时差加经度）</option>
           <option value="mean">平太阳时（仅经度差）</option>
-          <option value="off">不校正</option>
         </select>
       </div>
       <div class="field" id="zYearField"><label for="zYear">年界</label>
@@ -1856,7 +1856,7 @@ function zwLngOf(prefix){
 /* 未定出生地时拦在排盘之前：太阳时开而经度无源即不出盘，其余情形交回调用方按钟面走。
    太阳时口径两盘共用 zSun 一档，故不按 prefix 分取。 */
 function zwLngBlocked(prefix){
-  const sun=(document.getElementById('zSun')||{}).value||'true';
+  const sun=(document.getElementById('zSun')||{}).value||'off';
   return sun!=='off' && zwLngOf(prefix)==null;
 }
 function paipan(){
@@ -1869,7 +1869,7 @@ function paipan(){
   const hh0=parseInt(tvP[0],10)||0, mi0=parseInt(tvP[1]||'0',10)||0;
   const sex=document.getElementById('zSex').value;
   const dstMode=(document.getElementById('zDst')||{}).value||'auto';
-  const sunMode=(document.getElementById('zSun')||{}).value||'true';
+  const sunMode=(document.getElementById('zSun')||{}).value||'off';
   const ziMode=(document.getElementById('zZi')||{}).value||'late';
   /* 年界走 iztro 的年份分界配置：normal 正月初一换年、exact 立春换年，两档之外引擎别无支持 */
   const yearDiv=(document.getElementById('zYear')||{}).value||'normal';

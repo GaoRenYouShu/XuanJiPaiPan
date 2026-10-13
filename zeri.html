@@ -77,7 +77,7 @@
           <div class="field"><label for="bCity">城市</label><select id="bCity"></select></div>
           <div class="field"><label for="bDist">区县</label><select id="bDist"></select></div>
           <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" step="0.01" placeholder="出生地"></div>
-          <div class="field chk hh-true"><input type="checkbox" id="bTrue" checked><label for="bTrue">真太阳时校正</label></div>
+          <div class="field chk hh-true"><input type="checkbox" id="bTrue"><label for="bTrue">真太阳时校正</label></div>
         </div>
         <div id="xiOut"></div>
       </div>
@@ -161,7 +161,7 @@
           <div class="field"><label for="zmCity">城市</label><select id="zmCity"></select></div>
           <div class="field"><label for="zmDist">区县</label><select id="zmDist"></select></div>
           <div class="field hh-lng"><label for="zmLng">经度（可选）</label><input type="number" id="zmLng" step="0.01" placeholder="出生地"></div>
-          <div class="field chk hh-true"><input type="checkbox" id="zmTrue" checked><label for="zmTrue">真太阳时校正</label></div>
+          <div class="field chk hh-true"><input type="checkbox" id="zmTrue"><label for="zmTrue">真太阳时校正</label></div>
         </div>
         <div class="form-row zm-run-row">
           <div class="field chk"><input type="checkbox" id="zmTs" checked><label for="zmTs">纳入流年太岁（岁破、三煞）作避凶</label></div>
@@ -183,7 +183,7 @@
               <div class="field"><label for="zmP1City">城市</label><select id="zmP1City"></select></div>
               <div class="field"><label for="zmP1Dist">区县</label><select id="zmP1Dist"></select></div>
               <div class="field"><label for="zmP1Lng">手动经度</label><input type="number" id="zmP1Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
-              <div class="field chk hh-true"><input type="checkbox" id="zmP1True" checked><label for="zmP1True">真太阳时校正</label></div>
+              <div class="field chk hh-true"><input type="checkbox" id="zmP1True"><label for="zmP1True">真太阳时校正</label></div>
             </div>
           </div>
           <div class="zm-parent">
@@ -196,7 +196,7 @@
               <div class="field"><label for="zmP2City">城市</label><select id="zmP2City"></select></div>
               <div class="field"><label for="zmP2Dist">区县</label><select id="zmP2Dist"></select></div>
               <div class="field"><label for="zmP2Lng">手动经度</label><input type="number" id="zmP2Lng" step="0.01" placeholder="留空" title="留空则按下方省份、城市、区县查表得经度作真太阳时校正"></div>
-              <div class="field chk hh-true"><input type="checkbox" id="zmP2True" checked><label for="zmP2True">真太阳时校正</label></div>
+              <div class="field chk hh-true"><input type="checkbox" id="zmP2True"><label for="zmP2True">真太阳时校正</label></div>
             </div>
           </div>
         </div>
@@ -627,7 +627,7 @@ function zmReadParent(pfx){
   if(p.length<3 || !p[0]) return null;
   var t=((tEl&&tEl.value)||'12:00').split(':').map(Number);
   var sEl=document.getElementById('zm'+pfx+'Sex');
-  var o={y:p[0], m:p[1], d:p[2], h:(t[0]||0), mi:(t[1]||0), lng:null, useTrue:true,
+  var o={y:p[0], m:p[1], d:p[2], h:(t[0]||0), mi:(t[1]||0), lng:null, useTrue:false,
          sex:(sEl && sEl.value==='女') ? '女' : '男',
          label:(pfx==='P1') ? '家长一' : '家长二'};
   var lEl=document.getElementById('zm'+pfx+'Lng');
@@ -640,7 +640,7 @@ function zmReadParent(pfx){
     if(f!=null) o.lng=f;
   }
   var uEl=document.getElementById('zm'+pfx+'True');
-  o.useTrue = uEl ? !!uEl.checked : true;
+  o.useTrue = uEl ? !!uEl.checked : false;
   return o;
 }
 /* quiet=1 为恢复性重出（刷新重排、分享还原）：只出结果，不改折叠态。

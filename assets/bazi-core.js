@@ -3023,7 +3023,7 @@ function renderNayinModule(cols, dayGan){
     h += `<tr><td class="small">${_lab}</td><td class="small">${cols[i].g||''}${cols[i].z||''}</td><td class="small">${nayinColorSpan(nys[i])}</td><td class="small"><span class="${WX_CLASS[nWx[i]]||''}">${nWx[i]}</span></td><td class="small">${_cs||'无'}</td><td class="small">${(NAYIN_INFO[nys[i]]||{}).d||'无'}</td></tr>`;
   }
   h += `</table></div>`;
-  h += `<p class="ly-zh-p">纳音自坐＝该柱纳音五行折本气阳干后，在本柱地支所得十二长生（如甲子纳音海中金，金死于子，其纳音自坐为死）；与四柱基础表所记“自坐”（该柱天干在本柱地支）为两套口径，并行参看。四卡（事业、婚姻、健康、家庭）的纳音表同此收尾。</p>`;
+  h += `<p class="ly-zh-p">纳音自坐，以该柱纳音五行折其本气阳干，推此干在本柱地支的十二长生：如甲子纳音海中金，金折为庚，庚金死于子，其纳音自坐即为死。四柱基础表另有一行自坐，所记为该柱天干在本柱地支的十二长生；二者同名而义别，一论纳音之气、一论干支之气，宜并行参看。事业、婚姻、健康、家庭四卡的纳音表末，皆同此注。</p>`;
 
   // 2. 纳音六亲宫与生克（以年命为基准）
 

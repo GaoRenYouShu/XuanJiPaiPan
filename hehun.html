@@ -86,9 +86,9 @@
         </div>
         <div class="field"><label for="hhSun">太阳时</label>
           <select id="hhSun" aria-label="选择太阳时口径">
+            <option value="off">不校正</option>
             <option value="true">真太阳时（均时差加经度）</option>
             <option value="mean">平太阳时（仅经度差）</option>
-            <option value="off">不校正</option>
           </select>
         </div>
         <div class="field"><label for="hhYearAxis">年界</label>
@@ -532,10 +532,11 @@ function chart(dateId,timeId,lngId,distId,provId,cityId,sexId){
     tsInfo:st.tsInfo,lng,birthPlace,province:provName,city:cityName,dist:distName,
     notes:[st.dstNote,st.ziNote,axisNote].filter(Boolean)};
 }
-/* 时间折算与流派五项（两造共用）：与八字页同五项、同取值域，一律由本页选项行读入 */
+/* 时间折算与流派五项（两造共用）：与八字页同五项、同取值域，一律由本页选项行读入；
+   太阳时缺省与八字页同款：下拉首项即不校正，未定出生地者不被拦在出盘之前 */
 function hhOpts(){
   const v=id=>{ const e=document.getElementById(id); return e?e.value:''; };
-  return {dst:v('hhDst')||'auto', ziMode:v('hhZi')||'late', sunMode:v('hhSun')||'true',
+  return {dst:v('hhDst')||'auto', ziMode:v('hhZi')||'late', sunMode:v('hhSun')||'off',
     yearAxis:v('hhYearAxis')||'lichun', kongAxis:v('hhKong')||'day'};
 }
 /* 十神判定走 bazi-data.js 共享真源 tenGod()，与八字排盘页单源同口径 */
