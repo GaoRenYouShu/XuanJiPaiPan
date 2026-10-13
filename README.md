@@ -1,5 +1,7 @@
 # 玄机排盘 XuanJi PaiPan
 
+[简体中文](README.md) | [English](README.en.md)
+
 <div align="center">
   <img src="assets/logo/og-image.png" alt="玄机排盘：玄之又玄，众妙之门" width="560">
 
@@ -10,10 +12,14 @@
 
 [![许可](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=许可)](LICENSE)
 [![最近提交](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
+[![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
+[![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
+[![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
 [![排盘工具](https://img.shields.io/badge/排盘工具-35_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
+![Vibe Coding](https://img.shields.io/badge/Vibe_Coding-100%25-ff69b4?style=flat-square)
 </div>
 
 传统命理、历法与占卜文化研究演示站。纯前端静态应用，无需后端，打开即用。
@@ -171,7 +177,7 @@ XuanJiPaiPan/
 ├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理
 ├── LICENSE       MIT 许可文本
-├── README.md
+├── README.md 与 README.en.md
 ├── robots.txt
 └── sitemap.xml
 ```
