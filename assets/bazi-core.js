@@ -17,7 +17,7 @@
 
 /* ==================== 一、事业财运议题 ==================== */
 /* 事业财运模块（表驱动，T1-T15 知识 + 四检测函数 + renderCareer）
- * 依赖全局：baziAnalysis / tenGod / zhiMain / nayinOf / getChangSheng / HIDE / GAN_WX / ZHI_WX / WX_SHENG / WX_KE / WX_TO_STEM / SHA_LIFE / NAYIN_INFO / relToMing
+ * 依赖全局：baziAnalysis / tenGod / zhiMain / nayinOf / getChangSheng / HIDE / GAN_WX / ZHI_WX / WX_SHENG / WX_KE / WX_TO_STEM / SHA_MEAN / NAYIN_INFO / relToMing
  * 全部值运行时取自 bazi-data.js，前端仅输出命中项。本文件不使用破折号与方头括号，括号不嵌套。
  */
 (function(){
@@ -506,15 +506,16 @@
       liuTong=flow;
     }
 
-    // 7 神煞参断事业（按事业视角取 SHA_LIFE.career 有定义者，不复读喜用格局，神煞段的完整趋向列表，避免跨模块逐字重复）
-    // 同名神煞多柱命中须合并并标柱位（如"禄神（年、月柱）"），禁裸重复
+    // 7 神煞参断事业（按事业视角取 SHA_MEAN.career 有定义者，不复读喜用格局，神煞段的完整趋向列表，避免跨模块逐字重复）
+    // 同名神煞多柱命中须合并并标柱位（如"禄神（年、月柱）"），禁裸重复；
+    // 名取去尾括注的净名：纳音轴产出带（纳音）后缀，与主轴同名同义，归并为一目
     let s7;
     {
       const _m={};
       [['年',BZ.shaYear||[]],['月',BZ.shaMonth||[]],['日',BZ.shaDay||[]],['时',BZ.shaTime||[]]].forEach(([p,arr])=>{
-        (arr||[]).forEach(s=>{ if(SHA_MEAN[s]&&SHA_MEAN[s].career){ if(!_m[s]) _m[s]={pos:[],n:0}; _m[s].pos.push(p); _m[s].n++; } });
+        (arr||[]).forEach(s=>{ const nm=String(s||'').replace(/（[^）]+）$/,''), mean=(SHA_MEAN[s]||SHA_MEAN[nm]||{}).career; if(mean){ if(!_m[nm]) _m[nm]={pos:[],n:0,mean:mean}; _m[nm].pos.push(p); _m[nm].n++; } });
       });
-      const hit=Object.keys(_m).map(s=>s+(_m[s].n>1?'（'+_m[s].pos.join('、')+'柱）':'')+'（'+SHA_MEAN[s].career+'）');
+      const hit=Object.keys(_m).map(s=>s+(_m[s].n>1?'（'+_m[s].pos.join('、')+'柱）':'')+'（'+_m[s].mean+'）');
       s7=hit.length?(hit.join('；')+'。'):'本局无显著相关神煞。';
     }
     if(has.has('食伤生财')||has.has('木火通明')){
@@ -1201,7 +1202,7 @@ function dyNatalInto(group, BZ, A, num) {
 /* ==================== 二、婚姻感情议题 ==================== */
 /* 婚姻感情模块（renderMarry 返回 7 节字符串数组）
  * 依赖全局：baziAnalysis / tenGod / zhiMain / nayinOf / getChangSheng / HIDE / GAN_WX / ZHI_WX
- *           WX_SHENG / WX_KE / SHA_LIFE / NAYIN_INFO
+ *           WX_SHENG / WX_KE / SHA_MEAN / NAYIN_INFO
  *           DIZHI_HE6 / DIZHI_SANHE / DIZHI_CHONG / DIZHI_XING / DIZHI_HAI / DIZHI_PO
  * 全部值运行时取自现有引擎，本文件不造新样式、不重复事业模块之<span class="tip sha-ji">喜用</span>忌神表述。
  * 不使用破折号、方头括号与全角括号，括号一律避免。
@@ -1637,8 +1638,8 @@ function dyNatalInto(group, BZ, A, num) {
     const shaMap={};
     [['年',BZ.shaYear],['月',BZ.shaMonth],['日',BZ.shaDay],['时',BZ.shaTime]].forEach(([pn,arr])=>{
       (arr||[]).forEach(s=>{
-        const m=SHA_MEAN[s];
-        if(m&&m.marry) (shaMap[s]=shaMap[s]||{pillars:[],mean:m.marry}).pillars.push(pn);
+        const nm=String(s||'').replace(/（[^）]+）$/,''), m=SHA_MEAN[s]||SHA_MEAN[nm];
+        if(m&&m.marry) (shaMap[nm]=shaMap[nm]||{pillars:[],mean:m.marry}).pillars.push(pn);
       });
     });
     let s3='① 神煞：';
@@ -5047,7 +5048,7 @@ function renderLifeDeep(BZ){
   const spouseNote=godClass(spouse)==='财星'?'夫妻宫坐财，婚姻亦助财':godClass(spouse)==='官杀'?'夫妻宫坐官，配偶助力事业':'';
   function shaSeg(area){
     const seen=new Set(), hit=[];
-    shaAll.forEach(s=>{ if(seen.has(s)) return; seen.add(s); const m=SHA_MEAN[s]; if(m&&m[area]) hit.push(s+'（'+m[area]+'）'); });
+    shaAll.forEach(s=>{ const nm=String(s||'').replace(/（[^）]+）$/,''); if(seen.has(nm)) return; seen.add(nm); const m=SHA_MEAN[s]||SHA_MEAN[nm]; if(m&&m[area]) hit.push(nm+'（'+m[area]+'）'); });
     let t=hit.length?('神煞：'+hit.join('；')+'。'):'神煞：本局无显著相关神煞。';
     return t;
   }
@@ -5272,8 +5273,8 @@ function renderHealthCard(BZ, ctx){
     (CS_STRONG.indexOf(dayCs[0])>=0?('年支旺（'+dayCs[0]+'），早年先天元气尚可。'):CS_WEAK.indexOf(dayCs[0])>=0?('年支弱（'+dayCs[0]+'），早年先天元气偏弱。'):'')+
     (CS_STRONG.indexOf(dayCs[3])>=0?('时支旺（'+dayCs[3]+'），晚年元气有根。'):CS_WEAK.indexOf(dayCs[3])>=0?('时支弱（'+dayCs[3]+'），晚年宜养护防衰。'):'');
   // 神煞与喜忌相参（吉凶神煞挂钩健康喜忌，与事业卡同口径）
-  const _hj=shaNames('天医','福星贵人','太极贵人','天德','月德');
-  const _hx=shaNames('血刃','羊刃','飞刃','勾煞','绞煞','劫煞','灾煞','亡神','孤辰','寡宿','天罗','地网','童子','流霞');
+  const _hj=shaNames('天医','福星贵人','太极贵人','天德贵人','月德贵人');
+  const _hx=shaNames('血刃','羊刃','飞刃','勾煞','绞煞','劫煞','灾煞','亡神','孤辰','寡宿','天罗','地网','童子','流霞','病符');
   sH3+='<br>'+shaXiJiNote(_hj,_hx,'身心养护有凭','宜防其扰','本局健康神煞无显著吉凶、以常养论之');
   // 寿元根基（寿星=食神：《三命通会·论食神》；元神厚薄主寿夭：《滴天髓·何知章》。属原局禀赋，不随年龄门控，只示倾向不妄断年岁。）
   const shangShen=ss['食神']||0, pianYin=ss['偏印']||0;
@@ -5594,7 +5595,7 @@ function renderFamilyCard(BZ, ctx){
      CS_WEAK.indexOf(dayCs[3])>=0?('时支（子女宫）坐'+dayCs[3]+'弱地，晚景与子女缘宜用心维系。'):
      ('时支（子女宫）坐'+dayCs[3]+'平地，晚景安稳、家运平顺。'));
   // 神煞与喜忌相参（吉凶神煞挂钩家运喜忌，与事业卡同口径）
-  const _fj=shaNames('天乙贵人','天德','月德','福星贵人','禄神','金舆','将星','德秀贵人');
+  const _fj=shaNames('天乙贵人','天德贵人','月德贵人','福星贵人','禄神','金舆','将星','德秀贵人');
   const _fx=shaNames('孤辰','寡宿','丧门','披麻','童子','天罗','地网');
   sF3+='<br>'+shaXiJiNote(_fj,_fx,'家宅安泰有凭','亲缘宜用心维系','本局家运神煞无显著吉凶、以常安论之');
   // 4 六亲与命局特征（①宫位十神 ②子女星能量 ③喜忌判定 ④宫位冲刑）
@@ -6501,7 +6502,6 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   // 人生四议：各流派对 事业财运 / 婚姻感情 / 家庭子女 / 性格健康 的精读（数据驱动，落到真实十神、宫位、神煞、关键事件）
   const AREA_CATS={'事业财运':['财星','官杀'],'婚姻感情':['财星','官杀'],'家庭子女':['印星','食伤'],'性格健康':['比劫','印星']};
   const GONG_PLAIN=['长辈祖上','父母兄弟同辈','配偶婚姻','子女晚辈'];
-  const AREA_SHA={ '事业财运':['文昌','驿马','将星','华盖'], '婚姻感情':['桃花','红鸾','天喜','孤辰','寡宿','阴差阳错'], '家庭子女':['文昌','学堂','天厨','子女'], '性格健康':['羊刃','血刃','病符','劫煞','灾煞'] };
   // 各流派解读运势：每流派先给“流派视角”（sc.f 已承载），再据此预判人生四议之方面与事件。
   // 按宫位（本命）或喜忌（岁运所选步）聚合，一句话交代完全，不复述前面面板已列事实。
   const AREA_SHORT={'事业财运':'事业','婚姻感情':'婚姻','家庭子女':'家宅','性格健康':'身心'};

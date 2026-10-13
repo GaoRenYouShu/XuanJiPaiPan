@@ -46,6 +46,7 @@
           <option value="date">公历</option>
           <option value="lunar">农历</option>
           <option value="pillar">四柱</option>
+          <option value="hourless">时辰未定</option>
           <option value="celeb">名人</option>
           <option value="saved">已存</option>
         </select>
@@ -157,6 +158,55 @@
             <option value="2">水土同宫（土长生申）</option>
           </select>
         </div>
+        <!-- 境外出生地两项：出生地选到境外城市时由 syncOverseasUi 挂出。
+             当地夏令时一期手动勾选，按出生地当年实况自判；时区偏移由所选城市回填，可手改。
+             两项皆不入输入签名，改动经 localDstChange 显式失效去重守卫后重排 -->
+        <div class="field chk" id="bLocalDstField" hidden><input type="checkbox" id="bLocalDst" onchange="localDstChange()"><label for="bLocalDst">当地夏令时（钟面减1小时）</label></div>
+        <div class="field" id="bTzOffField" hidden><label for="bTzOff">时区偏移</label>
+          <select id="bTzOff" aria-label="选择境外出生地标准时区偏移" onchange="syncOverseasUi();localDstChange()">
+            <option value="-12">UTC-12</option>
+            <option value="-11">UTC-11</option>
+            <option value="-10">UTC-10</option>
+            <option value="-9.5">UTC-9.5</option>
+            <option value="-9">UTC-9</option>
+            <option value="-8">UTC-8</option>
+            <option value="-7">UTC-7</option>
+            <option value="-6">UTC-6</option>
+            <option value="-5">UTC-5</option>
+            <option value="-4">UTC-4</option>
+            <option value="-3.5">UTC-3.5</option>
+            <option value="-3">UTC-3</option>
+            <option value="-2">UTC-2</option>
+            <option value="-1">UTC-1</option>
+            <option value="0">UTC+0</option>
+            <option value="1">UTC+1</option>
+            <option value="2">UTC+2</option>
+            <option value="3">UTC+3</option>
+            <option value="3.5">UTC+3.5</option>
+            <option value="4">UTC+4</option>
+            <option value="4.5">UTC+4.5</option>
+            <option value="5">UTC+5</option>
+            <option value="5.5">UTC+5.5</option>
+            <option value="5.75">UTC+5.75</option>
+            <option value="6">UTC+6</option>
+            <option value="6.5">UTC+6.5</option>
+            <option value="7">UTC+7</option>
+            <option value="8">UTC+8</option>
+            <option value="9">UTC+9</option>
+            <option value="9.5">UTC+9.5</option>
+            <option value="10">UTC+10</option>
+            <option value="10.5">UTC+10.5</option>
+            <option value="11">UTC+11</option>
+            <option value="12">UTC+12</option>
+            <option value="13">UTC+13</option>
+            <option value="14">UTC+14</option>
+          </select>
+        </div>
+        <!-- 境外出生地口径说明：由 syncOverseasUi 按所选城市写出时区与基准经线，境内收起 -->
+        <div class="sub-note opts-note" id="overseasNote" hidden></div>
+        <!-- 历史出生年份口径提示：1949 年前中国未普及标准时，钟面时间多为当地地方时。
+             纯提示，不改缺省、不拦出盘；由 eraTimeNote 按当前输入年份显隐 -->
+        <div class="sub-note opts-note" id="eraNote" hidden>出生年份早于 1949：当时中国尚未普及标准时，钟面时间多为当地地方时；按史载时辰录入时，太阳时宜取不校正，直接以钟面时间出盘。</div>
       </div>
       <div class="dual-wrap">
       <label class="dual-rel-chk"><input type="checkbox" id="dualRel" onchange="dualRelToggle()"> 双盘对照（勾选后填第二盘出生资料，追加基础信息和本命分析对照）</label>
@@ -217,7 +267,6 @@
 <script defer src="assets/xuanji-lib.js"></script>
 <script defer src="assets/bazi-mangpai.js"></script>
 <script defer src="assets/bazi-xinpai.js"></script>
-<script defer src="assets/bazi-celebs-db.js"></script>
 <script defer src="assets/ai.js"></script>
 <script defer src="assets/wheel.js"></script>
 <script defer src="assets/bazi-core.js"></script>
@@ -1974,8 +2023,9 @@ const LINK_TOOLS=[
   {id:'zeri',name:'择日吉时',ico:'📅',desc:'以本命盘出生信息推算喜用神，精择日课按喜忌加减分',tag:'传出生信息'}
 ];
 /* ============ 名人输入方式 ============
- * 名单取自姓名学页同源两库（assets/name-celebs.js 策展库与 name-celebs-cbdb.js CBDB 库，全站共用真源），
- * 体量大（约 8MB）故按需懒加载：切到名人模式或首次联想时注入脚本，浏览器缓存后不再重复下载。
+ * 三库皆取自全站共用真源：名单两库（assets/name-celebs.js 策展库与 name-celebs-cbdb.js CBDB 库）
+ * 与生辰库（assets/bazi-celebs-db.js），体量大（合计约十一兆）故按需懒加载：
+ * 切到名人模式后首次联想或点检索才注入脚本，浏览器缓存后不再重复下载，未用名人检索者零请求。
  * 名单只载全名、朝代与身份短语，不载生辰：排盘须走四柱反查，本模块按人物朝代预置检索跨度并切四柱模式。 */
 const CELEB_SPAN={
   '商':'-1600|-1046','西周':'-1046|-771','春秋':'-770|-476','战国':'-475|-221','秦':'-221|-207',
@@ -2004,7 +2054,7 @@ function celebNoBirthWord(dyn){
    当代人物手里有的是出生年月日，四柱得由公历换算而来，让人去填干支是本末倒置；
    该走哪条输入方式由用户自己定，此处只交还主动权，不替他挑路。 */
 const CELEB_NO_BIRTH_TAIL='若你掌握其出生信息，可自行排盘输出。';
-/* 两库的在途装载：键到 Promise 的映射。
+/* 三库的在途装载：键到 Promise 的映射。
    同一库被重复请求时（打字触发联想一次、点检索再一次）共用同一次装载，
    否则会挂出两份 script，先到的那两份里若恰是同一库的副本，计数被副本凑满而另一库仍未落地。 */
 const _celebLibPending={};
@@ -2019,15 +2069,16 @@ function _loadCelebLib(src, key){
   });
   return _celebLibPending[src];
 }
-/* 查库前须确认两库俱在：任一库缺失即开查会漏人。
-   两库合计八兆、异步抵达，先到者先触发 onload；若按先到即回调，
-   首次检索会在另一库还没落地时开查，策展库里明明有的人被判成"名单未载"，
+/* 查库前须确认三库俱在：任一库缺失即开查会漏人，生辰库缺失还会把可排盘者标成无生辰。
+   三库合计十一兆、异步抵达，先到者先触发 onload；若按先到即回调，
+   首次检索会在另两库还没落地时开查，策展库里明明有的人被判成"名单未载"，
    且给出的相近人物只来自已到的那一库，看上去像库里真没这个人。
-   故一律等齐两库（失败亦放行，交由查库结果如实报未载）再回调。 */
+   故一律等齐三库（失败亦放行，交由查库结果如实报未载）再回调。 */
 function ensureCelebLibs(cb){
   Promise.all([
     _loadCelebLib('assets/name-celebs.js','NAME_CELEBS'),
-    _loadCelebLib('assets/name-celebs-cbdb.js','NM_CBDB_FULL')
+    _loadCelebLib('assets/name-celebs-cbdb.js','NM_CBDB_FULL'),
+    _loadCelebLib('assets/bazi-celebs-db.js','BAZI_CELEBS_DB')
   ]).then(()=>cb(), ()=>cb());
 }
 /* 人名查库：策展库优先（含身份短语），CBDB 库按首字桶行文本精确匹配全名 */
@@ -2179,6 +2230,24 @@ function applyCelebPlace(birth){
   }
   if(su) su.value='true';
 }
+/* 历史出生年份口径提示：出生年份早于 1949 时显一条，说明当时中国尚未普及标准时、
+   钟面时间多为当地地方时，按史载时辰录入宜取不校正。与名人库对古人时辰"即当地时间、
+   再折一次反倒是错盘"的口径一致。纯提示：不改任何缺省，不拦出盘。
+   年份取自当前输入方式：公历模式读日期串首段（含公元前负年），农历模式读农历年。 */
+function eraTimeNote(){
+  const box=document.getElementById('eraNote');
+  if(!box) return;
+  const mode=(document.getElementById('bMode')||{}).value||'';
+  let y=null;
+  if(mode==='date'){
+    const m=/^\s*(-?\d{1,6})/.exec(((document.getElementById('bDate')||{}).value||''));
+    if(m) y=parseInt(m[1],10);
+  } else if(mode==='lunar'){
+    const v=parseInt(((document.getElementById('bLunarY')||{}).value||''),10);
+    if(isFinite(v)) y=v;
+  }
+  box.hidden=!(y!=null && isFinite(y) && y<1949);
+}
 /* 检索未得出完备生辰时的收尾：清空结果区与排盘状态。
    本分支的提示直写 formErr 的 textContent 而不走 showFormErr，
    后者带清空本命状态的终止语义，会把刚写上的提示一并抹掉；
@@ -2327,6 +2396,137 @@ function paipanCeleb(){
     : ('已检索到 '+nm+'（生于公历 '+_dstr+'），但自动排盘未完成；请在公历模式手动填入该日期后点排盘。');
   /* 显示提示框：摘下 hidden 即显示，显隐一律走属性，不经样式直写 */
   _fe.hidden=false;
+}
+/* ============ 时辰未定：十二时辰候选盘 ============
+ * 年月日与性别可考而时辰无考时，按当日十二时辰各排一盘，列成对照表供点选：
+ * 每行给该时辰的完整四柱与命理要点（旺衰档、格局、命宫、时干十神、时柱神煞、时柱纳音、时支宫位、首步大运），
+ * 点选任意一行即以该候选走日期模式同一条装配链渲染完整盘，并在盘首标注候选来历。
+ * 子时按当日 00:00 取（早子时）；出生在 23 时之后者日柱或归次日，表内另有说明。
+ * 一期只列事实，不按已知事实自动反推打分。 */
+const HOURS12=[
+  {z:'子',h:0},{z:'丑',h:2},{z:'寅',h:4},{z:'卯',h:6},{z:'辰',h:8},{z:'巳',h:10},
+  {z:'午',h:12},{z:'未',h:14},{z:'申',h:16},{z:'酉',h:18},{z:'戌',h:20},{z:'亥',h:22}
+];
+let _hourlessPick=null;   /* 已点选的候选时辰支，未选为 null */
+let _hourlessCache=null;  /* { sig, rows }：同一输入签名下十二盘只装配一次，点选换盘不再重算 */
+/* 候选行所需事实：装配走 buildBaziState（与日期、四柱两模式同源），
+   旺衰与格局走 getAnalysis（与页内解读同源），命宫与首步大运取该候选自己的盘。 */
+function hourlessRow(opt, hour){
+  const pad=n=>String(n).padStart(2,'0');
+  const built=buildBaziState(Object.assign({}, opt, { time: pad(hour)+':00' }));
+  const An=getAnalysis(built.BZ);
+  const c=built.cols[3];
+  let mg=''; try{ mg=(built.ec&&built.ec.getMingGong())||''; }catch(e){}
+  let dy=''; try{
+    const st=baziDaYunSteps(built.BZ);
+    const f=st&&st.steps&&st.steps.filter(s=>s.gz&&!s.empty)[0];
+    if(f) dy=f.gz+'，'+f.age+' 岁起';
+  }catch(e){}
+  return { built, An, c, mg, dy };
+}
+/* 点选候选：候选不在输入签名内，显式失效去重守卫，令本次点选必重排 */
+function pickHourless(z){
+  _hourlessPick=z;
+  lastPaipanSig='';
+  try{ paipan(); }catch(e){}
+}
+function paipanHourless(){
+  clearFormErr();
+  const dv=document.getElementById('bDate').value;
+  if(!dv){ showFormErr('请选择出生日期'); return; }
+  const sex=parseInt(document.getElementById('bSex').value);
+  const ziMode=document.getElementById('bZi').value;
+  const sunMode=(document.getElementById('bSun')||{}).value||'off';
+  const dstMode=(document.getElementById('bDst')||{}).value||'auto';
+  const yearAxis=(document.getElementById('bYearAxis')||{}).value||'lichun';
+  kongAxis=document.getElementById('bKong').value; /* 空亡基准轴：写回全局，供渲染期 kongOf 使用 */
+  qiYunSect=(document.getElementById('bQiYun')||{}).value==='2'?2:1;
+  changShengSect=(document.getElementById('bCsSect')||{}).value==='2'?2:1;
+  /* 经度三源与日期模式同口径：手动经度、区县经度、出生地组联动写入的 CITY_LNG。
+     三源皆空即出生地未知，此时不得回退任一城市经度顶上。 */
+  const manualLng=document.getElementById('bLng').value;
+  const distName=document.getElementById('bDist').value;
+  let lng;
+  if(manualLng!=='') lng=parseFloat(manualLng);
+  else if(distName!==''){ lng=findLng(document.getElementById('bProv').value, document.getElementById('bCity').value, distName); }
+  else lng=CITY_LNG;
+  if(lng==null||isNaN(lng)){
+    if(sunMode!=='off'){ showFormErr(SUN_NO_PLACE_MSG); return; }
+    lng=null;
+  }
+  const _pto=(typeof placeTimeOpts==='function')?placeTimeOpts():{overseas:false, baseLng:120, localDst:false};
+  const opt={ date:dv, sex, ziMode, sunMode, dst:_pto.overseas?'off':dstMode, yearAxis, lng, kongAxis, baseLng:_pto.baseLng, localDst:_pto.localDst };
+  const sig=paipanSig();
+  if(!(_hourlessCache&&_hourlessCache.sig===sig)){
+    try{
+      _hourlessCache={ sig, rows: HOURS12.map(c=>hourlessRow(opt, c.h)) };
+    }catch(e){ _hourlessCache=null; showFormErr((e&&e.message)||String(e)); return; }
+    _hourlessPick=null; /* 输入一变，旧点选随旧候选表作废 */
+  }
+  const rows=_hourlessCache.rows;
+  const pad=n=>String(n).padStart(2,'0');
+  let h='<div class="hourless-box"><div class="confirm-h">时辰未定：十二时辰候选盘</div>';
+  h+='<div class="sub-note">出生日期 '+esc(dv)+'，性别 '+(sex?'男':'女')+'。下表按当日十二时辰各排一盘，点选任意一行即以该时辰渲染完整命盘；子时按当日 00:00 取（早子时），出生在 23 时之后者日柱或归次日，可回公历模式另行核对。</div>';
+  h+='<table class="confirm-tb hourless-tb"><thead><tr><th>时辰</th><th>四柱</th><th>旺衰</th><th>格局</th><th>命宫</th><th>时干十神</th><th>时柱神煞</th><th>时柱纳音</th><th>首步大运</th><th></th></tr></thead><tbody>';
+  HOURS12.forEach((c,i)=>{
+    const r=rows[i];
+    const zf=(typeof ZHI_FANG2!=='undefined'&&ZHI_FANG2[c.z])?ZHI_FANG2[c.z]:'';
+    const sha=(r.c.sha&&r.c.sha.length)?r.c.sha.join('、'):'无';
+    h+='<tr'+(c.z===_hourlessPick?' class="cur"':'')+' onclick="pickHourless(\''+c.z+'\')">'
+      +'<td class="hl-hour"><b>'+c.z+'时</b>'+(zf?('<span>'+zf+'</span>'):'')+'</td>'
+      +'<td>'+gzColorSpan(r.built.cols.map(x=>x.gz).join(' '))+'</td>'
+      +'<td>'+esc(r.An.strength||'无')+'</td>'
+      +'<td>'+esc(r.An.geName||'无')+'</td>'
+      +'<td>'+esc(r.mg||'无')+'</td>'
+      +'<td>'+esc(r.c.ssg||'无')+'</td>'
+      +'<td class="hl-sha">'+esc(sha)+'</td>'
+      +'<td>'+esc(r.c.ny||'无')+'</td>'
+      +'<td>'+esc(r.dy||'无')+'</td>'
+      +'<td><button type="button" class="btn">查看此盘</button></td></tr>';
+  });
+  h+='</tbody></table>';
+  h+='<div class="sub-note">以已知事实反推：先取确知的事实缩小范围，如首步大运的干支与起运岁数、时干十神与神煞所主之事、时支宫位，与上表相符者再点选查看完整命盘核对。本表只列事实，不作自动打分。</div>';
+  h+='</div>';
+  let picked=-1;
+  if(_hourlessPick!=null) picked=HOURS12.findIndex(c=>c.z===_hourlessPick);
+  if(picked>=0){
+    const built=rows[picked].built;
+    BZ=built.BZ; CTX=built.CTX;
+    yearGZcur=built.yearGZ; /* date 模式为数组 ['庚','午']，供 kongOf 取年柱旬空 */
+    /* 挂农历对象（表法定配偶方位用）：校正跨日后 lunar 会指向次日，表法须按出生当天农历查 */
+    { const _ls=built.lunar.getSolar(), _rs=built.stdDate||built.rawSolar;
+      BZ.lunar=(_ls.getYear()===_rs.y&&_ls.getMonth()===_rs.m&&_ls.getDay()===_rs.d)?built.lunar:built.lunar.next(-1); }
+    const rs=built.rawSolar;
+    const R={ mode:'hourless', y:rs.y, m:rs.m, d:rs.d, h:rs.h, mi:rs.mi, lng, sunMode,
+      raw:built.rawSolar, std:built.stdDate, tsInfo:built.tsInfo, ziNote:built.ziNote,
+      dstNote:built.dstNote, axisNote:built.axisNote, lunar:built.lunar,
+      pj:built.lunar.getPrevJieQi(), nj:built.lunar.getNextJieQi(),
+      sex, dayGan:built.BZ.dayGan, cols:built.cols, ec:built.ec,
+      dualA2:null, dualBZ2:null, dualBuilt2:null };
+    h+='<div class="confirm-banner hourless-banner">候选盘（时辰未定）：'+_hourlessPick+'时<span>以该时辰 '+pad(HOURS12[picked].h)+':00 排出，非出生时辰之确认</span></div>';
+    h+=renderBaziPage(R, BZ);
+  }
+  document.getElementById('out').innerHTML=h;
+  if(picked>=0){ renderDyn(BZ); drawYunChart(BZ); }
+  const foot=document.createElement('div');
+  foot.className='notice notice-bottom';
+  foot.innerHTML='以上为依格局、五行、十神、神煞及大运流年流月流日的常规推演，各派结论可能不同，仅供文化研究与参考；健康与人生重大决定请务必咨询专业人士，切勿迷信。';
+  document.getElementById('out').appendChild(foot);
+  if(picked>=0 && !baziInitDone) restoreYunSel(); /* 首次渲染：恢复已保存的岁运选择，在 renderDyn 默认选择之后覆盖 */
+  applyModState(); /* 刷新重排后读回三大模块折叠状态，避免展开被复位 */
+  if(picked>=0 && typeof tableizeCore==='function' && !document.getElementById('proto')){ try{ tableizeCore(BZ); }catch(e){} }
+  if(typeof setupMingJuCol==='function'){
+    try{
+      if(document.fonts && document.fonts.ready){
+        document.fonts.ready.then(function(){ try{ setupMingJuCol(); }catch(e){} }).catch(function(){ try{ setupMingJuCol(); }catch(e){} });
+      } else { setupMingJuCol(); }
+    }catch(e){ try{ setupMingJuCol(); }catch(e2){} }
+  }
+  if(typeof setupMingJuCol==='function' && !window._setupMingJuColBound){
+    window._setupMingJuColBound = true;
+    let _rT;
+    window.addEventListener('resize', ()=>{ clearTimeout(_rT); _rT = setTimeout(setupMingJuCol, 150); });
+  }
 }
 function buildLinkParams(){
   const BZ=window.BZ;
@@ -2620,6 +2820,15 @@ window.addEventListener('load', function () {
     (function(n,p){var d=document.getElementById('bDate');if(d&&!d.value)d.value=n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate());})(new Date(),function(x){return String(x).padStart(2,'0');});
     renderLinkCards();
     if(typeof bindCelebInput==='function') bindCelebInput();
+    /* 历史出生年份口径提示：日期、农历年与输入方式三处变化即重判显隐，初次进入也判一次 */
+    ['bDate','bLunarY','bMode'].forEach(function(id){
+      var el=document.getElementById(id); if(!el) return;
+      el.addEventListener('change', eraTimeNote);
+      el.addEventListener('input', eraTimeNote);
+    });
+    eraTimeNote();
+    /* 境外出生地两项与口径说明：初次进入按已恢复的出生地同步一次 */
+    if(typeof syncOverseasUi==='function') syncOverseasUi();
     try{ document.addEventListener('toggle', e=>{ const t=e.target; if(t && t.classList && t.classList.contains('zr-mod') && t.open){ const host=t.closest('#mod-yiti')||t; _scheduleYitiAlign(host); } }, true); }catch(e){};
     (function(){
       if(window._alignYitiBound) return; window._alignYitiBound = true;

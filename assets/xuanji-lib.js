@@ -229,7 +229,9 @@ function daysOfMonth(yy, mo){
 }
 
 /* ---------- 真太阳时校正（本地天文算法）----------
-   真太阳时 = 平太阳时(北京时间) + 均时差(EoT) + (当地经度 - 120°)×4 分
+   真太阳时 = 当地标准时 + 均时差(EoT) + (当地经度 - 基准子午线)×4 分
+   基准子午线缺省东经 120 度（东八区）；境外出生者由调用方按当地时区传 15° 乘偏移
+   （如西五区传 -75），境内一律走缺省。
    均时差取 Meeus 天文算法式 28.3（黄赤交角、轨道偏心率与太阳平黄经入算，精度约数秒），
    儒略日按 proleptic Gregorian 直算；不使用原生 new Date，
    避免公元 1 至 99 年被浏览器映射为 1900 至 1999 年。 */
@@ -250,11 +252,13 @@ function eqOfTimeMin(y,m,d){
         -0.5*y2*y2*Math.sin(4*L0*RAD)-1.25*e*e*Math.sin(2*M*RAD);
   return E/RAD*4;
 }
-function trueSolarTime(y,m,d,h,mi,lng,mode){
+function trueSolarTime(y,m,d,h,mi,lng,mode,baseLng){
   // 口径 mode：'true' 真太阳时（均时差＋经度差，默认）；'mean' 平太阳时（仅经度差，均时差取 0）
+  // baseLng：校正基准子午线，缺省东经 120 度；境外出生按当地时区传 15° 乘偏移
   mode = mode || 'true';
+  const base = (baseLng==null || isNaN(baseLng)) ? 120 : Number(baseLng);
   const E = mode==='mean' ? 0 : eqOfTimeMin(y,m,d);
-  const lngAdj = (lng - 120) * 4;
+  const lngAdj = (lng - base) * 4;
   const totalAdj = E + lngAdj;
   // 用分钟偏移校正，避免 Date；最大偏移约正负 120 分钟，跨日由 Solar.nextDay 处理
   let baseMinutes = h*60 + mi;

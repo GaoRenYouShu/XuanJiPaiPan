@@ -86,6 +86,11 @@ function _apiBuildFromDate(input) {
   var sunMode = input.sunMode || 'off';
   if(['true','mean','off'].indexOf(sunMode)<0) sunMode='off';
   var lng = input.lng == null ? 120 : Number(input.lng);
+  /* 境外出生两项：baseLng 为校正基准子午线（15° 乘当地时区偏移），缺省东经 120 度（东八区），
+     境内一律走缺省；localDst 为当地夏令时（钟面减 1 小时），与只关中国 1986 至 1991 年的
+     夏令时口径分列，境外盘由调用方把 dst 传 off 并单走此项。 */
+  var baseLng = (input.baseLng == null || isNaN(Number(input.baseLng))) ? 120 : Number(input.baseLng);
+  var localDst = !!input.localDst;
   var kongAxis = input.kongAxis || 'day';
   /* 年界口径：'lichun' 立春换年（默认）、'chunjie' 春节换年（正月初一）；
      夏令时口径：'auto' 命中 1986 年至 1991 年夏令时段即折回（默认）、'on' 强制折回、'off' 不折。 */
@@ -105,10 +110,17 @@ function _apiBuildFromDate(input) {
   var dstInfo = applyDstCorrection(y, m, d, h, mi, dstMode);
   var dstNote = dstInfo.note || '';
   if(dstInfo.applied){ y = dstInfo.y; m = dstInfo.m; d = dstInfo.d; h = dstInfo.h; mi = dstInfo.mi; }
+  if(localDst){
+    /* 当地夏令时：钟面时间较当地标准时快一小时，折回后再入太阳时校正与日界判定 */
+    var _ld = shiftClockDay(y, m, d, h, mi, -60);
+    var _p2 = function(n){ return String(n).padStart(2, '0'); };
+    dstNote = (dstNote ? dstNote + '；' : '') + '当地夏令时：钟面 ' + _p2(h) + ':' + _p2(mi) + ' 折为标准时 ' + _p2(_ld.h) + ':' + _p2(_ld.mi);
+    y = _ld.y; m = _ld.m; d = _ld.d; h = _ld.h; mi = _ld.mi;
+  }
   var stdDate = { y: y, m: m, d: d, h: h, mi: mi };
   var adj, tsInfo = null;
   if (sunMode !== 'off') {
-    tsInfo = trueSolarTime(y, m, d, h, mi, lng, sunMode==='mean'?'mean':'true');
+    tsInfo = trueSolarTime(y, m, d, h, mi, lng, sunMode==='mean'?'mean':'true', baseLng);
     adj = { y: tsInfo.y, m: tsInfo.m, d: tsInfo.d, h: tsInfo.h, mi: tsInfo.mi };
   } else {
     adj = { y: y, m: m, d: d, h: h, mi: mi };
@@ -219,6 +231,7 @@ function _apiBuildFromDate(input) {
     ec: ec, tsInfo: tsInfo, ziNote: ziNote, ziMode: ziMode, sunMode: sunMode, lng: lng,
     rawSolar: { y: rawY, m: rawM, d: rawD, h: rawH, mi: rawMi }, stdDate: stdDate,
     dstInfo: dstInfo, dstNote: dstNote, dstMode: dstMode, sunMode: sunMode, yearAxis: yearAxis, axisNote: axisNote,
+    baseLng: baseLng, localDst: localDst,
     yearGZ: yearGZ };
 }
 
@@ -433,14 +446,17 @@ if (BAZI_PAGE_UI) renderChrome('bazi.html'); /* 页面级单例，见顶部“�
 if (BAZI_PAGE_UI) (function initBirth(){
   const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
   /* 出生地默认停在"未知地"，须择定省市才出经度：起首若是某地，未动过表单的盘便按该地折过一道，
-     校正量的来历盘上不著一字。联动取值与三级填充走 latlng.js 的 fillPlaceTrio，各页同一份。 */
+     校正量的来历盘上不著一字。联动取值与三级填充走 latlng.js 的 fillPlaceTrio，各页同一份；
+     本页开境外档：省级下拉另挂境外分组，境外城市带经度与标准时区，供时间折算取基准子午线。 */
   const trio=fillPlaceTrio(sp, sc, sd, ()=>{
     CITY_LNG=findLng(sp.value, sc.value, sd.value);
+    syncOverseasUi();
     savePillarSel();
-  });
+  }, {overseas:true});
   window.__baziPlaceTrio=trio;
   /* 第二盘出生地（双盘对照勾选后使用）：与主盘同一部 PROV 数据源与同构填充逻辑，独立一组下拉；
-     经度写 DUAL_CITY_LNG 供 paipan 第二盘校正取用，与主盘 CITY_LNG 分立不互染 */
+     经度写 DUAL_CITY_LNG 供 paipan 第二盘校正取用，与主盘 CITY_LNG 分立不互染。
+     第二盘不开境外档：当地时区口径与夏令时勾选按主盘一套走，境外第二盘暂按手动经度填。 */
   var DUAL_CITY_LNG=null;
   window.__dualLngOf=()=>DUAL_CITY_LNG;
   const dp=document.getElementById('dProv'), dc=document.getElementById('dCity'), dd=document.getElementById('dDist');
@@ -450,12 +466,71 @@ if (BAZI_PAGE_UI) (function initBirth(){
     });
   }
 })();
+/* 境外出生地取数：省级下拉停在境外国家、市级择定境外城市时返回
+   { city 城市名, lng 库载经度, tz 标准时区偏移 }；手动经度框非空时经度取手填值，
+   时区取时区下拉当前值（未动过即城市自带值），二者都让用户可按实际出生地改。
+   境内或境外未择定城市时返回 null。 */
+function overseasPlaceInfo(){
+  const pv=(document.getElementById('bProv')||{}).value||'';
+  const ct=(document.getElementById('bCity')||{}).value||'';
+  const ov=(typeof overseasCity==='function')?overseasCity(pv, ct):null;
+  if(!ov) return null;
+  const tzEl=document.getElementById('bTzOff');
+  let tz=ov.tz;
+  if(tzEl){
+    /* 换城市即回填该城自带偏移；同一城市重复进入不回填，保留用户手改值 */
+    if(window.__ovLastCity!==ov.c){ window.__ovLastCity=ov.c; tzEl.value=String(ov.tz); }
+    if(tzEl.value!=='') tz=parseFloat(tzEl.value);
+  }
+  const ml=(document.getElementById('bLng')||{}).value;
+  const lng=(ml!=='' && ml!=null && !isNaN(parseFloat(ml)))?parseFloat(ml):ov.lng;
+  return { city:ov.c, lng:lng, tz:tz };
+}
+/* 时间折算参数：境外出生返回基准子午线（15° 乘时区偏移）与当地夏令时勾选；
+   境内返回缺省（基准东经 120 度、不折当地夏令时）。 */
+function placeTimeOpts(){
+  const info=overseasPlaceInfo();
+  if(!info) return { overseas:false, baseLng:120, localDst:false };
+  const lds=document.getElementById('bLocalDst');
+  return { overseas:true, baseLng:info.tz*15, localDst:!!(lds && lds.checked) };
+}
+/* 境外出生地界面同步：出生地选到境外城市时挂出当地夏令时与时区两项，
+   并在说明行写出钟面时区与基准经线口径；境内或非日期模式收起两项与说明行。
+   时区下拉的回填（换城市回填该城自带偏移、手改后不回填）在 overseasPlaceInfo 一处完成。 */
+function syncOverseasUi(){
+  const mode=(document.getElementById('bMode')||{}).value||'';
+  const dateable=(mode==='date'||mode==='lunar'||mode==='hourless');
+  const info=overseasPlaceInfo();
+  const on=dateable && !!info;
+  gs('bLocalDstField', on);
+  gs('bTzOffField', on);
+  /* 中国夏令时下拉只关 1986 至 1991 年内地夏令时段，境外出生时收起，由当地夏令时勾选接管；
+     境内外两种状态各自的显隐与 toggleBaziMode 的日期模式条件一致 */
+  gs('bDstField', !on && mode!=='saved' && mode!=='pillar');
+  const box=document.getElementById('overseasNote');
+  if(box) box.hidden=!on;
+  if(!on) return;
+  if(box){
+    const tzTxt=(info.tz>=0?'UTC+':'UTC-')+Math.abs(info.tz);
+    const base=info.tz*15;
+    const baseTxt=(base>=0?'东经 ':'西经 ')+Math.abs(base)+' 度';
+    const lngTxt=(info.lng>=0?'东经 ':'西经 ')+Math.abs(info.lng)+' 度';
+    box.textContent='境外出生：钟面时间按'+info.city+'当地时间录入，时区 '+tzTxt+'，真太阳时基准经线取'+baseTxt+'（出生地经度 '+lngTxt+'，可在经度框改填）；当地当日若行夏令时，请勾选当地夏令时。中国夏令时只 1986 至 1991 年，境外不自动折算。';
+  }
+}
+/* 当地夏令时与时区两项不入输入签名，勾选或改值后显式失效去重守卫并重排 */
+function localDstChange(){
+  lastPaipanSig='';
+  try{ savePillarSel(); }catch(e){}
+  try{ go(); }catch(e){}
+}
 
 function paipan(){
   /* 性能守卫：输入签名未变且已渲染过，则跳过全量重排（避免重复计算与重绘）。
      切换输入方式（bMode）会纳入签名，故模式切换仍会正常重排。 */
   { const sig=paipanSig(); if(sig===lastPaipanSig && BZ && document.getElementById('out').innerHTML){ return; } lastPaipanSig=sig; }
   if(document.getElementById('bMode').value==='celeb'){ if(typeof paipanCeleb==='function'){ paipanCeleb(); return; } }
+  if(document.getElementById('bMode').value==='hourless'){ if(typeof paipanHourless==='function'){ paipanHourless(); return; } }
   if(document.getElementById('bMode').value==='pillar'){ paipanPillar(); return; }
   clearFormErr();
   /* 输入源：公历直接取 bDate；农历按 年/月（闰月勾选取闰）/日 转公历后统一走公历排盘链 */
@@ -517,11 +592,12 @@ function paipan(){
   /* 装配委托 buildBaziState（与第三方 getBazi 同源，单一真源，避免双份装配逻辑）。
      渲染期 kongOf 仍读全局 kongAxis / yearGZcur，此处继续写这两个全局，
      保证四柱表(col.kong) 与干支详情(kongOf) 两套空亡口径一致可切换。 */
+  const _pto=placeTimeOpts(); /* 境外出生：基准子午线与当地夏令时；境内即缺省两项 */
   const built = (function(){
     /* 生辰不完备（既无齐全四柱也无完整年月日）时此处抛错：拦在写盘之前，
        既不落半个本命状态，也让下面的渲染整段跳过；再经 showFormErr 清空输出区并置空本命，
        页面上不会留着上一位的旧盘冒充本次结果。 */
-    try { return buildBaziState({ date: dv, time: tv, sex, ziMode, sunMode, dst: dstMode, yearAxis, lng, kongAxis }); }
+    try { return buildBaziState({ date: dv, time: tv, sex, ziMode, sunMode, dst: _pto.overseas?'off':dstMode, yearAxis, lng, kongAxis, baseLng:_pto.baseLng, localDst:_pto.localDst }); }
     catch (e) { showFormErr((e && e.message) || String(e)); return null; }
   })();
   if (!built) return;
@@ -660,14 +736,16 @@ function toggleBaziMode(){
   const isSaved=mode==='saved';
   const isLunar=mode==='lunar';
   const isCeleb=mode==='celeb';
+  /* 时辰未定：只输年月日与性别，时辰留空，排盘时出十二时辰候选盘（见 bazi.html 的 paipanHourless） */
+  const isHourless=mode==='hourless';
   document.body.classList.toggle('mode-pillar',isPillar);
   document.body.classList.toggle('mode-lunar',isLunar);
   document.body.classList.toggle('mode-date',!isPillar && !isSaved && !isLunar);
-  /* 出生地相关组（省/市/区、手动经度、真太阳时校正）：仅"公历/农历"输入流程需经换算校正，四柱/已存不显示 */
-  const hasBirthSect = (mode==='date' || mode==='lunar') && !isSaved;
+  /* 出生地相关组（省/市/区、手动经度、真太阳时校正）：公历、农历与时辰未定三模式经换算校正，四柱/已存不显示 */
+  const hasBirthSect = (mode==='date' || mode==='lunar' || isHourless) && !isSaved;
   /* 公历日期与出生时间两字段按模式切换显隐，走单一显隐原语 gs；姓名框在名人模式复用作人名检索 */
   gs('fDate', !isSaved && !isLunar && !isCeleb && !isPillar);
-  gs('fTime', !isSaved && !isCeleb && !isPillar);
+  gs('fTime', !isSaved && !isCeleb && !isPillar && !isHourless);
   /* 名人模式下姓名框改题名人姓名，预填提示与既有内容一并清空并挂出检索按钮 */
   const _fl=document.querySelector('#fName label');
   if(_fl) _fl.textContent=isCeleb?'名人姓名':'姓名';
@@ -703,7 +781,7 @@ function toggleBaziMode(){
   try{ localStorage.setItem(PAGE_MODE_KEY, mode); }catch(e){}
   if(baziInitDone && !isSaved) savePillarSel(); /* 已存模式不持久化 PILLAR_KEY（列表独立存储）；其它模式切换持久化 mode */
   /* 四柱/已存模式清空命局输出区，避免旧 date 模式输出残留 */
-  if(isPillar || isSaved || isCeleb){
+  if(isPillar || isSaved || isCeleb || isHourless){
     const _out=document.getElementById('out');
     if(_out) _out.innerHTML='';
   }
@@ -714,6 +792,8 @@ function toggleBaziMode(){
   }
   /* 已存模式下让姓名框随面板隐藏（姓名仅在输入模式下参与保存） */
   gs('fName', !isSaved);
+  /* 境外两项（当地夏令时、时区）随模式与出生地再同步一次：境内收起，境外且日期模式挂出 */
+  syncOverseasUi();
 }
 /* 读取检索跨度（起始年、终止年，历史年可负），做合法性判定：-2697~9999，无公元 0 年，保证 start<=end */
 function getPillarSpan(){
@@ -899,6 +979,8 @@ function savePillarSel(){
   try{ const qy=document.getElementById('bQiYun'); if(qy) o.bQiYun=qy.value; }catch(e){}
   try{ const cs=document.getElementById('bCsSect'); if(cs) o.bCsSect=cs.value; }catch(e){}
   try{ const lng=document.getElementById('bLng'); if(lng) o.bLng=lng.value; }catch(e){}
+  try{ const tz=document.getElementById('bTzOff'); if(tz) o.bTzOff=tz.value; }catch(e){}
+  try{ const lds=document.getElementById('bLocalDst'); if(lds) o.bLocalDst=lds.checked; }catch(e){}
   try{ const pv=document.getElementById('bProv'); if(pv) o.bProv=pv.value; }catch(e){}
   try{ const ct=document.getElementById('bCity'); if(ct) o.bCity=ct.value; }catch(e){}
   try{ const dt=document.getElementById('bDist'); if(dt) o.bDist=dt.value; }catch(e){}
@@ -1097,10 +1179,10 @@ function restoreYunSel(){
     {
       try {
         const pageMode = localStorage.getItem(PAGE_MODE_KEY);
-        const validModes = ['date','lunar','pillar','celeb','saved'];
+        const validModes = ['date','lunar','pillar','hourless','celeb','saved'];
         if(pageMode && validModes.indexOf(pageMode)>=0){
           const bm=document.getElementById('bMode'); if(bm) bm.value=pageMode;
-        } else if(saved && (saved.mode==='pillar'||saved.mode==='date'||saved.mode==='lunar'||saved.mode==='celeb'||saved.mode==='saved')) {
+        } else if(saved && (saved.mode==='pillar'||saved.mode==='date'||saved.mode==='lunar'||saved.mode==='hourless'||saved.mode==='celeb'||saved.mode==='saved')) {
           const bm=document.getElementById('bMode'); if(bm) bm.value=saved.mode;
         }
       }catch(e){}
@@ -1129,6 +1211,9 @@ function restoreYunSel(){
         window.__baziPlaceTrio.set(saved.bProv, saved.bCity, saved.bDist);
         savePillarSel();
       }
+      /* 手动时区与当地夏令时在出生地归位之后恢复：归位会按所选城市回填时区，先恢复会被回填盖掉 */
+      const tz=document.getElementById('bTzOff'); if(tz && saved.bTzOff!=null && saved.bTzOff!=='') tz.value=saved.bTzOff;
+      const lds=document.getElementById('bLocalDst'); if(lds && typeof saved.bLocalDst==='boolean') lds.checked=saved.bLocalDst;
     }catch(e){}
   }
 })();

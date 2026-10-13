@@ -21,6 +21,27 @@
 
 .page-bazi #out>.confirm-box,.page-bazi #out>.confirm-banner{margin-top:var(--sp-4)}
 
+/* 时辰未定候选表：整行可点选（末列按钮的点击经冒泡同归行处理），悬停与已选行取本页淡底；
+   时辰列主字与宫位小字两行排，神煞列取次级字色。
+   容器整块去线：内部就是一张表，边界由表框承担，容器不再另画横线 */
+.page-bazi .hourless-box{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
+
+.page-bazi #out>.hourless-box{margin-top:var(--sp-4)}
+
+.page-bazi .hourless-tb tbody tr{cursor:pointer}
+
+.page-bazi .hourless-tb tbody tr:hover,.page-bazi .hourless-tb tbody tr.cur{background:var(--bz-tint)}
+
+.page-bazi .hourless-tb .hl-hour b{font-weight:400;color:var(--bz2)}
+
+.page-bazi .hourless-tb .hl-hour span{display:block;font-size:11px;color:var(--bz-ink2)}
+
+.page-bazi .hourless-tb .hl-sha{color:var(--bz-ink2)}
+
+.page-bazi .hourless-banner{flex-wrap:wrap}
+
+.page-bazi .hourless-banner span{color:var(--bz-ink2);font-size:12px}
+
 /* 排盘与保存两钮换位到年月日时四柱之后：两钮在文档序里紧跟出生时间（公历、农历两模式即此序），
    四柱模式整行转 display:contents 后诸件同属一条 flex 流，故只给两钮一个 order 即落到四柱之后，
    不动文档序也就不动另两模式。检索跨度与起止年是检索工具，居末，故取 order:3 让两钮只越过四柱。 */
@@ -95,7 +116,7 @@
   .page-bazi table.stab td.nowrap{width:auto;white-space:normal}
 }
 
-.page-bazi .sub-h{font-size:var(--tier4);color:var(--gold2);margin:var(--sp-2) 0 2px;font-weight:400}
+.page-bazi .sub-h{font-size:var(--tier4);color:var(--gold2);margin:var(--sp-2) 0 var(--sp-1);font-weight:400}
 
 .page-bazi .stab b,.page-bazi .otab b,.page-bazi .bazi-table b,.page-bazi .yun-tbl b,.page-bazi .nayin-rel b,.page-bazi .qtab b{font-weight:400}
 
@@ -238,6 +259,9 @@
 .page-bazi .bazi-linkage{margin:0;background:transparent;border:0;border-top:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
 
 /* 夏令时已移出出生地组、归入时间折算与流派行（见 .opts-row 通用段），出生地组只装出生地要素 */
+
+/* 历史出生年份口径提示：横跨时间折算与流派整行，独占行末；间距只由该行 gap 一处给出 */
+.page-bazi .opts-note{width:100%;margin:0}
 
 /* 名人联想下拉：输入框下浮层，方角细线，条目按 名人姓名加朝代身份 排布；
    检索钮与姓名输入同行，仅名人模式挂出 */

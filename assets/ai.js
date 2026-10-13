@@ -935,10 +935,14 @@ function openAiBlock(){
   if (b) b.open = true;
 }
 
+/* 页面自定义解析参数：mountAI 挂载时记下，解析与追问沿用同一份 */
+let __aiSysCustom = '';
+let __aiTemperature = 0.7;
+
 function mountAI(getContext, pageTitle, opts){
   opts = opts || {};
-  const sysCustom = opts.systemPrompt || '';
-  const temperature = typeof opts.temperature === 'number' ? opts.temperature : 0.7;
+  __aiSysCustom = opts.systemPrompt || '';
+  __aiTemperature = typeof opts.temperature === 'number' ? opts.temperature : 0.7;
   let host = document.getElementById('aiMount');
   if (!host){ host = document.createElement('div'); host.id = 'aiMount'; (document.querySelector('.page') || document.body).appendChild(host); }
   host.innerHTML = `<details class="ai-block" id="aiBlock">
@@ -966,6 +970,9 @@ function mountAI(getContext, pageTitle, opts){
   injectShare(host.querySelector('.ai-actions'), opts.share || {});
   try { mountGeo(); } catch (e){}
   window.__aiGetContext = getContext; window.__aiTitle = pageTitle;
+  /* 八字页（页题八字排盘）启用流派定制与多轮追问，五派默认全出 */
+  window.__aiSchoolPage = pageTitle === '八字排盘';
+  window.__aiSchoolSel = AI_SCHOOLS.map(s => s.key);
   const histKey = 'ai_history_' + pageTitle;
   try {
     const raw = sessionStorage.getItem(histKey);
@@ -982,6 +989,87 @@ function mountAI(getContext, pageTitle, opts){
   });
 }
 
+/* ---- 八字流派定制（子平格局、盲派、调候、新派、病药）----
+   五派各有所本，立论与喜忌口径同盘面五派对照视图：喜忌取各自方法论所出，不共用合成喜忌。
+   面板默认五派全出、逐派标注；取消勾选即只出所选派，全不选则不加流派要求。 */
+const AI_SCHOOLS = [
+  { key:'ziping', name:'子平格局', brief:'以月令立格，格局为体，成败系于用神是否清纯、有无冲破损伤；成格顺用，破格则须制化救应；喜忌以格局用神所出为凭。' },
+  { key:'mang', name:'盲派', brief:'不以日主旺衰论命，以体用宾主与做功效率立论，日主为体、财官为用；功在制、化、合、冲、墓五法得其财官；以财官五行为喜，不立五行忌神，得失以做功能否成立、制化是否得用为断。' },
+  { key:'tiao', name:'调候', brief:'以寒暖燥湿为纲，取法《穷通宝鉴》日干月令之表，不由季节一概而论；以取用诸干所属五行为喜，克取用五行而其五行不在取用之内者为忌；调候一透则全局皆活，调候受伤则诸法皆滞。' },
+  { key:'xin', name:'新派', brief:'以日主旺衰为纲，量化平衡求中和，旺则抑弱则扶；以扶抑喜忌为凭，旺衰结论以盘面旺衰评分与档位为准，不自行重算推翻。' },
+  { key:'bingyao', name:'病药', brief:'有病方为贵，无伤不是奇，以病药与五行缺衡为凭；病即忌神之过旺者，以药制其锋，制病之药即为喜用；务使五行归于中和，则病去局安。' }
+];
+
+/* 流派勾选行：只在八字页出，随面板重建保持勾选态 */
+function schoolRowHtml(){
+  if (!window.__aiSchoolPage) return '';
+  const sel = Array.isArray(window.__aiSchoolSel) ? window.__aiSchoolSel : AI_SCHOOLS.map(s => s.key);
+  const boxes = AI_SCHOOLS.map(s => `<label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" class="ai-chk-school" data-key="${s.key}" ${sel.indexOf(s.key) !== -1 ? 'checked' : ''} onchange="onAiSchoolChange()"> ${s.name}</label>`).join('');
+  return `<div class="ai-follow" style="margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+      <span style="font-size:13px;color:var(--ink2);white-space:nowrap">流派视角：</span>
+      <label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="aiSchoolAll" ${sel.length === AI_SCHOOLS.length ? 'checked' : ''} onchange="toggleAllSchoolChk(this)"> 五派全选</label>
+      <span style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${boxes}</span>
+    </div>
+    <div class="ai-tip">默认五派全出、逐派标注流派；取消勾选即只出所选派。</div>`;
+}
+
+function getSelectedSchools(){
+  const out = [];
+  document.querySelectorAll('.ai-chk-school').forEach(cb => { if (cb.checked) out.push(cb.getAttribute('data-key')); });
+  return AI_SCHOOLS.filter(s => out.indexOf(s.key) !== -1).map(s => s.key);
+}
+
+function onAiSchoolChange(){
+  window.__aiSchoolSel = getSelectedSchools();
+  const all = document.querySelectorAll('.ai-chk-school');
+  const checked = document.querySelectorAll('.ai-chk-school:checked');
+  const allChk = document.getElementById('aiSchoolAll');
+  if (allChk) allChk.checked = all.length > 0 && checked.length === all.length;
+}
+
+function toggleAllSchoolChk(chk){
+  const on = chk.checked;
+  document.querySelectorAll('.ai-chk-school').forEach(cb => cb.checked = on);
+  onAiSchoolChange();
+}
+
+/* 解析提示词附流派要求：所选各派逐派成段、段首标注流派；五派全选时另加共识与分歧总收 */
+function aiSchoolPrompt(){
+  if (!window.__aiSchoolPage) return '';
+  const sel = AI_SCHOOLS.filter(s => getSelectedSchools().indexOf(s.key) !== -1);
+  if (!sel.length) return '';
+  const all = sel.length === AI_SCHOOLS.length;
+  let t = '\n\n【流派要求】';
+  t += all
+    ? '请按下列五派各自的立论与口径逐派成段解读，每段以流派名起首标注；各段只依本派方法，不混入他派口径。'
+    : '本次只按下列 ' + sel.length + ' 派解读，逐派成段，每段以流派名起首标注；只依所列各派方法，不混入未列各派口径。';
+  t += '每派段末写明本派对该盘的喜忌，喜忌取各自方法论所出，不共用合成喜忌。';
+  if (all) t += '五派成段后另起一段总收，先列五派共识、再列分歧所在，并说明读盘时按所宗一派为准、余派作参照。';
+  t += '\n' + sel.map((s, i) => (i + 1) + '. ' + s.name + '：' + s.brief).join('\n');
+  return t;
+}
+
+/* 追问上下文：随每轮追问补一条系统消息，交代术数类型、本轮所宗流派与盘面摘要，
+   使追问承接上一轮结果，不必从长历史里自行翻检 */
+function aiFollowContext(title, ctx){
+  const sel = window.__aiSchoolPage ? getSelectedSchools() : [];
+  const names = AI_SCHOOLS.filter(s => sel.indexOf(s.key) !== -1).map(s => s.name);
+  const schoolTxt = names.length === AI_SCHOOLS.length ? ('五派全出（' + names.join('、') + '）') : names.join('、');
+  return '【追问上下文】术数类型：' + title + '；' + (schoolTxt ? ('本轮所宗流派：' + schoolTxt + '；') : '') + '盘面摘要：' + (aiCtxDigest(ctx) || '见前文盘面信息') + '。请承接上一轮解读作答，不重复整段盘面。';
+}
+
+/* 盘面摘要：取盘面文本开头几行，给出四柱与日主等识别信息，供追问轮次随行 */
+function aiCtxDigest(ctx){
+  const lines = String(ctx || '').split('\n').map(s => s.trim().replace(/[。；，、]+$/, '')).filter(Boolean);
+  let out = '';
+  for (const ln of lines){
+    if (out && out.length + ln.length > 120) break;
+    out += (out ? '，' : '') + ln;
+    if (out.length >= 60) break;
+  }
+  return out.length > 160 ? out.slice(0, 160) : out;
+}
+
 /* 构建多模型面板 HTML：每个模型一个标签页 + 对话模型选择复选框 */
 function buildAiPanelHtml(models, readyMsg){
   const activeIdx = 0;
@@ -995,8 +1083,10 @@ function buildAiPanelHtml(models, readyMsg){
       <label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="aiChkAll" onchange="toggleAllAiChk(this)"> 全选</label>
       <span id="aiModelChk" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${chks}</span>
     </div>
+    ${schoolRowHtml()}
     <div class="ai-follow" style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input id="aiFollowQ" placeholder="输入对话内容…" style="flex:1;min-width:120px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
+      <span style="font-size:13px;color:var(--ink2);white-space:nowrap">继续追问：</span>
+      <input id="aiFollowQ" placeholder="对上次解析结果追问…" style="flex:1;min-width:120px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
       <button class="btn gold" style="font-weight:400" onclick="sendAiFollow()">发送</button>
     </div>`;
 }
@@ -1065,12 +1155,14 @@ function restoreAiChat(){
     const chat = document.getElementById('aiChat' + i);
     if (!chat) return;
     chat.innerHTML = '';
+    let userSeen = 0;   // 追问序号按历史全局计数，与当前标签页无关
     hist.forEach(msg => {
       let models = msg.models || [];
       // 旧格式没有 models 时，默认显示到所有模型标签页
       if (!models.length) models = allIdx;
+      if (msg.role === 'user') userSeen++;
       if (models.indexOf(i) === -1) return;
-      if (msg.role === 'user') chat.insertAdjacentHTML('beforeend', `<div class="ai-bubble user">${escapeHtml(msg.content)}</div>`);
+      if (msg.role === 'user') chat.insertAdjacentHTML('beforeend', `<div class="ai-bubble user">${userSeen > 1 ? `<b style="color:var(--gold2)">追问 ${userSeen - 1}：</b>` : ''}${escapeHtml(msg.content)}</div>`);
       else if (msg.role === 'assistant') chat.insertAdjacentHTML('beforeend', `<div class="ai-bubble assistant"><b style="color:var(--gold2)">AI 助手：</b>${md2html(msg.content)}</div>`);
     });
   });
@@ -1130,7 +1222,7 @@ async function runAiAnalyze(question, selectedIdx){
   if (btn) btn.disabled = true; if (stop) stop.disabled = false;
 
   const sysBase = `你是一位资深的中国传统命理与术数分析师，精通八字、紫微斗数、六爻、梅花、奇门、六壬、太乙、择日、塔罗、雷诺曼与灵签解签。请基于给定盘面信息，用简体中文做条理清晰、专业而通俗的解读，分点说明，避免绝对化断语，末尾提示仅供参考。`;
-  const sys = sysCustom ? (sysBase + '\n' + sysCustom) : sysBase;
+  const sys = sysBase + (__aiSysCustom ? ('\n' + __aiSysCustom) : '') + aiSchoolPrompt();
   const allIdx = allModels.map((_, i) => i);
 
   let targetIdx = [];
@@ -1164,6 +1256,8 @@ async function runAiAnalyze(question, selectedIdx){
     }
     if (!targetIdx.length) targetIdx = [getActiveTabIdx()];
     const activeTab = getActiveTabIdx();
+    /* 追问序号：首个追问起算，面板多轮记录据此标注 */
+    const round = window.__aiHistory.filter(m => m.role === 'user').length;
     const userMsg = { role: 'user', content: question, models: [activeTab] };
     window.__aiHistory.push(userMsg);
     messages = window.__aiHistory.slice();
@@ -1171,7 +1265,7 @@ async function runAiAnalyze(question, selectedIdx){
     const chat = document.getElementById('aiChat' + activeTab);
     const ts = Date.now();
     if (chat){
-      chat.insertAdjacentHTML('beforeend', `<div class="ai-bubble user"><b style="color:var(--gold2)">对话：</b>${escapeHtml(question)}</div>`);
+      chat.insertAdjacentHTML('beforeend', `<div class="ai-bubble user"><b style="color:var(--gold2)">追问 ${round}：</b>${escapeHtml(question)}</div>`);
       targetIdx.forEach(mi => {
         const id = 'aiOut' + mi + '_' + ts;
         outMap[mi] = id;
@@ -1196,6 +1290,8 @@ async function runAiAnalyze(question, selectedIdx){
   function curContent(out){ return out ? (out.querySelector('.ai-model-c') || out) : null; }
 
   const apiMessages = messages.map(({role, content}) => ({role, content}));
+  /* 追问：在末条用户消息前补一条上下文系统消息，携带术数类型、所宗流派与盘面摘要 */
+  if (question) apiMessages.splice(apiMessages.length - 1, 0, { role: 'system', content: aiFollowContext(title, ctx) });
 
   const tasks = models.map((m) => {
     return (async () => {
@@ -1206,7 +1302,7 @@ async function runAiAnalyze(question, selectedIdx){
         const r = await fetch(m.baseUrl + '/chat/completions', {
           method: 'POST', signal: __aiAbort.signal,
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + m.apiKey },
-          body: JSON.stringify({ model: m.model, stream: true, temperature: temperature, messages: apiMessages })
+          body: JSON.stringify({ model: m.model, stream: true, temperature: __aiTemperature, messages: apiMessages })
         });
         if (!r.ok){ const t = await r.text(); throw new Error('HTTP ' + r.status + ' ' + t.slice(0, 200)); }
         if (!r.body) throw new Error('无流式数据');
