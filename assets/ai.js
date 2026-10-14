@@ -313,6 +313,8 @@ function setAiCfg(c, silent){
 
 function aiModels(){ const c = getAiCfg(); return c.models || []; }
 function normBase(u){ return (u || '').trim().replace(/\/+$/, ''); }
+/* 服务商归组键：接口地址与 Key 前缀相同者视为同一服务商，已存列表与删除同取此键 */
+function providerKey(m){ return (m.baseUrl || '') + '||' + (m.apiKey || '').slice(0, 8); }
 
 /* ---- 简易 Markdown → HTML ---- */
 function md2html(md){
@@ -354,9 +356,12 @@ function ensureAiModal(){
 
     <section class="ai-sec">
       <div class="ai-sec-t"><span class="ai-sec-no">壹</span>服务商</div>
-      <label>已存服务商（快速填入）
-        <select id="aiQuick" onchange="quickFillProvider()"><option value="">选择已存服务商</option></select>
-      </label>
+      <div class="row">
+        <label>已存服务商（快速填入）
+          <select id="aiQuick" onchange="quickFillProvider()"><option value="">选择已存服务商</option></select>
+        </label>
+        <button class="ai-model-del" onclick="removeProvider()">删除</button>
+      </div>
       <div class="row">
         <label>模型昵称
           <input id="aiNick" placeholder="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -446,6 +451,38 @@ function removeModel(idx){
   renderModelList();
 }
 
+/* 已存服务商下拉：按归组键去重，同一服务商只列一项，供快速填入与删除 */
+function refreshQuickProviders(){
+  const provs = [], seen = {};
+  aiModels().forEach(m => {
+    const k = providerKey(m);
+    if (seen[k]) return;
+    seen[k] = true;
+    provs.push({ key: k, name: m.provider || '无', baseUrl: m.baseUrl, apiKey: m.apiKey || '' });
+  });
+  const sel = document.getElementById('aiQuick');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">选择已存服务商</option>' + provs.map((p, i) => `<option value="${i}">${escapeHtml(p.name)} ${escapeHtml(p.baseUrl)}</option>`).join('');
+  window.__aiQuickProvs = provs;
+}
+
+/* 删除已存服务商：连同其名下已保存的模型一并移除，删前先问一句 */
+function removeProvider(){
+  const msg = document.getElementById('aiCfgMsg');
+  const sel = document.getElementById('aiQuick');
+  const p = (window.__aiQuickProvs || [])[parseInt(sel && sel.value, 10)];
+  if (!p){ if (msg) msg.textContent = '请先选择要删除的服务商'; return; }
+  const c = getAiCfg();
+  const all = c.models || [];
+  const hit = all.filter(m => providerKey(m) === p.key).length;
+  if (!window.confirm('确定删除服务商 ' + p.name + '？\n该服务商下已保存的 ' + hit + ' 个模型将一并移除，此操作不可恢复。')) return;
+  c.models = all.filter(m => providerKey(m) !== p.key);
+  setAiCfg(c);
+  refreshQuickProviders();
+  renderModelList();
+  if (msg) msg.textContent = '已删除服务商 ' + p.name;
+}
+
 function openAiConfig(){
   ensureAiModal();
   const models = aiModels();
@@ -456,17 +493,7 @@ function openAiConfig(){
     document.getElementById('aiKey').value = last.apiKey || '';
   }
   document.getElementById('aiCfgMsg').textContent = '';
-  const seen = {}, provs = [];
-  models.forEach(m => {
-    const k = m.baseUrl + '||' + (m.apiKey || '').slice(0, 8);
-    if (!seen[k]){
-      seen[k] = true;
-      provs.push({ name: m.provider || '无', baseUrl: m.baseUrl, apiKey: m.apiKey || '' });
-    }
-  });
-  const sel = document.getElementById('aiQuick');
-  sel.innerHTML = '<option value="">选择已存服务商</option>' + provs.map((p, i) => `<option value="${i}">${escapeHtml(p.name)} ${escapeHtml(p.baseUrl)}</option>`).join('');
-  window.__aiQuickProvs = provs;
+  refreshQuickProviders();
   renderModelList();
   refreshEncModeTip();
   document.getElementById('aiCfgMask').classList.add('show');

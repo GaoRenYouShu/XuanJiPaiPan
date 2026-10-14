@@ -516,7 +516,7 @@
         (arr||[]).forEach(s=>{ const nm=String(s||'').replace(/（[^）]+）$/,''), mean=(SHA_MEAN[s]||SHA_MEAN[nm]||{}).career; if(mean){ if(!_m[nm]) _m[nm]={pos:[],n:0,mean:mean}; _m[nm].pos.push(p); _m[nm].n++; } });
       });
       const hit=Object.keys(_m).map(s=>s+(_m[s].n>1?'（'+_m[s].pos.join('、')+'柱）':'')+'（'+_m[s].mean+'）');
-      s7=hit.length?(hit.join('；')+'。'):'本局无显著相关神煞。';
+      s7=hit.length?(hit.join('；')+'。'):'本局无显著事业相关神煞。';
     }
     if(has.has('食伤生财')||has.has('木火通明')){
       const _parts=[];
@@ -2221,6 +2221,41 @@ function bzWheelPick(rootId, i){
      pillar 专属: yg,yz,mg,mz,dg,dz,tg,tz, hasDate, isBC, pillarChosenDate, span, candYears,
                  lunar,pj,nj,ec,y,m,d（hasDate 时才有值，否则为 null）
    本函数内按 mode 处理 ts-box / 候选确认面板 / 历史年 sub-note / 农历节气信息格 / BZ.meta / 运势分支。 */
+
+/* ts-box 两处措辞的境外口径（标准时间括注、出生地经度）：
+   ① 标准时间括注：基准子午线为东经 120 度（东八区，境内缺省）写“北京时间”，
+      境外出生地的基准子午线随当地时区而移，写“当地标准时”并标出世界时偏移。
+   ② 出生地经度：负经度写西经（度号后 W），正经度维持东经（度号后 E）。
+   基准子午线的取法：优先取调用方补传的 baseLng；未补传时按 tsInfo.lngAdj 反推，
+   因 trueSolarTime 内以 lngAdj = (lng - base) * 4 计，故反推为 base = lng - lngAdj / 4。
+   反推值收尾到百万分度，免去浮点尾差把整度基准顶偏（如 -74.01 减 0.99 出 -75.000000000000014）。
+   注：时区恰为东八区的境外城市（如新加坡、吉隆坡）基准同为东经 120 度，仍写“北京时间”；
+   若要按其本国区名分述，须由调用方显式补传区名，本件不得揣度。 */
+function bzTsBaseLngOf(lng, tsInfo, baseLng){
+  if(baseLng != null && isFinite(Number(baseLng))) return Number(baseLng);
+  if(!tsInfo || !isFinite(Number(lng)) || !isFinite(Number(tsInfo.lngAdj))) return 120;
+  return Math.round((Number(lng) - Number(tsInfo.lngAdj) / 4) * 1e6) / 1e6;
+}
+/* 世界时偏移字串：整小时写 UTC+8 或 UTC-5；非整小时（如 UTC+5:30）补写分钟 */
+function bzTsUtcTxtOf(base){
+  const off = Number(base) / 15;
+  if(Math.abs(off - Math.round(off)) < 1e-9){
+    const hh = Math.round(off);
+    return 'UTC' + (hh >= 0 ? '+' : '-') + Math.abs(hh);
+  }
+  const a = Math.abs(off), hh = Math.floor(a), mm = Math.round((a - hh) * 60);
+  return 'UTC' + (off < 0 ? '-' : '+') + hh + ':' + String(mm).padStart(2, '0');
+}
+/* 标准时间括注：境内基准（东经 120 度）维持“北京时间”，境外写“当地标准时”加世界时偏移 */
+function bzTsStdTzTxtOf(base){
+  return Math.abs(Number(base) - 120) < 1e-9 ? '北京时间' : '当地标准时 ' + bzTsUtcTxtOf(base);
+}
+/* 出生地经度字串：负经度取绝对值写西经，正经度与非数值维持原样，一字不改 */
+function bzTsLngTxtOf(lng){
+  const v = Number(lng);
+  if(!(v < 0)) return lng + '°E';
+  return Math.abs(v) + '°W';
+}
 function renderBaziPage(R, BZ = window.BZ){
   const mode=R.mode||'date';
   const {cols, sex, dayGan}=R;
@@ -2270,15 +2305,16 @@ function renderBaziPage(R, BZ = window.BZ){
   } else {
     const {raw, std, lng, sunMode, tsInfo, ziNote, dstNote, axisNote}=R;
     const _f2=n=>String(n).padStart(2,'0');
+    const _stdTz=bzTsStdTzTxtOf(bzTsBaseLngOf(lng, tsInfo, R.baseLng));
     html+=`<div class="ts-box">`;
-    html+=`标准时间：<b>${std.y}-${_f2(std.m)}-${_f2(std.d)} ${_f2(std.h)}:${_f2(std.mi)}</b>（北京时间）`;
+    html+=`标准时间：<b>${std.y}-${_f2(std.m)}-${_f2(std.d)} ${_f2(std.h)}:${_f2(std.mi)}</b>（${_stdTz}）`;
     if(dstNote){
       html+=`　钟面时间：<b>${raw.y}-${_f2(raw.m)}-${_f2(raw.d)} ${_f2(raw.h)}:${_f2(raw.mi)}</b><br>`;
       html+=`<span class="sub-note">${dstNote}</span>`;
     }
     if(raw.y>=1912 && raw.y<=1949) html+=`<br><span class="sub-note">民国时期全国分划时区且各地执行不一，钟面时间未必是东经120度标准时；疑用地方时或处时区边界者，请核对史载时刻，或启用太阳时校正以经度直取。</span>`;
     if(sunMode!=='off' && tsInfo){
-      html+=`　出生地经度：<b>${lng}°E</b>`;
+      html+=`　出生地经度：<b>${bzTsLngTxtOf(lng)}</b>`;
       if(tsInfo.mode!=='mean') html+=`　均时差：<b>${tsInfo.E}分</b>`;
       html+=`　经度差：<b>${tsInfo.lngAdj}分</b><br>`;
       html+=`${tsInfo.mode==='mean'?'平太阳时':'真太阳时'}：<b>${tsInfo.y}-${_f2(tsInfo.m)}-${_f2(tsInfo.d)} ${_f2(tsInfo.h)}:${_f2(tsInfo.mi)}</b>（${tsInfo.totalAdj>=0?'+':''}${tsInfo.totalAdj}分）`;
@@ -3293,11 +3329,12 @@ function renderDualTable(BZ2, D2){
   // 时间说明（标准时间、钟面时间、出生地经度、均时差、真太阳时）：与主盘 ts-box 同构
   if(D2){
     const raw=D2.rawSolar, std=D2.stdDate, tsInfo=D2.tsInfo;
+    const _stdTz2=bzTsStdTzTxtOf(bzTsBaseLngOf(D2.lng, tsInfo, D2.baseLng));
     out+=`<div class="ts-box">`;
-    if(std) out+=`标准时间：<b>${std.y}-${_f2(std.m)}-${_f2(std.d)} ${_f2(std.h)}:${_f2(std.mi)}</b>（北京时间）`;
+    if(std) out+=`标准时间：<b>${std.y}-${_f2(std.m)}-${_f2(std.d)} ${_f2(std.h)}:${_f2(std.mi)}</b>（${_stdTz2}）`;
     if(D2.dstNote){ out+=`　钟面时间：<b>${raw.y}-${_f2(raw.m)}-${_f2(raw.d)} ${_f2(raw.h)}:${_f2(raw.mi)}</b><br><span class="sub-note">${D2.dstNote}</span>`; }
     if(D2.sunMode!=='off' && tsInfo){
-      out+=`　出生地经度：<b>${D2.lng}°E</b>`;
+      out+=`　出生地经度：<b>${bzTsLngTxtOf(D2.lng)}</b>`;
       if(tsInfo.mode!=='mean') out+=`　均时差：<b>${tsInfo.E}分</b>`;
       out+=`　经度差：<b>${tsInfo.lngAdj}分</b><br>`;
       out+=`${tsInfo.mode==='mean'?'平太阳时':'真太阳时'}：<b>${tsInfo.y}-${_f2(tsInfo.m)}-${_f2(tsInfo.d)} ${_f2(tsInfo.h)}:${_f2(tsInfo.mi)}</b>（${tsInfo.totalAdj>=0?'+':''}${tsInfo.totalAdj}分）`;
@@ -5317,6 +5354,27 @@ function renderHealthCard(BZ, ctx){
     if(_yinChong) _yingTxt='岁运再逢金旺之年、冲克木印之根（如卯酉相冲类）之时，根气更损、宜格外静养避冲';
     else _yingTxt='岁运逢庚申辛酉金旺之年、冲克木印之根，培补之力受制、宜静养避冲';
     if(_jiYun) _yingTxt += (_yinChong?'，并逢':'，')+_jiYun+'忌神大运流年耗元之时，亦宜重点养护';
+    // 应期再下钻到流月：看当下节气月与随后两月（近三个月），逐月按上行同一口径标出金旺冲印与忌神耗元之月；
+    // 月柱在六十甲子中连排，当下月柱顺推一位与两位即得后两月；生年逾一百二十载者无近月可谈，不出此句
+    try{
+      const _cy2=baziNowDate().getFullYear();
+      if(BZ.birthYear>0 && _cy2-BZ.birthYear+1<=120){
+        const _tn2=baziNowDate();
+        const _gz0=Solar.fromYmd(_tn2.getFullYear(),_tn2.getMonth()+1,_tn2.getDate()).getLunar().getEightChar().getMonth();
+        if(_gz0){
+          const _k0=gzIndexOf(_gz0), _jmJin=[], _jmJi=[];
+          [_gz0, gzAtIndex(_k0+1), gzAtIndex(_k0+2)].forEach(g=>{
+            if(ZHI_WX[g[1]]==='金') _jmJin.push(g);   // 月支申酉即金旺之月，其冲印之应与岁运金旺之年同
+            else if(jiWxSet.includes(GAN_WX[g[0]])||jiWxSet.includes(ZHI_WX[g[1]])) _jmJi.push(g);
+          });
+          let _t='';
+          if(_jmJin.length) _t+='逢'+_jmJin.join('、')+'金旺，冲克木印之根，宜'+(_yinChong?'格外':'')+'静养避冲';
+          if(_jmJi.length) _t+=(_t?'，并':'')+'逢'+_jmJi.join('、')+'忌神耗元，亦宜重点养护';
+          if(!_t) _t=jiWxSet.length?'金旺与忌神皆不逢，以常养为要':'无金旺之月，以常养为要';
+          _yingTxt += '，近三个月流月'+_t;
+        }
+      }
+    }catch(e){}
     shouTxt += '寿元应期：'+_zx+'。'+_yingTxt;
   }
   // ④ 本节仅神煞/纳音/十二长生，寿元根基归第6节养护调护方向（见下 ⑤）
@@ -6499,46 +6557,6 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     const vn=viewNoteOf(v);
     return gongChaOf(v, s.gz, '')+(vn?vn:'')+'。';
   }
-  // 人生四议：各流派对 事业财运 / 婚姻感情 / 家庭子女 / 性格健康 的精读（数据驱动，落到真实十神、宫位、神煞、关键事件）
-  const AREA_CATS={'事业财运':['财星','官杀'],'婚姻感情':['财星','官杀'],'家庭子女':['印星','食伤'],'性格健康':['比劫','印星']};
-  const GONG_PLAIN=['长辈祖上','父母兄弟同辈','配偶婚姻','子女晚辈'];
-  // 各流派解读运势：每流派先给“流派视角”（sc.f 已承载），再据此预判人生四议之方面与事件。
-  // 按宫位（本命）或喜忌（岁运所选步）聚合，一句话交代完全，不复述前面面板已列事实。
-  const AREA_SHORT={'事业财运':'事业','婚姻感情':'婚姻','家庭子女':'家宅','性格健康':'身心'};
-  // 每领域关键事件：按“流派视角”取词（格局讲用神成败、盲派讲做功、调候讲寒暖、新派讲旺衰扶抑、病药讲偏枯救药），
-  // 即便两派同判喜忌，措辞也因视角不同而各异，杜绝“五派后半段几乎一样”的问题。
-  const AREA_EVENTS={
-    '子平格局派':{
-      '事业财运':{喜:'用神得力、事业顺遂有成',忌:'用神受冲、事业易破格生变',中:'用神无引动、事业守常'},
-      '婚姻感情':{喜:'用神不损、婚姻和美',忌:'用神受损、婚姻易生波折',中:'格局无扰、感情如常'},
-      '家庭子女':{喜:'格局安稳、家宅宁顺、子女缘厚',忌:'格局不稳、家宅或子女缘易生波折',中:'格局平稳、家宅如常'},
-      '性格健康':{喜:'格局纯粹、心性舒展',忌:'格浊神乱、心性易执、健康宜调护',中:'格局无乱、心性平稳'}
-    },
-    '盲派':{
-      '事业财运':{喜:'财官得用、进益可期',忌:'做功受损、宜守',中:'做功平平、宜踏实积累'},
-      '婚姻感情':{喜:'财官成婚、配偶得力',忌:'财官受损、婚姻宜稳',中:'财官不显、婚姻宜稳'},
-      '家庭子女':{喜:'做功有靠、家宅安稳',忌:'做功失据、家宅宜稳',中:'做功平平、家宅如常'},
-      '性格健康':{喜:'日主可担、身心得养',忌:'日主难担、精力宜调护',中:'做功平和、精力如常'}
-    },
-    '调候派':{
-      '事业财运':{喜:'寒暖得宜、事业舒坦有成',忌:'寒热偏颇、事业易乖蹇',中:'寒暖无碍、事业依原局定调'},
-      '婚姻感情':{喜:'调候得宜、感情和顺',忌:'调候失宜、感情宜稳',中:'寒暖无偏、感情如常'},
-      '家庭子女':{喜:'燥湿得平、家宅宁顺',忌:'燥湿失平、家宅易生波折',中:'燥湿无偏、家宅如常'},
-      '性格健康':{喜:'寒暖调和、身心得养',忌:'寒热偏枯、健康宜调护',中:'寒暖平顺、身心如常'}
-    },
-    '新派（民国）':{
-      '事业财运':{喜:'日主得助、事业顺遂',忌:'日主失衡、谋事易掣肘',中:'旺衰中和、事业平顺守常'},
-      '婚姻感情':{喜:'扶抑得宜、婚姻和美',忌:'扶抑失当、婚姻易失和',中:'旺衰平顺、感情如常'},
-      '家庭子女':{喜:'日主得衡、家宅宁顺',忌:'失衡失稳、家宅易生波折',中:'日主得平、家宅如常'},
-      '性格健康':{喜:'旺衰得衡、身心舒展',忌:'旺衰失衡、健康宜调护',中:'旺衰得平、身心平稳'}
-    },
-    '病药派':{
-      '事业财运':{喜:'引药见效、事业偏枯得解',忌:'引病加重、事业易乖',中:'病药无引动、事业平稳守常'},
-      '婚姻感情':{喜:'药力得济、感情转顺',忌:'病重药轻、婚姻宜稳',中:'病药无引动、感情如常'},
-      '家庭子女':{喜:'引药调和、家宅安稳',忌:'病显药隐、家宅易生波折',中:'病药不显、家宅如常'},
-      '性格健康':{喜:'药力得济、身心得养',忌:'偏枯加重、健康宜调护',中:'病药无引动、身体如常'}
-    }
-  };
   // 冗余层折叠：某层五派判定与上层全同、且无新增神煞/长生/应期宫位，则不铺表、一行收掉
   function layerRedundant(s){
     const up=upperOf(s); if(!up) return false;

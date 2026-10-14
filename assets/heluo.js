@@ -538,6 +538,7 @@ function renderQigua(){
     });
     s+=hlTable(['四柱','干取数','支取数'],rows);
     s+='<div class="hl-sum-line">'+hlTipSpan('天数')+'（奇数之和）'+h.tian+'，化简得 '+h.tianNum+(h.tianNum===5?'，中宫寄'+h.tianGua:'，为'+h.tianGua)+'；'+hlTipSpan('地数')+'（偶数之和）'+h.di+'，化简得 '+h.diNum+(h.diNum===5?'，中宫寄'+h.diGua:'，为'+h.diGua)+'</div>';
+    s+='<p class="sub-note">取数口径：天干取洛书纳甲之数、地支取河图之数，奇数并入天数、偶数并入地数，再以二十五、三十化简；铁板神数页的河洛起卦模块另取太玄数法，以天干太玄和定上卦、地支太玄和定下卦，不化简、不寄卦，与本页纳甲取数法为两套体系，两页各依本页所载之法，卦数不必相同。</p>';
     if(h.tianNum===5||h.diNum===5){
       s+='<p class="sub-note">'+h.lichunYear+'年属'+yuanName+'（'+(1864+h.yuan*60)+'至'+(1923+h.yuan*60)+'年）。'+hlTipSpan('中宫寄卦')+'：'+yuanName+'属'+hlTipSpan('三元')+'，'+(h.yuan===1?(h.yangYear===h.male?'阳男阴女':'阴男阳女'):(h.male?'男':'女'))+'寄'+(h.tianNum===5?h.zhongTian:h.zhongDi)+'。</p>';
     }

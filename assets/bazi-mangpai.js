@@ -9,9 +9,9 @@
  *   三合局 DIZHI_SANHE、十二长生 getChangSheng）一律引用 bazi-data.js 真源，
  *   将星华盖、灾劫煞、禄神在函数内由真源派生，不另建同义表。
  * 加载序：bazi-data.js 与 xuanji-lib.js 之后、bazi-core.js 之前（见 bazi.html）。
- *   依赖（window 全局）：GAN_WX、HIDE、TIANGAN_HE、tenGod、shenCat、
- *   zhiMain、zhiOpp、pairIn、DIZHI_CHONG、DIZHI_XING、DIZHI_SANHE、YANGREN、HONGLUAN、
- *   ZAISHA、JIESHA、getChangSheng（一律函数内运行时取用，本文件顶层零依赖），
+ *   依赖（window 全局）：GAN_WX、WX_KE、HIDE、TIANGAN_HE、tenGod、shenCat、
+ *   zhiMain、zhiOpp、pairIn、DIZHI_CHONG、DIZHI_XING、DIZHI_HE6、DIZHI_SANHE、DIZHI_ANHE、
+ *   YANGREN、HONGLUAN、ZAISHA、JIESHA、getChangSheng（一律函数内运行时取用，本文件顶层零依赖），
  *   任何加载环境不白屏。
  * 对外接口 window.MangPai：
  *   数据：TEN_IMAGE 十神类象；ZUOGONG 做功五法；BINZHU 宾主；KU 墓库；
@@ -149,9 +149,11 @@
     return (iw ? `天干${g}为${ganTen}，主${iw}之事` : '') + (iz ? `；地支本气${z}为${zhiTen}，主${iz}之事` : '');
   }
 
-  /* 做功方式判定：按本步与命局的关系命名做功之法（冲刑害扫障、破开、克制、合引、生续） */
+  /* 做功方式判定：按本步与命局的关系命名做功之法（冲刑害扫障、破开、克制、合引、生续、墓库收藏）。
+     墓库之辞最专：库门逢冲刑之句本是墓法待冲刑而发之注，先于冲法识别，不作扫障论 */
   function zuoGongTxt(rels) {
     const txt = (rels || []).join(' ');
+    if (/墓|库/.test(txt)) return '以墓库收藏、待冲刑而发，功藏而后应';
     if (/冲|刑|害/.test(txt)) return '以冲刑害扫障、制去阻碍';
     if (/破/.test(txt)) return '以相破冲开、破旧开新';
     if (/克/.test(txt)) return '以天干相克、制而约束';
@@ -191,13 +193,20 @@
     return !((BZ.zhis || []).some(z => (HIDE[z] || []).some(x => GAN_WX[x] === gw)));
   }
 
-  /* 借势判定：本步支藏财官（支中自有）或本步与命局之合带财官（合而可借） */
+  /* 借势判定：本步支藏财官（支中自有）或本步与命局之合带财官（合而可借）。
+     合路按实算口径：逐对判本步支与命局四支之六合、半合（同属一三合局，含拱）、暗合，
+     合支藏干带财官即可借；关系文本一路只作兜底（文本未必带十神名） */
   function borrowable(BZ, gz, rels) {
     const z = gz && gz[1];
     if (!z) return false;
-    const hid = HIDE[z] || [];
-    const has = hid.some(x => { const t = tenGod(BZ.dayGan, x); return t === '正财' || t === '偏财' || t === '正官' || t === '七杀'; });
-    if (has) return true;
+    const isCG = x => { const t = tenGod(BZ.dayGan, x); return t === '正财' || t === '偏财' || t === '正官' || t === '七杀'; };
+    if ((HIDE[z] || []).some(isCG)) return true;
+    const he6 = z2 => (typeof pairIn === 'function' && typeof DIZHI_HE6 !== 'undefined') && pairIn(z, z2, DIZHI_HE6);
+    const anhe = z2 => (typeof pairIn === 'function' && typeof DIZHI_ANHE !== 'undefined') && pairIn(z, z2, DIZHI_ANHE);
+    const sameJu = z2 => z2 !== z && (typeof DIZHI_SANHE !== 'undefined')
+      && DIZHI_SANHE.some(g => g.indexOf(z) >= 0 && g.indexOf(z2) >= 0);
+    const borrow = (BZ.zhis || []).some(z2 => (he6(z2) || anhe(z2) || sameJu(z2)) && (HIDE[z2] || []).some(isCG));
+    if (borrow) return true;
     return (rels || []).some(r => /合/.test(r) && /财|官/.test(r));
   }
 
@@ -333,6 +342,48 @@
         faAdd(`日主${dg}合${word(tenGod(dg, other))}${other}` + ((p === 1 || p === 3)
           ? '，紧邻日柱而合、合到手，财官自来'
           : '，遥合而不贴，得之见迟、合而力轻'), true, '');
+      });
+    }
+    // 合法（地支一路）：六合带财官、三合成财局或官局、暗合引财官。
+    // 库支逢六合为锁库（库门锁闭、藏而不显），其合不作得行论，开闭归墓法专论；
+    // 库支入三合而成局者化于局、所藏随局显用，故三合成局不涉锁库之例（库之开合口径同 bazi-data.js 墓库一节）
+    const dwx = GAN_WX[dg];
+    const isCaiW = w => (typeof WX_KE !== 'undefined') && WX_KE[dwx] === w;
+    const isGuanW = w => (typeof WX_KE !== 'undefined') && WX_KE[w] === dwx;
+    const cgStems = z2 => (HIDE[z2] || []).filter(isCG);
+    const zs = BZ.zhis || [];
+    const seenHe = new Set();
+    for (let i = 0; i < zs.length; i++) for (let j = i + 1; j < zs.length; j++) {
+      const a = zs[i], b = zs[j];
+      if (!a || !b || a === b) continue;
+      const key = [a, b].sort().join('');
+      if (seenHe.has(key)) continue;
+      const he6 = (typeof pairIn === 'function' && typeof DIZHI_HE6 !== 'undefined') && pairIn(a, b, DIZHI_HE6);
+      const anhe = (typeof pairIn === 'function' && typeof DIZHI_ANHE !== 'undefined') && pairIn(a, b, DIZHI_ANHE);
+      if (!he6 && !anhe) continue;
+      const ent = he6 ? DIZHI_HE6.find(g => (g[0] === a && g[1] === b) || (g[0] === b && g[1] === a))
+        : DIZHI_ANHE.find(g => (g[0] === a && g[1] === b) || (g[0] === b && g[1] === a));
+      const pr = ent[0] + ent[1];
+      const carriers = pr.split('').filter(x => cgStems(x).length);
+      if (!carriers.length) continue;
+      seenHe.add(key);
+      const stems = Array.from(new Set([].concat(...carriers.map(cgStems)))).join('、');
+      if (anhe && !he6) {
+        faAdd(`支${pr}暗合，暗引财官之支${carriers.join('、')}（藏${stems}），因合而取、功细而缠绵`, true, '');
+      } else if (carriers.some(x => !KU[x])) {
+        faAdd(`支${pr}六合，合动财官之支${carriers.join('、')}（藏${stems}），因合而取、功细而缠绵`, true, '');
+      } else {
+        const c = carriers[0], k = kuOf(BZ, c);
+        if (k && k.open) faAdd(`支${pr}六合，财官之支${c}已逢冲刑开库，合解、功在开库一路`, false, `支${c}已开库、合不重计`);
+        else faAdd(`支${pr}六合，财官之支${c}为库，逢合锁库、藏而不显，须待冲开`, false, `支${c}逢合锁库`);
+      }
+    }
+    // 三合成财官局：三支全见方成局，局化神为财或官者即聚财官之气
+    if (typeof DIZHI_SANHE !== 'undefined') {
+      DIZHI_SANHE.forEach(g => {
+        if (g.slice(0, 3).every(x => zs.indexOf(x) >= 0) && (isCaiW(g[3]) || isGuanW(g[3]))) {
+          faAdd(`支${g[0]}${g[1]}${g[2]}三合${g[3]}局，${isCaiW(g[3]) ? '财' : '官'}局成而气聚，合而取用、其力自厚`, true, '');
+        }
       });
     }
     // 冲法：须是藏有财官之支逢冲，方谓冲开财官；库支逢冲归墓法论开库，此处不重计一功。
