@@ -471,20 +471,7 @@ if (BAZI_PAGE_UI) (function initBirth(){
    时区取时区下拉当前值（未动过即城市自带值），二者都让用户可按实际出生地改。
    境内或境外未择定城市时返回 null。 */
 function overseasPlaceInfo(){
-  const pv=(document.getElementById('bProv')||{}).value||'';
-  const ct=(document.getElementById('bCity')||{}).value||'';
-  const ov=(typeof overseasCity==='function')?overseasCity(pv, ct):null;
-  if(!ov) return null;
-  const tzEl=document.getElementById('bTzOff');
-  let tz=ov.tz;
-  if(tzEl){
-    /* 换城市即回填该城自带偏移；同一城市重复进入不回填，保留用户手改值 */
-    if(window.__ovLastCity!==ov.c){ window.__ovLastCity=ov.c; tzEl.value=String(ov.tz); }
-    if(tzEl.value!=='') tz=parseFloat(tzEl.value);
-  }
-  const ml=(document.getElementById('bLng')||{}).value;
-  const lng=(ml!=='' && ml!=null && !isNaN(parseFloat(ml)))?parseFloat(ml):ov.lng;
-  return { city:ov.c, lng:lng, tz:tz };
+  return overseasInfo({ prov:'bProv', city:'bCity', lng:'bLng', tz:'bTzOff', dst:'bLocalDst' });
 }
 /* 时间折算参数：境外出生返回基准子午线（15° 乘时区偏移）与当地夏令时勾选；
    境内返回缺省（基准东经 120 度、不折当地夏令时）。 */
@@ -511,11 +498,8 @@ function syncOverseasUi(){
   if(box) box.hidden=!on;
   if(!on) return;
   if(box){
-    const tzTxt=(info.tz>=0?'UTC+':'UTC-')+Math.abs(info.tz);
-    const base=info.tz*15;
-    const baseTxt=(base>=0?'东经 ':'西经 ')+Math.abs(base)+' 度';
-    const lngTxt=(info.lng>=0?'东经 ':'西经 ')+Math.abs(info.lng)+' 度';
-    box.textContent='境外出生：钟面时间按'+info.city+'当地时间录入，时区 '+tzTxt+'，真太阳时基准经线取'+baseTxt+'（出生地经度 '+lngTxt+'，可在经度框改填）；当地当日若行夏令时，请勾选当地夏令时。中国夏令时只 1986 至 1991 年，境外不自动折算。';
+    /* 文案出自 latlng.js overseasNoteText 全站一份：时区、基准经线、经度改填与邻近城市兜底各页同词 */
+    box.textContent=overseasNoteText(info);
   }
 }
 /* 当地夏令时与时区两项不入输入签名，勾选或改值后显式失效去重守卫并重排 */

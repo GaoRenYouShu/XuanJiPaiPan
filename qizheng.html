@@ -42,7 +42,7 @@
         <div class="field f-date"><label for="qzDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qzDate"></div>
         <div class="field f-time"><label for="qzTime">出生时间</label><input type="time" id="qzTime" value="12:00"></div>
         <div class="field f-sex"><label for="qzSex">性别</label><select id="qzSex"><option>男</option><option>女</option></select></div>
-        <div class="field f-tz"><label for="qzTz">时区</label><input type="number" id="qzTz" value="8" step="0.5"></div>
+        <div class="field f-tz"><label for="qzTz">时区</label><input type="number" id="qzTz" value="8" step="0.5" oninput="qzTzTouch()"></div>
         <div class="field f-mode"><label for="qzQiHeng">过宫制</label><select id="qzQiHeng"><option value="ding">定气过宫</option><option value="heng">恒气过宫</option></select></div>
         <div class="field f-mode"><label for="qzMingFa">命度法</label><select id="qzMingFa"><option value="guolao">果老度级</option><option value="asc">天文上升</option></select></div>
         <div class="field f-mode"><label for="qzNode">罗计口径</label><select id="qzNode"><option value="mean">平交点 古法</option><option value="true">真交点 天文</option></select></div>
@@ -101,6 +101,8 @@ function qzBindPlace(pre){
   if(!sp||!sc||!sd) return null;
   return fillPlaceTrio(sp, sc, sd, null);
 }
+/* 时区框手改即置位 __qzTzTouched：此后境外城市不再自动回填时区，以用户值为准 */
+function qzTzTouch(){ window.__qzTzTouched=true; }
 /* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
    缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
 const QZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。七政四余的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
@@ -304,22 +306,27 @@ function qzPai(){
   const [y,m,d] = dv.split('-').map(Number);
   const [hh,mm] = tv.split(':').map(Number);
   const sex = document.getElementById('qzSex').value;
+  /* 时区取值口径：__qzTzTouched 置位以用户手改值为准，未手改且择定境外城市取城市标准时区 */
   const tz = parseFloat(document.getElementById('qzTz').value) || 8;
   const lonV = document.getElementById('qzLon').value, latV = document.getElementById('qzLat').value;
   const prov = document.getElementById('qzProv').value;
   const lonP = qzCoordParse(lonV, false), latP = qzCoordParse(latV, true);
   let lon = lonP.ok ? lonP.v : null, lat = latP.ok ? latP.v : null;
-  if((lon === null || lat === null) && prov && PROV[prov]){
+  /* 境外国家（OVERSEAS 库）与境内同走 coordOf：境外取库载经纬度并随城市带出标准时区 */
+  if((lon === null || lat === null) && prov && (PROV[prov] || isOverseasProv(prov))){
     const cc = coordOf(prov, document.getElementById('qzCity').value, document.getElementById('qzDist').value);
     if(lon === null) lon = cc.lng;
     if(lat === null) lat = cc.lat;
+    const ovt = tzOffsetOf(prov, document.getElementById('qzCity').value);
+    if(ovt != null && !window.__qzTzTouched) document.getElementById('qzTz').value = String(ovt);
   }
   if(lon === null || lat === null){
     document.getElementById('out').innerHTML = '<p class="notice">' + QZ_NO_PLACE_MSG + '</p>';
     return;
   }
+  const tzUse = parseFloat(document.getElementById('qzTz').value) || 8;
   let placeLabel = '';
-  if(prov && PROV[prov] && (lonV === '' || latV === '')){
+  if(prov && (PROV[prov] || isOverseasProv(prov)) && (lonV === '' || latV === '')){
     const city = document.getElementById('qzCity').value, dist = document.getElementById('qzDist').value;
     placeLabel = dist ? `${prov} ${city} ${dist}` : `${prov} ${city}`;
   }
@@ -329,7 +336,7 @@ function qzPai(){
   const nodeMode = document.getElementById('qzNode').value;
   let c;
   try{
-    c = qz_compute({y, m, d, hh, mm, sex, tz, lon, lat, qiHeng, mingFa, nodeMode, trueSolar});
+    c = qz_compute({y, m, d, hh, mm, sex, tz: tzUse, lon, lat, qiHeng, mingFa, nodeMode, trueSolar});
   }catch(e){
     document.getElementById('out').innerHTML = '<p class="notice">排盘失败：' + qzEsc(e.message) + '</p>';
     return;
@@ -345,7 +352,7 @@ function qzPai(){
     const bLatP = qzCoordParse(document.getElementById('qzBLat').value, true);
     let blon = bLonP.ok ? bLonP.v : null, blat = bLatP.ok ? bLatP.v : null;
     const bprov = document.getElementById('qzBProv').value;
-    if((blon === null || blat === null) && bprov && PROV[bprov]){
+    if((blon === null || blat === null) && bprov && (PROV[bprov] || isOverseasProv(bprov))){
       const bc = coordOf(bprov, document.getElementById('qzBCity').value, document.getElementById('qzBDist').value);
       if(blon === null) blon = bc.lng;
       if(blat === null) blat = bc.lat;
@@ -354,8 +361,9 @@ function qzPai(){
       document.getElementById('out').innerHTML = '<p class="notice">第二人' + QZ_NO_PLACE_MSG + '</p>';
       return;
     }
+    const bTzOv = tzOffsetOf(bprov, document.getElementById('qzBCity').value);
     chartB = qz_compute({y: bp[0], m: bp[1], d: bp[2], hh: bt[0], mm: bt[1],
-      sex: document.getElementById('qzBSex').value, tz: 8, lon: blon, lat: blat,
+      sex: document.getElementById('qzBSex').value, tz: bTzOv != null ? bTzOv : 8, lon: blon, lat: blat,
       qiHeng, mingFa, trueSolar});
   }
   document.getElementById('out').innerHTML = qzRenderAll(c, placeLabel, lon, lat, chartB);

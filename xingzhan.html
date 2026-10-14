@@ -42,7 +42,7 @@
         <div class="field f-date"><label for="xzDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzDate"></div>
         <div class="field f-time"><label for="xzTime">出生时间</label><input type="time" id="xzTime" value="12:00"></div>
         <div class="field f-sex"><label for="xzSex">性别</label><select id="xzSex"><option>男</option><option>女</option></select></div>
-        <div class="field f-tz"><label for="xzTz">时区</label><input type="number" id="xzTz" value="8" step="0.5"></div>
+        <div class="field f-tz"><label for="xzTz">时区</label><input type="number" id="xzTz" value="8" step="0.5" oninput="xzTzTouch()"></div>
         <div class="field f-house"><label for="xzHouse">宫位制</label><select id="xzHouse"><option value="whole">整宫制</option><option value="placidus">Placidus 分宫制</option></select></div>
         <div class="xz-btns">
           <button class="btn" onclick="xzPai()">排盘</button>
@@ -62,7 +62,7 @@
           <div class="field f-date"><label for="xzBDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzBDate"></div>
           <div class="field f-time"><label for="xzBTime">出生时间</label><input type="time" id="xzBTime" value="12:00"></div>
           <div class="field f-sex"><label for="xzBSex">性别</label><select id="xzBSex"><option>男</option><option>女</option></select></div>
-          <div class="field f-tz"><label for="xzBTz">时区</label><input type="number" id="xzBTz" value="8" step="0.5"></div>
+          <div class="field f-tz"><label for="xzBTz">时区</label><input type="number" id="xzBTz" value="8" step="0.5" oninput="xzTzTouch()"></div>
         </div>
         <div class="birth-group compact">
           <div class="group-label">出生地（用于经纬度与上升星座，手填经纬度优先）</div>
@@ -97,6 +97,8 @@ function xzBindPlace(pre){
   if(!sp||!sc||!sd) return null;
   return fillPlaceTrio(sp, sc, sd, null);
 }
+/* 时区框手改即置位 __xzTzTouched：此后境外城市不再自动回填时区，以用户值为准 */
+function xzTzTouch(){ window.__xzTzTouched=true; }
 /* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
    缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
 const XZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。星盘的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
@@ -455,7 +457,10 @@ function xzPai(){
   const [hh,mm] = tv.split(':').map(Number);
   const sex = document.getElementById('xzSex').value;
   const system = document.getElementById('xzHouse').value === 'placidus' ? 'placidus' : 'whole';
-  const tz = parseFloat(document.getElementById('xzTz').value) || 8;
+  /* 时区取值口径：__xzTzTouched 置位以用户手改值为准，未手改且择定境外城市取城市标准时区 */
+  const tzEl0 = document.getElementById('xzTz');
+  const xzTzTouched = !!window.__xzTzTouched;
+  const tz = parseFloat(tzEl0.value) || 8;
   /* 经纬度：手动输入优先（境外出生），留空按出生地省市区联动取数（区县级经度、缺则省级中心）。
      宽容解析（十进制/度分/度分秒/W E S N/中文半球前缀），无效值忽略回退出生地并警示 */
   const lonV = document.getElementById('xzLon').value, latV = document.getElementById('xzLat').value;
@@ -464,25 +469,30 @@ function xzPai(){
   const bads = [lonP.ok === false ? lonV : null, latP.ok === false ? latV : null];
   let lon = lonP.ok ? lonP.v : null;
   let lat = latP.ok ? latP.v : null;
-  if((lon === null || lat === null) && prov && PROV[prov]){
+  /* 境外国家（OVERSEAS 库）不走 PROV 表：coordOf 对境外取库载经纬度，境内取三级表 */
+  if((lon === null || lat === null) && prov && (PROV[prov] || isOverseasProv(prov))){
     const c = coordOf(prov, document.getElementById('xzCity').value, document.getElementById('xzDist').value);
     if(lon === null) lon = c.lng;
     if(lat === null) lat = c.lat;
+    /* 择定境外城市而时区框未手改时，时区随城市带出，本盘即用带出值 */
+    const ovt = tzOffsetOf(prov, document.getElementById('xzCity').value);
+    if(ovt != null && !xzTzTouched) document.getElementById('xzTz').value = String(ovt);
   }
+  const tzUse = parseFloat(document.getElementById('xzTz').value) || 8;
   if(lon === null || lat === null){
     document.getElementById('out').innerHTML = '<p class="notice">' + XZ_NO_PLACE_MSG + '</p>';
     return;
   }
   /* 出生地描述（手动填全时为空，仅境外手填场景）：随排盘显示坐标来源 */
   let placeLabel = '';
-  if(prov && PROV[prov] && (lonV === '' || latV === '')){
+  if(prov && (PROV[prov] || isOverseasProv(prov)) && (lonV === '' || latV === '')){
     const city = document.getElementById('xzCity').value, dist = document.getElementById('xzDist').value;
     placeLabel = dist ? `${prov} ${city} ${dist}` : `${prov} ${city}`;
   }
-  const coordWarn = xzCoordWarn(lonV, latV, lon, lat, tz, placeLabel, bads);
+  const coordWarn = xzCoordWarn(lonV, latV, lon, lat, tzUse, placeLabel, bads);
   let chart;
   try{
-    chart = xz_compute(y, m, d, hh, mm, sex, tz, lon, lat, system);
+    chart = xz_compute(y, m, d, hh, mm, sex, tzUse, lon, lat, system);
   }catch(e){
     document.getElementById('out').innerHTML = '<p class="notice">排盘失败：' + e.message + '</p>';
     return;
@@ -503,16 +513,18 @@ function xzPai(){
     const bBads = [blonP.ok === false ? blonV : null, blatP.ok === false ? blatV : null];
     let blon = blonP.ok ? blonP.v : null;
     let blat = blatP.ok ? blatP.v : null;
-    if((blon === null || blat === null) && bprov && PROV[bprov]){
+    if((blon === null || blat === null) && bprov && (PROV[bprov] || isOverseasProv(bprov))){
       const c = coordOf(bprov, document.getElementById('xzBCity').value, document.getElementById('xzBDist').value);
       if(blon === null) blon = c.lng;
       if(blat === null) blat = c.lat;
+      const bovt = tzOffsetOf(bprov, document.getElementById('xzBCity').value);
+      if(bovt != null) document.getElementById('xzBTz').value = String(bovt);
     }
     if(blon === null || blat === null){
       document.getElementById('out').innerHTML = '<p class="notice">第二人' + XZ_NO_PLACE_MSG + '</p>';
       return;
     }
-    if(bprov && PROV[bprov] && (blonV === '' || blatV === '')){
+    if(bprov && (PROV[bprov] || isOverseasProv(bprov)) && (blonV === '' || blatV === '')){
       const bc = document.getElementById('xzBCity').value, bd2 = document.getElementById('xzBDist').value;
       placeB = bd2 ? `${bprov} ${bc} ${bd2}` : `${bprov} ${bc}`;
     }

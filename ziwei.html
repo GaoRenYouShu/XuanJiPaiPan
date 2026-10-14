@@ -85,6 +85,24 @@
       <div class="field"><label for="zCity">城市</label><select id="zCity" aria-label="选择城市"></select></div>
       <div class="field"><label for="zDist">区县</label><select id="zDist" aria-label="选择区县"></select></div>
       <div class="field hh-lng"><label for="zLng">经度（可选）</label><input type="number" id="zLng" step="0.01" placeholder="出生地"></div>
+      <div class="field" id="zTzField" hidden><label for="zTz">时区偏移</label>
+        <select id="zTz" aria-label="选择境外出生地标准时区偏移" onchange="zwOvChange()">
+          <option value="-12">UTC-12</option><option value="-11">UTC-11</option><option value="-10">UTC-10</option>
+          <option value="-9.5">UTC-9.5</option><option value="-9">UTC-9</option><option value="-8">UTC-8</option>
+          <option value="-7">UTC-7</option><option value="-6">UTC-6</option><option value="-5">UTC-5</option>
+          <option value="-4">UTC-4</option><option value="-3.5">UTC-3.5</option><option value="-3">UTC-3</option>
+          <option value="-2">UTC-2</option><option value="-1">UTC-1</option><option value="0">UTC+0</option>
+          <option value="1">UTC+1</option><option value="2">UTC+2</option><option value="3">UTC+3</option>
+          <option value="3.5">UTC+3.5</option><option value="4">UTC+4</option><option value="4.5">UTC+4.5</option>
+          <option value="5">UTC+5</option><option value="5.5">UTC+5.5</option><option value="5.75">UTC+5.75</option>
+          <option value="6">UTC+6</option><option value="6.5">UTC+6.5</option><option value="7">UTC+7</option>
+          <option value="8">UTC+8</option><option value="9">UTC+9</option><option value="9.5">UTC+9.5</option>
+          <option value="10">UTC+10</option><option value="11">UTC+11</option><option value="12">UTC+12</option>
+          <option value="13">UTC+13</option>
+        </select>
+      </div>
+      <div class="field chk" id="zOvDstField" hidden><input type="checkbox" id="zOvDst" onchange="zwOvChange()"><label for="zOvDst">当地夏令时（钟面减1小时）</label></div>
+      <div class="sub-note" id="zOverseasNote" hidden></div>
     </div>
     <!-- 时间折算与流派：四项皆不随省市区取值，故与出生地分列。太阳时口径统管原出生地组内的真太阳时勾选，
          夏令时、子时算法两项与八字页同口径，直接调 xuanji-lib.js 与 bazi-data.js 的共享函数，不另立一套。
@@ -1529,12 +1547,32 @@ function zwHePan(astroM, astroF, school, sexM, sexF){
    夏令时折算、真（平）太阳时、子时归属三件一律调共享库：applyDstCorrection、trueSolarTime 在
    xuanji-lib.js，adjustZiShi 在 bazi-data.js，与八字页同一真源，页内不另立算法。
    返回定盘用的年月日与 iztro 时辰 index（0 早子、1 丑、11 亥、12 晚子）及折算说明。 */
-function zwClockToPalace(y,m,d,h,mi,lng,dstMode,sunMode,ziMode){
+/* 境外出生地取数：主盘选到境外城市时返回共享件 overseasInfo 的结果，
+   时区、当地夏令时与经度皆按用户手改优先，未改即取城市自带值。 */
+function zwOvInfo(){
+  return overseasInfo({prov:'zProv', city:'zCity', lng:'zLng', tz:'zTz', dst:'zOvDst'});
+}
+/* 境外出生地界面同步：主盘选到境外城市时挂出时区偏移与当地夏令时两项并写说明行，
+   收起中国夏令时下拉（只 1986 至 1991 年内地时段，境外不适用）；境内全部还原。 */
+function zwSyncOverseas(){
+  const info=zwOvInfo();
+  const on=!!info;
+  const show=(id,v)=>{ const el=document.getElementById(id); if(el) el.hidden=!v; };
+  show('zTzField', on);
+  show('zOvDstField', on);
+  show('zDstField', !on);
+  const box=document.getElementById('zOverseasNote');
+  if(box){ box.hidden=!on; if(on) box.textContent=overseasNoteText(info); }
+}
+function zwOvChange(){ try{ paipan(); }catch(e){} }
+function zwClockToPalace(y,m,d,h,mi,lng,dstMode,sunMode,ziMode,baseLng){
   let cur={y,m,d,h,mi}, notes=[];
-  const dst=applyDstCorrection(cur.y,cur.m,cur.d,cur.h,cur.mi,dstMode);
+  /* 境外出生（baseLng 已传）：中国夏令时不适用，钟面即当地标准时（当地夏令时由调用方预先折好）；
+     境内 baseLng 不传，照旧按中国夏令时档折算。 */
+  const dst=baseLng==null?applyDstCorrection(cur.y,cur.m,cur.d,cur.h,cur.mi,dstMode):{y:cur.y,m:cur.m,d:cur.d,h:cur.h,mi:cur.mi,applied:false,note:''};
   if(dst.applied){ cur=dst; notes.push(dst.note); }
   if(sunMode!=='off'){
-    const ts=trueSolarTime(cur.y,cur.m,cur.d,cur.h,cur.mi,lng,sunMode==='mean'?'mean':'true');
+    const ts=trueSolarTime(cur.y,cur.m,cur.d,cur.h,cur.mi,lng,sunMode==='mean'?'mean':'true',baseLng);
     if(Math.round((Date.UTC(ts.y,ts.m-1,ts.d)-Date.UTC(cur.y,cur.m-1,cur.d))/86400000)!==0)
       notes.push('太阳时校正后跨日，日柱归'+(ts.y>cur.y||ts.m>cur.m||ts.d>cur.d?'次':'前')+'日');
     cur={y:ts.y,m:ts.m,d:ts.d,h:ts.h,mi:ts.mi};
@@ -1877,7 +1915,11 @@ function paipan(){
     document.getElementById('out').innerHTML='<p class="notice">'+ZW_NO_PLACE_MSG+'</p>'; return;
   }
   iztro.astro.config({yearDivide:yearDiv});
-  const clk=zwClockToPalace(y0,m0,d0,hh0,mi0,zwLngOf('z'),dstMode,sunMode,ziMode);
+  /* 境外出生：钟面先按当地夏令时勾选折回标准时，再以城市时区定基准子午线走太阳时校正；
+     境内两项不传，走原有链。 */
+  const ovMain=zwOvInfo();
+  const hhMain=ovMain&&ovMain.localDst?hh0-1:hh0;
+  const clk=zwClockToPalace(y0,m0,d0,hhMain,mi0,zwLngOf('z'),dstMode,sunMode,ziMode,ovMain?ovMain.baseLng:null);
   window.__zwClockNote=clk.note;
   let astro;
   try{
@@ -1898,6 +1940,7 @@ function paipan(){
     const [fy0,fm0,fd0]=fdv.split('-').map(Number);
     const ftp=String(ftvRaw).split(':');
     const fhh0=parseInt(ftp[0],10)||0, fmi0=parseInt(ftp[1]||'0',10)||0;
+    /* 第二人出生地暂不开境外档：仅主盘挂时区与当地夏令时两项，第二人组与八字页第二盘同口径 */
     const fclk=zwClockToPalace(fy0,fm0,fd0,fhh0,fmi0,zwLngOf('zF'),dstMode,sunMode,ziMode);
     try{
       astroF=iztro.astro.bySolar(`${fclk.y}-${fclk.m}-${fclk.d}`, fclk.ti, sexF, true, 'zh-CN');
@@ -2335,7 +2378,7 @@ window.addEventListener('load', function () {
     (function initZwBirth(){
       const sp=document.getElementById('zProv'); if(!sp||typeof provList!=='function') return;
       const sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
-      window.__zwPlaceTrio=fillPlaceTrio(sp, sc, sd, null);
+      window.__zwPlaceTrio=fillPlaceTrio(sp, sc, sd, zwSyncOverseas);
     })();
     (function initZwFBirth(){
       const sp=document.getElementById('zFProv'); if(!sp||typeof provList!=='function') return;
