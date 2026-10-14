@@ -9,6 +9,7 @@
 [![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel)](https://xuanjipaipan.vercel.app/)
 [![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare)](https://xuanjipaipan.pages.dev/)
 [![Netlify](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.netlify.app%2F&label=Netlify&logo=netlify)](https://xuanjipaipan.netlify.app/)
+[![gaoren.org](https://img.shields.io/badge/gaoren.org-online-4c9e4c)](https://gaoren.org/)
 
 [![License](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=License)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
@@ -24,14 +25,15 @@
 
 A research and demonstration site for traditional Chinese metaphysics, calendrics and divination culture. A pure front-end static application with no backend: open it and it works. The site interface is in Chinese; browser translation works well for a quick look.
 
-**Live demo** (four mirrors serving the same content, pick any):
+**Live demo** (five mirrors serving the same content, pick any):
 
+- gaoren.org (custom domain): https://gaoren.org/
 - GitHub Pages: https://gaorenyoushu.github.io/XuanJiPaiPan/
 - Vercel: https://xuanjipaipan.vercel.app/
 - Cloudflare Pages: https://xuanjipaipan.pages.dev/
 - Netlify: https://xuanjipaipan.netlify.app/
 
-All four mirrors serve identical content; speed depends on your location and route. GitHub Pages can be slow on the first load from mainland China (styles and fonts load on demand and settle within seconds); pick whichever is fastest for you.
+All five mirrors serve identical content; speed depends on your location and route. GitHub Pages can be slow on the first load from mainland China (styles and fonts load on demand and settle within seconds); pick whichever is fastest for you.
 
 ## Feature Overview
 

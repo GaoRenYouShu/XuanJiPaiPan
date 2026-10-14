@@ -9,6 +9,7 @@
 [![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel)](https://xuanjipaipan.vercel.app/)
 [![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare)](https://xuanjipaipan.pages.dev/)
 [![Netlify](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.netlify.app%2F&label=Netlify&logo=netlify)](https://xuanjipaipan.netlify.app/)
+[![gaoren.org](https://img.shields.io/badge/gaoren.org-在线-4c9e4c)](https://gaoren.org/)
 
 [![许可](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=许可)](LICENSE)
 [![最近提交](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
@@ -24,14 +25,15 @@
 
 传统命理、历法与占卜文化研究演示站。纯前端静态应用，无需后端，打开即用。
 
-**在线体验**（四路镜像同源同步，任选其一）：
+**在线体验**（五路同源同步，任选其一）：
 
+- gaoren.org（独立域名）：https://gaoren.org/
 - GitHub Pages：https://gaorenyoushu.github.io/XuanJiPaiPan/
 - Vercel：https://xuanjipaipan.vercel.app/
 - Cloudflare Pages：https://xuanjipaipan.pages.dev/
 - Netlify：https://xuanjipaipan.netlify.app/
 
-四条线路同源同步，速度因访问地与线路而异：GitHub Pages 在国内首次加载较慢（样式与字体按需加载，数秒后正常），可自测选最快的镜像使用。
+五条线路同源同步，速度因访问地与线路而异：GitHub Pages 在国内首次加载较慢（样式与字体按需加载，数秒后正常），可自测选最快的镜像使用。
 
 ## 功能总览
 

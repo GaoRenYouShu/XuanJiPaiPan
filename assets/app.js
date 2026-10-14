@@ -77,7 +77,6 @@ const NAV_GROUPS = [
   {type:'group', name:'附录', items:[
     {href:'dianji.html', name:'典籍参考'},
     {href:'shuoming.html', name:'说明文档'},
-    {href:'feedback.html', name:'反馈建议'},
     {href:'opensource.html', name:'算法数据'},
   ]},
 ];
