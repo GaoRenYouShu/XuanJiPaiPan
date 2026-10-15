@@ -155,7 +155,6 @@
   const _tierCache = (typeof WeakMap !== 'undefined') ? new WeakMap() : null;
   function _elementTier(BZ) {
     if (_tierCache && _tierCache.has(BZ)) return _tierCache.get(BZ);
-    const zero = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
     const sc = (G.wxElementScore ? G.wxElementScore(BZ) : null);
     const st = (G.wxStrength ? G.wxStrength(BZ) : null);
     const out = (sc && st) ? {} : null;
@@ -334,6 +333,8 @@
   const YIMA = { '申': '寅', '子': '寅', '辰': '寅', '寅': '申', '午': '申', '戌': '申', '亥': '巳', '卯': '巳', '未': '巳', '巳': '亥', '酉': '亥', '丑': '亥' };
   const TAO = { '申': '酉', '子': '酉', '辰': '酉', '寅': '卯', '午': '卯', '戌': '卯', '亥': '子', '卯': '子', '未': '子', '巳': '午', '酉': '午', '丑': '午' };
   const GUI = { '甲': '丑未', '戊': '丑未', '庚': '丑未', '乙': '子申', '己': '子申', '丙': '亥酉', '丁': '亥酉', '壬': '卯巳', '癸': '卯巳', '辛': '午寅' };
+  // 天乙贵人庚日取支有丑未与寅午两说，另派并列同出，与 bazi-data.js 的另派条目同口径
+  const GUI_ALT = { '甲': '丑未', '戊': '丑未', '庚': '寅午', '乙': '子申', '己': '子申', '丙': '亥酉', '丁': '亥酉', '壬': '卯巳', '癸': '卯巳', '辛': '午寅' };
   const WEN = { '甲': '巳', '乙': '午', '丙': '申', '戊': '申', '丁': '酉', '己': '酉', '庚': '亥', '辛': '子', '壬': '寅', '癸': '卯' };
   function stepShaLocal(gz, BZ) {
     const z = gz[1];
@@ -344,6 +345,7 @@
     if (YIMA[dz] === z || YIMA[yz] === z) out.push('驿马');
     if (TAO[dz] === z || TAO[yz] === z) out.push('桃花');
     if (GUI[dg2] && GUI[dg2].indexOf(z) >= 0) out.push('天乙贵人');
+    if (GUI_ALT[dg2] && GUI_ALT[dg2].indexOf(z) >= 0 && !(GUI[dg2]||'').indexOf(z) >= 0) out.push('天乙贵人（另派）');
     if (WEN[dg2] === z) out.push('文昌');
     if (YANGREN[dg2] === z) out.push('羊刃');   // 运行羊刃：步支即日主刃支
     return out;

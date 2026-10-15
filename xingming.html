@@ -1058,47 +1058,6 @@ function etymBlock(chars, mingMs, xingLen, beiziCh){
     var g=(gloss||'')+(tail?((gloss?'<br>':'')+tail):'');
     return '<tr><th>'+(term||'')+'</th><td>'+(g||'-')+'</td><td>'+(meaning||'-')+'</td></tr>';
   }
-  function findIdiom(word, xz, syl){
-    if(word.length<2) return null;
-    function near(c){
-      var s=syl(c);
-      return s.replace(/^zh/,'z').replace(/^ch/,'c').replace(/^sh/,'s').replace(/ng$/,'n');
-    }
-    var xs=near(xz), res=[];
-    Object.keys(ID).forEach(function(k){
-      var idx=k.indexOf(word);
-      var mode=0; /* 1=散嵌 2=连续嵌 */
-      var pa=-1, pb=-1;
-      if(idx>=0){ mode=2; }
-      else if(word.length===2){
-        pa=k.indexOf(word[0]);
-        if(pa>=0){ pb=k.indexOf(word[1],pa+1); if(pb>=0) mode=1; }
-      }
-      if(!mode) return;
-      var xi=-1, xh=''; /* 姓在成语中的位置与所谐之字 */
-      for(var i=0;i<4;i++){
-        if(mode===2 && i>=idx && i<idx+word.length) continue;
-        if(mode===1 && (i===pa||i===pb)) continue;
-        if(k[i]===xz){ xi=i; xh=''; break; }
-        if(!xh && near(k[i])===xs){ xi=i; xh=k[i]; }
-      }
-      if(xi<0) return;
-      var adj=false;
-      if(mode===2){ adj=(xi===idx-1)||(xi===idx+word.length)||(xh&&xi<idx); }
-      else if(mode===1){ adj=(xi>pa&&xi<pb)||(xi===pa-1)||(xi===pb+1); }
-      /* 谐音通转只在结构成立时采信：连续嵌须姓在前（虚怀若谷），散嵌须姓居名之两字间侧 */
-      if(xh && !adj) return;
-      res.push({idiom:k, def:ID[k], xh:xh, mode:mode, rank:(xh?0:3)+mode+(adj?1:0)});
-    });
-    if(!res.length) return null;
-    res.sort(function(p,q){ return q.rank-p.rank; });
-    /* 散嵌命中若另有更通行的连续嵌变体（如 星驰电走 与 电掣星驰），取释义中含'比喻'者 */
-    var r=res[0];
-    for(var ri=1;ri<res.length;ri++){
-      if(res[ri].rank===r.rank && res[ri].def.indexOf('比喻')>=0 && r.def.indexOf('比喻')<0){ r=res[ri]; break; }
-    }
-    return r;
-  }
   /* 第二层：合观表。行一名（两字名取名的两字、单字名取单名），行二全名，仅此两行。
    * 组词释义列只陈述该词的既有所指（词书、典籍所载）；取名寓意列析组合之寓意：
    * 行一取两字寓语各前半合成新意，行二取姓义与名义的呼应，均不复述单字表整句；
@@ -1106,7 +1065,6 @@ function etymBlock(chars, mingMs, xingLen, beiziCh){
   var wordSec='';
   if(mchars.length>=1){
     var a=mchars[0], b=mchars[1]||'';
-    var isZb=!!(beiziCh&&word.indexOf(beiziCh)>=0); /* 填了字辈字且名中用之 */
     var rows=[];
     var NO='-';
     /* 从字义短语提取“寓A、B”的两个四字寓语；无则回空串 */
@@ -1145,7 +1103,6 @@ function etymBlock(chars, mingMs, xingLen, beiziCh){
       var imgCats={'天象':1,'水泽':1,'山岳':1,'草木':1,'色彩':1,'珍宝':1,'动物':1,'时令':1};
       var VERB_XING={'顾':1,'望':1,'听':1,'观':1,'吟':1,'飞':1,'行':1,'随':1,'遇':1,'涉':1,'临':1,'抱':1,'怀':1,'寻':1,'得':1,'知':1,'见':1,'映':1,'入':1,'满':1,'过':1,'照':1,'秉':1,'执':1};
       var XING_MEAN={'范':'楷模、标准','张':'张开、扩展','陶':'陶人埏埴为器','甄':'审视、鉴别','尚':'崇扬、取法','慕':'心向往之','向':'朝向、奔赴','任':'担荷、任用','施':'给予、推行','许':'应诺、赞许','高':'加高、崇拔','游':'优游、行走','石':'贞固如石','林':'林木成象','江':'大川奔流','河':'水系贯通','马':'奔蹄不止','龙':'腾骧之象','雷':'声震千里','秋':'收成之时','春':'发生之候','冬':'闭藏之节','冰':'凝净不挠','冷':'清峻自持','温':'和厚之气','和':'相应相谐','甘':'滋味之美','辛':'劳而后甘','咸':'众味之合','康':'安泰之意','宁':'静定之境','定':'锚定不摇','安':'静处无危','荣':'草木华发','华':'光采焕发','英':'草木之美','蕙':'香草之质','兰':'香草同心','郭':'外城开阔','关':'门隘守正','边':'近远之境','路':'所行之途','涂':'通达之径','殷':'盛厚之色','白':'素净本色','朱':'赤色鲜明','黄':'中央正色','青':'东方生色'};
-      var rId=full.length>=3?findIdiom(word, xz, syl):null;
       var fh=corpusHits(full,1);
       var g2a=null; /* 典籍连文：某字（与姓同音）+名 */
       if(x0.length===1&&word.length>=2){

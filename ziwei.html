@@ -250,15 +250,12 @@ function ziweiRead(astro, school, trans, sex){
   const soulStars=(soulP&&soulP.majorStars||[]);
   let briTxt='';
   if(soulStars.length){
-    const starTxt=soulStars.map(s=>{ const m=ZW_STAR_MEAN[s.name]; const nat=m?m[0].split('，')[0]:s.name; const b=(s.brightness==='庙'||s.brightness==='旺'||s.brightness==='得')?'得地':((s.brightness==='陷'||s.brightness==='不')?'落陷':'平常'); return `${s.name}${s.brightness?'（'+s.brightness+'）':''}${nat}${b}`; }).join('、');
     if(soulStars.every(s=>s.brightness==='庙'||s.brightness==='旺'||s.brightness==='得')) briTxt='命宫主星尽数得地，先天之势足';
     else if(soulStars.every(s=>s.brightness==='陷'||s.brightness==='不')) briTxt='命宫主星尽皆落陷，先天之势弱';
     else briTxt='命宫主星有得有失，先天之势中和';
   } else { briTxt='命宫无主星，先天之势依借星参断'; }
   // 身宫落位人事
   const bodyMean=bodyP?meanOf(bodyP.name):'';
-  // 四化落宫人事
-  const luMean=luPal?meanOf(luPal):'', jiMean=jiPal?meanOf(jiPal):'';
   // 三方四正（命财官迁）星曜具体
   // 当前大限落位（当下人事）：按大限算法（局数起岁+年干阴阳顺逆）定位当前年份所在宫
   let curMean='';
@@ -290,8 +287,6 @@ function ziweiRead(astro, school, trans, sex){
     ,'父母':'重心落长辈荫蔽，一生着落在父母师长庇荫与家学传承，宜敬上承恩、借长辈之助起步' };
   const bodyAdv=(BODY_ADV[bodyName]?('身宫落'+bodyName+'，'+BODY_ADV[bodyName]):'');
   // 四化落宫分析：化禄/化忌之星实义 + 落宫人事（具体到星，非"主得助"泛话）
-  /* 双星组合断语：同宫两主星取合成之性，双星在时即以此为准，不再两星各说一遍 */
-  const dualOf=arr=>{ const k=(arr||[]).map(s=>s.name).sort().join('+'); return ZW_DUAL_MEAN[k]||''; };
   const huaStar=o=>{const a=(trans&&trans[o])||[];return a[0]?a[0]:'';};
   const huaWord=star=>{ // 该星化禄/化忌的具体含义（本性+化曜）
     const m=ZW_STAR_MEAN[star]; if(!m) return '';
@@ -330,7 +325,6 @@ function ziweiRead(astro, school, trans, sex){
   else if(str>=4&&wk===0) sanAdv='三方吉曜庙旺汇聚，事业财运之势清扬顺遂，利谋事进取、成局较快';
   else if(wk>=2) sanAdv='三方陷弱居多，财官迁多不给力，宜守成稳进、以专精少而精补不足，忌广铺摊子';
   else sanAdv='三方旺弱相参，财官得兼可成，宜择专而精、顺势而为，不贪多面面俱到';
-  const sanFull=`三方四正（命财官迁）${sanName}。${sanAdv}。`;
   // 一生总纲：综合命宫根基、身宫着力、四化吉忌、三方格局的具体走向（收束用身宫着力点+三方吉凶给针对性结论，非通用处世话）
   const sanJudge=(allSan.length===0)?'三方乏曜、凭大限流年引动':((str>wk)?'三方多吉旺、顺遂可期':'三方多陷弱、宜守成');
   const bodyKey=(BODY_ADV[bodyName]||'').match(/重心落(.+?)，/); const bodyKeyTxt=bodyKey?bodyKey[1]:(''+bodyName);
@@ -424,7 +418,6 @@ function zwBaziLink(astro, school, trans, sex){
     const starRel=wx&&dayWx?relOf(dayWx,wx):'';
     /* 主星本性/事业摘要 */
     const nat=(p2.majorStars||[]).map(s=>{const m=starMean(s); return m?`${s.name}${m[0]?m[0].split('，')[0]:''}（${m[1]?m[1].split(/[，,、]/)[0]:''}）`:'';}).filter(Boolean).join('；');
-    const emp = p2.name==='命宫'&&!mj ? '<span class="zw-ji">空宫（以对宫、三方四正借星参断，先天之势依借星而定）</span>' : '';
     rows+=`<tr><th>${p2.name}${p2.isBodyPalace?'身':''}</th><td>
       <span class="zw-key">${t[0]}</span>：${mj}${wx?('（'+wx+'）'):''}${starRel?('　<span class="zw-key">'+starRel+'</span>'):''}${wx?('　'+xjCls(xj)):''}
       ${nat?`<br><span class="zw-note">星曜所指：${nat}</span>`:''}
@@ -1891,12 +1884,6 @@ function zwLngOf(prefix){
   const lng=(s&&s.value)?findLng(p.value,c.value,s.value):findLng(p.value,c.value,'');
   return (lng==null||isNaN(lng))?null:lng;
 }
-/* 未定出生地时拦在排盘之前：太阳时开而经度无源即不出盘，其余情形交回调用方按钟面走。
-   太阳时口径两盘共用 zSun 一档，故不按 prefix 分取。 */
-function zwLngBlocked(prefix){
-  const sun=(document.getElementById('zSun')||{}).value||'off';
-  return sun!=='off' && zwLngOf(prefix)==null;
-}
 function paipan(){
   const dv=document.getElementById('zDate').value;
   if(!dv){alert('请选择出生日期');return;}
@@ -2309,7 +2296,6 @@ function zwDrawLinks(focusName){
     x0=W*0.27; x1=W*0.73; y0=H*0.27; y1=H*0.73;
   }
   // 12 宫锚点由各宫 grid 列行（POS）直接推导：row1→上边(y0)、row4→下边(y1)、col1→左边(x0)、col4→右边(x1)。
-  const INSET=0;   // 锚点从中宫边框内移，留出与边框的间隙（不压边框线）
     /* 锚点 = 中宫中心与相关宫中心连线、同中宫边框的交点（方向准确指向宫位，且必在边框上） */
   const cenPt=[(x0+x1)/2, (y0+y1)/2];
   const anchorOf=(palName)=>{
@@ -2383,7 +2369,7 @@ window.addEventListener('load', function () {
     (function initZwFBirth(){
       const sp=document.getElementById('zFProv'); if(!sp||typeof provList!=='function') return;
       const sc=document.getElementById('zFCity'), sd=document.getElementById('zFDist');
-      window.__zwFPlaceTrio=fillPlaceTrio(sp, sc, sd, null);
+      fillPlaceTrio(sp, sc, sd, null);
       /* 第二人性别默认取主表单性别的相异项（男盘默认女、女盘默认男）；用户手动改过第二人性别则不再覆盖 */
       const fse=document.getElementById('zFSex');
       if(fse){

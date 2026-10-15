@@ -756,7 +756,6 @@ window.NAME_GENERATE = (function () {
     var tailLimit = nameLen >= 3 ? 3 : 2;
     /* 性别构成三级上限（点名性别时生效）：本性别百分百 → 本性别:中性 9:1 → 本性别:中性:异性 7:2:1，
        先按第一级设定，取不足推荐数量时由构成升级段放行 */
-    var reqCls = pref === 'm' ? 'm' : 'f';
     var oppCls = pref === 'm' ? 'f' : 'm';
     var CLIM = pref === 'm' ? { m: count, n: 0, f: 0 }
       : pref === 'f' ? { f: count, m: 0, n: 0 }

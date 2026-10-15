@@ -144,7 +144,6 @@
   /* ---------------- 通用工具 ---------------- */
   const SHENG = {木:'火',火:'土',土:'金',金:'水',水:'木'};
   const KE    = {木:'土',土:'水',水:'火',火:'金',金:'木'};
-  const WX_CN = {木:'木',火:'火',土:'土',金:'金',水:'水'};
 
   function gzIndex(gz){
     const gi = GAN.indexOf(gz[0]), zi = ZHI.indexOf(gz[1]);

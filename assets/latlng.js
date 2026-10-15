@@ -238,7 +238,6 @@ const OV_ZONE = {
   '汤加':'大洋洲','瓦努阿图':'大洋洲','所罗门群岛':'大洋洲','帕劳':'大洋洲','马绍尔群岛':'大洋洲',
   '密克罗尼西亚':'大洋洲','瑙鲁':'大洋洲','图瓦卢':'大洋洲','基里巴斯':'大洋洲'
 };
-function overseasCountries(){ return Object.keys(OVERSEAS); }
 /* 按洲分组的国家清单：[{ zone 洲名, list 该国名数组 }]，次序同 OVERSEAS 分段；
    境外档省级下拉按此挂 optgroup，用户按洲寻国，不必在百余国名里通读。 */
 function overseasZones(){
@@ -251,7 +250,6 @@ function overseasZones(){
   });
   return out;
 }
-function overseasCities(country){ return (OVERSEAS[country]||[]).map(x=>x[0]); }
 /* 省级下拉的境外分组串：按洲逐组挂 optgroup（组名形如"境外 亚洲"），洲内国家次序同 OVERSEAS。
    境外百余国平铺一列时用户须通读全表才能定位，按洲分段后先认洲再认国，与境内按省分级同理。 */
 function overseasOptgroups(){

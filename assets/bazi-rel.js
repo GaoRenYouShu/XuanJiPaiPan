@@ -519,7 +519,6 @@
       // ，— 客观、结构化输出（完整顺生链条 + 逐环能量力度 + 缺失环节 + 短板，禁文艺措辞），—
       // 顺生链条按命理正向排出：财生官杀 → 官杀生印 → 印生比劫 → 比劫生食伤 → 食伤生财
       const LZ_LINK = [['财星','官杀'],['官杀','印星'],['印星','比劫'],['比劫','食伤'],['食伤','财星']];
-      const linkNames = LZ_LINK.map(([a,b])=>short(a)+'生'+short(b)).join('、');
       // 每环成立：能量为弱/有气及以上（虚即断）；全链据此数出缺失环节
       const linkOk = LZ_LINK.map(([a,b])=>({p:[a,b], ok: lv[a]!=='虚' && lv[b]!=='虚'}));
       const missingLink = linkOk.filter(x=>!x.ok).map(x=>x.p);
@@ -536,7 +535,6 @@
       // ， 专业维度补强：每环喜忌 + 身强弱导向 + 流通吉凶结论 ，
       const xj = (ctx&&ctx.xjWx)||{};                       // 类→'喜'|'忌'|'中'
       const xjWord = { '喜':'喜用','忌':'忌神','中':'平' };
-      const strName = { '强':'身强','中':'中和','弱':'身弱' };
       const strength = (ctx&&ctx.strength)||'中';
       const ringXj = this.LZ_CYCLE.map(c=>short(c)+(xjWord[xj[c]]||'平')).join('，');
       const xiSet = this.LZ_CYCLE.filter(c=>xj[c]==='喜');   // 喜用之环
@@ -711,8 +709,6 @@
       }catch(e){ return null; }
     }
   };
-  // 便捷：五行→其喜忌由调用方转成 类→喜/忌/中 映射
-  const _xjWxOf = k => ({'官杀':'官杀','印星':'印星','食伤':'食伤','财星':'财星','比劫':'比劫'}[k]);
 
   // ， 表二数据：十神关系断语（判定式，去古籍出处），
   // 判定要素：十神类计数/单神计数 × 五行喜忌 × 能量档 × 身强弱 × 落柱与地支字，
@@ -1772,7 +1768,7 @@
       const dwx = ctx.dwx, isMale = ctx.isMale;
       const guan = ctx.guan, guanStrong = ctx.guanStrong, guanXi = ctx.guanXi;
       const yinXi = ctx.yinXi, yinJi = ctx.yinJi;
-      const zhengYinHas = C('正印') > 0, pianYinHas = C('偏印') > 0;
+      const zhengYinHas = C('正印') > 0;
       const shang = ctx.shang, shangStrong = ctx.shangStrong, killTouN = ctx.killTouN;
       if (name === '官印相生') {
         if (C('正官') > 0 && zhengYinHas && guanXi && guanStrong && yinXi) return '官印相生成立，利文职掌权、宜考公考编。';
@@ -2499,7 +2495,6 @@ function renderShiShenPos(BZ){
   // 组合=冒号前（"印星生比劫（水生木）"），五行括号在判定列开头（"水生木。…"）；
   // 经典组合句（官印相生等无冒号）取句首组合名；判定开头"（X）："转"X，"（去括号断裂）
   // 组合名识别：①经典4名（官印/杀印/伤官配印/食伤泄秀） ②X生Y/X克Y十神对 ③正八格独名（印星/官杀/食伤…）
-  const _shiShenN=['印星','比劫','食伤','财星','官杀'];
   const _comboName=s=>{
     for(const n of ['官印相生','杀印相生','伤官配印','食伤泄秀']) if(s.indexOf(n)===0) return n;
     let m=s.match(/^(印星|比劫|食伤|财星|官杀)(生|克)(印星|比劫|食伤|财星|官杀)/);

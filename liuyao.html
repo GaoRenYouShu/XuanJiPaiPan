@@ -871,7 +871,7 @@ function cast(){
   const cuoBits=benBits.map(b=>b?0:1);
   const cuo=hexInfo(cuoBits), cp=palaceInfo(cuoBits);
   const zongBits=benBits.slice().reverse();
-  const zong=hexInfo(zongBits), zp2=palaceInfo(zongBits);
+  const zong=hexInfo(zongBits);
   /* 辅助卦象简断：互卦主事之过程、错卦主事之反面、综卦主事之演变 */
   const huGuaTxt=hu.name+'，'+(GUA_MEAN[hu.name]?GUA_MEAN[hu.name].overview:'')+'，主此事之中间过程与内在机变';
   const cuoGuaTxt=cuo.name+'，主此事之反面，阴盛则阳衰，宜防物极而反';
@@ -1069,7 +1069,6 @@ function cast(){
       if(yDir)dongDetail.push('第'+(i+1)+'爻'+yDir);
     }
   });
-  const dongTxt2=dongDetail.length?dongDetail.join('；'):'';
   /* 三合局：卦中三支（可含月建日辰）成局；局神（中神旺支）逢月日冲破则合力有损 */
   const allZhi=nj.zhi.concat([mz,dgz[1]]);
   const sanHe=sanHeOf(allZhi);
@@ -1431,7 +1430,6 @@ function cast(){
   const bianCi=nMoving>0?(GUA_CI[bianP.name]||''):'';
   /* 按占事类别选择 GUA_MEAN 维度：只输出与所占之事对应的解读，不一律输出事业/感情/健康 */
   const catDimMap={'自身':'自身','婚姻':'感情','求财':'事业','官非功名':'事业','疾病':'健康','出行':'自身','失物':'事业','考试文书':'事业','子孙':'感情','兄弟朋友':'感情','求谋':'自身','行人':'自身','家宅':'自身','田产':'事业','胎产':'健康','天时':'自身','讨债':'事业','寻人':'自身','问事':'自身','求职':'事业','工作调动':'事业','合伙':'事业','诉讼':'事业','借贷':'事业','购车':'自身','购房':'自身','租房':'自身','搬家':'自身','投资':'事业','经营':'事业','开店':'事业','升职':'事业','学业':'事业','比赛':'自身','怀孕':'健康','生产':'健康','签证':'自身','出国':'自身','移民':'自身','官司输赢':'事业','签约':'事业','投标':'事业','拆迁':'自身','借物':'自身'};
-  const catDimLabel={事业:'事业',感情:'感情',健康:'健康',自身:''};
   const catDim=catDimMap[cat]||'事业';
   let guaMeanTxt='';
   if(GUA_MEAN[ben.name]){

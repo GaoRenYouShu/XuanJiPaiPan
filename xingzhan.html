@@ -663,7 +663,6 @@ function xzPai(){
   const antiCur = antiList.find(a => age >= a.from && age < a.to);
   /* 三级副运 Pratyantar：在当前副运时段内再按九曜年数细分 */
   const pra = antiCur ? xz_pratyantardasha(antiCur.graha, antiCur.from, antiCur.to) : [];
-  const praCur = pra.find(p => age >= p.from && age < p.to);
   let praRows = '';
   pra.forEach(p => {
     const cur = (age >= p.from && age < p.to);

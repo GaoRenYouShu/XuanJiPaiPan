@@ -21,7 +21,6 @@ window.CEZI_ENGINE = (function(){
   /* 月建旺衰：季节 → 五行旺衰 */
   const SEASON_OF_MONTH = {寅:'春',卯:'春',辰:'春',巳:'夏',午:'夏',未:'夏',申:'秋',酉:'秋',戌:'秋',亥:'冬',子:'冬',丑:'冬'};
   const WX_LING = {春:'木',夏:'火',秋:'金',冬:'水',四季:'土'};
-  const WANG_LABEL = {旺:'旺',相:'相',休:'休',囚:'囚',死:'死'};
   /* 体卦五行相对月建的旺相休囚死 */
   function wangOf(tiWx, lingWx){
     if(tiWx===lingWx) return {label:'旺',v:1.0,txt:'当令气盛'};

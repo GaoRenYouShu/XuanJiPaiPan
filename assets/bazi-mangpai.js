@@ -18,9 +18,9 @@
  *        SHA_NOTE 口诀神煞释义；TAISUI_NOTE 犯太岁五条；NY_XIANG 纳音象；
  *        KONG_GONG 空亡落宫；XU_TOU 虚透释义；JIE_NOTE 借势两态
  *   判定：xiGz 财官本位喜；xiangText 干支象；zuoGongTxt 做功方式；
- *        binZhuText 宾主落宫；kuOf 财官墓库；xuTouOf 虚透；
- *        borrowable 借财官；shaChain 口诀神煞链；kongText 空亡文本；
- *        nayinXiang 纳音象文本；gongChain 体用宾主做功链
+ *        binZhuText 宾主落宫；kuOf 财官墓库；kuStep 库开闭之岁运层；xuTouOf 虚透；
+ *        xuShiStep 做功虚实之转；borrowable 借财官；shaChain 口诀神煞链；kongText 空亡文本；
+ *        nayinXiang 纳音象文本；gongChain 体用宾主做功链（opt.stage 年龄档）；gongBreak 病破做功
  * 消费方：bazi-core.js 各流派解读格局（盲派段）、各流派解读运势（fMang 机制群）。
  *   去重（saidDuan）与年龄门控属调用方职责，本层纯函数、无运行时状态。
  * ========================================================================== */
@@ -187,10 +187,57 @@
     return { kw, open, text };
   }
 
+  /* 库开闭之岁运层：命局之库逢本步冲刑则开、逢六合合绊则闭；库已开而逢合者作合解论、
+     合不重锁（同本件六合一路之口径）。命局无财官之库时，本步自身为库者沿用 kuOf 语义
+     （与本件 kuOf 一路同文，去重归调用方）。返回 null 或一句文本。 */
+  function kuStep(BZ, stepZ) {
+    if (!BZ || !stepZ || typeof pairIn !== 'function') return null;
+    const ku = Array.from(new Set(BZ.zhis || [])).map(z => ({ z, k: kuOf(BZ, z) })).filter(o => o.k);
+    const chong = o => (typeof DIZHI_CHONG !== 'undefined') && pairIn(o.z, stepZ, DIZHI_CHONG);
+    const xing = o => (typeof DIZHI_XING !== 'undefined') && pairIn(o.z, stepZ, DIZHI_XING);
+    const he6 = o => (typeof DIZHI_HE6 !== 'undefined') && pairIn(o.z, stepZ, DIZHI_HE6);
+    const open = ku.find(o => chong(o) || xing(o));
+    if (open) {
+      const rel = (chong(open) ? '冲' : '') + (xing(open) ? '刑' : '');
+      return `岁运${stepZ}${rel}命局${open.z}之库，库门洞开，库中${open.k.kw}得用、此步财官事有应`;
+    }
+    const he = ku.find(he6);
+    if (he) return he.k.open
+      ? `岁运${stepZ}合命局已开之${he.z}库，合解其开、库门复合，须待再冲`
+      : `岁运${stepZ}合绊命局${he.z}之库，库门锁闭、${he.k.kw}藏而不显，须待冲刑再开`;
+    if (KU[stepZ]) { const k = kuOf(BZ, stepZ); return k ? k.text : null; }
+    return null;
+  }
+
   /* 虚透判定：天干五行在命局地支藏干中无根则为虚透 */
   function xuTouOf(BZ, g) {
     const gw = GAN_WX[g];
     return !((BZ.zhis || []).some(z => (HIDE[z] || []).some(x => GAN_WX[x] === gw)));
+  }
+
+  /* 做功虚实之转（流月层）：命局虚透之字（天干无根者，皆属体之字或财官）在本步支藏其同五行之干，
+     即虚者得根、财官填实，此步转实；本步之支逢命局之支冲或六合合绊，根被冲散、字被绊留，此步转虚。
+     本步与上层相较，由虚转实者做功有了着落，由实转虚者失了着落；两层同态、或缺上层、
+     或本命无虚透之字者皆不出（宁缺毋滥）。 */
+  function xuShiStep(BZ, stepGz, upperGz) {
+    if (!BZ || !BZ.dayGan || !stepGz || !upperGz || typeof pairIn !== 'function') return null;
+    const xu = (BZ.gans || []).filter((g, i) => i !== 2 && g && xuTouOf(BZ, g));
+    if (!xu.length) return null;
+    const wxSet = new Set(xu.map(g => GAN_WX[g]));
+    const stateOf = gz => {
+      const z = gz && gz[1];
+      if (!z) return '';
+      const gen = (HIDE[z] || []).some(x => wxSet.has(GAN_WX[x]));
+      const bound = (typeof DIZHI_CHONG !== 'undefined' && (BZ.zhis || []).some(pz => pairIn(z, pz, DIZHI_CHONG)))
+        || (typeof DIZHI_HE6 !== 'undefined' && (BZ.zhis || []).some(pz => pairIn(z, pz, DIZHI_HE6)));
+      return (gen && !bound) ? '实' : '虚';
+    };
+    const cur = stateOf(stepGz), up = stateOf(upperGz);
+    if (!cur || !up || cur === up) return null;
+    const txt = o => o[0] + o[1];
+    return cur === '实'
+      ? `${txt(stepGz)}由${txt(upperGz)}之虚转实，做功有了着落`
+      : `${txt(stepGz)}由${txt(upperGz)}之实转虚，做功失了着落`;
   }
 
   /* 借势判定：本步支藏财官（支中自有）或本步与命局之合带财官（合而可借）。
@@ -240,9 +287,13 @@
   }
 
   /* 体用宾主做功链（本命）：定体、定用、定法、断成否四步相扣，末附口径。
+     opt.stage 为年龄档：缺省与 adult 一档，断成否一路照出成人语；
+     child 一档断在根基、学业、家中照应三事，不出财官可得其手一类成人断。
      宁缺毋滥：底盘（日主与四柱干支）不全则整条不出，不臆测、不补空话。 */
-  function gongChain(BZ) {
+  function gongChain(BZ, opt) {
     if (!BZ || !BZ.dayGan || !BZ.gans || BZ.gans.length < 4 || !BZ.zhis || BZ.zhis.length < 4) return null;
+    opt = opt || {};
+    const child = opt.stage === 'child';
     const dg = BZ.dayGan, PAL = ['年柱', '月柱', '日柱', '时柱'];
     const cat = g => shenCat(tenGod(dg, g));
     // 体用之分一以 TI_YONG 表为口径，不在此另立一套十神名单
@@ -402,16 +453,25 @@
     // 五、断成否：体、用、法三者俱备方许言做功成立，缺一则各归其档，不一律称吉。
     // 诸法有得行有不得行者，只以得行之法成其功，不得行之法另作"其余之法须待岁运"交代，
     // 不因一法不行而没了他法之功，也不把待岁运之辞混入总断
+    // 体之宫必含日柱（日主自坐主位），体之字落年月则兼借外境之力；用之宫按财官所落之柱
+    const tiW = weiOf([{ p: 2 }].concat(tiG)), yoW = weiOf(yongArr);
     const weiSay2 = faWei.length ? `；另有不得行之法须待岁运（${faWei.map(f => f.why).join('；')}）` : '';
     let chengT;
-    if (yongXian === '不现') chengT = '四柱干支不见财官，无可用做功，须待岁运引出财官方有可论';
+    if (child) {
+      // 小儿档：断在根基、学业、家中照应三事，不出财官可得其手一类成人断
+      const ji = tiLi.indexOf('无根') >= 0 ? '根基浅薄、宜慎护持养'
+        : (tiLi.indexOf('得禄旺') >= 0 ? '根基厚实、长养有本' : '根基平稳、可循序长养');
+      const xue = pG ? `${pG.t}${pG.g}为文书学业之凭，读书之事有承`
+        : (sG ? `${sG.t}${sG.g}为才艺之字，聪明外显、宜引导向学` : '天干不见印星食伤，学业之凭未透');
+      const zhao = (tiW && tiW.both) ? '体之字主宾兼落，家中照应与自身长养兼得' : '体之字落主位，长养照应皆在自身与家中';
+      chengT = `小儿论命重根基长养，${ji}；${xue}；${zhao}`;
+    }
+    else if (yongXian === '不现') chengT = '四柱干支不见财官，无可用做功，须待岁运引出财官方有可论';
     else if (tiLi.indexOf('无根') >= 0) chengT = `日主${tiLi}，虽有财官在前而力不逮，宜先固本、借岁运通根再论`;
     else if (!faXing.length && fa.length) chengT = `体${tiLi}、用${yongXian}，而取用之法不得行于今（${faWei.map(f => f.why).join('；')}），须待岁运引出方有其功`;
     else if (!fa.length) chengT = '有体有用而五法皆不得行，财官在前而无取之之径，宜守常积势、勿强求';
     else chengT = `体${tiLi}、用${yongXian}、取用之法得行，三者俱备，做功成立，财官可得其手${weiSay2}`;
 
-    // 体之宫必含日柱（日主自坐主位），体之字落年月则兼借外境之力；用之宫按财官所落之柱
-    const tiW = weiOf([{ p: 2 }].concat(tiG)), yoW = weiOf(yongArr);
     const mergeName = arr => Array.from(new Set(arr.map(o => word(o.t) + o.g))).join('、');
     const tiName = '日主' + dg + (tiG.length ? '并' + mergeName(tiG) : '');
     const yoName = yoG.length ? mergeName(yoG) : (yoZ.length ? '支藏之财官' : '财官');
@@ -430,6 +490,25 @@
     return { text };
   }
 
+  /* 病破做功（本命）：结构病中伤及体之根（日支与藏干同于日主之支）或财官之支者，
+     出一句病破做功、须药解。病药之判定归 bazi-data.js 的 structDisease，本件只按其关系文本
+     所标之支挑拣与成句；取最重者一条（structDisease 已按严重度排序），宁缺毋滥。 */
+  function gongBreak(BZ, structDisease) {
+    if (!BZ || !BZ.dayGan || !structDisease || !structDisease.length) return null;
+    const dg = BZ.dayGan, dwx = GAN_WX[dg], zs = BZ.zhis || [];
+    const dayZ = BZ.dayZ || zs[2] || '';
+    const rootZ = zs.filter(z => z === dayZ || (HIDE[z] || []).some(x => GAN_WX[x] === dwx));
+    const cgZ = zs.filter(z => (HIDE[z] || []).some(x => { const c = shenCat(tenGod(dg, x)); return c === '财星' || c === '官杀'; }));
+    const hit = structDisease.filter(d => d && d.kind === '病')
+      .map(d => ({ d, zz: Array.from(new Set(zs.filter(z => (d.rel || '').indexOf(z) >= 0))) }))
+      .find(o => o.zz.some(z => rootZ.indexOf(z) >= 0 || cgZ.indexOf(z) >= 0));
+    if (!hit) return null;
+    const ti = hit.zz.filter(z => rootZ.indexOf(z) >= 0);
+    const cg = hit.zz.filter(z => rootZ.indexOf(z) < 0 && cgZ.indexOf(z) >= 0);
+    const where = (ti.length ? `体之根${ti.join('、')}` : '') + (ti.length && cg.length ? '、' : '') + (cg.length ? `财官之支${cg.join('、')}` : '');
+    return `结构病在${hit.d.rel}，伤及${where}，病破做功、` + (hit.d.yaoWx ? `须以${hit.d.yaoWx}为药解` : '须药解');
+  }
+
   /* 空亡落宫文本（kongArr 由调用方按页面空亡轴算出后传入） */
   function kongText(BZ, kongArr) {
     if (!kongArr || !kongArr.length) return '';
@@ -443,8 +522,8 @@
 
   const MangPai = {
     TEN_IMAGE, ZUOGONG, BINZHU, KU, SHA_NOTE, TAISUI_NOTE, NY_XIANG, KONG_GONG, XU_TOU, JIE_NOTE,
-    xiGz, xiangText, zuoGongTxt, binZhuText, kuOf, xuTouOf, borrowable, shaChain, kongText, nayinXiang,
-    gongChain
+    xiGz, xiangText, zuoGongTxt, binZhuText, kuOf, kuStep, xuTouOf, xuShiStep, borrowable, shaChain,
+    kongText, nayinXiang, gongChain, gongBreak
   };
   if (typeof window !== 'undefined') window.MangPai = MangPai;
   if (typeof module !== 'undefined' && module.exports) module.exports = MangPai;

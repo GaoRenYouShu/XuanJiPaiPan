@@ -787,7 +787,7 @@ function T2b(card, BZ, A){
   const dwx=GAN_WX[BZ.dayGan];
   const WXOF={'印星':Object.keys(WX_SHENG).find(k=>WX_SHENG[k]===dwx),'比劫':dwx,'食伤':WX_SHENG[dwx],'财星':WX_KE[dwx],'官杀':Object.keys(WX_KE).find(k=>WX_KE[k]===dwx)};
   const _relCtx={WXOF, LQ:cb.tenCnt, XI:new Set(cb.fuXi), JI:new Set(cb.fuJi), tenE:cb.tenE, fuXi:cb.fuXi, fuJi:cb.fuJi};
-  const rowsC=[], rowsG=[];
+  const rowsC=[];
   // 剥掉REL.ten.rel判语内的HTML高亮span（sec()会转义，转纯文本避免把<span>显示成实体）
   const _plain=s=>String(s||'').replace(/<span[^>]*>/g,'').replace(/<\/span>/g,'');
   // ① 十神流转（顶层 flowLiuzhuan）：生克组合表首行
@@ -1162,7 +1162,6 @@ function shenshaBlock(card, title, BZ){
 function marryShaBlock(card, BZ){
   const groups=[];
   const PILLAR_LUO=['年','月','日','时'];
-  const stage=['早年年门、祖上根基','青年同辈环境','自身夫妻宫正缘','晚运情缘子女'];
   // ① 神煞：按四柱顺序（年→月→日→时）依次排；婚恋义统一读顶层真源 SHA_MEAN.marry（bazi-data.js），
   // 临柱即输出，不另设局部白名单
   // 源文已列（有婚恋断语）按落柱归位：名称=神煞名（落柱），内容=纯断语（统一事业式：剥"落宫语义；"前缀，与事业/健康格式一致）
@@ -1171,7 +1170,7 @@ function marryShaBlock(card, BZ){
   const outRows=[];
   const shaCols=[['shaYear',0],['shaMonth',1],['shaDay',2],['shaTime',3]];
   shaCols.forEach(([prop,pi])=>{
-    const luo=PILLAR_LUO[pi], stg=stage[pi];
+    const luo=PILLAR_LUO[pi];
     const arr=((BZ&&BZ[prop])||[]).map(x=>(x||'').replace(/（纳音）/,'').trim()).filter(Boolean);
     // 该柱源文已列的神煞（body 含落宫语义）优先，统一式：名称列纯神煞名，落柱进内容列开头
     rawRows.filter(r=>r.col&&r.col.indexOf(luo)>=0).forEach(r=>{
@@ -1388,7 +1387,6 @@ function renderMarry7(card,BZ,A,eS,isMale){
   let h='';
   // 1.1 配偶星与婚恋十神（配偶星行=完整配偶星关系段含宫位/透干藏支/正偏分论；其余婚恋十神②十神关系；夫妻宫；两两作用）
   // 配偶星=男财星、女官杀。配偶星行内容=源站"④ 配偶星关系"(s2_2)完整展开，正偏分论+宫位+透干藏支齐备
-  const gx1=cut(relSeg,'④ 配偶星关系','⑤ 夫妻宫关系').replace(/^④\s*配偶星关系[:：]?/,'');
   const gqSeg=String(cut(relSeg,'⑤ 夫妻宫关系','3、神煞')||'').replace(/^⑤\s*夫妻宫关系[:：]?/,'');
   const hlBody=String(cut(relSeg,'② 十神关系','③ 夫妻宫主象')||'').replace(/^②\s*十神关系[:：]?\s*/,'').replace(/婚恋视角[:：]?\s*/,'');
   const genWx=nm=>tenWxOf(dw,nm);
@@ -1402,16 +1400,6 @@ function renderMarry7(card,BZ,A,eS,isMale){
     const c=cutYunTail(scl(seg.slice(0,end)));
     if(c&&c.length>3) tenSegs[nm]=c;
   });
-  // 配偶星段：按方向拆分并清洗（宫位/正偏/能量/生克/力量/流通…），逐行输出避免一大坨；不现则按③④⑥结构化补全
-  const cleanSpouseSeg=s=>stripGeShu(String(s==null?'':s).split(/[。；;]/).map(x=>x.trim())
-    .filter(Boolean)
-    .map(x=>x
-      .replace(/[，、；](?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'')
-      .replace(/[，、；]?(?:须|待|借|须看|看)岁(?:运|月|流)[^。，；]*/g,'')
-      .replace(/[，、；]?(?:须|待|借|看)+$/,'')
-      .replace(/^\s*[,、；；]+\s*/,'').trim())
-    .filter(x=>x&&x.length>1)
-    .join(''));
   const spLabel=isMale?'财星':'官杀';
   const spWx=genWx(spLabel);
   const rows11=[];
@@ -1719,8 +1707,6 @@ function renderHealth7(card,BZ,A,eS,isMale){
   const xjM=b1.match(/喜用([^；;。]+)、忌([^；;。]+)/);
   const xiTxt=(xjM&&xjM[1]|| '').split(/[、,]/).filter(Boolean).join('、')|| xi.join('、');
   const jiTxt=(xjM&&xjM[2]||'').split(/[、,]/).filter(Boolean).join('、')|| ji.join('、');
-  const yinyangM=b1.match(/为(阴|阳)干/);
-  const yinyangTxt=yinyangM?('日主'+BZ.dayGan+'为'+yinyangM[1]+'干'):yinYangPill(BZ);
   // 性格=为阴/阳干…象…气质句；格局=格局入…；总结=总体而言…
   let ger='', geM2='', zongjie='';
   const idxGe=b1.indexOf('格局'), idxZ=b1.indexOf('总体而言');
@@ -2588,7 +2574,8 @@ function go(){
  * 数据与岁运引动表、流年事件表同源同口径：evalGZ 对每步大运与流年给 lifeTrig 分项标引
  * （事业、婚姻、感情、健康、家庭、学业六类）与吉凶档，此处只按议题过滤聚合，不另设判法，
  * 免两处口径分叉。大运行只列该议题确有引动的十年，按行运先后排；近年应期给未来三年内
- * 确有引动的流年，历史盘（出生距今超过一百二十年）无"近年"可谈，不给流年行。 */
+ * 确有引动的流年，历史盘（出生距今超过一百二十年）无"近年"可谈，不给流年行；
+ * 近三个月应期以当下节气月顺推两月，逐月按同一口径标引，历史盘同不出此行。 */
 function yingQiBlock(topic, BZ, A){
   try{
     const KEY = topic==='感情' ? ['婚姻','感情'] : [topic];
@@ -2605,24 +2592,50 @@ function yingQiBlock(topic, BZ, A){
       const y2=(s.year&&BZ.birthYear>0)?(s.age+' 岁（约 '+s.year+'–'+(s.year+9)+' 年）'):(s.age!=null?(s.age+' 岁'):'');
       return [s.gz, y2, s.rating||'', pick(s)];
     });
-    let near='';
+    let near='', nearM='';
     const cy=baziNowDate().getFullYear();
     if(BZ.birthYear>0 && (cy-BZ.birthYear+1)<=120){
-      const hits=[];
+      const hits=[], yTxt=new Map();
       for(let i=0;i<3;i++){
         const y=cy+i;
         try{
           const gz=liunianGZ(y);
           const ev=evalGZ(BZ, A, {gz, gan:gz[0], zhi:gz[1], age:y-BZ.birthYear+1, year:y, kind:'流年'});
-          if(hasTrig(ev)) hits.push(y+' 年（'+gz+'）'+pick(ev));
+          if(hasTrig(ev)){ const t=pick(ev); hits.push(y+' 年（'+gz+'）'+t); yTxt.set(y, new Set(t.split('；'))); }
         }catch(e){}
       }
       near = hits.length ? note('近年应期：'+hits.join('；')+'。') : note('近年无'+(topic==='感情'?'婚恋':topic)+'方面的显著引动。');
+      /* 近三个月应期：当下节气月与随后两月（月柱在六十甲子中连排，顺推一位、两位即得），
+         逐月按流年同一口径 evalGZ 标引、按本卡 KEY 过滤，不另立判法；月柱起于立春，
+         子丑两月仍属上一干支年，故按寅首月序推各月所属流年与虚岁；月级引动逐句与
+         所含流年之近年行比对，同文之句不重述，免同一引动于两行并出 */
+      try{
+        const tn=baziNowDate(), Y=tn.getFullYear();
+        const ec=Solar.fromYmd(Y, tn.getMonth()+1, tn.getDate()).getLunar().getEightChar();
+        const ygz=ec.getYear(), mgz=ec.getMonth();
+        if(ygz && mgz){
+          const yStart=(liunianGZ(Y)===ygz)?Y:Y-1;
+          const p0=(ZHI_ORDER.indexOf(mgz[1])-2+12)%12, k0=gzIndexOf(mgz);
+          const hitsM=[];
+          for(let j=0;j<3;j++){
+            try{
+              const gz=gzAtIndex(k0+j), yy=yStart+Math.floor((p0+j)/12);
+              const ev=evalGZ(BZ, A, {gz, gan:gz[0], zhi:gz[1], age:yy-BZ.birthYear+1, year:yy, kind:'流月'});
+              if(!hasTrig(ev)) continue;
+              const ySet=yTxt.get(yy);
+              const t=pick(ev).split('；').filter(s=>!(ySet&&ySet.has(s))).join('；');
+              if(t) hitsM.push(gz[1]+'月（'+gz+'）'+t);
+            }catch(e){}
+          }
+          nearM = hitsM.length ? note('近三个月应期：'+hitsM.join('；')+'。') : note('近三个月无'+(topic==='感情'?'婚恋':topic)+'方面的显著引动。');
+        }
+      }catch(e){}
     }
     /* 行运与吉凶两列是标签与档位、非完整句，过 noperiod 免加句号；引动列为论述句照常加句号 */
     let h= rows.length ? sec('应期窗口', rows, ['大运',{t:'行运',noperiod:true},{t:'吉凶',noperiod:true},(topic==='感情'?'婚恋':topic)+'引动'], 0)
       : '<div class="sub-h">应期窗口</div>'+note((topic==='感情'?'婚恋':topic)+'在大运层面无明显引动，以原局之气平稳推之。');
     h+=near;
+    h+=nearM;
     return h;
   }catch(e){ return ''; }
 }

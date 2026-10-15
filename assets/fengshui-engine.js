@@ -856,7 +856,6 @@
     火:{wang:'寅午戌', lin:'巳', yin:'亥卯未', cai:'巳酉丑', xie:'辰戌丑未', sha:'申子辰', gan:['丙','丁','甲','乙']},
     金:{wang:'巳酉丑', lin:'申', yin:'辰戌丑未', cai:'亥卯未', xie:'申子辰', sha:'寅午戌', gan:['庚','辛','戊','己']}
   };
-  const SANHE_JU_NAMES={水:'水局',木:'木局',火:'火局',金:'金局',土:'土局'};
   /* 四柱地支按三合局取用：旺局（与龙同五行三合）上吉、临官字吉、印局（生龙）吉、财局（龙克）次吉、泄局（龙生）凶、煞局（克龙）大凶 */
   function zhiJuScore(zhi, longWx){
     const ju=BU_LONG_JU[longWx];
@@ -892,8 +891,6 @@
     const juStr=ju.wang;
     let zong, mean;
     /* 煞局成局（月日时两字以上同煞局）→ 大凶否决；仅年支单字煞泄 → 归年家提示不否决；月日时单字煞泄 → 凶 */
-    const shaZhi=badRows.filter(r=>r.name==='煞局').map(r=>r.zhi);
-    const xieZhi=badRows.filter(r=>r.name==='泄局').map(r=>r.zhi);
     if(badMdt.length>=2){
       zong='大凶';
       const grp=badMdt[0].name;
@@ -1043,7 +1040,6 @@
     const ju=BU_LONG_JU[wx];
     const ges=[];
     const zhiStr=zhiArr.join('');
-    const ganStr=(ganArr||[]).join('');
     /* 三合局：全支在旺局字内（临官字亦计入，构成"三合兼临官"） */
     const allWang=zhiArr.every(z=>ju.wang.indexOf(z)>=0||z===ju.lin);
     const wangZi=new Set(zhiArr.filter(z=>ju.wang.indexOf(z)>=0)).size;

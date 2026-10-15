@@ -1642,7 +1642,6 @@ function drawBuLong(){
   const sanHeJu=FS.BU_LONG_JU[bl.wx];
   /* 山运（洪范五行遁山运）与年克山家：金山冬至后变运：日课在冬至后（段 base=1 且日支序…以节气表判断简化：立春前不判，
      以 YIN_CTX 上下文 asc/base 无法直判冬至；改用日课公历与当年冬至日比较） */
-  const dzJ=Solar.fromYmd(y,1,1).getLunar().getJieQiTable()['冬至'];
   const dzOfThisYear=Solar.fromYmd(y,12,1).getLunar().getJieQiTable()['冬至'];
   const afterDZ=dzOfThisYear&&(new Date(y,m-1,d)>=new Date(dzOfThisYear.getYear(),dzOfThisYear.getMonth()-1,dzOfThisYear.getDay()));
   const sy=FS.shanYun(b.sitShan, ctx.yGz, afterDZ);

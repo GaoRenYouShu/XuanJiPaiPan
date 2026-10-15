@@ -25,7 +25,6 @@
   const PALACE=['年','月','日','时'];
   const GAN_ORDER=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
   const HE=['甲己','乙庚','丙辛','丁壬','戊癸']; // 天干五合
-  const DI_HE={'子':'丑','丑':'子','寅':'亥','亥':'寅','卯':'戌','戌':'卯','辰':'酉','酉':'辰','巳':'申','申':'巳','午':'未','未':'午'};
   const SAN_HE=[['寅','午','戌'],['申','子','辰'],['巳','酉','丑'],['亥','卯','未']];
   const CHONG={'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'};
   const HAI={'子':'未','未':'子','丑':'午','午':'丑','寅':'巳','巳':'寅','卯':'辰','辰':'卯','申':'亥','亥':'申','酉':'戌','戌':'酉'};
@@ -141,8 +140,6 @@
     // 统一"旺"判定（与①十神总览/②逐神深读同口径）：五行能量 > 0.7×五行均值 即"偏旺及以上"算强档。
     // 阈值口径全站唯一（0.7×均值），多套并存会致"官杀过旺却说官杀弱"跨节矛盾。
     const _wxStrong=wx=>{ try{ const es=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null; if(!es) return false; const t=Object.values(es).reduce((a,b)=>a+b,0)||1; return (es[wx]||0) > 0.7*(t/5); }catch(e){ return false; } };
-    // 五行能量档（过旺/偏旺/平和，与②逐神深读 _strOf 同款），供 s4/女命借力等文案档位统一取用
-    const _wxTier=wx=>{ try{ const es=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null; if(!es) return '平和'; const t=Object.values(es).reduce((a,b)=>a+b,0)||1; const avg=t/5, e=es[wx]||0; return e>WX_TIER_HI*avg?'过旺':(e>WX_TIER_LO*avg?'偏旺':'平和'); }catch(e){ return '平和'; } };
     const qgAll=quantGods(occ, tenE);
     const C=god=>godCount(occ,god);
     const T=god=>godTou(occ,god);
@@ -159,20 +156,17 @@
     // 比劫夺财须有"他人之比劫"竞争，日主自身即比肩，须排除日柱天干，只看其余比劫
     const biOtherOcc=occ.filter(o=>(o.god==='比肩'||o.god==='劫财')&&!(o.p===2&&o.pos==='干'));
     const biOther=biOtherOcc.length;
-    const biOtherTou=biOtherOcc.filter(o=>o.pos==='干').length;
     const biIsXi=fuXi.indexOf(dwx)>=0;
     const has2He=allHePairs(occ).length>=2;   // 双合创业信号（供合作得财判定）
     const caiIsXi=fuXi.indexOf(wealthWx)>=0;
     // 官杀护财能力：官杀为"偏旺及以上"（_wxStrong，与②逐神深读同档）且为喜用，能制比劫护财
     // （判定须与逐神深读同口径：十神能量占比判"为喜用有力"会与五行档打架）
     const guanGuard=guan>0 && _wxStrong(killWx) && fuXi.indexOf(killWx)>=0;
-    const yinIsXi=fuXi.indexOf(yinWx)>=0;
     const shaAll=(BZ.shaYear||[]).concat(BZ.shaMonth||[],BZ.shaDay||[],BZ.shaTime||[]);
     const normSha=s=>(s||'').replace(/（[^）]+）$/,'');
     const shaNames=(...ns)=>ns.filter(n=>shaAll.some(x=>normSha(x)===n));
     // 伤官 vs 印 相对强弱：用于"伤官配印(吉)"与"印克伤官(凶)"互斥判定
     // 透干视为+1加强，使"伤官得力"与"印旺压伤官"严格互补、同盘不会既吉又凶
-    const yinTot=C('正印')+C('偏印');
     const shangStrong=C('伤官')>0 && ePctC('食伤')>=ePctC('印星');   // 食伤能量占比≥印星能量占比 才算"伤官得力、印不压伤"
     // 财富层级：财星为喜用且日主能担财为富基；财旺透+官杀护财(喜用)升中富、大富。
     function wealthTier(){
@@ -1225,8 +1219,6 @@ function dyNatalInto(group, BZ, A, num) {
     '劫财':'主动争进、易竞争，相处宜防争执、明界限'
   };
   // 五行 → 利、忌方位（WX_FANG 取自 bazi-data.js 全局）
-  // 五行 → 旺运地支（运程切换提示用）
-  const WX_BRANCH={'木':'寅卯','火':'巳午','土':'辰戌丑未','金':'申酉','水':'亥子'};
   // 地支关系 → 具体含义（仅对命中的关系输出）
   const REL_MEAN={'冲':'两人气场对立、容易发生冲突和变动','合':'彼此吸引、关系容易成','刑':'关系里有内耗和摩擦','害':'暗中相耗、易生隔阂','破':'关系有破散、不稳定'};
   // 六合合化五行（夫妻宫被合时，合化会增强夫妻宫某五行气）
@@ -1295,7 +1287,6 @@ function dyNatalInto(group, BZ, A, num) {
     });
     spLocs.sort((a,b)=>(spGodOrder[a.god]-spGodOrder[b.god])||(a.pillar-b.pillar));
     const spouseTou=spLocs.filter(o=>o.tou);
-    const spouseTouCount=spouseTou.length;
     const hasSpouse=spLocs.length>0;
     const spouseXi=fuXi.indexOf(spouseWx)>=0, spouseJi=fuJi.indexOf(spouseWx)>=0;
     const shaAll=(BZ.shaYear||[]).concat(BZ.shaMonth||[],BZ.shaDay||[],BZ.shaTime||[]);
@@ -1325,10 +1316,6 @@ function dyNatalInto(group, BZ, A, num) {
     }
     // 远近：配偶星所临柱位按离日主（日支）远近加权；时柱主晚运、年柱主早年家门
     const spPillars=[...new Set(spLocs.map(o=>o.pillar))].sort((a,b)=>Math.abs(a-2)-Math.abs(b-2));
-    const spDistWord=i=> i===2?'最近（坐夫妻宫、正缘贴身）'
-      : i===1?'较近（同环境缘分）'
-      : i===3?'偏晚或较远（时柱主晚运、子女，缘分偏晚或与晚景相连）'
-      : '最远（年柱主早年家门，可能异地、长辈牵线、年纪差较大）';
 
     // 打分工具（与 career 同构）：v 为判定(hit/part/low/weak/wait)，p 为直接陈述句
     function potLevel(obj){
@@ -1393,10 +1380,8 @@ function dyNatalInto(group, BZ, A, num) {
     // 五行能量分（与②十神总览/逐神深读同源 wxElementScore，禁按十神个数判能量）
     const _esM=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null;
     const _etM=_esM?Object.values(_esM).reduce((a,b)=>a+b,0):0;
-    const _eaM=_etM/5||1;
     const eSp=_esM?(_esM[spouseWx]||0):0, eDay=_esM?(_esM[dwx]||0):0;
     const pctSp=_etM?Math.round(eSp/_etM*100):0;
-    const tierSp=eSp>WX_TIER_HI*_eaM?'过旺':(eSp>WX_TIER_LO*_eaM?'偏旺':'平和');
     // 十神能量分（正偏分开，供正偏分论：正缘/偏缘各自强弱）
     const _tenE=(typeof ssTenGodEnergy==='function')?ssTenGodEnergy(BZ, _esM||{}):null;
     const zhengName=isMale?'正财':'正官', pianName=isMale?'偏财':'七杀';
@@ -1679,7 +1664,6 @@ function dyNatalInto(group, BZ, A, num) {
     const caiCang=cangOf('正财').concat(cangOf('偏财'));
     const guanCang=cangOf('正官').concat(cangOf('七杀'));
     const shangCang=cangOf('食神').concat(cangOf('伤官'));
-    const yinCang=cangOf('正印').concat(cangOf('偏印'));
     // ===== 4 六亲与婚恋特征（深度版：父母之缘→兄弟手足→配偶星深析→子女星互动→婚恋特征收束）=====
     const _biN=cntGod('比肩')+cntGod('劫财');
     const _cfTou=BZ.gans.filter(g=>tenGod(dg,g)==='偏财');
@@ -3206,8 +3190,6 @@ function renderYinYangNote(BZ){
   const gans=BZ.gans, zhis=BZ.zhis, dg=BZ.dayGan;
   const GN=(typeof window!=='undefined'&&window.GAN_NATURE)?window.GAN_NATURE:{};
   const isY=c=>YANG.indexOf(c)>=0;
-  const gYY=gans.map(g=>isY(g)?'阳':'阴');
-  const zYY=zhis.map(z=>isY(z)?'阳':'阴');
   const gYg=gans.filter(g=>isY(g)), gYin=gans.filter(g=>!isY(g));
   const zYg=zhis.filter(z=>isY(z)), zYin=zhis.filter(z=>!isY(z));
   const yy=yyCount(gans,zhis);
@@ -3549,7 +3531,6 @@ function renderAnalysis(BZ, shenshaSummary, cols){
   const geXiRel=_zipGx(A.geUse&&A.geUse.xiWx||[], A.geUse&&A.geUse.xiCats||[]);
   const geJiRel=_zipGx(A.geUse&&A.geUse.jiWx||[], A.geUse&&A.geUse.jiCats||[]);
   const sanDeHtml=`<span class="de-chip ${A.sanDe.ling?'de-on':'de-off'}">得令${A.sanDe.ling?'✓':'✗'}</span><span class="de-chip ${A.sanDe.di>0?'de-on':'de-off'}">得地 ${A.sanDe.di}</span><span class="de-chip ${A.sanDe.shi>0?'de-on':'de-off'}">得势 ${A.sanDe.shi}</span>`;
-  const tongHtml = A.tong? A.tong.note : '五行无显著相战，无需强制通关。';
   const quotes=A.quotes.map(q=>`<div>${q}</div>`).join('');
   const synthHtml = A.synthesis && A.synthesis.primary ? (function(S){
     let out=`<div class="synth-top">首选用神：<b class="${WX_CLASS[S.primary.wx]}">${S.primary.wx}</b>（${S.primary.count} 法共识：${S.primary.methods.join('、')}）</div>`;
@@ -4938,7 +4919,6 @@ function renderSchoolDiffInner(A, BZ){
   const eScore = wxElementScore(BZ);
   const eTotal = wxArr.reduce((s,w)=>s+eScore[w],0) || 1;
   const eAvg = eTotal/5;
-  const xiSetN = new Set(effXi(A)), jiSetN = new Set(effJi(A));
   const killWx=Object.keys(WX_KE).find(w=>WX_KE[w]===dwx);
   const wealthWx=WX_KE[dwx];
   const geQing=stripCat(A.geQing), geLevel=A.geLevel, geLevelNote=stripCat(A.geLevelNote);
@@ -4967,12 +4947,17 @@ function renderSchoolDiffInner(A, BZ){
     return ''; })();
   const caiKuZ=({'木':'未','火':'戌','金':'丑','水':'辰','土':'戌'}[wealthWx]||'');
   const caiKuTxt=caiKuZ&&BZ.zhis.indexOf(caiKuZ)>=0?('财藏'+(MangPai.KU[caiKuZ]?MangPai.KU[caiKuZ].ku:'库')+'中'):'财藏支中';
-  // 体用宾主做功链：判定真源 MangPai.gongChain（定体、定用、定法、断成否四步）
-  const gong=MangPai.gongChain(BZ);
+  // 体用宾主做功链：判定真源 MangPai.gongChain（定体、定用、定法、断成否四步）；
+  // 现年未满十六者按小儿档论（断在根基、学业、家中照应），宾主落宫同传童限档
+  const _mnAge=BZ.birthYear?(baziNowDate().getFullYear()-BZ.birthYear+1):0;
+  const _mnChild=!!_mnAge&&baziAgeStage(_mnAge)==='child';
+  const gong=MangPai.gongChain(BZ, _mnChild?{stage:'child'}:null);
   let mang=`盲派不以日主旺衰定高低，以“体用宾主”与“做功”立论。日主为体，财官为用，功在制、化、合、冲、墓五法得其财官。`;
   mang+=` 财星属${wealthWx}（命局${lq['财星']||0}个${caiTou.length?'、天干透'+dedupChars(caiTou)+'，财气外露、来得快去得也快':'、天干不透则'+caiKuTxt+'待岁运引出'}），官杀属${killWx}（${lq['官杀']||0}个${guanTou.length?'、天干透'+dedupChars(guanTou)+'，事业压力或名望外显':'、天干不透则藏支待引'}）。`;
   if(gong) mang+=` ${gong.text}`;
-  if(caiGuanGong) mang+=` 做功落宫：${MangPai.binZhuText(caiGuanGong,false)}。`;
+  if(caiGuanGong) mang+=` 做功落宫：${MangPai.binZhuText(caiGuanGong,_mnChild)}。`;
+  const _gongBreak=MangPai.gongBreak(BZ, A.structDisease);
+  if(_gongBreak) mang+=` ${_gongBreak}。`;
   mang+=` 夫妻宫（日支${BZ.dayZ}）本气为“${dayZhiShen}”${(godClass(dayZhiShen)==='财星'||godClass(dayZhiShen)==='官杀')?'，宫星同位，婚姻与事业互为依托、得内助之力':'，非财官本位，财官须向外寻（看月令与透干）'}。`;
   mang+=` 本派以财官五行为喜（${S.mang.xi.join('、')||'无'}），不立五行忌神。得失不以旺衰论，以做功能否成立、制化是否得用为断。`;
 
@@ -5869,8 +5854,6 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   const fuXi=A.fu.xiCats||[], fuJi=A.fu.jiCats||[];
   const xiSet=new Set(fuXi), jiSet=new Set(fuJi);
   function tenCat(gz){ const g=tenGod(dg,gz[0]), z=tenGod(dg,zhiMain(gz[1])); let tag=[]; [g,z].forEach(t=>{const c=shenCat(t); if(xiSet.has(c))tag.push('喜');else if(jiSet.has(c))tag.push('忌');}); return {g,z,tag:tag.length?tag.join(''):'中'}; }
-  const GE_CAT_KEYS=['官杀','七杀','正官','食伤','伤官','食神','财星','正财','偏财','印星','正印','偏印','比劫','劫财','比肩'];
-  const GE_CAT_BASE=(typeof TEN_CLASS!=='undefined')?TEN_CLASS:{'七杀':'官杀','正官':'官杀','伤官':'食伤','食神':'食伤','正财':'财星','偏财':'财星','正印':'印星','偏印':'印星','劫财':'比劫','比肩':'比劫'}; // 十神→类：统一引用 bazi-data.js 唯一真源 TEN_CLASS
   // 格局用神/忌神表述多为"动宾用途句"（食伤生财/官杀护财/比劫夺财/官杀制刃…）：
   // 格局用神类集：数据层已编译为结构化字段（xiCats/jiCats），此处直接读取，不再解析用途句文本
   const geUseXiCats=(A.geUse&&A.geUse.xiCats)||[];
@@ -6050,11 +6033,14 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     const YIMA={'申':'寅','子':'寅','辰':'寅','寅':'申','午':'申','戌':'申','亥':'巳','卯':'巳','未':'巳','巳':'亥','酉':'亥','丑':'亥'};
     const TAO={'申':'酉','子':'酉','辰':'酉','寅':'卯','午':'卯','戌':'卯','亥':'子','卯':'子','未':'子','巳':'午','酉':'午','丑':'午'};
     const GUI={'甲':'丑未','戊':'丑未','庚':'丑未','乙':'子申','己':'子申','丙':'亥酉','丁':'亥酉','壬':'卯巳','癸':'卯巳','辛':'午寅'};
+    // 天乙贵人庚日取支有丑未与寅午两说，另派并列同出，与 bazi-data.js 的另派条目同口径
+    const GUI_ALT={'甲':'丑未','戊':'丑未','庚':'寅午','乙':'子申','己':'子申','丙':'亥酉','丁':'亥酉','壬':'卯巳','癸':'卯巳','辛':'午寅'};
     const WEN={'甲':'巳','乙':'午','丙':'申','戊':'申','丁':'酉','己':'酉','庚':'亥','辛':'子','壬':'寅','癸':'卯'};
     const out=[];
     if(YIMA[dz]===z||YIMA[yz]===z) out.push('驿马');
     if(TAO[dz]===z||TAO[yz]===z) out.push('桃花');
     if(GUI[dg2]&&GUI[dg2].indexOf(z)>=0) out.push('天乙贵人');
+    if(GUI_ALT[dg2]&&GUI_ALT[dg2].indexOf(z)>=0&&!(GUI[dg2]||'').indexOf(z)>=0) out.push('天乙贵人（另派）');
     if(WEN[dg2]===z) out.push('文昌');
     return out;
   }
@@ -6076,12 +6062,10 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   // 增量版：月柱根基只在最上层交代一次；神煞、长生仅取本层新增
   function yueStabInc(s, F){ return upperOf(s)?'':yueStab(F); }
   // 神煞措辞按年龄门控：桃花/沐浴等成人情缘词对孩童转写，免"感情易动"落在小儿身上
-  function shaMean(x){ const age=curAge; const A={'驿马':'主远行、变动、奔波','桃花':'感情易动、人际缘旺','天乙贵人':'得外力贵人之助','文昌':'利学业、文书、名声'}; if(baziAgeStage(age)!=='child'){ if(age!=null && age>=60 && x==='桃花') return ''; return A[x]||''; } const K={'驿马':'环境易变、家或居所易搬迁、出行增多','桃花':'人缘好、同伴相得、易得玩伴','天乙贵人':'得长辈外援之助','文昌':'利启蒙、记问、学业'}; return K[x]||A[x]||''; }
+  function shaMean(x){ const age=curAge; const A={'驿马':'主远行、变动、奔波','桃花':'感情易动、人际缘旺','天乙贵人':'得外力贵人之助','天乙贵人（另派）':'得外力贵人之助，按庚辛逢虎马取贵法','文昌':'利学业、文书、名声'}; if(baziAgeStage(age)!=='child'){ if(age!=null && age>=60 && x==='桃花') return ''; return A[x]||''; } const K={'驿马':'环境易变、家或居所易搬迁、出行增多','桃花':'人缘好、同伴相得、易得玩伴','天乙贵人':'得长辈外援之助','天乙贵人（另派）':'得长辈外援之助','文昌':'利启蒙、记问、学业'}; return K[x]||A[x]||''; }
   function shaClauseInc(s){ const sh=stepSha(s.gz); if(!sh.length) return ''; const had=[]; underStack(s).forEach(o=>{ stepSha(o.gz).forEach(x=>{ if(had.indexOf(x)<0) had.push(x); }); }); const nw=sh.filter(x=>had.indexOf(x)<0); if(!nw.length) return ''; const age=curAge; const segs=nw.map(x=>{ const m=shaMean(x); if(!m) return ''; const lab=(x==='桃花'&&baziAgeStage(age)==='child')?'人缘':x; return lab+'，'+m; }).filter(Boolean); if(!segs.length) return ''; return '；'+s.lvl+'新逢'+segs.join('；'+s.lvl+'新逢'); }
   // 长生位与喜忌协调：判喜之步遇负面位（衰/病/死/绝）改写为中性蓄力语
   const CS_NEU={'衰':'气机渐敛、宜稳中求进','病':'小有烦扰、宜养宜顾','死':'气机暗伏、宜静守待转','绝':'气机收敛、宜蓄力待时'};
-  // 长生位措辞：与宫位应事② 长生维度统一为运行XX地句式（墓→墓地、死→死地…）
-  const CS_WORD={'墓':'墓库','死':'死地','绝':'绝地','病':'病地','衰':'衰地'};
   function csClauseInc(s, F, tag){ if(!F.cs) return ''; if(underStack(s).some(o=>o.gz[1]&&getChangSheng(dg,o.gz[1])===F.cs)) return ''; const base=csMean(F.cs); if(!base) return ''; const m=(tag==='喜'&&CS_NEU[F.cs])?CS_NEU[F.cs]:base; return '；'+s.lvl+'运行'+csDi(F.cs)+'，'+m; }
   // 盲派口诀综合：纳音 / 空亡 / 凶煞（羊刃，灾煞，劫煞）/ 犯太岁 / 与上层天克地冲相刑 ， 全链路 saidDuan 只述一次
   //（数据与判定真源上收 bazi-mangpai.js：纳音象 MangPai.NY_XIANG、空亡落宫 MangPai.KONG_GONG、
@@ -6093,8 +6077,6 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   const CS_DUANYU={'长生':{t:'气运初萌、生机方启，宜蓄势待发。',s:'三命通会，论寿夭'},'沐浴':{t:'桃花临身、情志易浮动，宜守心持正。',s:'三命通会，论咸池'},'冠带':{t:'渐入佳境、声名始显，宜进德修业。',s:'滴天髓，论衰旺'},'临官':{t:'得地乘权、事业渐兴，宜乘势有为。',s:'三命通会，论正官'},'帝旺':{t:'气盛当权、锋芒毕露，宜防过亢持盈。',s:'滴天髓，论衰旺'},'衰':{t:'气渐收敛、事多迟回，宜养锐守成。',s:'三命通会，论寿夭'},'病':{t:'气血易滞、宜调摄。',s:'滴天髓，论疾病'},'死':{t:'气机敛藏、宜静不宜动。',s:'滴天髓，论疾病'},'墓':{t:'气归库藏、事宜收敛，宜蓄藏聚气。',s:'三命通会，论寿夭'},'绝':{t:'气运孤绝、宜避锋守静。',s:'滴天髓，论疾病'},'胎':{t:'气始萌蕴、宜静养待时。',s:'三命通会，论寿夭'},'养':{t:'气渐滋长、宜培元固本。',s:'三命通会，论寿夭'}};
   const WX_DUANYU={'木':'甲乙寅卯木受亏则主肝胆，宜护肝息风。','火':'丙丁巳午火受亏则主心火，宜养心安神。','土':'戊己辰戌丑未土受亏则主脾胃，宜调中理脾。','金':'庚辛申酉金受亏则主肺金，宜润肺清金。','水':'壬癸亥子水受亏则主肾水，宜滋水固肾。'};
   const TEN_DUANYU={'正官':'主贵气名位、宜守正持重。','七杀':'主威权压力、宜担责进取。','正印':'主荫庇文采、宜进学修德。','偏印':'主偏艺孤清、宜专精一技。','正财':'主财禄安稳、宜务实积聚。','偏财':'主外财交际、宜通达生财。','食神':'主福慧吐秀、宜宴乐抒怀。','伤官':'主才艺锋锐、宜显才守谦。','比肩':'主同辈助益、宜合作共济。','劫财':'主竞争耗散、宜防财被夺。'};
-  const TEN_SRC={'正官':'三命通会，论正官','七杀':'三命通会，论偏官','正印':'三命通会，论正印','偏印':'三命通会，论偏印','正财':'三命通会，论正财','偏财':'三命通会，论偏财','食神':'三命通会，论食神','伤官':'三命通会，论伤官','比肩':'三命通会，论比肩','劫财':'三命通会，论比肩'};
-  const SHA_DUANYU={'驿马':{t:'主远行变动、奔波。',s:'三命通会，论驿马'},'桃花':{t:'人际缘旺、情致易动。',s:'三命通会，论咸池'},'天乙贵人':{t:'得外力贵人之助。',s:'三命通会，论天乙贵人'},'文昌':{t:'利学业文书、声名。',s:'三命通会，论学堂词馆'}};
   function _tenTag(name, wx){ if(!name) return '中性'; const c=shenCat(name); if(geUseXiCats.indexOf(c)>=0) return '喜用'; if(geUseJiCats.indexOf(c)>=0) return '忌神'; const _sx=(A.synthesis&&A.synthesis.xiWxEff)||[], _sj=(A.synthesis&&A.synthesis.jiWxEff)||[]; if(_sx.indexOf(wx)>=0) return '喜用'; if(_sj.indexOf(wx)>=0) return '忌神'; const wv=wxVsYong(wx); if(wv==='用神'||wv==='喜神') return '喜用'; if(wv==='忌神') return '忌神'; return '中性'; }
   function _relLine(LVL, myTen, myTag, pillar, pTen, pTag, kind){
     const m=(myTag||'中性'), p=(pTag||'中性');
@@ -6194,16 +6176,27 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(o==='；') return '';
     if(saidDuan.has(o)) return ''; saidDuan.add(o); return o;
   }
-  // 墓库开闭（盲派特色）：判定真源 MangPai.kuOf（四库藏财官、命局逢冲刑则开）
+  // 墓库开闭（盲派特色）：判定真源 MangPai.kuOf（四库藏财官、命局逢冲刑则开）与
+  // MangPai.kuStep（命局之库逢岁运冲刑则开、逢合绊则闭）；两路各出句，按文本原文去重
   function mangKu(s){
-    const k=MangPai.kuOf(BZ, s.gz[1]); if(!k) return '';
-    if(saidDuan.has(k.text)) return ''; saidDuan.add(k.text); return '；'+k.text;
+    const out=[];
+    const k=MangPai.kuOf(BZ, s.gz[1]);
+    if(k && !saidDuan.has(k.text)){ saidDuan.add(k.text); out.push(k.text); }
+    const ks=MangPai.kuStep(BZ, s.gz[1]);
+    if(ks && !saidDuan.has(ks)){ saidDuan.add(ks); out.push(ks); }
+    return out.length?('；'+out.join('；')):'';
   }
   // 通根/虚透（盲派"虚透"概念）：判定真源 MangPai.xuTouOf，该步天干在命局无根则气浮
   function mangRoot(s){
     if(!MangPai.xuTouOf(BZ, s.gz[0])) return '';
     const o='；天干'+s.gz[0]+MangPai.XU_TOU;
     if(saidDuan.has(o)) return ''; saidDuan.add(o); return o;
+  }
+  // 做功虚实之转（流月层）：判定真源 MangPai.xuShiStep（本步与上层相较，由虚转实则做功有了着落）
+  function mangXuShi(s, up){
+    if(s.lvl!=='流月'||!up) return '';
+    const o=MangPai.xuShiStep(BZ, s.gz, up.gz);
+    if(!o||saidDuan.has(o)) return ''; saidDuan.add(o); return '；'+o;
   }
   function mangShaAll(s, F){
     const parts=[];
@@ -6236,9 +6229,6 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   }
   // 盲派：非财官本位时，实算能否"借到"财官（支藏或与他柱合而带财官，真源 MangPai.borrowable）
   function mangCanBorrow(s,F){ const rels=F.mingRels.concat(F.pairRels).map(r=>r.rel); return MangPai.borrowable(BZ, s.gz, rels); }
-  // 内部枚举→可读词（避免 mix 等枚举值泄漏进用户文案）
-  const CN_WORD={'喜':'得力','忌':'受扰','中':'平','mix':'喜忌相参'};
-  const GE_WORD={'喜':'得力','忌':'受扰','中':'平','mix':'力半'};
   // 格局派：用神五行集合（由十神类反查四柱天干所属五行）+ 相神清浊
   function yongShenWx(){ const set=new Set(); geUseXiCats.forEach(cat=>{ BZ.gans.forEach(g=>{ if(shenCat(tenGod(dg,g))===cat) set.add(GAN_WX[g]); }); }); return set; }
   /* 季节权重：冬夏寒暖之偏最甚，调候权重最高；春秋退居辅助。 */
@@ -6339,7 +6329,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       if(zg.bin&&zg.bin!==uz.bin) x+=`；${zg.bin}`;
       x+=pairVerdict(s,F,'盲派')+pairFix(s,'盲派', tag);
     }
-    x+=mangShaAll(s,F)+csClauseInc(s,F,tag)+mangNayin(F)+mangKong(s)+mangXiang(s,F)+mangKu(s)+mangRoot(s);
+    x+=mangShaAll(s,F)+csClauseInc(s,F,tag)+mangNayin(F)+mangKong(s)+mangXiang(s,F)+mangKu(s)+mangRoot(s)+mangXuShi(s,up);
     return x+'。';
   }
   function fTiao(s, F){ // 调候派：寒暖燥湿 + 调候字状态；不堆神煞、不抢具体事件应期
@@ -6359,7 +6349,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   function xinComb(gd,zd){ if(gd==='喜'&&zd==='喜')return '喜'; if(gd==='忌'&&zd==='忌')return '忌'; if((gd==='喜'&&zd==='忌')||(gd==='忌'&&zd==='喜'))return 'mix'; return (gd==='喜'||zd==='喜')?'喜':(gd==='忌'||zd==='忌')?'忌':'中'; }
   function fXin(s, F){ // 新派（民国）：十神旺衰直断 + 盘面出处式（点名哪几个字）+ 弃神煞纳音
     const g=s.gz[0], z=zhiMain(s.gz[1]), strong=A.strength.indexOf('弱')<0;
-    const tc=tenCat(s.gz), gd=dirOf(tc.g), zd=dirOf(tc.z), up=upperOf(s); let x=`${s.gz}天干${g}为${F.ganTen}、地支本气${z}为${F.zhiTen}，`;
+    const tc=tenCat(s.gz), gd=dirOf(tc.g), zd=dirOf(tc.z), up=upperOf(s); let x=`${s.gz}天干${g}为${F.ganTen}、地支本气${z}为${F.zhiTen}${s.lvl==='流日'?'当值':''}，`;
     function eff(dir){ if(dir==='喜') return strong?'耗泄':'增益'; if(dir==='忌') return strong?'增益':'耗泄'; return '无大损益'; }
     if(!up){
       const gx=`天干${g}${gd==='喜'?'为扶抑所喜、'+eff(gd)+'日主':gd==='忌'?'为扶抑所忌、'+eff(gd)+'日主':'动静相参、日主无大变'}`;
@@ -6417,10 +6407,11 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(sc.name==='病药派'){ const hitB=(w===A.bingYao.bing)||(zw===A.bingYao.bing); const hitY=(w===A.bingYao.yao)||(zw===A.bingYao.yao); if(hitB&&!hitY) return '忌'; if(hitY&&!hitB) return '喜'; return '中'; }
     return '中';
   }
-  // 各派"自身判定句"：该层干支引动本派关注点→主调（四层通用；有上层时取代承转句）
+  // 各派"自身判定句"：该层干支引动本派关注点→本层主调（流年落当年主调、流日落当值十神，四层通用）
   function selfVerdictOf(scName, s, tag){
     const g=s.gz[0], z=zhiMain(s.gz[1]);
     const tc=tenCat(s.gz), gc=shenCat(tc.g), zc=shenCat(tc.z);
+    const yr=(s.lvl==='流年'), rd=(s.lvl==='流日');
     switch(scName){
       case '子平格局派': {
         const xi=[], ji=[];
@@ -6428,45 +6419,48 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         if(geUseXiCats.indexOf(zc)>=0 && xi.indexOf(zc)<0) xi.push(zc);
         if(geUseJiCats.indexOf(gc)>=0) ji.push(gc);
         if(geUseJiCats.indexOf(zc)>=0 && ji.indexOf(zc)<0) ji.push(zc);
-        if(tag==='喜'&&xi.length) return `${s.gz}引动格局用神${xi.join('、')}，用神得力`;
-        if(tag==='忌'&&ji.length) return `${s.gz}引动忌神${ji.join('、')}，用神受扰、恐有破格之虞`;
-        if(tag==='mix') return `${s.gz}天干${g}（${gc}）、地支本气${z}（${zc}），一喜一忌、喜忌相参`;
-        return `${s.gz}与用神无涉，主调平顺`;
+        if(tag==='喜'&&xi.length) return `${s.gz}引动格局用神${xi.join('、')}，${yr?'当年用神得力':'用神得力'}`;
+        if(tag==='忌'&&ji.length) return `${s.gz}引动忌神${ji.join('、')}，${yr?'当年用神受制、恐有破格之虞':'用神受扰、恐有破格之虞'}`;
+        if(tag==='mix') return `${s.gz}天干${g}（${gc}）、地支本气${z}（${zc}），一喜一忌、${yr?'当年喜忌相参':'喜忌相参'}`;
+        return `${s.gz}与用神无涉，${yr?'当年平顺':'主调平顺'}`;
       }
       case '盲派': {
         const cg=(gc==='财星'||gc==='官杀')?tc.g:'', cz=(zc==='财星'||zc==='官杀')?tc.z:'';
         const child=baziAgeStage(curAge)==='child';
         const inf=baziInfant(curAge);
-        if(tag==='喜'){ const wx=cg||cz;
-          return child?(inf?`${s.gz}见财官（${wx}），财官杀动、利成长启蒙`:`${s.gz}见财官（${wx}），财官杀动、利课业功名`):`${s.gz}见财官（${wx}），财官得引、事有可谋`;
-        }
-        return child?(inf?`${s.gz}不见财官，根基如常`:`${s.gz}不见财官，课业如常`):`${s.gz}不见财官，财官不显`;
+        if(child) return (tag==='喜')?(inf?`${s.gz}见财官（${cg||cz}），财官杀动、利成长启蒙`:`${s.gz}见财官（${cg||cz}），财官杀动、利课业功名`):(inf?`${s.gz}不见财官，根基如常`:`${s.gz}不见财官，课业如常`);
+        if(rd) return (tag==='喜')?`${s.gz}天干${tc.g}象、地支本气${tc.z}象，当日有取财官之机`:`${s.gz}天干${tc.g}象、地支本气${tc.z}象，当日做功无着、宜平守`;
+        if(tag==='喜') return `${s.gz}见财官（${cg||cz}），${yr?'当年有取财官之机':'财官得引、事有可谋'}`;
+        return `${s.gz}不见财官，${yr?'做功无着、当年平守':'财官不显'}`;
       }
       case '调候派': {
-        if(tag==='喜') return `${s.gz}引调候取用${A.tiao.gan.join('')}，寒暖得济`;
-        if(tag==='忌') return `${s.gz}逆调候、寒暖失度`;
-        return `${s.gz}与调候无涉，寒暖如常`;
+        if(rd) return tag==='喜'?`${s.gz}当值，引调候取用${A.tiao.gan.join('')}，寒暖得济、当日顺遂`:(tag==='忌'?`${s.gz}当值，逆调候、寒暖失度、当日宜调护`:`${s.gz}当值，与调候无涉，寒暖如常`);
+        if(tag==='喜') return `${s.gz}引调候取用${A.tiao.gan.join('')}，寒暖得济${yr?'、当年顺遂':''}`;
+        if(tag==='忌') return yr?`${s.gz}逆调候，寒暖失度、当年乖蹇`:`${s.gz}逆调候、寒暖失度`;
+        return yr?`${s.gz}与调候无涉，当年寒暖如常`:`${s.gz}与调候无涉，寒暖如常`;
       }
       case '新派（民国）': {
         const strong=A.strength.indexOf('弱')<0;
         function eff2(dir){ if(dir==='喜') return strong?'耗泄':'增益'; if(dir==='忌') return strong?'增益':'耗泄'; return '无大损益'; }
         const gd2=dirOf(tc.g), zd2=dirOf(tc.z);
+        const yrn=t3=> yr?('，当年'+t3):'';
         const gx=`天干${g}${gd2==='喜'?'为扶抑所喜、'+eff2(gd2)+'日主':gd2==='忌'?'为扶抑所忌、'+eff2(gd2)+'日主':'动静相参、日主无大变'}`;
         const zx=`地支本气${z}${zd2==='喜'?'为扶抑所喜、'+eff2(zd2)+'日主':zd2==='忌'?'为扶抑所忌、'+eff2(zd2)+'日主':'动静相参、日主无大变'}`;
-        if(gd2==='喜'&&zd2==='喜') return `二者皆喜，日主${eff2('喜')}、扶抑得宜、日主趋衡`;
-        if(gd2==='忌'&&zd2==='忌') return `二者皆忌，日主${eff2('忌')}、扶抑失当、日主愈偏，宜静守`;
-        if(gd2==='喜'&&zd2==='忌') return `${gx}；${zx}，一顺一逆、喜忌相参`;
-        if(gd2==='忌'&&zd2==='喜') return `${gx}；${zx}，一逆一顺、喜忌相参`;
-        if(gd2==='喜') return `${gx}，日主${eff2('喜')}、扶抑得宜，日主趋衡`;
-        if(zd2==='喜') return `${zx}，日主${eff2('喜')}、扶抑得宜，日主趋衡`;
-        if(gd2==='忌') return `${gx}，扶抑失当，宜静守`;
-        if(zd2==='忌') return `${zx}，扶抑失当，宜静守`;
-        return `天干地支皆动静相参、日主无大变，宜常`;
+        if(gd2==='喜'&&zd2==='喜') return `二者皆喜，日主${eff2('喜')}、扶抑得宜、日主趋衡${yrn(strong?'从容':'有力')}`;
+        if(gd2==='忌'&&zd2==='忌') return `二者皆忌，日主${eff2('忌')}、扶抑失当、日主愈偏，宜静守${yrn('宜防')}`;
+        if(gd2==='喜'&&zd2==='忌') return `${gx}；${zx}，一顺一逆、${yr?'当年喜忌相参':'喜忌相参'}`;
+        if(gd2==='忌'&&zd2==='喜') return `${gx}；${zx}，一逆一顺、${yr?'当年喜忌相参':'喜忌相参'}`;
+        if(gd2==='喜') return `${gx}，日主${eff2('喜')}、扶抑得宜，日主趋衡${yrn(strong?'从容':'有力')}`;
+        if(zd2==='喜') return `${zx}，日主${eff2('喜')}、扶抑得宜，日主趋衡${yrn(strong?'从容':'有力')}`;
+        if(gd2==='忌') return `${gx}，扶抑失当，宜静守${yrn('宜防')}`;
+        if(zd2==='忌') return `${zx}，扶抑失当，宜静守${yrn('宜防')}`;
+        return yr?`天干地支皆动静相参、日主无大变，当年如常`:`天干地支皆动静相参、日主无大变，宜常`;
       }
       case '病药派': {
-        if(tag==='喜') return `${s.gz}引药神${A.bingYao.yao}，偏枯得解`;
-        if(tag==='忌') return `${s.gz}引病神${A.bingYao.bing}，偏枯加重`;
-        return `${s.gz}病药两无所引`;
+        if(rd) return tag==='喜'?`${s.gz}当值，引药神${A.bingYao.yao}、偏枯得解、当日转顺`:(tag==='忌'?`${s.gz}当值，引病神${A.bingYao.bing}、偏枯加重、当日宜防`:`${s.gz}当值，病药两无所引、当日如常`);
+        if(tag==='喜') return `${s.gz}引药神${A.bingYao.yao}，偏枯得解${yr?'、当年转顺':''}`;
+        if(tag==='忌') return `${s.gz}引病神${A.bingYao.bing}，偏枯加重${yr?'、当年宜防':''}`;
+        return yr?`${s.gz}病药无引、当年如常`:`${s.gz}病药两无所引`;
       }
       default: return '';
     }
@@ -6480,7 +6474,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         const season={'寅':'春','卯':'春','辰':'春','巳':'夏','午':'夏','未':'夏','申':'秋','酉':'秋','戌':'秋','亥':'冬','子':'冬','丑':'冬'}[z];
         if(season==='冬') return `；值${z}月寒气当令，调候取用${A.tiao.gan.join('、')}尤为要紧`;
         if(season==='夏') return `；值${z}月燥气当令，调候之水尤为要紧`;
-        return '';
+        return `；值${z}月，寒暖平和、调候之需未急`;
       }
       case '新派（民国）': {
         const mt=shenCat(tenGod(dg, zhiMain(z)));
@@ -6495,18 +6489,22 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         const mw=ZHI_WX[z];
         if(mw===A.bingYao.bing) return `；值${z}月，月令${mw}气当令助病，药力须待岁运`;
         if(mw===A.bingYao.yao) return `；值${z}月，月令${mw}气当令助药，偏枯得缓`;
-        return '';
+        return `；值${z}月，月令${mw}气当令，于病药无涉、偏枯如常`;
       }
       default: return '';
     }
   }
-  // 上层喜忌修正（描述式四态 + 更高层折冲）；本层为中（含 mix 归中）不出修正句
+  // 上层喜忌修正（同向、反向、特例三态 + 更高层折冲）；本层为中（含 mix 归中）不出修正句
   function pairFix(s, scName, cur){
     if(cur!=='喜'&&cur!=='忌') return '';
     const up=upperOf(s); if(!up) return '';
     const ut=verdictOf({name:scName}, up), u=`${up.lvl}${up.gz}`;
     const parts=[];
-    if(ut==='喜'||ut==='忌'){
+    // 特例专名（吉凶之象倍增、变动剧烈、气机凝聚），优先于同向、反向的描述式
+    if(s.lvl==='流年'&&up.lvl==='大运'&&s.gz===up.gz) parts.push(`与${u}干支相同，岁运并临、吉凶之象倍增`);
+    else if(pairIn(s.gz[0],up.gz[0],TIANGAN_CHONG)&&pairIn(s.gz[1],up.gz[1],DIZHI_CHONG)) parts.push(`与${u}天克地冲，变动剧烈`);
+    else if(tianGanHe(s.gz[0],up.gz[0])&&DIZHI_HE6.some(a=>(a[0]===s.gz[1]&&a[1]===up.gz[1])||(a[0]===up.gz[1]&&a[1]===s.gz[1]))) parts.push(`与${u}天合地合，气机凝聚、事有转机`);
+    else if(ut==='喜'||ut==='忌'){
       if(ut===cur) parts.push(`与${u}同${cur==='喜'?'喜':'忌'}，${cur==='喜'?'吉气相连、事顺可期':'凶气相连、宜守勿进'}`);
       else parts.push(`逢${cur==='喜'?'喜':'忌'}而${u}之${ut==='喜'?'喜':'忌'}在，${cur==='喜'?'喜中带滞、宜稳进':'凶中带缓、仅防小碍'}`);
     }
@@ -6521,14 +6519,18 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     return parts.length?('；'+parts.join('；')):'';
   }
   function tally(s){ const v=schools.map(sc=>({n:sc.name, r:verdictOf(sc,s)})); return {v, xi:v.filter(x=>x.r==='喜').map(x=>x.n), ji:v.filter(x=>x.r==='忌').map(x=>x.n), mid:v.filter(x=>x.r==='中').map(x=>x.n)}; }
-  // 共识与分歧：当前分布名单一次（单派"仅X"、多派"N派判X：名单"，禁括号包名单）+ 主调分析（较上层主调：仍/转；无上层：在）
+  // 共识与分歧：当前分布名单一次（单派"仅X"、多派"N派判X：名单"，禁括号包名单）+ 与上层关系（逐派自比上层：X判喜，较上层喜力相续或受制；无上层：主调在X）
   function mainOf(t){ const n=t.xi.length, j=t.ji.length, m=t.mid.length;
     if(n>=3) return '喜'; if(j>=3) return '忌'; if(m>=3) return '平'; return ''; }
-  function gongChaOf(v, X, upMain){
+  function gongChaOf(v, X, ut, vn){
     const xi=v.filter(x=>x.r==='喜').map(x=>x.n), ji=v.filter(x=>x.r==='忌').map(x=>x.n), mid=v.filter(x=>x.r==='中').map(x=>x.n);
     const n=xi.length, j=ji.length, m=mid.length;
-    if(n===5) return `五派一致判${X}为日主所喜，共识明确`;
-    if(j===5) return `五派一致判${X}为日主所忌，共识明确`;
+    const hasUp=!!(ut&&ut.length);
+    /* 与上层关系：本层判喜、判忌之派各自比对上层的同派判定，同向为力相续、异向为力受制 */
+    const rel=hasUp?v.filter(x=>x.r==='喜'||x.r==='忌').map(x=>{ const ur=(ut.find(y=>y.n===x.n)||{}).r; return `${x.n}判${x.r}，较上层${x.r}力${ur===x.r?'相续':'受制'}`; }):[];
+    const relTxt=rel.length?('；'+rel.join('；')):'';
+    if(n===5) return `五派一致判${X}为日主所喜，共识明确`+relTxt;
+    if(j===5) return `五派一致判${X}为日主所忌，共识明确`+relTxt;
     if(m===5) return `五派一致判${X}为平，无喜忌分歧`;
     const list=[];
     if(n===1) list.push(`仅${xi[0]}判喜`);
@@ -6537,10 +6539,12 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     else if(j) list.push(`${j}派判忌：${ji.join('、')}`);
     if(m===1) list.push(`仅${mid[0]}判平`);
     else if(m) list.push(`${m}派判平：${mid.join('、')}`);
-    let t=list.join('；');
-    const cur=mainOf({xi,ji,mid});
-    if(cur){ if(upMain&&upMain!==cur) t+=`；主调由${upMain}转${cur}`; else if(upMain&&upMain===cur) t+=`；主调仍${cur}`; else t+=`；主调在${cur}`; }
-    else t+=(n===j?'；喜忌相当、宜辨主次':'；主调不明、宜辨主次');
+    let t=list.join('；')+(vn||'')+relTxt;
+    if(!hasUp){
+      const cur=mainOf({xi,ji,mid});
+      if(cur) t+=`；主调在${cur}`;
+      else t+=(n===j?'；喜忌相当、宜辨主次':'；主调不明、宜辨主次');
+    }
     return t;
   }
   // 分歧根源：子平（格局成败）与新派（旺衰扶抑）视角相左时，判定相反属方法论差异，短注点明
@@ -6551,11 +6555,11 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       // 本层五派判定与上层全同：不重复名单，依上一层结论（名单/主调已在上层给出）
       if(cu.v.every((x,i)=>x.r===ut.v[i].r)) return `五派判定与${u}全同、无新变，仍依上一层结论。`;
       const vn=viewNoteOf(cu.v);
-      return gongChaOf(cu.v, s.gz, mainOf(ut))+(vn?vn:'')+'。';
+      return gongChaOf(cu.v, s.gz, ut.v, vn)+'。';
     }
     const v=schools.map(sc=>({n:sc.name, r:verdictOf(sc,s)}));
     const vn=viewNoteOf(v);
-    return gongChaOf(v, s.gz, '')+(vn?vn:'')+'。';
+    return gongChaOf(v, s.gz, '', vn)+'。';
   }
   // 冗余层折叠：某层五派判定与上层全同、且无新增神煞/长生/应期宫位，则不铺表、一行收掉
   function layerRedundant(s){
@@ -7741,11 +7745,14 @@ function evStepSha(BZ, gz, age){
   const YIMA = {'申':'寅','子':'寅','辰':'寅','寅':'申','午':'申','戌':'申','亥':'巳','卯':'巳','未':'巳','巳':'亥','酉':'亥','丑':'亥'};
   const TAO = {'申':'酉','子':'酉','辰':'酉','寅':'卯','午':'卯','戌':'卯','亥':'子','卯':'子','未':'子','巳':'午','酉':'午','丑':'午'};
   const GUI = {'甲':'丑未','戊':'丑未','庚':'丑未','乙':'子申','己':'子申','丙':'亥酉','丁':'亥酉','壬':'卯巳','癸':'卯巳','辛':'午寅'};
+  // 天乙贵人庚日取支有丑未与寅午两说，另派并列同出，与 bazi-data.js 的另派条目同口径
+  const GUI_ALT = {'甲':'丑未','戊':'丑未','庚':'寅午','乙':'子申','己':'子申','丙':'亥酉','丁':'亥酉','壬':'卯巳','癸':'卯巳','辛':'午寅'};
   const WEN = {'甲':'巳','乙':'午','丙':'申','戊':'申','丁':'酉','己':'酉','庚':'亥','辛':'子','壬':'寅','癸':'卯'};
   const out = [];
   if(YIMA[dz]===z || YIMA[yz]===z) out.push(baziAgeStage(age)==='child' ? '驿马临运，环境易变、家或居所易搬迁、出行增多' : '驿马临运，主远行搬迁、岗位调动或出差频繁');
   if(TAO[dz]===z || TAO[yz]===z) out.push((baziAgeStage(age)==='child') ? '人缘好、同伴相得、易得玩伴' : '桃花临运，情缘信号显露、人际缘旺');
   if(GUI[dg] && GUI[dg].indexOf(z)>=0) out.push('天乙贵人临运，得外力贵人扶持、逢凶化吉');
+  if(GUI_ALT[dg] && GUI_ALT[dg].indexOf(z)>=0 && !(GUI[dg]||'').indexOf(z)>=0) out.push('天乙贵人（另派）临运，按庚辛逢虎马取贵法，得外力贵人扶持、逢凶化吉');
   if(WEN[dg]===z) out.push(baziAgeStage(age)==='late' ? '文昌临运，利文书、名声、文墨之务' : '文昌临运，利学业、文书、名声、考试');
   return out;
 }

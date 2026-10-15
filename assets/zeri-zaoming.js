@@ -355,7 +355,7 @@
     try{
       var present=WX5.filter(function(w){ return cnt[w]>0; });
       if(present.length>=3){
-        var seq=[]; var curW=present[0]; var seen={};
+        var seq=[]; var seen={};
         for(var st=0;st<present.length;st++){
           var w0=present[st]; if(seen[w0]) continue;
           var chain=[w0]; seen[w0]=1; var wCur=w0;
@@ -886,7 +886,6 @@
     var parent1 = buildParent(p1.y, p1.m, p1.d, p1.h, p1.mi, p1.label||'家长一', (p1.sex==='女'?0:1), p1.lng, p1.useTrue);
     var parent2 = buildParent(p2.y, p2.m, p2.d, p2.h, p2.mi, p2.label||'家长二', (p2.sex==='女'?0:1), p2.lng, p2.useTrue);
     var parents = [parent1, parent2].filter(Boolean);
-    var babyNayinCache = {};
 
     var list = [], days = 0;
     var cur = new Date(opts.from.y, opts.from.m-1, opts.from.d);
@@ -896,7 +895,6 @@
     while(cur<=end && days<400){
       days++;
       var y=cur.getFullYear(), m=cur.getMonth()+1, d=cur.getDate();
-      var dateKey = y+'-'+m+'-'+d;
       for(var hi=0; hi<hours.length; hi++){
         var hIdx = hours[hi];
         /* 时辰中点（钟表时）：子时取 0:30（早子时口径，日柱归当日），其余取整点 */
