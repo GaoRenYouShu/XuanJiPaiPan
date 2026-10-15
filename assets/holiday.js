@@ -76,10 +76,12 @@
     return new Promise(function (res, rej) {
       if (typeof fetch !== 'function') { rej(new Error('no fetch')); return; }
       let done = false;
+      /* 超时须真中止连接：只弃结果不断连接，慢源上挂起的请求会积在页面上不放 */
+      const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
       const fin = function (fn, v) { if (done) return; done = true; clearTimeout(timer); fn(v); };
-      const timer = setTimeout(function () { fin(rej, new Error('timeout')); }, 6000);
+      const timer = setTimeout(function () { if (ctl) { try { ctl.abort(); } catch (e) {} } fin(rej, new Error('timeout')); }, 6000);
       try {
-        fetch(url, { method: 'GET', cache: 'no-store', credentials: 'omit' })
+        fetch(url, { method: 'GET', cache: 'no-store', credentials: 'omit', signal: ctl ? ctl.signal : undefined })
           .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); })
           .then(function (j) { fin(res, j); })
           .catch(function (e) { fin(rej, e); });

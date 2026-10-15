@@ -3537,7 +3537,7 @@ function renderAnalysis(BZ, shenshaSummary, cols){
     if(S.secondary) out+=`<div class="sub-note">${endDot('次选：'+S.secondary.wx+'（'+S.secondary.count+' 法：'+S.secondary.methods.join('、')+'）'+(S.secondary.isJi?' ⚠与扶抑喜用相左':''))}</div>`;
     if(S.gan.tou.length||S.gan.root.length) out+=`<div class="sub-note">${endDot('用神天干：'+(S.gan.tou.length?('透干 '+dedupChars(S.gan.tou)):'')+(S.gan.root.length?(' 得根 '+dedupChars(S.gan.root)):''))}</div>`;
     else out+=`<div class="sub-note">用神天干当地支无根、天干不透，须岁运引出方有力。</div>`;
-    if(S.conflicts.length) out+=`<div class="synth-conflict">⚠ 冲突：${S.conflicts.map(c=>c.wx+'（'+c.methods.join('、')+'）为用神却犯扶抑之忌').join('；')}。此类矛盾单凭原局难定，须结合大运流年再论。</div>`;
+    if(S.conflicts.length) out+=`<div class="synth-conflict">⚠ 冲突：${S.conflicts.map(c=>c.wx+'（'+c.methods.join('、')+'）为用神却犯扶抑之忌').join('；')}。${S.conflicts.map(c=>c.ruling||'').join('')}</div>`;
     out+=`<div class="sub-note">${endDot(S.advice)}</div>`;
     return out;
   })(A.synthesis) : '五法用神暂无明确共识，宜就原局细节斟酌。';
@@ -3973,6 +3973,44 @@ function mingGongXianNote(BZ, A){
   const tag=z=>{ const w=ZHI_WX[z]||''; return (xi.indexOf(w)>=0)?'喜用':((ji.indexOf(w)>=0)?'忌神':'中平'); };
   return `<div class="sub-note">${endDot(`命宫${base.gz}（${dx.dir}）起限：大限在${dx.zhi}宫，${dx.from}至${dx.to}岁，${tag(dx.zhi)}；今${age}岁，小限在${xx}宫，${tag(xx)}`)}</div>`;
 }
+/* 定应取法：以命局实有之合、冲、旬空、库支四类定岁运应期之年，逐类成句、宁缺毋滥。
+   合处待冲：命局六合之对，待岁运冲其中一支之年应；合中兼刑破者并注。
+   冲处待合：命局六冲之对，待岁运合其中一支之年应。
+   空待填实：旬空之支，待岁运填实或逢冲之年应；空亡轴读页面当前口径（day 取日柱旬空、year 取年柱旬空）。
+   库待冲开：库支未开者待岁运冲开，已开者逢合则闭、逢冲再动；开闭取本命分析墓库段（A.muku.list，逢冲刑、透干、化局皆物已出库）。
+   一对之支按柱序（年月日时）书写，同类多对者逐对成句。四类皆不适用则整条不出。 */
+function dingYingNote(BZ, A){
+  if(!BZ || !A) return '';
+  const zs=(BZ.zhis||[]).filter(Boolean);
+  const heOut=[], chongOut=[], seen=new Set();
+  for(let i=0;i<zs.length;i++) for(let j=i+1;j<zs.length;j++){
+    const a=zs[i], b=zs[j];
+    if(a===b) continue;
+    const key=[a,b].sort().join('');
+    if(seen.has(key)) continue;
+    const he6=DIZHI_HE6.find(g=>(g[0]===a&&g[1]===b)||(g[0]===b&&g[1]===a));
+    if(he6){
+      seen.add(key);
+      const hasX=pairIn(a,b,DIZHI_XING), hasP=pairIn(a,b,DIZHI_PO);
+      const jian=(hasX&&hasP)?'（合中带刑破）':(hasX?'（合中带刑）':(hasP?'（合中带破）':''));
+      heOut.push(`${a}${b}相合${jian}，待岁运冲${a}或冲${b}之年应`);
+    } else if(pairIn(a,b,DIZHI_CHONG)){
+      seen.add(key);
+      chongOut.push(`${a}${b}相冲，待岁运合${a}或合${b}之年应`);
+    }
+  }
+  const out=heOut.concat(chongOut);
+  const ka=(typeof kongAxis!=='undefined' && kongAxis)?kongAxis:'day';
+  const dayGZ=((BZ.gans&&BZ.gans[2])||'')+((BZ.zhis&&BZ.zhis[2])||'');
+  const yearGZ=((BZ.gans&&BZ.gans[0])||'')+((BZ.zhis&&BZ.zhis[0])||'');
+  const kw=(ka==='year'&&yearGZ.length===2)?kongWang(yearGZ):kongWang(dayGZ);
+  if(kw&&kw.length) out.push(`旬空${kw.join('')}，待${kw.join('、')}之年填实，或逢冲而实`);
+  ((A.muku&&A.muku.list)||[]).forEach(m=>{
+    const nm=(m.sw||'')+'库';
+    out.push((m.opened||m.ju)?`${nm}已开，逢合则闭、逢冲再动`:`${nm}未开，待岁运冲开之年应`);
+  });
+  return out.length?`<div class="sub-note">${endDot('定应取法：'+out.join('；'))}</div>`:'';
+}
 /* ============ 岁运干支分论（天干一层、地支一层）============
    一柱之内天干与地支各论其力，不混为一谈：天干主外主动，其力显于事；地支主内主静，其力藏于根。
    运干可自成一途、不必待支，出自《三命通会·卷二·总论岁运》支无财而运干是财、支无煞而运干是煞之条。
@@ -4024,6 +4062,7 @@ function renderYunDong(BZ, A, yd){
       <div class="sub-note">${endDot('起运：'+qiYunLabel(yunData.start)+' '+A.geYunNote)}</div>
       ${(()=>{ const n=qiYunSectNote(BZ); return n?`<div class="sub-note">${esc(endDot(n))}</div>`:''; })()}
       ${mingGongXianNote(BZ, A)}
+      ${dingYingNote(BZ, A)}
       <div class="yun-scroll"><table class="yun-tbl yd"><thead><tr><th>大运</th><th>用忌</th><th>关键引动</th><th>吉凶</th></tr></thead><tbody>
       ${yunData.steps.map(s=>s.empty?`<tr class="yun-empty"><td colspan="4" data-label="说明">未起运（${s.age}岁前）：承原局之气；此阶段无大运可依，逐岁以小运论，见运程推演。</td></tr>`:(()=>{ const copeAge=(s.age==null)?null:s.age+4; return `<tr class="${BZ.dyGZ&&s.gz===BZ.dyGZ?'cur':''}"><td class="yun-gz" data-label="大运">${s.gz}<span class="yun-age">${YANG.indexOf(s.gz[0])>=0?'阳运':'阴运'}</span><br><span class="yun-age">${s.age}岁</span>${s.year?`<br><span class="yun-age">约 ${s.year}–${s.year+9} 年</span>`:''}${s.year?`<br><span class="yun-age">交脱运 ${s.year-1}–${s.year}</span>`:''}${s.yunFlip&&s.yunFlip.flipped?'<br><span class="yun-flip-tag">喜忌随运翻</span>':''}</td><td class="yun-yongji" data-label="用忌">${s.eff.replace(LP,'<br>').replace(RP,'')}</td><td class="yun-key" data-label="关键引动">${yunKeyCell(s, copeAge, A, BZ.dayGan)}${s.yunFlip&&s.yunFlip.flipped?'<div class="sub-note">'+s.yunFlip.note+'</div>':'<br>'}<span class="yd-extra">此运走${yunStateBadge(s.rating)}。总体${s.rating==='吉'?'可':'宜'}${yunResultText(s.rating)}${s.rating==='中'?'适':''}。${yunCopingText(s.rating, copeAge)}。</span></td><td class="ev-jx" data-label="吉凶">${yunRatingTag(s.rating)}</td></tr>`; })()).join('')}
       </tbody></table></div>
@@ -5016,9 +5055,9 @@ function renderSchoolDiffInner(A, BZ){
   if(A.synthesis&&A.synthesis.primary){
     cross+=`首选用神为“${A.synthesis.primary.wx}”得 ${A.synthesis.primary.methods.join('、')} 共识（${A.synthesis.primary.count} 法），宜在此着力。`;
     if(A.synthesis.secondary) cross+=` 次选为“${A.synthesis.secondary.wx}”（${A.synthesis.secondary.methods.join('、')}）${A.synthesis.secondary.isJi?'，与扶抑喜用相左、须权衡轻重':''}。`;
-    if(A.synthesis.conflicts.length) cross+=` 调候、格局与扶抑之冲突在 ${A.synthesis.conflicts.map(c=>c.wx).join('、')}。岁运逢之，用神与调候相牵，进退休咎须看何者为急。`;
+    if(A.synthesis.conflicts.length) cross+=` 调候、格局与扶抑之冲突在 ${A.synthesis.conflicts.map(c=>c.wx).join('、')}。${A.synthesis.conflicts.map(c=>c.ruling||'').join('')}`;
     else cross+=' 诸法无明显冲突，主次分明、同向可用，得力最易。';
-    // 岁运宜忌指引取 advice 的"岁运宜见/忌见"部分；"⚠X兼具调候格局之用"冲突句已在喜用格局，综合用神段输出，此处不重复；
+    // 岁运宜忌指引取 advice 的"岁运宜见/忌见"部分；"⚠X为用神却犯扶抑之忌"冲突句与默认取法已在喜用格局、综合用神段输出，此处不重复；
     // advice 分段截断后句号落在冲突句尾，取段须剥尾补句，防整段无句号收束
     cross+=' '+((A.synthesis.advice||'').split('；⚠')[0]).replace(/[。；\s]+$/,'')+'。';
   }
@@ -5828,7 +5867,7 @@ function renderSchoolTable(A, BZ){
   if(A.synthesis&&A.synthesis.primary){
     cross=`首选用神“${A.synthesis.primary.wx}”得 ${A.synthesis.primary.methods.join('、')} 共识（${A.synthesis.primary.count} 法）`;
     if(A.synthesis.secondary) cross+=`；次选“${A.synthesis.secondary.wx}”（${A.synthesis.secondary.methods.join('、')}）`;
-    cross+=A.synthesis.conflicts.length?( `；分歧在 ${A.synthesis.conflicts.map(c=>c.wx).join('、')}，岁运逢之须看何者为急。`):'；诸法无明显冲突，主次分明、同向可用。';
+    cross+=A.synthesis.conflicts.length?( `；分歧在 ${A.synthesis.conflicts.map(c=>c.wx).join('、')}。${A.synthesis.conflicts.map(c=>c.ruling||'').join('')}`):'；诸法无明显冲突，主次分明、同向可用。';
   } else cross='五法用神暂无明确共识，宜就原局细节斟酌。';
   return `<h4 class="det-h">五派对照视图</h4>`
     +`<div class="tbl-wrap"><table class="stab stab-school"><thead><tr><th>流派</th><th>立足点</th><th>对本命之判</th><th>本派喜</th><th>本派忌</th></tr></thead><tbody>${rows}</tbody></table></div>`

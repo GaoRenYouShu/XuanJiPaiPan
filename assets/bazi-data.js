@@ -2178,6 +2178,9 @@ function baziAnalysis(BZ){
   let geOuter=null, geOuterNote='', geOuterDoubt='';
   // 化气格（天干五合）：日主参与五合、对方天干相见、且化神当令（月令本气=化神）则化气成格。
   // 此格以合化立局，与专旺、从/两气判法不同，须先于彼等判定，避免被误归普通格或外格。
+  // 真伪（用户典籍资料：化气格）：日主有禄刃强根则不论化格，唯强根五行与化神相同者仍可入格；
+  // 日主仅中余气微根、劫财透干帮身、合神或日主争合、化神无根而受重克者，立格而存化而不真之疑
+  // （假化一类，须待运助方能成真）。
   let huaShen=null, geHuaQi=null;
   const WUHE=[['甲','己','土'],['乙','庚','金'],['丙','辛','水'],['丁','壬','木'],['戊','癸','火']];
   const huaPair=WUHE.find(p=>p[0]===dg||p[1]===dg);
@@ -2185,9 +2188,36 @@ function baziAnalysis(BZ){
     const other=huaPair[0]===dg?huaPair[1]:huaPair[0];
     huaShen=huaPair[2];
     if(gans.includes(other) && mbWx===huaShen){
-      geHuaQi=huaShen+'化气格';
-      geOuter=geHuaQi;
-      geOuterNote='日主'+dg+'与'+other+'天干五合（'+huaPair[0]+huaPair[1]+'合化'+huaShen+'），化神'+huaShen+'当令（月令'+mz+'本气'+mbWx+'），化气格成立。喜行化神旺地、顺其化气，忌原局印比扶身破化、克化神者损化。';
+      /* 强根之查：禄刃按柱位计（年、日、时三支），与旺衰得地同一部口径；月支由化神当令覆盖，
+         若为禄刃其五行必即化神，属强根与化神同气之例外（用户典籍资料：此根与化神五行相同、使化神更旺者仍可入格）。
+         根非化神五行者，日主自有强根可倚、化气不专，化气格不成立，回落变格细判。 */
+      const hardRoot=[0,2,3].some(i=>(zhis[i]===LU[dg]||zhis[i]===REN_OF[dg]) && ZHI_WX[zhis[i]]!==huaShen);
+      if(!hardRoot){
+        geHuaQi=huaShen+'化气格';
+        geOuter=geHuaQi;
+        geOuterNote='日主'+dg+'与'+other+'天干五合（'+huaPair[0]+huaPair[1]+'合化'+huaShen+'），化神'+huaShen+'当令（月令'+mz+'本气'+mbWx+'），化气格成立。喜行化神旺地、顺其化气，忌原局印比扶身破化、克化神者损化。';
+        /* 存疑诸因（化而不真之疑），逐因记明：
+           一、日主微根未绝或劫财透干帮身，根气虽弱，究非无根；
+           二、日主或合神重见，两干争合一干，其情不专（《渊海子平》神趣八法：己字中露出二甲字，谓之争合）；
+           三、化神孤悬月令而克化神之五行成势，化神受制（用户典籍资料：化神不旺或局中见克化神者，以不论化格）。 */
+        const huaDoubts=[];
+        const micro=[];
+        zhis.forEach(z=>{ const hs=HIDE[z]||[z]; hs.forEach((h,hi)=>{ if(hi>=1 && GAN_WX[h]===dwx) micro.push(z+'中'+h); }); });
+        if(micro.length) huaDoubts.push('日主'+dg+'尚余'+micro.join('、')+'之微根，根气未尽');
+        const jieGan=gans.find((g,i)=>i!==2 && g!==dg && GAN_WX[g]===dwx);
+        if(jieGan) huaDoubts.push('劫财'+jieGan+'透干帮身');
+        const nDg=gans.filter(g=>g===dg).length, nHe=gans.filter(g=>g===other).length;
+        if(nDg>=2 || nHe>=2){
+          const two=(nDg>=2?dg:other), one=(nDg>=2?other:dg);
+          huaDoubts.push('局中'+two+'字重见（两'+two+'争'+one+'），争合、化气不专');
+        }
+        const huaTou=gans.some(g=>GAN_WX[g]===huaShen);
+        const huaRoot=zhis.some((z,i)=>i!==1 && (HIDE[z]||[z]).some(h=>GAN_WX[h]===huaShen));
+        const keHua=(()=>{ for(const w in WX_KE) if(WX_KE[w]===huaShen) return w; return null; })();
+        const keN=cnt[keHua]||0;
+        if(!huaTou && !huaRoot && keN>=2) huaDoubts.push('化神'+huaShen+'孤悬月令、别处无根，而克化神之'+keHua+'成势（'+keN+' 位），化神受制、化气不厚');
+        if(huaDoubts.length) geOuterDoubt='日主'+dg+'与'+other+'天干五合、化神'+huaShen+'当令，化气格虽立，然'+huaDoubts.join('；')+'，化而不真之疑，实务须以普通格并参。';
+      }
     }
   }
   if(!geOuter){
@@ -2234,7 +2264,27 @@ function baziAnalysis(BZ){
       // 比值交叉验证：印比不止一枚但同党远少于异党，几近从弱，留疑待斟酌（不强行从格）
       geOuterDoubt='日主印比虽不止一枚（'+yinBiTotal+' 位），但同党、异党比值 C≈'+congC.toFixed(2)+'(<0.25)，几近从弱之象；实务须斟酌是否真从、抑或仅为身弱待岁运扶起。';
     }
-    else if(wxDistinct.length<=2){ geOuter='两气成象'; geOuterNote='全局仅 '+wxDistinct.join('、')+' 两行，两气成象、清纯专凝，喜顺其气、忌杂入他行。'; }
+    else if(wxDistinct.length<=2){
+      /* 两气成象（用户典籍资料：半壁格，又名两神成象）：全局仅两行，两行相生为顺气之象；
+         两行相克亦为半壁格所载之一种情形，然相战非顺气，古法更须两行各占二干二支、力量相当，
+         此判据宽于古法，故相克者立格而存疑（相克之疑为本站依体系推演）。
+         力量相当之查（用户典籍资料：两者力量应平均，不可偏重或偏轻）：取五行能量分（wxElementScore，
+         与五行能量卡同一部口径）计两行占比，一行不足一成者存疑。 */
+      geOuter='两气成象';
+      geOuterNote='全局仅 '+wxDistinct.join('、')+' 两行，两气成象、清纯专凝，喜顺其气、忌杂入他行。';
+      const liangDoubts=[];
+      if(wxDistinct.length===2){
+        const w1=wxDistinct[0], w2=wxDistinct[1];
+        if(WX_SHENG[w1]!==w2 && WX_SHENG[w2]!==w1)
+          liangDoubts.push('两行相克（'+(WX_KE[w1]===w2?(w1+'克'+w2):(w2+'克'+w1))+'）相战，非相生顺气');
+        const es=(typeof wxElementScore==='function')?wxElementScore(BZ):null;
+        if(es){
+          const lo=Math.min(es[w1]||0,es[w2]||0), hi=Math.max(es[w1]||0,es[w2]||0);
+          if(hi>0 && lo/(lo+hi)<0.1) liangDoubts.push('两行能量分约 '+Math.round(lo)+' 比 '+Math.round(hi)+'，一行不足一成，非两气相当');
+        }
+      }
+      if(liangDoubts.length) geOuterDoubt='全局虽仅 '+wxDistinct.join('、')+' 两行，然'+liangDoubts.join('；')+'，两气成象虽立而清纯有间，实务须以战和并参。';
+    }
     else if(huaPair && gans.includes(huaPair[0]===dg?huaPair[1]:huaPair[0]) && mbWx!==huaShen){
       // 日主参与五合、对方相见，但化神未当令：合而不化，仅作天干五合论，不构成化气格
       const other=huaPair[0]===dg?huaPair[1]:huaPair[0];
@@ -2810,7 +2860,7 @@ function baziAnalysis(BZ){
   mVotes.forEach(v=>{ if(!vMap[v.w]) vMap[v.w]={wx:v.w, methods:[], count:0, isXi:xiWxEff.has(v.w), isJi:jiWxEff.has(v.w)}; if(vMap[v.w].methods.indexOf(v.m)<0){ vMap[v.w].methods.push(v.m); vMap[v.w].count++; } });
   const ranked=Object.values(vMap).sort((a,b)=> (b.isXi-a.isXi) || (b.count-a.count) || (xiWxSet.has(b.wx)?1:0)-(xiWxSet.has(a.wx)?1:0));
   // 冲突点：某法用神恰为有效忌神
-  const conflicts=ranked.filter(r=>r.isJi).map(r=>({wx:r.wx, methods:r.methods, note:`“${r.methods.join('，')}”取 ${r.wx} 为用神，但 ${r.wx} 为日主${geOuter?('（'+geOuter+'）'):''}忌神，与扶抑（喜 ${[...xiWxEff].join('、')}）相左，岁运见之须权衡。`}));
+  const conflicts=ranked.filter(r=>r.isJi).map(r=>({wx:r.wx, methods:r.methods, note:`“${r.methods.join('，')}”取 ${r.wx} 为用神，但 ${r.wx} 为日主${geOuter?('（'+geOuter+'）'):''}忌神，与扶抑（喜 ${[...xiWxEff].join('、')}）相左。`}));
   const primary=ranked[0]||null;
   const secondary=ranked.find(r=>r!==primary)||null;
   // 用神天干取用（透干优先，其次得根）
@@ -2827,7 +2877,8 @@ function baziAnalysis(BZ){
     return '财星（耗）';                           // 日主克 wx
   };
   const xiCatsEff=xiList.map(wxTenEff), jiCatsEff=jiList.map(wxTenEff);
-  const advice=`岁运宜见 ${xiList.join('、')}（助用神、生扶），忌见 ${jiList.join('、')}（助忌神）${conflicts.length?('；⚠ '+conflicts[0].wx+' 兼具调候、格局之用而犯扶抑之忌，须借岁运通关或权衡轻重'):''}。`;
+  /* 岁运宜忌主句；冲突句的默认取法须待调候裁决与病药外格口径定后成句，由下方冲突默认裁断段补足 */
+  const advice=`岁运宜见 ${xiList.join('、')}（助用神、生扶），忌见 ${jiList.join('、')}（助忌神）${conflicts.length?('；⚠ '+conflicts[0].wx+'（'+conflicts[0].methods.join('、')+'）为用神却犯扶抑之忌。'):'。'}`;
   const synthesis={ ranked, primary, secondary, conflicts, gan, advice, xiWxEff:xiList, jiWxEff:jiList, xiCatsEff, jiCatsEff };
   /* 用神五级分层（展示层）：用神取五法共识首选，相神取生用神与制忌神者，喜神取余下有效喜，
      忌神取有效忌，仇神取生忌神者，余为闲神；供综合用神模块分层展示 */
@@ -3054,6 +3105,39 @@ function baziAnalysis(BZ){
     bingYao.bing=null; bingYao.bingCnt=0; bingYao.yao=null;
     bingYao.yaoKind='外格顺其势，不取扶抑病药制衡';
     bingYao.note=`病药法（${geOuter}）：本命${geUse.xi?'喜 '+geUse.xi:'从势'}、${geUse.ji?'忌 '+geUse.ji:'顺化'}，一气成势，不取五行制衡为药；结构病药见下。`;
+  }
+  /* ============ 冲突默认裁断 ============
+     五法相左时不把取舍全推给读者，按下列四条给出默认取法，冲突之年再按轻重权衡：
+     一 外格（专旺、从、化气、两气）与杂格主格：顺其势、以本格为纲，调候、病药为辅；
+        《子平真诠》专旺忌官杀、从格忌印比，逆势之取破格，故不可为主。
+     二 普通格调候与扶抑相左：读调候裁决 tiao.ruling，极偏而调候有力者调候为先，余者扶抑为主，
+        不另立判据（《穷通宝鉴》冬夏调候为急，《用神喜忌》调候、通关为辅扶抑）。
+     三 病药与扶抑相左：扶抑为主、病药为辅；病神四柱三见及以上为过旺，病象极显者去病为先。
+     四 冲突五行于岁运相见：取主而借通关化其相左，冬夏调候之急可权先。
+     默认取法只在此处成句，渲染层三处直读 conflicts[].ruling，不另成句。 */
+  if(conflicts.length){
+    const _tongOk=(tong && tong.wx && _xiEff.has(tong.wx)) ? tong.wx : '';
+    conflicts.forEach(c=>{
+      const _m=c.methods.join('、');
+      let main, zhu;
+      if(geOuter){ main='以顺其势（'+geOuter+'）为主，'+_m+'为辅'; zhu='顺势'; }
+      else if(isZaGe){ main='以本格（'+geName+'）喜忌为主，'+_m+'为辅'; zhu='本格喜忌'; }
+      else if(c.methods.indexOf('调候')>=0){
+        if(tiao.ruling==='调候为急'){ main='以调候为先，扶抑为辅'; zhu='调候'; }
+        else if(tiao.ruling==='通关调和'){ main='以通关调和为主，调候与扶抑两不相犯'; zhu='通关调和'; }
+        else if(tiao.ruling==='两法各取其一'){ main='以调候为先，扶抑为辅（调候取用主佐并用而两法各取其一，此位为相左之佐）'; zhu='调候'; }
+        else { main='以扶抑为主，调候为辅'; zhu='扶抑'; }
+      }
+      else if(c.methods.indexOf('病药')>=0){
+        if(bingYao.bing && bingYao.bingCnt>=3){ main='病象极显（'+bingYao.bing+'过旺），去病为先，药取“'+c.wx+'”'; zhu='去病'; }
+        else { main='以扶抑为主，病药为辅'; zhu='扶抑'; }
+      }
+      else { main='以扶抑为主，'+_m+'为辅'; zhu='扶抑'; }
+      const _yun=(_tongOk && _tongOk!==c.wx && zhu!=='通关调和') ? ('岁运见之借“'+_tongOk+'”通关化其相左') : ('岁运见之仍以'+zhu+'为断');
+      const _han=((s==='冬'||s==='夏') && tiao.wx===c.wx && zhu!=='调候') ? '，冬夏调候之急可权先' : '';
+      c.ruling='默认取法：'+main+'；'+_yun+_han+'；逢冲突之年再按轻重权衡。';
+    });
+    synthesis.advice+=conflicts[0].ruling;
   }
   // 外格上下文（供命局断事/婚姻/健康等下游消费）：身弱语义、外格禁忌、喜忌集合一次给全
   const outer={

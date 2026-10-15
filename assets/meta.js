@@ -9,6 +9,7 @@
   if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
   var dir = location.pathname.slice(0, location.pathname.lastIndexOf('/') + 1);
   var CANON = 'https://gaoren.org';
+  var CANON_HOST = 'gaoren.org';
   var path = location.pathname;
   var set = function (sel, attr, val) {
     var el = document.querySelector(sel);
@@ -19,16 +20,21 @@
   set('meta[property="og:image"]', 'content', CANON + dir + 'assets/logo/og-image.png');
 
   /* PWA：注入 manifest 链接并注册 Service Worker（本件为全站统一入口，故挂于此而非各页手写）。
-     SW 只在正式站注册：本地 http 与预览站不注册，并主动清掉历史注册，查验所见即磁盘文件，
-     不会出现缓存回退导致的过期内容。 */
+     SW 只在正式站注册：官网 gaoren.org 与 GitHub Pages 正式路径注册；本地 http 与预览路径
+     不注册，并主动清掉历史注册，查验所见即磁盘文件，不会出现缓存回退导致的过期内容。
+     gaoren.org 须在列：浏览器判一个站能否安装，看的是 manifest 加带 fetch 处理器的 SW，
+     两者缺一即不给安装；创建快捷方式那条路不依赖 SW，于是表现为装不上却仍能建快捷方式，
+     且因始终未成安装而被反复提示。 */
   var m = document.createElement('link');
   m.rel = 'manifest';
   m.href = dir + 'manifest.webmanifest';
   document.head.appendChild(m);
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      var live = location.hostname === 'gaorenyoushu.github.io' && location.pathname.indexOf('/XuanJiPaiPan-preview') !== 0;
-      if (!live) {
+      var host = location.hostname;
+      var isCanon = host === CANON_HOST || host === 'www.' + CANON_HOST;
+      var isPages = host === 'gaorenyoushu.github.io' && location.pathname.indexOf('/XuanJiPaiPan-preview') !== 0;
+      if (!isCanon && !isPages) {
         navigator.serviceWorker.getRegistrations().then(function (rs) {
           rs.forEach(function (r) { r.unregister(); });
         }).catch(function () {});

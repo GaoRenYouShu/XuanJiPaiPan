@@ -333,6 +333,7 @@
     const wheel = opts.wheelId ? document.getElementById(opts.wheelId) : null;
     const R = opts.read || {};
     let raf = null, started = false, heading = 0, shown = null, running = false, hasAbsolute = false,
+        lastSig = null,
         accMsg = '', lastBeta = null, lastGamma = null, gyroW = null, restBuf = [];
     function read(id) { return id ? document.getElementById(id) : null; }
     /* 显示值迟滞：真值相对当前显示值变化不足零点一五度即沿用旧值。
@@ -371,11 +372,17 @@
     }
     function frame() {
       if (!running) return;
-      raf = requestAnimationFrame(frame);
       /* 横竖两向倾角与方位无涉，故不随方位之取得与否。方位未取得者（精度门拦下、
          未获授权、本机无磁力计、非安全上下文不派发方位事件）仍须照报倾角，
          否则水平提示随方位一并冻结于开页初值，倾角再大亦恒显示已水平。 */
-      if (!started) { if (typeof opts.onTilt === 'function') opts.onTilt(lastBeta, lastGamma); return; }
+      if (!started) {
+        /* 不自续帧：事件流未动则本帧即止，raf 置空；onOrient 见 raf 为空即按事件逐次再启，
+           倾角读数照旧随事件走。自续帧使整页每帧重渲染，主线程占满，重则拖垮同机其他件。 */
+        raf = null;
+        if (typeof opts.onTilt === 'function') opts.onTilt(lastBeta, lastGamma);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
       const deg = hold(heading);
       const decl = typeof opts.getDecl === 'function' ? opts.getDecl() : null;
       const trueDeg = (decl != null && isFinite(decl)) ? ((deg + decl) % 360 + 360) % 360 : deg;
@@ -385,6 +392,12 @@
       const screenDeg = ((trueDeg - sa) % 360 + 360) % 360;
       const z = FS.zhenShan(trueDeg, 'zheng');
       const shan = z ? z.shan : '子';
+      /* 取值未变即不落笔：静止时本帧只空转一次，读数、盘面与页面回调一概不重写。
+         逐帧重写（转盘 transform 重设、详情条 HTML 重建）会使整页逐帧重排重绘，
+         慢机上主线程占满，同机其他件一并被拖垮。 */
+      const sig = deg + ',' + decl + ',' + sa + ',' + lastBeta + ',' + lastGamma;
+      if (sig === lastSig) return;
+      lastSig = sig;
       /* 转盘旋转交由调用页 onRead 处理（真实罗盘页的转盘与缩放拖移叠加）；
          页面未接管时（opts.rotate 不为 false）才由本库旋转。 */
       if (wheel && opts.rotate !== false) {
@@ -481,7 +494,7 @@
     function stop() {
       running = false;
       if (raf) cancelAnimationFrame(raf);
-      raf = null; started = false; shown = null; heading = 0; gyroW = null; restBuf.length = 0;
+      raf = null; started = false; shown = null; heading = 0; gyroW = null; restBuf.length = 0; lastSig = null;
       lastBeta = null; lastGamma = null; lvShu = null; lvHeng = null;
       window.removeEventListener('deviceorientation', onOrient, true);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);

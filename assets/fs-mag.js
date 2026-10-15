@@ -209,13 +209,24 @@
   function online(lat, lng, when){
     const url = ONLINE + '?latitude=' + lat + '&longitude=' + lng +
       '&altitude=0&date=' + dateStr(when) + '&format=json';
-    return fetch(url, { credentials: 'omit' })
-      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function(j){
-        const f = j && j['geomagnetic-field-model-result'] && j['geomagnetic-field-model-result']['field-value'];
-        const v = f && f.declination ? f.declination.value : null;
-        return (typeof v === 'number' && isFinite(v)) ? v : null;
-      });
+    /* 在线取数须有界：八秒未归即中止连接，挂起的请求不留给页面 */
+    return new Promise(function(res, rej){
+      if (typeof fetch !== 'function'){ rej(new Error('no fetch')); return; }
+      let done = false;
+      const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+      const fin = function(fn, v){ if (done) return; done = true; clearTimeout(timer); fn(v); };
+      const timer = setTimeout(function(){ if (ctl){ try{ ctl.abort(); }catch(e){} } fin(rej, new Error('timeout')); }, 8000);
+      try {
+        fetch(url, { credentials: 'omit', signal: ctl ? ctl.signal : undefined })
+          .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function(j){
+            const f = j && j['geomagnetic-field-model-result'] && j['geomagnetic-field-model-result']['field-value'];
+            const v = f && f.declination ? f.declination.value : null;
+            fin(res, (typeof v === 'number' && isFinite(v)) ? v : null);
+          })
+          .catch(function(e){ fin(rej, e); });
+      } catch (e){ fin(rej, e); }
+    });
   }
 
   global.FS_MAG = {
