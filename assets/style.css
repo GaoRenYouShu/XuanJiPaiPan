@@ -2173,13 +2173,21 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
    🔴 .w-sel 的外沿须与 .w-hit 相同（各页的"内界圈 到 弧带外沿"），悬停着色才是诚实的命中预览。
    ⚠ 不可把底色直接填在热区上：热区跨到弧带，填色会盖住弧色。故拆成两条：热区只负责命中，
    .w-sel 只负责着色，且 .w-sel 须紧跟在 .w-hit 之后，靠相邻兄弟选择器随悬停显隐。 */
-.wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all}
+/* 🔴 触屏按下时浏览器会自己画一块轻触反馈，色取自 -webkit-tap-highlight-color，
+   形状取元素包围盒。热区是扇形，其包围盒却是矩形，故按下即现一方块，抬手方散。
+   盘上自有选中反馈（加粗弧与加粗字），不借这层系统反馈，故隐去。 */
+.wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all;-webkit-tap-highlight-color:transparent}
 .wheel .w-hit:focus{outline:none}
 .wheel .w-sel{fill:none;pointer-events:none}
 /* 🔴 悬停高亮＝主体色本身，取与弧带同一个令牌（--wheel-arc）、同一密度（.w-arc 的 .22），
    故各页高亮恒等于本页主体色，不必也不许各页另写一个 rgba。
-   不写死颜色的好处：换页主题色时高亮自动跟随，不会再漂。 */
+   不写死颜色的好处：换页主题色时高亮自动跟随，不会再漂。
+   🔴 悬停只在真有指针且能悬停的设备上成立。触屏点选后浏览器会把 :hover 粘在刚点过的格上，
+   须点了别处才散；无悬停能力的设备若照旧生效，盘面便永久糊着一块 22% 底色，
+   而这块底色与选中态无关，选中另由加粗弧与加粗字示，读者只会把它误读成选中色。 */
+@media (hover:hover) and (pointer:fine){
 .wheel .w-hit:hover+.w-sel{fill:var(--wheel-arc,#666);fill-opacity:.22}
+}
 /* 盘区容器：电脑端两列并排，移动端单列堆叠；标题下接 88px 短线收束（页头 h1 骨架） */
 .wheel-wheels{margin-top:var(--sp-4);padding-top:var(--sp-4);display:grid;grid-template-columns:1fr 1fr;
   gap:var(--sp-5);border:0;background:transparent}
