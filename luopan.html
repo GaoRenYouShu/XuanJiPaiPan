@@ -1070,32 +1070,6 @@ function lpBackfillBase(){
   lpApplyBase();
   lpCompassState('已回填实测坐度与坐山向首（'+sit+'山'+face+'山 '+deg.toFixed(1)+'°）。');
 }
-/* 所在地 IP 反查预填：复用 ai.js 四源兜底定位（端点已在开源页登记）。
-   取到归属地即填入下拉并折算磁偏角；省市归位由 latlng.js placeOf 担之，
-   本处不各写一套名比对，英文名与行政区划后缀之差异皆在数据源头归一。
-   仅当用户从未手选（lp_geo_manual）时才填，每次进页都重取：
-   IP 归属地会随网络而变，早先一次填错不该被记住而不复校。
-   手选经由真实 change 事件发生（程序赋值不触发 change），故预填不会误标手选。
-   预填成败不再于题头缀字：所选省市区县已落在框里，再报一遍即与框相重，
-   其口径（何以如此、准不准、怎样改）收在说明文档。 */
-function lpIpPrefill(){
-  var manual=false;
-  try{ manual=localStorage.getItem('lp_geo_manual')==='1'; }catch(e){}
-  if(manual) return;
-  if(typeof window.aiGeoLookup!=='function') return;
-  var gr=null;
-  try{ gr=document.getElementById('lpGeoGroup'); }catch(e){}
-  if(gr) gr.addEventListener('change', function(){ try{ localStorage.setItem('lp_geo_manual','1'); }catch(e){} });
-  window.aiGeoLookup().then(function(g){
-    if(!g) return;
-    try{ if(localStorage.getItem('lp_geo_manual')==='1') return; }catch(e){ return; }
-    var pl=(typeof placeOf==='function')?placeOf(g.region, g.city):{prov:null, city:null};
-    if(!pl.prov) return;
-    if(!window.__lpPlaceTrio) return;
-    window.__lpPlaceTrio.set(pl.prov, pl.city, '');
-    lpGeoPick();
-  }).catch(function(){});
-}
 function lpRenderAll(){
   lpRealRender();
   lpZhenSvg(); lpZhenDetail();
@@ -1122,7 +1096,7 @@ function lpInit(){
   lpGeoInit();
   lpFillBase();
   lpGetBase();
-  lpIpPrefill();
+  placeIpPrefill({manualKey:'lp_geo_manual', group:document.getElementById('lpGeoGroup'), trio:window.__lpPlaceTrio, onDone:lpGeoPick});
   lpRealBindZoom();
   lpRealSkin(LP_REAL.skin);
   document.querySelectorAll('[data-rdset]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-rdset')===LP_REAL.set); });

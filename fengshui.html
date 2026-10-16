@@ -56,7 +56,7 @@
         <div class="field"><label for="baseYear2">流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
         <div class="field"><label for="baseYun">宅运换运</label><select id="baseYun" onchange="fsApplyBase()" title="玄空宅运由起宅（改运）之年定，不随流年；默认随流年取当运"><option value="">随流年（默认）</option><option value="1">一运（1864-1883）</option><option value="2">二运（1884-1903）</option><option value="3">三运（1904-1923）</option><option value="4">四运（1924-1943）</option><option value="5">五运（1944-1963）</option><option value="6">六运（1964-1983）</option><option value="7">七运（1984-2003）</option><option value="8">八运（2004-2023）</option><option value="9">九运（2024-2043）</option></select></div>
       </div>
-      <div class="birth-group compact">
+      <div class="birth-group compact" id="fsGeoGroup">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
         <div class="field"><label for="fsProv">省份</label><select id="fsProv"></select></div>
         <div class="field"><label for="fsCity">城市</label><select id="fsCity"></select></div>
@@ -458,8 +458,9 @@ function fsMagOnline(){
 }
 function fsGeoInit(){
   const sp=document.getElementById('fsProv'); if(!sp) return;
-  fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
+  const trio=fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
   fsGeoPick();
+  placeIpPrefill({manualKey:'fs_geo_manual', group:document.getElementById('fsGeoGroup'), trio:trio, onDone:fsGeoPick});
 }
 /* 全局基础设定读取 */
 function getBase(){

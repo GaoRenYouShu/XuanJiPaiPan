@@ -98,7 +98,7 @@
         <label class="ly-bo"><input type="checkbox" id="lyBianSY" class="ly-chk-native" aria-label="变卦是否标注世应">变卦标世应（主流不标）</label>
         <label class="ly-bo"><input type="checkbox" id="lyBianQinGong" class="ly-chk-native" aria-label="变卦六亲取宫口径">变卦六亲按变卦宫（主流按本宫）</label>
       </div>
-      <div class="birth-group compact">
+      <div class="birth-group compact" id="lyGeoGroup">
         <div class="group-label">当地（用于真太阳时校正，内置行政区划经度）</div>
         <div class="field"><label for="lyProv">省份</label>
           <select id="lyProv" aria-label="选择省份"></select>
@@ -755,6 +755,7 @@ function lyInitMethod(){
   if(typeof PROV!=='undefined'){
     const sp=document.getElementById('lyProv'), sc=document.getElementById('lyCity'), sd=document.getElementById('lyDist');
     window.__lyPlaceTrio=fillPlaceTrio(sp, sc, sd, null);
+    placeIpPrefill({manualKey:'ly_geo_manual', group:document.getElementById('lyGeoGroup'), trio:window.__lyPlaceTrio, onDone:null});
   }
   lyMethodChange();
 }
@@ -1818,6 +1819,8 @@ window.addEventListener('load', function () {
           const el=document.getElementById(k); if(!el) return;
           if(el.type==='checkbox') el.checked=d[k]==='1'; else el.value=d[k];
         });
+        /* 三级下拉的级联不随逐项赋值重建（省变则市表变），所载之地经共用件整组落位 */
+        if(window.__lyPlaceTrio) window.__lyPlaceTrio.set(d.lyProv, d.lyCity, d.lyDist);
         if(d.__lines){ try{ lyMethodChange(); }catch(e){} window.__lyRestoreLines=d.__lines; }
       },
       recast:function(){ xjShareRecast(function(){ try{ cast(); }catch(e){} }); }

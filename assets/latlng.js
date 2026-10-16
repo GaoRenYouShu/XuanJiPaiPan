@@ -366,7 +366,9 @@ function fillPlaceTrio(provEl, cityEl, distEl, onDone, opts){
       cityEl.value = (city && PROV[prov].some(x=>x.c===city)) ? city : UNKNOWN_PLACE;
       fillDist();
       if(dist && [...distEl.options].some(o=>o.value===dist)) distEl.value = dist;
-    }
+    },
+    /* 现值：三级当前所选，供预填判是否已由他途落定 */
+    get(){ return { prov: provEl.value, city: cityEl.value, dist: distEl.value }; }
   };
 }
 /* 省级列表唯一真源：供出生地省份下拉使用。
@@ -455,4 +457,41 @@ function placeOf(region, city){
   }
   if(!p) return { prov: null, city: null };
   return matchCity(city, p);
+}
+/* 所在地 IP 反查预填：取到归属地即经 placeOf 归位填入三级下拉并触发回调，各页所在地组共用一份。
+   仅当用户从未手选（manualKey 未置 1）且三项仍停在未知地时才填：手选须有用户手势在先
+   （按下或键入）再出变更，程序派发的变更（存档恢复、分享还原）不算手选，勾选类开关
+   （真太阳时校正）不属选地亦不记；已由他途落定的地不覆盖。每次进页都重取：IP 归属地会随
+   网络而变，早先一次填错不该被记住而不复校。失败静默：离线、源不可达、归不了位，皆留待自填。 */
+function placeIpPrefill(o){
+  var manual=false;
+  try{ manual=localStorage.getItem(o.manualKey)==='1'; }catch(e){}
+  if(manual) return;
+  if(typeof window.aiGeoLookup!=='function') return;
+  if(!o.trio) return;
+  var armed=false;
+  function isPlace(t){
+    if(!t || !t.tagName) return false;
+    if(t.tagName==='SELECT') return true;
+    return t.tagName==='INPUT' && t.type==='number';
+  }
+  if(o.group){
+    o.group.addEventListener('pointerdown', function(e){ if(isPlace(e.target)) armed=true; }, true);
+    o.group.addEventListener('keydown', function(e){ if(isPlace(e.target)) armed=true; }, true);
+    o.group.addEventListener('change', function(e){
+      var was=armed; armed=false;
+      if(!was || !isPlace(e.target)) return;
+      try{ localStorage.setItem(o.manualKey,'1'); }catch(err){}
+    });
+  }
+  window.aiGeoLookup().then(function(g){
+    if(!g) return;
+    try{ if(localStorage.getItem(o.manualKey)==='1') return; }catch(e){ return; }
+    var cur=o.trio.get();
+    if(!placeUnset(cur.prov, cur.city)) return;
+    var pl=placeOf(g.region, g.city);
+    if(!pl.prov) return;
+    o.trio.set(pl.prov, pl.city, '');
+    if(o.onDone) o.onDone();
+  }).catch(function(){});
 }

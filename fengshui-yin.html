@@ -46,7 +46,7 @@
         <div class="field"><label for="baseYear2">安葬流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
         <div class="field"><label for="baseDeg">罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°，选填" onchange="fsApplyBase()"></div>
       </div>
-      <div class="birth-group compact">
+      <div class="birth-group compact" id="fsGeoGroup">
         <div class="group-label">所在地（用于磁偏角折算，不选则按古法直读磁北）</div>
         <div class="field"><label for="fsProv">省份</label><select id="fsProv"></select></div>
         <div class="field"><label for="fsCity">城市</label><select id="fsCity"></select></div>
@@ -408,8 +408,9 @@ function fsMagOnline(){
 }
 function fsGeoInit(){
   const sp=document.getElementById('fsProv'); if(!sp) return;
-  fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
+  const trio=fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
   fsGeoPick();
+  placeIpPrefill({manualKey:'fsy_geo_manual', group:document.getElementById('fsGeoGroup'), trio:trio, onDone:fsGeoPick});
 }
 /* 全局基础设定读取 */
 function getBase(){

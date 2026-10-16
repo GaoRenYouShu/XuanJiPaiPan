@@ -48,7 +48,7 @@
       <div class="field mh-sel-field" id="mhYingField"><label for="mhYingVal">外应描述</label><input id="mhYingVal" class="mh-ying-input" placeholder="如：南方有火光、东方雷声、青气自南来"></div>
       <div class="field ly-q-field"><label for="mhQ">心中默念所占之事，可选</label><input id="mhQ" placeholder="例如：近期求职是否顺利"></div>
     </div>
-    <div class="birth-group compact mh-group-gap">
+    <div class="birth-group compact mh-group-gap" id="mhGeoGroup">
       <div class="group-label">当地（用于真太阳时校正，内置行政区划经度）</div>
       <div class="field"><label for="mhProv">省份</label><select id="mhProv"></select></div>
       <div class="field"><label for="mhCity">城市</label><select id="mhCity"></select></div>
@@ -390,6 +390,7 @@ function initMhRegion(){
   const pp=document.getElementById('mhProv');
   if(!pp) return;
   window.__mhPlaceTrio=fillPlaceTrio(pp, document.getElementById('mhCity'), document.getElementById('mhDist'), null);
+  placeIpPrefill({manualKey:'mh_geo_manual', group:document.getElementById('mhGeoGroup'), trio:window.__mhPlaceTrio, onDone:null});
 }
 function qigua(){
   const method=document.getElementById('mhMethod').value;
