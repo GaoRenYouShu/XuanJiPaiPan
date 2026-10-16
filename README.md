@@ -133,6 +133,8 @@
 
 - 纯 HTML、CSS 与原生 JavaScript，无构建步骤，静态部署即可运行
 - 可安装到桌面与主屏幕（PWA），已访问页面断网可用；跟随系统自动切换深浅色主题
+- 安卓装成应用须能访问 Google（由 Play 服务生成），装成后不再依赖；
+  不便访问时改用添加到主屏幕建快捷方式，该路无此限制
 - 历法引擎基于 [lunar-javascript](https://github.com/6tail/lunar-javascript)（MIT）
 - 紫微斗数排盘基于 [iztro](https://github.com/SylarLong/iztro)（MIT）
 - 占星星历基于 [astronomy-engine](https://github.com/cosinekitty/astronomy)（MIT）
