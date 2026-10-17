@@ -5,13 +5,13 @@
  *   干支配置、象法口诀立论（段建业整理体系，源自盲师郝金阳、夏仲奇口传心授）。
  *   本文件按三法归集：理法（做功五法、宾主、墓库）、象法（十神类象、纳音象）、
  *   技法（口诀神煞、空亡、虚透、借势）。
- * 真源纪律：与命理共享底盘（藏干 HIDE、神煞查法 YANGREN/HONGLUAN/ZAISHA/JIESHA、
+ * 真源纪律：与命理共享底盘（藏干 HIDE、神煞查法 YANGREN_LUQIAN/HONGLUAN/ZAISHA/JIESHA、
  *   三合局 DIZHI_SANHE、十二长生 getChangSheng）一律引用 bazi-data.js 真源，
  *   将星华盖、灾劫煞、禄神在函数内由真源派生，不另建同义表。
  * 加载序：bazi-data.js 与 xuanji-lib.js 之后、bazi-core.js 之前（见 bazi.html）。
  *   依赖（window 全局）：GAN_WX、WX_KE、HIDE、TIANGAN_HE、tenGod、shenCat、
  *   zhiMain、zhiOpp、pairIn、DIZHI_CHONG、DIZHI_XING、DIZHI_HE6、DIZHI_SANHE、DIZHI_ANHE、
- *   YANGREN、HONGLUAN、ZAISHA、JIESHA、getChangSheng（一律函数内运行时取用，本文件顶层零依赖），
+ *   YANGREN_LUQIAN、HONGLUAN、ZAISHA、JIESHA、getChangSheng（一律函数内运行时取用，本文件顶层零依赖），
  *   任何加载环境不白屏。
  * 对外接口 window.MangPai：
  *   数据：TEN_IMAGE 十神类象；ZUOGONG 做功五法；BINZHU 宾主；KU 墓库；
@@ -85,7 +85,7 @@
   };
 
   /* ============================ 技法：口诀神煞释义 ============================ */
-  /* 盲师口传重神煞直断；查法真源：羊刃 YANGREN（日干查）、红鸾 HONGLUAN（年日支查）、
+  /* 盲师口传重神煞直断；查法真源：羊刃 YANGREN_LUQIAN（日干查）、红鸾 HONGLUAN（年日支查）、
      灾煞 ZAISHA 与劫煞 JIESHA（年支局五行查）、将星华盖（年支三合局之旺支、墓支派生）、
      血刃（羊刃对冲）、禄（日干临官之支，getChangSheng 派生） */
   const SHA_NOTE = {
@@ -266,7 +266,7 @@
     if (!BZ || !z) return [];
     const dg = BZ.dayGan, out = [];
     const stage = opt.stage || 'adult';
-    if (typeof YANGREN !== 'undefined' && z === YANGREN[dg]) out.push({ name: '羊刃', text: SHA_NOTE['羊刃'] });
+    if (typeof YANGREN_LUQIAN !== 'undefined' && z === YANGREN_LUQIAN[dg]) out.push({ name: '羊刃', text: SHA_NOTE['羊刃'] });
     const grp = (typeof DIZHI_SANHE !== 'undefined' ? DIZHI_SANHE : []).find(g => g.indexOf(BZ.yearZ) >= 0 && g.length >= 4);
     const wx = grp ? grp[3] : '';
     if (wx && typeof ZAISHA !== 'undefined' && ZAISHA[wx] === z) out.push({ name: '灾煞', text: SHA_NOTE['灾煞'] });
@@ -281,7 +281,7 @@
         if (grp[2] === z) out.push({ name: '华盖', text: SHA_NOTE['华盖'] });
       }
     }
-    if (typeof YANGREN !== 'undefined' && zhiOpp(YANGREN[dg]) === z) out.push({ name: '血刃', text: SHA_NOTE['血刃'] });
+    if (typeof YANGREN_LUQIAN !== 'undefined' && zhiOpp(YANGREN_LUQIAN[dg]) === z) out.push({ name: '血刃', text: SHA_NOTE['血刃'] });
     if (typeof getChangSheng === 'function' && getChangSheng(dg, z) === '临官') out.push({ name: '禄', text: SHA_NOTE['禄'] });
     return out;
   }

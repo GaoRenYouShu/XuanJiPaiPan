@@ -268,9 +268,12 @@
       else if(weak) add('官杀混杂','官杀混杂（正官+七杀），身弱压力叠加、不堪其重，宜借岁运扶身、化杀为权。');
       else add('官杀混杂','官杀混杂（正官+七杀），官杀非喜，权责不专、易生牵缠，宜守不宜攻。');
     }
-    // 羊刃驾杀（须真实羊刃：日支或时支为帝旺位；仅禄非刃不算，防"有禄无刃"误断）
-    const REN_ZHI={'甲':'卯','乙':'寅','丙':'午','丁':'巳','戊':'午','己':'未','庚':'酉','辛':'戌','壬':'子','癸':'丑'}[dg];
-    const _hasYangRen=(BZ.zhis[2]===REN_ZHI||BZ.zhis[3]===REN_ZHI);
+    // 羊刃驾杀（须真实羊刃：日支或时支为刃支，仅禄非刃不算，防有禄无刃之误断）
+    // 刃支取法帝旺、禄前两说并列同出，任一命中即算，真源为 bazi-data.js 的 YANGREN 与 YANGREN_LUQIAN
+    const _yrZhis=[];
+    if(typeof YANGREN!=='undefined'&&YANGREN[dg]) _yrZhis.push(YANGREN[dg]);
+    if(typeof YANGREN_LUQIAN!=='undefined'&&YANGREN_LUQIAN[dg]) _yrZhis.push(YANGREN_LUQIAN[dg]);
+    const _hasYangRen=(_yrZhis.indexOf(BZ.zhis[2])>=0||_yrZhis.indexOf(BZ.zhis[3])>=0);
     if(selfRoot && _hasYangRen && C('七杀')>0){
       if(!weak) add('羊刃驾杀','羊刃驾杀（禄刃强根+七杀），以刚御刚、武职掌权之象，身强能担则权威赫然。');
       else add('羊刃驾杀','羊刃驾杀（禄刃+七杀），身弱则刚暴相争、易生是非，宜化杀为权、勿恃勇斗狠。');
@@ -2672,7 +2675,7 @@ function duanShiMingJu(BZ){
   rows.push(['食伤', `食伤属${shangWx}，${_xj(shangWx)}，命局${lq['食伤']||0}个${shang.length?'、天干透'+dedupChars(shang)+'（才华外显、善表达）':'、天干不透则才华内敛'}，主才华表达${_ep('食伤')>=REL.TH.PCT_VSTRONG?'旺':'平'}。${_ds('食伤',shangWx)}`]);
   {
     const _biCnt=lq['比劫']||0;
-    const _biTou=BZ.gans.filter(g=>{const t=tenGod(dg,g);return t==='比肩'||t==='劫财';});
+    const _biTou=BZ.gans.filter((g,i)=>{const t=tenGod(dg,g);return i!==2&&(t==='比肩'||t==='劫财');});
     let _biMean;
     if(geGeMode(A).isOuter){
       const _tg=geWxTag(dwx,A);
@@ -3763,10 +3766,12 @@ function yunAreaParts(lifeTrig, age){
 function kXi(t){ return `<span class="tip sha-ji">${t}</span>`; }
 function kJi(t){ return `<span class="tip sha-xiong">${t}</span>`; }
 function kMid(t){ return `<span class="tip sha-neutral">${t}</span>`; }
-/* 正格白话：格名之后跟一句大白话，使术语可自解（月令取格之八格加建禄、羊刃、月劫，共十一目）。
+/* 正格白话：格名之后跟一句大白话，使术语可自解（月令取格之八格加建禄、羊刃两说、月劫，共十二目）。
+   羊刃两说共用一套阳干刃支：禄前一辰说十干皆有刃、刃在禄前一辰，五阴干无刃说五阴干不立刃。
    外格与杂格另有 geOuterNote、geZaGeNote 自述其义，不入此表，免一处两说。 */
 const GE_BAI = {
-  '羊刃格': '羊刃为日主旺极之位，主刚烈果决、性急敢为，过旺如无制则易刚愎冲动、招祸。',
+  '羊刃格之禄前一辰说': '羊刃为日主禄前一辰、气盛越分之位，主刚烈果决、性急敢为，过旺如无制则易刚愎冲动、招祸。',
+  '羊刃格之五阴干无刃说': '羊刃为日主禄前一辰、气盛越分之位，主刚烈果决、性急敢为，过旺如无制则易刚愎冲动、招祸。',
   '建禄格': '日主得月令本气禄神，身强有根、精力充固。',
   '七杀格': '七杀为克身之官、性烈威重，成格则权威果决、能开创，无制则攻身太过。',
   '正官格': '正官为克身之正、性正循规，成格则端庄守法、有地位。',

@@ -657,6 +657,8 @@ function paipan(){
             pj:built.lunar.getPrevJieQi(), nj:built.lunar.getNextJieQi(),
             sex, dayGan:built.BZ.dayGan, cols:built.cols, ec:built.ec,
             dualA2, dualBZ2, dualBuilt2: (typeof window!=='undefined' ? window.__dualBuilt2 : null) };  const html=renderBaziPage(R, BZ);
+  /* 复核档所读的校正事实与经度取值：取本次装配既得结果挂上本命状态，导出时直读，不重算 */
+  BZ.tsInfo=built.tsInfo; BZ.lng=lng; BZ.pj=R.pj; BZ.nj=R.nj;
   document.getElementById('out').innerHTML=html;
   renderDyn(BZ);
   drawYunChart(BZ);
@@ -940,6 +942,74 @@ function paipanPillar(){
     let _rT;
     window.addEventListener('resize', ()=>{ clearTimeout(_rT); _rT = setTimeout(setupMingJuCol, 150); });
   }
+}
+/* ============ 复核档导出 ============
+   一键导出当前盘的机器可读复核档，供第三方按同一口径复算核对。
+   口径声明读页面控件现值；校正事实与结果读本次装配既得的本命状态，不重算、不引入新算法。 */
+function reviewDocOf(){
+  const BZ=(typeof window!=='undefined')?window.BZ:null;
+  if(!BZ || !BZ.gans) return null;
+  const p2=n=>String(n).padStart(2,'0');
+  const ymdhm=s=>s?(s.getYear()+'-'+p2(s.getMonth())+'-'+p2(s.getDay())+' '+p2(s.getHour())+':'+p2(s.getMinute())):null;
+  const selText=id=>{ const el=document.getElementById(id);
+    return (el && el.options && el.options[el.selectedIndex]) ? el.options[el.selectedIndex].textContent.trim() : ''; };
+  const doc={};
+  /* 一、口径声明：时间折算与流派七项取控件现值 */
+  doc['口径']={
+    '夏令时': selText('bDst'),
+    '子时算法': selText('bZi'),
+    '太阳时': selText('bSun'),
+    '出生地经度': (typeof BZ.lng==='number' && isFinite(BZ.lng)) ? BZ.lng : null,
+    '年界': selText('bYearAxis'),
+    '空亡基准': selText('bKong'),
+    '起运法': selText('bQiYun'),
+    '长生土行': selText('bCsSect')
+  };
+  /* 二、校正事实：太阳时校正量取装配期结果；当令与下一节气的交节时刻取本次装配的节气对象 */
+  const corr={};
+  const ts=BZ.tsInfo;
+  if(ts){
+    const st={};
+    if(ts.mode!=='mean') st['均时差']=ts.E;
+    st['经度差']=ts.lngAdj;
+    st['合计']=ts.totalAdj;
+    st['校正后时刻']=ts.y+'-'+p2(ts.m)+'-'+p2(ts.d)+' '+p2(ts.h)+':'+p2(ts.mi);
+    corr['太阳时校正']=st;
+  }
+  if(BZ.pj) corr['当令']={'节气':BZ.pj.getName(), '交节时刻':ymdhm(BZ.pj.getSolar())};
+  if(BZ.nj) corr['下一节气']={'节气':BZ.nj.getName(), '交节时刻':ymdhm(BZ.nj.getSolar())};
+  doc['校正']=corr;
+  /* 三、结果：四柱、起运、当前大运与流年 */
+  doc['四柱']={'年柱':BZ.gans[0]+BZ.zhis[0], '月柱':BZ.gans[1]+BZ.zhis[1], '日柱':BZ.gans[2]+BZ.zhis[2], '时柱':BZ.gans[3]+BZ.zhis[3]};
+  const qy={};
+  try{
+    if(BZ.yun && BZ.yun.getStartSolar){
+      const dy=BZ.dys && BZ.dys[1];
+      if(dy && typeof dy.getStartAge==='function') qy['虚岁']=dy.getStartAge();
+      qy['交运日期']=BZ.yun.getStartSolar().toYmd();
+    }
+  }catch(e){}
+  doc['起运']=qy;
+  try{
+    const cy=baziNowDate().getFullYear();
+    const dy=(BZ.dys && BZ.dys[(typeof currentDyIndex==='function')?currentDyIndex(BZ):0]) || null;
+    doc['当前大运']=(dy && dy._sy!=null && dy._sy<=cy) ? (dy.getGanZhi()||null) : null;
+    const ln=(BZ.lns||[]).filter(x=>x && typeof x.getYear==='function' && x.getYear()===cy)[0];
+    doc['流年']=ln ? (ln.getGanZhi()||null) : ((BZ.curYear===cy)?(BZ.lnGZ||null):null);
+  }catch(e){ doc['当前大运']=null; doc['流年']=null; }
+  return doc;
+}
+/* 下载：Blob 加 a[download]，文件名带四柱以便多盘区分 */
+function exportReviewDoc(){
+  const doc=reviewDocOf();
+  if(!doc){ alert('请先完成排盘，再导出复核档'); return; }
+  const si=doc['四柱'];
+  const name='复核档-'+si['年柱']+si['月柱']+si['日柱']+si['时柱']+'.json';
+  const blob=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
 }
 function savePillarSel(){
   const ids=['pyG','pyZ','pmG','pmZ','pdG','pdZ','ptG','ptZ'];
@@ -1496,6 +1566,19 @@ if (BAZI_PAGE_UI) mountAI(function(){
     recast: function () { xjShareRecast(function () { window.baziRecast(); }); }
   }
 });
+
+/* 复核档下载并入附加功能按钮行：本页独有的导出项与分享导出同处一行，页底不再另设折叠块 */
+if (BAZI_PAGE_UI) {
+  try {
+    const aiAct = document.querySelector('#aiMount .ai-actions');
+    if (aiAct && !aiAct.querySelector('[data-xj-review]')) {
+      const rb = document.createElement('button');
+      rb.type = 'button'; rb.className = 'btn soft'; rb.setAttribute('data-xj-review', '1');
+      rb.textContent = '导出复核档'; rb.onclick = exportReviewDoc;
+      aiAct.insertBefore(rb, aiAct.querySelector('[data-xj]'));
+    }
+  } catch (e) {}
+}
 
 /* 初始排盘：置于全文件末尾，确保所有顶层 const（含 SHA_LIFE 等数据表）已初始化后再触发，避免 TDZ；
    仅八字页执行（paipanSig 等输入签名函数由八字页内联提供） */

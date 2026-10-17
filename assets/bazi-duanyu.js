@@ -170,9 +170,14 @@
   function _ganHas(BZ, names) {
     const dg = BZ.dayGan; return _gans(BZ).some(g => g && names.indexOf(tenGod(dg, g)) >= 0);
   }
-  // 羊刃地支（日主）：甲卯 乙辰 丙戊午 丁己巳 庚酉 辛戌 壬子 癸丑
-  const YANGREN = { 甲: '卯', 乙: '辰', 丙: '午', 戊: '午', 丁: '巳', 己: '巳', 庚: '酉', 辛: '戌', 壬: '子', 癸: '丑' };
-  function _hasYangren(BZ) { const y = YANGREN[BZ.dayGan]; return !!y && _zhis(BZ).indexOf(y) >= 0; }
+  // 羊刃查法（日主）：帝旺、禄前两说并列同出，任一命中即算，真源为 bazi-data.js 的 YANGREN 与 YANGREN_LUQIAN
+  function _yangRenZhis(dg) {
+    const out = [];
+    if (typeof YANGREN !== 'undefined' && YANGREN[dg]) out.push(YANGREN[dg]);
+    if (typeof YANGREN_LUQIAN !== 'undefined' && YANGREN_LUQIAN[dg] && out.indexOf(YANGREN_LUQIAN[dg]) < 0) out.push(YANGREN_LUQIAN[dg]);
+    return out;
+  }
+  function _hasYangren(BZ) { const ys = _yangRenZhis(BZ.dayGan); return ys.length > 0 && _zhis(BZ).some(z => ys.indexOf(z) >= 0); }
   const CHONG = [['子', '午'], ['丑', '未'], ['寅', '申'], ['卯', '酉'], ['辰', '戌'], ['巳', '亥']];
   function _chong(a, b) { return CHONG.some(p => (p[0] === a && p[1] === b) || (p[1] === a && p[0] === b)); }
   function _hasSanxing(zs) {
@@ -347,7 +352,7 @@
     if (GUI[dg2] && GUI[dg2].indexOf(z) >= 0) out.push('天乙贵人');
     if (GUI_ALT[dg2] && GUI_ALT[dg2].indexOf(z) >= 0 && !(GUI[dg2]||'').indexOf(z) >= 0) out.push('天乙贵人（另派）');
     if (WEN[dg2] === z) out.push('文昌');
-    if (YANGREN[dg2] === z) out.push('羊刃');   // 运行羊刃：步支即日主刃支
+    if (_yangRenZhis(dg2).indexOf(z) >= 0) out.push('羊刃');   // 运行羊刃：步支为日主刃支，两派任一命中即算
     return out;
   }
   // 岁运条件所需的基础关系表（与引擎 fanTaiSui / DIZHI_* 同源，小常量自带副本优于跨脚本耦合）
@@ -403,8 +408,8 @@
     const clashDay = clashDayZhi && _ganKe(g, dg);                 // 天克地冲日柱
     let clashGuan = false;
     zs.forEach(pz => { if (pz && tenGod(dg, zhiMain(pz)) === '正官' && _chong(z, pz)) clashGuan = true; });
-    const yrZ = YANGREN[dg] || '';
-    const clashYangRen = !!(yrZ && zs.indexOf(yrZ) >= 0 && _chong(z, yrZ));
+    const yrZs = _yangRenZhis(dg);
+    const clashYangRen = yrZs.some(yrZ => zs.indexOf(yrZ) >= 0 && _chong(z, yrZ));
     const sanXingChong = _hasSanxing(zs) && zs.some(pz => !!pz && _chong(z, pz));
     // 六亲：步干克年干、年支入步支之墓（丧父之占的两个前件，须并见方论）
     const keYearGan = _ganKe(g, yg);

@@ -647,10 +647,12 @@
         // 自刑：辰午酉亥同字重复
         _zhis.forEach((z,i)=>{ if(['辰','午','酉','亥'].indexOf(z)>=0 && _zhis.filter(x=>x===z).length>=2) relPos.selfXing.push(_znames[i]); });
         ['chong','xing','sanXing','selfXing','hai','po','he','anhe'].forEach(k=>{ relPos[k]=[...new Set(relPos[k])]; });
-        // 羊刃（日主帝旺位）
-        const REN2={'甲':'卯','乙':'寅','丙':'午','丁':'巳','戊':'午','己':'未','庚':'酉','辛':'戌','壬':'子','癸':'丑'};
-        const _yrZhi=REN2[dg]||'';
-        const yangRen={ zhi:_yrZhi, pos:_zhis.map((z,i)=>z===_yrZhi?_znames[i]:null).filter(Boolean) };
+        // 羊刃（日主）：帝旺、禄前两说并列同出，任一命中即算，真源为 bazi-data.js 的 YANGREN 与 YANGREN_LUQIAN
+        const _yrZhis=[];
+        if(typeof YANGREN!=='undefined'&&YANGREN[dg]) _yrZhis.push(YANGREN[dg]);
+        if(typeof YANGREN_LUQIAN!=='undefined'&&YANGREN_LUQIAN[dg]) _yrZhis.push(YANGREN_LUQIAN[dg]);
+        const _yrZhi=_yrZhis[0]||'';
+        const yangRen={ zhi:_yrZhi, pos:_zhis.map((z,i)=>_yrZhis.indexOf(z)>=0?_znames[i]:null).filter(Boolean) };
         // ── 神煞落位：神煞名（剥括号注）→ 落柱位数组，供 shensha 判定键取用 ──
         // 数据源 BZ.shaYear/shaMonth/shaDay/shaTime（四柱神煞数组）；字段缺省时为空、不参与判定
         const shaMap={};
