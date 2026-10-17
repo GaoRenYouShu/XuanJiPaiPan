@@ -52,6 +52,11 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
+/* 🔴 轻触高亮全站一律不借：纸本文档的按下反馈只由控件自出（盘上是加粗弧与加粗字），
+   系统那块半透明方块按命中元素的包围盒画，容器越大块越大，盘心一次点按即铺满整块，
+   点盘外留白更会落到页面级容器上铺满一屏。属性可继承，设在根上一处管全站；
+   各页与各盘不再各自复述，盘上热区那条 transparent 留作显式。 */
+html{-webkit-tap-highlight-color:transparent}
 body{
   font-family:var(--font);
   background:var(--paper);
