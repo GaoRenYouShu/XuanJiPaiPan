@@ -50,13 +50,13 @@
   --font:'Noto Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 全站主字体：思源宋体自托管分片＋符号补全子集，见 assets/fonts/，随站交付不依赖访客系统 */
   --font-serif:'Noto Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 经典衬线真源，与主字体同族 */
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
 /* 🔴 轻触高亮全站一律不借：纸本文档的按下反馈只由控件自出（盘上是加粗弧与加粗字），
    系统那块半透明方块按命中元素的包围盒画，容器越大块越大，盘心一次点按即铺满整块，
-   点盘外留白更会落到页面级容器上铺满一屏。属性可继承，设在根上一处管全站；
-   各页与各盘不再各自复述，盘上热区那条 transparent 留作显式。 */
-html{-webkit-tap-highlight-color:transparent}
+   点盘外留白更会落到页面级容器上铺满一屏。逐元素写死、不赖继承：个别内核对本属性
+   继承口径不一，根上一处写值在那些内核里子元素仍取默认色，故并入通配规则逐个落到位；
+   盘上热区那条 transparent 留作显式。 */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
 body{
   font-family:var(--font);
   background:var(--paper);
@@ -1738,7 +1738,10 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .zr-mod>summary::-webkit-details-marker{display:none}
 .zr-mod>summary::before{content:'▾';font-size:12px;color:var(--gold);transition:transform .15s}
 .zr-mod:not([open])>summary::before{transform:rotate(-90deg)}
+/* 择日模块题头悬停底色同 .mod-head：只给真有指针且能悬停的设备，触屏点按不粘底。 */
+@media (hover:hover) and (pointer:fine){
 .zr-mod>summary:hover{background:var(--gold-bg)}
+}
 .zr-mod-n{flex:0 0 auto;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--gold);color:#fff;font-size:12px}
 .zr-mod-b{padding:var(--sp-1) var(--sp-3) var(--sp-3);border-top:1px solid var(--line)}
 .jz-detail{margin-top:var(--sp-1);width:100%;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:var(--sp-2) 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--sp-1) var(--sp-3)}
@@ -1857,7 +1860,11 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .mod-head{display:flex;align-items:center;justify-content:flex-start;gap:var(--sp-2);cursor:pointer;user-select:none;
   background:transparent;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;
   box-shadow:none;padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-3);transition:.15s}
+/* 🔴 题头悬停底色只在真有指针且能悬停的设备上成立：触屏点按会把 :hover 粘在题头上，
+   一块金底就此留在模块顶条，须点别处才散，读者会误读成"选中了模块"。与圆盘悬停同一口径。 */
+@media (hover:hover) and (pointer:fine){
 .mod-head:hover{background:var(--gold-bg);box-shadow:none}
+}
 /* 模块head八卦图标：咖金色卦象 + 极浅米圆底，作模块视觉锚点（本命按性别乾/坤，其余固定卦象） */
 .gua-ico{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
   width:22px;height:22px;border-radius:0;background:#f6efda;color:var(--gold2);
