@@ -53,14 +53,24 @@ function fenGan(n){
   return (FS.ZHI.indexOf(zhi)%2===0?['甲','丙','戊','庚','壬']:['乙','丁','己','辛','癸'])[n%5];
 }
 /* 盘面相位：调用页给 phase 即盘面北所在之角，罗经仪页上北下南取零，缺省一百八十（子在下）。
-   盘面角＝地理度＋相位，取角皆以此为据。 */
+   盘面角＝地理度＋相位，取角皆以此为据。建盘时把相位烙在 svg 的 data-phase 上，
+   点选取针角照盘面读回，不靠调用页在建盘与点选两处各写一次相位，写岔即游标指到对宫。 */
 function phOf(o){ return (typeof o.phase==='number')?o.phase:180; }
+function phOnDisk(o){
+  /* 相位烙在盘 svg 上；盘 id 可能与外层块 div 同名（罗经仪页三盘三针盘即如此），
+     故先按 svg 精确取，取不到再退 id。 */
+  let el=null;
+  try{ el=document.querySelector('svg#'+o.id); }catch(e){ el=null; }
+  if(!el) el=document.getElementById(o.id);
+  const v=el&&el.dataset?el.dataset.phase:'';
+  return (v!==undefined&&v!=='') ? +v : phOf(o);
+}
 /* 游标：自盘心圆直出外沿，指向所选之山的取度 */
 function needle(o){
   const root=document.getElementById(o.id); if(!root) return;
   const ln=root.querySelector('#'+o.needleId), dt=root.querySelector('#'+o.dotId);
   if(!ln||!dt) return;
-  const pa=(((o.degOf(o.i)+phOf(o))%360)+360)%360;
+  const pa=(((o.degOf(o.i)+phOnDisk(o))%360)+360)%360;
   const a=px(LY_CORE,pa), c=px(LY_OUT,pa);
   ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1]));
   ln.setAttribute('x2',WHEEL.n(c[0])); ln.setAttribute('y2',WHEEL.n(c[1]));
@@ -183,7 +193,7 @@ function wheelSvg(o){
     s+=`<text id="${o.c1}${i+1}" x="${LY_C}" y="${LY_C+ys[i]}" text-anchor="middle" dominant-baseline="central"`
       +` style="font-size:${sz[i]}px;fill:${fills[i]};font-weight:700">${ct[i]}</text>`;
   }
-  return `<svg class="wheel wheel-luo" id="${o.id}" viewBox="0 0 528 528" role="img" aria-label="${o.label}">${s}</svg>`;
+  return `<svg class="wheel wheel-luo" id="${o.id}" data-phase="${PH}" viewBox="0 0 528 528" role="img" aria-label="${o.label}">${s}</svg>`;
 }
 global.FS_LUO={LY_C,LY_OUT,LY_TICK0,LY_JIAN0,LY_R1,LY_R2,LY_R3,LY_FEN0,LY_CORE,LY_DEGNUM,
   px,arc,band,fenGan,needle,pick,wheelSvg};

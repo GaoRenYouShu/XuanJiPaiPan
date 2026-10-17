@@ -21,6 +21,9 @@
     const FS = global.FENGSHUI;
     const {C,OUT,IN,CORE,LAB_OUT,LAB_IN,ARC,HIT1,TICK0,TICK1,P0,P1}=FS.GEO440;
     const sel = o.sel;
+    /* 取角登记：本盘热区、弧与游标同取 rdShanDeg（罗经仪页上北下南，子山在 0 度）。
+       不登记则点选兜底落到风水盘的 fwShanDeg（子在下，差 180 度），游标指到对宫。 */
+    degReg(o.id, rdShanDeg);
     let s = '';
     /* 外圈逐山弧与刻度 */
     for (let i = 0; i < 24; i++) {
