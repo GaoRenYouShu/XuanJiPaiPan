@@ -76,6 +76,7 @@
           <button class="lp-tool" data-rdskin="white" onclick="lpRealSkin('white')">白底</button>
           <button class="lp-tool active" id="lpCrossBtn" onclick="lpRealCross()">天心十道</button>
           <button class="btn" id="lpCompassBtn" onclick="lpStartCompass()">启动指南针</button>
+          <button type="button" class="lp-lock" id="lpCueBtn" onclick="lpToggleCue()" aria-label="刻度提示音与震动开关：每十五度一声，每三十度一记轻震，四正方位双音双震">提示音 关</button>
           <button type="button" class="lp-lock" id="lpRLock" onclick="lpRealLock()" aria-label="锁定当前读数">锁定</button>
           <button type="button" class="lp-lock" id="lpBackfillBtn" onclick="lpBackfillBase()" aria-label="以当前所向回填基础设定的实测坐度与坐山向首">回填设定</button>
         </div>
@@ -1006,6 +1007,8 @@ function lpCompassMake(){
         /* deg 为手机顶边所指的面向角（人面向之处）；罗盘坐山在人背后，
            故坐度取面向加一百八十度，跨零度归一。此处若直取面向即成坐向颠倒。 */
         var sitDeg=((deg+180)%360+360)%360;
+        /* 刻度提示以所读坐度为判：周天刻度读数即坐度，过十五度一声、三十度一震、四正双音双震 */
+        if(LUOPAN.cue) LUOPAN.cue.update(sitDeg);
         var zS=FS.zhenShan(sitDeg,'zheng');
         lpRealLiveRead(sitDeg, zS?zS.shan:shan, beta, gamma);
       }else{
@@ -1041,12 +1044,20 @@ function lpCompassAuto(){
 }
 function lpStartCompass(){
   var btn=document.getElementById('lpCompassBtn');
-  if(LP_COMPASS){ LP_COMPASS.stop(); LP_COMPASS=null; btn.textContent='启动指南针'; lpCompassState('已停止'); return; }
+  if(LP_COMPASS){ LP_COMPASS.stop(); LP_COMPASS=null; btn.textContent='启动指南针'; if(LUOPAN.cue) LUOPAN.cue.reset(); lpCompassState('已停止'); return; }
   LP_COMPASS=lpCompassMake();
   LP_COMPASS.start().then(function(ok){
     btn.textContent=ok?'停止指南针':'启动指南针';
     if(!ok) lpCompassState('未能取得传感器权限，可手拨盘面对针或填实测坐度。');
   });
+}
+/* 刻度提示开关：开则每十五度一声滴答、每三十度一记轻震、四正方位双音双震；
+   开关存本机，开页沿用。震动仅安卓浏览器支持，苹果网页无此接口，只有声音。 */
+function lpToggleCue(){
+  if(!LUOPAN.cue) return;
+  var on=LUOPAN.cue.toggle();
+  var b=document.getElementById('lpCueBtn');
+  if(b) b.textContent=on?'提示音 开':'提示音 关';
 }
 /* 实测回填：罗盘所测（实时所向，已锁则取所锁）回写基础设定的实测坐度与坐山向首，
    测量结果由此成为全页排盘输入。未取得读数则说明之，不盲填。 */
@@ -1103,6 +1114,8 @@ function lpInit(){
   lpRenderAll();
   LUOPAN.restoreMode();
   lpMagNote();
+  var cb=document.getElementById('lpCueBtn');
+  if(cb&&LUOPAN.cue) cb.textContent=LUOPAN.cue.isEnabled()?'提示音 开':'提示音 关';
   lpCompassAuto();
 }
 window.lpInit=lpInit;

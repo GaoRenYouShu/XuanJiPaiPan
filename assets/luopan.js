@@ -1567,6 +1567,89 @@
     }
   }
 
+  /* 刻度提示：真方位每过十五度一声滴答，每过三十度一记轻震，四正方位（子午卯酉）双音双震。
+     判据只看方位角的过界，不看帧率；一次更新跨过多个界只报最强一档，快转不连响。
+     声音现场合成，不添音频件；震动走系统接口，无此接口的平台静默跳过。
+     开关存本机，缺省关；开启时先响一记作确认。 */
+  const CUE = (function () {
+    const KEY = 'lp_cue_on';
+    let enabled = false;
+    try { enabled = !!(global.localStorage && global.localStorage.getItem(KEY) === '1'); } catch (e) {}
+    let lastDeg = null, ac = null;
+    const stat = { tick: 0, vib: 0, align: 0 };
+    function ctx() {
+      if (!ac) {
+        const AC = global.AudioContext || global.webkitAudioContext;
+        if (!AC) return null;
+        try { ac = new AC(); } catch (e) { ac = null; }
+      }
+      if (ac && ac.state === 'suspended' && ac.resume) { try { ac.resume(); } catch (e) {} }
+      return ac;
+    }
+    function tone(freq, dur, gain, at) {
+      const c = ctx(); if (!c) return;
+      const t0 = c.currentTime + (at || 0);
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain, t0 + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0); o.stop(t0 + dur + 0.02);
+    }
+    /* 机械钟式滴答：高频短促两声叠出脆响 */
+    function tick() { stat.tick++; tone(2400, 0.03, 0.05); tone(3400, 0.02, 0.025); }
+    function align() { stat.align++; tick(); tone(2400, 0.03, 0.05, 0.1); tone(3400, 0.02, 0.025, 0.1); }
+    function buzz(ms) {
+      stat.vib++;
+      if (global.navigator && typeof global.navigator.vibrate === 'function') {
+        try { global.navigator.vibrate(ms); } catch (e) {}
+      }
+    }
+    function update(deg) {
+      if (!enabled || deg == null || !isFinite(deg)) return;
+      const cur = ((deg % 360) + 360) % 360;
+      if (lastDeg == null) { lastDeg = cur; return; }
+      const d = ((cur - lastDeg + 540) % 360) - 180;
+      if (Math.abs(d) >= 180) { lastDeg = cur; return; }
+      if (Math.abs(d) < 0.01) return;
+      let has15 = false, has30 = false, has90 = false;
+      if (d > 0) {
+        for (let k = Math.floor(lastDeg / 15) + 1; k * 15 <= lastDeg + d + 1e-9; k++) {
+          has15 = true;
+          if (k % 2 === 0) has30 = true;
+          if (k % 6 === 0) has90 = true;
+        }
+      } else {
+        for (let k = Math.ceil(lastDeg / 15) - 1; k * 15 >= lastDeg + d - 1e-9; k--) {
+          has15 = true;
+          if (k % 2 === 0) has30 = true;
+          if (k % 6 === 0) has90 = true;
+        }
+      }
+      lastDeg = cur;
+      if (has90) { align(); buzz([16, 60, 16]); }
+      else if (has30) { tick(); buzz(12); }
+      else if (has15) { tick(); }
+    }
+    function setEnabled(on) {
+      enabled = !!on;
+      try { if (global.localStorage) global.localStorage.setItem(KEY, enabled ? '1' : '0'); } catch (e) {}
+      lastDeg = null;
+      if (enabled) { tick(); buzz(12); }
+      return enabled;
+    }
+    return {
+      update: update,
+      reset: function () { lastDeg = null; },
+      toggle: function () { return setEnabled(!enabled); },
+      setEnabled: setEnabled,
+      isEnabled: function () { return enabled; },
+      stat: stat
+    };
+  })();
+
   global.LUOPAN = {
     wheelSvg: function () { return global.FS_LUO.wheelSvg.apply(global.FS_LUO, arguments); },
     layerDisk: layerDisk,
@@ -1584,6 +1667,7 @@
     setCat: setCat,
     restoreMode: restoreMode,
     guide: guide,
-    Compass: Compass
+    Compass: Compass,
+    cue: CUE
   };
 })(typeof window !== 'undefined' ? window : this);
