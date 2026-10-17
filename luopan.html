@@ -76,7 +76,6 @@
           <button class="lp-tool" data-rdskin="white" onclick="lpRealSkin('white')">白底</button>
           <button class="lp-tool active" id="lpCrossBtn" onclick="lpRealCross()">天心十道</button>
           <button class="btn" id="lpCompassBtn" onclick="lpStartCompass()">启动指南针</button>
-          <button type="button" class="lp-lock" id="lpCueBtn" onclick="lpToggleCue()" aria-label="刻度提示音与震动开关：每十五度一声，每三十度一记轻震，四正方位双音双震">提示音 关</button>
           <button type="button" class="lp-lock" id="lpRLock" onclick="lpRealLock()" aria-label="锁定当前读数">锁定</button>
           <button type="button" class="lp-lock" id="lpBackfillBtn" onclick="lpBackfillBase()" aria-label="以当前所向回填基础设定的实测坐度与坐山向首">回填设定</button>
         </div>
@@ -1051,14 +1050,6 @@ function lpStartCompass(){
     if(!ok) lpCompassState('未能取得传感器权限，可手拨盘面对针或填实测坐度。');
   });
 }
-/* 刻度提示开关：开则每十五度一声滴答、每三十度一记轻震、四正方位双音双震；
-   开关存本机，开页沿用。震动仅安卓浏览器支持，苹果网页无此接口，只有声音。 */
-function lpToggleCue(){
-  if(!LUOPAN.cue) return;
-  var on=LUOPAN.cue.toggle();
-  var b=document.getElementById('lpCueBtn');
-  if(b) b.textContent=on?'提示音 开':'提示音 关';
-}
 /* 实测回填：罗盘所测（实时所向，已锁则取所锁）回写基础设定的实测坐度与坐山向首，
    测量结果由此成为全页排盘输入。未取得读数则说明之，不盲填。 */
 function lpBackfillBase(){
@@ -1114,8 +1105,6 @@ function lpInit(){
   lpRenderAll();
   LUOPAN.restoreMode();
   lpMagNote();
-  var cb=document.getElementById('lpCueBtn');
-  if(cb&&LUOPAN.cue) cb.textContent=LUOPAN.cue.isEnabled()?'提示音 开':'提示音 关';
   lpCompassAuto();
 }
 window.lpInit=lpInit;

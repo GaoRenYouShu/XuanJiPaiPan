@@ -1570,11 +1570,10 @@
   /* 刻度提示：真方位每过十五度一声滴答，每过三十度一记轻震，四正方位（子午卯酉）双音双震。
      判据只看方位角的过界，不看帧率；一次更新跨过多个界只报最强一档，快转不连响。
      声音现场合成，不添音频件；震动走系统接口，无此接口的平台静默跳过。
-     开关存本机，缺省关；开启时先响一记作确认。 */
+     常开，不设开关；浏览器须用户手势方可发声与震动，故页面首次触摸、按键或滚动即解锁，
+     解锁时补一声确认，用户由此知道提示已生效。 */
   const CUE = (function () {
-    const KEY = 'lp_cue_on';
-    let enabled = false;
-    try { enabled = !!(global.localStorage && global.localStorage.getItem(KEY) === '1'); } catch (e) {}
+    let enabled = true;
     let lastDeg = null, ac = null;
     const stat = { tick: 0, vib: 0, align: 0 };
     function ctx() {
@@ -1587,7 +1586,7 @@
       return ac;
     }
     function tone(freq, dur, gain, at) {
-      const c = ctx(); if (!c) return;
+      const c = ctx(); if (!c || c.state !== 'running') return;
       const t0 = c.currentTime + (at || 0);
       const o = c.createOscillator(), g = c.createGain();
       o.type = 'triangle';
@@ -1635,10 +1634,21 @@
     }
     function setEnabled(on) {
       enabled = !!on;
-      try { if (global.localStorage) global.localStorage.setItem(KEY, enabled ? '1' : '0'); } catch (e) {}
       lastDeg = null;
       if (enabled) { tick(); buzz(12); }
       return enabled;
+    }
+    /* 解锁：浏览器在用户手势前不放行声音与震动，页面首次触摸、按键或滚动即解锁并补一声确认 */
+    let armed = false;
+    function unlock() {
+      if (armed) return;
+      armed = true;
+      ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (ev) { global.removeEventListener(ev, unlock, true); });
+      ctx();
+      tick(); buzz(12);
+    }
+    if (global.addEventListener) {
+      ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (ev) { global.addEventListener(ev, unlock, { capture: true, passive: true }); });
     }
     return {
       update: update,
