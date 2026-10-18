@@ -87,26 +87,9 @@
      乾六天五祸绝延生，坎五天生延绝祸六，艮六绝祸生延天五，震延生祸绝五天六，
        巽天五六祸生绝延，离六五绝延祸生天，坤天延绝生祸五六，兑生祸延绝六五天。
      锚点：坎：艮五鬼、震天医、巽生气、离延年、坤绝命、兑祸害、乾六煞；兑生气在乾；离延年在坎；乾绝命在离。 */
-  const BAZHAI={
-    坎:{group:'东四命',ji:{生气:'巽',延年:'离',天医:'震',伏位:'坎'},xiong:{绝命:'坤',五鬼:'艮',祸害:'兑',六煞:'乾'}},
-    震:{group:'东四命',ji:{生气:'离',延年:'巽',天医:'坎',伏位:'震'},xiong:{绝命:'兑',五鬼:'乾',祸害:'坤',六煞:'艮'}},
-    巽:{group:'东四命',ji:{生气:'坎',延年:'震',天医:'离',伏位:'巽'},xiong:{绝命:'艮',五鬼:'坤',祸害:'乾',六煞:'兑'}},
-    离:{group:'东四命',ji:{生气:'震',延年:'坎',天医:'巽',伏位:'离'},xiong:{绝命:'乾',五鬼:'兑',祸害:'艮',六煞:'坤'}},
-    乾:{group:'西四命',ji:{生气:'兑',延年:'坤',天医:'艮',伏位:'乾'},xiong:{绝命:'离',五鬼:'震',祸害:'巽',六煞:'坎'}},
-    坤:{group:'西四命',ji:{生气:'艮',延年:'乾',天医:'兑',伏位:'坤'},xiong:{绝命:'坎',五鬼:'巽',祸害:'震',六煞:'离'}},
-    艮:{group:'西四命',ji:{生气:'坤',延年:'兑',天医:'乾',伏位:'艮'},xiong:{绝命:'巽',五鬼:'坎',祸害:'离',六煞:'震'}},
-    兑:{group:'西四命',ji:{生气:'乾',延年:'艮',天医:'坤',伏位:'兑'},xiong:{绝命:'震',五鬼:'离',祸害:'坎',六煞:'巽'}}
-  };
-  const GUA_DIR={坎:'北',震:'东',巽:'东南',离:'南',乾:'西北',坤:'西南',艮:'东北',兑:'西'};
-  function baZhai(gua){
-    const b=BAZHAI[gua];
-    if(!b) return null;
-    return {
-      gua, group:b.group,
-      ji:Object.keys(b.ji).map(k=>({name:k, gua:b.ji[k], dir:GUA_DIR[b.ji[k]]})),
-      xiong:Object.keys(b.xiong).map(k=>({name:k, gua:b.xiong[k], dir:GUA_DIR[b.xiong[k]]}))
-    };
-  }
+  /* 八宅大游年表与游年星查询由 assets/bazhai.js 提供，本件按装载序引用，表只此一处。 */
+  const _BZ_SHARED=(global.FENGSHUI||{});
+  const BAZHAI=_BZ_SHARED.BAZHAI, GUA_DIR=_BZ_SHARED.GUA_DIR, baZhai=_BZ_SHARED.baZhai, youXing=_BZ_SHARED.youXing;
   /* 【定源】流年方位煞（《协纪辨方书》）：太岁=流年地支；岁破=对冲；三煞=劫煞灾煞岁煞，
      申子辰（年）煞在南方巳午未、寅午戌煞在北方亥子丑、巳酉丑煞在东方寅卯辰、亥卯未煞在西方申酉戌；
      年五黄按年家紫白盘落宫。
@@ -705,15 +688,6 @@
     if(xmJx) meanParts.push(xmJx.mean);
     else meanParts.push('未填'+L+'年命，按旺相判');
     return {zong, mean:meanParts.join('；')};
-  }
-  /* 游年星：from 卦起游年，to 卦落何星（阳宅三要主断用） */
-  function youXing(from, to){
-    const b=BAZHAI[from];
-    if(!b) return null;
-    if(from===to) return '伏位';
-    for(const k in b.ji){ if(b.ji[k]===to) return k; }
-    for(const k in b.xiong){ if(b.xiong[k]===to) return k; }
-    return null;
   }
   /* ===================== 阴宅专法：八煞 黄泉 桃花水 仙命配山 禄马贵人 择日神煞 ===================== */
   /* 【定源】八煞曜（《罗经》八煞歌，通行）：坎龙坤兔震山猴，巽鸡乾马兑蛇头，艮虎离猪为八煞，墓宅逢之一例休。
