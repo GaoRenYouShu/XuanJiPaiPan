@@ -340,6 +340,13 @@ function applyDstCorrection(y, m, d, h, mi, mode){
    bazi-data.js 另有同名 const（八字域内部使用），加载顺序在 xuanji-lib 之前或之后的页面均以本表为跨模块消费真源 */
 window.ZHI_FANG = window.ZHI_FANG || {子:'正北',丑:'东北',寅:'东北',卯:'正东',辰:'东南',巳:'东南',午:'正南',未:'西南',申:'西南',酉:'正西',戌:'西北',亥:'西北'};
 
+/* ===== 二十四气节与气之分（万年历、老黄历共用） =====
+   十二节为节气月之始：立春、惊蛰、清明、立夏、芒种、小暑、立秋、白露、寒露、立冬、大雪、小寒；
+   余十二为气。日历格角标与节气圆盘刻度同取此判据。 */
+const JIE_QI_JIE = ['立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
+function jieQiIsJie(name){ return JIE_QI_JIE.indexOf(name) >= 0; }
+window.jieQiIsJie = jieQiIsJie;
+
 /* ===== 周次（万年历、老黄历、道历共用；取数走 lunar.js 的 SolarWeek 与 SolarMonth） =====
    一周以周一起例，与三页日历格首列同为周一（getStart 即周首序数，周一为 1）。
    月内第几周按所在月计、年内第几周按所在年计，两途并存不取其一；

@@ -35,7 +35,7 @@
 <div class="wrap cal-page page-wnl">
   <div class="page">
     <h1>万年历</h1>
-    <div class="lead">公历、农历对照，含节气、节日、每日干支。</div>
+    <div class="lead">公历、农历对照，含节气、节日、纪念日、每日干支。</div>
     <div class="form-row">
       <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" onchange="jumpToDate(this.value)"></div>
       <button class="btn gold" onclick="goToday()">今天</button>
@@ -108,9 +108,10 @@ function cell(d,other,todayStr){
   const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   /* 日历格 class：other 非本月、today 今日、weekend 周末、jq 节气日 */
   const cls = [other?'other':'', isToday?'today':'', (wd===0||wd===6)?'weekend':'', jq?'jq':''].filter(Boolean).join(' ');
-  const jqMark = jq ? `<span class="jq-mark">${(jq.includes('至')||jq.includes('分'))?'气':'节'}</span>` : '';
+  const jqMark = jq ? `<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>` : '';
+  const click = other ? `jumpToDate('${key}')` : `showDay('${key}', this)`;
   return `<div class="cal-cell ${cls}" data-date="${key}"
-    onclick="showDay('${key}', this)">
+    onclick="${click}">
     <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
     ${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark">节</span>':''}
     ${jq?`<div class="slot slot-jq">${jq}</div>`:''}
@@ -280,7 +281,12 @@ function jieqiWheel(solar, lunar){
      gap 为交节日减本日（正数＝尚未来到），ord 即本日在此气中的第几天 */
   WNL_JQ = JIEQI_24.map(function (nm, i) {
     const sea = JIEQI_SEA.filter(function (q) { return i >= q[1] / 15 && i < q[1] / 15 + 6; })[0] || JIEQI_SEA[0];
-    const dt = (typeof shilingJieQiDate === 'function') ? shilingJieQiDate(y, nm) : null;
+    let dt = (typeof shilingJieQiDate === 'function') ? shilingJieQiDate(y, nm) : null;
+    if (dt) {
+      const off = Math.round((dt - dN) / 86400000);
+      if (off > 183) dt = shilingJieQiDate(y - 1, nm) || dt;
+      else if (off < -183) dt = shilingJieQiDate(y + 1, nm) || dt;
+    }
     const gap = dt ? Math.round((dt - dN) / 86400000) : 0;
     return { name: nm, sea: sea[0], seaColor: sea[2], isJie: i % 2 === 0,
       md: dt ? (dt.getMonth() + 1) + '月' + dt.getDate() + '日' + ('0' + dt.getHours()).slice(-2) + ':' + ('0' + dt.getMinutes()).slice(-2) : '未载',
@@ -562,8 +568,7 @@ window.addEventListener('load', function () {
 季：${lunar.getSeason()}
 六曜：${lunar.getLiuYao()}
 周次：${weekLine(y,m,d)}（本月共${monthWeekCount(y,m)}周）
-冲煞：日冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}；时冲${hTime.getChongDesc()} 煞${hTime.getSha()}
-二十八宿：${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）\n宜：${lunar.getDayYi().join('、')||'诸事不宜'}\n忌：${lunar.getDayJi().join('、')||'无'}`;
+冲煞：日冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}；时冲${hTime.getChongDesc()} 煞${hTime.getSha()}\n宜：${lunar.getDayYi().join('、')||'诸事不宜'}\n忌：${lunar.getDayJi().join('、')||'无'}`;
     }, '万年历', { share:{ page:"wannianli", title:"万年历在线查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ if(!lastSel) goToday(); }); } } });
   }, 0);
 });

@@ -550,7 +550,7 @@ function renderGrid(){
        两枚角标点出，故另存两个判据：hasFest 管节字角标，mem 管纪字角标 */
     const hasFest=!!(sf[0]||lf[0]);
     const fest=sf[0]||lf[0]||mem||(lunar.getDayInChinese()==='初一'?lunar.getMonthInChinese()+'月':'');
-    const jqMark=jq?`<span class="jq-mark">${(jq.includes('至')||jq.includes('分'))?'气':'节'}</span>`:'';
+    const jqMark=jq?`<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>`:'';
     const ld=lunar.getDayInChinese();
     const isToday=new Date(Y,M-1,d).toDateString()===todayStr;
     const wd=new Date(Y,M-1,d).getDay();
