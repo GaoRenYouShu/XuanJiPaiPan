@@ -184,11 +184,10 @@ const LIUYAO_SCHOOLS={
   bushi:{name:'卜筮正宗派', duan:'重旬空月破、入库发动之辩，世应六亲安妥，断语有法度可依。', note:'王洪绪"卜筮正宗"一派，体系严谨、规则细密，强调卦理纯粹、世应六亲安妥，重旬空月破、入库发动之辩，断语有法度可依。'},
   huozhulin:{name:'火珠林古法', duan:'重老阳老阴之动变与卦象直觉，宜与"周易"爻辞互参。', note:'火珠林为六爻古法源头，多用钱马、爻辰与爻辞参断，重老阳老阴之动变与卦象直觉，风格古朴，宜与"周易"爻辞互参。'}
 };
-// ===== 六爻排盘算法：纳甲 / 六亲 / 用神 / 分类占断 / 应期 =====
+// ===== 六爻排盘算法：纳甲、六亲、用神、分类占断、应期 =====
 const LY_WX_KE={'金':'木','木':'土','土':'水','水':'火','火':'金'};
 const LY_SHENG={'金':'水','水':'木','木':'火','火':'土','土':'金'};
 const LY_TRIGRAM_WX={'乾':'金','兑':'金','坎':'水','震':'木','巽':'木','离':'火','艮':'土','坤':'土'};
-const LY_ZHI_WX={'子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火','午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'};
 const NAJA_IN={乾:['子','寅','辰'],震:['子','寅','辰'],坎:['寅','辰','午'],艮:['辰','午','申'],坤:['未','巳','卯'],巽:['丑','亥','酉'],离:['卯','丑','亥'],兑:['巳','卯','丑']};
 const NAJA_OUT={乾:['午','申','戌'],震:['午','申','戌'],坎:['申','戌','子'],艮:['戌','子','寅'],坤:['丑','亥','酉'],巽:['未','巳','卯'],离:['酉','未','巳'],兑:['亥','酉','未']};
 const NAJA_GAN={乾:['甲','壬'],坤:['乙','癸'],震:['庚','庚'],巽:['辛','辛'],坎:['戊','戊'],离:['己','己'],艮:['丙','丙'],兑:['丁','丁']};
@@ -256,15 +255,15 @@ const CAT_PRINC={
 };
 /* 六甲旬空表 */
 const XUN_KONG={'甲子':['戌','亥'],'甲戌':['申','酉'],'甲申':['午','未'],'甲午':['辰','巳'],'甲辰':['寅','卯'],'甲寅':['子','丑']};
-/* 六合 / 六冲 */
+/* 六合、六冲 */
 const LIU_HE=[['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
 const LIU_CHONG=[['子','午'],['丑','未'],['寅','申'],['卯','酉'],['辰','戌'],['巳','亥']];
-/* 三刑 / 六害 / 相破 / 暗合 */
+/* 三刑、六害、相破、暗合 */
 const DIZHI_XING=[['寅','巳','申'],['丑','戌','未'],['子','卯'],['辰'],['午'],['酉'],['亥']];
 const DIZHI_HAI=[['子','未'],['丑','午'],['寅','巳'],['卯','辰'],['申','亥'],['酉','戌']];
 const DIZHI_PO=[['子','酉'],['寅','亥'],['卯','午'],['辰','丑'],['巳','申'],['未','戌']];
 const DIZHI_ANHE=[['寅','丑'],['亥','午'],['子','巳'],['卯','申']];
-/* 地支关系判定：返回冲/合/刑/害/破/暗合数组 */
+/* 地支关系判定：返回冲、合、刑、害、破、暗合数组 */
 function zhiRelTypes(z1,z2){
   if(z1===z2)return [];
   const out=[];
@@ -285,7 +284,7 @@ const MU_KU={金:'丑',木:'未',水:'辰',火:'戌',土:'辰'};
 const JIN_TUI={'寅':'卯','巳':'午','申':'酉','亥':'子','辰':'未','未':'戌','戌':'丑','丑':'辰'};
 /* 三合局：三支齐则成局，力量大增 */
 const SAN_HE=[[['申','子','辰'],'水'],[['亥','卯','未'],'木'],[['寅','午','戌'],'火'],[['巳','酉','丑'],'金']];
-/* 三合局中神（局中旺支，居中）：半合两支必含中神，申辰/亥未/寅戌/巳丑缺中神为拱局，不作半合 */
+/* 三合局中神（局中旺支，居中）：半合两支必含中神，申辰、亥未、寅戌、巳丑缺中神为拱局，不作半合 */
 const SAN_HE_ZHONG={'申,子,辰':'子','亥,卯,未':'卯','寅,午,戌':'午','巳,酉,丑':'酉'};
 function sanHeOf(zhis){
   /* 成局：三支齐全（含月建日辰参与），力量大增 */
@@ -299,7 +298,7 @@ function sanHeOf(zhis){
 }
 /* 五行入墓地支 */
 function wxMu(wx){ return MU_KU[wx]||''; }
-/* 旺相休囚死（季月/四季月） */
+/* 旺相休囚死（季月、四季月） */
 const SEASON_WX={'春':{木:'旺',火:'相',水:'休',金:'囚',土:'死'},'夏':{火:'旺',土:'相',木:'休',水:'囚',金:'死'},'秋':{金:'旺',水:'相',土:'休',火:'囚',木:'死'},'冬':{水:'旺',木:'相',金:'休',土:'囚',火:'死'}};
 const JI_WX={土:'旺',金:'相',火:'休',木:'囚',水:'死'};
 /* 六神意象 */
@@ -322,7 +321,7 @@ function changSheng(wx, mz){
   const idx=(ZHI.indexOf(mz)-ZHI.indexOf(s)+12)%12;
   return CHANG_SHENG[idx];
 }
-/* 神煞：驿马/桃花/将星（以日支三合局定），天乙贵人（以日干定） */
+/* 神煞：驿马、桃花、将星（以日支三合局定），天乙贵人（以日干定） */
 const SAN_HE_GROUP={申:['申','子','辰'],子:['申','子','辰'],辰:['申','子','辰'],寅:['寅','午','戌'],午:['寅','午','戌'],戌:['寅','午','戌'],巳:['巳','酉','丑'],酉:['巳','酉','丑'],丑:['巳','酉','丑'],亥:['亥','卯','未'],卯:['亥','卯','未'],未:['亥','卯','未']};
 const YI_MA={'申子辰':'寅','寅午戌':'申','巳酉丑':'亥','亥卯未':'巳'};
 const TAO_HUA={'申子辰':'酉','寅午戌':'卯','巳酉丑':'午','亥卯未':'子'};
@@ -625,7 +624,7 @@ function isHe(z1,z2){ return LIU_HE.some(p=>(p[0]===z1&&p[1]===z2)||(p[0]===z2&&
 function seasonOf(mz){ return['寅','卯','辰'].indexOf(mz)>=0?'春':['巳','午','未'].indexOf(mz)>=0?'夏':['申','酉','戌'].indexOf(mz)>=0?'秋':'冬'; }
 function wangXiang(mz,wx){ const s=seasonOf(mz); return(['辰','戌','丑','未'].indexOf(mz)>=0?JI_WX:SEASON_WX[s])[wx]||'休'; }
 function jinTui(zF,zT){ return JIN_TUI[zF]===zT?'进':Object.keys(JIN_TUI).some(a=>JIN_TUI[a]===zF&&a===zT)?'退':null; }
-function huiTou(zF,zT){ const w1=LY_ZHI_WX[zF],w2=LY_ZHI_WX[zT]; return LY_SHENG[w1]===w2?'回头生':LY_WX_KE[w1]===w2?'回头克':w1===w2?'比和':null; }
+function huiTou(zF,zT){ const w1=ZHI_WX[zF],w2=ZHI_WX[zT]; return LY_SHENG[w1]===w2?'回头生':LY_WX_KE[w1]===w2?'回头克':w1===w2?'比和':null; }
 function wxToQin(gw,wx){ return !wx?'':wx===gw?'兄弟':LY_WX_KE[gw]===wx?'妻财':LY_WX_KE[wx]===gw?'官鬼':LY_SHENG[gw]===wx?'子孙':LY_SHENG[wx]===gw?'父母':''; }
 /* 卦身（月卦身）：世爻为阳爻从子起，世爻为阴爻从午起，顺数至世爻位置 */
 function guaShen(worldBit, worldPos){
@@ -648,8 +647,8 @@ function yongSanShen(gw,yq){
   const chouWx=jiWx?Object.keys(LY_SHENG).find(k=>LY_SHENG[k]===jiWx):''; /* 生忌神之五行 */
   return {yuan:wxToQin(gw,yuanWx), ji:wxToQin(gw,jiWx), chou:wxToQin(gw,chouWx)};
 }
-function getFuShen(bits,gName,qName){ const gb=TRIGRAMS[gName].bits.concat(TRIGRAMS[gName].bits); const nj=lyNajia(gb); const gw=LY_TRIGRAM_WX[gName]; const q=nj.zhi.map(z=>lyQin(gw,LY_ZHI_WX[z])); for(let i=0;i<6;i++){if(q[i]===qName) return{zhi:nj.zhi[i],gan:nj.gan[i],pos:i+1};} return null; }
-/* 六合卦/六冲卦：上下卦对应爻（初-四、二-五、三-上）三对全合为六合、全冲为六冲 */
+function getFuShen(bits,gName,qName){ const gb=TRIGRAMS[gName].bits.concat(TRIGRAMS[gName].bits); const nj=lyNajia(gb); const gw=LY_TRIGRAM_WX[gName]; const q=nj.zhi.map(z=>lyQin(gw,ZHI_WX[z])); for(let i=0;i<6;i++){if(q[i]===qName) return{zhi:nj.zhi[i],gan:nj.gan[i],pos:i+1};} return null; }
+/* 六合卦、六冲卦：上下卦对应爻（初-四、二-五、三-上）三对全合为六合、全冲为六冲 */
 function isLiuHeGua(bits6){ const zs=lyNajia(bits6).zhi; return isHe(zs[0],zs[3])&&isHe(zs[1],zs[4])&&isHe(zs[2],zs[5]); }
 function isLiuChongGua(bits6){ const zs=lyNajia(bits6).zhi; return isChong(zs[0],zs[3])&&isChong(zs[1],zs[4])&&isChong(zs[2],zs[5]); }
 let stepYaos=[]; /* 逐爻摇卦记录：自下而上 */
@@ -770,7 +769,7 @@ function timeGua(now, ziMode){
   const ZHI='子丑寅卯辰巳午未申酉戌亥';
   const y=ZHI.indexOf(yearZhi)+1;
   const m=lunar.getMonth(), d=lunar.getDay();
-  const h=Math.floor((now.getHours()+1)/2)%12+1; /* 时辰序1-12：23点/0点=子(1)、1-2点=丑(2)…… */
+  const h=Math.floor((now.getHours()+1)/2)%12+1; /* 时辰序1-12：23点、0点=子(1)、1-2点=丑(2)…… */
   const num=((y+m+d)%8)||8;      /* 上卦 */
   const num2=((y+m+d+h)%8)||8;   /* 下卦 */
   const dong=((y+m+d+h)%6)||6;   /* 动爻1-6 */
@@ -779,14 +778,14 @@ function timeGua(now, ziMode){
 }
 function cast(){
   const s=LIUYAO_SCHOOLS[document.getElementById('lySchool').value]||LIUYAO_SCHOOLS.jingfang;
-  const schoolId=document.getElementById('lySchool').value||'jingfang'; /* 流派落地：影响卦宫权重/三神权重/空破辨/爻辞断 */
+  const schoolId=document.getElementById('lySchool').value||'jingfang'; /* 流派落地：影响卦宫权重、三神权重、空破辨、爻辞断 */
   const method=document.getElementById('lyMethod').value;
   const ziMode=(document.getElementById('lyZi')||{}).value||'late';
   const useTrue=(document.getElementById('lyTrue')||{}).checked===true;
   const SEX=(document.getElementById('lySex')||{}).value||'m';
   const rawNow=lyCastNow();
   let now=rawNow;
-  /* 真太阳时：按当地（省市区/手动经度）校正起卦时刻，跨日自动调整；
+  /* 真太阳时：按当地（省市区、手动经度）校正起卦时刻，跨日自动调整；
      先于起卦取数完成，保证"时间起卦"亦用校正后时刻。
      当地未定即无经度可校，此时不折一道按钟面出盘，并在起卦时间行注明未校。 */
   let lyNoPlace='';
@@ -834,11 +833,11 @@ function cast(){
       }
       stepYaos=[]; document.getElementById('stepTip').textContent='当前第 1 爻，点击摇一爻依次记录，每轮限摇六次';
     }else if(method==='name'){
-      /* 姓名起卦（梅花字占法，康熙笔画）：1字=字兼上下卦；2字=上/下；3字=前1上、后2下；4字=前后分；动爻取总余6 */
+      /* 姓名起卦（梅花字占法，康熙笔画）：1字=字兼上下卦；2字=上、下；3字=前1上、后2下；4字=前后分；动爻取总余6 */
       const nm=(document.getElementById('lyName').value||'').replace(/\s+/g,'');
       const chars=nm.split('').filter(function(c){ return /[\u4e00-\u9fa5]/.test(c); });
       if(!chars.length){ alert('姓名起卦：请先填写汉字姓名'); return; }
-      /* 笔画取值：统一走公共 getKangxiStroke（姓名学康熙笔画，简体/繁体各自正确取数） */
+      /* 笔画取值：统一走公共 getKangxiStroke（姓名学康熙笔画，简体、繁体各自正确取数） */
       const st=chars.map(getKangxiStroke);
       const bad=chars.filter(function(c,i){ return !st[i]; });
       if(bad.length){ alert('姓名起卦：字库未收录'+bad.join('、')+'的康熙笔画，请更换用字或改用其他起卦方式'); return; }
@@ -889,9 +888,9 @@ function cast(){
   const cat=document.getElementById('lyCat').value;
   const nj=lyNajia(benBits);
   const gongWx=LY_TRIGRAM_WX[bp.palace.replace('宫','')];
-  const qin=nj.zhi.map(z=>lyQin(gongWx, LY_ZHI_WX[z]));
+  const qin=nj.zhi.map(z=>lyQin(gongWx, ZHI_WX[z]));
   let yong=CAT_YONG[cat];
-  const _taiSuiZhi=lunar.getYearInGanZhi()[1]; /* 太岁地支（按起卦时间的农历年，与太岁行/流年神煞统一基准） */
+  const _taiSuiZhi=lunar.getYearInGanZhi()[1]; /* 太岁地支（按起卦时间的农历年，与太岁行、流年神煞统一基准） */
   /* 性别影响用神：占婚姻男以妻财为用、女以官鬼为用 */
   if(cat==='婚姻') yong=(SEX==='f'?'官鬼':'妻财');
   const mz=lunar.getMonthInGanZhi()[1], mG=lunar.getMonthInGanZhi()[0];
@@ -910,11 +909,11 @@ function cast(){
       const dong=cand.filter(i=>lines[i].moving);
       if(dong.length){ cand=dong; yongSelectTxt='用神'+yong+'多现于'+list+'，取动爻'+(dong.map(i=>'第'+(i+1)+'爻').join('、'))+'为用，动则事显'; }
       else{
-        const wang=cand.filter(i=>['旺','相'].indexOf(wangXiang(mz,LY_ZHI_WX[nj.zhi[i]]))>=0);
+        const wang=cand.filter(i=>['旺','相'].indexOf(wangXiang(mz,ZHI_WX[nj.zhi[i]]))>=0);
         if(wang.length){ cand=wang; yongSelectTxt='用神'+yong+'多现且皆静，取旺相之'+(wang.map(i=>'第'+(i+1)+'爻').join('、'))+'为用，得令者胜'; }
         else{
           /* 不空、不月破、不日破（静爻休囚逢日冲为日破） */
-          const clean=cand.filter(i=>getXunKong(dgz).indexOf(nj.zhi[i])<0 && !isChong(mz,nj.zhi[i]) && !(isChong(dgz[1],nj.zhi[i])&&['休','囚','死'].indexOf(wangXiang(mz,LY_ZHI_WX[nj.zhi[i]]))>=0));
+          const clean=cand.filter(i=>getXunKong(dgz).indexOf(nj.zhi[i])<0 && !isChong(mz,nj.zhi[i]) && !(isChong(dgz[1],nj.zhi[i])&&['休','囚','死'].indexOf(wangXiang(mz,ZHI_WX[nj.zhi[i]]))>=0));
           if(clean.length){ cand=clean; yongSelectTxt='用神'+yong+'多现而皆休囚，取不空不破之'+(clean.map(i=>'第'+(i+1)+'爻').join('、'))+'为用'; }
           else yongSelectTxt='用神'+yong+'多现'+list+'，取首现之第'+(cand[0]+1)+'爻为用';
         }
@@ -927,16 +926,16 @@ function cast(){
   /* 卦身（月卦身）与世爻所在 */
   const guaShenZhi=guaShen(lines[bp.world-1].bit, bp.world-1);
   const guaShenIdx=nj.zhi.indexOf(guaShenZhi);
-  const guaShenTxt='卦身 '+gzColorSpan(guaShenZhi)+(guaShenIdx>=0?('，临第'+(guaShenIdx+1)+'爻，属'+wxColorSpan(LY_ZHI_WX[guaShenZhi])):'，卦身不现，伏藏');
-  // ===== 专业判定：旬空 / 月破 / 入墓 / 六合六冲 / 旺相休囚死 / 三神 / 伏神 / 进退神 / 六神意象 / 应期 =====
+  const guaShenTxt='卦身 '+gzColorSpan(guaShenZhi)+(guaShenIdx>=0?('，临第'+(guaShenIdx+1)+'爻，属'+wxColorSpan(ZHI_WX[guaShenZhi])):'，卦身不现，伏藏');
+  // ===== 专业判定：旬空、月破、入墓、六合六冲、旺相休囚死、三神、伏神、进退神、六神意象、应期 =====
   const kong=getXunKong(dgz);                    /* 旬空两字 */
-  const _mWx=LY_ZHI_WX[mz], _dWx=LY_ZHI_WX[dgz[1]];
-  const yongZhi=nj.zhi[yongIdx], yongWx=LY_ZHI_WX[yongZhi];
-  const _shiWx=LY_ZHI_WX[nj.zhi[bp.world-1]], _yingWx=LY_ZHI_WX[nj.zhi[bp.ying-1]];
+  const _mWx=ZHI_WX[mz], _dWx=ZHI_WX[dgz[1]];
+  const yongZhi=nj.zhi[yongIdx], yongWx=ZHI_WX[yongZhi];
+  const _shiWx=ZHI_WX[nj.zhi[bp.world-1]], _yingWx=ZHI_WX[nj.zhi[bp.ying-1]];
   /* 卦身与用神关系：卦身主事体，临用神则事专一，生克定吉凶 */
   let guaShenYongTxt='';
   if(guaShenIdx>=0){
-    const gswx=LY_ZHI_WX[guaShenZhi];
+    const gswx=ZHI_WX[guaShenZhi];
     if(guaShenIdx===yongIdx)guaShenYongTxt='卦身临用神之位，事体专一，吉凶分明';
     else if(LY_SHENG[gswx]===yongWx)guaShenYongTxt='卦身属'+gswx+'生用神，事有助力，暗含生机';
     else if(LY_SHENG[yongWx]===gswx)guaShenYongTxt='卦身属'+gswx+'泄用神之气，事有耗费';
@@ -970,11 +969,11 @@ function cast(){
   if(neiXing.length)xingHaiParts.push('卦内'+neiXing.join('、'));
   const xingHaiTxt=xingHaiParts.length?xingHaiParts.join('；'):'卦中诸爻与月建日辰无刑害，地支平和';
   /* 每爻状态：入墓=该爻五行之墓库为月建或日辰（动爻称入墓、静爻称临库）；
-     暗动=静爻旺相逢日辰冲（月破/旬空之爻不取暗动）；日破=静爻休囚逢日辰冲；
-     冲空=旬空逢日辰冲（冲则实/起）；冲散=月破逢日辰冲，二者不并标暗动日破 */
+     暗动=静爻旺相逢日辰冲（月破、旬空之爻不取暗动）；日破=静爻休囚逢日辰冲；
+     冲空=旬空逢日辰冲（冲则实、起）；冲散=月破逢日辰冲，二者不并标暗动日破 */
   const lineState=[];
   for(let i=0;i<6;i++){
-    const z=nj.zhi[i], wx=LY_ZHI_WX[z];
+    const z=nj.zhi[i], wx=ZHI_WX[z];
     const wang=wangXiang(mz,wx);
     const riChong=isChong(z,dgz[1]);
     const isKong=kong.indexOf(z)>=0, isPo=isChong(mz,z);
@@ -1027,9 +1026,9 @@ function cast(){
   const bPalace=palaceInfo(bianBits);
   const bQinGongMode=(document.getElementById('lyBianQinGong')||{}).checked===true;
   const bGongWx=bQinGongMode?LY_TRIGRAM_WX[bPalace.palace.replace('宫','')]:gongWx;
-  const bQin=bNj.zhi.map(z=>lyQin(bGongWx, LY_ZHI_WX[z]));
+  const bQin=bNj.zhi.map(z=>lyQin(bGongWx, ZHI_WX[z]));
   const bQinGongNote=bQinGongMode?'变卦六亲按变卦宫取':'变卦六亲按本卦宫取（主流口径）';
-  /* 三神：原神/忌神/仇神 */
+  /* 三神：原神、忌神、仇神 */
   const sanShen=yongSanShen(gongWx,yong);
   /* 动爻明细：回头生克 + 化进退 + 化墓 + 冲合 + 反吟伏吟 */
   const _bnj=lyNajia(bianBits); /* 变卦纳甲一次算妥，供动爻明细循环复用（性能微优化） */
@@ -1040,8 +1039,8 @@ function cast(){
     const bz2=_bnj.zhi[i];
     const ht=huiTou(z,bz2);
     const jt=jinTui(z,bz2);
-    const mu2=wxMu(LY_ZHI_WX[z])===bz2?wxMu(LY_ZHI_WX[z]):null; /* 动爻化墓：变爻为其五行墓库 */
-    const cs2=changSheng(LY_ZHI_WX[z],bz2); /* 变爻地支相对本爻五行的长生状态 */
+    const mu2=wxMu(ZHI_WX[z])===bz2?wxMu(ZHI_WX[z]):null; /* 动爻化墓：变爻为其五行墓库 */
+    const cs2=changSheng(ZHI_WX[z],bz2); /* 变爻地支相对本爻五行的长生状态 */
     if(isChong(z,bz2)) fanYin=true;   /* 反吟：动爻变出与自身相冲之爻 */
     if(z===bz2) fuYin=true;           /* 伏吟：动爻变出同地支 */
     const dAttrs=[];
@@ -1087,7 +1086,7 @@ function cast(){
     guaFanYin=bNj.zhi.every((z,i)=>isChong(nj.zhi[i],z));
     guaFuYin=bNj.zhi.every((z,i)=>z===nj.zhi[i]);
   }
-  /* 三神发动影响：动爻所临六亲若为原/忌/仇神，吉凶立判 */
+  /* 三神发动影响：动爻所临六亲若为原、忌、仇神，吉凶立判 */
   let sanDongTxt='';
   if(yong!=='世'){
     const dongQins=lines.map((l,i)=>l.moving?qin[i]:null).filter(Boolean);
@@ -1127,7 +1126,7 @@ function cast(){
   if(yong!=='世'){
     const parts=[];
     lines.forEach((l,i)=>{ if(!l.moving)return;
-      const bq=bQin[i], bqWx=LY_ZHI_WX[bNj.zhi[i]];
+      const bq=bQin[i], bqWx=ZHI_WX[bNj.zhi[i]];
       if(bq&&bqWx!==yongWx){
         if(LY_SHENG[bqWx]===yongWx)parts.push('第'+(i+1)+'爻变出'+bq+'，地支'+bNj.zhi[i]+'，生用神，有益');
         else if(LY_WX_KE[bqWx]===yongWx)parts.push('第'+(i+1)+'爻变出'+bq+'，地支'+bNj.zhi[i]+'，克用神，有害');
@@ -1147,10 +1146,10 @@ function cast(){
   if(nMoving>0){
     lines.forEach((l,i)=>{
       if(!l.moving)return;
-      const mw=LY_ZHI_WX[nj.zhi[i]];
+      const mw=ZHI_WX[nj.zhi[i]];
       lines.forEach((s,j)=>{
         if(s.moving||i===j)return;
-        const sw=LY_ZHI_WX[nj.zhi[j]];
+        const sw=ZHI_WX[nj.zhi[j]];
         if(LY_WX_KE[mw]===sw)dongKed.push('第'+(i+1)+'爻动克第'+(j+1)+'爻');
         else if(LY_SHENG[mw]===sw)dongSheng.push('第'+(i+1)+'爻动生第'+(j+1)+'爻');
         else if(LY_WX_KE[sw]===mw)jingKed.push('第'+(j+1)+'爻静克第'+(i+1)+'爻动');
@@ -1158,7 +1157,7 @@ function cast(){
       });
     });
   }
-  /* 动克静/动生静等按"施事爻"合并：同一爻克/生多爻只写一次"第X爻动克"，目标爻用顿号并列 */
+  /* 动克静、动生静等按"施事爻"合并：同一爻克、生多爻只写一次"第X爻动克"，目标爻用顿号并列 */
   function mergeDongWang(arr){
     const order=[], map={};
     arr.forEach(s=>{
@@ -1178,7 +1177,7 @@ function cast(){
   const dongWang=dongWangTxt.length?dongWangTxt.join('；'):'';
   /* 卦气偏枯：六爻五行分布失衡分析 */
   const wxCount={'金':0,'木':0,'水':0,'火':0,'土':0};
-  nj.zhi.forEach(z=>wxCount[LY_ZHI_WX[z]]++);
+  nj.zhi.forEach(z=>wxCount[ZHI_WX[z]]++);
   const wxArr=Object.keys(wxCount).sort((a,b)=>wxCount[b]-wxCount[a]);
   let pianKu='';
   if(wxCount[wxArr[0]]>=4)pianKu='卦中'+wxArr[0]+'气过重，多达'+wxCount[wxArr[0]]+'爻，偏枯失衡';
@@ -1215,7 +1214,7 @@ function cast(){
     const fs=getFuShen(benBits,bp.palace.replace('宫',''),yong);
     if(fs){
       const feiZhi=nj.zhi[fs.pos-1]; /* 飞神地支（本卦对应爻位） */
-      const feiWx=LY_ZHI_WX[feiZhi], fuWx=LY_ZHI_WX[fs.zhi];
+      const feiWx=ZHI_WX[feiZhi], fuWx=ZHI_WX[fs.zhi];
       let fkText='';
       if(LY_SHENG[fuWx]===feiWx) fkText='伏神生飞神，泄气，出伏难';
       else if(LY_SHENG[feiWx]===fuWx) fkText='飞神生伏神，得生扶，出伏易';
@@ -1231,12 +1230,12 @@ function cast(){
       fuShenInfo=`用神 ${yong} 本卦不现，伏于${bp.palace}八纯卦${fuGua.usym}${fuGua.lsym}"${fuGua.name}"之第${fs.pos}爻${gzColorSpan(fs.gan+fs.zhi)}。飞神为第${fs.pos}爻${gzColorSpan(nj.gan[fs.pos-1]+feiZhi)}，${fkText}；${feiWangTxt}。待冲飞、值日、旺月出伏方显。`;
     }
   }
-  /* 用神伏藏时以伏神论旺衰（主流口径，增删卜易/卜筮正宗同）：飞神只论压制，
+  /* 用神伏藏时以伏神论旺衰（主流口径，增删卜易、卜筮正宗同）：飞神只论压制，
      旺衰、旬空、月破、入墓与应期取值一律改用伏神干支；eff* 变量供下游统一取用 */
   let effWx=yongWx, effZhi=yongZhi, effWang=yongWang, effKong=yongKong, effPo=yongPo, effMu=yongMu;
   let effMoving=yongMoving, effAn=ysSt.an, effNote='';
   if(yong!=='世'&&yongInQin<0&&fuShenZhi){
-    const fw=LY_ZHI_WX[fuShenZhi];
+    const fw=ZHI_WX[fuShenZhi];
     effWx=fw; effZhi=fuShenZhi;
     effWang=wangXiang(mz,fw);
     effKong=kong.indexOf(fuShenZhi)>=0;
@@ -1246,7 +1245,7 @@ function cast(){
     effNote='用神伏藏，旺衰以伏神'+fuShenZhi+'论';
   }
   if(effNote){ wangTxt=wxWangPhrase(effWx,effWang,'伏神'); wangFull=wxDayRelTxt(effWx); }
-  /* 月将日辰入卦：临月建/临日辰之爻 */
+  /* 月将日辰入卦：临月建、临日辰之爻 */
   const linYue=nj.zhi.map((z,i)=>z===mz?i+1:null).filter(Boolean);
   const linRi=nj.zhi.map((z,i)=>z===dgz[1]?i+1:null).filter(Boolean);
   var yueRuTxt=linYue.length?'第'+linYue.join('、')+'爻临月建'+mz+'，得令最旺。':'月建不入卦，无爻临月建。';
@@ -1255,9 +1254,9 @@ function cast(){
   var rhIdx=lineState.map(function(st,i){return st.rh?i+1:null;}).filter(Boolean);
   if(yhIdx.length)yueRuTxt+='第'+yhIdx.join('、')+'爻逢月建合，'+mz+'合'+yhIdx.map(function(x){return nj.zhi[x-1];}).join('、')+'，合起有力。';
   if(rhIdx.length)riRuTxt+='第'+rhIdx.join('、')+'爻逢日辰合，'+dgz[1]+'合'+rhIdx.map(function(x){return nj.zhi[x-1];}).join('、')+'，合住难动。';
-  /* 太岁（流年岁君）：岁破/岁合/临太岁，主当年应期之"年"层级 */
+  /* 太岁（流年岁君）：岁破、岁合、临太岁，主当年应期之"年"层级 */
   const taiSuiGZ=lunar.getYearInGanZhi();
-  const taiSuiZhi=_taiSuiZhi, taiSuiWx=LY_ZHI_WX[taiSuiZhi];
+  const taiSuiZhi=_taiSuiZhi, taiSuiWx=ZHI_WX[taiSuiZhi];
   const linTai=[], poTai=[], heTai=[];
   nj.zhi.forEach(function(z,i){ if(z===taiSuiZhi)linTai.push(i+1); if(isChong(z,taiSuiZhi))poTai.push(i+1); if(isHe(z,taiSuiZhi))heTai.push(i+1); });
   let taiSuiTxt='流年太岁'+gzColorSpan(taiSuiGZ);
@@ -1325,19 +1324,19 @@ function cast(){
   /* 卦身不现：待卦身地支透出之日 */
   if(guaShenIdx<0)yqList.push('卦身不现，待'+guaShenZhi+'透出之日');
   if(!yqList.length)yqList.push('观用神旺相之期，远应年月、近应日时');
-  /* 应期引导语按动静区分：动爻应速（日），静卦应缓（旬/月） */
+  /* 应期引导语按动静区分：动爻应速（日），静卦应缓（旬、月） */
   const yingLead=nMoving>0?'机已发动，近应日时、远应月令；':'用神安静，事机未显，近应旬日、远应月令；';
   const yingText=yingLead+yqList.slice(0,3).join('，')+'。';
   /* 针对性总结（基于实际卦象，非理论套话） */
   const catDuan=CAT_DUAN[cat];
   const catDuanTxt=catDuan&&(effWang==='旺'||effWang==='相')&&!effKong&&!effPo&&!effMu?catDuan.吉:catDuan&&(effKong||effPo||effMu||effWang==='死'||effWang==='囚')?catDuan.凶:(catDuan?catDuan.吉+'，另有周折，须看应期':'');
-  /* 分类占断多维细化：求财分正财/偏财，其余按用神得地与否取顺/逆 */
+  /* 分类占断多维细化：求财分正财、偏财，其余按用神得地与否取顺、逆 */
   let catDuanMore='';
   if(catDuan){
     const yongDe=(effWang==='旺'||effWang==='相')&&!effKong&&!effPo&&!effMu;
     const shiYingHe=shiYingHeChong?shiYingHeChong.indexOf('合')>=0:benHe;
     if(cat==='求财'){
-      /* 正偏财多因素判定：财动/临玄武白虎/居外卦（远财）/临驿马为偏，否则正 */
+      /* 正偏财多因素判定：财动、临玄武白虎、居外卦（远财）/临驿马为偏，否则正 */
       const yongSha=lineState[yongIdx]&&lineState[yongIdx].sha?lineState[yongIdx].sha:[];
       const isPian=(yongMoving)||(yongGod==='玄武'||yongGod==='白虎')||(yongIdx>=3)||(yongSha.indexOf('驿马')>=0);
       catDuanMore=isPian?catDuan.偏财:catDuan.正财;
@@ -1429,7 +1428,7 @@ function cast(){
     if(hp.length)huozhuYaoTxt=hp.join('；')+'。';
   }
   const bianCi=nMoving>0?(GUA_CI[bianP.name]||''):'';
-  /* 按占事类别选择 GUA_MEAN 维度：只输出与所占之事对应的解读，不一律输出事业/感情/健康 */
+  /* 按占事类别选择 GUA_MEAN 维度：只输出与所占之事对应的解读，不一律输出事业、感情、健康 */
   const catDimMap={'自身':'自身','婚姻':'感情','求财':'事业','官非功名':'事业','疾病':'健康','出行':'自身','失物':'事业','考试文书':'事业','子孙':'感情','兄弟朋友':'感情','求谋':'自身','行人':'自身','家宅':'自身','田产':'事业','胎产':'健康','天时':'自身','讨债':'事业','寻人':'自身','问事':'自身','求职':'事业','工作调动':'事业','合伙':'事业','诉讼':'事业','借贷':'事业','购车':'自身','购房':'自身','租房':'自身','搬家':'自身','投资':'事业','经营':'事业','开店':'事业','升职':'事业','学业':'事业','比赛':'自身','怀孕':'健康','生产':'健康','签证':'自身','出国':'自身','移民':'自身','官司输赢':'事业','签约':'事业','投标':'事业','拆迁':'自身','借物':'自身'};
   const catDim=catDimMap[cat]||'事业';
   let guaMeanTxt='';
@@ -1452,7 +1451,7 @@ function cast(){
   }
   const jiedu='此卦'+guaMeanTxt.replace(/[。！？]+$/,'')+'。';
   const guaCiTxt=[ben.name+'卦辞：'+guaCi.replace(/[。！？]+$/,'')+'。', bianCi?bianP.name+'卦辞：'+bianCi.replace(/[。！？]+$/,'')+'。':'', jiedu, GUA_TUAN[ben.name]?'彖传：'+GUA_TUAN[ben.name].replace(/[。！？]+$/,'')+'。':'', GUA_DAXIANG[ben.name]?'大象：'+GUA_DAXIANG[ben.name].replace(/[。！？]+$/,'')+'。':''].filter(Boolean).join('<br>');
-  /* 爻表行（含空/破/墓标记） */
+  /* 爻表行（含空、破、墓标记） */
   const rows=[];
   for(let i=5;i>=0;i--){
     const l=lines[i], st=lineState[i];
@@ -1486,7 +1485,7 @@ function cast(){
       <span class="ly-tags"${tags.length ? ` title="${tags.map(t => t.replace(/<[^>]*>/g, '')).join('　')}"` : ''}>${tags.join('')}</span>
     </div>`);
   }
-  /* 五行生克用神三神图（SVG）：相生环 + 相克五角星，标出用神/原神/忌神/仇神 */
+  /* 五行生克用神三神图（SVG）：相生环 + 相克五角星，标出用神、原神、忌神、仇神 */
   const SHENG_RING=['木','火','土','金','水'];
   const KE_RING=['木','土','水','火','金'];
   const _wd=130, _r=92, _rr=20;
@@ -1500,7 +1499,7 @@ function cast(){
   const jiWx2=yongWx?Object.keys(LY_WX_KE).find(function(k){return LY_WX_KE[k]===yongWx;}):'';
   const chouWx2=jiWx2?Object.keys(LY_SHENG).find(function(k){return LY_SHENG[k]===jiWx2;}):'';
   const WX_CLS={'木':'mu','火':'huo','土':'tu','金':'jin','水':'shui'}; /* 中文五行 → 站内 wx-* 类名后缀 */
-  /* 角色标签位置：底部两颗(土/金)改到圆外左右侧，避免被生克连线遮挡；火水木保持下方 */
+  /* 角色标签位置：底部两颗(土、金)改到圆外左右侧，避免被生克连线遮挡；火水木保持下方 */
   function lyRolePos(w, p){
     if(w==='土') return {x:p[0]-_rr-9, y:p[1], a:'end'};
     if(w==='金') return {x:p[0]+_rr+9, y:p[1], a:'start'};
@@ -1531,11 +1530,11 @@ function cast(){
     <tr><th>本卦</th><td>${ben.usym}${ben.lsym} "${ben.name}"，${bp.palace}${bp.type}</td></tr>
     <tr><th>变卦</th><td>${bianP.usym}${bianP.lsym} "${bianP.name}"，${zp.palace}</td></tr>
     <tr><th>世应</th><td>世在第${bp.world}爻 应在第${bp.ying}爻 ${guaShenTxt}</td></tr>
-    <tr><th>旬空</th><td>日柱${gzColorSpan(dgz)}，旬空 ${kong.filter(Boolean).map(z=>wxColorSpan(LY_ZHI_WX[z])+z).join('、')||'无'}</td></tr>
+    <tr><th>旬空</th><td>日柱${gzColorSpan(dgz)}，旬空 ${kong.filter(Boolean).map(z=>wxColorSpan(ZHI_WX[z])+z).join('、')||'无'}</td></tr>
     <tr><th>月建日辰</th><td>${gzColorSpan(mG+mz)} 月 ${gzColorSpan(dgz)} 日${(nayinOf(dgz))?('，日纳音'+nayinOf(dgz)):''} 用神${effWang==='旺'?'当令而旺':effWang==='相'?'得月相扶':effWang==='休'?'休囚无力':effWang==='囚'?'受制而囚':effWang==='死'?'当令死绝':''}${effNote?'（伏神）':''}</td></tr>
   </tbody></table>
   <div class="yao-board"><div class="yao-col"><h4>本卦 ${ben.name}</h4>${rows.join('')}</div>
-  ${nMoving>0?`<div class="yao-col"><h4 title="${bQinGongNote}">变卦 ${bianP.name}</h4>${Array.from({length:6},(_,k)=>k).reverse().map(i=>{const l=lines[i], bS=bNj.zhi[i];const bShi=showBianSY&&(bPalace.world===i+1), bYing=showBianSY&&(bPalace.ying===i+1);const bTags=[];const bKong=getXunKong(dgz).indexOf(bS)>=0;const bPo=isChong(mz,bS);const bMu=wxMu(LY_ZHI_WX[bS])===mz||wxMu(LY_ZHI_WX[bS])===dgz[1];if(bKong)bTags.push('<span class="ly-tag ly-tag-kong">空</span>');if(bPo)bTags.push('<span class="ly-tag ly-tag-po">月破</span>');if(bMu)bTags.push('<span class="ly-tag ly-tag-mu">'+(l.moving?'入墓':'临库')+'</span>');if(l.moving){const z0=nj.zhi[i];const bJt=jinTui(z0,bS);if(bJt)bTags.push('<span class="ly-tag ly-tag-jin">'+bJt+'神</span>');const bHt=huiTou(z0,bS);if(bHt)bTags.push('<span class="ly-tag ly-tag-ht">'+bHt+'</span>');if(wxMu(LY_ZHI_WX[z0])===bS)bTags.push('<span class="ly-tag ly-tag-mu">化墓</span>');const bCs=changSheng(LY_ZHI_WX[z0],bS);if(bCs==='绝'||bCs==='胎'||bCs==='养')bTags.push('<span class="ly-tag ly-tag-cs">化'+bCs+'</span>');}return `<div class="yao-line"><span class="god">${gods[i]}</span><span class="qin${i===yongIdx?' ly-yong':(bQin[i]===yong?' ly-yong2':'')}">${bQin[i]}</span><span class="yao-tag">${l.moving?(l.bit?'○→':'×→'):''}</span><span class="yao-sym">${lineSym(bianBits[i])}</span><span class="sy">${bShi?'世':bYing?'应':''}</span><span class="gz">${bNj.gan[i]}${bS}</span><span class="ly-tags">${bTags.join('')}</span></div>`;}).join('')}</div>`:''}
+  ${nMoving>0?`<div class="yao-col"><h4 title="${bQinGongNote}">变卦 ${bianP.name}</h4>${Array.from({length:6},(_,k)=>k).reverse().map(i=>{const l=lines[i], bS=bNj.zhi[i];const bShi=showBianSY&&(bPalace.world===i+1), bYing=showBianSY&&(bPalace.ying===i+1);const bTags=[];const bKong=getXunKong(dgz).indexOf(bS)>=0;const bPo=isChong(mz,bS);const bMu=wxMu(ZHI_WX[bS])===mz||wxMu(ZHI_WX[bS])===dgz[1];if(bKong)bTags.push('<span class="ly-tag ly-tag-kong">空</span>');if(bPo)bTags.push('<span class="ly-tag ly-tag-po">月破</span>');if(bMu)bTags.push('<span class="ly-tag ly-tag-mu">'+(l.moving?'入墓':'临库')+'</span>');if(l.moving){const z0=nj.zhi[i];const bJt=jinTui(z0,bS);if(bJt)bTags.push('<span class="ly-tag ly-tag-jin">'+bJt+'神</span>');const bHt=huiTou(z0,bS);if(bHt)bTags.push('<span class="ly-tag ly-tag-ht">'+bHt+'</span>');if(wxMu(ZHI_WX[z0])===bS)bTags.push('<span class="ly-tag ly-tag-mu">化墓</span>');const bCs=changSheng(ZHI_WX[z0],bS);if(bCs==='绝'||bCs==='胎'||bCs==='养')bTags.push('<span class="ly-tag ly-tag-cs">化'+bCs+'</span>');}return `<div class="yao-line"><span class="god">${gods[i]}</span><span class="qin${i===yongIdx?' ly-yong':(bQin[i]===yong?' ly-yong2':'')}">${bQin[i]}</span><span class="yao-tag">${l.moving?(l.bit?'○→':'×→'):''}</span><span class="yao-sym">${lineSym(bianBits[i])}</span><span class="sy">${bShi?'世':bYing?'应':''}</span><span class="gz">${bNj.gan[i]}${bS}</span><span class="ly-tags">${bTags.join('')}</span></div>`;}).join('')}</div>`:''}
   </div>
   <div class="yao-board ly-sub">
     <div class="yao-col"><h4>互卦 ${hu.name}</h4>${Array.from({length:6},(_,k)=>k).reverse().map(i=>`<div class="yao-line hu-line"><span class="yao-tag"></span><span class="yao-sym">${lineSym(huBits[i])}</span></div>`).join('')}</div>
@@ -1586,7 +1585,7 @@ function cast(){
     <table class="ly-cat-tbl ly-cat-ref"><thead><tr><th>占类</th><th>用神</th><th>取用原则</th></tr></thead><tbody>
     ${Object.keys(CAT_YONG).map(k=>`<tr class="${CAT_YONG[k]===yong&&k===cat?'ly-cur':''}"><td>${k}</td><td>${CAT_YONG[k]==='世'?'世爻':CAT_YONG[k]}</td><td>${CAT_PRINC[k]}</td></tr>`).join('')}
     </tbody></table></details>`;
-  /* 连占对比模式：结果追加为卡片（一卦多断/连占），否则覆盖单盘 */
+  /* 连占对比模式：结果追加为卡片（一卦多断、连占），否则覆盖单盘 */
   if((document.getElementById('lyMulti')||{}).checked===true){
     const host=document.getElementById('lyMultiHost');
     if(host){
@@ -1687,7 +1686,7 @@ function loadLyHistory(i){
     closeLyHist();
     lyMethodChange();
     cast();
-  }catch(e){ alert('重开失败：'+e.message); }
+  }catch(e){ console.error('[重开]', e); alert('重开失败，请核对输入后重试。'); }
 }
 /* 五帝钱 SVG：传世黄铜质感（温润哑光包浆、三枚色各自有差、边道磨损、字口清晰） */
 function lyCoinText(x,y,ch,size,dk,hi){

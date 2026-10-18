@@ -51,7 +51,7 @@ window.NAME_GENERATE = (function () {
 
   /* ---- 候选池 ----
    * 池不按请求性别预过滤：性别构成由挑选端三级档控制，异性字须保留在池中才能兜底；
-   * 仅剔除通用低画填充字（适用度 -1，如 丁/人/乙，非名字用字） */
+   * 仅剔除通用低画填充字（适用度 -1，如 丁、人、乙，非名字用字） */
   function poolFor() {
     var out = {};
     Object.keys(BUCKETS).forEach(function (b) {
@@ -383,7 +383,7 @@ window.NAME_GENERATE = (function () {
 
     /* target：收集数组；tier 恒 0（数理零否决后不再分档，保留字段兼容取用端） */
     function build(target, tier, chs) {
-      /* 五行排除/配额：按义五行计（水字属水）；无共识的字不属任何五行，不受排除约束；
+      /* 五行排除、配额：按义五行计（水字属水）；无共识的字不属任何五行，不受排除约束；
          字辈字为宗族必用字，豁免排除 */
       for (var wxi = 0; wxi < chs.length; wxi++) {
         if (chs[wxi] !== beizi && wxExcl[yiWxOf(chs[wxi])]) return;
@@ -614,7 +614,7 @@ window.NAME_GENERATE = (function () {
 
     /* 三档枚举：0 严格、1 放宽三才、2 数理欠佳放行；按需枚举，档间共享 */
 
-    /* 候选集跨调用缓存：同一 姓氏/性别/字数/字辈/避讳字　音/喜用/忌用/三才口径 下候选集完全相同，
+    /* 候选集跨调用缓存：同一 姓氏、性别、字数、字辈、避讳字　音、喜用、忌用、三才口径 下候选集完全相同，
        rand 只改排序抖动不改候选集，故随机分析重复点击可跳过全量枚举（首点仍付一次成本） */
     function __cacheSig() {
       return xing + '|' + pref + '|' + nameLen + '|' + beizi + '|' + (parseInt(opts.bzPos, 10) || 0)

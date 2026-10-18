@@ -1,6 +1,6 @@
 /* ============================================================
  * 名卦引擎（assets/name-hexagram.js）
- * 依赖：gua.js（TRIGRAMS/XT2NAME/hexInfo/palaceInfo，站内梅梅/测字同源库）、
+ * 依赖：gua.js（TRIGRAMS/XT2NAME/hexInfo/palaceInfo，站内梅梅、测字同源库）、
  *       NAME_ENGINE.planChar（姓名学笔画口径）
  * 纯函数；起卦口径（梅梅字占、人名通例，golden 锁定）：
  *   上卦＝姓氏笔画和 ÷8 取余（余0作8，先天数 乾1…坤8）

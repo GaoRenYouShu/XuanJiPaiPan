@@ -249,7 +249,7 @@
   var GONG_NAME = ['年','月','日','时'];
 
   /* 十干体象歌摘句（通行本十干体象歌）：供"同类异性透干"条目按日主引本干诗句。
-     仅摘与"得地力足 / 失令无根"两档相应之句；讲同类相夺者唯丁火诗一句
+     仅摘与"得地力足、失令无根"两档相应之句；讲同类相夺者唯丁火诗一句
      （"太阳相见夺光明"），余干不硬套，诗无相应句者（丙、癸之失令档）不引。 */
   var TX_GE = {
     '甲':{de:'欲存天地千年久，直向泥沙万丈埋'},
@@ -631,7 +631,7 @@
 
     /* ① 生肖关系：宝宝年支（生肖）与家长年支（生肖），此为用户所问之"生肖关系"。
        条目名不带家长称谓：本层按家长分组输出（见 parentsFate），组标题已标明是哪位家长，
-       逐条再冠家长一/二只会满屏重复，反而淹没干支与关系本身 */
+       逐条再冠家长一、二只会满屏重复，反而淹没干支与关系本身 */
     if(LIUHE[bzYear]===pz){ s+=6; push('宝宝生肖六合（'+bzYear+pz+'合）', 6, 'ji'); }
     else if(JU_OF[bzYear] && JU_OF[bzYear]===JU_OF[pz] && bzYear!==pz){ s+=5; push('宝宝生肖三合（'+bzYear+pz+'）', 5, 'ji'); }
     else if(CHONG[bzYear]===pz){ s-=10; push('宝宝生肖相冲（'+bzYear+pz+'冲）', -10, 'xiong'); }
@@ -700,7 +700,7 @@
     var avg = subs.reduce(function(a,b){ return a+b.score; }, 0) / subs.length;
     var items = [];
     /* 按家长分组：每条带 grp（组名）与 grpHead（组首条）。渲染时组标题独占一行，
-       组内各条不再重复家长一/二，逐条冠称谓只会满屏重复，把干支与关系本身淹掉 */
+       组内各条不再重复家长一、二，逐条冠称谓只会满屏重复，把干支与关系本身淹掉 */
     subs.forEach(function(sb){
       sb.items.forEach(function(it, i){
         items.push({name:it.name, delta:it.delta, kind:it.kind, grp:sb.label, grpHead:(i===0)});

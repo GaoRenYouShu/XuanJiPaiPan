@@ -98,12 +98,12 @@
 
 @media (max-width:760px){
   .page-bazi table.stab th,.page-bazi table.stab td{padding:2px 4px}
-  /* 表头短标签（五行/宜忌/组合/分类/项目…）不换行，避免被压成单字成行 */
+  /* 表头短标签（五行、宜忌、组合、分类、项目…）不换行，避免被压成单字成行 */
   .page-bazi table.stab th{white-space:nowrap}
-  /* 普通表：首列固定为 2 个汉字宽（写死，含留白），长内容列占余宽。 首列换行规则按字数判定（JS 在 layoutYitiTables 加类）：≤2 字（日主/五行/宜忌/组合/分类…）整词不折； ≥3 字（宫位十神/祖辈宫/六亲身心…）在 2 字宽处自然折行（每行 ≥2 字，不出现单字成行）。 */
-  /* 列宽方案（table-layout:auto，border-box 计宽）： 非最后一列均为短标签列（五行/宜忌/组合/分类/项目/宫位十神/维度/层级…），固定 3em（=总宽 3 汉字上限，含留白）。 2 字标签整词放下不折、不单字孤行；4 字标签（如宫位十神）在 3em 内自然折行（每行 ≥2 字）。 最后一列是长文本内容列，不锁宽（width:auto），随屏幕自适应，避免内容长时表格被无限拉高/撑破。 对 2 列表（第 1 列短、第 2 列自适应）与 3/4 列表（前面列短、最后列自适应）同时成立。 */
+  /* 普通表：首列固定为 2 个汉字宽（写死，含留白），长内容列占余宽。 首列换行规则按字数判定（JS 在 layoutYitiTables 加类）：≤2 字（日主、五行、宜忌、组合、分类…）整词不折； ≥3 字（宫位十神、祖辈宫、六亲身心…）在 2 字宽处自然折行（每行 ≥2 字，不出现单字成行）。 */
+  /* 列宽方案（table-layout:auto，border-box 计宽）： 非最后一列均为短标签列（五行、宜忌、组合、分类、项目、宫位十神、维度、层级…），固定 3em（=总宽 3 汉字上限，含留白）。 2 字标签整词放下不折、不单字孤行；4 字标签（如宫位十神）在 3em 内自然折行（每行 ≥2 字）。 最后一列是长文本内容列，不锁宽（width:auto），随屏幕自适应，避免内容长时表格被无限拉高、撑破。 对 2 列表（第 1 列短、第 2 列自适应）与 3/4 列表（前面列短、最后列自适应）同时成立。 */
   .page-bazi #mod-yiti table.stab:not(.stab-a2){table-layout:auto !important}
-  /* 短标签列（非末列，含表头 th）：border-box 固定 3em（=总宽 3 汉字上限）。 内容区 = 3em - padding(8px) ÷ 11px ≈ 2.3~2.5 字，足够 2 字整词放下（不折叠成 1 字/行）； 4 字标签（宫位十神）在 3em 内自然折为“2+2”；min-width=3em 防止 auto 布局把列压窄 <2 字。 */
+  /* 短标签列（非末列，含表头 th）：border-box 固定 3em（=总宽 3 汉字上限）。 内容区 = 3em - padding(8px) ÷ 11px ≈ 2.3~2.5 字，足够 2 字整词放下（不折叠成 1 字、行）； 4 字标签（宫位十神）在 3em 内自然折为“2+2”；min-width=3em 防止 auto 布局把列压窄 <2 字。 */
   /* 短标签列（非末列，含表头）：默认整词单行（nowrap）不折、无单字孤行； 列宽由 JS(layoutYitiTables) 按本列最长词字数决定并内联写入（≤3 字整词、≥4 字在 2.6em 内折 2+2）。 末列（长文本内容列）不锁宽自适应。stab-ssd（十神经典断语"组合"列）除外，另行换行规则。 */
   .page-bazi #mod-yiti table.stab:not(.stab-a2):not(.stab-cy):not(.stab-ssd) td:not(:last-child),.page-bazi #mod-yiti table.stab:not(.stab-a2):not(.stab-cy):not(.stab-ssd) th:not(:last-child){box-sizing:content-box !important;white-space:nowrap !important;word-break:normal !important;overflow-wrap:break-word !important}
   /* 十神经典断语表(stab-ssd)："组合"列固定 4 字内容宽（border-box 计宽，含两端 padding+border）， 超过 4 字即折行（4+2、4+3…），避免长断语名撑宽挤压"判定"列内容空间。 宽度 = 4.2em（4 字内容 + 0.2em 渲染余量） + 10px（左右 padding 8px + border 间距 2px）； 未预留两端间距会导致 4 字词在 3~3.5 字处提前折行（实测 3 字换行），此处显式计入。 */
@@ -235,14 +235,14 @@
   /* 排盘与保存两钮：窄屏栅格按格定位，order 与 grid-column 同由文档序与格宽给出，
      两钮占两格并随 order:3 落到四柱之后、检索组之前，与电脑端同序 */
   .mode-pillar:where(.bz-root) .bazi-flow .btn.bazi-act{order:3;margin:0}
-  /* 公历/农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
+  /* 公历、农历窄屏：流式定宽（与桌面同口径：select 自适应、姓名 96、农历年 76、出生时间 72） */
   .mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
   .mode-date:where(.bz-root) .bazi-top .field select,.mode-lunar:where(.bz-root) .bazi-top .field select,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field select{width:auto;align-self:flex-start}
   .mode-date:where(.bz-root) .bazi-top .field#fName input,.mode-lunar:where(.bz-root) .bazi-top .field#fName input{width:96px;align-self:flex-start}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarY input{width:76px;align-self:flex-start}
   .mode-lunar:where(.bz-root) .bazi-top .field#fTime .dt-wrap{display:flex;flex-direction:row;align-items:center;gap:var(--sp-1)}
   /* 农历窄屏压缩定宽：内容均两字，缩框使 农历年+农历月+闰月+农历日+出生时间 能并入两排
-     （行1 输入方式72/性别55/姓名96/农历年76；行2 农历月72/闰月43/农历日68/出生时间112，时间框 72px 全站统一） */
+     （行1 输入方式72、性别55、姓名96、农历年76；行2 农历月72、闰月43、农历日68、出生时间112，时间框 72px 全站统一） */
   .mode-lunar:where(.bz-root) .bazi-top .field#cMode select{width:72px}
   .mode-lunar:where(.bz-root) .bazi-top .field#cSex select{width:55px}
   .mode-lunar:where(.bz-root) .bazi-top .field#fLunarM select{width:72px}

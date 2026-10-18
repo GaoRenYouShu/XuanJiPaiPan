@@ -1,26 +1,26 @@
 /* ============================================================================
  * 奇门遁甲 全功能排盘引擎 (qimen-engine.js)
  * ----------------------------------------------------------------------------
- * 设计目标：时家转盘、飞盘皆为规范排法；年、月/日家各有专属局数表（非时家同源重排），刻家采用时家节气局数配刻柱驱动（近似）。
+ * 设计目标：时家转盘、飞盘皆为规范排法；年、月、日家各有专属局数表（非时家同源重排），刻家采用时家节气局数配刻柱驱动（近似）。
  * 暴露 window.Qimen.calculate(date, opts) ，返回 qimen.html / qimen-extra.js 所需的完整盘对象。
  *
  * 核心算法（转盘、寄宫法）：
- *   1. 定局：节气 → 三元(上、中/下) → 局数；阳遁(冬至~芒种) / 阴遁(夏至~大雪)。
+ *   1. 定局：节气 → 三元(上、中、下) → 局数；阳遁(冬至~芒种) / 阴遁(夏至~大雪)。
  *      支持 拆补法(默认) / 茅山法(交节日即上元) / 传统置闰法(拆补起局，标注置闰)。
  *   2. 地盘三奇六仪：戊从局数宫起，阳顺阴逆，含中五。
  *   3. 旬首六仪：由驱动干支(时家取时柱)求旬首 → 甲子戊…甲寅癸。
  *   4. 值符宫 = 旬首六仪在地盘之宫(中五寄坤二)；值符星、值使门 = 该宫原位星、门。
  *   5. 天盘(天盘干)：值符(旬首六仪)转到“时干落宫”，三奇六仪整体沿后天八卦顺时针外圈旋转；
- *      中五仪无宫位，落到天禽寄宫(坤二/艮八)。
+ *      中五仪无宫位，落到天禽寄宫(坤二、艮八)。
  *   6. 九星：值符星转到时干落宫，沿后天八卦顺时针外圈布八宫(恒顺时针，不论阴阳遁)；
- *      中宫为天禽，随中五仪寄宫(坤二/艮八)。
+ *      中宫为天禽，随中五仪寄宫(坤二、艮八)。
  *   7. 八门：值使门“加时”：从值符宫起，走时辰旬内序数步(阳顺阴逆)，中五寄坤；八门整体沿
  *      后天八卦顺时针外圈转盘(恒顺时针，不论阴阳遁)。
  *   8. 八神：值符在时干落宫(=天盘值符宫)，沿后天八卦顺时针外圈布八宫，阳顺阴逆。
  *   转盘外圈序(先天洛书宫位按后天八卦环序)=坎1→艮8→震3→巽4→离9→坤2→兑7→乾6，见常量 OUTER。
  *   9. 暗干(隐干)：从值使门落宫起戊，阳顺阴逆布三奇六仪。
- *  10. 空亡(旬空两宫) / 驿马(支→宫) / 门迫门制 / 星旺相休囚废。
- *  11. 格局：伏吟、反吟、六仪击刑、三奇六仪入墓、五不遇时、庚四柱格(岁、月/日、时/飞干)、三奇得使、玉女守门、青龙回首、飞鸟跌穴、三奇升殿、九遁、十干克应。
+ *  10. 空亡(旬空两宫) / 驿马(支→宫) / 门迫门制、星旺相休囚废。
+ *  11. 格局：伏吟、反吟、六仪击刑、三奇六仪入墓、五不遇时、庚四柱格(岁、月、日、时、飞干)、三奇得使、玉女守门、青龙回首、飞鸟跌穴、三奇升殿、九遁、十干克应。
  *  12. 用神取用 + 综合断语。
  *
  * 说明：本引擎为程序化简化推演，定局以拆补法为主，结果仅供参考，请勿迷信。
@@ -57,7 +57,7 @@
   const FLY = ['1','2','3','4','5','6','7','8','9'];
   const FLY_OUT = ['1','2','3','4','6','7','8','9']; // 飞盘八门、八神不入中五（飞盘按洛书数字顺飞，非外圈转盘）
 
-  /* ---------------- 五行 / 吉凶 ---------------- */
+  /* ---------------- 五行、吉凶 ---------------- */
   const GAN_WX = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
   const GAN_YANG = new Set(['甲','丙','戊','庚','壬']);
   const ZHI_WX = {'子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火','午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'};
@@ -74,7 +74,7 @@
 
   // 旬首 → 六仪
   const XUNSHOU_LIUYI = {'甲子':'戊','甲戌':'己','甲申':'庚','甲午':'辛','甲辰':'壬','甲寅':'癸'};
-  // 局数表（上、中/下元）；前12为阳遁，后12为阴遁
+  // 局数表（上、中、下元）；前12为阳遁，后12为阴遁
   const JIE_JU = {
     '冬至':[1,7,4],'小寒':[2,8,5],'大寒':[3,9,6],'立春':[8,5,2],'雨水':[9,6,3],'惊蛰':[1,7,4],
     '春分':[3,9,6],'清明':[4,1,7],'谷雨':[5,2,8],'立夏':[4,1,7],'小满':[5,2,8],'芒种':[6,3,9],
@@ -88,11 +88,11 @@
   // 入库（三奇六仪入墓之宫）：乙丙戊墓戌(乾6) 丁己庚墓丑(艮8) 辛壬墓辰(巽4) 癸墓未(坤2)
   const RUMU = {'乙':'6','丙':'6','戊':'6','丁':'8','己':'8','庚':'8','辛':'4','壬':'4','癸':'2'};
 
-  /* ---------------- 非时家专用局数表（日、月/年、刻 各自独立，非同源重排） ---------------- */
+  /* ---------------- 非时家专用局数表（日、月、年、刻 各自独立，非同源重排） ---------------- */
   // 年家奇门专用九星（洛书九星，区别于时家天蓬等）：一白~九紫，仅用于年家注释、配星
   // 年家三元：全部阴遁；上元甲子年阴1(坎1起戊)、中元甲子阴4(巽4)、下元甲子阴7(兑7)
   //   三元180年，以公元1864年(甲子)为上元第一年；局数=甲子基准逐年逆减(mod 9, 1-9)
-  const YEAR_YUAN_BASE = [1, 4, 7];           // 上、中/下元 甲子年局数
+  const YEAR_YUAN_BASE = [1, 4, 7];           // 上、中、下元 甲子年局数
   const YEAR_EPOCH = 1864;                    // 上元甲子年（阴1局）
   // 月家奇门专用（遁甲演義）：阴遁；甲己年所在五年一元，年支定三元
   //   四孟(寅申巳亥)→上元阴1(坎1)  四仲(子午卯酉)→中元阴7(兑7)  四季(辰戌丑未)→下元阴4(巽4)
@@ -111,7 +111,7 @@
   const BA_GUA_SHUN = ['1','8','3','4','9','2','7','6'];
 
   /* ---------------- 山向奇门专用（道家阴盘山向体系） ---------------- */
-  // 二十四山顺序（罗盘自壬起顺钟转）：每山15°，含三元局数（上/中/下三5°段）
+  // 二十四山顺序（罗盘自壬起顺钟转）：每山15°，含三元局数（上、中、下三5°段）
   const SHAN_ORDER = ['壬','子','癸','丑','艮','寅','甲','卯','乙','辰','巽','巳','丙','午','丁','未','坤','申','庚','酉','辛','戌','乾','亥'];
   // 二十四山三元局数表（每山3个局：上元5°、中元5°、下元5°；依《一年二十四节气奇门遁甲用事表》）
   const SHAN_JU = {
@@ -188,7 +188,7 @@
   }
   // 寄宫流派解析：'坤二'（主流，缺省）、'艮八'（道家阴盘）
   function qinJiGong(qinGong){ return qinGong === '艮八' ? '8' : '2'; }
-  // 天盘/九星整体环转：地盘八外宫内容沿环序整体顺移 k = posIndex(值符落宫) − posIndex(值符宫)；
+  // 天盘、九星整体环转：地盘八外宫内容沿环序整体顺移 k = posIndex(值符落宫) − posIndex(值符宫)；
   // 中五（天禽、中五仪）无独立外宫，取寄宫镜像（中5 = 转后寄宫位的值）
   function rotateTianPan(zhiFuGong, luoGong, srcMap, jiGong){
     const fi = OUTER.indexOf(zhiFuGong), ti = OUTER.indexOf(luoGong);
@@ -266,7 +266,7 @@
     }
     return solarDate;
   }
-  // 定局主函数：返回 {type(阳、阴), num, yuanText(上、中/下元), jieQiName}
+  // 定局主函数：返回 {type(阳、阴), num, yuanText(上、中、下元), jieQiName}
   function determineJu(solar, school){
     const lunar = solar.getLunar();
     const cj = currentJieqi(solar, lunar);
@@ -281,7 +281,7 @@
       yuanIdx = ((dayDiff(headDate, solar)) % 15 + 15) % 15;
       yuanIdx = Math.floor(yuanIdx/5) % 3;
     } else {
-      // 拆补 / 传统置闰：以符头(甲己日)定上元
+      // 拆补、传统置闰：以符头(甲己日)定上元
       const hb = findJiaJi(jieqiDate, -1); // 交节前最近甲己日
       const gap = dayDiff(hb, jieqiDate);   // 交节 - 符头
       if(gap <= 4) headDate = hb;           // 正常接气：符头在交节前≤4天
@@ -300,7 +300,7 @@
     const n = gzIndex(yearGZ);                       // 年干支在六十甲子序号(0-59)
     let span = (((year - YEAR_EPOCH) % 180) + 180) % 180;  // 距上元甲子年的年数(0-179)
     let yuan = Math.floor(span / 60);                // 0上元 1中元 2下元
-    const base = YEAR_YUAN_BASE[yuan];               // 该元甲子年局数(阴1/阴4/阴7)
+    const base = YEAR_YUAN_BASE[yuan];               // 该元甲子年局数(阴1、阴4、阴7)
     let num = ((base - n) % 9 + 9) % 9; if(num === 0) num = 9;  // 逐年逆减(阴遁)
     return { type:'yin', num, yuanText:['上元','中元','下元'][yuan], yuan, n };
   }
@@ -322,7 +322,7 @@
       return GAN[idx % 10] + ZHI[idx % 12];
     })();
     const yZhi = blockYearGZ[1];
-    // 年支定三元（遁甲演義：四孟上元坎1 / 四仲中元兑7 / 四季下元巽4）
+    // 年支定三元（遁甲演義：四孟上元坎1、四仲中元兑7、四季下元巽4）
     const map = {'寅':'1','申':'1','巳':'1','亥':'1','子':'7','午':'7','卯':'7','酉':'7','辰':'4','戌':'4','丑':'4','未':'4'};
     const base = parseInt(map[yZhi] || '4', 10);
     const yuanText = (base === 1) ? '上元' : (base === 7 ? '中元' : '下元');
@@ -331,7 +331,7 @@
     return { type:'yin', num, yuanText, base, blockYear: blockYearGZ, monthGZ };
   }
 
-  /* ---------------- 日家奇门专用：休门落宫 / 八门 / 九星（与节气的阳阴遁） ---------------- */
+  /* ---------------- 日家奇门专用：休门落宫、八门、九星（与节气的阳阴遁） ---------------- */
   function dayXiuMenGong(dayGZ, type){
     // 依“领头三日组”日干支查休门宫（阳遁序，阴遁取10-宫）
     const g = dayGZ[0], z = dayGZ[1];
@@ -341,7 +341,7 @@
     else if(z === '午') gong = (['戊','庚','甲'].indexOf(g) >= 0) ? '3' : '8';
     else if(z === '酉') gong = (['癸','丁','辛'].indexOf(g) >= 0) ? '4' : '9';
     else {
-      // 非子午卯酉日：归并到其所在三日组的领头(子、卯/午、酉)日再查
+      // 非子午卯酉日：归并到其所在三日组的领头(子、卯、午、酉)日再查
       const idx = gzIndex(dayGZ);
       const leader = (function(){ let li = Math.floor(idx / 3) * 3; return GAN[li % 10] + ZHI[li % 12]; })();
       return dayXiuMenGong(leader, type);
@@ -419,7 +419,7 @@
     const tg = GAN[(di%5*2 + ziIdx) % 10];
     return tg + ze;
   }
-  function keGanZhi(dayGZ, hour, minute){ // 刻家（简化）：日干推进 floor(时辰/2) 位
+  function keGanZhi(dayGZ, hour, minute){ // 刻家（简化）：日干推进 floor(时辰、2) 位
     const hh = hour + (minute>=45?1:0);
     const n = Math.floor(hh/2);
     const di = GAN.indexOf(dayGZ[0]), zi = ZHI.indexOf(dayGZ[1]);
@@ -433,7 +433,7 @@
     const liuyi = over.xunShouLiuYi || xunShouLiuYi(drivingGZ);
     // 值符宫
     let zf=''; for(const g in diPan){ if(!zf && diPan[g]===liuyi && g!=='5'){ zf=g; break; } }
-    if(!zf) zf=qinJiGong(qinGong);   /* 旬首仪落中五：随天禽寄宫（坤二/艮八） */
+    if(!zf) zf=qinJiGong(qinGong);   /* 旬首仪落中五：随天禽寄宫（坤二、艮八） */
     const zfXing = over.zhiFuXing || BASIC_XING[zf];
     const zfMen  = over.zhiShiMen  || BASIC_MEN[zf];
     // 时干落宫（天盘值符落宫）
@@ -488,7 +488,7 @@
     };
   }
 
-  /* ---------------- 空亡 / 驿马 ---------------- */
+  /* ---------------- 空亡、驿马 ---------------- */
   function kongWang(drivingGZ){
     const xs = xunShouOf(drivingGZ);
     const zhi = xs[1];
@@ -610,7 +610,7 @@
       const t = pan.tianPan[g];
       if(RUMU[t]===g) push(`${t}入墓（${GONG_NAME[g]}宫）`, 'xiong', `${t}落${GONG_NAME[g]}宫入库，气闷无力`, '《烟波钓叟歌》三奇入墓好思推');
     }
-    // 伏吟 / 反吟（天盘干 vs 地盘干）
+    // 伏吟、反吟（天盘干 vs 地盘干）
     let fuYin=0, fanYin=0;
     ['1','2','3','4','6','7','8','9'].forEach(g=>{
       const t=pan.tianPan[g], d=pan.diPan[g];
@@ -627,7 +627,7 @@
     const dg=dayGZ[0], tg=timeGZ[0];
     if(KE[GAN_WX[dg]]===GAN_WX[tg] && GAN_YANG.has(dg)===GAN_YANG.has(tg))
       push('五不遇时','xiong','时干克日干且同阴阳，百事皆凶','《烟波钓叟歌》五不遇时龙不精');
-    // 庚金四柱格（仅时家）：天盘庚与地盘年、月/日、时干同宫；飞干格为天盘日干加地盘庚
+    // 庚金四柱格（仅时家）：天盘庚与地盘年、月、日、时干同宫；飞干格为天盘日干加地盘庚
     if(family==='时家' && siZhu){
       const gongOfGan = (arr,w)=>{ for(const g of ['1','2','3','4','6','7','8','9']) if(arr[g]===w) return g; return null; };
       const tgGong = gongOfGan(pan.tianPan,'庚');
@@ -640,7 +640,7 @@
       const rgGong = gongOfGan(pan.diPan,'庚');
       if(rgGong && gongOfGan(pan.tianPan,siZhu.day[0])===rgGong) push('飞干格','xiong','天盘日干加地盘庚，战宜固守、出行有灾','《烟波钓叟歌》日干加庚飞干格');
     }
-    // 三奇得使 / 玉女守门：三奇落值使门宫
+    // 三奇得使、玉女守门：三奇落值使门宫
     const zs = pan.zhiShiGong;
     ['乙','丙','丁'].forEach(qi=>{
       for(const g in pan.tianPan){ if(pan.tianPan[g]===qi && g===zs){
@@ -718,7 +718,7 @@
     const uG=use.g||pan.zhiFuGong;
     const sugs=[];
     sugs.push({cat:'用神定位', text:`用神【${purpose}】看${use.l}所落${GONG_NAME[uG]}宫：星${pan.jiuXing[uG]||'无'}、门${pan.baMen[uG]||'无'}、神${pan.baShen[uG]||'无'}，吉凶：${JXCN[jg[uG]?jg[uG].jiXiong:'平']}。`});
-    /* 年命用神：求测人生年天干落宫（兼看地盘/天盘），断其宫位吉凶与事体关联 */
+    /* 年命用神：求测人生年天干落宫（兼看地盘、天盘），断其宫位吉凶与事体关联 */
     if(yearGZ && yearGZ.length>=1){
       let yg=yearGZ[0];
       // 年命天干若是甲（遁甲不显宫），映射为六仪（甲子→戊、甲戌→己…）
@@ -791,7 +791,7 @@
       const dayType = type0;                            // 冬至~芒种阳遁、夏至~大雪阴遁
       const BLOCK = (dayType === 'yang') ? [1,7,4] : [9,3,6];
       const dn = gzIndex(dayGZ);
-      const bi = Math.floor((dn % 60) / 20) % 3;        // 六十日三局循环近似（上、中/下）
+      const bi = Math.floor((dn % 60) / 20) % 3;        // 六十日三局循环近似（上、中、下）
       num = BLOCK[bi]; yuanText = ['上元','中元','下元'][bi];
       type = dayType; jieQiName = '日家 '+dayGZ;
       juMeta = { dayType };
@@ -811,7 +811,7 @@
     // 驱动干落宫（用于八神、天盘落宫定位）
     const luo = (function(){ let g=''; for(const k in pan.diPan){ if(pan.diPan[k]===drivingGZ[0] && k!=='5'){ g=k; break; } } if(!g && pan.diPan['5']===drivingGZ[0]) g=qinJiGong(opts.qinGong); if(!g) g=pan.zhiFuGong; return g; })();
 
-    // 空亡 / 驿马
+    // 空亡、驿马
     const kw = kongWang(drivingGZ);
     const ma = yiMa(drivingGZ[1]);
 
@@ -830,7 +830,7 @@
       gongDetail[g] = { keYing:kr, keYingSrc:krSrc, menRel:mr, xingWang:xw };
     });
 
-    // 格局（日家无独立格局体系，沿用天盘、门/神通用格局供参考）
+    // 格局（日家无独立格局体系，沿用天盘、门、神通用格局供参考）
     const geju = detectGeju(pan, dayGZ, timeGZ, type, siZhu, family);
 
     // 分析 + 用神
@@ -866,7 +866,7 @@
 
   /* ---------------- 山向奇门专用入口（道家阴盘山向体系） ---------------- */
   // 输入：{ shan (坐山), xiang (向山，默认坐山对宫), yearGZ (用事年干支),
-  //         yuanIdx (0上元/1中元/2下元，或-1自动按度数), degree (可选度数),
+  //         yuanIdx (0上元、1中元、2下元，或-1自动按度数), degree (可选度数),
   //         method ('转盘'/'飞盘'), purpose ('综合') }
   // 返回：与 calculate 同构的 pan 对象（含九宫盘、格局、分析等）
   function calculateShanXiang(opts){

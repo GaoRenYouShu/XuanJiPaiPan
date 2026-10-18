@@ -5,15 +5,168 @@
  *   一、事业财运议题   renderCareer
  *   二、婚姻感情议题   renderMarry
  *   三、本命装配与基础渲染   BaziState / renderBaziPage / 四柱，纳音，神煞，量化诸表
- *   四、大运流年   运势曲线 / 所选干支三表 / 岁运引动
- *   五、五派解读   schoolXiJi / 解说层 / 综合判断
+ *   四、大运流年   运势曲线、所选干支三表、岁运引动
+ *   五、五派解读   schoolXiJi / 解说层、综合判断
  *   六、事件应期   组合断语引擎
  *
  * 跨页共享库 bazi-data.js（命理引擎）、xuanji-lib.js（公共工具）、gua.js、ai.js
  * 由站点其他页面共用，不属本文件范围。
  * ============================================================ */
 
+/* 四卡结构化模型：生成函数把同批终值写入 window.__BAZI_CORE_MODEL，供消费者直接取用，
+   不从 HTML 回解析。键为 career、marry、health、family，每卡形如
+   { sections: [ { title, heads, rows: [ { cells } ] } ] }；纯文字段仍用 { label, value }。
+   生成失败时该键为 null。 */
+function baziCardModelReset(key){
+  try{
+    if(typeof window==='undefined') return;
+    if(!window.__BAZI_CORE_MODEL) window.__BAZI_CORE_MODEL={};
+    window.__BAZI_CORE_MODEL[key]=null;
+  }catch(e){ if(typeof console!=='undefined'&&console.error) console.error('[bazi-model]', key, e&&e.message); }
+}
+function baziCardModelPublish(key, sections){
+  try{
+    if(typeof window==='undefined') return;
+    if(!window.__BAZI_CORE_MODEL) window.__BAZI_CORE_MODEL={};
+    window.__BAZI_CORE_MODEL[key]=(sections&&sections.length)?{sections:sections}:null;
+  }catch(e){ if(typeof console!=='undefined'&&console.error) console.error('[bazi-model]', key, e&&e.message); }
+}
 
+/* 卡片表格行组装共用件：段值收尾、文字清洗与四柱取行，口径与展示层同名工具一致。
+   四卡模型只交结构化行，展示层不再从卡片整段文字回解析。 */
+function cardScl(s){ return String(s==null?'':s).replace(/[。；；\s]+$/,'').trim(); }
+function cardCut(seg,a,b){ const t=String(seg==null?'':seg); const i=t.indexOf(a); if(i<0) return ''; const j=b?t.indexOf(b,i+a.length):t.length; return t.slice(i,j>i?j:t.length); }
+function cardStripLead(s){ return String(s==null?'':s).replace(/^[①②③④⑤⑥⑦⑧⑨⑩]?\s*[^：:，。；]{1,14}[:：]?\s*/,''); }
+function cardStripTags(s){ return String(s==null?'':s).replace(/<[^>]*>/g,''); }
+function cardStripGeShu(s){
+  return String(s==null?'':s)
+    .replace(/命局\d+个[、，,；;]?/g,'')
+    .replace(/([一-龥]{1,4})\d+个[，,、]?/g,'$1现，')
+    .replace(/[，,、]?\d+个[，,、]?/g,'')
+    .replace(/[，,、]{2,}/g,'，');
+}
+function cardCleanCell(s){
+  let t=String(s==null?'':s);
+  t=t.replace(/^[①②③④⑤⑥⑦⑧⑨⑩]+/,'').replace(/[①②③④⑤⑥⑦⑧⑨⑩]+$/,'').trim();
+  const openCount=(t.match(/（/g)||[]).length, closeCount=(t.match(/）/g)||[]).length;
+  if(openCount>closeCount) t+='）'.repeat(openCount-closeCount);
+  return t;
+}
+/* 岁运尾巴剥离：卡片表格只留命局定论，岁运应期归岁运各节。 */
+function cardCutYunTail(s){ let t=String(s||'');
+  t=t.replace(/[，、；](?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
+  t=t.replace(/[，、；]?[^。，；]{0,2}便岁运[^。，；]*/g,'');
+  t=t.replace(/[，、；][^。，；]{0,4}(?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
+  t=t.replace(/[，、；]?岁运[^。，；]*/g,'');
+  t=t.replace(/[。，、；]?(?:旺运|去病之运|逢[^。，；]{0,5}运|运引|应期|临运)[^。，；]*/g,'');
+  t=t.replace(/[，、；]\s*$/,'');
+  t=t.replace(/[，、；]?(?:须|待|借|看)+$/,'');
+  t=t.replace(/[，、；](?:宜|须|待|借|看)[。，、；]?$/,'');
+  return t.trim();
+}
+/* 神煞取行：四柱所临神煞按卡取 SHA_MEAN 对应字段，名称列纯名、落柱进内容列。 */
+function cardPillarOf(name, BZ){
+  if(!BZ||!name) return '';
+  const base=String(name||'').replace(/[（(][^）)]*[）)]$/,'').trim();
+  const P=[['年',BZ.shaYear],['月',BZ.shaMonth],['日',BZ.shaDay],['时',BZ.shaTime]];
+  const cols=P.filter(function(x){ return (x[1]||[]).some(function(v){ return String(v==null?'':v).replace(/（纳音）/,'').trim()===base; }); }).map(function(x){ return x[0]; });
+  return cols.length?cols.join('、')+'柱':'';
+}
+function cardShaUnify(nameIn, body, BZ){
+  const base=String(nameIn||'').replace(/[（(][^）)]*[）)]$/,'').trim();
+  const luo=cardPillarOf(base, BZ);
+  const b=String(body==null?'':body).replace(/[。；；，、\s]+$/,'').trim();
+  return [base, luo?('（'+luo+'）'+b):b];
+}
+function cardShaRows(BZ, area){
+  const rows=[];
+  const means=(typeof SHA_MEAN!=='undefined'&&SHA_MEAN)||{};
+  [['shaYear','年'],['shaMonth','月'],['shaDay','日'],['shaTime','时']].forEach(function(x){
+    const arr=((BZ&&BZ[x[0]])||[]).map(function(v){ return String(v==null?'':v).replace(/（纳音）/,'').trim(); }).filter(Boolean);
+    arr.forEach(function(sn){
+      const base=sn.replace(/[（(][^）)]*[）)]$/,'').trim();
+      if(rows.some(function(r){ return r[0]===base; })) return;
+      const entry=means[sn]||means[base]||null;
+      const body=entry&&entry[area];
+      if(body&&!/关联较少/.test(body)) rows.push(cardShaUnify(sn, body, BZ));
+    });
+  });
+  return rows;
+}
+function cardNayinZizuoNote(gz, field){
+  const zz=(typeof nayinZizuo==='function')?nayinZizuo(gz):'';
+  if(!zz) return '';
+  const m=(typeof CS_MEAN_ALL!=='undefined'&&CS_MEAN_ALL&&CS_MEAN_ALL[zz])||{};
+  const mean=m[field]||'';
+  return '纳音自坐'+zz+(mean?('，'+mean):'')+'。';
+}
+function cardNayinRelRows(BZ, field, order){
+  const rows=[];
+  const dayWx=GAN_WX[BZ.dayGan]||'';
+  if(!dayWx) return rows;
+  const P=['年柱','月柱','日柱','时柱'];
+  (order||[0,1,2,3]).forEach(function(i){
+    const gz=BZ.gans[i]+BZ.zhis[i];
+    const nm=nayinOf(gz), wx=nayinWxOf(gz);
+    const body=wx?(((NAYIN_REL_MEAN[relShort(dayWx,wx)]||{})[field])||''):'';
+    if(!nm||!body) return;
+    const core=cardScl(body);
+    const nz=cardNayinZizuoNote(gz, field);
+    rows.push([nm,'（'+P[i]+'）'+(nz? core+'；'+nz : core)]);
+  });
+  return rows;
+}
+/* 家庭纳音六亲宫：年命纳音为基准，月、日、时三宫读 NAYIN_GONG_MEAN 的 gong 与 stage。 */
+function cardNayinGongRows(BZ){
+  const rows=[];
+  const dayWx=GAN_WX[BZ.dayGan]||'';
+  if(!dayWx) return rows;
+  const gong=(typeof NAYIN_GONG_MEAN!=='undefined'&&NAYIN_GONG_MEAN)||{};
+  const means=(typeof NAYIN_REL_MEAN!=='undefined'&&NAYIN_REL_MEAN)||{};
+  const yWx=nayinWxOf(BZ.gans[0]+BZ.zhis[0]);
+  const P=['年柱','月柱','日柱','时柱'];
+  [0,1,2,3].forEach(function(i){
+    const gz=BZ.gans[i]+BZ.zhis[i];
+    const nm=nayinOf(gz), wx=nayinWxOf(gz);
+    if(!nm||!wx) return;
+    let body='';
+    if(i===0){
+      body=(((means[relShort(dayWx,wx)]||{}).family)||'');
+    }else{
+      const key=P[i].charAt(0);
+      const wrel=(typeof window!=='undefined'&&typeof window.wxRel==='function')?window.wxRel:null;
+      const r=wrel?wrel(yWx,wx).rel:'';
+      const m=(gong[key]||{})[r]||{};
+      body=[m.gong,m.stage].map(cardScl).filter(Boolean).join('；');
+    }
+    body=cardScl(body);
+    if(!body) return;
+    const nz=cardNayinZizuoNote(gz, 'family');
+    rows.push([nm,'（'+P[i]+'）'+(nz? body+'；'+nz : body)]);
+  });
+  return rows;
+}
+function cardChangShengRows(BZ, field, order){
+  const rows=[];
+  const B=['年支','月支','日支','时支'];
+  (order||[0,1,2,3]).forEach(function(i){
+    const nm=getChangSheng(BZ.dayGan,BZ.zhis[i]);
+    const body=((CS_MEAN_ALL[nm]||{})[field])||'';
+    if(!nm||!body) return;
+    rows.push([nm,'（'+B[i]+BZ.zhis[i]+'）'+body]);
+  });
+  return rows;
+}
+/* 括号与标点归一：家庭宫位冲害行去全角括号、拆内部分句为顿号。 */
+function cardStripBr(s){
+  let t=String(s==null?'':s);
+  t=t.replace(/[（(]/g,'，').replace(/[）)]/g,'');
+  t=t.replace(/[。；；]+/g,'；').replace(/；+/g,'；');
+  t=t.replace(/，{2,}/g,'，').replace(/；{2,}/g,'；');
+  t=t.replace(/(年支|月支|日支|时支)，([子丑寅卯辰巳午未申酉戌亥])/g,'$1$2');
+  t=t.replace(/^[，、；\s]+/,'').replace(/[，、；\s]+$/,'');
+  return t;
+}
 
 /* ==================== 一、事业财运议题 ==================== */
 /* 事业财运模块（表驱动，T1-T15 知识 + 四检测函数 + renderCareer）
@@ -33,6 +186,18 @@
   // T4 行业五行喜忌 + 利、忌方位（WX_FANG 取自 bazi-data.js 全局）
   // 十二长生推算调用全局 getChangSheng（bazi-data.js）
   function csBucket(st){ if(['长生','冠带','临官','帝旺'].indexOf(st)>=0) return '旺'; if(['衰','病','死','绝','墓'].indexOf(st)>=0) return '弱'; return '中'; }
+  /* 岁运尾巴剥离：本命基调表只留命局定论，岁运应期归岁运各节。 */
+  function cutYunTail(s){ let t=String(s||'');
+    t=t.replace(/[，、；](?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
+    t=t.replace(/[，、；]?[^。，；]{0,2}便岁运[^。，；]*/g,'');
+    t=t.replace(/[，、；][^。，；]{0,4}(?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
+    t=t.replace(/[，、；]?岁运[^。，；]*/g,'');
+    t=t.replace(/[。，、；]?(?:旺运|去病之运|逢[^。，；]{0,5}运|运引|应期|临运)[^。，；]*/g,'');
+    t=t.replace(/[，、；]\s*$/,'');
+    t=t.replace(/[，、；]?(?:须|待|借|看)+$/,'');
+    t=t.replace(/[，、；](?:宜|须|待|借|看)[。，、；]?$/,'');
+    return t.trim();
+  }
   // 日主长生在各柱的具体情形（不照搬数据，说人话）
   const PILLAR_CS_NOTE={
     '年':{'旺':'早年运顺、起步得力、家世根基厚','弱':'早年运偏低、起步多磨、宜白手积累','中':'早年运平稳、中后根基渐厚'},
@@ -75,7 +240,7 @@
   function quantGods(occ, tenE){
     const s={};
     GODS10.forEach(g=>{ const h=occ.filter(o=>o.god===g); s[g]={cnt:h.length, tou:h.filter(o=>o.pos==='干').length, cang:h.filter(o=>o.pos==='支').length}; });
-    // 旺/弱按十神能量分占比判定（杜绝"数个数当力量"）；透/藏为位置事实保留
+    // 旺、弱按十神能量分占比判定（杜绝"数个数当力量"）；透、藏为位置事实保留
     const _tot=(tenE?Object.values(tenE).reduce((a,b)=>a+b,0):0)||1;
     const lv={};
     GODS10.forEach(g=>{ const x=s[g]; if(x.cnt===0) lv[g]='缺';
@@ -85,7 +250,7 @@
     return {s,lv};
   }
 
-  // ===== 天干特殊（detectGanPattern）：天干一气 / 天干连珠 =====
+  // ===== 天干特殊（detectGanPattern）：天干一气、天干连珠 =====
   function detectGanPattern(BZ){
     const g=BZ.gans, names=[];
     if(g[0]===g[1]&&g[1]===g[2]&&g[2]===g[3]) names.push('天干一气');
@@ -119,6 +284,7 @@
   }
 
   function renderCareer(BZ){
+    baziCardModelReset('career');
     const dg=BZ.dayGan, dwx=GAN_WX[dg];
     const A=getAnalysis(BZ);
     const gans=BZ.gans, zhis=BZ.zhis;
@@ -131,7 +297,7 @@
     const yinWx=(Object.keys(WX_SHENG).find(w=>WX_SHENG[w]===dwx))||'';
     const killWx=(Object.keys(WX_KE).find(w=>WX_KE[w]===dwx))||'';
     const occ=buildOcc(BZ,dg);
-    // 十神能量分（与五行能量分同源，日主不计），判定"旺/强/多"一律用能量占比，严禁数个数
+    // 十神能量分（与五行能量分同源，日主不计），判定"旺、强、多"一律用能量占比，严禁数个数
     const eScore=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null;
     const tenE=eScore?ssTenGodEnergy(BZ, eScore):null;
     const eCatsC={'官杀':(tenE?((tenE['正官']||0)+(tenE['七杀']||0)):0),'印星':(tenE?((tenE['正印']||0)+(tenE['偏印']||0)):0),'食伤':(tenE?((tenE['食神']||0)+(tenE['伤官']||0)):0),'财星':(tenE?((tenE['正财']||0)+(tenE['偏财']||0)):0),'比劫':(tenE?((tenE['比肩']||0)+(tenE['劫财']||0)):0)};
@@ -188,7 +354,7 @@
     }
     const isXi=wx=>!!wx && fuXi.indexOf(wx)>=0;
     const isJi=wx=>!!wx && fuJi.indexOf(wx)>=0;
-    // 六亲助/耗/平 极性标签上色（助≈吉绿、耗≈凶红、平≈中性墨），与全站 喜忌 配色逻辑一致
+    // 六亲助、耗、平 极性标签上色（助≈吉绿、耗≈凶红、平≈中性墨），与全站 喜忌 配色逻辑一致
     const polTag=t=>({助:kXi('助'),耗:kJi('耗'),平:kMid('平')}[t]||kMid(t));
 
     // ---- 组合检测 ----
@@ -241,7 +407,7 @@
     if(heSha) add('伤官合杀','伤官合'+heSha.type+'（'+heSha.pair+'），考学名声之机，但需视合化喜忌方能定论。');
     const hes=allHePairs(occ);
     if(hes.length>=2) add('双合创业','双合有创业迹象（'+hes.slice(0,2).join('、')+'），善组织人缘、有独立创业之象，视合化喜忌，不主断。');
-    // 克 / 反克 / 经典组合（补齐专业术语：生克、反克、经典格局，与上文顺生格局并列）
+    // 克、反克、经典组合（补齐专业术语：生克、反克、经典格局，与上文顺生格局并列）
     // 枭神夺食（偏印克食神）：印克食伤之食神侧
     if(C('偏印')>0 && C('食神')>0 && WX_KE[yinWx]===shangWx){
       if(fuXi.indexOf(shangWx)>=0) add('枭神夺食','枭神夺食（偏印克食神），食神为<span class="tip sha-ji">喜用</span>被夺，才华福禄受压、求成易受阻。');
@@ -320,7 +486,7 @@
     if(guan>0 && killTouN===0) geFeat.push('官杀藏支');
     const geMain=geFeat.length?geFeat.join('、'):(A.geName||'');
     // 主象于事业财运之含义（简洁一句，含主象喜忌判断）：优先按命局特征，无特征按 synthesis 喜忌方向定事业主向
-    //（不按格名关键字猜，外格/杂格格名多变、猜法不可靠；synthesis 已对普通/外格/杂格统一给正确喜忌）
+    //（不按格名关键字猜，外格、杂格格名多变、猜法不可靠；synthesis 已对普通、外格、杂格统一给正确喜忌）
     const _xi=fuXi, _ji=fuJi;
     const _isXi=wx=>_xi.indexOf(wx)>=0, _isJi=wx=>_ji.indexOf(wx)>=0;
     const _xg=wx=>geWxTag(wx,A);
@@ -349,8 +515,9 @@
     if(C('七杀')===0) _miss.push('七杀');
     if(C('正财')===0) _miss.push('正财');
     const ganZhuNote=_miss.length?('原局缺'+_miss.join('、')+'。'):'';
-    // 十神阴阳（有情无情）：官杀/财星两行，只留阴阳定性，数量与存在性原局已述不重复；与主句不同义、<br>分段；官杀财星皆不现则跳过
-    const _syy=shiYinYangNote(BZ);
+    // 十神阴阳（有情无情）：官杀、财星两行，只留阴阳定性，数量与存在性原局已述不重复；与主句不同义、<br>分段；官杀财星皆不现则跳过
+    const _syyParts=shiYinYangParts(BZ);
+    const _syy=_syyParts.length?('十神阴阳：'+_syyParts.join('<br>')):'';
     sec.push('日主'+dg+'（'+dwx+'），'+monthLing+'，'+A.strength+'，<span class="tip sha-ji">喜用</span>'+fuXiStr+'、'+kJi('忌')+(fuJi.join('、')||'无')+'。本局以'+geMain+(_zxCareer?('为主，'+_zxCareer):'')+(ganZhuNote?('；'+ganZhuNote):'。')+(_syy?('<br>'+_syy):''));
 
     // ===== 2-6 ②相互关系，十神关系对框架 =====
@@ -373,26 +540,26 @@
       +(guan>0?(killTouN?'；透干则事业压力与名望外显、利公职竞争、掌权柄，早年中年有官贵之机':'；藏支则事业根基在支、宜稳扎，公职之路须借岁运透出，无早年官贵')
       :(guanXi?'；官杀不现、官贵之基缺，掌权须待岁运引出，引出则名利有凭':guanJi?'；官杀不现反善、少官压约束，掌权非其所图':'；官杀不现、掌权之机平淡'))
       +'。';
-    // 组合判定按 key 存（供关系对断语取用：官印/杀印→官杀与印星、泄秀→比劫与食伤、伤官配印→印星与食伤）
+    // 组合判定按 key 存（供关系对断语取用：官印、杀印→官杀与印星、泄秀→比劫与食伤、伤官配印→印星与食伤）
     const s3bMap={};
     // 经典组合详述统一走 REL.classic.combo（bazi-rel.js 基础判定唯一归集处）
-    // 事业视图去婚姻化：combo 文案含女命"夫星/夫缘"视角，事业卡复用时替换为掌权语境（婚姻卡的夫缘在其本卡表述，不越界）
+    // 事业视图去婚姻化：combo 文案含女命"夫星、夫缘"视角，事业卡复用时替换为掌权语境（婚姻卡的夫缘在其本卡表述，不越界）
     const careerizeCombo=t=>String(t||'').replace(/官杀（夫星）/g,'官杀（事业星）').replace(/夫缘与掌权之机/g,'掌权之机').replace(/夫缘与掌权不主此象/g,'不主掌权之象').replace(/夫缘/g,'官贵之缘');
     const yinXi=isXi(yinWx), yinJi=fuJi.indexOf(yinWx)>=0;
     const _classicCtx={C,T,fuXi,fuJi,killWx,yinWx,shangWx,dwx,isMale,guan,guanStrong,guanXi,yinXi,yinJi,shang,shangStrong,killTouN,tenE};
     ['官印相生','杀印相生','伤官配印','食伤泄秀'].forEach(n=>{ const t=REL.classic.combo(_classicCtx,n); if(t) s3bMap[n]=careerizeCombo(t); });
     sec.push(s3a);
-    // 官杀为财（制不尽/财官相连，官杀转而为财）：官杀须与主位相关 + 有力而制不净或财官相连，才当财看。
+    // 官杀为财（制不尽、财官相连，官杀转而为财）：官杀须与主位相关 + 有力而制不净或财官相连，才当财看。
     // 全部前提同判，命中才追加一句，避免文字过多。
     (function(){
-      /* 恒 push（不命中时 push 空串）：后续 3神煞/4六亲/5风险预警/6职业机遇/7名利层级 组装依赖固定索引 */
+      /* 恒 push（不命中时 push 空串）：后续 3神煞、4六亲、5风险预警、6职业机遇、7名利层级 组装依赖固定索引 */
       let txt='';
       if(guan>0 && cai>0){                                            // 无官杀或无财，无从论官杀为财
         const _ks=[].concat(T('正官'),T('七杀')), _kz=[].concat(godCang(occ,'正官'),godCang(occ,'七杀'));
-        const _linked=_ks.some(p=>p===2||p===3)||_kz.some(p=>p===2||p===3); // 官杀透日/时干或藏日/时支=与日主相关
+        const _linked=_ks.some(p=>p===2||p===3)||_kz.some(p=>p===2||p===3); // 官杀透日、时干或藏日、时支=与日主相关
         const _kStrong=killTouN>0||ePctC('官杀')>=REL.TH.PCT_POWER;        // 官杀有力
         if(_linked&&_kStrong){
-          // 财与官杀同结于日/时主位（同柱透干或同柱藏支）＝财官相连、紧贴
+          // 财与官杀同结于日、时主位（同柱透干或同柱藏支）＝财官相连、紧贴
           const _cu=[].concat(T('正财'),T('偏财')), _cz=[].concat(godCang(occ,'正财'),godCang(occ,'偏财'));
           const _samePillar=(g1,z1,g2,z2)=>[2,3].some(p=>(g1.includes(p)&&g2.includes(p))||(z1.includes(p)&&z2.includes(p)));
           const _caiKillLinked=_samePillar(_ks,_kz,_cu,_cz);
@@ -410,7 +577,7 @@
     })();
 
     // 4 占位（sec[3] 已由上方 IIFE 恒 push 保证索引恒定；落点由逐神深读输出）
-    // 5 财星与官杀富贵落点（并入"财星与官杀"相生对；财星属/个数/旺衰在逐神深读、食伤生财在组合断语、财库在职业机遇，此处不重复）
+    // 5 财星与官杀富贵落点（并入"财星与官杀"相生对；财星属、个数、旺衰在逐神深读、食伤生财在组合断语、财库在职业机遇，此处不重复）
     // 财星能量占比与"旺而有根"判定保留（职业机遇财库段复用，勿删）
     let caiPct=0;
     try{ const _es=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null; if(_es){ const _t=Object.values(_es).reduce((a,b)=>a+b,0)||1; caiPct=_t?Math.round((_es[wealthWx]||0)/_t*100):0; } }catch(e){}
@@ -449,7 +616,7 @@
     const PAIR_KE=[['印星','食伤'],['比劫','财星'],['食伤','官杀'],['财星','印星'],['官杀','比劫']];
     const shengPairs=PAIR_SHENG.map(([a,b])=>_pairNote(a,b,'sheng'));
     const kePairs=PAIR_KE.map(([a,b])=>_pairNote(a,b,'ke'));
-    // 其余组合：不进关系对的 combos（帮身/合作/禄刃/双合/官杀混杂/羊刃驾杀/财多身弱/食伤无财）
+    // 其余组合：不进关系对的 combos（帮身、合作、禄刃、双合、官杀混杂、羊刃驾杀、财多身弱、食伤无财）
     const pairKeys=new Set(Object.values(PAIR_COMBOS).flat());
     const cZhong=combos.filter(c=>c.key!=='偏星多'&&c.key!=='正星多'&&!pairKeys.has(c.key)).map(c=>c.text);
     // 6 柱位洞察（收尾段）
@@ -504,7 +671,7 @@
     }
 
     // 7 神煞参断事业（按事业视角取 SHA_MEAN.career 有定义者，不复读喜用格局，神煞段的完整趋向列表，避免跨模块逐字重复）
-    // 同名神煞多柱命中须合并并标柱位（如"禄神（年、月柱）"），禁裸重复；
+    // 同名神煞多柱命中须合并并标柱位（如"禄神年、月柱"），禁裸重复；
     // 名取去尾括注的净名：纳音轴产出带（纳音）后缀，与主轴同名同义，归并为一目
     let s7;
     {
@@ -570,7 +737,7 @@
         const k=[zhis[i],zhis[j]].sort().join('|');
         if(!seenChong[k]){
           seenChong[k]=true;
-          // 冲的吉凶按两支五行喜忌给注：忌冲喜=喜用受损须防；喜冲忌=去忌为吉；同向/中性=通用波动
+          // 冲的吉凶按两支五行喜忌给注：忌冲喜=喜用受损须防；喜冲忌=去忌为吉；同向、中性=通用波动
           const wa=ZHI_WX[zhis[i]]||'', wb=ZHI_WX[zhis[j]]||'';
           const aXi=fuXi.indexOf(wa)>=0, aJi=fuJi.indexOf(wa)>=0, bXi=fuXi.indexOf(wb)>=0, bJi=fuJi.indexOf(wb)>=0;
           let note='主剧烈变动、须防动荡';
@@ -640,12 +807,12 @@
     const nvMingShuo=isMale?'':(caiIsXi?'女命此象财星为<span class="tip sha-ji">喜用</span>、主自身财丰、不倚外援以己力立身。':'女命宜专技生财、不倚外财。');
     sec.push(caiKuShuo+kuTuShuo+juCaiShuo+nvMingShuo);
 
-    // 13 命局特征（事业视角，六亲十神→事业模式；夫星/妻星等婚姻词归婚姻卡，事业卡不混入）
+    // 13 命局特征（事业视角，六亲十神→事业模式；夫星、妻星等婚姻词归婚姻卡，事业卡不混入）
     // 补四柱柱位落点，同一十神类别临多柱时"分宫位各主一面"，避免遗漏柱位、笼统带过
     let s13;
     {
       const _yinTouN=T('正印').length+T('偏印').length;
-      // 柱位辅助：某十神类别临哪些柱位（天干+地支本气）；多柱时按宫位分判（年主祖辈根基人脉/月主同辈环境平台/日主自身/时主晚运传承）
+      // 柱位辅助：某十神类别临哪些柱位（天干+地支本气）；多柱时按宫位分判（年主祖辈根基人脉、月主同辈环境平台、日主自身、时主晚运传承）
       const _catPos=cat=>{
         const out=[];
         gans.forEach((g,i)=>{ if(i===2) return; const t=tenGod(dg,g); if(t&&shenCat(t)===cat) out.push(PALACE[i]+'干'); });  // 日干为日主自身，不计比劫
@@ -678,18 +845,24 @@
 
     // 14 风险提示
     const risk=[], shortc=[], falsif=[];
-    if(has.has('比劫夺财')){ risk.push('比劫夺财，合伙须立契约明算账，财散人聚做大、防共富贵难之分财耗散。'); shortc.push('理财须规划（比劫夺财），忌糊涂账。'); falsif.push('比劫夺财，若合伙屡因账目不清分财耗散则印证，若立契约稳增则矛盾。'); }
-    if(has.has('印克伤官')){ risk.push('印克伤官，思多行缓有才难展，宜付诸实行。'); shortc.push('不善纯台前逢迎（印克伤官主内秀），宜幕后技术。'); falsif.push('印克伤官，若闷而难展则印证，若主动外放得志则矛盾。'); }
+    /* 可证伪行与可证伪句同批生成：句子供卡片正文，行供风险预警表。 */
+    const _falsifRows=[];
+    const _addFalsif=function(key,c1,c2){
+      falsif.push(key+'，若'+c1+'则印证，若'+c2+'则矛盾。');
+      _falsifRows.push(key+'：若'+c1+'则印证，否则矛盾');
+    };
+    if(has.has('比劫夺财')){ risk.push('比劫夺财，合伙须立契约明算账，财散人聚做大、防共富贵难之分财耗散。'); shortc.push('理财须规划（比劫夺财），忌糊涂账。'); _addFalsif('比劫夺财','合伙屡因账目不清分财耗散','立契约稳增'); }
+    if(has.has('印克伤官')){ risk.push('印克伤官，思多行缓有才难展，宜付诸实行。'); shortc.push('不善纯台前逢迎（印克伤官主内秀），宜幕后技术。'); _addFalsif('印克伤官','闷而难展','主动外放得志'); }
     if(strong && yin>0){ risk.push('印星虽主长辈荫庇、利文凭学业，然身旺印反<span class="tip sha-xiong">为忌</span>，少依赖守成、宜主动外放。'); }
     if(has.has('偏星多')){ risk.push('偏星多，路线易偏散，宜定一主业，不要样样都试。'); shortc.push('不喜正统坐班，宜自由技术，但须防浮而不实。'); }
     if(has.has('食伤无财')){ risk.push('食伤无财，才艺防落虚名，须补财方实。'); shortc.push('食伤无财，宜专精一技、以才生财。'); }
     if(killTouN===0 && guan>0 && fuXi.indexOf(killWx)>=0){ risk.push('官杀弱，行政掌权根基薄，宜以专业立身、管理为辅。'); }
-    if(has.has('食伤生财')) falsif.push('食伤生财，若以文创技术生财得志则印证，若久困公门则矛盾。');
-    if(has.has('杀印相生')) falsif.push('杀印相生，若得权势职位则印证，若一生无职则矛盾。');
-    if(has.has('木火通明')) falsif.push('木火通明，若从事文化互联网得志则印证，若重资产冷门则矛盾。');
-    if(has.has('食伤无财')) falsif.push('食伤无财，若以文创技术生财得志则印证，若久无财则矛盾。');
+    if(has.has('食伤生财')) _addFalsif('食伤生财','以文创技术生财得志','久困公门');
+    if(has.has('杀印相生')) _addFalsif('杀印相生','得权势职位','一生无职');
+    if(has.has('木火通明')) _addFalsif('木火通明','从事文化互联网得志','重资产冷门');
+    if(has.has('食伤无财')) _addFalsif('食伤无财','以文创技术生财得志','久无财');
     let s14='风险提示：'+(risk.length?risk.join(''):'本局无明显凶格，宜顺势进取。');
-    // 短板：三维真实分析，并按喜忌区分“真短板（<span class="tip sha-ji">喜用</span>缺失）/ <span class="tip sha-xiong">忌神</span>不现反善 / 中性无涉”
+    // 短板：三维真实分析，并按喜忌区分“真短板（<span class="tip sha-ji">喜用</span>缺失）/ <span class="tip sha-xiong">忌神</span>不现反善、中性无涉”
     const rel10=['正官','七杀','正财','偏财','正印','食神','伤官'];
     const godWxOf=g=>({'正官':killWx,'七杀':killWx,'正财':wealthWx,'偏财':wealthWx,'正印':yinWx,'偏印':yinWx,'食神':shangWx,'伤官':shangWx}[g]);
     const cls=g=>{ const w=godWxOf(g); if(fuXi.indexOf(w)>=0) return 'xi'; if(fuJi.indexOf(w)>=0) return 'ji'; return 'neu'; };
@@ -722,13 +895,13 @@
     sec.push(s14);
 
     // 15 名利层级
-    // 判定与表述分离：内部用 v(命中、部分、弱/待运) 计算层级，p 为面向读者的直接陈述句
+    // 判定与表述分离：内部用 v(命中、部分、弱、待运) 计算层级，p 为面向读者的直接陈述句
     function M(v,p){ return {v:v,p:p}; }
     const ck={};
     // 担财能力：身弱亦可富（得印比生扶、或从财格、或财为喜待运），非身弱即无大富
     let danCai;
     if(geGeMode(A).isOuter){
-      // 外格（专旺/从格/化气）弃命从势：不以身强弱担财，只看财星是否从喜顺势
+      // 外格（专旺、从格、化气）弃命从势：不以身强弱担财，只看财星是否从喜顺势
       danCai = geWxXi(wealthWx,A) ? M('hit','财星为'+geWxTag(wealthWx,A)+'、从其势则财源顺应，聚财看从神旺地') :
                (geWxJi(wealthWx,A) ? M('low','财星为'+geWxTag(wealthWx,A)+'、逆其从势不以财论命，财途当顺势而行') : M('part','财星与从势无涉，蓄财看全局顺势'));
     } else if(strong) danCai=M('hit','日主身强，能担财');
@@ -744,7 +917,7 @@
       :(fuJi.indexOf(wealthWx)>=0?(_wxStrong(wealthWx)?M('low','财星虽旺而<span class="tip sha-xiong">为忌</span>、蓄财缺少根基'):M('low','财星为<span class="tip sha-xiong">忌神</span>、蓄财缺少根基'))
       :(cai>0?M('part','财星与喜忌无涉、以常经营蓄财'):M('low','财星弱或非<span class="tip sha-ji">喜用</span>，蓄财缺少根基')));
     ck['财库']=(zhis.indexOf(caiKuZhi)>=0)?M('hit','原局带'+caiKuZhi+'库，蓄财有库可开，开库聚财与破库伤藏二说并存'):M('low','原局无'+caiKuZhi+'库，蓄财缺库难开');
-    // 官杀护财：细分 <span class="tip sha-ji">喜用</span>有力(hit) / 不现 / 弱(<span class="tip sha-ji">喜用</span>而力不足) / 忌(起坏作用) / 中性不为<span class="tip sha-ji">喜用</span>
+    // 官杀护财：细分 <span class="tip sha-ji">喜用</span>有力(hit) / 不现、弱(<span class="tip sha-ji">喜用</span>而力不足) / 忌(起坏作用) / 中性不为<span class="tip sha-ji">喜用</span>
     let _ghc;
     if (guanGuard) _ghc = M('hit','官杀为<span class="tip sha-ji">喜用</span>有力，能制比劫护财');
     else if (guan===0) _ghc = M('low','官杀不现，护财乏力、缺制比劫之权');
@@ -773,7 +946,7 @@
     const tier=wealthTier();
     // 名望潜力：名气、声望、影响力（明星、网红、学者、公众人物对应维度；含学识、人缘）
     const mk={};
-    // 神煞（年/月/日/时四柱真实取用）：先列神煞，再列十神
+    // 神煞（年、月、日、时四柱真实取用）：先列神煞，再列十神
     const wenNames=shaNames('文昌贵人','学堂');
     mk['文昌']=wenNames.length?M('hit',wenNames.join('、')+'临，文名学术有凭'):M('weak','文昌学堂不临，文名不明显');
     mk['太极']=shaNames('太极贵人').length?M('hit','太极贵人临，专业声望可期'):M('weak','太极贵人不临，专业名望不明显');
@@ -787,7 +960,7 @@
       :(biOther>0?(biIsXi?M('part','比劫为<span class="tip sha-ji">喜用</span>，同辈朋友相扶，人缘公众缘尚可'):(fuJi.indexOf(dwx)>=0?M('weak','比劫为<span class="tip sha-xiong">忌神</span>，同辈易生竞争牵扯，人际宜谨慎'):M('weak','比劫中和，人缘公众缘平平')))
                 :M('weak','人缘平淡，公众缘不明显'));
     mk['大运流年引动']=M('wait','宜逢'+fuXiStr+'旺运引动，方能充分兑现名望');
-    // 潜力分层与综合主导维度（高、中/低、待运 四档）
+    // 潜力分层与综合主导维度（高、中、低、待运 四档）
     function potLevel(obj){
       let hit=0, part=0, total=0;
       Object.keys(obj).forEach(k=>{
@@ -810,7 +983,7 @@
     // 维度内容用命盘真实数据逐条判定（与综合判定所用 ck/gk/mk 同源），不用按等级套的通用模板；大运引动在 ② 已述、神煞在 §6 已述，此处不重复
     const COREItems=obj=>Object.keys(obj).filter(k=>k!=='大运流年引动'&&k!=='神煞助').map(k=>obj[k].p).join('。');
     let s15='财富潜力（'+wlv+'，原局自发）：'+WEALTH_LINE+'。'+COREItems(ck)+'。';
-    // 权贵段：官印相生/杀印相生/财官相生 三"不备"合并为一句，避免三连排比
+    // 权贵段：官印相生、杀印相生、财官相生 三"不备"合并为一句，避免三连排比
     const gkKeys=Object.keys(gk).filter(k=>k!=='大运流年引动'&&k!=='神煞助');
     const buBei3=['官印相生','杀印相生','财官相生'].filter(k=>(gk[k]||{}).v==='low'&&String(gk[k].p).indexOf('不备')>=0);
     let gkP;
@@ -843,12 +1016,12 @@
     // 财官格局小结（中性措辞，不贴绝对标签；数据驱动，折叠进"综合判定"句首）
     const caiOk = ck['财星'].v!=='low';
     const guanOk = gk['官杀'].v!=='low';
-    // 旺忌/弱缺 分流：财官"不得力"的原因各盘不同，忌神旺与无力不可混写（须按能量档区分，防旺忌盘误写"财弱"）
+    // 旺忌、弱缺 分流：财官"不得力"的原因各盘不同，忌神旺与无力不可混写（须按能量档区分，防旺忌盘误写"财弱"）
     const caiTxt = _wxStrong(wealthWx) ? '财旺为忌' : (cai>0 ? '财星无力' : '财不现');
     const guanTxt = _wxStrong(killWx) ? '官旺为忌' : (guan>0 ? '官杀无力' : '官不现');
     let cg;
     if(geGeMode(A).isOuter){
-      // 外格：不看财官得用/身强弱，只看从喜从忌顺势
+      // 外格：不看财官得用、身强弱，只看从喜从忌顺势
       const _cT=geWxTag(wealthWx,A), _kT=geWxTag(killWx,A);
       const _cHu=_cT==='从喜', _cJi=_cT==='从忌', _kHu=_kT==='从喜', _kJi=_kT==='从忌';
       cg = (_cHu&&_kHu) ? '财官皆从喜，顺其从势则富且贵、名利皆有所归' :
@@ -862,12 +1035,13 @@
     else cg='官杀'+(_wxStrong(killWx)?'为忌而旺':'不现或无力')+'、财星尚可为，宜以财生官、务实积财，名望须借运引动';
     s15+='<br>综合判定：'+cg+'。名利层级可期（财富、权贵、名望三维度互有高低，任一成势皆可弥补）。'
         + (needItems.length?('名利所赖'+needItems.join('、')+'等项原局不足或为忌，须五层条件叠加方能充分兑现，非原局自带。'):'原局已有基础，仍须五层条件叠加方能达其上限。');
-    s15+='<br>① 原局潜力层级：财富'+wlv+'、权贵'+glv+'、名望'+mlv+'，综合以'+domLabel+'维度为主导。';
-    s15+='<br>② 大运流年引动：'+(fuXi.indexOf(killWx)>=0?('逢'+killWx+'透出或'+fuXi.filter(w=>w!==killWx).join('、')+'旺运引动，财势更易兑现'):('逢'+fuXiStr+'旺运更顺，财势更易兑现'))+'。';
-    s15+='<br>③ 风水合局（外部条件：居所方位、布局合<span class="tip sha-ji">喜用</span>）。';
-    s15+='<br>④ 社会时代机遇（外部条件：家族出身、社交人脉、行业周期、平台资源、时代财富风口）。';
-    s15+='<br>⑤ 个人经营主观能动性（内在条件：专业深耕、人脉经营、风险把控、长期投入；命理示名利上限与路径，经营决定最终落点）。';
-    s15+='<br>五者齐备，名利基础才能充分兑现，也更有向上提升的空间。'+(isMale?'事业':'女命')+pathCore+'；然若得贵人提携、逢机缘巧合，亦未尝不可更进一层、名利更隆。相同八字，命运未必相同，后天努力与选择必定导致差异。';
+    s15+='<br>原局潜力层级：财富'+wlv+'、权贵'+glv+'、名望'+mlv+'，综合以'+domLabel+'维度为主导。';
+    s15+='<br>大运流年引动：'+(fuXi.indexOf(killWx)>=0?('逢'+killWx+'透出或'+fuXi.filter(w=>w!==killWx).join('、')+'旺运引动，财势更易兑现'):('逢'+fuXiStr+'旺运更顺，财势更易兑现'))+'。';
+    s15+='<br>风水合局（外部条件：居所方位、布局合<span class="tip sha-ji">喜用</span>）。';
+    s15+='<br>社会时代（外部条件：家族出身、社交人脉、行业周期、平台资源、时代财富风口）。';
+    s15+='<br>个人经营（内在条件：专业深耕、人脉经营、风险把控、长期投入；命理示名利上限与路径，经营决定最终落点）。';
+    const _careerCloseVal='五者齐备，名利基础才能充分兑现，也更有向上提升的空间。'+(isMale?'事业':'女命')+pathCore+'；然若得贵人提携、逢机缘巧合，亦未尝不可更进一层、名利更隆。相同八字，命运未必相同，后天努力与选择必定导致差异。';
+    s15+='<br>'+_careerCloseVal;
     sec.push(s15);
 
 
@@ -911,7 +1085,7 @@
       });
       if(dirGodPresent && !coreJi){
         (d.combos||[]).forEach(k=>{ if(has.has(k)){
-          // 按 add 时的喜忌分支给标签：忌神/之形组合不主"成立"，与正文（如伤官配印）保持一致
+          // 按 add 时的喜忌分支给标签：忌神、之形组合不主"成立"，与正文（如伤官配印）保持一致
           const co=combos.find(c=>c.key===k);
           const bad=co&&(co.text.indexOf('之形虽具')>=0||co.text.indexOf('为忌')>=0||co.text.indexOf('不成立')>=0||co.text.indexOf('须防')>=0);
           sc+=3; ev.push(bad?(k+'之形虽具、非喜用不主此象'):(k+'成立'));
@@ -938,7 +1112,7 @@
       const g=(x.d.gods||[]).find(g=>{ const gwx=godToWx(g); return fuJi.indexOf(gwx)>=0 && C(g)>0; })||'';
       return x.d.name+'（'+(g||'主星')+'<span class="tip sha-xiong">为忌</span>，不宜倚重）';
     });
-    let s16='① 依格局、十神喜忌、神煞、五行综合推断。最宜发展方向（按契合度）。<br>';
+    let s16='依格局、十神喜忌、神煞、五行综合推断。最宜发展方向（按契合度）。<br>';
     s16+=top.map(x=>(x.d.name+'（'+tierLab(x.sc)+'）：'+x.ev.slice(0,3).join('；')+'；'+x.d.desc+'。')).join('<br>');
     if(also.length) s16+='<br>亦可考虑：'+also.map(x=>{
       const note=x.ev.find(e=>e.indexOf('原局无')>=0)||x.ev[0]||'';
@@ -948,9 +1122,10 @@
     else s16+='<br>相对不宜：本局无明显不宜之方向，惟须结合大运流年取舍。';
     const wxTag=wx=>fuXi.indexOf(wx)>=0?'利':(fuJi.indexOf(wx)>=0?'慎':'平');
     const wxLines=['木','火','土','金','水'].map(wx=>wx+wxTag(wx)+'（'+wxRoleOf(wx)+'）'+'：'+WX_IND[wx].join('、'));
-    s16+='<br>② 五行行业对照（<span class="tip sha-ji">喜用</span>'+fuXiStr+'、'+kJi('忌')+(fuJi.join('、')||'无')+'）。'+wxLines.join('；')+'。';
-    s16+='<br>行业成败，并非<span class="tip sha-ji">喜用</span>行业即必成、<span class="tip sha-xiong">忌神</span>行业即必败。<span class="tip sha-ji">喜用</span>行业逢<span class="tip sha-ji">喜用</span>旺运更顺；<span class="tip sha-xiong">忌神</span>行业若逢去病之运或所主十神成势，亦可成机遇。';
-    s16 += dyNatalInto('事业财运', BZ, A, '③');
+    s16+='<br>五行行业对照（<span class="tip sha-ji">喜用</span>'+fuXiStr+'、'+kJi('忌')+(fuJi.join('、')||'无')+'）。'+wxLines.join('；')+'。';
+    const _indFailText='行业成败，并非<span class="tip sha-ji">喜用</span>行业即必成、<span class="tip sha-xiong">忌神</span>行业即必败。<span class="tip sha-ji">喜用</span>行业逢<span class="tip sha-ji">喜用</span>旺运更顺；<span class="tip sha-xiong">忌神</span>行业若逢去病之运或所主十神成势，亦可成机遇。';
+    s16+='<br>'+_indFailText;
+    s16 += dyNatalInto('事业财运', BZ, A);
     sec.push(s16);
 
     // 组装：纯文字 7 板块
@@ -981,7 +1156,7 @@
         let _ds=tenShenDeep(fC,c,posOf(c),_strOf(fC.wxOf[c]),'career');
         if(c==='食伤'&&shang>0&&fuJi.indexOf(shangWx)<0) _ds+='可选技术、创意、自由职业或创业。';
         else if(c==='比劫'&&bi>0){
-          // 比劫为喜才主张合伙；无涉/忌神不导向合伙（原 weak 条件致无涉比劫身弱盘仍"宜合伙共进"）
+          // 比劫为喜才主张合伙；无涉、忌神不导向合伙（原 weak 条件致无涉比劫身弱盘仍"宜合伙共进"）
           if(biIsXi) _ds+='宜合伙共进'+(has.has('比劫夺财')?'、合作须明算账立契约':'')+(isMale?'。':('；女命此象宜借'+(_wxStrong(yinWx)?'朋友长辈之力':'同辈之力')+'、以自身才艺立身。'));
           else if(fuJi.indexOf(dwx)>=0) _ds+='宜自主自立、慎合伙；合作须防分财耗散'+(has.has('比劫夺财')?'、明算账立契约':'')+(isMale?'。':('；女命此象宜以自身才艺立身、少倚同辈之力。'));
         }
@@ -989,30 +1164,334 @@
       }).join('<br>');
     }catch(e){ if(typeof console!=='undefined') console.error('[tenShenCareer]', e.message, (e.stack||'').split('\n').slice(0,4).join(' ← ')); tenOv=''; tenDeep=''; tenClose=''; }
     const titles=['本命基调','十神关系','神煞、纳音与十二长生','六亲与命局特征','风险预警','职业机遇','名利层级'];
+    const gzRelValue='命局天干'+dedupChars(gans)+'、地支'+dedupChars(zhis)+'，'+specialNote+(specialNames.length?'。':'；')+relTxt;
     const merged=[
-      // 本命基调尾部并入干支关系（命局干支/合化/特殊结构/冲害合拱统一收束此段；首句不再预述"本局天干X、地支Y"；
+      // 本命基调尾部并入干支关系（命局干支、合化、特殊结构、冲害合拱统一收束此段；首句不再预述"本局天干X、地支Y"；
       // 六合细节（柱位+合化喜忌）随 relRows 列于"合"行）
-      sec[0]+'<br>干支关系：命局天干'+dedupChars(gans)+'、地支'+dedupChars(zhis)+'，'+specialNote+(specialNames.length?'。':'；')+relTxt,
+      sec[0]+'<br>干支关系：'+gzRelValue,
       // ===== 第2节，十神关系 三层结构：①十神总览（总览+逐神深读+官杀深读+食伤比劫落点）→ ②相互关系（组合术语+具体关系）→ ③十神流转（流转+主题转译）=====
-      // 禁止罗列重复：属/个数/透藏/旺衰只在逐神深读出现一次；相互关系只讲组合（枭神夺食/贪财坏印/官印相生等术语+生克力量喜忌损益）
-      '① 十神总览：'+(tenOv||'')
+      // 禁止罗列重复：属、个数、透藏、旺衰只在逐神深读出现一次；相互关系只讲组合（枭神夺食、贪财坏印、官印相生等术语+生克力量喜忌损益）
+      '十神总览：'+(tenOv||'')
       +(tenDeep?('<br>'+tenDeep):'')
       +(s3a?('<br>'+s3a):'')
-      +'<br>② 相互关系：'
+      +'<br>相互关系：'
       // 十神关系对框架：每对换行排版（关系对独立成行，避免一坨堆叠）
       +'<br>相生组合：<br>'+shengPairs.join('<br>')
       +'<br>相克组合：<br>'+kePairs.join('<br>')
       +(cZhong.length?('<br>其余组合：<br>'+cZhong.join('<br>')):'')
       +'<br>'+s6head
-      +'<br>③ 十神流转：'+liuTong
+      +'<br>十神流转：'+liuTong
       +(tenClose?('<br>'+tenClose):''),
-      '① 神煞：'+sec[6]+'<br>② 纳音：'+s8na+'<br>③ 十二长生：'+s8cs,
-      '① '+sec[8]+'<br>② 命局特征：'+sec[11],
+      '神煞：'+sec[6]+'<br>纳音：'+s8na+'<br>十二长生：'+s8cs,
+      sec[8]+'<br>命局特征：'+sec[11],
       sec[12],
       sec[14]+(sec[10]?('<br>'+sec[10]):''),
       sec[13]+(sec[9]?('<br>'+sec[9]):'')
     ];
-    return merged.map((body,i)=>((i+1)+'、'+titles[i]+'<br>'+body));
+    // 本命基调八行：日主、喜忌、命局缺陷、财星、财库、官杀、干支关系、格局主象。
+    // 行值在生成处直接组装，供四卡模型消费；展示层只按两列排版。
+    const _scl=s=>String(s==null?'':s).replace(/[。；；\s]+$/,'').trim();
+    const _syySegs=_syyParts.map(p=>p.replace(/[。；；\s]+$/,'')).filter(Boolean);
+    const _caiSeg=cutYunTail(_scl(_syySegs.filter(p=>/正财|偏财/.test(p)).join('。')));
+    const _guanSeg=cutYunTail(_scl(_syySegs.filter(p=>/正官|七杀/.test(p)).join('。')));
+    const _xjTail=cat=>{
+      const wx=cat==='财'?wealthWx:killWx;
+      if(!wx) return '';
+      if(fuXi.indexOf(wx)>=0) return cat+'属'+wx+'，正为喜用，岁运再逢则得力，宜乘势而为';
+      if(fuJi.indexOf(wx)>=0) return cat+'属'+wx+'，是为忌神，岁运再逢反受其累，宜守不宜进';
+      return cat+'属'+wx+'，喜忌无涉，随岁运而定';
+    };
+    const _xiNoneTxt=wx=>fuXi.indexOf(wx)>=0
+      ? ('待岁运引出（所引为喜用，逢'+wx+'旺运透出则可得）')
+      : (fuJi.indexOf(wx)>=0
+        ? '原局不现反免其扰（所引为忌神，一旦岁运引出反生其累，不宜强主动）'
+        : '喜忌无涉，待岁运引出后随其喜忌而定');
+    const _wealthNone=kind=>{ const wx=kind==='财'?wealthWx:killWx; const ge=kind==='财'?'财':'官杀'; return wx?(ge+'不现，'+_xiNoneTxt(wx)):''; };
+    const _queRow=(function(){
+      let queTxt='', wxis=[];
+      if(_miss.length){
+        queTxt=_miss.join('、');
+        if(_miss.indexOf('正官')>=0||_miss.indexOf('七杀')>=0) wxis.push(killWx);
+        if(_miss.indexOf('正财')>=0) wxis.push(wealthWx);
+        if(_miss.indexOf('正印')>=0) wxis.push(yinWx);
+      }else{
+        /* 三合缺一：干支关系段的拱局说明带缺支，同为本命缺陷来源 */
+        for(let i=0;i<SAN_HE.length;i++){
+          const tri=SAN_HE[i];
+          if(tri.filter(z=>zhis.indexOf(z)>=0).length===2){
+            const missing=tri.filter(z=>zhis.indexOf(z)<0)[0];
+            queTxt=missing+(ZHI_WX[missing]||'');
+            if(ZHI_WX[missing]) wxis.push(ZHI_WX[missing]);
+            break;
+          }
+        }
+      }
+      if(!queTxt) return '';
+      const xiList=wxis.filter(w=>fuXi.indexOf(w)>=0);
+      if(!wxis.length) return '缺'+queTxt+'（喜忌未详，不作吉凶断）';
+      if(xiList.length) return '缺'+queTxt+'（'+xiList.join('、')+'为喜用神，故为真缺憾，此路不畅、功用不显）';
+      return '缺'+queTxt+'（'+wxis.join('、')+'为忌神，故不为祸、反少一忌）';
+    })();
+    /* 格局主象：与展示层 fp 同口径，长句与岁运句不入表 */
+    const _zxRow=(function(){
+      const seg='本局以'+geMain+(_zxCareer?('为主，'+_zxCareer):'');
+      if(!/为主|主象/.test(seg)) return '';
+      if(/大运|流年|流月|流日|旺运|去病之运|运引|应期|触发|引动|临运|借运|逢[^。，]{0,3}运/.test(seg)) return '';
+      const c=_scl(seg);
+      return (c.length>=3&&c.length<=46)?c:'';
+    })();
+    const _natalRows=[
+      ['日主', BZ.dayGan+'（'+dwx+'），生于'+(BZ.zhis[1]||'')+'月'],
+      ['喜忌', '喜用'+(fuXi.join('、')||'无')+'；忌'+(fuJi.join('、')||'无')],
+      ['命局缺陷', _queRow],
+      ['财星', '财为养命之源：'+(_caiSeg?_caiSeg.replace(/[。；\s]+$/,'')+'；'+_xjTail('财'):_wealthNone('财'))],
+      (A.muku&&A.muku.caiKuBrief)?['财库', A.muku.caiKuBrief]:null,
+      ['官杀', '官为贵之名位：'+(_guanSeg?_guanSeg.replace(/[。；\s]+$/,'')+'；'+_xjTail('官杀'):_wealthNone('官'))]
+    ].filter(r=>r&&r[1]);
+    const _gzRow=cutYunTail(String(gzRelValue).replace(/<[^>]*>/g,''));
+    if(_gzRow) _natalRows.push(['干支关系', _gzRow]);
+    if(_zxRow) _natalRows.push(['格局主象', _zxRow]);
+    /* 职业机遇三表：行值在算出契合度、五行行业与断语处直接组装，展示层只按原列头排版。 */
+    const _jobBasis=function(s){
+      let bs=_scl(dyCutYunTail(String(s==null?'':s).replace(/<[^>]*>/g,'').replace(/[。；;]+$/,'')));
+      bs=bs.replace(/[，、；；](宜|待|看)$/,'').replace(/[，、；;]\s*$/,'');
+      if(!/[。！？…]$/.test(bs)) bs+='。';
+      return bs;
+    };
+    const _jobRows=[];
+    top.forEach(function(x){
+      const nm=String(x.d.name||''), ci=nm.indexOf('，');
+      if(ci<0) return;
+      _jobRows.push({ cells:[tierLab(x.sc), nm.slice(0,ci), nm.slice(ci+1), _jobBasis(x.ev.slice(0,3).join('；')+'；'+x.d.desc)] });
+    });
+    also.forEach(function(x){
+      const nm=String(x.d.name||''), ci=nm.indexOf('，');
+      if(ci<0) return;
+      const note=x.ev.find(function(e){ return e.indexOf('原局无')>=0; })||x.ev[0]||'';
+      if(!note) return;
+      _jobRows.push({ cells:[tierLab(x.sc), nm.slice(0,ci), nm.slice(ci+1), _jobBasis(note)] });
+    });
+    scored.forEach(function(x){
+      const neg=(x.d.gods||[]).some(function(g){ const gwx=godToWx(g); return fuJi.indexOf(gwx)>=0 && C(g)>0; });
+      if(!(neg && x.sc<2)) return;
+      const nm=String(x.d.name||''), ci=nm.indexOf('，'), god=ci>=0?nm.slice(0,ci):nm;
+      if(['正印','偏印','比肩','劫财'].indexOf(god)<0) return;
+      const g=(x.d.gods||[]).find(function(g){ const gwx=godToWx(g); return fuJi.indexOf(gwx)>=0 && C(g)>0; })||'';
+      _jobRows.push({ cells:['不宜', god, ci>=0?nm.slice(ci+1):'', (g||'主星')+'为忌，不宜倚重'] });
+    });
+    const _indRows=['木','火','土','金','水'].map(function(wx){
+      const st=wxTag(wx);
+      return st==='平'?null:{ cells:[wx, st, WX_IND[wx].join('、')] };
+    }).filter(Boolean);
+    const _dyRows=dyRowList('事业财运', BZ, A);
+    /* 十神经典断语行：命中合并与权重序在本处完成，展示层只按原列头排版。 */
+    const _duanRows=(function(){
+      try{
+        const _cb=REL.tenCombo.buildCtx(BZ);
+        if(!_cb) return [];
+        const _hits=REL.tenCombo.matchAll(_cb,{dirs:['career'],theme:'career'});
+        const _mg=new Map();
+        _hits.forEach(function(x){
+          const o=_mg.get(x.tname);
+          if(!o) _mg.set(x.tname,{say:x.say});
+          else if(o.say.indexOf(x.say)<0) o.say+='；'+x.say;
+        });
+        return Array.from(_mg.entries()).map(function(e){
+          return [e[0], cutYunTail(String(e[1].say).replace(/<[^>]*>/g,''))];
+        });
+      }catch(e){ return []; }
+    })();
+    /* 神煞、纳音、十二长生三组行：名称与内容在算出本柱数据处直接组装。 */
+    const _shaBase=function(s){ return String(s==null?'':s).replace(/[（(][^）)]*[）)]$/,'').trim(); };
+    const _shaPillar=function(base){
+      const P=[['年',BZ.shaYear],['月',BZ.shaMonth],['日',BZ.shaDay],['时',BZ.shaTime]];
+      const cols=P.filter(function(x){
+        return (x[1]||[]).some(function(v){ return String(v==null?'':v).replace(/（纳音）/,'').trim()===base; });
+      }).map(function(x){ return x[0]; });
+      return cols.length?cols.join('、')+'柱':'';
+    };
+    const _shaUnify=function(sn,body){
+      const base=_shaBase(sn);
+      const luo=_shaPillar(base);
+      const b=String(body==null?'':body).replace(/[。；；，、\s]+$/,'').trim();
+      return [base, luo?('（'+luo+'）'+b):b];
+    };
+    const _shaRows=[];
+    [['shaYear'],['shaMonth'],['shaDay'],['shaTime']].forEach(function(x){
+      const arr=((BZ[x[0]])||[]).map(function(v){ return String(v==null?'':v).replace(/（纳音）/,'').trim(); }).filter(Boolean);
+      arr.forEach(function(sn){
+        const base=_shaBase(sn);
+        if(_shaRows.some(function(r){ return r[0]===base; })) return;
+        const entry=SHA_MEAN[sn]||SHA_MEAN[base]||null;
+        const body=entry&&entry.career;
+        if(body&&!/关联较少/.test(body)) _shaRows.push(_shaUnify(sn,body));
+      });
+    });
+    const _nayinRows=[];
+    (function(){
+      const _dayWx=GAN_WX[BZ.dayGan]||'';
+      const P=['年柱','月柱','日柱','时柱'];
+      [0,2,1,3].forEach(function(i){
+        const gz=BZ.gans[i]+BZ.zhis[i];
+        const nm=nayinOf(gz), wx=nayinWxOf(gz);
+        const body=wx?(((NAYIN_REL_MEAN[relShort(_dayWx,wx)]||{}).career)||''):'';
+        if(!nm||!body) return;
+        const core=String(body).replace(/[。；；\s]+$/,'').trim();
+        const zz=nayinZizuo(gz);
+        const mean=zz?(((CS_MEAN_ALL[zz]||{}).career)||''):'';
+        const nz=zz?('纳音自坐'+zz+(mean?('，'+mean):'')+'。'):'';
+        _nayinRows.push([nm,'（'+P[i]+'）'+(nz?core+'；'+nz:core)]);
+      });
+    })();
+    const _csRows=[];
+    (function(){
+      const B=['年支','月支','日支','时支'];
+      [0,1,2,3].forEach(function(i){
+        const nm=getChangSheng(BZ.dayGan,BZ.zhis[i]);
+        const body=((CS_MEAN_ALL[nm]||{}).career)||'';
+        if(!nm||!body) return;
+        _csRows.push([nm,'（'+B[i]+BZ.zhis[i]+'）'+body]);
+      });
+    })();
+    /* 风险预警三组行：风险项、特征项、可证伪项在算出时直接入行。 */
+    const _stripSecHead=function(s,list){ let t=String(s==null?'':s); for(const k of list){ t=t.replace(k,''); } return t.replace(/^[:：\s]+/,'').trim(); };
+    const _riskRows=[];
+    ['比劫夺财','印星','偏星','理财','坐班'].forEach(function(k){
+      for(let i=0;i<risk.length;i++){
+        const idx=risk[i].indexOf(k);
+        if(idx<0) continue;
+        const segi=risk[i].slice(idx).split(/[。；]/)[0].replace(/<[^>]*>/g,'');
+        if(segi.length>3) _riskRows.push(cutYunTail(_stripSecHead(segi,['风险提示','：','。'])));
+        break;
+      }
+    });
+    const _shortRows=[];
+    const _shortHit=/官杀缺|七杀缺|财星全藏/;
+    aXi.forEach(function(g){ const s=xiShort[g]; if(s&&_shortHit.test(s)) _shortRows.push(cutYunTail(_stripSecHead(s,['：','：']))); });
+    aNeu.forEach(function(g){ const s=String(neuShort[g]||'').split(/[，。；]/)[0]; if(s&&_shortHit.test(s)) _shortRows.push(cutYunTail(_stripSecHead(s,['：','：']))); });
+    wNeu.forEach(function(g){ const s=String(neuShort[g]||'').split(/[，。；]/)[0]; if(s&&_shortHit.test(s)) _shortRows.push(cutYunTail(_stripSecHead(s,['：','：']))); });
+    posShort.forEach(function(s){ if(s&&_shortHit.test(s)) _shortRows.push(cutYunTail(_stripSecHead(s,['：','：']))); });
+    /* 名利层级说明列只留原局句：岁运与应期句不入层级表。 */
+    const _levelBasis=function(s){
+      const t=String(s==null?'':s).split(/[。；]/).map(function(x){ return x.trim(); })
+        .filter(function(x){ return x && !/岁运|旺运|运引|应期|触发|逢[^。，]{0,3}运|借[^。，]{0,2}运|临运|起运|大运|流年|流月|流日/.test(x); })
+        .join('。');
+      return /大运|流年|流月|流日/.test(t)?'':t;
+    };
+    const _levelText=function(s){ const t=cutYunTail(_levelBasis(s)); return t?((/[。！？…]$/.test(t))?t:(t+'。')):''; };
+    /* 展示层补注与六亲行：在生成层按终值直接组装，展示层按段名取用。 */
+    const _t2parts=[];
+    {
+      const _t1=cardStripTags(String(s6head)).trim().replace(/(印星|比劫|食伤|财星|官杀)(?:在|落)(?:年柱|月柱|日柱|时柱|日支)[^。；]*[。；]?/g,'');
+      const _closeTxt=cardStripTags(String(tenClose));
+      const _closeAt=_closeTxt.indexOf('十神结构以');
+      const _t2=_closeAt>=0?_closeTxt.slice(_closeAt).split(/[。；]/)[0]:'';
+      if(_t1) _t2parts.push(cardCutYunTail(cardScl(_t1)));
+      if(_t2) _t2parts.push(cardCutYunTail(cardScl(_t2)));
+    }
+    const _t2note=_t2parts.length?_t2parts.map(function(x){ return x.replace(/[。；\s]+$/,'')+'。'; }).join(''):'';
+    const _t4rows=[];
+    {
+      const _sixTxt=cardStripTags(String(sec[8]));
+      const _s6=_sixTxt.split(/[。；]/).map(function(s){ return s.trim(); }).filter(Boolean);
+      const _buck={年柱:[],月柱:[],日柱:[],时柱:[]};
+      _s6.forEach(function(s){
+        if(/年柱|祖(?:辈|上|业|荫)|父(?:缘|星|亲)|外祖/.test(s)) _buck.年柱.push(s);
+        else if(/月干|月支|父母|同辈|朋(?:友|僚)|兄弟/.test(s)) _buck.月柱.push(s);
+        else if(/日主|日支|自身|配偶|夫妻|夫妇|坐支/.test(s)) _buck.日柱.push(s);
+        else if(/时柱|晚年|子女|后辈|下属|儿(?:孙)?|晚景/.test(s)) _buck.时柱.push(s);
+        else _buck.日柱.push(s);
+      });
+      const PM=(typeof window!=='undefined'&&window.PILLAR_MAP)||{};
+      const LQ4=function(p){ if(PM[p]&&PM[p].六亲宫位){ const a=PM[p].六亲宫位.split('、'); return p==='日柱'?(a[1]||a[0]):a[0]; } return ({年柱:'祖辈宫',月柱:'父母宫',日柱:'夫妻宫',时柱:'子女宫'})[p]||p; };
+      [['年柱','年柱'],['月柱','月柱'],['日柱','日柱'],['时柱','时柱']].forEach(function(x){
+        if(_buck[x[1]].length) _t4rows.push([LQ4(x[0]), cardCutYunTail(cardScl(_buck[x[1]].join('；')))]);
+      });
+      const _tzbody=cardStripTags(String(sec[11]));
+      [['官杀','官杀'],['印星','印星'],['财星','财星'],['比劫','比劫'],['食伤','食伤']].forEach(function(x){
+        const label=x[0], key=x[1];
+        const i=_tzbody.indexOf(key+'为');
+        if(i<0) return;
+        const seg=_tzbody.slice(i);
+        const endIdx=[_tzbody.indexOf('印星为',i+1),_tzbody.indexOf('财星为',i+1),_tzbody.indexOf('比劫为',i+1),_tzbody.indexOf('官杀为',i+1),_tzbody.indexOf('食伤为',i+1),_tzbody.indexOf('命局食伤',i+1),_tzbody.indexOf('命局比劫',i+1)].filter(function(v){ return v>i; }).sort(function(a,b){ return a-b; })[0];
+        let hit=cardScl((endIdx?seg.slice(0,endIdx-i):seg).split(/[。；]/)[0]);
+        if(hit&&hit.length>3){
+          if(label==='官杀') hit=hit.replace(/（掌权名位）([^。；]*?)掌权名位/,'（掌权名位）$1').replace(/[，,]\s*$/,'');
+          _t4rows.push([label, cardCutYunTail(hit)]);
+        }
+      });
+      if(!_t4rows.some(function(r){ return r[0]==='食伤'; })){
+        const sj=cardCut(String(sec[11]),'命局食伤','宜择');
+        let hit='';
+        if(sj){
+          const cands=sj.split(/[。；;]/).map(function(s){ return s.trim(); }).filter(Boolean).filter(function(s){
+            if(/大运|流年|流月|流日|旺运|去病之运|运引|应期|触发|引动|临运|借运|逢[^。，]{0,3}运/.test(s)) return false;
+            if(s.indexOf('食伤')<0) return false;
+            const c=cardScl(s); return c.length>=3&&c.length<=46;
+          });
+          hit=cands.length?cardScl(cands[0]):'';
+        }
+        if(hit) _t4rows.push(['食伤', cardCutYunTail(hit)]);
+      }
+    }
+    const _indFailNote='行业成败'+cardStripTags(_indFailText).replace(/^行业成败[，,、。\s]*/,'');
+    const careerModel=[
+      { title:titles[0], heads:['项目','内容'], rows:_natalRows.map(r=>({ cells:[r[0], r[1]] })) },
+      { title:titles[1], rows:[
+        { label:'十神总览', value:tenOv },
+        { label:'逐神深读', value:tenDeep },
+        { label:'官杀深读', value:s3a },
+        { label:'相生组合', value:shengPairs.join('<br>') },
+        { label:'相克组合', value:kePairs.join('<br>') },
+        { label:'其余组合', value:cZhong.join('<br>') },
+        { label:'柱位洞察', value:s6head },
+        { label:'十神流转', value:liuTong },
+        { label:'组合转译', value:tenClose }
+      ] },
+      { title:'十神关系补注', heads:['补注'], rows:_t2note?[{ cells:[_t2note] }]:[] },
+      { title:'十神经典断语', heads:['组合','判定'], rows:_duanRows.map(function(r){ return { cells:[r[0], r[1]] }; }) },
+      { title:titles[2], heads:['分类','名称','内容'], rows:
+        _shaRows.map(function(r){ return { cells:['神煞', r[0], r[1]] }; })
+        .concat(_nayinRows.map(function(r){ return { cells:['纳音', r[0], r[1]] }; }))
+        .concat(_csRows.map(function(r){ return { cells:['十二长生', r[0], r[1]] }; }))
+      },
+      { title:titles[3], heads:['宫位十神','状态与作用'], rows:_t4rows.map(function(r){ return { cells:[r[0], r[1]] }; }) },
+      { title:titles[4], heads:['分类','提示'], rows:
+        _riskRows.map(function(v){ return { cells:['风险提示', v] }; })
+        .concat(_shortRows.map(function(v){ return { cells:['特征提示', v] }; }))
+        .concat(_falsifRows.map(function(v){ return { cells:['可证伪', v] }; }))
+      },
+      { title:titles[5], rows:[
+        { label:'职业机遇', value:sec[14] },
+        { label:'财库与开库', value:sec[10] }
+      ] },
+      { title:'职业方向与宜忌', heads:['宜忌','十神','方向','依据'], rows:_jobRows },
+      { title:'五行行业对照', heads:['五行','宜忌','行业'], rows:_indRows },
+      { title:'古籍断语', heads:['断语','出处'], rows:_dyRows },
+      { title:titles[6], heads:['维度','层级','说明'], rows:(function(){
+        const sc={低:1,'待运':1.5,中:2,高:3};
+        let t=0,w=0;
+        [['财富',wlv],['权贵',glv],['名望',mlv]].forEach(function(o){
+          const ww=(o[0]===domLabel)?0.5:0.25; t+=(sc[o[1]]||1)*ww; w+=ww;
+        });
+        const tot=w?(t/w>=2.6?'高':t/w>=1.7?'中':'低'):'';
+        return [
+          { cells:['财富潜力', wlv, _levelText(WEALTH_LINE+'。'+COREItems(ck)+'。')] },
+          { cells:['权贵潜力', glv, _levelText(POWER_LINE+'。'+gkP+'。')] },
+          { cells:['名望潜力', mlv, _levelText(FAME_LINE+'。'+COREItems(mk)+'。')] },
+          { cells:['综合判定', tot, cg+'。名利层级可期（财富、权贵、名望三维度互有高低，任一成势皆可弥补）。'+(needItems.length?('名利所赖'+needItems.join('、')+'等项原局不足或为忌，须五层条件叠加方能充分兑现'):'原局已有基础，仍须五层条件叠加方能达其上限')] },
+          { cells:['原局潜力', tot, '财富'+wlv+'、权贵'+glv+'、名望'+mlv+'，综合以'+domLabel+'维度为主导'] },
+          { cells:['大运流年', '外部', (fuXi.indexOf(killWx)>=0?('逢'+killWx+'透出或'+fuXi.filter(w=>w!==killWx).join('、')+'旺运引动，财势更易兑现'):('逢'+fuXiStr+'旺运更顺，财势更易兑现'))] },
+          { cells:['风水合局', '外部', '居所方位、布局合<span class="tip sha-ji">喜用</span>'] },
+          { cells:['社会时代', '外部', '家族出身、社交人脉、行业周期、平台资源、时代财富风口'] },
+          { cells:['个人经营', '内在', '专业深耕、人脉经营、风险把控、长期投入；命理示名利上限与路径，经营决定最终落点'] },
+          { cells:['总体取向', '', _careerCloseVal] }
+        ];
+      })() },
+      { title:'职业机遇补注', heads:['补注'], rows:_indFailNote?[{ cells:[_indFailNote] }]:[] }
+    ].map(s=>({ title:s.title, heads:s.heads, rows:s.rows.filter(r=>r&&(r.cells||(r.value!==''&&r.value!=null))) }));
+    baziCardModelPublish('career', careerModel);
+    return merged.map((body,i)=>(titles[i]+'<br>'+body));
 
 
   }
@@ -1022,14 +1501,14 @@
 
 
 /* ==================== 十神深读共享辅助（四卡第2节四段式）====================
- * 四卡（事业/婚姻/性格/家庭）第 2 节统一为①十神总览 → ②逐神深读 → ③两两作用 → ④主题转译。
- * 以下为纯函数共享层：总览句 / 逐神深读句（力量，透藏落宫转译，与日主关系，喜忌，卡主题落点）/ 收束句。
+ * 四卡（事业、婚姻、性格、家庭）第 2 节统一为①十神总览 → ②逐神深读 → ③两两作用 → ④主题转译。
+ * 以下为纯函数共享层：总览句、逐神深读句（力量，透藏落宫转译，与日主关系，喜忌，卡主题落点）/ 收束句。
  * 数据驱动：只用 BZ + 各卡现有字段（lq/eScore/eAvg/xiWxSet/jiWxSet/wxOf），零新增引擎。
  * 词表与 bazi-data 十神类映射（TEN_CLASS）同源：印星=生我、食伤=我生、财星=我克、官杀=克我、比劫=同气。
  */
 
-// ===== 四卡共享句式工厂（喜忌底色 / 神煞吉凶相参，跨卡只写一处，改一处全卡生效）=====
-// 喜忌底色：`日主X（X），喜用X、忌X；`（婚姻/性格/家庭三卡本命基调第 0 句统一句式；事业卡为融合句不调用）
+// ===== 四卡共享句式工厂（喜忌底色、神煞吉凶相参，跨卡只写一处，改一处全卡生效）=====
+// 喜忌底色：`日主X（X），喜用X、忌X；`（婚姻、性格、家庭三卡本命基调第 0 句统一句式；事业卡为融合句不调用）
 function xiJiBasis(dg,dwx,fuXi,fuJi){
   const fx=Array.isArray(fuXi)?fuXi.join('、'):(fuXi||'');
   const fj=Array.isArray(fuJi)?fuJi.join('、'):(fuJi||'');
@@ -1090,10 +1569,10 @@ const TEN_THEME_LAND_JI = {
   health: { '比劫':'过刚易折，宜避执拗刚愎' },
   family: { '比劫':'手足易有争竞，宜分明互济' }
 };
-// ① 十神总览：按能量分排序最旺/最弱/缺，喜用忌神权重，失衡方向
+// ① 十神总览：按能量分排序最旺、最弱、缺，喜用忌神权重，失衡方向
 function tenShenOverview(f, theme){
   // f: { order, wxOf, lq, eScore, eTotal, eAvg, xiWxSet, jiWxSet }
-  // theme: 'career'|'marry'（跨卡差异化：同盘事实相同，收束措辞按卡主题落点，避免事业/婚姻卡①总览逐字雷同）
+  // theme: 'career'|'marry'（跨卡差异化：同盘事实相同，收束措辞按卡主题落点，避免事业、婚姻卡①总览逐字雷同）
   const tNoun = theme==='marry' ? '婚恋' : (theme==='career' ? '事业' : '本局');
   const xiArr=Array.from(f.xiWxSet||[]), jiArr=Array.from(f.jiWxSet||[]);
   const present=f.order.filter(c=>(f.lq[c]||0)>0);
@@ -1120,7 +1599,7 @@ function tenShenOverview(f, theme){
   parts.push(jiStrong.length?(jiStrong.join('、')+'为<span class="tip sha-xiong">忌神</span>而过旺，为本局主要忌力、'+tNoun+'须防其扰。'):'忌神受制或势弱，其扰有限。');
   return parts.join('');
 }
-// 落宫转译（透干柱位 → 卡主题含义；无透则按首见藏干之柱给藏支简注），供十神深读/四卡逐神 note 复用
+// 落宫转译（透干柱位 → 卡主题含义；无透则按首见藏干之柱给藏支简注），供十神深读、四卡逐神 note 复用
 function tenLuoGong(f, cat, theme){
   let luo='';
   const _cat=cat;
@@ -1189,10 +1668,33 @@ function tenShenClose(f, theme){
 // 本命四大模块融入断语（纯文本，直接进段落；不另起金标块）。group 取 DUANYU_GROUPS 四大类之一。
 // 首屏 12 条：此数只定版面长短，不删断语，余条随件收进可点展开的部分，展开即得全数。
 // 年龄门控不限制本命四大模块，故此处取完整本命断语（stepCtx 为空）。
-function dyNatalInto(group, BZ, A, num) {
+function dyNatalInto(group, BZ, A) {
   if (typeof window === 'undefined' || !window.duanyuGroup) return '';
   const blk = window.duanyuGroup(group, BZ, A, null, 12, true);
-  return blk ? ('<br>' + num + ' 古籍断语：' + blk) : '';
+  return blk ? ('<br>古籍断语：' + blk) : '';
+}
+/* 古籍断语结构化行：取全量列表、剥岁运尾巴、去岁运句，四卡表格直接消费 {cells:[断语,出处]}，
+   不再从卡片文字里正则配对。剥离正则与展示层 cutYunTail 逐条同式，口径不分叉。 */
+function dyCutYunTail(s){ let t=String(s||'');
+  t=t.replace(/[，、；](?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
+  t=t.replace(/[，、；]?[^。，；]{0,2}便岁运[^。，；]*/g,'');
+  t=t.replace(/[，、；][^。，；]{0,4}(?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
+  t=t.replace(/[，、；]?岁运[^。，；]*/g,'');
+  t=t.replace(/[。，、；]?(?:旺运|去病之运|逢[^。，；]{0,5}运|运引|应期|临运)[^。，；]*/g,'');
+  t=t.replace(/[，、；]\s*$/,'');
+  t=t.replace(/[，、；]?(?:须|待|借|看)+$/,'');
+  t=t.replace(/[，、；](?:宜|须|待|借|看)[。，、；]?$/,'');
+  return t.trim();
+}
+function dyRowList(group, BZ, A){
+  if (typeof window === 'undefined' || !window.duanyuGroupList) return [];
+  const out = [];
+  (window.duanyuGroupList(group, BZ, A, null) || []).forEach(function(x){
+    if(!x || !x.say) return;
+    const say = dyCutYunTail(String(x.say).replace(/^[。；\s]+/,'').replace(/[；\s]+$/,'').trim());
+    if(say && say.length > 1 && !/大运|流年/.test(say)) out.push({ cells:[say, x.src] });
+  });
+  return out;
 }
 
 
@@ -1244,12 +1746,13 @@ function dyNatalInto(group, BZ, A, num) {
   // 地支关系统一走 REL.gz（bazi-rel.js 基础判定唯一归集处）；薄封装维持调用点不变。
   function pairIn(a,b,arr){ return arr.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a)); }
   function zhiRelToPillars(z, pz){ return REL.gz.zhiToPillars(z, pz); }
-  // 两支配对关系（返回 冲、合/刑、害/破 类型，仅用术语、不转译）
+  // 两支配对关系（返回 冲、合、刑、害、破 类型，仅用术语、不转译）
   function relBetween(a,b){ return REL.gz.between(a,b); }
   // 十二长生（配偶宫）解释：统一读顶层真源 CS_MEAN_ALL（bazi-data.js，marry 字段）
 
 
   function renderMarry(BZ){
+    baziCardModelReset('marry');
     const A=getAnalysis(BZ);
     const dg=BZ.dayGan, dwx=GAN_WX[dg];
     // 某五行相对日主的关系（生我、我生、克我、我克、比和）→ 十神象
@@ -1273,7 +1776,7 @@ function dyNatalInto(group, BZ, A, num) {
       return '';
     }
     const wxTag=wx=>fuXi.indexOf(wx)>=0?'利':(fuJi.indexOf(wx)>=0?'慎':'平');
-    // 配偶星五行（男=财 / 女=官杀）
+    // 配偶星五行（男=财、女=官杀）
     const spouseStar=isMale?['正财','偏财']:['正官','七杀'];
     const spouseWx=isMale?wealthWx:killWx;
     const pz=[BZ.yearZ,BZ.monthZ,BZ.dayZ,BZ.timeZ];
@@ -1284,7 +1787,7 @@ function dyNatalInto(group, BZ, A, num) {
     BZ.gans.forEach((g,i)=>{ const t=tenGod(dg,g); if(spouseStar.indexOf(t)>=0) spLocs.push({god:t, pillar:i, label:PALACE[i]+'干'+g, tou:true, main:false}); });
     pz.forEach((z,i)=>{
       const main=zhiMain(z), tm=tenGod(dg,main);
-      // 地支本气/藏干皆非"透干"（tou=false）；日支本气配偶星=宫星一体近身，由 main 字段标记
+      // 地支本气、藏干皆非"透干"（tou=false）；日支本气配偶星=宫星一体近身，由 main 字段标记
       if(spouseStar.indexOf(tm)>=0) spLocs.push({god:tm, pillar:i, label:PALACE[i]+'支'+z+'本气'+main, tou:false, main:true});
       (HIDE[z]||[]).forEach(hg=>{ if(hg===main) return; const th=tenGod(dg,hg); if(spouseStar.indexOf(th)>=0) spLocs.push({god:th, pillar:i, label:PALACE[i]+'支'+z, tou:false, main:false}); });
     });
@@ -1346,7 +1849,7 @@ function dyNatalInto(group, BZ, A, num) {
     const spNamed=spGans.map(g=>({g, t:tenGod(dg,g)})).sort((a,b)=>(spGodOrder[a.t]-spGodOrder[b.t]));
     const spStr=spNamed.map(o=>o.g+spouseWx+o.t).join('、');
     let s1=xiJiBasis(dg,dwx,fuXi,fuJi)+'夫妻宫（日支'+BZ.dayZ+'）本气'+zM+'为'+spouse+'；配偶星为'+(isMale?'财星':'官杀')+'，'+spStr+'。';
-    sec.push('1、本命基调<br>'+s1);
+    sec.push('本命基调<br>'+s1);
 
     // ===== 2 配偶星与夫妻宫 =====
     // ① 夫妻宫主象与配偶星定位（宫星是否一体、具体十神特质、透藏与远近）
@@ -1374,23 +1877,23 @@ function dyNatalInto(group, BZ, A, num) {
       : spouseXi?(offName+'星为<span class="tip sha-ji">喜用</span>，能得到配偶的帮助或助益。')
       : spouseJi?(offName+'星<span class="tip sha-xiong">为忌</span>，婚姻容易和'+(isMale?'钱财':'名位')+'相关的事牵扯、产生摩擦，需要财务分明、各守本分。')
       : (offName+'星在喜忌上无涉，影响平淡。');
-    // ② 配偶星关系（喜忌+位置（点明天干不透/地支暗藏）→ 宫位（直接标注透干/藏支本气/余气）
+    // ② 配偶星关系（喜忌加位置，点明天干不透、地支暗藏；宫位，直接标注透干、藏支本气、余气
     // → 正偏分论（正星=正缘、偏星=偏缘，偏星坐日支=占正缘位）→ 能量（正偏各判）→ 散现 → 生克 → 地支关系
-    // → 力量对比 → 食伤/比劫 → 流通（顶层 flowChain5）；每步分段，禁长坨）
+    // → 力量对比 → 食伤、比劫 → 流通（顶层 flowChain5）；每步分段，禁长坨）
     const spTouList=spouseTou.map(o=>o.god+'于'+o.label).join('、');
     const dayStrong=A.strength||'';
     const shangSelf=elemCount(shangWx);
-    // 五行能量分（与②十神总览/逐神深读同源 wxElementScore，禁按十神个数判能量）
+    // 五行能量分（与②十神总览、逐神深读同源 wxElementScore，禁按十神个数判能量）
     const _esM=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null;
     const _etM=_esM?Object.values(_esM).reduce((a,b)=>a+b,0):0;
     const eSp=_esM?(_esM[spouseWx]||0):0, eDay=_esM?(_esM[dwx]||0):0;
     const pctSp=_etM?Math.round(eSp/_etM*100):0;
-    // 十神能量分（正偏分开，供正偏分论：正缘/偏缘各自强弱）
+    // 十神能量分（正偏分开，供正偏分论：正缘、偏缘各自强弱）
     const _tenE=(typeof ssTenGodEnergy==='function')?ssTenGodEnergy(BZ, _esM||{}):null;
     const zhengName=isMale?'正财':'正官', pianName=isMale?'偏财':'七杀';
     const eZheng=_tenE?(_tenE[zhengName]||0):0, ePian=_tenE?(_tenE[pianName]||0):0;
     const weakPct=x=>x>1e-6 && x/_etM<0.10;   // 占比<10% 即"偏弱"
-    let s2_2='② 配偶星关系：';
+    let s2_2='配偶星关系：';
     const spLocsStr=spPillars.map(i=>{
       const parts=[];
       if(spLocs.some(o=>o.pillar===i&&o.tou)) parts.push(PALACE[i]+'干');
@@ -1401,7 +1904,7 @@ function dyNatalInto(group, BZ, A, num) {
       // ① 喜忌先行（先判喜忌再析意义）+ 位置（点明天干不透、地支暗藏）
       s2_2 += spName+'属'+spouseWx+'，'+(spouseXi?'为<span class="tip sha-ji">喜用</span>，婚姻得助、缘可倚':spouseJi?'为<span class="tip sha-xiong">忌神</span>，婚姻易与'+(isMale?'钱财':'名位')+'相扰、须分明':'与喜忌无涉、影响平淡')+'。';
       s2_2 += spName+'临'+spLocsStr+'，'+(spouseTou.length?'天干透出、缘分外显':'天干不透、地支暗藏')+'。';
-      // ② 宫位：每柱直接标注 透干/藏支本气/藏支余气（禁绕圈），情感早晚按透藏分述（禁"藏支却断恋爱早而多"）
+      // ② 宫位：每柱直接标注 透干、藏支本气、藏支余气（禁绕圈），情感早晚按透藏分述（禁"藏支却断恋爱早而多"）
       const _touAt=i=>spLocs.some(o=>o.pillar===i&&o.tou);
       const _posOfPillar=i=>{
         const at=spLocs.filter(o=>o.pillar===i);
@@ -1417,7 +1920,7 @@ function dyNatalInto(group, BZ, A, num) {
         3:(t)=>t?'主晚缘明现、或与晚景相连':'主晚缘暗藏、须引动方显'
       };
       s2_2 += '<br>宫位：'+spPillars.map(i=>PALACE[i]+'柱'+spName+_posOfPillar(i)+'，'+(_timeNote[i](_touAt(i))||'')).join('；')+'。';
-      // ③ 正偏分论：正星=正缘（配偶）、偏星=偏缘（情人/偏缘）；偏星坐日支=偏缘占正缘之位、正缘迟迟不到位
+      // ③ 正偏分论：正星=正缘（配偶）、偏星=偏缘（情人、偏缘）；偏星坐日支=偏缘占正缘之位、正缘迟迟不到位
       const _posBrief=arr=>arr.length?arr.map(o=>(o.tou?o.label+'透干':(o.main?o.label:o.label+'藏余气'))).join('、'):'不现';
       const zhengLocs=spLocs.filter(o=>o.god===zhengName), pianLocs=spLocs.filter(o=>o.god===pianName);
       const zhengTxt=zhengLocs.length
@@ -1461,7 +1964,7 @@ function dyNatalInto(group, BZ, A, num) {
             if(!_ts.length) return;
             let _tail='';
             if(_ts.indexOf('合')>=0){
-              // 合（可兼破：寅亥/巳申为合中带破），并注合化五行喜忌
+              // 合（可兼破：寅亥、巳申为合中带破），并注合化五行喜忌
               const _hwz=heHua(pz[pi],pz[j]);
               _tail='相合'+(_ts.indexOf('破')>=0?'（合中带破）':'')
                 +(_hwz?(fuXi.indexOf(_hwz)>=0?'，合化'+_hwz+'为喜、缘得聚合':fuJi.indexOf(_hwz)>=0?'，合化'+_hwz+'为忌、缘被绊滞':'，合化'+_hwz+'、缘势中性'):'，合而不化、缘分受其牵动');
@@ -1480,7 +1983,7 @@ function dyNatalInto(group, BZ, A, num) {
       s2_2 += '<br>日主'+dwx+'，'+dayStrong+'，'+(WX_KE[spouseWx]===dwx
         ? (eSp>eDay?'配偶星克日主而势强，关系中约束感偏重，宜沟通化解、化压为助':eDay>eSp?'日主势强、配偶星克之不及，关系中日主主导、宜柔和相待':'双方能量相当、有张力可调和')
         : (eSp>eDay?'配偶星势强于日主，然日主克之、尚可制衡，宜柔济刚、互尊互让':eDay>eSp?'日主势强、克之有余，关系中日主占主动，宜防独断、互尊互让':'双方能量相当，约束与自主相抵、有张力可调和'))+'。';
-      // ⑨ 食伤/比劫（一句一条）
+      // ⑨ 食伤、比劫（一句一条）
       if(shangSelf>=1.0){
         s2_2 += '<br>'+( !isMale ? '食伤克'+spName+'（伤官见官），锋芒易与对方生口舌、不服管束，宜以柔化解。' : '食伤生'+spName+'，才艺生财滋养情缘、姻缘有才情助力。');
       }
@@ -1510,11 +2013,11 @@ function dyNatalInto(group, BZ, A, num) {
       : WX_SHENG[other]===base? other+'生'+base
       : WX_KE[base]===other? base+'克'+other
       : other+'克'+base;
-    let s2_3='③ 夫妻宫关系：';
+    let s2_3='夫妻宫关系：';
     s2_3+='夫妻宫（日支'+BZ.dayZ+'）本气'+zM+'属'+zMwx+'，日主'+dg+dwx+'，'+wxPair(dwx, zMwx)+'，'+(zMwx===dwx?'夫妻宫与日主同气，相处平顺、彼此相扶，少有对立':notePhrase(dwx, zMwx))+'。';
     s2_3+=(zMwx===spouseWx?'<br>夫妻宫本气即配偶星，宫星一体，宫位状态直接代表配偶状态，底盘集中。':'');
     if(dayRel.length){
-      // 同类关系合并（如月支、时支两处相冲，合并为一句"月支、时支（酉）相冲，…"，不再逐条重复同义句；双冲叠加另起一句）
+      // 同类关系合并（如月支、时支两处相冲，合并为一句"月支、时支酉相冲，…"，不再逐条重复同义句；双冲叠加另起一句）
       const byType={};
       dayRel.forEach(r=>{
         const m=r.match(/^(冲|合|刑|害|破)(年支|月支|日支|时支)\((.)\)(自刑)?$/);
@@ -1557,7 +2060,7 @@ function dyNatalInto(group, BZ, A, num) {
     } else {
       s2_3+='<br>夫妻宫安静，没有刑冲害合破，婚姻底盘平稳。';
     }
-    // 流通：顶层 flowPillarRing（宫位圈：日支↔时柱/月柱/年柱 支→干→日主→回日支）+ flowChain5（五行十神相生链）
+    // 流通：顶层 flowPillarRing（宫位圈：日支↔时柱、月柱、年柱 支→干→日主→回日支）+ flowChain5（五行十神相生链）
     // 禁"其气禀于日柱、上承日主、下应岁运"式套话
     const _fr=(typeof window!=='undefined'&&window.flowPillarRing)?window.flowPillarRing(BZ):null;
     const _fc5b=(typeof window!=='undefined'&&window.flowChain5)?window.flowChain5(BZ, _esM||{}):null;
@@ -1566,6 +2069,42 @@ function dyNatalInto(group, BZ, A, num) {
     s2_3+='<br>'+_flow5+'。';
     // 晚子时、时辰边界 宫位敏感性提示（日柱=夫妻宫所在，恰处子时则随校正而变）
     if(BZ.zhis[3]==='子') s2_3+='生于子时（23:00至01:00），日柱（夫妻宫所在）处早晚子时与真太阳时校正之敏感边界，若时刻临近 0 点，夫妻宫（日支）或因真太阳时校正而在前后两日间变动，建议核校真太阳时后再定盘。';
+    /* 1.2 配偶星与夫妻宫：行值在算出配偶星与夫妻宫关系处直接组装。 */
+    const _mSpWx=spouseWx;
+    const _mSpXi=fuXi.indexOf(_mSpWx)>=0, _mSpJi=fuJi.indexOf(_mSpWx)>=0;
+    const _mSpClass=isMale?['正财','偏财']:['正官','七杀'];
+    const _mSpWhat=isMale?'男命以财星（正财、偏财）为配偶星':'女命以官杀（正官、七杀）为配偶星';
+    const _mSpXiJi=_mSpXi?'为喜用、入局助缘':(_mSpJi?'为忌神、入局易扰':'喜忌无涉、影响平淡');
+    const _mPillars=['年','月','日','时'];
+    const _mPosMean={'年':'主早年年门、多得长辈牵线之缘','月':'主青年同辈环境、常经人际圈子结识','日':'主夫妻宫坐配偶星、宫星同位得内助','时':'主晚运情缘、亦关子女之缘'};
+    const _mTou=[], _mCang=[];
+    for(let _mi=0;_mi<4;_mi++){
+      const _mg=BZ.gans[_mi]; if(_mg&&_mSpClass.indexOf(tenGod(BZ.dayGan,_mg))>=0) _mTou.push(_mPillars[_mi]);
+      const _mz=BZ.zhis[_mi]; if(_mz){ const _mhs=(HIDE[_mz]||[]).slice(); const _mzm=zhiMain?zhiMain(_mz):''; if(_mzm) _mhs.push(_mzm); if(_mhs.some(function(_mhg){ return _mhg&&_mSpClass.indexOf(tenGod(BZ.dayGan,_mhg))>=0; })) _mCang.push(_mPillars[_mi]); }
+    }
+    let _mSpPos;
+    if(_mTou.length) _mSpPos='配偶星透于'+_mTou.map(function(p){return p+'干';}).join('、')+'，'+_mTou.map(function(p){return _mPosMean[p];}).join('；');
+    else if(_mCang.length) _mSpPos='配偶星天干不透，藏于'+_mCang.map(function(p){return p+'支';}).join('、')+'，缘气内敛、须岁运引出方显（'+_mCang.map(function(p){return _mPosMean[p];}).join('；')+'）';
+    else _mSpPos='配偶星四柱不现，须待岁运引出方有缘动';
+    const _mGongWx=(ZHI_WX&&ZHI_WX[BZ.dayZ])||'';
+    let _mSpGong='';
+    if(_mSpWx&&_mGongWx){
+      if(WX_SHENG[_mGongWx]===_mSpWx) _mSpGong='夫妻宫五行'+_mGongWx+'与配偶星五行'+_mSpWx+'相生，宫星相生、情缘易得滋养';
+      else if(WX_SHENG[_mSpWx]===_mGongWx) _mSpGong='配偶星五行'+_mSpWx+'与夫妻宫五行'+_mGongWx+'相生，星气入宫、婚缘有资';
+      else if(WX_KE[_mGongWx]===_mSpWx) _mSpGong='配偶星五行'+_mSpWx+'克夫妻宫五行'+_mGongWx+'，星犯其宫、宜相济以和';
+      else if(WX_KE[_mSpWx]===_mGongWx) _mSpGong='夫妻宫五行'+_mGongWx+'克配偶星五行'+_mSpWx+'，宫制其星、缘宜缓成';
+      else _mSpGong='配偶星五行'+_mSpWx+'与夫妻宫五行'+_mGongWx+'比和，星宫同气';
+    }
+    const _mGq=String(s2_3).replace(/^夫妻宫关系[:：]?/,'');
+    const _mLiuI=_mGq.indexOf('流通');
+    const _mHead=cardScl(_mGq.slice(0,_mLiuI>0?_mLiuI:_mGq.length));
+    const _mSent=_mHead.split(/[。；]/).map(function(x){return x.trim();}).filter(Boolean);
+    const _mGongIdx=_mHead.indexOf('夫妻宫与命局');
+    const _mGongPart=_mGongIdx>0? _mHead.slice(_mGongIdx).replace(/^夫妻宫与命局[:：]?\s*/,'') : _mSent.slice(1).join('。');
+    const _mSpouseRows=[];
+    _mSpouseRows.push({ cells:['配偶星', cardStripTags(_mSpWhat+'。'+_mSpXiJi+'。'+_mSpPos+(_mSpGong?('；'+_mSpGong+'。'):'。'))] });
+    if(_mSent[0]) _mSpouseRows.push({ cells:['夫妻宫', cardCutYunTail(cardScl(cardStripTags(_mSent[0])))] });
+    if(_mGongPart) _mSpouseRows.push({ cells:['星宫命局', cardCutYunTail(cardScl(cardStripTags(_mGongPart)))] });
     // ① 十神总览（婚恋视角）
     let marryOv='';
     try{
@@ -1602,7 +2141,7 @@ function dyNatalInto(group, BZ, A, num) {
       };
       const _strM=wx=>{ const e=(_fM.eScore[wx]||0); return (e>WX_TIER_HI*_ea2)?'过旺':(e>WX_TIER_LO*_ea2)?'偏旺':'平和'; };
       const deepM=_fM.order.filter(c=>(_fM.lq[c]||0)>0).map(c=>tenShenDeep(_fM,c,_godPosM(c),_strM(_fM.wxOf[c]),'marry')).join('<br>');
-      // 婚恋两两作用（顶层统一判定：REL.tenCombo 命中关系 → 婚姻主题句；与事业/十神宫位同一喜忌裁决，避免口径分叉；禁 REL.ten.rel 通用 10 对逐字重复）
+      // 婚恋两两作用（顶层统一判定：REL.tenCombo 命中关系 → 婚姻主题句；与事业、十神宫位同一喜忌裁决，避免口径分叉；禁 REL.ten.rel 通用 10 对逐字重复）
       const _tCtxM = (typeof REL!=='undefined' && REL.tenCombo && REL.tenCombo.buildCtx) ? REL.tenCombo.buildCtx(BZ) : null;
       const _tHitsM = _tCtxM ? REL.tenCombo.matchAll(_tCtxM) : [];
       const _negSayM = s => /为忌|忌神|破财|克身|受损|祸患|夺食|压力|虚浮|难成/.test(s||'');
@@ -1612,12 +2151,12 @@ function dyNatalInto(group, BZ, A, num) {
       }).filter(Boolean);
       marryRel=deepM+(pairM.length?('<br>两两作用：'+pairM.join('；')+'。'):'');
     }catch(e){ if(typeof console!=='undefined') console.error('[tenShenMarryRel]', e.message); marryRel=''; }
-    sec.push('2、配偶星与夫妻宫<br>'
-      +(marryOv?('① 十神总览：'+marryOv+'<br>'):'')
-      +(marryRel?('② 十神关系（婚恋视角）：<br>'+marryRel+'<br>'):'')
-      +'③ 夫妻宫主象与配偶星定位。'+marryCore+marryKey+spouseXiJi+'<br>'
-      +s2_2.replace(/^②/,'④')+'<br>'
-      +s2_3.replace(/^③/,'⑤'));
+    const s2Body=(marryOv?('十神总览：'+marryOv+'<br>'):'')
+      +(marryRel?('十神关系（婚恋视角）：<br>'+marryRel+'<br>'):'')
+      +'夫妻宫主象与配偶星定位。'+marryCore+marryKey+spouseXiJi+'<br>'
+      +s2_2+'<br>'
+      +s2_3;
+    sec.push('配偶星与夫妻宫<br>'+s2Body);
 
     // ===== 3 神煞与纳音 =====
     // 神煞：仅输出与婚姻感情相关的神煞，多柱合并、按落柱析义
@@ -1630,29 +2169,29 @@ function dyNatalInto(group, BZ, A, num) {
         if(m&&m.marry) (shaMap[nm]=shaMap[nm]||{pillars:[],mean:m.marry}).pillars.push(pn);
       });
     });
-    let s3='① 神煞：';
+    let s3ShaBody;
     const marrySha=Object.keys(shaMap);
     if(marrySha.length){
-      s3+=marrySha.map(s=>{
+      s3ShaBody=marrySha.map(s=>{
         const e=shaMap[s], ps=[...new Set(e.pillars)];
         const note=ps.length>1? ps.map(p=>_shaNote(p)).join('，并') : _shaNote(ps[0]);
         return s+'（'+ps.join('、')+'柱，'+note+'；'+e.mean+'）';
       }).join('；')+'。';
-    } else s3+='本局无显著婚姻相关神煞。';
+    } else s3ShaBody='本局无显著婚姻相关神煞。';
     // 纳音五行生克（纳音看婚姻的核心读法：夫妻宫纳音 vs 日主）
-    s3+='<br>② 纳音：日柱'+dg+BZ.dayZ+'纳音'+nayinColorSpan(dNa)+'。'+naNote(naRel)+'。';
+    const s3NaBody='日柱'+dg+BZ.dayZ+'纳音'+nayinColorSpan(dNa)+'。'+naNote(naRel)+'。';
     // 十二长生对婚姻感情的影响解读（日主四柱；统一读顶层真源 CS_MEAN_ALL.marry）
     const csDay=pz.map((z,i)=>_shaNote(PALACE[i])+'（'+z+'）'+getChangSheng(dg,z)+'（'+((CS_MEAN_ALL[getChangSheng(dg,z)]||{}).marry||'')+'）');
-    s3+='<br>③ 十二长生：'+csDay.join('；')+'。';
     // 夫妻宫纳音自坐：纳音五行在日支的十二长生（如甲子纳音海中金，金死于子），
     //   与前句日主天干在日支之气互为参看；统一走 nayinZizuo，释义读 CS_MEAN_ALL.marry
     const dNaCs=nayinZizuo(dg+BZ.dayZ);
-    s3+='日柱纳音自坐'+dNaCs+'（'+((CS_MEAN_ALL[dNaCs]||{}).marry||'')+'）。';
     // 神煞与喜忌相参（吉凶神煞挂钩婚恋喜忌，与事业卡同口径）
     const _jisha=['天乙贵人','天喜','红鸾','金舆','将星','天德','月德'].filter(s=>shaMap[s]);
     const _xsha=['孤辰','寡宿','阴差阳错','红艳煞','桃花','九丑','童子'].filter(s=>shaMap[s]);
-    s3+='<br>'+shaXiJiNote(_jisha,_xsha,'婚恋多得贵助','婚缘宜守正经营','本局婚恋神煞无显著吉凶、以常缘论之');
-    sec.push('3、神煞、纳音与十二长生<br>'+s3);
+    const s3CsBody=csDay.join('；')+'。'+'日柱纳音自坐'+dNaCs+'（'+((CS_MEAN_ALL[dNaCs]||{}).marry||'')+'）。'
+      +'<br>'+shaXiJiNote(_jisha,_xsha,'婚恋多得贵助','婚缘宜守正经营','本局婚恋神煞无显著吉凶、以常缘论之');
+    const s3='神煞：'+s3ShaBody+'<br>纳音：'+s3NaBody+'<br>十二长生：'+s3CsBody;
+    sec.push('神煞、纳音与十二长生<br>'+s3);
 
     // ===== 4 六亲与婚恋特征（六亲星统计 + 婚恋特征；先正官后七杀）=====
     function cntGod(g){ return BZ.gans.filter(x=>tenGod(dg,x)===g).length; }
@@ -1673,26 +2212,38 @@ function dyNatalInto(group, BZ, A, num) {
     const _yinTouN=cntGod('正印')+cntGod('偏印');
     const _shangTouN=cntGod('食神')+cntGod('伤官');
     const _s4p=[];
-    _s4p.push('① 父母之缘：印星为母荫家教'+(yinN>0?('，命局'+yinN+'个'+(_yinTouN>0?'透干、家教传统，婚恋观多承长辈之见、宜重门风':'藏支、母荫暗藏，婚恋自主性较强、长辈意见为辅')):'缺，家教束缚少，婚恋自主性强、多凭己意')
+    _s4p.push('父母之缘：印星为母荫家教'+(yinN>0?('，命局'+yinN+'个'+(_yinTouN>0?'透干、家教传统，婚恋观多承长辈之见、宜重门风':'藏支、母荫暗藏，婚恋自主性较强、长辈意见为辅')):'缺，家教束缚少，婚恋自主性强、多凭己意')
       +'；偏财为父缘'+( _cfTou.length>0?('，透'+dedupChars(_cfTou)+'，父缘明现、择偶眼光多承父风'):'不透，父缘看支、择偶自主')+'。');
-    _s4p.push('② 兄弟手足：比劫'+_biN+'个'+( _biN>=2?'，婚恋或有同辈竞争或友介牵线，宜专一分明、防第三者之扰':'，同辈助力少争、婚恋多自主经营')+'。');
+    _s4p.push('兄弟手足：比劫'+_biN+'个'+( _biN>=2?'，婚恋或有同辈竞争或友介牵线，宜专一分明、防第三者之扰':'，同辈助力少争、婚恋多自主经营')+'。');
     if(isMale){
-      _s4p.push('③ 妻星深析：正财偏财'+(caiN>0?('命局'+caiN+'个'+(spouseTou.length>0?('、透'+spouseTou.map(o=>o.god+'于'+o.label).join('、')+'，妻缘明现、缘分主动可期'):(caiCang.length?('、'+caiCang.join('、')+'暗根，妻缘暗藏、须岁运引动方显'):'、不显，妻缘待岁运引出'))):'缺，妻缘迟现、宜晚成')+(spouseXi?'，妻星为喜用、婚姻得妻助、家道可旺':'，妻星为忌神、婚姻易为财所累、宜财务分明')+'。');
+      _s4p.push('妻星深析：正财偏财'+(caiN>0?('命局'+caiN+'个'+(spouseTou.length>0?('、透'+spouseTou.map(o=>o.god+'于'+o.label).join('、')+'，妻缘明现、缘分主动可期'):(caiCang.length?('、'+caiCang.join('、')+'暗根，妻缘暗藏、须岁运引动方显'):'、不显，妻缘待岁运引出'))):'缺，妻缘迟现、宜晚成')+(spouseXi?'，妻星为喜用、婚姻得妻助、家道可旺':'，妻星为忌神、婚姻易为财所累、宜财务分明')+'。');
     } else {
-      _s4p.push('③ 夫星深析：正官七杀'+(guanN>0?('命局'+guanN+'个'+(spouseTou.length>0?('、透'+spouseTou.map(o=>o.god+'于'+o.label).join('、')+'，夫缘明现、缘分主动显性'):(guanCang.length?('、'+guanCang.join('、')+'暗根，夫缘暗藏、须岁运引动方显'):'、不显，夫缘待岁运引出'))):'缺，夫缘迟现、宜晚成')+(spouseXi?'，官杀为喜用、婚姻得夫助、夫业可倚':'，官杀为忌神、婚姻易与名位相扰')+'。');
+      _s4p.push('夫星深析：正官七杀'+(guanN>0?('命局'+guanN+'个'+(spouseTou.length>0?('、透'+spouseTou.map(o=>o.god+'于'+o.label).join('、')+'，夫缘明现、缘分主动显性'):(guanCang.length?('、'+guanCang.join('、')+'暗根，夫缘暗藏、须岁运引动方显'):'、不显，夫缘待岁运引出'))):'缺，夫缘迟现、宜晚成')+(spouseXi?'，官杀为喜用、婚姻得夫助、夫业可倚':'，官杀为忌神、婚姻易与名位相扰')+'。');
     }
     const _s4Child=(isMale
       ? ('官杀为子女，命局'+guanN+'个'+(guanTou>0?'透干、子女缘显，与妻财相资则婚育相成':'藏支、子女缘隐现，婚育宜顺其自然'))
       : ('食伤为子女，'+(shangN>0
           ? ('命局'+shangN+'个'+(_shangTouN>0?'透干、子女缘显，与夫星相资则婚育相成':'藏支、子女缘隐现，婚育宜顺其自然'))
           : ('天干不现'+(shangCang.length?('、'+shangCang.join('、')+'（食神为女、伤官为子），子女缘隐现'):'、子女缘偏薄')))));
-    _s4p.push('④ 子女星互动：'+_s4Child+(guanN+shangN>0?'，子女与婚姻相资则婚育双美':'，子女星弱、婚姻与子女宜分阶段经营')+'。');
+    _s4p.push('子女星互动：'+_s4Child+(guanN+shangN>0?'，子女与婚姻相资则婚育双美':'，子女星弱、婚姻与子女宜分阶段经营')+'。');
     const _lateSha=(shaMap['阴差阳错']||shaMap['孤鸾'])?(shaMap['阴差阳错']&&shaMap['孤鸾']?'阴差阳错、孤鸾':(shaMap['阴差阳错']?'阴差阳错':'孤鸾')):'';
-    _s4p.push('⑤ 婚恋特征：'+(spouseXi?'配偶为助缘、婚姻可依托、宜共同经营':'配偶星非喜、婚姻宜经营少依赖、以自我立身为主')
+    _s4p.push('婚恋特征：'+(spouseXi?'配偶为助缘、婚姻可依托、宜共同经营':'配偶星非喜、婚姻宜经营少依赖、以自我立身为主')
       +(dayRel.some(r=>relTypeOf(r)==='冲')||dayRel.some(r=>relTypeOf(r)==='刑')?'；夫妻宫逢冲刑、婚恋多波折、宜多沟通':'；夫妻宫平稳、婚恋根基尚稳')
       +(_lateSha?('；带'+_lateSha+'、婚缘宜迟、宜晚婚'):'')+'。');
     const s4=_s4p.join('<br>');
-    sec.push('4、六亲与婚恋特征<br>'+s4);
+    sec.push('六亲与婚恋特征<br>'+s4);
+    /* 3 六亲与婚恋特征：行值在六亲段组装处直接出行。 */
+    const _mPM=(typeof window!=='undefined'&&window.PILLAR_MAP)||{};
+    const _mLq={
+      '父母宫':(_mPM.月柱&&_mPM.月柱.六亲宫位)?_mPM.月柱.六亲宫位.split('、')[0]:'父母宫',
+      '兄弟宫':(_mPM.月柱&&_mPM.月柱.六亲宫位)?(_mPM.月柱.六亲宫位.split('、')[1]||'兄弟宫'):'兄弟宫',
+      '子女宫':(_mPM.时柱&&_mPM.时柱.六亲宫位)?_mPM.时柱.六亲宫位.split('、')[0]:'子女宫'
+    };
+    const _mSixRows=[];
+    [[_mLq['父母宫'],_s4p[0]],[_mLq['兄弟宫'],_s4p[1]],['配偶星',_s4p[2]],[_mLq['子女宫'],_s4p[3]],['婚恋特征',_s4p[4]]].forEach(function(x){
+      const c=cardCleanCell(cardStripGeShu(cardCutYunTail(cardScl(cardStripLead(x[1])))));
+      if(c&&c.length>2) _mSixRows.push({ cells:[x[0], c] });
+    });
 
     // ===== 5 感情风险预警 =====
     const risk=[], shortc=[], falsif=[];
@@ -1721,7 +2272,15 @@ function dyNatalInto(group, BZ, A, num) {
     if(shortc.length) s5trait+='特征提示：'+shortc.join('');
     if(falsif.length) s5trait+='可证伪：'+falsif.join('');
     s5+=s5trait;
-    sec.push('5、感情风险预警<br>'+s5);
+    sec.push('感情风险预警<br>'+s5);
+    /* 4 感情风险预警：风险、特征、可证伪三组行在算出时直接出行。 */
+    const _mRiskText=cardStripTags(risk.length?risk.join(''):'本局没有明显感情凶象，顺势经营就好。');
+    const _mShortText=cardStripTags(shortc.join(''));
+    const _mFalsifText=cardStripTags(falsif.join(''));
+    const _mRiskRows=[];
+    if(_mRiskText.length>3&&!/大运|流年|流月|流日|旺运|应期|引动|触发/.test(_mRiskText)) _mRiskRows.push({ cells:['风险提示', cardCutYunTail(cardScl(_mRiskText))] });
+    if(_mShortText&&!/大运|流年|流月|流日|旺运/.test(_mShortText)) _mRiskRows.push({ cells:['特征提示', cardCutYunTail(cardScl(_mShortText))] });
+    if(_mFalsifText&&!/大运|流年/.test(_mFalsifText)) _mRiskRows.push({ cells:['可证伪', cardCutYunTail(cardScl(_mFalsifText))] });
 
     // ===== 6 婚缘机遇与择偶方向（选择） =====
     // ① 婚缘触发条件（多种触发路径并存：神煞临运、夫妻宫动、流年引星、喜用到位，任一满足皆可为婚缘之机，非独看配偶星一途）
@@ -1732,10 +2291,10 @@ function dyNatalInto(group, BZ, A, num) {
     else trig.push('流年见'+(isMale?'财星':'官杀')+'、日干合流年，配偶星得引而缘动');
     if(dayRel.some(r=>relTypeOf(r)==='冲')||dayRel.some(r=>relTypeOf(r)==='合')) trig.push('夫妻宫逢冲合，宫位一动则缘易成');
     trig.push('<span class="tip sha-ji">喜用</span>大运流年到位，根基顺而缘易结');
-    let s6='① 婚缘触发条件：'+trig.join('；')+'。以上诸般（神煞临运、夫妻宫动、流年引星、喜用到位）任一项满足，皆可为婚缘之机，非独看配偶星一途。';
+    let s6='婚缘触发条件：'+trig.join('；')+'。以上诸般（神煞临运、夫妻宫动、流年引星、喜用到位）任一项满足，皆可为婚缘之机，非独看配偶星一途。';
     // ② 择偶方向（气质原则化 + 方位聚焦配偶星五行 + 与事业方向关系）
     const zhiXing={子:'机敏多动',丑:'沉稳内敛',寅:'积极开拓',卯:'细腻善思',辰:'多面善变',巳:'热情外显',午:'刚烈直率',未:'温和包容',申:'聪慧机变',酉:'精致追求完美',戌:'忠诚坚毅',亥:'浪漫随性'};
-    let s6b='② 择偶方向：';
+    let s6b='择偶方向：';
     s6b+='配偶气质倾向：日支'+BZ.dayZ+'（'+(zhiXing[BZ.dayZ]||'平和')+'），相处适合'
         + (godClass(spouse)==='食伤'?'多包容、不要苛求'
           : godClass(spouse)==='比劫'?'明算账、防止争执'
@@ -1777,13 +2336,109 @@ function dyNatalInto(group, BZ, A, num) {
     const yi=yiRaw.map(zname);
     const jiRaw=[...new Set([].concat(chong,hai,po,xing))].filter(z=>!yiRaw.includes(z));
     const ji=jiRaw.map(zname); if(selfXing) ji.push(zname(yz)+'自刑');
-    let s6c='③ 属相婚配宜忌：年支'+yz+ZODIAC[yz]+'。'
+    let s6c='属相婚配宜忌：年支'+yz+ZODIAC[yz]+'。'
           + '宜：'+(yi.length?yi.join('、'):'无明显三合六合')+'（三合、六合，气场相合）。'
           + '忌：'+(ji.length?ji.join('、'):'无明显冲害破刑')+'（六冲、六害、六破、三刑，气场相抵）。'
           + '属相只是年支一个字，需要结合全局和日主喜忌一起看，不是绝对因素。';
     // ④ 免责说明（删"不是X、桃花一方面能决定"复述句）
-    let s6d='④ 婚缘和择偶不是'+(isMale?'财星':'官杀')+'成势、桃花旺就能决定。'+(isMale?'财星':'官杀')+'为<span class="tip sha-ji">喜用</span>、又逢<span class="tip sha-ji">喜用</span>运会更顺；'+(isMale?'财星':'官杀')+'<span class="tip sha-xiong">为忌</span>，如果所主十神成势、或被<span class="tip sha-ji">喜用</span>转化、或遇到去病之运，也可以是好缘分。';
-    sec.push('6、婚缘机遇与择偶方向<br>'+s6+'<br>'+s6b+'<br>'+s6c+'<br>'+s6d+ dyNatalInto('婚姻感情', BZ, A, '⑤'));
+    let s6d='婚缘和择偶不是'+(isMale?'财星':'官杀')+'成势、桃花旺就能决定。'+(isMale?'财星':'官杀')+'为<span class="tip sha-ji">喜用</span>、又逢<span class="tip sha-ji">喜用</span>运会更顺；'+(isMale?'财星':'官杀')+'<span class="tip sha-xiong">为忌</span>，如果所主十神成势、或被<span class="tip sha-ji">喜用</span>转化、或遇到去病之运，也可以是好缘分。';
+    const s6dy=dyNatalInto('婚姻感情', BZ, A);
+    sec.push('婚缘机遇与择偶方向<br>'+s6+'<br>'+s6b+'<br>'+s6c+'<br>'+s6d+s6dy);
+    /* 5.1 婚缘机遇与择偶方向：触发、方向、属相三行在算出时直接出行。 */
+    const _mZeRows=[];
+    const _mChufa=cardScl(cardStripLead(cardStripTags(s6)));
+    if(_mChufa) _mZeRows.push({ cells:['婚缘触发', _mChufa] });
+    const _mZhiFang={'子':'正北','丑':'东北','寅':'东北','卯':'正东','辰':'东南','巳':'东南','午':'正南','未':'西南','申':'西南','酉':'正西','戌':'西北','亥':'西北'};
+    const _mGanFang={'甲':'东','乙':'东','丙':'南','丁':'南','戊':'中央','己':'中央','庚':'西','辛':'西','壬':'北','癸':'北'};
+    const _mFangChong={'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'};
+    const _mMonthJian=['','寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'];
+    const _mGongWeiFa=function(BZ, isMale){
+      const want=isMale?['正财','偏财']:['正官','七杀'];
+      for(let i=0;i<4;i++){
+        if(i===2) continue;
+        const g=BZ.gans[i];
+        if(!g) continue;
+        const t=tenGod(BZ.dayGan,g);
+        if(want.indexOf(t)>=0) return { star:t, pos:['年柱','月柱','时柱'][i<2?i:2], zhi:BZ.zhis[i], fang:_mZhiFang[BZ.zhis[i]], ganFang:_mGanFang[g] };
+      }
+      for(let i=0;i<4;i++){
+        const z=BZ.zhis[i];
+        if(!z) continue;
+        const hid=HIDE[z]||[];
+        for(let k=0;k<hid.length;k++){
+          const t=tenGod(BZ.dayGan,hid[k]);
+          if(want.indexOf(t)>=0) return { star:t, pos:['年支','月支','日支','时支'][i], zhi:z, fang:_mZhiFang[z], cang:['本气','中气','余气'][k], cangGan:hid[k] };
+        }
+      }
+      const dz=BZ.dayZ||BZ.zhis[2];
+      if(dz) return { star:'', pos:'夫妻宫', zhi:dz, fang:_mZhiFang[dz] };
+      return null;
+    };
+    const _mZeOuBiaoFa=function(BZ){
+      const L=BZ.lunar;
+      if(!L) return null;
+      const m=Math.abs(L.getMonth()||0), d=L.getDay()||0;
+      if(!m||!d) return null;
+      const start=_mMonthJian[m];
+      if(!start) return null;
+      const Z='子丑寅卯辰巳午未申酉戌亥';
+      const idx=(Z.indexOf(start)+d-1)%12;
+      const luo=Z[idx], cz=_mFangChong[luo];
+      return { month:m, day:d, start:start, luo:luo, fang:_mZhiFang[luo], chongZhi:cz, chongFang:_mZhiFang[cz] };
+    };
+    const _mZ1=cardStripTags(s6b);
+    let _mZeDir='';
+    const _mZ1t=_mZ1?cardCutYunTail(cardScl(cardStripLead(_mZ1))):'';
+    const _mFzIdx=_mZ1t.indexOf('发展方位');
+    const _mQi=(_mZ1t&&_mFzIdx>0? _mZ1t.slice(0,_mFzIdx) : _mZ1t).replace(/[。；\s]+$/,'').replace(/^配偶气质倾向：/,'').trim();
+    if(_mQi) _mZeDir+='配偶气质倾向：'+_mQi+'。';
+    const _mGw=_mGongWeiFa(BZ,isMale), _mZb=_mZeOuBiaoFa(BZ);
+    const _mMg=mingGua(BZ.birthYear,isMale);
+    const _mFzTxt=(_mZ1t&&_mFzIdx>=0)? _mZ1t.slice(_mFzIdx).replace(/^发展方位：/,'').replace(/[。；\s]+$/,'').trim() : '';
+    const _mMgIdx=_mFzTxt?_mFzTxt.indexOf('八宅命卦法'):-1;
+    const _mFzXi=(_mMgIdx>0)?_mFzTxt.slice(0,_mMgIdx).replace(/[。；\s]+$/,'').trim():_mFzTxt;
+    const _mFzMg=(_mMgIdx>=0)?_mFzTxt.slice(_mMgIdx).replace(/[。；\s]+$/,'').trim():'';
+    if(_mFzXi||_mFzMg||_mGw||_mZb){
+      if(_mFzXi) _mZeDir+='喜忌法：'+_mFzXi+'。';
+      if(_mFzMg) _mZeDir+=_mFzMg+'。';
+      if(_mGw){
+        const _mPosNote={'年柱':'主远方之缘、多经长辈牵线','月柱':'主同辈社交圈、中距之缘','时柱':'主晚缘或近处之缘','年支':'主远方之缘、多经长辈牵线','月支':'主同辈社交圈、中距之缘','日支':'主近处之缘、宫星同位','时支':'主晚缘或近处之缘','夫妻宫':'宫星同位、主近处之缘'}[_mGw.pos]||'';
+        const _mGzTxt=_mGw.cang
+          ? ('本命'+_mGw.pos+_mGw.zhi+'藏'+_mGw.cang+_mGw.cangGan+'为'+_mGw.star+'，'+_mGw.zhi+'（'+_mGw.fang+'）')
+          : (_mGw.pos==='夫妻宫'
+              ? ('本命夫妻星均不现，取夫妻宫'+_mGw.zhi+'（'+_mGw.fang+'）')
+              : ('本命'+_mGw.star+'透于'+_mGw.pos+'天干，坐支'+_mGw.zhi+'（'+_mGw.fang+'）'+(_mGw.ganFang&&_mGw.ganFang!=='中央'?'，天干所主'+_mGw.ganFang+'方为辅':'')));
+        _mZeDir+='宫位法：'+_mGzTxt+'，主配偶方位在'+_mGw.fang+'，'+_mPosNote+'。';
+      }
+      if(_mZb) _mZeDir+='择偶方向表法：本命农历'+_mZb.month+'月'+_mZb.day+'日，配偶可能方位为'+_mZb.fang+'或'+_mZb.chongFang+'。';
+      if(_mGw&&_mZb){
+        const _mZWx=ZHI_WX[_mGw.zhi]||'';
+        const _mSt=function(wx){ return fuXi.indexOf(wx)>=0?'喜':(fuJi.indexOf(wx)>=0?'忌':'平'); };
+        const _mGSt=_mSt(_mZWx);
+        const _mSame=(_mGw.fang===_mZb.fang||_mGw.fang===_mZb.chongFang);
+        const _mDirs=['正北','东北','正东','东南','正南','西南','正西','西北'];
+        const _mDI=function(f){ return _mDirs.indexOf(f); };
+        const _mNear=function(a,b){ const i=_mDI(a), j=_mDI(b); return i>=0&&j>=0&&((i+1)%8===j||(j+1)%8===i); };
+        const _mNearF=!_mSame&&(_mNear(_mGw.fang,_mZb.fang)||_mNear(_mGw.fang,_mZb.chongFang));
+        const _mGwDong=['正北','正东','东南','正南'].indexOf(_mGw.fang)>=0;
+        const _mMgFang=_mMg.dong?['正北','正东','东南','正南']:['西北','西南','东北','正西'];
+        const _mGwInMg=_mMgFang.indexOf(_mGw.fang)>=0;
+        let _mZ='四法相参：';
+        if(_mGSt==='喜') _mZ+='喜忌法，'+_mGw.fang+'属'+_mZWx+'为喜用，可安心于此方求缘。';
+        else if(_mGSt==='忌') _mZ+='喜忌法，'+_mGw.fang+'属'+_mZWx+'为忌，宜以喜用方位调和转化。';
+        else _mZ+='喜忌法，'+_mGw.fang+'属'+_mZWx+'喜忌不明显。';
+        _mZ+='八宅命卦法，本命'+_mMg.group+'宜'+(_mMg.dong?'东四宅':'西四宅')+'，与宫位法'+_mGw.fang+'（'+(_mGwDong?'东四':'西四')+'）'+(_mGwInMg?'同向互证':'取向不同、并行不悖')+'。';
+        _mZ+='宫位法，主'+_mGw.fang+'、方向唯一，配偶方位以'+_mGw.fang+'为要。';
+        if(_mSame) _mZ+='择偶方向表法，落'+_mZb.fang+'或'+_mZb.chongFang+'，与宫位法同向互证。';
+        else if(_mNearF) _mZ+='择偶方向表法，落'+_mZb.fang+'或'+_mZb.chongFang+'，与宫位法相近互证。';
+        else _mZ+='择偶方向表法，落'+_mZb.fang+'或'+_mZb.chongFang+'，与宫位法未互证、作备选。';
+        _mZeDir+=_mZ;
+      }
+    }
+    if(_mZeDir&&_mZeDir.length>2) _mZeRows.push({ cells:['择偶方向', _mZeDir] });
+    const _mZ2=cardCutYunTail(cardScl(cardStripLead(cardStripTags(s6c))));
+    if(_mZ2) _mZeRows.push({ cells:['属相宜忌', _mZ2] });
+    const _mZeNote=cardScl(cardStripTags(s6d));
 
     // ===== 7 感情质量层级（收获，最后） =====
     // 判定与表述分离：v 内部算层级，p 为面向读者的直接陈述句
@@ -1838,7 +2493,7 @@ function dyNatalInto(group, BZ, A, num) {
     if(sk['宫动静'].v==='low') needItems.push('夫妻宫安稳');
     if(hk[sp].v==='low') needItems.push(spXiName+'<span class="tip sha-xiong">为忌</span>');
     if(ik['日支相契'].v==='low') needItems.push('日支为<span class="tip sha-ji">喜用</span>');
-    // 感情专一/复杂度小结（中性措辞，不贴道德标签；数据驱动，折叠进"综合判定"句首）
+    // 感情专一、复杂度小结（中性措辞，不贴道德标签；数据驱动，折叠进"综合判定"句首）
     const pianStar = spLocs.some(o=>o.god===spouseStar[1]);
     let cmx;
     if(!pianStar && huaWai.length===0 && sk['宫动静'].v==='hit'){
@@ -1852,11 +2507,11 @@ function dyNatalInto(group, BZ, A, num) {
     }
     s7+='<br>综合判定：'+cmx+'。感情质量可期（综合稳定、和谐、亲密三维度叠加，层级互有高低，任一维度成势都能弥补）。'
        + (needItems.length?('感情所赖'+needItems.join('、')+'等项原局不足或为忌，需要多重条件齐备才能达到，不是原局自带，而是五层叠加。'):'原局已有基础，仍需要以下条件叠加才能达到上限。');
-    s7+='<br>① 原局潜力层级：稳定'+slv+'、和谐'+hlv+'、亲密'+ilv+'，综合以'+dom[0]+'维度为主导（同档稳定优先）。';
-    s7+='<br>② 大运流年引动：逢<span class="tip sha-ji">喜用</span>旺运更顺'+(spouseXi?('，'+(isMale?'财星':'官杀')+'为<span class="tip sha-ji">喜用</span>、逢其旺运缘更顺'):spouseJi?('，'+(isMale?'财星':'官杀')+'为<span class="tip sha-xiong">忌神</span>则须等到去病之运、或所主十神成势才是转机'):'，'+(isMale?'财星':'官杀')+'与喜忌无涉、逢其旺运平顺')+'。';
-    s7+='<br>③ 风水合局（外部条件：居所方位、布局合<span class="tip sha-ji">喜用</span>）。';
-    s7+='<br>④ 社会时代机遇（外部条件：家庭背景、社交圈层、时代婚恋观念）。';
-    s7+='<br>⑤ 个人经营主观能动性（内在条件：沟通修为、情绪管理、界限分明、长期投入；命理示质量上限与路径，经营决定最终落点）。';
+    s7+='<br>原局潜力层级：稳定'+slv+'、和谐'+hlv+'、亲密'+ilv+'，综合以'+dom[0]+'维度为主导（同档稳定优先）。';
+    s7+='<br>大运流年引动：逢<span class="tip sha-ji">喜用</span>旺运更顺'+(spouseXi?('，'+(isMale?'财星':'官杀')+'为<span class="tip sha-ji">喜用</span>、逢其旺运缘更顺'):spouseJi?('，'+(isMale?'财星':'官杀')+'为<span class="tip sha-xiong">忌神</span>则须等到去病之运、或所主十神成势才是转机'):'，'+(isMale?'财星':'官杀')+'与喜忌无涉、逢其旺运平顺')+'。';
+    s7+='<br>风水合局（外部条件：居所方位、布局合<span class="tip sha-ji">喜用</span>）。';
+    s7+='<br>社会时代（外部条件：家庭背景、社交圈层、时代婚恋观念）。';
+    s7+='<br>个人经营（内在条件：沟通修为、情绪管理、界限分明、长期投入；命理示质量上限与路径，经营决定最终落点）。';
     // 收尾：合成一段（数据驱动，按命局分流建议，侧重婚姻感情，不写死）
     const seatOk = sk['宫动静'].v==='hit' && hk['宫争合'].v==='hit';
     const spOk = hk[sp].v==='hit';
@@ -1865,8 +2520,47 @@ function dyNatalInto(group, BZ, A, num) {
     else if(hlv==='高') marryPath='相处宜和顺、以沟通滋养、顺势修和';
     else if(ilv==='高') marryPath='情缘相投、宜以情意加深亲密';
     else marryPath='宜多沟通、彼此留空间、长期经营，待岁运引动方成';
-    s7+='<br>五者齐备，感情基础才能充分兑现，也更有向上提升的空间。'+marryPath+'；然若得正缘相引、遇良人同心，亦未尝不可更进一层、白头相守。相同八字，姻缘未必相同，后天择偶与经营必定导致差异。';
-    sec.push('7、感情质量层级<br>'+s7);
+    const marryCloseVal='五者齐备，感情基础才能充分兑现，也更有向上提升的空间。'+marryPath+'；然若得正缘相引、遇良人同心，亦未尝不可更进一层、白头相守。相同八字，姻缘未必相同，后天择偶与经营必定导致差异。';
+    s7+='<br>'+marryCloseVal;
+    sec.push('感情质量层级<br>'+s7);
+
+    const marryModel=[
+      { title:'本命基调', rows:[
+        { label:'本命基调', value:s1 }
+      ] },
+      { title:'配偶星与夫妻宫', heads:['项目','判定'], rows:_mSpouseRows },
+      { title:'神煞、纳音与十二长生', heads:['分类','名称','内容'], rows:
+        cardShaRows(BZ,'marry').map(function(r){ return { cells:['神煞', r[0], r[1]] }; })
+        .concat(cardNayinRelRows(BZ,'marry',[2]).map(function(r){ return { cells:['纳音', r[0], r[1]] }; }))
+        .concat(cardChangShengRows(BZ,'marry').map(function(r){ return { cells:['十二长生', r[0], r[1]] }; }))
+      },
+      { title:'六亲与婚恋特征', heads:['六亲','状态与作用'], rows:_mSixRows },
+      { title:'感情风险预警', heads:['分类','提示'], rows:_mRiskRows },
+      { title:'婚缘机遇与择偶方向', heads:['项目','内容'], rows:_mZeRows },
+      { title:'婚缘说明补注', heads:['补注'], rows:_mZeNote?[{ cells:[_mZeNote+'。'] }]:[] },
+      { title:'古籍断语', heads:['断语','出处'], rows:dyRowList('婚姻感情', BZ, A) },
+      { title:'感情质量层级', heads:['维度','层级','说明'], rows:(function(){
+        const sc={低:1,'待运':1.5,中:2,高:3};
+        let t=0,w=0;
+        [['稳定',slv],['和谐',hlv],['亲密',ilv]].forEach(function(o){
+          const ww=(o[0]===dom[0])?0.5:0.25; t+=(sc[o[1]]||1)*ww; w+=ww;
+        });
+        const tot=w?(t/w>=2.6?'高':t/w>=1.7?'中':'低'):'';
+        return [
+          { cells:['稳定度', slv, Object.keys(sk).map(function(k){ return sk[k].p; }).join('。')+'。'] },
+          { cells:['和谐度', hlv, Object.keys(hk).map(function(k){ return hk[k].p; }).join('。')+'。'] },
+          { cells:['亲密度', ilv, Object.keys(ik).map(function(k){ return ik[k].p; }).join('。')+'。'] },
+          { cells:['综合判定', tot, cmx+'。感情质量可期（综合稳定、和谐、亲密三维度叠加，层级互有高低，任一维度成势都能弥补）。'+(needItems.length?('感情所赖'+needItems.join('、')+'等项原局不足或为忌，需要多重条件齐备才能达到，不是原局自带，而是五层叠加。'):'原局已有基础，仍需要以下条件叠加才能达到上限。')] },
+          { cells:['原局潜力', tot, '稳定'+slv+'、和谐'+hlv+'、亲密'+ilv+'，综合以'+dom[0]+'维度为主导（同档稳定优先）。'] },
+          { cells:['大运流年', '外部', '逢<span class="tip sha-ji">喜用</span>旺运更顺'+(spouseXi?('，'+(isMale?'财星':'官杀')+'为<span class="tip sha-ji">喜用</span>、逢其旺运缘更顺'):spouseJi?('，'+(isMale?'财星':'官杀')+'为<span class="tip sha-xiong">忌神</span>则须等到去病之运、或所主十神成势才是转机'):'，'+(isMale?'财星':'官杀')+'与喜忌无涉、逢其旺运平顺')+'。'] },
+          { cells:['风水合局', '外部', '居所方位、布局合<span class="tip sha-ji">喜用</span>。'] },
+          { cells:['社会时代', '外部', '家庭背景、社交圈层、时代婚恋观念。'] },
+          { cells:['个人经营', '内在', '沟通修为、情绪管理、界限分明、长期投入；命理示质量上限与路径，经营决定最终落点。'] },
+          { cells:['总体取向', '', marryCloseVal] }
+        ];
+      })() }
+    ].map(s=>({ title:s.title, heads:s.heads, rows:s.rows.filter(r=>r&&(r.cells||(r.value!==''&&r.value!=null))) }));
+    baziCardModelPublish('marry', marryModel);
 
     return sec;
   }
@@ -1882,7 +2576,7 @@ function dyNatalInto(group, BZ, A, num) {
 /* 十神简称映射：全称→单字（与问真等工具一致，节省卡片空间）；必须在 renderChrome 触发排盘前定义 */
 const TG_ABBR={'比肩':'比','劫财':'劫','食神':'食','伤官':'伤','偏财':'才','正财':'财','七杀':'杀','正官':'官','偏印':'枭','正印':'印'};
 function tgAbbr(n){ return n? (TG_ABBR[n]||n) : ''; }
-/* 卡片式信息：返回 干支 / 天干十神简称 / 地支十神简称（本气）/ 十二运，统一供大运，流年，流月，流日 方块使用 */
+/* 卡片式信息：返回 干支、天干十神简称、地支十神简称（本气）/ 十二运，统一供大运，流年，流月，流日 方块使用 */
 function gzInfo(gz, BZ = window.BZ){ if(!gz||gz.length<2) return {g:'',tg:'',tz:'',cs:''}; const tg=tgAbbr(tenGod(BZ.dayGan,gz[0])); const z=gz[1]; const tz=z?tgAbbr(tenGod(BZ.dayGan,zhiMain(z))):''; const cs=z?getChangSheng(BZ.dayGan,z):''; return {g:gz,tg,tz,cs}; }
 /* 十二长生“死”与旺相休囚死“死”同字，DICT 后写覆盖；为十二长生弹出单独起键，避免误弹旺相休囚死释义 */
 function csKey(s){ return s==='死' ? '死（长生）' : s; }
@@ -1892,7 +2586,7 @@ const ZHI_LAB=['年','月','日','时'];
 /* 神煞吉凶权重表由 bazi-rel.js（REL.sha.WEIGHT）提供。 */
 /* 运势图 rAF 节流状态（见 drawYunChart 包装器），置于 paipan() 调用之前避免 TDZ。 */
 let _yunChartRAF=null, _yunChartPending=false;
-/* 环境兼容：部分容器（如 jsdom 测试 / 旧浏览器）没有 requestAnimationFrame，
+/* 环境兼容：部分容器（如 jsdom 测试、旧浏览器）没有 requestAnimationFrame，
  * 统一走 _raf 包装，缺失时降级为 setTimeout(cb,0)，避免页面初始化抛错中断后续脚本。 */
 const _raf=(typeof requestAnimationFrame==='function')
   ? requestAnimationFrame.bind(window)
@@ -1917,7 +2611,7 @@ function clearFormErr(){ const el=document.getElementById('formErr'); if(el){ el
 /* 单一真源：本页所有可变单例状态集中于此。 */
 const BaziState = {
   BZ: null,               // 当前排盘结果（见 baziAnalysis）
-  CTX: null,              // 十神/干支上下文（paipan / paipanPillar 写入）
+  CTX: null,              // 十神、干支上下文（paipan / paipanPillar 写入）
   kongAxis: 'day',        // 空亡基准轴：'day'=日柱六甲空亡（默认）/ 'year'=年柱十大空亡（部分流派）
   qiYunSect: 1,           // 起运法：1 时辰折算（按整日加时辰档取整）/ 2 分钟折算（按实际分钟连续折算）
   changShengSect: 1,      // 十二长生土行从属：1 火土同宫（戊随丙、己随丁）/ 2 水土同宫（土随壬，长生在申）
@@ -1995,9 +2689,9 @@ function qiYunSectNote(BZ){
 }
 
 /* 顶层渲染函数：根据 paipan 算好的 BZ 与上下文 R 构建八字页主体 HTML 字符串。
-   独立为可复用渲染函数，便于按需复用 / 局部刷新 / 单元测试，避免巨型字符串堆积。
+   独立为可复用渲染函数，便于按需复用、局部刷新、单元测试，避免巨型字符串堆积。
    R 字段：{mode,y,m,d,h,mi,lng,sunMode,raw,std,tsInfo,ziNote,dstNote,axisNote,lunar,pj,nj,sex,dayGan,cols,ec} */
-/* 速览全局：命局关键结论（日主 / 格局 / 喜用 / 身强身弱 / 旺衰评分），并入基础信息字段流。
+/* 速览全局：命局关键结论（日主、格局、喜用、身强身弱、旺衰评分），并入基础信息字段流。
    输出 .bz-info 内的条目（.bz-i），不再自成一个卡片。五行字交给 gzAllColorSpan 统一上色，不在此处手动包 span。 */
 function renderOverview(BZ, yd){
   if(!BZ) return '';
@@ -2006,7 +2700,7 @@ function renderOverview(BZ, yd){
   if(!A) return '';
   const dg=BZ.dayGan, dwx=GAN_WX[dg]||'';
   const ge=(A.geOuter||A.geName||'普通格');
-  // 喜用统一读综合/顺势口径（synthesis）：普通格=扶抑、特殊格=顺势，与"岁运宜见/忌见"、格局用神一致，防特殊格盘两套喜忌并存
+  // 喜用统一读综合、顺势口径（synthesis）：普通格=扶抑、特殊格=顺势，与"岁运宜见、忌见"、格局用神一致，防特殊格盘两套喜忌并存
   const xi=(A.synthesis&&A.synthesis.xiWxEff&&A.synthesis.xiWxEff.length)?A.synthesis.xiWxEff.join('、'):((A.xiWx&&A.xiWx.length)?A.xiWx.join('、'):'无');
   const strength=A.strength||'无';
   const score=(typeof A.score==='number')?A.score.toFixed(1):'无';
@@ -2207,7 +2901,7 @@ function bzWheelPick(rootId, i){
      date 专属: y,m,d,h,mi,lng,sunMode,raw,std,tsInfo,ziNote,dstNote,axisNote,lunar,pj,nj,ec
      pillar 专属: yg,yz,mg,mz,dg,dz,tg,tz, hasDate, isBC, pillarChosenDate, span, candYears,
                  lunar,pj,nj,ec,y,m,d（hasDate 时才有值，否则为 null）
-   本函数内按 mode 处理 ts-box / 候选确认面板 / 历史年 sub-note / 农历节气信息格 / BZ.meta / 运势分支。 */
+   本函数内按 mode 处理 ts-box / 候选确认面板、历史年 sub-note / 农历节气信息格 / BZ.meta / 运势分支。 */
 
 /* ts-box 两处措辞的境外口径（标准时间括注、出生地经度）：
    ① 标准时间括注：基准子午线为东经 120 度（东八区，境内缺省）写“北京时间”，
@@ -2252,7 +2946,7 @@ function renderBaziPage(R, BZ = window.BZ){
   let html='';
   // ===== 四大模块 head 八卦图标 =====
   // 卦符来源有定规，不得随意改动字面量或重新分配：① 基础信息 base = 按命主性别取 男乾☰/女坤☷（性别而非日主阴阳）；
-  // ② 本命分析 life / 人生议题 yiti = 终身卦本卦（benInfo）的 下卦/上卦 符号；③ 易理象数 yili / 运势分析 yun = 终身卦变卦（bianInfo，本卦之变）的 下卦/上卦 符号；
+  // ② 本命分析 life / 人生议题 yiti = 终身卦本卦（benInfo）的 下卦、上卦 符号；③ 易理象数 yili / 运势分析 yun = 终身卦变卦（bianInfo，本卦之变）的 下卦、上卦 符号；
   // 终身卦算不出时回退默认卦象，不阻塞渲染；结果挂 window._guaIcons 供 bazi.html 生成人生议题头复用，保证四模块一致。
   const _gua = { base:(BZ.sex===1||BZ.sex==='男'||BZ.sex===true)?'☰':'☷', life:'☳', yiti:'☴', yun:'☳', yili:'☶' };
   try{
@@ -2283,7 +2977,7 @@ function renderBaziPage(R, BZ = window.BZ){
   if(mode==='pillar'){
     const {yg,yz,mg,mz,dg,dz,tg,tz,hasDate,pillarChosenDate,lunar}=R;
     const four=(g,z)=>wxSpan(g)+wxSpan(z);
-    /* 选定日期后 ts-box 摘要行：直接调confirm面板同款农历（lunarYearLabel+月/日中文字），
+    /* 选定日期后 ts-box 摘要行：直接调confirm面板同款农历（lunarYearLabel+月、日中文字），
        显示“公历年月日 时支 农历”，复用一个数据源，不再另拼。 */
     const birth= hasDate
       ? ('。出生时间：'+ (function(){ const p=parseAstroDate(pillarChosenDate); const ay=p[0],m=p[1],d=p[2]; const yLabel=ay<=0?('公元前 '+(1-ay)+' 年'):(ay+' 年'); const lStr=(lunar&&typeof lunar.getMonthInChinese==='function')?(lunarYearLabel(lunar, ay>=0?ay:1)+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()):''; return yLabel+m+'月'+d+'日 '+tz+'时'+(lStr?' '+lStr:''); })())
@@ -2407,7 +3101,7 @@ function renderBaziPage(R, BZ = window.BZ){
   const cnt2=wxCountAll(BZ.gans, BZ.zhis);
   BZ.wxCnt=cnt; BZ.wxCntAll=cnt2;
   const wx=wangXiang(monthZ);
-  // ===== 量化四柱（置于本命分析内最前：先观阴阳（阴阳五行量化+阴阳论命补充说明）、再五行（五行量化与旺衰），合《滴天髓》"先观帝载"；与干支关系顺序对调）=====
+  // ===== 量化四柱（置于本命分析内最前：先观阴阳，阴阳五行量化与阴阳论命补充说明；再五行，五行量化与旺衰。合《滴天髓》"先观帝载"；与干支关系顺序对调）=====
   // 原四表已合为一张量化四柱圆盘（旁列十二长生盘），开放置于本段首，与老黄历、佛历的盘位同例。
   html+=renderQuantify(BZ, cnt, cnt2, wx, monthZ);
   // 双盘模式：对比盘量化四柱圆盘与十二长生盘紧跟主盘两盘（同一渲染件，ID 加盘别后缀防撞）
@@ -2442,7 +3136,7 @@ function renderBaziPage(R, BZ = window.BZ){
   html+=renderAnalysis(BZ, shenshaSummary, cols);
   // 纳音分析
   html+=renderNayinModule(cols, dayGan);
-  // 核心解读：命局断事 / 称骨 / 十神定位 / 事业财运，婚姻感情，性格健康，家庭子女
+  // 核心解读：命局断事、称骨、十神定位、事业财运，婚姻感情，性格健康，家庭子女
   html+=renderCoreAnalysis(BZ);
   html+=renderRemedy(BZ);
   html+=`</div></section>`;
@@ -2460,7 +3154,7 @@ function renderBaziPage(R, BZ = window.BZ){
   } else if(mode==='pillar' && !R.hasDate){
     html+=renderPillarDaYun(BZ);
   } else {
-    // 日期模式 / 四柱模式已确认且公元后：完整岁运引动 + 大运流年 + 一生曲线
+    // 日期模式、四柱模式已确认且公元后：完整岁运引动 + 大运流年 + 一生曲线
     html+=renderYunDong(BZ, _Ayd, _yd);
     html+=renderYunEventFixed(BZ, _Ayd, _yd);
     html+=`<h3 class="rel-title">运程推演</h3><div class="dyn" id="dyn"></div>`;
@@ -2536,7 +3230,7 @@ function astroToHist(a){ return a<=0 ? a-1 : a; }
 function fmtHistYear(h){ return h<0 ? '公元前 '+(-h)+' 年' : h+' 年'; }
 /* 天文年日期串（如 -99-01-01，注意前导负号）→ [年,月,日] 数组。
    不能用 dt.split('-')：负年串 "-2691-01-01" 会被拆成 ['','2691','01','01']（年份为空、月份变 2691）。
-   用正则正确识别前导负号，否则 BC 日期在 Solar.fromYmd / 还原 / 显示处全部错位。 */
+   用正则正确识别前导负号，否则 BC 日期在 Solar.fromYmd / 还原、显示处全部错位。 */
 function parseAstroDate(dt){
   const m=String(dt).match(/^(-?\d+)-(\d+)-(\d+)$/);
   return m ? [+m[1], +m[2], +m[3]] : [NaN,NaN,NaN];
@@ -2548,13 +3242,13 @@ function fmtAstroDate(dt){
   return yLabel+m+'月'+d+'日';
 }
 
-/* 单柱整体倾向：由十神喜忌 / 五行喜用 / 格局用神 综合得出（神煞与十神已在“所选干支详情”小模块呈现，此处仅给结论） */
+/* 单柱整体倾向：由十神喜忌、五行喜用、格局用神 综合得出（神煞与十神已在“所选干支详情”小模块呈现，此处仅给结论） */
 function duanVerdict(gz, lvl, BZ){
   if(!gz||gz.length<2) return '平顺';
   const A=getAnalysis(BZ);
   const dg=BZ.dayGan, g=gz[0], z=gz[1];
   const tg=tenGod(dg,g), tz=tenGod(dg,zhiMain(z));
-  // 有效喜忌十神类（synthesis 优先，特殊格=顺势；剥去“（生）”类标注后与 shenCat 类名匹配）
+  // 有效喜忌十神类（synthesis 优先，特殊格=顺势；剥去“生”一类标注后与 shenCat 类名匹配）
   const effCats=(cats)=>(cats||[]).map(s=>String(s).replace(/（.*?）/g,''));
   const xiSet=new Set(effCats(A.synthesis&&A.synthesis.xiCatsEff).length?effCats(A.synthesis.xiCatsEff):(A.fu.xiCats||[]));
   const jiSet=new Set(effCats(A.synthesis&&A.synthesis.jiCatsEff).length?effCats(A.synthesis.jiCatsEff):(A.fu.jiCats||[]));
@@ -2569,9 +3263,9 @@ function duanVerdict(gz, lvl, BZ){
   if(jiWx.indexOf(GAN_WX[g])>=0||jiWx.indexOf(GAN_WX[zhiMain(z)])>=0) verdict='多有波折';
   return verdict;
 }
-/* 财富量级三档分层：身强财旺可任大财 / 身财两停中财 / 财多身弱或财为忌防破耗
+/* 财富量级三档分层：身强财旺可任大财、身财两停中财、财多身弱或财为忌防破耗
  * 判据：财星能量占比（_caiPct）+ 日主强弱（strong/weak）+ 财星五行喜忌
- * 外格（专旺/从格/化气）不入扶抑：喜忌顺势，喜用则任、忌则顺其势避其逆，绝不提"借印比扶身"（外格忌扶身） */
+ * 外格（专旺、从格、化气）不入扶抑：喜忌顺势，喜用则任、忌则顺其势避其逆，绝不提"借印比扶身"（外格忌扶身） */
 function _caiWealthTier(_caiPct, strong, weak, _xiWx, _jiWx, wealthWx, dwx, A){
   const caiXi=geWxXi(wealthWx,A), caiJi=geWxJi(wealthWx,A);
   if(geGeMode(A).isOuter) return '财星'+(caiXi?'为<span class="tip sha-ji">从喜</span>、合其从势，财运顺应而达':caiJi?'为<span class="tip sha-xiong">从忌</span>、宜避其逆、不以财论命':'与格局喜忌无涉、以常趋避');
@@ -2605,7 +3299,7 @@ function _guanTier(_killPct, strong, weak, _xiWx, _jiWx, killWx, A){
     if(strong||killXi) return '官杀有力且身强（或为喜用）可任，有权位之资、宜稳扎渐进';
     return '官杀有力而身弱，官星难任、须借印比扶身待运';
   }
-  // 官杀弱/不现：与前文"官杀不现/须待岁运引出"呼应，不再重述占比（不现即近0%，占比是废话）、去空泛量级词
+  // 官杀弱、不现：与前文"官杀不现、须待岁运引出"呼应，不再重述占比（不现即近0%，占比是废话）、去空泛量级词
   return '权位之象不显'+(killXi?'、然官杀为<span class="tip sha-ji">喜用</span>，宜逢官杀旺运引动以显名位':'、宜以专长立身');
 }
 /* 命局断事：以全局十神旺衰、神煞、特殊格局、结构病药综合推断一生易发之事 */
@@ -2613,7 +3307,7 @@ function duanShiMingJu(BZ){
   const A=getAnalysis(BZ);
   const dg=BZ.dayGan, dwx=GAN_WX[dg];
   const ss=ssCount(BZ.gans, BZ.zhis, dg), lq=ssLiuqin(ss);
-  // 十神能量分（判定旺/丰/厚 用能量占比，个数仅展示"命局X个"）
+  // 十神能量分（判定旺、丰、厚 用能量占比，个数仅展示"命局X个"）
   const _es=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null;
   const _tenE=_es?ssTenGodEnergy(BZ, _es):null;
   const _ec={'官杀':(_tenE?((_tenE['正官']||0)+(_tenE['七杀']||0)):0),'印星':(_tenE?((_tenE['正印']||0)+(_tenE['偏印']||0)):0),'食伤':(_tenE?((_tenE['食神']||0)+(_tenE['伤官']||0)):0),'财星':(_tenE?((_tenE['正财']||0)+(_tenE['偏财']||0)):0)};
@@ -2626,7 +3320,7 @@ function duanShiMingJu(BZ){
     const ew = e>=REL.TH.PCT_VSTRONG?'旺而有力':(e>=REL.TH.PCT_STRONG?'偏旺':(e>=REL.TH.PCT_WEAK?'偏弱':'弱而少现'));
     let b;
     if(cat==='财星'){
-      // 财星断语：仍按喜忌分述；仅"喜"分支再按日主旺衰+偏财透藏细化，防"身强财旺可创业"误套于身弱/财不现盘
+      // 财星断语：仍按喜忌分述；仅"喜"分支再按日主旺衰+偏财透藏细化，防"身强财旺可创业"误套于身弱、财不现盘
       const _st=A.strength||'';
       const _stStrong=_st.indexOf('强')>=0, _stWeak=_st.indexOf('弱')>=0;
       const _pianTou=BZ.gans.some(g=>tenGod(dg,g)==='偏财');
@@ -2652,7 +3346,7 @@ function duanShiMingJu(BZ){
   const strong=A.strength.indexOf('强')>=0, weak=A.strength.indexOf('弱')>=0;
   const _outer=A.outer&&A.outer.isOuter;
   const _zaGe=A.isZaGe;
-  // 五行喜忌（C1 唯一真源 synthesis；逐项喜忌标签用顶层 wxTag，外格自动为从喜/从忌）
+  // 五行喜忌（C1 唯一真源 synthesis；逐项喜忌标签用顶层 wxTag，外格自动为从喜、从忌）
   const _xiWx=(A.synthesis&&A.synthesis.xiWxEff)||[], _jiWx=(A.synthesis&&A.synthesis.jiWxEff)||[];
   const _xj=wx=>{ const _tg=geWxTag(wx,A); return _tg==='喜用'||_tg==='从喜'?('为<span class="tip sha-ji">'+_tg+'</span>'):(_tg==='忌神'||_tg==='从忌'?('为<span class="tip sha-xiong">'+_tg+'</span>'):'喜忌无涉'); };
   const rows=[];
@@ -2662,7 +3356,7 @@ function duanShiMingJu(BZ){
   const yin=BZ.gans.filter(g=>{const t=tenGod(dg,g);return t==='正印'||t==='偏印';});
   const shang=BZ.gans.filter(g=>{const t=tenGod(dg,g);return t==='食神'||t==='伤官';});
   rows.push(['日主', `日主${dg}（${dwx}）${A.strength}，${_outer?A.outer.weakSemantics:(_zaGe?`以${A.geName}立格，喜忌从本格（喜 ${A.geUse.xi}、忌 ${A.geUse.ji}），不按扶抑身弱论`:(strong?'身强足以任财官，宜进取创收':'身弱宜借印比扶身，不宜独撑'))}${(weak&&!_outer&&!_zaGe)?'，谋事多需外力相助':''}。`]);
-  // 阴阳（放日主后）：局之阴阳消长总纲，外内/日主 两类阴阳取向
+  // 阴阳（放日主后）：局之阴阳消长总纲，外内、日主 两类阴阳取向
   rows.push(['阴阳', yinYangDS(BZ)||' ']);
   // 五行（总纲，放十神前）：五行生克失衡为十神旺衰之源，先示失衡之象再列十神
   const _ssksx=specialShengKeNote(BZ); if(_ssksx) rows.push(['五行', _ssksx.replace(/^五行失衡之象：/,'')]);
@@ -2736,8 +3430,8 @@ function duanShiMingJu(BZ){
     +'</table></div>';
   return `<div class="life-card"><h5>命局断事</h5>${tblHtml}</div>`;
 }
-/* 首列列宽，按真实汉字渲染宽测量设置（不依赖字体/浏览器）
- * 汉字渲染宽受字体/字号/粗细影响（em/px 不能精确对应"N 个汉字"），故 DOM 实测：
+/* 首列列宽，按真实汉字渲染宽测量设置（不依赖字体、浏览器）
+ * 汉字渲染宽受字体、字号、粗细影响（em/px 不能精确对应"N 个汉字"），故 DOM 实测：
  *   1. span 挂 body，复制真实 td.lbl 的字形属性（font-family/size/weight/letter-spacing），
  *      测各标签前 n 个字符的渲染宽，取最大值 textW；
  *   2. 列宽 = textW + 真实水平 padding + border + 2px 余量（padding/border 从 computed 动态取，
@@ -2753,7 +3447,7 @@ function setupMingJuCol(){
   /* 探测元素挂 body 而非 table：absolute 定位的 td 在表格内会塌陷为 0 宽。
      字体逐属性复制（不用 font shorthand，避免解析失败）。 */
   const csOf = t => { const rt = t.querySelector('td.lbl'); return rt ? window.getComputedStyle(rt) : null; };
-  /* 测某表首列标签前 n 字最大渲染宽；返回像素宽（含 padding/边框/余量） */
+  /* 测某表首列标签前 n 字最大渲染宽；返回像素宽（含 padding/边框、余量） */
   const measureCol = (t, n) => {
     const cs = csOf(t); if(!cs) return 0;
     const probe = document.createElement('span');
@@ -2863,7 +3557,7 @@ function renderPillarDaYun(BZ){
    导致四柱在刷新后“被改回默认值”。这里用 localStorage 显式保存 8 个干支选择、输入方式、性别与已确认出生日期，
    刷新后优先恢复已保存值（仅在无保存时才用当前日期作默认）。四种输入方式的字段互不污染。 */
 const PILLAR_KEY='bazi_pillar_sel_v1';
-/* 三大模块折叠状态持久化：刷新后从 localStorage 读回，使展开/折叠不因重排而复位。
+/* 三大模块折叠状态持久化：刷新后从 localStorage 读回，使展开、折叠不因重排而复位。
    仅记录三个模块的 collapsed 布尔（内部 <details> 小节不持久化）。 */
 const BAZI_MOD_KEY='bazi_mod_state_v1';
 
@@ -2970,7 +3664,7 @@ function renderTable(cols, head, cls){
   const _h=head||'四柱';
   const _cls=cls?' '+cls:'';
   // 性别置顶模式：表头第一格直接显示性别值（"男"/"女"）时，主星行日主格不显示性别（八字页 8 列版）；
-  // 其他页面传"四柱"保持原样（日主格仍显示"元男/元女"）
+  // 其他页面传"四柱"保持原样（日主格仍显示"元男、元女"）
   const _sexTop=(_h==='男'||_h==='女');
   /* 占位列：岁运列取不到内容时（未上运、岁运时间线不可算）恒以占位符补位，表头列数不随可用性漂移 */
   const _td=c=> c.dash ? '<td class="small">-</td>' : '';
@@ -2988,7 +3682,7 @@ function renderTable(cols, head, cls){
   const kong=`<tr><td class="small">空亡</td>${cols.map(c=>_td(c)||`<td class="small kong-cell">${c.kong.join(' ')||'无'}</td>`).join('')}</tr>`;
   const dishi=`<tr><td class="small">地势</td>${cols.map(c=>_td(c)||`<td class="small">${c.di?`<span class="tip ${WX_CLASS[ZHI_WX[c.z]]||''}" onclick="showTip('${csKey(c.di)}')">${c.di}</span>`:'无'}</td>`).join('')}</tr>`;
   const zizuo=`<tr><td class="small">自坐</td>${cols.map(c=>_td(c)||`<td class="small">${c.di2?`<span class="tip ${WX_CLASS[ZHI_WX[c.z]]||''}" onclick="showTip('${csKey(c.di2)}')">${c.di2}</span>`:'无'}</td>`).join('')}</tr>`;
-  // 墓库行：该柱地支若为辰戌丑未则标库名（水库/火库/金库/木库），否则 -；库名首字按所藏五行着色，尾字"库"取金色；库名点击弹出释义（showTip 读 DICT['水库'/'火库'/'金库'/'木库']）
+  // 墓库行：该柱地支若为辰戌丑未则标库名（水库、火库、金库、木库），否则 -；库名首字按所藏五行着色，尾字"库"取金色；库名点击弹出释义（showTip 读 DICT['水库'/'火库'/'金库'/'木库']）
   const _muMap={辰:'水库',戌:'火库',丑:'金库',未:'木库'};
   const _kuWx={辰:'水',戌:'火',丑:'金',未:'木'};
   const muku=`<tr><td class="small">墓库</td>${cols.map(c=>{ if(c.dash) return '<td class="small">-</td>'; const _m=_muMap[c.z]; return `<td class="small">${_m?`<span class="tip ${WX_CLASS[_kuWx[c.z]]||''}" onclick="showTip('${_m}')">${_m[0]}</span><span style="color:var(--gold2);font-weight:400">${_m[1]}</span>`:'-'}</td>`; }).join('')}</tr>`;
@@ -3136,12 +3830,12 @@ function yunKeyReason(s){
   if(s.jiHits>0) return base+'；该运五行'+s.eff+'，平稳受制';
   return base+'，岁运平顺无剧烈引动';
 }
-/* 十神阴阳（有情无情）：官杀/财星两行，无则明示不现
+/* 十神阴阳（有情无情）：官杀、财星两行，无则明示不现
  * 供事业财运'1、本命基调'调用（量化四柱'阴阳五行量化'表不涉十神）；
  * 婚姻④配偶星已有正偏分论（配偶星视角），此处不重复。 */
-function shiYinYangNote(BZ){
+function shiYinYangParts(BZ){
   // 固定顺序 正财→偏财→正官→七杀；无则该项不输出（确认无后省略，原局已有缺失表述不重复）；
-  // 只列位置/透藏本中余气/能量档/阴阳定性/落点尾句；禁生造词、结尾必句号。
+  // 只列位置、透藏本中余气、能量档、阴阳定性、落点尾句；禁生造词、结尾必句号。
   const dg=BZ.dayGan;
   const PAL=['年','月','日','时'];
   const _loc=god=>{
@@ -3150,9 +3844,9 @@ function shiYinYangNote(BZ){
     BZ.zhis.forEach((z,i)=>{ (HIDE[z]||[]).forEach((h,k)=>{ if(tenGod(dg,h)===god) out.push(PAL[i]+'支'+z+(k===0?'本气':k===1?'中气':'余气')); }); });
     return out;
   };
-  // 落点尾句（标准表述）：透干外显有力 / 本气根基稳固 / 中余气微须岁运引出
+  // 落点尾句（标准表述）：透干外显有力、本气根基稳固、中余气微须岁运引出
   const _tail=loc=>loc.some(x=>x.indexOf('透出')>=0)?'，外显有力':loc.some(x=>x.indexOf('本气')>=0)?'，根基稳固':'，气微、须岁运引出';
-  // 能量档：对应五行占比<10%="平和而势弱"（与量化四柱/婚姻④同口径）
+  // 能量档：对应五行占比<10%="平和而势弱"（与量化四柱、婚姻④同口径）
   const eS=wxElementScore(BZ);
   const eT=Object.values(eS).reduce((a,b)=>a+b,0)||1;
   const _eW=wx=>{ const pct=Math.round((eS[wx]||0)/eT*100); return pct<10?'平和而势弱':(pct>=30?'偏旺':(pct>=20?'平中':'平和')); };
@@ -3163,11 +3857,14 @@ function shiYinYangNote(BZ){
   if(pc.length) parts.push('偏财'+pc.join('、')+'，'+eCai+'，同性偏缘、主人脉浮动之财'+_tail(pc)+'。');
   if(zg.length) parts.push('正官'+zg.join('、')+'，'+eGuan+'，阴阳异性相克为有情之克，主名分与约束'+_tail(zg)+'。');
   if(qs.length) parts.push('七杀'+qs.join('、')+'，'+eGuan+'，同气相克为无情之克，主压力与威权、须制化'+_tail(qs)+'。');
-  if(!parts.length) return '';
-  return '十神阴阳：'+parts.join('<br>');
+  return parts;
+}
+function shiYinYangNote(BZ){
+  const parts=shiYinYangParts(BZ);
+  return parts.length?('十神阴阳：'+parts.join('<br>')):'';
 }
 
-/* 命局断事"阴阳"行（置于日主之后）：完整输出 renderYinYangNote 的分项（干支阴阳/外内/平衡/交感/五行四象/日主），
+/* 命局断事"阴阳"行（置于日主之后）：完整输出 renderYinYangNote 的分项（干支阴阳、外内、平衡、交感、五行四象、日主），
  * 各带前缀、原样呈现，不精简、不合并去重。
  * 五行四象并入本处（首列"五行四象"行紧随阴阳，非独立"五行"行，量化盘已含五行分项）。 */
 function yinYangDS(BZ){
@@ -3179,7 +3876,7 @@ function yinYangDS(BZ){
     // 用户目标前缀："干支"（非"干支阴阳"）、"外内"、"平衡"、"交感"、"五行四象"、"日主"
     const map={'干支阴阳':'干支','外内':'外内','平衡':'平衡','交感':'交感','五行四象':'五行四象','日主':'日主'};
     const out=parts.map(s=>{ const m=/^([^：:]+)[：:]/.exec(s); if(m&&map[m[1]]) return map[m[1]]+'：'+s.slice(m[0].length); return s; })
-      // 日主行："日主X为阴/阳干：" 用分号承接其后的主叙述（"日主丁为阴干；主柔顺内敛…"），非冒号
+      // 日主行："日主X为阴、阳干：" 用分号承接其后的主叙述（"日主丁为阴干；主柔顺内敛…"），非冒号
       .map(x=>/^日主：/.test(x)? x.replace(/^(日主：日主[^为：:]+为[阴阳]干)[：:]/,'$1；') : x);
     return out.map(x=>x.replace(/[。；\s]+$/,'')+'。').join('<br>');
   }catch(e){ return ' '; }
@@ -3188,7 +3885,7 @@ function yinYangDS(BZ){
 /* 阴阳论命 补充说明文本：逐条给出命局阴阳的分项（干支阴阳→外内→平衡→孤阴孤阳→五行四象→日主），
  * 由命局断事"阴阳"行取用，量化四柱圆盘下只留命局级两组数（阴阳占比、生助克泄）。
  * 《滴天髓·天道》"欲识三元万法宗，先观帝载与神功"一段为该体系之总纲，本函数只出分项、不含总纲引文。
- * 占比数据引用上表（阴/阳合计），不重复统计；禁破折号、禁生搬'外阳内阴'套话。 */
+ * 占比数据引用上表（阴、阳合计），不重复统计；禁破折号、禁生搬'外阳内阴'套话。 */
 function renderYinYangNote(BZ){
   const gans=BZ.gans, zhis=BZ.zhis, dg=BZ.dayGan;
   const GN=(typeof window!=='undefined'&&window.GAN_NATURE)?window.GAN_NATURE:{};
@@ -3197,8 +3894,8 @@ function renderYinYangNote(BZ){
   const zYg=zhis.filter(z=>isY(z)), zYin=zhis.filter(z=>!isY(z));
   const yy=yyCount(gans,zhis);
   const parts=[];
-  // 干支阴阳：天干/地支按阴阳同类合并且去重（全阳→"X、Y属阳"、全阴→"X、Y属阴"、混合→"X属阳、Y属阴"），
-  // 避免逐字加（阳/阴）啰嗦、避免同干重复（如 丁己丁己 → 丁、己）
+  // 干支阴阳：天干、地支按阴阳同类合并且去重（全阳→"X、Y属阳"、全阴→"X、Y属阴"、混合→"X属阳、Y属阴"），
+  // 避免逐字加（阳、阴）啰嗦、避免同干重复（如 丁己丁己 → 丁、己）
   const _groupYY=items=>{ const yset=new Set(),iset=new Set(); items.forEach(x=>(x.y?yset:iset).add(x.z)); const ys=[...yset].join('、'),is_=[...iset].join('、'); if(!yset.size)return {all:'阴',s:is_+'，属阴'}; if(!iset.size)return {all:'阳',s:ys+'，属阳'}; return {all:'',s:ys+'属阳、'+is_+'属阴'}; };
   const _gYY=_groupYY(gans.map(g=>({z:g,y:isY(g)}))), _zYY=_groupYY(zhis.map(z=>({z,y:isY(z)})));
   parts.push('干支阴阳：天干'+_gYY.s+'，阳干'+gYg.length+'个、阴干'+gYin.length+'个；地支'+_zYY.s+'，阳支'+zYg.length+'个、阴支'+zYin.length+'个。');
@@ -3452,7 +4149,7 @@ function renderQuantify(BZ, cnt, cnt2, wx, monthZ, idSfx){
   const yy = yyCount(gans, zhis);
   const yywx = yyWxCount(gans, zhis);
   const sk = shengKeCount(gans, zhis, dg);
-  // 日主五行与四生克方（供十神/六亲能量分、生克量化共用；提前声明以避开 TDZ）
+  // 日主五行与四生克方（供十神、六亲能量分、生克量化共用；提前声明以避开 TDZ）
   const dwx = GAN_WX[dg];
   const ctrlWx = Object.keys(WX_KE).find(k=>WX_KE[k]===dwx);
   const genWx  = Object.keys(WX_SHENG).find(k=>WX_SHENG[k]===dwx);
@@ -3469,7 +4166,7 @@ function renderQuantify(BZ, cnt, cnt2, wx, monthZ, idSfx){
   const QIN_MAP = isMale
     ? {'比肩':'兄弟','劫财':'姐妹','食神':'子','伤官':'女','正财':'妻','偏财':'父','正印':'母','偏印':'母','七杀':'-','正官':'-'}
     : {'比肩':'姐妹','劫财':'兄弟','食神':'子','伤官':'女','正财':'父','偏财':'-','正印':'母','偏印':'母','正官':'夫','七杀':'偏夫'};
-  // 十神/六亲/生克 所属五行：以日主五行 dwx 为“我”，生我＝genWx、我生＝WX_SHENG[dwx]、我克＝WX_KE[dwx]、克我＝ctrlWx
+  // 十神、六亲、生克 所属五行：以日主五行 dwx 为“我”，生我＝genWx、我生＝WX_SHENG[dwx]、我克＝WX_KE[dwx]、克我＝ctrlWx
   const ssWxOf = {
     '比肩':dwx,'劫财':dwx,'食神':WX_SHENG[dwx],'伤官':WX_SHENG[dwx],
     '正财':WX_KE[dwx],'偏财':WX_KE[dwx],'七杀':ctrlWx,'正官':ctrlWx,
@@ -3516,9 +4213,9 @@ function renderAnalysis(BZ, shenshaSummary, cols){
   const geQing=stripCat(A.geQing), geLevel=A.geLevel, geLevelNote=stripCat(A.geLevelNote);
   const fuPills=(arr,cls)=>arr.map(t=>`<span class="fu-pill ${cls}">${t}</span>`).join('');
   const fuHtml=`<div class="fu-wrap"><span class="fu-tag fu-xi-tag">喜</span>${fuPills(A.fu.xi,'fu-xi')}</div><div class="fu-wrap"><span class="fu-tag fu-ji-tag">忌</span>${fuPills(A.fu.ji,'fu-ji')}</div>`;
-  // 格局用神/扶抑外格句的喜忌拼成"五行+十神+生克"式（如"喜水食伤（泄）"）：五行取自 geUse.xiWx、
+  // 格局用神、扶抑外格句的喜忌拼成"五行+十神+生克"式（如"喜水食伤，泄"）：五行取自 geUse.xiWx、
   // 十神类取自 geUse.xiCats（两数组在数据层已按位 zip），生克后缀复用扶抑用神 fu 已编译的
-  // "十神类↔文本"（如 食伤↔"食伤（泄）"）查得。外格（从旺/专旺等）xiCats 编译为空时，
+  // "十神类↔文本"（如 食伤↔"食伤，泄"）查得。外格（从旺、专旺等）xiCats 编译为空时，
   // 用现成真源 wxRoleOfDwx 由五行反推十神类，保证任何格局都带"十神+生克"
   const _dgWx=GAN_WX[BZ.dayGan];
   const _gxMap={};
@@ -3601,8 +4298,8 @@ const PALACE_DEF={
   '身宫':'与命宫相对而立，为一身之所寄，主一生实际着力之处、行止劳逸与中晚年归宿，命宫言其志、身宫言其行。'
 };
 /* 八宅命卦（mingGua 由出生年推出，命卦即所居之"宫"）的详细解读：
-   卦→五行/方位/卦象征 对应表，供喜用格局内命卦块呈现卦象本体、东西四命与择偶居所取向。
-   五行方位：乾兑金(西)、离火(南)、震巽木(东)、坎水(北)、艮坤土(东北/西南)。 */
+   卦→五行、方位、卦象征 对应表，供喜用格局内命卦块呈现卦象本体、东西四命与择偶居所取向。
+   五行方位：乾兑金(西)、离火(南)、震巽木(东)、坎水(北)、艮坤土(东北、西南)。 */
 const MING_GUA_DETAIL={
   '乾':{wx:'金',wei:'西北',xiang:'天','qi':'刚健自强、志行坚刚，主导决断与进取','zhi':'宜居西四宅，建树宜刚正自立'},
   '兑':{wx:'金',wei:'西',xiang:'泽','qi':'喜悦光明、善与人交，主才艺口才与圆融','zhi':'宜居西四宅，人和贵在悦纳'},
@@ -3657,7 +4354,7 @@ function renderPalaces(BZ, A){
       ? (cheng ? `格局已成，三宫又多落喜用，先天与格局同向，用神得岁运引出则贵气可期。`
                : `格局虽有欠缺，三宫多落喜用，先天尚存自助之力，行运扶起用神时可补其不足。`)
     : `三宫喜忌相当，只作格局层次的微调，不改格局成败之主线。`;
-  // 八宅命卦：按出生年推命卦（mingGua），呈现卦象五行/方位/东西四命 + 宅向。命卦为方位家居框架，不作五行喜忌判，不参与三宫合参计数。
+  // 八宅命卦：按出生年推命卦（mingGua），呈现卦象五行、方位、东西四命 + 宅向。命卦为方位家居框架，不作五行喜忌判，不参与三宫合参计数。
   let mingHtml='';
   try{
     const _male=(BZ.sex===1||BZ.sex==='男'||BZ.sex===true);
@@ -3677,7 +4374,7 @@ function renderPalaces(BZ, A){
     + `</span></div>`;
 }
 
-/* ============ 文昌位 / 天乙贵人 喜用判断（增强项）============
+/* ============ 文昌位、天乙贵人 喜用判断（增强项）============
    按日干取文昌（WENCHANG）、天乙贵人（TIANYI）之地支，比对命局喜用五行（综合用神有效喜用），
    判断其落于喜用、忌神或中性，并标出方位（地支→八卦方位）。 */
 function renderWenTian(BZ, cols){
@@ -3699,10 +4396,10 @@ function renderWenTian(BZ, cols){
   return `文昌位、天乙贵人按日干喜用判断。文昌在（${wc.zhi}，${wc.fang}，五行${wc.w}）${wc.lv}；天乙贵人 ${tysTxt}。方位依地支落八卦：子正北、午正南、卯正东、酉正西，余支类推。文昌主文贵聪慧、天乙贵人主逢凶化吉；落喜用助益明显，落忌神须借岁运制化或与他支合化解厄，落中性则平常。`;
 }
 
-/* 大运/流年 分项解读（事业，感情，健康，家庭）：解析 evalGZ.lifeTrig 为四宫格；
+/* 大运、流年 分项解读（事业，感情，健康，家庭）：解析 evalGZ.lifeTrig 为四宫格；
    婚姻→感情 以贴合用户表述；空领域给中性提示，避免空白显得漏项。 */
-/* 大运/流年 分项解读（事业，感情，健康，家庭）：解析 evalGZ.lifeTrig 为纯文本，
-   直接内联进“关键引动”列与流年事件表，不另起折叠/宫格，节省篇幅。婚姻→感情以贴合用户表述。 */
+/* 大运、流年 分项解读（事业，感情，健康，家庭）：解析 evalGZ.lifeTrig 为纯文本，
+   直接内联进“关键引动”列与流年事件表，不另起折叠、宫格，节省篇幅。婚姻→感情以贴合用户表述。 */
 function yunAreaText(lifeTrig, age){
   const stage = lifeStage(age);
   const allow = STAGE_AREAS[stage] || STAGE_AREAS.work;
@@ -3721,9 +4418,9 @@ function yunAreaText(lifeTrig, age){
   const tail=(stage==='school'||stage==='college')?'平顺成长。':(stage==='retire'?'安养为宜。':'平顺。');
   return allow.join('、')+'方面均无明显引动，'+tail;
 }
-/* 岁运引动"关键引动"单元格：干支分析一行 + 生活模块（学业/事业/感情/健康/家庭）各行独立。
+/* 岁运引动"关键引动"单元格：干支分析一行 + 生活模块（学业、事业、感情、健康、家庭）各行独立。
  * 干支 = s.keys（yunKeyReason）；生活模块 = lifeTrig 按模块前缀分组，每模块一行（顺序取 STAGE_AREAS 主次），
- * 宫位句（祖辈宫动/夫妻宫动…）自然归所属模块行内，不再单拆。段间 <br> 换行。
+ * 宫位句（祖辈宫动、夫妻宫动…）自然归所属模块行内，不再单拆。段间 <br> 换行。
  * 仅用于岁运引动表，流年事件表仍走 yunAreaText。 */
 function yunKeyCell(s, age, A, dg){
   const gz=yunKeyReason(s);
@@ -3794,10 +4491,10 @@ function yunCopingText(rating, age){ return stageCoping(rating, age); }
 function yunRatingTag(rating){ return {吉:kXi('吉'),平:kMid('平'),中:kMid('中'),凶:kJi('凶')}[rating]||kMid('平'); }
 /* 性能守卫：paipan / paipanPillar 可能一次交互多次触发 drawYunChart，每张运势图需重建整段 SVG（含逐岁评分），
    重复构建会卡顿。此处用 rAF 合并：同一帧内多次调用只绘制一次；绘制期间再来的请求延到下一帧（_pending 标记）。
-   三级下钻：一生(年)、流月(选中年)、流日(选中月)。绘制核心统一为 renderYunSvg(cfg)，年/月/日三层仅 cfg 不同。 */
+   三级下钻：一生(年)、流月(选中年)、流日(选中月)。绘制核心统一为 renderYunSvg(cfg)，年、月、日三层仅 cfg 不同。 */
 let _yunLevel=0, _yunSel={year:null, month:null};
 const YUN_MZ=['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'];
-/* 一级（一生，年）：大运 / 流年 / 综合 三条曲线，与大运换运节点对齐 */
+/* 一级（一生，年）：大运、流年、综合 三条曲线，与大运换运节点对齐 */
 function _yunCfgYear(BZ = window.BZ){
   const yd=buildYunData(BZ); if(!yd||!yd.data||!yd.data.length) return null;
   const {data, birthYear, bounds}=yd;
@@ -3815,7 +4512,7 @@ function _yunCfgYear(BZ = window.BZ){
   const tip=(p)=>{ const ds=p.dayunGZ?`天干${tenGod(dg,p.dayunGZ[0])}，地支${tenGod(dg,zhiMain(p.dayunGZ[1]))}`:''; const ls=p.liunianGZ?`天干${tenGod(dg,p.liunianGZ[0])}，地支${tenGod(dg,zhiMain(p.liunianGZ[1]))}`:''; return `<div class="yun-tip-head">${p.year}年${_HIST?'':(' '+p.age+'岁')} ${p.liunianGZ||'无'}年<span class="yun-tip-ge">　格局：${A.geName}</span></div><div class="yun-tip-row"><span class="yun-tip-tag" style="background:${colors.dayun}">大运</span>${p.dayunGZ||'无'}<span class="yun-tip-shen">${ds}</span><b class="yun-tip-score">${p.dayun}</b></div><div class="yun-tip-row yun-tip-reason">${p.dayunReason||'基准 50'}</div><div class="yun-tip-row"><span class="yun-tip-tag" style="background:${colors.liunian}">流年</span>${p.liunianGZ||'无'}<span class="yun-tip-shen">${ls}</span><b class="yun-tip-score">${p.liunian}</b></div><div class="yun-tip-row yun-tip-reason">${p.liunianReason||'基准 50'}</div><div class="yun-tip-row"><span class="yun-tip-tag" style="background:${colors.actual}">综合</span><b class="yun-tip-score">${p.actual}</b><span class="yun-tip-shen">大运×0.55＋流年×0.45</span></div>`; };
   return {series:[{key:'dayun',label:'大运',color:colors.dayun,kind:'step'},{key:'liunian',label:'流年',color:colors.liunian,kind:'smooth'},{key:'actual',label:'综合运势',color:colors.actual,kind:'smooth'}], points:pts, xMin:minY, xMax:maxY, ticks, minor, boundaries:bnds, stepOk:(p)=>!!p.dayunGZ, tip, onPick:(p)=>drawYunMonth(p.year, BZ), hint:'← 左右滑动查看完整曲线。点击任意位置，下钻查看该年流月运势'};
 }
-/* 二级（流月，选中年）：大运(该年恒定) / 流月 / 综合；点击某月继续下钻"流日" */
+/* 二级（流月，选中年）：大运(该年恒定) / 流月、综合；点击某月继续下钻"流日" */
 function _yunCfgMonth(year, BZ = window.BZ){
   const A=getAnalysis(BZ);
   const YG=liunianAtYear(BZ, year);
@@ -3830,7 +4527,7 @@ function _yunCfgMonth(year, BZ = window.BZ){
   const tip=(p)=>{ const ds=p.dayunGZ?`天干${tenGod(BZ.dayGan,p.dayunGZ[0])}，地支${tenGod(BZ.dayGan,zhiMain(p.dayunGZ[1]))}`:''; const ms=`天干${tenGod(BZ.dayGan,p.monthGZ[0])}，地支${tenGod(BZ.dayGan,zhiMain(p.monthGZ[1]))}`; return `<div class="yun-tip-head">${year}年${p.mz}月（月序${p.x}，自立春起）月柱 ${p.monthGZ}<span class="yun-tip-ge">　格局：${A.geName}</span></div><div class="yun-tip-row"><span class="yun-tip-tag" style="background:#b23a2e">大运</span>${p.dayunGZ||'无'}<span class="yun-tip-shen">${ds}</span><b class="yun-tip-score">${p.dayun}</b></div><div class="yun-tip-row yun-tip-reason">${p.dayunReason}</div><div class="yun-tip-row"><span class="yun-tip-tag" style="background:#c9871f">流月</span>${p.monthGZ}<span class="yun-tip-shen">${ms}</span><b class="yun-tip-score">${p.month}</b></div><div class="yun-tip-row yun-tip-reason">${p.monthReason}</div><div class="yun-tip-row"><span class="yun-tip-tag" style="background:#8e44ad">综合</span><b class="yun-tip-score">${p.actual}</b><span class="yun-tip-shen">大运×0.55＋流月×0.45</span></div>`; };
   return {series:[{key:'dayun',label:'大运',color:'#b23a2e',kind:'step'},{key:'month',label:'流月',color:'#c9871f',kind:'smooth'},{key:'actual',label:'综合运势',color:'#8e44ad',kind:'smooth'}], points:pts, xMin:1, xMax:12, ticks, minor:[], boundaries:[], tip, onPick:(p)=>drawYunDay(year,p.x, BZ), hint:'← 左右滑动。十二点按节气月排列：1 为寅月（自立春起）、12 为丑月（讫于次年立春）。点击某一月，下钻查看该月流日运势'};
 }
-/* 三级（流日，选中月）：大运(恒定) / 流月(恒定) / 流日 / 综合；横轴按节气月真实起讫列日 */
+/* 三级（流日，选中月）：大运(恒定) / 流月(恒定) / 流日、综合；横轴按节气月真实起讫列日 */
 function _yunCfgDay(year, month, BZ = window.BZ){
   const A=getAnalysis(BZ);
   const YG=liunianAtYear(BZ, year);
@@ -3867,7 +4564,7 @@ function _yunCfgDay(year, month, BZ = window.BZ){
 function zhiMain(z){ return (HIDE[z]&&HIDE[z][0])||z; }
 /* 大运、流年、流月、流日 按钮内直接显示的干支十神 */
 function ssSpan(gz, BZ = window.BZ){ if(!gz||gz.length<2) return ''; return `<span class="ss">${tenGod(BZ.dayGan,gz[0])}，${tenGod(BZ.dayGan,zhiMain(gz[1]))}</span>`; }
-/* 两地支之间的关系（详细列出是哪两个地支相冲、合/害、破/刑，并附五行与刑名） */
+/* 两地支之间的关系（详细列出是哪两个地支相冲、合、害、破、刑，并附五行与刑名） */
 function zhiPairText(z1,z2,labs){
   const out=[];
   if(!z1||!z2) return out;
@@ -3886,7 +4583,7 @@ function zhiPairText(z1,z2,labs){
       out.push({w:'刑',t: lab?`${lab}${z1}${z2}相刑${nm}`:`${z1}${z2}相刑${nm}`});
     }
   });
-  // 半合/拱：两支同属一个三合局（生旺力全/旺墓力半/拱虚待发）；三合/三会全局（三支）另在"特殊"行列示
+  // 半合、拱：两支同属一个三合局（生旺力全、旺墓力半、拱虚待发）；三合、三会全局（三支）另在"特殊"行列示
   DIZHI_SANHE.forEach(g=>{
     const present=g.slice(0,3).filter(z=>z===z1||z===z2);
     if(present.length===2){
@@ -3932,7 +4629,7 @@ function relHTML(a,b,la,lb){
   return s;
 }
 
-/* 天合地合 / 天克地冲：岁运（大运、流年、流月、流日）干支与命局某一柱的天干、地支同时发生合 / 冲 */
+/* 天合地合、天克地冲：岁运（大运、流年、流月、流日）干支与命局某一柱的天干、地支同时发生合、冲 */
 function relMingSpecial(gz, lvl){
   const labels=['年','月','日','时'];
   const out=[];
@@ -3946,7 +4643,7 @@ function relMingSpecial(gz, lvl){
     if(heG && heZ) out.push(`<span class="rel spec-he" onclick="showTip('__TIANHE__')">与${lab}柱（${pg}${pz}）天合地合</span>`);
     if(chongG && chongZ) out.push(`<span class="rel spec-chong" onclick="showTip('__TIANCHONG__')">与${lab}柱（${pg}${pz}）天克地冲</span>`);
   }
-  // 本步地支参与的 三合/三会 全局（本步支 + 命局两支，跨柱关系故列于特殊行；半合/拱已在单元格列出）
+  // 本步地支参与的 三合、三会 全局（本步支 + 命局两支，跨柱关系故列于特殊行；半合、拱已在单元格列出）
   if(lvl){
     try{
       REL.gz.zhiPairs([gz[1]].concat(BZ.zhis), BZ, [lvl].concat(labels)).forEach(x=>{
@@ -3962,7 +4659,7 @@ function relMingSpecial(gz, lvl){
 
 
 /* ==================== 四、大运流年 ==================== */
-/* 运势曲线 / 所选干支三表 / 岁运引动。 */
+/* 运势曲线、所选干支三表、岁运引动。 */
 
 /* 命宫行限注：命宫为一命之枢，大限十年一宫、小限一年一宫，顺逆同四柱大运（阳男阴女顺行、阴男阳女逆行），
    用以补大运流年之未逮。宫支五行比照综合用神有效喜忌定喜忌，与三垣同口径。
@@ -4150,8 +4847,8 @@ function renderYunEventFixed(BZ, A, yd){
 function renderRemedy(BZ){
   const A=getAnalysis(BZ);
   const wxOf=g=>GAN_WX[g]||'';
-  // 喜忌统一读综合/顺势口径（synthesis）：普通格=扶抑、特殊格=顺势（含十神类标注），与速览卡、岁运宜见一致；
-  // 回落 fu（中和日主兜底仍走调候/通关/格局）
+  // 喜忌统一读综合、顺势口径（synthesis）：普通格=扶抑、特殊格=顺势（含十神类标注），与速览卡、岁运宜见一致；
+  // 回落 fu（中和日主兜底仍走调候、通关、格局）
   const xiEff=(A.synthesis&&A.synthesis.xiCatsEff&&A.synthesis.xiCatsEff.length)?A.synthesis.xiCatsEff:(A.fu.xi||[]);
   const jiEff=(A.synthesis&&A.synthesis.jiCatsEff&&A.synthesis.jiCatsEff.length)?A.synthesis.jiCatsEff:(A.fu.ji||[]);
   // 喜用五行：读 synthesis.xiWxEff（结构化），中和空则走兜底
@@ -4167,7 +4864,7 @@ function renderRemedy(BZ){
   const favColor=favWx.map(w=>({'木':'青绿','火':'红紫','土':'黄褐','金':'白金','水':'黑蓝'}[w])).filter(Boolean);
   const yi=`朝向${favDir.join('、')||'中宫'}方位发展；多用${favColor.join('、')||'中性'}色；从事喜用神对应行业：${xiEff.join('、')}；结交${(xiEff.join('').indexOf('印星')>=0||xiEff.join('').indexOf('比劫')>=0)?'师长同辈':'官财食伤'}之友；佩戴${favWx.map(w=>({'木':'木质、绿幽灵','火':'红玛瑙','土':'黄玉','金':'金属、白水晶','水':'黑曜石'}[w])).join('、')||'本命吉祥物'}。`;
   const jiTxt=`过度接触忌神五行：${jiEff.join('、')||'无'}；身弱忌独杠、身强忌固执；重大事项避开与日主相战之岁运。`;
-  // 补救：方位与颜色合并为一项，用"；"分隔两组（组内"、"）；表格两栏（项目/内容）
+  // 补救：方位与颜色合并为一项，用"；"分隔两组（组内"、"）；表格两栏（项目、内容）
   const buJiu=`方位：${favDir.join('、')||'中宫'}；颜色：${favColor.join('、')||'中性色'}`;
   return `<details class="zr-mod zr-quant" id="zr-yiji"><summary>宜忌选择</summary><div class="zr-mod-b"><div class="remedy">
     <table class="bazi-table remedy-tbl">
@@ -4180,7 +4877,7 @@ function renderRemedy(BZ){
   </div></div></details>`;
 }
 
-/* ---------- 大运 / 流年 / 流月 / 流日 ---------- */
+/* ---------- 大运、流年、流月、流日 ---------- */
 // 依当前公历年份定位“当前所处大运”（起始年<=今年的最大真实大运；未起运则取第一步）
 function currentDyIndex(BZ = window.BZ){
   const cy=baziNowDate().getFullYear(); let best=1;
@@ -4396,9 +5093,9 @@ function refreshHex(BZ = window.BZ){
   if(el && typeof renderHex==='function'){ try{ el.innerHTML=renderHex(BZ); }catch(e){} }
 }
 
-/* ---------- 一生运势曲线图（大运 / 流年 / 综合运势 三条曲线） ---------- */
+/* ---------- 一生运势曲线图（大运、流年、综合运势 三条曲线） ---------- */
 function buildYunData(BZ = window.BZ){
-  // 一生运势曲线数据：大运 / 流年 / 综合运势 三条曲线。
+  // 一生运势曲线数据：大运、流年、综合运势 三条曲线。
   // 大运按“完整十年大运”延伸：覆盖到 100 岁以后，并保证最后一个大运周期完整（不以年份硬切）。
   // 实现完全自研（纯 SVG + 专属评分算法），仅参考公开命理概念，未使用任何第三方代码或素材。
   const birthYear=BZ.birthYear;
@@ -4437,7 +5134,7 @@ function buildYunData(BZ = window.BZ){
   }
   // 直接采用 pillarScoreParts 的原始分数（已是 0~100 的绝对分，经 clampScore 钳制），不做 min/max 归一化。
   // 原因：原归一化把三条曲线所有年份混算全局最小、最大并拉伸到 0~100；流年逐年变化、方差最大，
-  // 必然占据两极，造成“流年 0 分 / 100 分”的极端假象。原始分才反映该年与命局协调度的真实强弱，
+  // 必然占据两极，造成“流年 0 分、100 分”的极端假象。原始分才反映该年与命局协调度的真实强弱，
   // 且三条曲线同处 0~100 量纲，可直接对比。
   // 大运换运节点：直接调用大运数据（dys[i].getStartYear() 真实起运年 + dys[i].getGanZhi() 真实干支），
   // 步数可能不足 100 岁后，超出部分按六十甲子顺、逆推延伸，保证覆盖完整大运周期。
@@ -4918,10 +5615,10 @@ function updateDetail(BZ = window.BZ, CTX = window.CTX){
 
 
 
-/* ==================== 五、五派解读（深度人生解读 / 综合判断） ==================== */
+/* ==================== 五、五派解读（深度人生解读、综合判断） ==================== */
 
 
-/* 各流派独立判喜忌：每派从自身方法论取喜用/忌神五行，不共用合成 xiWx/jiWx。
+/* 各流派独立判喜忌：每派从自身方法论取喜用、忌神五行，不共用合成 xiWx/jiWx。
    数据源均来自 getAnalysis 已算好的结构化字段：格局用神 geUse.xiWx/jiWx、调候 tiao.wx、病药 bingYao、扶抑 fu.xiWx/jiWx。 */
 function keWxOf(w){ for(const k in WX_KE){ if(WX_KE[k]===w) return k; } return null; }
 function schoolXiJi(A, BZ){
@@ -5032,7 +5729,7 @@ function renderSchoolDiffInner(A, BZ){
   if(xinChain) xin+=` ${xinChain.text}`;
   xin+=` 以量化平衡求中和。`;
 
-  // 病药派（外格/变格 bingYao.bing 为 null 时，走"不取五行制衡"口径，禁输出 null）
+  // 病药派（外格、变格 bingYao.bing 为 null 时，走"不取五行制衡"口径，禁输出 null）
   let bing = A.bingYao.bing
     ? `《滴天髓》“有病方为贵，无伤不是奇”。本命以“${A.bingYao.bing}”为病、“${A.bingYao.yao}”为药。病即忌神之过旺者（${A.bingYao.bing}${A.bingYao.bingCnt?'，命局'+A.bingYao.bingCnt+'处':''}），以“${A.bingYao.yao}”制其锋（${A.bingYao.yaoKind}）；制衡得用，病去局安。`
     : `《滴天髓》“有病方为贵，无伤不是奇”。本命为${A.geName}，${A.bingYao.yaoKind||'一气成势、病药法不取五行制衡'}（日主偏枯立论不适用），以结构病药与五行缺衡为凭；见下。`;
@@ -5062,7 +5759,7 @@ function renderSchoolDiffInner(A, BZ){
     if(A.synthesis.secondary) cross+=` 次选为“${A.synthesis.secondary.wx}”（${A.synthesis.secondary.methods.join('、')}）${A.synthesis.secondary.isJi?'，与扶抑喜用相左、须权衡轻重':''}。`;
     if(A.synthesis.conflicts.length) cross+=` 调候、格局与扶抑之冲突在 ${A.synthesis.conflicts.map(c=>c.wx).join('、')}。${A.synthesis.conflicts.map(c=>c.ruling||'').join('')}`;
     else cross+=' 诸法无明显冲突，主次分明、同向可用，得力最易。';
-    // 岁运宜忌指引取 advice 的"岁运宜见/忌见"部分；"⚠X为用神却犯扶抑之忌"冲突句与默认取法已在喜用格局、综合用神段输出，此处不重复；
+    // 岁运宜忌指引取 advice 的"岁运宜见、忌见"部分；"⚠X为用神却犯扶抑之忌"冲突句与默认取法已在喜用格局、综合用神段输出，此处不重复；
     // advice 分段截断后句号落在冲突句尾，取段须剥尾补句，防整段无句号收束
     cross+=' '+((A.synthesis.advice||'').split('；⚠')[0]).replace(/[。；\s]+$/,'')+'。';
   }
@@ -5084,7 +5781,7 @@ function renderLifeDeep(BZ){
   const spouse=spouseStarOf(BZ);
   const strong=A.strength.indexOf('强')>=0, weak=A.strength.indexOf('弱')>=0;
   const wxArr=['木','火','土','金','水'];
-  // 五行能量分（按能量分判定缺/旺，并结合喜忌）
+  // 五行能量分（按能量分判定缺、旺，并结合喜忌）
   const eScore = wxElementScore(BZ);
   const eTotal = wxArr.reduce((s,w)=>s+eScore[w],0) || 1;
   const eAvg = eTotal/5;
@@ -5097,7 +5794,7 @@ function renderLifeDeep(BZ){
   const normSha=s=>(s||'').replace(/（[^）]+）$/,'');
   const shaNames=(...ns)=>ns.filter(n=>shaAll.some(x=>normSha(x)===n));
   const fuXi=effXi(A)||[], fuJi=effJi(A)||[];
-  // 有效喜忌的十神类名（供"喜用养护/旺运引动"等文案）：synthesis.xiCatsEff 已编译（带标注），回落用五行→十神类名
+  // 有效喜忌的十神类名（供"喜用养护、旺运引动"等文案）：synthesis.xiCatsEff 已编译（带标注），回落用五行→十神类名
   const catOfWxName=wx=>{ const dw=GAN_WX[dg]; if(!dw) return wx;
     if(wx===dw) return '比劫'; if(WX_SHENG[dw]===wx) return '食伤';
     if(WX_KE[dw]===wx) return '财星'; if(WX_SHENG[wx]===dw) return '印星';
@@ -5146,7 +5843,7 @@ function renderLifeDeep(BZ){
   const xiScore=xiWxSet.reduce((s,w)=>s+(eScore[w]||0),0);
   const dayNayinWx=(NAYIN_INFO[nayinOf(BZ.gans[2]+BZ.zhis[2])]||{}).wx||'';
   const dayCs=[getChangSheng(dg,BZ.zhis[0]),getChangSheng(dg,BZ.zhis[1]),getChangSheng(dg,BZ.zhis[2]),getChangSheng(dg,BZ.zhis[3])];
-  // 纳音 vs 日主关系标签（relShort 返回'生日主/克日主/日主所生/日主所克/比和'，与 NAYIN_REL_MEAN key 同口径）
+  // 纳音 vs 日主关系标签（relShort 返回'生日主、克日主、日主所生、日主所克、比和'，与 NAYIN_REL_MEAN key 同口径）
   const relNote=w=>{ const r=relShort(dwx,w); return r?('（'+r+'）'):''; };
   // 十神细向工具（与 career §2 同深度：个数，透藏位置，旺弱，有根，两两作用，流转）
   function catTouN(cat){
@@ -5190,7 +5887,7 @@ function renderLifeDeep(BZ){
     return {links,missCats,flowStr,hJudge,fJudge};
   }
   const fr=fiveRing();
-  // 十神能量分（与 eScore 同源，残差校正后十神能量和=五行能量分；日主不计），供"旺/厚/过旺"判定，严禁用个数
+  // 十神能量分（与 eScore 同源，残差校正后十神能量和=五行能量分；日主不计），供"旺、厚、过旺"判定，严禁用个数
   const tenE=ssTenGodEnergy(BZ, eScore);
   const eCats={ '官杀':(tenE['正官']||0)+(tenE['七杀']||0), '印星':(tenE['正印']||0)+(tenE['偏印']||0), '食伤':(tenE['食神']||0)+(tenE['伤官']||0), '财星':(tenE['正财']||0)+(tenE['偏财']||0), '比劫':(tenE['比肩']||0)+(tenE['劫财']||0) };
   const _eTot=Object.values(eCats).reduce((a,b)=>a+b,0)||1;
@@ -5201,9 +5898,9 @@ function renderLifeDeep(BZ){
   const fam = renderFamilyCard(BZ, ctx);
 
   /* 本命分析四大模块为原局禀赋解读，不随年龄变化，故不做任何年龄门控（不 drop/replace 主体内容）。
-     年龄信息仅以补充说明（sub-note）形式附加、提示当前年龄段即可；真正的年龄门控在运势分析（大运/流年/流月）里做。 */
+     年龄信息仅以补充说明（sub-note）形式附加、提示当前年龄段即可；真正的年龄门控在运势分析（大运、流年、流月）里做。 */
   // 现年仅当出生年落在合理区间（当前年往前 120 年内）才给出；
-  // 否则为历史名人/古代盘，现年无意义，禁用"现年X岁"话术。
+  // 否则为历史名人、古代盘，现年无意义，禁用"现年X岁"话术。
   const NOW_YEAR = baziNowDate().getFullYear();
   const nowAge = (BZ.birthYear>0 && NOW_YEAR-BZ.birthYear+1<=120) ? (NOW_YEAR-BZ.birthYear+1) : null;
   const adaptSec=(area,arr)=>{
@@ -5224,16 +5921,17 @@ function renderLifeDeep(BZ){
     ${card('性格健康',health2)}
     ${card(cardT('家庭子女'),fam2)}`;
 }
-/* 核心解读：命局断事 / 称骨 / 十神定位 与 事业财运，婚姻感情，性格健康，家庭子女 */
+/* 核心解读：命局断事、称骨、十神定位 与 事业财运，婚姻感情，性格健康，家庭子女 */
 
 function renderHealthCard(BZ, ctx){
+  baziCardModelReset('health');
   const { PALACE, dg, dwx, A, ss, lq, spouse, strong, weak, wxArr, eScore, eTotal, eAvg, tenE, eCats, ePct, shangWx, wealthWx, yinWx, killWx, isMale, organs, shaAll, normSha, shaNames, fuXi, fuJi, fuXiStr, xiWxSet, jiWxSet, caiTou, guanTou, yinTou, shangTou, biTou, spouseNote, shaSeg, career, marry, M, potLevel, RANK, FANG, genRoot, genTou, xiScore, dayNayinWx, dayCs, relNote, catTouN, catTouChars, godPos, CS_STRONG, CS_WEAK, csWangDi, fangUniq, fiveRing, fr } = ctx;
   // ===== 性格健康：七节框架（与 事业财运，婚姻感情 同构）=====
   const lackWx=wxArr.filter(w=>eScore[w] < 1e-6);
   const xiLack=lackWx.filter(w=>xiWxSet.includes(w));
   const jiLack=lackWx.filter(w=>jiWxSet.includes(w));
   const neuLack=lackWx.filter(w=>!xiWxSet.includes(w)&&!jiWxSet.includes(w));
-  // 真缺 vs 弱受损：干支里完全没有该五行字 = 真缺；有字而能量低 = 弱/受损（非缺）。统一口径，避免“木在支中两次却称缺”之误。
+  // 真缺 vs 弱受损：干支里完全没有该五行字 = 真缺；有字而能量低 = 弱、受损（非缺）。统一口径，避免“木在支中两次却称缺”之误。
   const _wxInPillar=wx=>BZ.gans.some(g=>GAN_WX[g]===wx)||BZ.zhis.some(z=>ZHI_WX[z]===wx);
   // 十干性情：读顶层真源 GAN_NATURE（bazi-data.js，十干象+阴阳+性情，《滴天髓·天干论》），禁另建同义表
   const gn=(window.GAN_NATURE||{})[dg]||{};
@@ -5267,12 +5965,30 @@ function renderHealthCard(BZ, ctx){
     : `总体而言，日主性情匀停、能收能放、与环境相安`;
   sH1 += `。${portraitClose}。`;
   // 晚子时、时辰边界 宫位敏感性提示（日柱=日主之基，恰处子时则随校正而变）
-  if(isZiHour) sH1 += `另：出生在子时（23:00至01:00），日柱（日主之基）处早晚子时约定与真太阳时校正之敏感边界，若时刻临近 0 点，日柱或前后两日变动，建议核对真太阳时后再定盘，日主与全局之判定以校正后为准。`;
+  const ziNoteBody = isZiHour ? `另：出生在子时（23:00至01:00），日柱（日主之基）处早晚子时约定与真太阳时校正之敏感边界，若时刻临近 0 点，日柱或前后两日变动，建议核对真太阳时后再定盘，日主与全局之判定以校正后为准。` : '';
+  if(ziNoteBody) sH1 += ziNoteBody;
+  /* 身心基调六行：日主、阴阳、喜忌、性格、格局、总结在生成层直接组装。 */
+  let _hYyPill='';
+  try{
+    const _yyFull=renderYinYangNote(BZ).replace(/<br>/g,'；');
+    _hYyPill=_yyFull.split('；').map(function(s){ return s.trim().replace(/[。；\s]+$/,''); }).filter(Boolean).filter(function(s){ return /^(外内|日主：)/.test(s); }).map(function(s){ return s.replace(/^(外内|日主)：/,''); }).join('；');
+  }catch(e){}
+  const _hXingTxt=(gn.yy?('为'+gn.yy+'干，象'+(gn.xiang||'')+'，'):'')+ganXingTxt+'，'+shenWang;
+  const _hGeTxt=geTxt?(tiaoTxt?(geTxt+'；'+tiaoTxt):geTxt):'';
+  const _hZongTxt=portraitClose+(ziNoteBody?('。'+ziNoteBody.replace(/。$/,'')):'');
+  const _hBaseRows=[
+    ['日主', dg+'（'+dwx+'），生于'+(BZ.zhis[1]||'')+'月'],
+    ['阴阳', _hYyPill],
+    ['喜忌', '喜用'+(fuXi.join('、')||'无')+'；忌'+(fuJi.join('、')||'无明忌')],
+    ['性格', _hXingTxt],
+    ['格局', _hGeTxt],
+    ['总结', _hZongTxt]
+  ];
   // 2 十神关系（身心）细向：个数，透藏位置，旺弱，有根，两两作用，流转
   const hGodOrder=['官杀','食伤','印星','财星'];
   const hGodWx={'官杀':killWx,'食伤':shangWx,'印星':yinWx,'财星':wealthWx};
   // 十神解读必须先判该神五行属喜用还是忌神：喜用而旺→正面（得力可倚），忌神而旺→负面（克耗泄身）。
-  // 喜忌标签统一在主句（"X属Y，命局N个、位置，能量档，为喜用/为忌神/与喜忌无涉"），note 只留内容、去标签前缀
+  // 喜忌标签统一在主句（"X属Y，命局N个、位置，能量档，为喜用、为忌神、与喜忌无涉"），note 只留内容、去标签前缀
   const hNoteFn=(cat,str,isXi,isJi)=>{
     if(isXi) return ({ // 喜用：正面（性格健康维度，勿用事业财运措辞）
       '官杀':'自律有度、责任担当之性厚，处事有章法，宜以规则自立、担当而不躁',
@@ -5286,11 +6002,11 @@ function renderHealthCard(BZ, ctx){
       '印星':'思多郁滞、易依赖，动静失衡，宜主动外拓',
       '财星':'劳心于财、得失挂怀过甚，宜知止'
     })[cat]||'';
-    return (str==='平和' // 与喜忌无涉：平和/偏旺中性描述（禁套忌神负面词）
+    return (str==='平和' // 与喜忌无涉：平和、偏旺中性描述（禁套忌神负面词）
       ? ({ '官杀':'压力平和、自律有度，身心少扰','食伤':'表达有度、才华内敛，身心少耗','印星':'思学有靠、护养得宜，身心安稳','财星':'务实有节、不偏不倚' })[cat]||''
       : ({ '官杀':'压力与担当并存，宜张弛有度','食伤':'思虑外发，宜疏泄有度','印星':'思学偏重，宜动静相济','财星':'务实重利，宜知足常乐' })[cat]||'');
   };
-  const hGodItems=[];
+  const hGodItems=[], hGodRows=[];
   hGodOrder.forEach(cat=>{
     const total=(lq[cat]||0); if(total===0) return;
     // 旺衰档按五行能量分（相对均值，与量化四柱同源）：能量分>HI×均值=过旺、>LO×均值=偏旺、否则平和。
@@ -5301,9 +6017,11 @@ function renderHealthCard(BZ, ctx){
     const _hXJ=_hXi?'为<span class="tip sha-ji">喜用</span>':_hJi?'为<span class="tip sha-xiong">忌神</span>':'与喜忌无涉';
     // note 后补"透藏落宫转译"（透哪柱→卡主题含义；无透按藏支），打破固定模板句的盘间雷同
     const _luo=tenLuoGong({BZ, wxOf:hGodWx, lq}, cat, 'health');
-    hGodItems.push(cat+'属'+(hGodWx[cat]||'')+'，命局'+total+'个、'+godPos(cat)+'，'+str+'，'+_hXJ+'。'+hNoteFn(cat,str,_hXi,_hJi)+(_luo?(''+_luo+'。'):''));
+    const item=cat+'属'+(hGodWx[cat]||'')+'，命局'+total+'个、'+godPos(cat)+'，'+str+'，'+_hXJ+'。'+hNoteFn(cat,str,_hXi,_hJi)+(_luo?(''+_luo+'。'):'');
+    hGodItems.push(item);
+    hGodRows.push({ label:cat, value:item });
   });
-  // 健康两两作用（顶层统一判定 REL.tenCombo 命中关系 → 健康主题句；与事业/十神宫位同一喜忌裁决，避免口径分叉）
+  // 健康两两作用（顶层统一判定 REL.tenCombo 命中关系 → 健康主题句；与事业、十神宫位同一喜忌裁决，避免口径分叉）
   const _tCtxH=(typeof REL!=='undefined'&&REL.tenCombo&&REL.tenCombo.buildCtx)?REL.tenCombo.buildCtx(BZ):null;
   const _tHitsH=_tCtxH?REL.tenCombo.matchAll(_tCtxH):[];
   const _negSayH=s=>/为忌|忌神|破财|克身|受损|祸患|夺食|压力|虚浮|难成/.test(s||'');
@@ -5320,19 +6038,28 @@ function renderHealthCard(BZ, ctx){
     if(shAlone && jiWxSet.includes(shangWx)) hFlow+='印星不显、食伤独泄而<span class="tip sha-xiong">为忌</span>，精气易耗散，宜培本固元。';
     else if(shAlone && xiWxSet.includes(shangWx)) hFlow+='印星不显、食伤独旺<span class="tip sha-ji">为喜用</span>，泄秀得宜、才思外显，宜施展所长。';
   }
-  let sH2;
+  let sH2, hGodRowsOut;
   {
-    let idx=0; const parts=[];
-    hGodItems.forEach(t=>{ parts.push('①②③④⑤'[idx]+' '+t); idx++; });
-    if(hPair.length){ parts.push('①②③④⑤⑥'[idx]+' 两两作用：'+hPair.join('')); idx++; }
-    parts.push('①②③④⑤⑥⑦'[idx]+' '+hFlow);
-    sH2 = hGodItems.length ? parts.join('<br>') : '十神分布无单项过旺，性格与身心负担相对均衡，不易因某一十神偏激而生身心之累。';
+    const parts=[];
+    hGodItems.forEach(t=>{ parts.push(t); });
+    const hPairVal=hPair.join('');
+    if(hPair.length){ parts.push('两两作用：'+hPairVal); }
+    parts.push(hFlow);
+    if(hGodItems.length){
+      sH2 = parts.join('<br>');
+      hGodRowsOut = hGodRows.slice();
+      if(hPair.length) hGodRowsOut.push({ label:'两两作用', value:hPairVal });
+      hGodRowsOut.push({ label:'十神流转', value:hFlow });
+    } else {
+      sH2 = '十神分布无单项过旺，性格与身心负担相对均衡，不易因某一十神偏激而生身心之累。';
+      hGodRowsOut = [{ label:'十神关系', value:sH2 }];
+    }
   }
   // 3 神煞、纳音与十二长生
   const yN=nayinOf(BZ.gans[0]+BZ.zhis[0]), dN=nayinOf(BZ.gans[2]+BZ.zhis[2]);
-  let sH3='① '+shaSeg('health');
-  sH3+='<br>② 纳音：年命'+nayinColorSpan(yN)+relNote((NAYIN_INFO[yN]||{}).wx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,(NAYIN_INFO[yN]||{}).wx)]||{}).health)||'')+'；日柱'+nayinColorSpan(dN)+relNote(dayNayinWx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,dayNayinWx)]||{}).health)||'')+'。';
-  sH3+='<br>③ 十二长生：年支'+BZ.zhis[0]+'（'+dayCs[0]+'，主早年先天元气）、月支'+BZ.zhis[1]+'（'+dayCs[1]+'，主青年）、日支'+BZ.zhis[2]+'（'+dayCs[2]+'，主自身中年元气）、时支'+BZ.zhis[3]+'（'+dayCs[3]+'，主晚年）。'+
+  const hShaVal=shaSeg('health');
+  const hNaVal='年命'+nayinColorSpan(yN)+relNote((NAYIN_INFO[yN]||{}).wx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,(NAYIN_INFO[yN]||{}).wx)]||{}).health)||'')+'；日柱'+nayinColorSpan(dN)+relNote(dayNayinWx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,dayNayinWx)]||{}).health)||'')+'。';
+  const hCsVal='年支'+BZ.zhis[0]+'（'+dayCs[0]+'，主早年先天元气）、月支'+BZ.zhis[1]+'（'+dayCs[1]+'，主青年）、日支'+BZ.zhis[2]+'（'+dayCs[2]+'，主自身中年元气）、时支'+BZ.zhis[3]+'（'+dayCs[3]+'，主晚年）。'+
     (CS_STRONG.indexOf(dayCs[2])>=0?('日支坐'+csWangDi(dayCs[2])+'，自身元气根基厚实。'):
      CS_WEAK.indexOf(dayCs[2])>=0?('日支坐'+dayCs[2]+'弱地，自身元气偏弱、宜后天培补。'):
      ('日支坐'+dayCs[2]+'平地，自身元气和顺、须常养固。'))+
@@ -5341,7 +6068,7 @@ function renderHealthCard(BZ, ctx){
   // 神煞与喜忌相参（吉凶神煞挂钩健康喜忌，与事业卡同口径）
   const _hj=shaNames('天医','福星贵人','太极贵人','天德贵人','月德贵人');
   const _hx=shaNames('血刃','羊刃','飞刃','勾煞','绞煞','劫煞','灾煞','亡神','孤辰','寡宿','天罗','地网','童子','流霞','病符');
-  sH3+='<br>'+shaXiJiNote(_hj,_hx,'身心养护有凭','宜防其扰','本局健康神煞无显著吉凶、以常养论之');
+  const hShaXjVal=shaXiJiNote(_hj,_hx,'身心养护有凭','宜防其扰','本局健康神煞无显著吉凶、以常养论之');
   // 寿元根基（寿星=食神：《三命通会·论食神》；元神厚薄主寿夭：《滴天髓·何知章》。属原局禀赋，不随年龄门控，只示倾向不妄断年岁。）
   const shangShen=ss['食神']||0, pianYin=ss['偏印']||0;
   const _zhiChong={'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'};
@@ -5351,24 +6078,28 @@ function renderHealthCard(BZ, ctx){
   // 印根（生身之基，木）被财（金）所冲：如卯酉冲；此为本局寿元最相关之结构信号
   let _yinChong=false;
   for(let _i=0;_i<4;_i++)for(let _j=_i+1;_j<4;_j++){ const _zi=BZ.zhis[_i],_zj=BZ.zhis[_j],_wi=ZHI_WX[_zi],_wj=ZHI_WX[_zj]; if(((_wi==='木'&&_wj==='金')||(_wi==='金'&&_wj==='木'))&&_zhiChong[_zi]===_zj) _yinChong=true; }
-  let shouTxt='④ 寿元根基：命理以食神为寿星（《三命通会·论食神》），寿夭观其有无损益、并参元神厚薄而定倾向，仅示根基、不妄断年岁。';
-  if(shangShen>0 && pianYin===0) shouTxt+='食神（寿星）现而无夺，寿元根基厚实；';
+  const shouBase='命理以食神为寿星（《三命通会·论食神》），寿夭观其有无损益、并参元神厚薄而定倾向，仅示根基、不妄断年岁';
+  let shouFood='', shouDay='', shouXi='';
+  if(shangShen>0 && pianYin===0) shouFood='食神（寿星）现而无夺，寿元根基厚实';
   else if(shangShen>0 && pianYin>0){
-    if(_shouTongGong) shouTxt+='食神（寿星）现而偏印（枭神）同宫夺之，寿星受掣、根基有损，宜培护避刑伤；';
-    else shouTxt+='食神（寿星）现而偏印（枭神）并见，偏印克食、寿星略受掣，宜培护；';
-  } else shouTxt+='食神（寿星）不现，先天少一凭依，不以之定夭，宜后天常养以厚基；';
-  if(_yinChong) shouTxt+='又木气为金所冲（如卯酉），根气受损、培补之力被制，宜静养避冲克过耗；';
-  if(strong) shouTxt+='日主身强本元充固、元神厚、气定神完，寿基可承（依《滴天髓·何知章》性定元神厚之论）；';
-  else if(weak) shouTxt+='日主身弱元神偏薄'+(genRoot>0||genTou>0?'而犹有根倚、未至枯槁':'且无根倚、气易散神易枯')+'，宜时时培固、避过耗（《滴天髓·何知章》气浊神枯之戒）；';
-  else shouTxt+='日主中和本元平实、元神匀，寿基尚稳；';
+    if(_shouTongGong) shouFood='食神（寿星）现而偏印（枭神）同宫夺之，寿星受掣、根基有损，宜培护避刑伤';
+    else shouFood='食神（寿星）现而偏印（枭神）并见，偏印克食、寿星略受掣，宜培护';
+  } else shouFood='食神（寿星）不现，先天少一凭依，不以之定夭，宜后天常养以厚基';
+  if(strong) shouDay='日主身强本元充固、元神厚、气定神完，寿基可承（依《滴天髓·何知章》性定元神厚之论）';
+  else if(weak) shouDay='日主身弱元神偏薄'+(genRoot>0||genTou>0?'而犹有根倚、未至枯槁':'且无根倚、气易散神易枯')+'，宜时时培固、避过耗（《滴天髓·何知章》气浊神枯之戒）';
+  else shouDay='日主中和本元平实、元神匀，寿基尚稳';
   if(xiLack.length){
     const _abs=xiLack.filter(wx=>!_wxInPillar(wx)), _weak=xiLack.filter(wx=>_wxInPillar(wx));
-    if(_abs.length) shouTxt+='又喜用'+_abs.join('、')+'缺而不现、培补少凭，宜定向养护以厚寿元。';
-    if(_weak.length) shouTxt+='又喜用'+_weak.join('、')+'虽现而弱、根气受损，培补少凭，宜定向养护以厚寿元。';
-  } else shouTxt+='五行不偏枯，寿元无害偏之虞。';
-  // 寿元重心（总纲） + 岁运应期：寿元贵在元神与寿星二者，指出本局寿元偏倚所在，并给逢冲印根/忌神大运宜重养护的应期句，与运势分析联动
+    if(_abs.length) shouXi='又喜用'+_abs.join('、')+'缺而不现、培补少凭，宜定向养护以厚寿元';
+    if(_weak.length) shouXi=(shouXi?shouXi+'。':'')+'又喜用'+_weak.join('、')+'虽现而弱、根气受损，培补少凭，宜定向养护以厚寿元';
+  } else shouXi='五行不偏枯，寿元无害偏之虞';
+  let shouTxt='寿元根基：'+shouBase+'。'+shouFood+'；';
+  if(_yinChong) shouTxt+='又木气为金所冲（如卯酉），根气受损、培补之力被制，宜静养避冲克过耗；';
+  shouTxt+=shouDay+'；'+shouXi+'。';
+  // 寿元重心（总纲） + 岁运应期：寿元贵在元神与寿星二者，指出本局寿元偏倚所在，并给逢冲印根、忌神大运宜重养护的应期句，与运势分析联动
+  let _shouZx='', _shouYing='';
   {
-    // 寿元重心：护/养/和 先定总纲，再给岁运应期（直接点名何种岁运引动印根之冲或耗元，禁破折号）
+    // 寿元重心：护、养、和 先定总纲，再给岁运应期（直接点名何种岁运引动印根之冲或耗元，禁破折号）
     const _shouWeak = _yinChong || _shouTongGong || (weak && !genRoot && !genTou);
     const _shouBing = shangShen>0 && pianYin>0 && !_shouTongGong;  // 食神偏印并见（非同宫）寿星略受掣
     const _shouLi = !_shouWeak && shangShen>0 && pianYin===0 && !_yinChong && !weak;
@@ -5404,9 +6135,19 @@ function renderHealthCard(BZ, ctx){
         }
       }
     }catch(e){}
+    _shouZx=_zx; _shouYing=_yingTxt;
     shouTxt += '寿元应期：'+_zx+'。'+_yingTxt;
   }
-  // ④ 本节仅神煞/纳音/十二长生，寿元根基归第6节养护调护方向（见下 ⑤）
+  /* 寿元根基五行：食神、日主、喜用、寿元重心、岁运应期在生成层直接组装，补注单列。 */
+  const _hShouRows=[];
+  if(shouFood) _hShouRows.push(['食神', cardCleanCell(cardCutYunTail(cardScl(shouFood)))]);
+  if(shouDay) _hShouRows.push(['日主', cardCleanCell(cardCutYunTail(cardScl(shouDay)))]);
+  const _shouXiFirst=shouXi.split(/[；;。]/).map(function(s){ return s.trim(); }).filter(Boolean).find(function(s){ return /^又?喜用/.test(s); });
+  if(_shouXiFirst) _hShouRows.push(['喜用', cardCleanCell(cardCutYunTail(cardScl(_shouXiFirst.replace(/^又(?=喜用)/,''))))]);
+  if(_shouZx) _hShouRows.push(['寿元重心', cardCleanCell(_shouZx)]);
+  if(_shouYing) _hShouRows.push(['岁运应期', cardCleanCell(_shouYing.replace(/。$/,''))]);
+  const _hShouNote=cardCleanCell(cardCutYunTail(cardScl(shouBase))+'。');
+  // ④ 本节仅神煞、纳音、十二长生，寿元根基归第6节养护调护方向（见下 ⑤）
   // 4 六亲、脏腑与命局特征（六亲十神→性情→身心影响，与脏腑同段）
   const _xi=w=>fuXi.indexOf(w)>=0, _ji=w=>fuJi.indexOf(w)>=0;
   const _lqH=[];
@@ -5415,21 +6156,28 @@ function renderHealthCard(BZ, ctx){
   if((lq['比劫']||0)>0) _lqH.push('比劫（兄弟姐妹）'+( _xi(dwx)?'为喜用、同侪扶持、身心有伴':'为忌神、争竞耗神、宜淡泊自处'));
   if((lq['食伤']||0)>0) _lqH.push('食伤（才情表达）'+( _xi(shangWx)?'为喜用、表达畅达、身心疏泄有度':'为忌神、耗神过度、宜节劳养神'));
   if((lq['财星']||0)>0) _lqH.push('财星（父缘务实）'+( _xi(wealthWx)?'为喜用、务实有度、身心安顿':'为忌神、劳心于财、得失挂怀宜知止'));
-  const _lqHTxt=_lqH.length?('六亲与身心：'+_lqH.join('；')+'。'):'六亲星皆不显，身心以自主调养为要。';
-  let sH4='① '+_lqHTxt+'<br>② 五行';
+  /* 六亲脏腑段的行值一律在算出那一行就地入行，段内不再拼整串、不再回切：下方 _hRows4
+     直接消费各行的终值。六亲十神与五行缺、日主根三条合成"六亲身心"一行。 */
+  const _hRows4=[];
+  const _hLiuLines=_lqH.slice();
+  let hWxVal;
   {
     // 与寿元段同口径：真缺（干支无此字）才称“缺”；有字而弱称“虽现而弱、根气受损”
     const _abs=lackWx.filter(w=>!_wxInPillar(w)), _weak=lackWx.filter(w=>_wxInPillar(w));
     const parts=[];
     _abs.forEach(w=>{ const o=hOrg(w); if(xiWxSet.includes(w)) parts.push('缺'+w+'（'+o+'偏弱，<span class="tip sha-ji">喜用</span>不现、最宜定向养护）'); else if(jiWxSet.includes(w)) parts.push('缺'+w+'（'+o+'失养，反免'+w+'旺之病，不必强补）'); else parts.push('缺'+w+'（'+o+'偏弱，影响尚轻）'); });
     _weak.forEach(w=>{ const o=hOrg(w); if(xiWxSet.includes(w)) parts.push(w+'（'+o+'）虽现而弱、根气受损，<span class="tip sha-ji">喜用</span>偏弱、宜培补养护'); else if(jiWxSet.includes(w)) parts.push(w+'（'+o+'）虽现而弱，<span class="tip sha-xiong">忌神</span>失势、戕害减轻'); else parts.push(w+'（'+o+'）虽现而弱、根气受损，影响尚轻'); });
-    sH4+=(parts.length?parts.join('；')+'。':'齐全不偏枯。');
+    hWxVal=(parts.length?parts.join('；')+'。':'齐全不偏枯。');
+    if(parts.length) _hLiuLines.push('五行'+hWxVal);
   }
-  if(genRoot>0||genTou>0) sH4+='<br>③ 日主有根'+(genRoot>0?('（'+dedupChars(BZ.zhis.filter(z=>ZHI_WX[z]===dwx))+'为根）'):'')+(genTou>0?('、比劫透干'+dedupChars(biTou)+'为助'):'')+'，底气足、耐耗。';
-  else sH4+='<br>③ 日主虚浮无根，易随境动摇、宜借力培元。';
-  // 脏腑强弱随五行旺衰流转（①单五行→脏腑→喜忌→能量 ②五行生克→脏腑生克
-  // ③宫位落脏，调用 PILLAR_BODY/GAN_ZANG/ZHI_ZANG/WX_PILLAR_ZANG 真源 ④同异总结；每层分段；
-  // 缺五行由②五行段独述，禁"缺金却言土生金滋养有源"式无凭生克）
+  /* 日主无根之句为应期之语，身弱之外不出：与其余各卡同口径，身强与中和盘不报此句。 */
+  const hRootVal=(genRoot>0||genTou>0)?('日主有根'+(genRoot>0?('（'+dedupChars(BZ.zhis.filter(z=>ZHI_WX[z]===dwx))+'为根）'):'')+(genTou>0?('、比劫透干'+dedupChars(biTou)+'为助'):'')+'，底气足、耐耗。'):'日主虚浮无根，易随境动摇、宜借力培元。';
+  if(genRoot>0||genTou>0) _hLiuLines.push(hRootVal);
+  const _hLiuCell=_hLiuLines.map(function(s){ return cardCleanCell(cardStripGeShu(cardCutYunTail(cardScl(cardStripTags(s))))); }).filter(Boolean);
+  if(_hLiuCell.length) _hRows4.push({ cells:['六亲身心', _hLiuCell.join('[[BR]]')] });
+  // 脏腑强弱随五行旺衰流转（单五行→脏腑→喜忌→能量 五行生克→脏腑生克
+  // 宫位落脏，调用 PILLAR_BODY/GAN_ZANG/ZHI_ZANG/WX_PILLAR_ZANG 真源 同异总结；每层分段；
+  // 缺五行由五行条独述，禁"缺金却言土生金滋养有源"式无凭生克）
   const wxTier=wxStrength(BZ);
   const _pz=window.WX_PILLAR_ZANG||{};
   const _PB=window.PILLAR_BODY||{}, _GZ=window.GAN_ZANG||{}, _ZZ=window.ZHI_ZANG||{};
@@ -5457,23 +6205,79 @@ function renderHealthCard(BZ, ctx){
     if(_sm&&hOrg(_sm)&&eScore[_sm]>1e-6) out.push(hOrg(_sm)+'（'+_sm+'）生'+o+'，'+(eScore[_sm]>=eScore[w]?'滋养有源、相资相养':'生源偏弱、滋养欠足'));
     const _woke=WX_KE[w];                                        // 我克者（财）
     if(_woke&&hOrg(_woke)&&eScore[_woke]>1e-6) out.push(o+'克'+hOrg(_woke)+'（'+_woke+'），'+(eScore[w]>eScore[_woke]?'制约有力、疏泄有度':(eScore[_woke]>eScore[w]?'反被其耗、制之不及':'制约相当')));
-    return out.join('；');
+    return out;
   };
   const _present=wxArr.filter(w=>eScore[w]>1e-6);
   const _lack=wxArr.filter(w=>eScore[w]<=1e-6);
-  // （1）单五行→脏腑→喜忌→能量
-  const _p1=_present.map(w=>w+'（'+Math.round(eScore[w])+'、'+hOrg(w)+'）'+_tend4(w)).join('；')
-    +(_lack.length?((_present.length?'；':'')+'缺'+_lack.join('、')+'（'+_lack.map(hOrg).join('、')+'）失养，见②五行'):'');
-  // （2）五行生克→脏腑生克
-  const _p2=_present.map(_gz).filter(Boolean);
-  // （3）宫位落脏：四柱干支→脏腑→身体区域（GAN_ZANG/ZHI_ZANG/PILLAR_BODY）+ 旺衰脏腑分野（WX_PILLAR_ZANG）
+  const xiS=new Set(fuXi), jiS=new Set(fuJi);
+  /* 脏腑养护语取脏腑名与旺弱二值：脏名取脏腑串里的首个在册脏名，旺弱取该行所标的旺、弱、平、缺。 */
+  const _zangKeys=['肝','胆','心','小肠','脾','胃','肺','大肠','肾','膀胱','命门'];
+  const _zangOf=function(nm){ for(let i=0;i<_zangKeys.length;i++){ if(String(nm||'').indexOf(_zangKeys[i])>=0) return _zangKeys[i]; } return String(nm||'').charAt(0); };
+  /* 旺弱两行各按各的口径，故各存一份，不共用一表：宫位落脏行按喜忌倾向判（平和即平，
+     忌神与中性不因占比低而称弱，唯喜用得养不足方称弱），旺衰分野行按能量占比判。 */
+  const _gongState={}, _fenState={};
+  _present.forEach(function(w){
+    const hi=(_t4(w)==='过旺'||_t4(w)==='偏旺');
+    _gongState[w]=hi?'旺':((xiWxSet.includes(w)&&_weak4(w))?'弱':'平');
+    _fenState[w]=hi?'旺':(_weak4(w)?'弱':'平');
+  });
+  if(_lack.length) _gongState[_lack[0]]='缺';
+  const _zangCareDefault={旺:'气偏旺，宜疏泄清养、防亢燥',弱:'偏弱，宜培补固本',缺:'缺，宜定向培补'};
+  const _zangCareOf=function(z,st){
+    const c=(typeof window!=='undefined'&&window.ZANG_CARE)||{};
+    const e=c[z]; if(!e) return _zangCareDefault[st]||'';
+    return st==='旺'?e[0]:(st==='弱'?e[1]:(st==='缺'?_zangCareDefault['缺']:e[2]));
+  };
+  /* 宫位落脏行：干支所主之脏逐个补养护语，脏的旺弱随其所属五行取。
+     只认"某干支主某脏"这一式，身体区域与部位里的"主"字不在此列。 */
+  const _wxOfZang=function(z){ return (z==='肝'||z==='胆')?'木':(z==='心'||z==='小肠'||z==='命门')?'火':(z==='脾'||z==='胃')?'土':(z==='肺'||z==='大肠')?'金':(z==='肾'||z==='膀胱')?'水':''; };
+  const _efGong=function(s){
+    const stays=s.replace(/[。；\s]+$/,'');
+    const parts=[];
+    Array.from(s.matchAll(/主([^、，。；]{1,3})(?:、|，|。|$)/g)).forEach(function(m){
+      const z=_zangOf(m[1]), st=_gongState[_wxOfZang(z)]||'';
+      const care=_zangCareOf(z,st);
+      if(care) parts.push(care);
+    });
+    return parts.length?(stays+'；'+parts.join('；')):stays;
+  };
+  const _zhiRelMean={冲:['冲','气机对冲、两相震荡，主其主脏腑动荡受激'],刑:['刑','刑伤加临、气机郁滞相扰，主其主脏腑受刑而损'],害:['害','暗害相耗、气机相妒，主其主脏腑暗受其耗'],破:['破','破耗微损、气机欠顺，主其主脏腑略受其损'],合:['合','相合相引、气机交相补助，主其主脏腑得引而增'],暗合:['暗合','暗合相引、气机暗中相通，主其主脏腑暗中得力']};
+  const _xingLines=[];
+  BZ.zhis.forEach(function(z,pi){
+    BZ.zhis.forEach(function(zo,oi){
+      if(oi<=pi) return;
+      const t=window.zhiRelTypes(z,zo); if(!t||!t.length) return;
+      const names=t.map(function(tt){ return _zhiRelMean[tt]?_zhiRelMean[tt][0]:tt; }).join('、');
+      const means=t.map(function(tt){ return _zhiRelMean[tt]?_zhiRelMean[tt][1]:''; }).filter(Boolean).join('；');
+      _xingLines.push(PALACE[pi]+'支'+z+'与'+PALACE[oi]+'支'+zo+'相'+names+'，'+means);
+    });
+  });
+  /* 缺行之行：喜忌二分别给养护取向，中性行只报失养、不硬派补法。 */
+  const _queTail=function(wx){ return xiS.has(wx)?('，'+wx+'为喜用，缺则喜用不现、不利其气，宜定向培补'+wx+'气'):jiS.has(wx)?('，'+wx+'为忌神，缺则忌神不现、反为有利，宜顺其自然、毋强补'):''; };
+  /* 缺行合为一条：脏腑旺衰表逐行是"一行一五行"，缺行则是"一行一缺组"，其喜忌取向随组内首行。 */
+  const _queGroup=_lack.length
+    ? ('缺'+_lack.join('、')+'（'+_lack.map(hOrg).join('、')+'）失养'+_queTail(_lack[0]))
+    : '';
+  // 单五行→脏腑→喜忌→能量：逐行只留五行与脏腑与倾向，能量分是展示层不取的行内量值
+  const _p1Lines=_present.map(w=>w+'（'+hOrg(w)+'）'+_tend4(w))
+    .concat(_queGroup?[_queGroup]:[]);
+  // 五行生克→脏腑生克
+  const _p2=_present.map(_gz).reduce(function(acc,x){ return acc.concat(x); },[]);
+  // 宫位落脏：四柱干支→脏腑→身体区域（GAN_ZANG/ZHI_ZANG/PILLAR_BODY）+ 旺衰脏腑分野（WX_PILLAR_ZANG）
   const _pillarLocs=BZ.gans.map((g,i)=>{
     const z=BZ.zhis[i];
     const region=(_PB[PALACE[i]+'柱']||{}).区域||'';
     return PALACE[i]+'柱'+g+z+'：'+g+'主'+(_GZ[g]||'')+'、'+z+'主'+(_ZZ[z]||'')+'，落'+region;
   });
-  const _fen=_present.map(w=>hOrg(w)+'（'+w+'）'+((_t4(w)==='过旺'||_t4(w)==='偏旺')?'旺':_weak4(w)?'弱':'平')+'、'+(_pz[w]||'分野未载'));
-  // （4）同异总结：同=生克与旺衰同向（旺克弱、源旺而受生者亦旺）；异=弱难制旺、缺行失制/失养
+  const _fenLines=_present.map(w=>{
+    const st=_fenState[w]||'平', o=hOrg(w), fz=_pz[w]||'分野未载';
+    return o+'（'+w+'）'+st+'、'+fz+'，'+_zangCareOf(_zangOf(o),st);
+  /* 所缺之行本无分野可论，单缺之局并补一条"无某行之旺衰可论、某脏失养"，喜忌取向随行而定；
+     多缺之局诸缺合为一组、无单行之分野可附，此条不出。 */
+  }).concat(_lack.length===1
+    ? ['五行缺'+_lack[0]+'（'+hOrg(_lack[0])+'），无'+_lack[0]+'之旺衰可论，'+hOrg(_lack[0])+'失养'+_queTail(_lack[0])]
+    : []);
+  // 同异总结：同=生克与旺衰同向（旺克弱、源旺而受生者亦旺）；异=弱难制旺、缺行失制、失养
   const _same=[], _diff=[];
   ['木','火','土','金','水'].forEach(a=>{
     const b=WX_KE[a]; const ea=eScore[a]||0, eb=eScore[b]||0;
@@ -5497,21 +6301,28 @@ function renderHealthCard(BZ, ctx){
     if(kewo&&(eScore[kewo]||0)>1e-6&&(_t4(kewo)==='过旺'||_t4(kewo)==='偏旺')) parts.push(hOrg(X)+'失养（受'+kewo+'克）');
     if(parts.length) _diff.push(X+'缺、'+parts.join('、'));
   });
-  const _concl=(_same.length||_diff.length)
-    ? ('同：'+_same.join('；')+(_diff.length?('；异：'+_diff.join('；')):''))
-    : '旺衰与生克相应、无显著相背，脏腑以平顺为常';
-  sH4+='<br>④ 脏腑强弱随五行旺衰流转：'
-    +'<br>(1)五行脏腑旺衰：'+(_p1||'现现五行皆不显')+'。'
-    +'<br>(2)脏腑生克：'+(_p2.length?_p2.join('；')+'。':'现现五行间无生克可论。')
-    +'<br>(3)宫位落脏：'+_pillarLocs.join('；')+'。'+(_fen.length?('旺衰分野：'+_fen.join('；')+'。'):'')
-    +'<br>(4)同异总结：'+_concl;
+  /* 同、异各条一行：组名只标在组首条上，组内逐条并列，读者一眼看得出归属。 */
+  const _tagged=function(arr,tag){ return arr.map(function(x,i){ return i===0?(tag+'：'+x):x; }); };
+  const _conclLines=(_same.length||_diff.length)
+    ? _tagged(_same.length?_same:[''],'同').concat(_diff.length?_tagged(_diff,'异'):[])
+    : ['旺衰与生克相应、无显著相背，脏腑以平顺为常'];
   // 日主所克之脏专项（我克者为所伤）：日主气盛则所克之脏受克太过而耗伤，气弱则所克之脏失于疏制而弛软；与上方倾向角度互补，仅当该脏未被倾向覆盖时单列
   const keWx=WX_KE[dwx];
   if(keWx && hOrg(keWx) && !_present.some(w=>hOrg(w)===hOrg(keWx)&&((jiWxSet.includes(w)&&_t4(w)==='过旺')||(xiWxSet.includes(w)&&_t4(w)==='平和')))){
-    if(_t4(dwx)==='过旺') sH4+='；'+hOrg(keWx)+'为日主（'+dwx+'）所克，日主气盛则克之太过（'+(_pz[keWx]||'')+'），该脏易受耗伤、宜防过劳、避强克之行';
-    else if(_t4(dwx)==='平和') sH4+='；'+hOrg(keWx)+'为日主（'+dwx+'）所克，日主气弱则克之不及（'+(_pz[keWx]||'')+'），该脏失于疏制、易弛软乏力、宜温养';
+    if(_t4(dwx)==='过旺') _conclLines.push(hOrg(keWx)+'为日主（'+dwx+'）所克，日主气盛则克之太过（'+(_pz[keWx]||'')+'），该脏易受耗伤、宜防过劳、避强克之行');
+    else if(_t4(dwx)==='平和') _conclLines.push(hOrg(keWx)+'为日主（'+dwx+'）所克，日主气弱则克之不及（'+(_pz[keWx]||'')+'），该脏失于疏制、易弛软乏力、宜温养');
   }
-  sH4+='。';
+  /* 段内四行各自直书终值：行值在上方逐条算出，此处只做段值收尾（清洗与剥岁运尾巴）。 */
+  const _toRows=function(lines){ return lines.map(function(s){ return cardCleanCell(cardCutYunTail(cardScl(cardStripTags(s)))); }).filter(Boolean); };
+  if(_p1Lines.length||_p2.length||_pillarLocs.length||_fenLines.length||_conclLines.length){
+    _hRows4.push({ cells:['脏腑旺衰', _toRows(_p1Lines).join('[[BR]]')] });
+    _hRows4.push({ cells:['脏腑生克', _toRows(_p2).join('[[BR]]')] });
+    const gongRows=_toRows(_pillarLocs).map(_efGong).filter(Boolean);
+    if(_xingLines.length) gongRows.push('宫位地支关系：'+_xingLines.join('；'));
+    _hRows4.push({ cells:['宫位落脏', gongRows.join('[[BR]]')] });
+    _hRows4.push({ cells:['旺衰分野', _toRows(_fenLines).join('[[BR]]')] });
+    _hRows4.push({ cells:['同异总结', _toRows(_conclLines).join('[[BR]]')] });
+  }
   // 5 风险预警
   const hRisk=[], hShort=[], hFalsif=[];
   if(weak) hRisk.push('身弱本元薄，易感疲劳、抗病力偏弱，宜规律作息、忌过劳耗散。');
@@ -5530,30 +6341,39 @@ function renderHealthCard(BZ, ctx){
   if(ePct('印星')>=REL.TH.PCT_OVER) hShort.push('印星过旺，思多行少、易郁滞，宜动不宜静。');
   if(shaAll.indexOf('华盖')>=0) hFalsif.push('华盖主孤静，若喜静则印证、若过偏则宜主动社交以化解。');
   if(shaAll.indexOf('病符')>=0||shaAll.indexOf('天医')>=0) hFalsif.push('带病符或天医，健康信号明显，平时重调养则无碍。');
-  let sH5='风险提示：'+(hRisk.length?hRisk.join(''):'本局无明显体质凶象，顺时养护就好。');
-  if(hShort.length) sH5+='特征提示：'+hShort.join('');
-  if(hFalsif.length) sH5+='可证伪：'+hFalsif.join('');
+  const hRiskVal=hRisk.length?hRisk.join(''):'本局无明显体质凶象，顺时养护就好。';
+  const hShortVal=hShort.join('');
+  const hFalsifVal=hFalsif.join('');
+  let sH5='风险提示：'+hRiskVal;
+  if(hShort.length) sH5+='特征提示：'+hShortVal;
+  if(hFalsif.length) sH5+='可证伪：'+hFalsifVal;
   // 6 养护机遇方向
   const xiFang=xiWxSet.filter(wx=>WX_FANG[wx]).map(wx=>wx+WX_FANG[wx].li.join('、'));
   const jiFang=jiWxSet.filter(wx=>WX_FANG[wx]).map(wx=>wx+WX_FANG[wx].li.join('、'));
-  let sH6='① <span class="tip sha-ji">喜用</span>养护：<span class="tip sha-ji">喜用</span>'+fuXiStr+'，'+(xiFang.length?('宜就'+xiFang.join('，')+'方位起居、'):'')+'近'+xiWxSet.map(wx=>hOrg(wx)).filter(Boolean).join('、')+'相生之养。';
+  const hYangVal='<span class="tip sha-ji">喜用</span>'+fuXiStr+'，'+(xiFang.length?('宜就'+xiFang.join('，')+'方位起居、'):'')+'近'+xiWxSet.map(wx=>hOrg(wx)).filter(Boolean).join('、')+'相生之养。';
+  let sH6='<span class="tip sha-ji">喜用</span>养护：'+hYangVal;
   const weakWx=xiLack.concat(neuLack);
+  let hWeakVal;
   if(weakWx.length){
     const _wa=weakWx.filter(w=>!_wxInPillar(w)), _ww=weakWx.filter(w=>_wxInPillar(w));
     const parts=[];
     if(_wa.length) parts.push('缺'+_wa.join('、')+'，宜针对性养护'+_wa.map(hOrg).join('、'));
     _ww.forEach(w=>{ const o=hOrg(w); if(xiWxSet.includes(w)) parts.push(w+'（'+o+'）虽现而弱，<span class="tip sha-ji">喜用</span>偏弱、宜定向培补养护'); else parts.push(w+'（'+o+'）虽现而弱、根气受损，影响尚轻'); });
-    sH6+='<br>② 弱项补益：'+parts.join('；')+'。';
+    hWeakVal=parts.join('；')+'。';
   }
-  else if(lackWx.length) sH6+='<br>② 弱项补益：所缺皆属<span class="tip sha-xiong">忌神</span>，反去其病、不必强补，仍以平衡作息运动为要。';
-  else sH6+='<br>② 弱项补益：五行不缺，重在平衡作息运动。';
-  let sH6_3='调神方向：'+(weak?'身弱宜养气固本、静养涵神':strong?'身强宜运动疏泄、汗出适度':'中和宜动静有常');
-  if(ePct('食伤')>=REL.TH.PCT_STRONG) sH6_3+='，思虑多者宜减思静心';
-  else if(ePct('官杀')>=REL.TH.PCT_STRONG) sH6_3+='，紧绷者宜减压疏解';
-  sH6+='<br>③ '+sH6_3+'。';
-  if(jiFang.length) sH6+='<br>④ 宜避：'+jiFang.join('，')+'。';
-  sH6 += '<br>⑤ 寿元根基：' + shouTxt.replace(/^④\s*寿元根基\s*[：:]/, '');
-  sH6 += dyNatalInto('性格健康', BZ, A, '⑥');
+  else if(lackWx.length) hWeakVal='所缺皆属<span class="tip sha-xiong">忌神</span>，反去其病、不必强补，仍以平衡作息运动为要。';
+  else hWeakVal='五行不缺，重在平衡作息运动。';
+  sH6+='<br>弱项补益：'+hWeakVal;
+  let hTuneVal=(weak?'身弱宜养气固本、静养涵神':strong?'身强宜运动疏泄、汗出适度':'中和宜动静有常');
+  if(ePct('食伤')>=REL.TH.PCT_STRONG) hTuneVal+='，思虑多者宜减思静心';
+  else if(ePct('官杀')>=REL.TH.PCT_STRONG) hTuneVal+='，紧绷者宜减压疏解';
+  sH6+='<br>调神方向：'+hTuneVal+'。';
+  const hAvoidVal=jiFang.join('，')+'。';
+  if(jiFang.length) sH6+='<br>宜避：'+hAvoidVal;
+  const hShouVal=shouTxt.replace(/^寿元根基\s*[：:]/, '');
+  sH6 += '<br>寿元根基：' + hShouVal;
+  const hDyVal=dyNatalInto('性格健康', BZ, A);
+  sH6 += hDyVal;
   // 7 身心素质层级
   const hsk={}, hhk={}, hik={};
   hsk['本元']=strong?M('hit','身强本元充固、精力根基厚实'):weak?M('low','身弱本元偏薄、宜养固培元'):M('part','中和本元平实、不偏不倚');
@@ -5570,40 +6390,82 @@ function renderHealthCard(BZ, ctx){
   hik['吉煞护']=jisha.length?M('hit','得'+jisha.join('、')+'等吉煞庇佑、养护有凭'):M('part','无显著养护吉煞、以常养为要');
   const hslv=potLevel(hsk), hhlv=potLevel(hhk), hilv=potLevel(hik);
   let domH=['本元',hslv]; [['调和',hhlv],['养护',hilv]].forEach(o=>{ if(RANK[o[1]]>RANK[domH[1]]) domH=o; });
-  let sH7='本元稳定（'+hslv+'，原局自发）：'+Object.keys(hsk).map(k=>hsk[k].p).join('。')+'。';
-  sH7+='<br>五行调和（'+hhlv+'，原局自发）：'+Object.keys(hhk).map(k=>hhk[k].p).join('。')+'。';
-  sH7+='<br>养护信号（'+hilv+'，原局自发）：'+Object.keys(hik).map(k=>hik[k].p).join('。')+'。';
+  const hBaseVal=Object.keys(hsk).map(k=>hsk[k].p).join('。')+'。';
+  const hHarmVal=Object.keys(hhk).map(k=>hhk[k].p).join('。')+'。';
+  const hCareSignalVal=Object.keys(hik).map(k=>hik[k].p).join('。')+'。';
   const hNeed=[];
   if(hsk['根气'].v==='low') hNeed.push('日主有根');
   if(hhk['均衡'].v==='low') hNeed.push('五行均衡');
   if(hhk['喜用'].v==='low') hNeed.push('<span class="tip sha-ji">喜用</span>得力');
-  // 综合判定开头一句话（中性，与婚姻/事业同款：定性+建议；因子已见 §1/§4/§7 不重述）
+  // 综合判定开头一句话（中性，与婚姻、事业同款：定性+建议；因子已见 §1/§4/§7 不重述）
   const heavyGod=hGodOrder.filter(c=>ePct(c)>=REL.TH.PCT_OVER);
   let sH8 = strong?'性情主观决断、精力可承'
           : weak?'性情内敛随顺、易感疲弱'
           : '性情平实、刚柔相济';
   if(heavyGod.length) sH8+='，心性受'+heavyGod.join('、')+'濡染';
   sH8+='；身心以'+domH[0]+'为先、宜顺时调摄。';
-  sH7+='<br>综合判定：'+sH8+'身心素质可期（综合本元、调和、养护三维度叠加，层级互有高低，任一维度成势皆能增益）。'
+  const hJudgeVal=sH8+'身心素质可期（综合本元、调和、养护三维度叠加，层级互有高低，任一维度成势皆能增益）。'
      + (hNeed.length?('身心所赖'+hNeed.join('、')+'等项原局不足或为忌，需要多重条件齐备才能达到上限，不是原局自带，而是五层叠加。'):'原局已有基础，仍需要以下条件叠加才能充分兑现。');
-  sH7+='<br>① 原局潜力层级：本元'+hslv+'、调和'+hhlv+'、养护'+hilv+'，综合以'+domH[0]+'维度为主导。';
-  sH7+='<br>② 大运流年引动：逢'+fuXiStr+'旺运更顺，身弱宜逢生扶运、身强宜逢疏泄运方为转机。';
-  sH7+='<br>③ 起居风水（外部条件：居所方位、作息环境合<span class="tip sha-ji">喜用</span>）。';
-  sH7+='<br>④ 饮食运动与医疗（外部条件：膳饮节度、适度运动、定期养护）。';
-  sH7+='<br>⑤ 情志修养主观能动性（内在条件：调神养性、疏解压力、规律作息；命理示素质上限与路径，养护与生活方式决定最终落点）。';
-  sH7+='<br>五者齐备，身心之基方能充分兑现，也更有向上提升的空间。'+(strong?'宜以强根承载、动静有常':weak?'宜以养固为要、勿过耗散':'宜以平和为本、顺时调养')+'；然若得良医调护、遇善养之机，亦未尝不可更进一层、康宁久长。相同八字，身心素质未必相同，后天养护与生活方式必定导致差异。';
-  return [
-    '1、本命基调<br>'+sH1,
-    '2、十神关系<br>'+sH2,
-    '3、神煞、纳音与十二长生<br>'+sH3,
-    '4、六亲、脏腑与命局特征<br>'+sH4,
-    '5、风险预警<br>'+sH5,
-    '6、养护调护方向<br>'+sH6,
-    '7、身心素质层级<br>'+sH7
+  const hLvlVal='本元'+hslv+'、调和'+hhlv+'、养护'+hilv+'，综合以'+domH[0]+'维度为主导。';
+  const hYunVal='逢'+fuXiStr+'旺运更顺，身弱宜逢生扶运、身强宜逢疏泄运方为转机。';
+  const hFengVal='外部条件：居所方位、作息环境合<span class="tip sha-ji">喜用</span>';
+  const hDietVal='外部条件：膳饮节度、适度运动、定期养护';
+  const hMoodVal='内在条件：调神养性、疏解压力、规律作息；命理示素质上限与路径，养护与生活方式决定最终落点';
+  const hCloseVal='五者齐备，身心之基方能充分兑现，也更有向上提升的空间。'+(strong?'宜以强根承载、动静有常':weak?'宜以养固为要、勿过耗散':'宜以平和为本、顺时调养')+'；然若得良医调护、遇善养之机，亦未尝不可更进一层、康宁久长。相同八字，身心素质未必相同，后天养护与生活方式必定导致差异。';
+  /* 5 风险预警与 6.1 养护调护方向：行值在算出时直接组装。 */
+  const _hRiskText=cardStripTags(hRiskVal), _hShortText=cardStripTags(hShortVal), _hFalsifText=cardStripTags(hFalsifVal);
+  const _hRiskRows=[];
+  if(_hRiskText.length>3&&!/大运|流年|流月|流日|旺运|应期|引动|触发/.test(_hRiskText)) _hRiskRows.push({ cells:['风险提示', cardCutYunTail(cardScl(_hRiskText))] });
+  if(_hShortText&&!/大运|流年|流月|流日|旺运/.test(_hShortText)) _hRiskRows.push({ cells:['特征提示', cardCutYunTail(cardScl(_hShortText))] });
+  if(_hFalsifText&&!/大运|流年/.test(_hFalsifText)) _hRiskRows.push({ cells:['可证伪', cardCutYunTail(cardScl(_hFalsifText))] });
+  const _hYangRows=[];
+  [['喜用养护',hYangVal],['弱项补益',hWeakVal],['调神方向',hTuneVal],['宜避',jiFang.length?hAvoidVal:'']].forEach(function(x){
+    const c=cardCleanCell(cardStripGeShu(cardCutYunTail(cardScl(cardStripTags(x[1])))));
+    if(c&&c.length>2) _hYangRows.push({ cells:[x[0], c] });
+  });
+  const healthSections=[
+    { title:'本命基调', rows:[{ label:'本命基调', value:sH1 }] },
+    { title:'身心基调', heads:['项目','内容'], rows:_hBaseRows.filter(function(r){ return r[1]; }).map(function(r){ return { cells:[r[0], r[1]] }; }) },
+    { title:'十神关系', heads:['项目','内容'], rows:hGodRowsOut.map(function(r){ return { cells:[r.label, r.value] }; }) },
+    { title:'神煞、纳音与十二长生', heads:['分类','名称','内容'], rows:
+      cardShaRows(BZ,'health').map(function(r){ return { cells:['神煞', r[0], r[1]] }; })
+      .concat(cardNayinRelRows(BZ,'health').map(function(r){ return { cells:['纳音', r[0], r[1]] }; }))
+      .concat(cardChangShengRows(BZ,'health').map(function(r){ return { cells:['十二长生', r[0], r[1]] }; }))
+    },
+    { title:'神煞喜忌', heads:['补注'], rows:[{ cells:[hShaXjVal] }] },
+    { title:'六亲脏腑与命局特征', heads:['项目','状态与作用'], rows:_hRows4.filter(function(r){ return r.cells[1]; }) },
+    { title:'风险预警', heads:['分类','提示'], rows:_hRiskRows },
+    { title:'养护调护方向', heads:['项目','内容'], rows:_hYangRows },
+    { title:'寿元根基', heads:['项目','内容'], rows:_hShouRows.map(function(r){ return { cells:[r[0], r[1]] }; }) },
+    { title:'寿元根基补注', heads:['补注'], rows:_hShouNote?[{ cells:[_hShouNote] }]:[] },
+    { title:'古籍断语', heads:['断语','出处'], rows:dyRowList('性格健康', BZ, A) },
+    { title:'身心素质层级', heads:['维度','层级','说明'], rows:(function(){
+      const sc={低:1,'待运':1.5,中:2,高:3};
+      let t=0,w=0;
+      [['本元',hslv],['调和',hhlv],['养护',hilv]].forEach(function(o){
+        const ww=(o[0]===domH[0])?0.5:0.25; t+=(sc[o[1]]||1)*ww; w+=ww;
+      });
+      const tot=w?(t/w>=2.6?'高':t/w>=1.7?'中':'低'):'';
+      return [
+        { cells:['本元稳定', hslv, hBaseVal] },
+        { cells:['五行调和', hhlv, hHarmVal] },
+        { cells:['养护信号', hilv, hCareSignalVal] },
+        { cells:['综合判定', tot, hJudgeVal] },
+        { cells:['原局潜力', tot, hLvlVal] },
+        { cells:['大运流年', '外部', hYunVal] },
+        { cells:['起居风水', '外部', hFengVal.replace(/^外部条件：/,'')] },
+        { cells:['饮食医养', '外部', hDietVal.replace(/^外部条件：/,'')] },
+        { cells:['情志修养', '内在', hMoodVal.replace(/^内在条件：/,'')] },
+        { cells:['总体取向', '', hCloseVal.replace(/^五者齐备，/,'')] }
+      ];
+    })() }
   ];
+  baziCardModelPublish('health', healthSections.map(s=>({ title:s.title, heads:s.heads, rows:s.rows.filter(r=>r&&(r.cells||(r.value!==''&&r.value!=null))) })));
+  return healthSections.filter(s=>s.value).map(s=>(s.title+'<br>'+s.value));
 }
 
 function renderFamilyCard(BZ, ctx){
+  baziCardModelReset('family');
   const { PALACE, dg, dwx, A, ss, lq, spouse, strong, weak, wxArr, eScore, eTotal, eAvg, tenE, eCats, ePct, shangWx, wealthWx, yinWx, killWx, isMale, organs, shaAll, normSha, shaNames, fuXi, fuJi, fuXiStr, xiWxSet, jiWxSet, caiTou, guanTou, yinTou, shangTou, biTou, spouseNote, shaSeg, career, marry, M, potLevel, RANK, FANG, genRoot, genTou, xiScore, dayNayinWx, dayCs, relNote, catTouN, catTouChars, godPos, CS_STRONG, CS_WEAK, csWangDi, fangUniq, fiveRing, fr } = ctx;
   // ===== 家庭子女：七节框架（与 事业财运，婚姻感情，性格健康 同构）=====
   const caiFather=BZ.gans.filter(g=>tenGod(dg,g)==='偏财');
@@ -5640,7 +6502,7 @@ function renderFamilyCard(BZ, ctx){
       '比劫':'手足情笃、互助有常。'
     })[cat]||'';
   };
-  const fGodItems=[];
+  const fGodItems=[], fGodRows=[];
   fGodOrder.forEach(cat=>{
     const total=(lq[cat]||0); if(total===0) return;
     // 旺衰档按五行能量分（相对均值，与量化四柱同源），不可按个数判（余气藏干堆个数≠真能量）
@@ -5648,11 +6510,13 @@ function renderFamilyCard(BZ, ctx){
     const str= (e>WX_TIER_HI*eAvg)?'过旺' : (e>WX_TIER_LO*eAvg)?'偏旺' : '平和';
     // 喜忌标签先行（与性格卡逐神同格式，先判喜忌再析家庭意义，禁只有旺衰无喜忌）
     const _fXJ=xiWxSet.includes(wx)?'为<span class="tip sha-ji">喜用</span>':jiWxSet.includes(wx)?'为<span class="tip sha-xiong">忌神</span>':'与喜忌无涉';
-    // note 后补"透藏落宫转译"（家庭视角：祖上/父母/持家/子女），打破固定模板句雷同
+    // note 后补"透藏落宫转译"（家庭视角：祖上、父母、持家、子女），打破固定模板句雷同
     const _luo=tenLuoGong({BZ, wxOf:fGodWx, lq}, cat, 'family');
-    fGodItems.push(cat+'属'+(fGodWx[cat]||'')+'，命局'+total+'个、'+godPos(cat)+'，'+str+'，'+_fXJ+'。'+fNoteFn(cat,str)+(_luo?(''+_luo+'。'):''));
+    const item=cat+'属'+(fGodWx[cat]||'')+'，命局'+total+'个、'+godPos(cat)+'，'+str+'，'+_fXJ+'。'+fNoteFn(cat,str)+(_luo?(''+_luo+'。'):'');
+    fGodItems.push(item);
+    fGodRows.push({ label:cat, value:item });
   });
-  // 家庭两两作用（顶层统一判定 REL.tenCombo 命中关系 → 家庭主题句；与事业/十神宫位同一喜忌裁决，避免口径分叉）
+  // 家庭两两作用（顶层统一判定 REL.tenCombo 命中关系 → 家庭主题句；与事业、十神宫位同一喜忌裁决，避免口径分叉）
   const _tCtxF=(typeof REL!=='undefined'&&REL.tenCombo&&REL.tenCombo.buildCtx)?REL.tenCombo.buildCtx(BZ):null;
   const _tHitsF=_tCtxF?REL.tenCombo.matchAll(_tCtxF):[];
   const _negSayF=s=>/为忌|忌神|破财|克身|受损|祸患|夺食|压力|虚浮|难成/.test(s||'');
@@ -5662,19 +6526,28 @@ function renderFamilyCard(BZ, ctx){
   }).filter(Boolean);
   let fFlow=fr.flowStr+fr.fJudge
     + (((lq['印星']||0)===0 && (lq['财星']||0)===0)?'印财俱弱，亲情与家资助力偏薄，家庭宜自立经营。':'');
-  let sF2;
+  let sF2, fGodRowsOut;
   {
-    let idx=0; const parts=[];
-    fGodItems.forEach(t=>{ parts.push('①②③④⑤'[idx]+' '+t); idx++; });
-    if(fPair.length){ parts.push('①②③④⑤⑥'[idx]+' 两两作用：'+fPair.join('')); idx++; }
-    parts.push('①②③④⑤⑥⑦'[idx]+' '+fFlow);
-    sF2 = fGodItems.length ? parts.join('<br>') : '十神分布无单项过旺，家庭气场相对均衡，不易因某一十神偏激而生家庭之扰。';
+    const parts=[];
+    fGodItems.forEach(t=>{ parts.push(t); });
+    const fPairVal=fPair.join('');
+    if(fPair.length){ parts.push('两两作用：'+fPairVal); }
+    parts.push(fFlow);
+    if(fGodItems.length){
+      sF2 = parts.join('<br>');
+      fGodRowsOut = fGodRows.slice();
+      if(fPair.length) fGodRowsOut.push({ label:'两两作用', value:fPairVal });
+      fGodRowsOut.push({ label:'十神流转', value:fFlow });
+    } else {
+      sF2 = '十神分布无单项过旺，家庭气场相对均衡，不易因某一十神偏激而生家庭之扰。';
+      fGodRowsOut = [{ label:'十神关系', value:sF2 }];
+    }
   }
   // 3 神煞、纳音与十二长生
   const fyN=nayinOf(BZ.gans[0]+BZ.zhis[0]), ftN=nayinOf(BZ.gans[3]+BZ.zhis[3]);
-  let sF3='① '+shaSeg('family');
-  sF3+='<br>② 纳音：祖上年命'+nayinColorSpan(fyN)+relNote((NAYIN_INFO[fyN]||{}).wx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,(NAYIN_INFO[fyN]||{}).wx)]||{}).family)||'')+'；子女宫'+nayinColorSpan(ftN)+relNote((NAYIN_INFO[ftN]||{}).wx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,(NAYIN_INFO[ftN]||{}).wx)]||{}).family)||'')+'。';
-  sF3+='<br>③ 十二长生：年支'+BZ.zhis[0]+'（'+dayCs[0]+'，祖辈宫、主家运根基）、月支'+BZ.zhis[1]+'（'+dayCs[1]+'）、日支'+BZ.zhis[2]+'（'+dayCs[2]+'）、时支'+BZ.zhis[3]+'（'+dayCs[3]+'，子女宫、主晚景家运）。'+
+  const fShaVal=shaSeg('family');
+  const fNaVal='祖上年命'+nayinColorSpan(fyN)+relNote((NAYIN_INFO[fyN]||{}).wx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,(NAYIN_INFO[fyN]||{}).wx)]||{}).family)||'')+'；子女宫'+nayinColorSpan(ftN)+relNote((NAYIN_INFO[ftN]||{}).wx)+'，'+(((NAYIN_REL_MEAN[relShort(dwx,(NAYIN_INFO[ftN]||{}).wx)]||{}).family)||'')+'。';
+  const fCsVal='年支'+BZ.zhis[0]+'（'+dayCs[0]+'，祖辈宫、主家运根基）、月支'+BZ.zhis[1]+'（'+dayCs[1]+'）、日支'+BZ.zhis[2]+'（'+dayCs[2]+'）、时支'+BZ.zhis[3]+'（'+dayCs[3]+'，子女宫、主晚景家运）。'+
     (CS_STRONG.indexOf(dayCs[0])>=0?('年支（祖辈宫）坐'+csWangDi(dayCs[0])+'，家运根基厚实、长辈荫庇有情。'):
      CS_WEAK.indexOf(dayCs[0])>=0?('年支（祖辈宫）坐'+dayCs[0]+'弱地，家运根基偏弱、宜外力培植。'):
      ('年支（祖辈宫）坐'+dayCs[0]+'平地，家运平顺、根基稳固。'))+
@@ -5684,10 +6557,11 @@ function renderFamilyCard(BZ, ctx){
   // 神煞与喜忌相参（吉凶神煞挂钩家运喜忌，与事业卡同口径）
   const _fj=shaNames('天乙贵人','天德贵人','月德贵人','福星贵人','禄神','金舆','将星','德秀贵人');
   const _fx=shaNames('孤辰','寡宿','丧门','披麻','童子','天罗','地网');
-  sF3+='<br>'+shaXiJiNote(_fj,_fx,'家宅安泰有凭','亲缘宜用心维系','本局家运神煞无显著吉凶、以常安论之');
+  const fShaXjVal=shaXiJiNote(_fj,_fx,'家宅安泰有凭','亲缘宜用心维系','本局家运神煞无显著吉凶、以常安论之');
   // 4 六亲与命局特征（①宫位十神 ②子女星能量 ③喜忌判定 ④宫位冲刑）
-  let sF4='① 祖辈宫（年柱）天干'+yearGongGan+'、地支'+yearGongZhi+(shenCat(yearGongGan)===shenCat(yearGongZhi)?'（干支同心）':'（干支异气）')+'，主早年家门、祖上根基；子女宫（时柱）天干'+timeGongGan+'、地支'+timeGongZhi+'，'+(isMale?(['正官','七杀'].indexOf(timeGongZhi)>=0?'坐官杀，子女缘厚、易得成器之嗣':'非官杀本位，子女宜迟养或用心教化'):(['食神','伤官'].indexOf(timeGongZhi)>=0?'坐食伤，子女缘厚、易得聪慧之嗣':'非食伤本位，子女宜迟养或用心教化'))+'。';
-  sF4+='<br>② '+(isMale?'男命以官杀为子女（属'+killWx+'），':'女命以食伤为子女（属'+shangWx+'），')+'命局'+childCnt+'个'+(childE>=REL.TH.PCT_STRONG?(isMale?'，官杀旺则子女成行、宜善导':'，食伤旺则子女聪秀、宜因材施教'):(childE<REL.TH.PCT_WEAK?'，子女星虚浮、宜经营':'，子女星平和、寻常教养即可'))+'。';
+  const fGongVal='祖辈宫（年柱）天干'+yearGongGan+'、地支'+yearGongZhi+(shenCat(yearGongGan)===shenCat(yearGongZhi)?'（干支同心）':'（干支异气）')+'，主早年家门、祖上根基；子女宫（时柱）天干'+timeGongGan+'、地支'+timeGongZhi+'，'+(isMale?(['正官','七杀'].indexOf(timeGongZhi)>=0?'坐官杀，子女缘厚、易得成器之嗣':'非官杀本位，子女宜迟养或用心教化'):(['食神','伤官'].indexOf(timeGongZhi)>=0?'坐食伤，子女缘厚、易得聪慧之嗣':'非食伤本位，子女宜迟养或用心教化'))+'。';
+  const fChildVal=(isMale?'男命以官杀为子女（属'+killWx+'），':'女命以食伤为子女（属'+shangWx+'），')+'命局'+childCnt+'个'+(childE>=REL.TH.PCT_STRONG?(isMale?'，官杀旺则子女成行、宜善导':'，食伤旺则子女聪秀、宜因材施教'):(childE<REL.TH.PCT_WEAK?'，子女星虚浮、宜经营':'，子女星平和、寻常教养即可'))+'。';
+  let sF4=fGongVal+'<br>'+fChildVal;
   // 子女星与父母宫喜忌判定（与婚姻卡六亲同口径，禁只列能量档）
   const _childWx=isMale?killWx:shangWx;
   const _childXi=fuXi.indexOf(_childWx)>=0, _childJi=fuJi.indexOf(_childWx)>=0;
@@ -5700,7 +6574,7 @@ function renderFamilyCard(BZ, ctx){
     +((_yGanXi||_yZhiXi)?'祖荫能助家业':'')
     +((_yGanJi||_yZhiJi)?((_yGanXi||_yZhiXi)?'，然助力亦有偏处':'祖荫助力偏薄、家业宜自立'):'')
     +((!_yGanXi&&!_yGanJi&&!_yZhiXi&&!_yZhiJi)?'与喜忌无涉、祖荫平常':'')+'。';
-  sF4+='<br>③ '+_sF4Xi+_sF4Yao;
+  sF4+='<br>'+_sF4Xi+_sF4Yao;
   // 宫位冲刑害合：按地支对去重（年支破时支 与 时支破年支 是同一关系，只列一次）
   const famRel=[], _famSeen=new Set();
   [['年支',BZ.zhis[0]],['月支',BZ.zhis[1]],['时支',BZ.zhis[3]]].forEach(([p,z])=>{
@@ -5712,7 +6586,8 @@ function renderFamilyCard(BZ, ctx){
       famRel.push(p+r);
     });
   });
-  sF4+='<br>④ '+(famRel.length?('命局'+famRel.join('、')+'，宫位牵动、主家宅或亲缘有变，宜以缘份经营化解。'):'祖辈宫（年柱）、子女宫（时柱）安静，家宅缘份平稳。');
+  const fRelVal=(famRel.length?('命局'+famRel.join('、')+'，宫位牵动、主家宅或亲缘有变，宜以缘份经营化解。'):'祖辈宫（年柱）、子女宫（时柱）安静，家宅缘份平稳。');
+  sF4+='<br>'+fRelVal;
   // 5 风险预警
   const fRisk=[], fShort=[], fFalsif=[];
   const famChong=famRel.some(r=>relTypeOf(r)==='冲'), famXing=famRel.some(r=>relTypeOf(r)==='刑');
@@ -5722,16 +6597,23 @@ function renderFamilyCard(BZ, ctx){
   if(childE>=REL.TH.PCT_OVER) fShort.push((isMale?'官杀':'食伤')+'过旺，子女管教宜张弛有度、防严苛或溺爱。');
   const gu=shaNames('孤辰','寡宿');
   if(gu.length) fFalsif.push('带'+gu.join('、')+'，若疏于经营则亲缘易淡、宜主动维系。');
-  let sF5='风险提示：'+(fRisk.length?fRisk.join(''):'本局无明显家庭凶象，家宅缘份平稳。');
-  if(fShort.length) sF5+='特征提示：'+fShort.join('');
-  if(fFalsif.length) sF5+='可证伪：'+fFalsif.join('');
+  const fRiskVal=fRisk.length?fRisk.join(''):'本局无明显家庭凶象，家宅缘份平稳。';
+  const fShortVal=fShort.join('');
+  const fFalsifVal=fFalsif.join('');
+  let sF5='风险提示：'+fRiskVal;
+  if(fShort.length) sF5+='特征提示：'+fShortVal;
+  if(fFalsif.length) sF5+='可证伪：'+fFalsifVal;
   // 6 家庭机遇方向
   const fXiFang=xiWxSet.filter(wx=>WX_FANG[wx]).map(wx=>wx+WX_FANG[wx].li.join('、'));
   const fJiFang=jiWxSet.filter(wx=>WX_FANG[wx]).map(wx=>wx+WX_FANG[wx].li.join('、'));
-  let sF6='① 子女教化：'+(childE>=REL.TH.PCT_STRONG?(isMale?'官杀旺，子女宜立规矩、因势利导':'食伤旺，子女宜顺性启智、宽松教养'):childE<REL.TH.PCT_WEAK?'子女星弱，宜用心经营、迟养或借缘':'子女星平和，宜寻常教养、顺其自然')+'。';
-  sF6+='<br>② 家庭经营：'+(strong?'身强能担家庭之责、宜主动维系':'身弱宜借亲力、家庭多赖互助')+'，'+(caiFather.length?'父缘明现、家资有源':'父缘看支、宜以情补')+'。';
-  sF6+='<br>③ 居家方位：'+(fXiFang.length?('本命'+kXi('喜')+fuXiStr+'，居所、书房宜向'+fangUniq(fXiFang)+'（<span class="tip sha-ji">喜用</span>方位引气入局，家和运顺、子女缘得润）；'):'')+(fJiFang.length?('须避'+fangUniq(fJiFang)+'（<span class="tip sha-xiong">忌神</span>方位气场相背，易生耗散、宜远之）'):'')+'。';
-  sF6 += dyNatalInto('家庭子女', BZ, A, '④');
+  const fJiaoVal=(childE>=REL.TH.PCT_STRONG?(isMale?'官杀旺，子女宜立规矩、因势利导':'食伤旺，子女宜顺性启智、宽松教养'):childE<REL.TH.PCT_WEAK?'子女星弱，宜用心经营、迟养或借缘':'子女星平和，宜寻常教养、顺其自然')+'。';
+  let sF6='子女教化：'+fJiaoVal;
+  const fJingVal=(strong?'身强能担家庭之责、宜主动维系':'身弱宜借亲力、家庭多赖互助')+'，'+(caiFather.length?'父缘明现、家资有源':'父缘看支、宜以情补')+'。';
+  sF6+='<br>家庭经营：'+fJingVal;
+  const fFangVal=(fXiFang.length?('本命'+kXi('喜')+fuXiStr+'，居所、书房宜向'+fangUniq(fXiFang)+'（<span class="tip sha-ji">喜用</span>方位引气入局，家和运顺、子女缘得润）；'):'')+(fJiFang.length?('须避'+fangUniq(fJiFang)+'（<span class="tip sha-xiong">忌神</span>方位气场相背，易生耗散、宜远之）'):'')+'。';
+  sF6+='<br>居家方位：'+fFangVal;
+  const fDyVal=dyNatalInto('家庭子女', BZ, A);
+  sF6 += fDyVal;
   // 7 家庭子女缘分层级
   const fsk={}, fhk={}, fik={};
   fsk['父母宫']=(shenCat(tenGod(dg,BZ.gans[1]))==='印星'||yinTou.length>0||(lq['印星']||0)>=1)?M('hit','父母宫得印、父母之助有情、亲情有依'):M('low','父母宫印星不显、亲情宜自立经营');
@@ -5744,32 +6626,104 @@ function renderFamilyCard(BZ, ctx){
   fik['吉煞护']=jias.length?M('hit','得'+jias.join('、')+'等吉煞、家运有护'):M('part','无显著家运吉煞、以常经营为要');
   const fslv=potLevel(fsk), fhlv=potLevel(fhk), filv=potLevel(fik);
   let domF=['亲情',fhlv]; [['根基',fslv],['缘分',filv]].forEach(o=>{ if(RANK[o[1]]>RANK[domF[1]]) domF=o; });
-  let sF7='根基稳定（'+fslv+'，原局自发）：'+Object.keys(fsk).map(k=>fsk[k].p).join('。')+'。';
-  sF7+='<br>亲情和谐（'+fhlv+'，原局自发）：'+Object.keys(fhk).map(k=>fhk[k].p).join('。')+'。';
-  sF7+='<br>子女缘分（'+filv+'，原局自发）：'+Object.keys(fik).map(k=>fik[k].p).join('。')+'。';
+  const fBaseVal=Object.keys(fsk).map(k=>fsk[k].p).join('。')+'。';
+  const fHarmVal=Object.keys(fhk).map(k=>fhk[k].p).join('。')+'。';
+  const fFateVal=Object.keys(fik).map(k=>fik[k].p).join('。')+'。';
   const fNeed=[];
   if(fsk['子女宫'].v==='low') fNeed.push('子女宫得位');
   if(fhk['印星'].v==='low') fNeed.push('印星得力');
   if(fik['子女星'].v==='low') fNeed.push('子女星旺');
-  // 综合判定开头一句话（中性，与婚姻/事业同款：定性+建议；因子已见 §7 不重述）
+  // 综合判定开头一句话（中性，与婚姻、事业同款：定性+建议；因子已见 §7 不重述）
   let sF8='家庭缘份以'+domF[0]+'为主导、子女缘份随子女宫星厚薄，宜以经营维系、亲子沟通、长期投入。';
-  sF7+='<br>综合判定：'+sF8+'家庭子女缘份可期（综合根基、亲情、缘分三维度叠加，层级互有高低，任一维度成势皆能增益）。'
+  const fJudgeVal=sF8+'家庭子女缘份可期（综合根基、亲情、缘分三维度叠加，层级互有高低，任一维度成势皆能增益）。'
      + (fNeed.length?('缘份所赖'+fNeed.join('、')+'等项原局不足或为忌，需要多重条件齐备才能达到上限，不是原局自带，而是五层叠加。'):'原局已有基础，仍需要以下条件叠加才能充分兑现。');
-  sF7+='<br>① 原局潜力层级：根基'+fslv+'、亲情'+fhlv+'、缘分'+filv+'，综合以'+domF[0]+'维度为主导。';
-  sF7+='<br>② 大运流年引动：逢'+fuXiStr+'旺运更顺，子女星<span class="tip sha-ji">为喜用</span>则逢<span class="tip sha-ji">喜用</span>运子女缘更厚。';
-  sF7+='<br>③ 风水合局（外部条件：家宅风水、居所布局宜合<span class="tip sha-ji">喜用</span>）。';
-  sF7+='<br>④ 家风环境（外部条件：家教氛围、居所方位合<span class="tip sha-ji">喜用</span>）。';
-  sF7+='<br>⑤ 经营主观能动性（内在条件：亲子沟通、家庭经营、长期投入；命理示缘份上限与路径，经营决定最终落点）。';
-  sF7+='<br>五者齐备，家庭子女之基方能充分兑现，也更有向上提升的空间。'+(strong?'宜以担当维系家庭':'宜以柔情经营亲情')+'；然若得良缘相引、遇善经营之机，亦未尝不可更进一层、家道兴隆。相同八字，家庭子女缘份未必相同，后天经营与机缘必定导致差异。';
-  return [
-    '1、本命基调<br>'+sF1,
-    '2、十神关系<br>'+sF2,
-    '3、神煞、纳音与十二长生<br>'+sF3,
-    '4、六亲与命局特征<br>'+sF4,
-    '5、风险预警<br>'+sF5,
-    '6、家庭经营方向<br>'+sF6,
-    '7、家庭子女缘分<br>'+sF7
+  const fLvlVal='根基'+fslv+'、亲情'+fhlv+'、缘分'+filv+'，综合以'+domF[0]+'维度为主导。';
+  const fYunVal='逢'+fuXiStr+'旺运更顺，子女星<span class="tip sha-ji">为喜用</span>则逢<span class="tip sha-ji">喜用</span>运子女缘更厚。';
+  const fFengVal='外部条件：家宅风水、居所布局宜合<span class="tip sha-ji">喜用</span>';
+  const fHomeVal='外部条件：家教氛围、居所方位合<span class="tip sha-ji">喜用</span>';
+  const fActVal='内在条件：亲子沟通、家庭经营、长期投入；命理示缘份上限与路径，经营决定最终落点';
+  const fCloseVal='五者齐备，家庭子女之基方能充分兑现，也更有向上提升的空间。'+(strong?'宜以担当维系家庭':'宜以柔情经营亲情')+'；然若得良缘相引、遇善经营之机，亦未尝不可更进一层、家道兴隆。相同八字，家庭子女缘份未必相同，后天经营与机缘必定导致差异。';
+  /* 3 六亲与命局特征：行值在宫位与子女星算出处直接组装。 */
+  const _fRows4=[];
+  {
+    const PM=(typeof window!=='undefined'&&window.PILLAR_MAP)||{};
+    const LQ_YM=(PM.年柱&&PM.年柱.六亲宫位)?PM.年柱.六亲宫位.split('、')[0]:'祖辈宫';
+    const LQ_YY=(PM.月柱&&PM.月柱.六亲宫位)?PM.月柱.六亲宫位.split('、')[0]:'父母宫';
+    const LQ_RR=(PM.日柱&&PM.日柱.六亲宫位)?(PM.日柱.六亲宫位.split('、')[1]||'夫妻宫'):'夫妻宫';
+    const qiangS=(A&&A.strength)?A.strength:'旺衰未判';
+    const zuXi=function(wx){ return fuXi.indexOf(wx)>=0?'为喜用':(fuJi.indexOf(wx)>=0?'为忌神':'平平'); };
+    const g0=BZ.gans[0], z0=BZ.zhis[0], b0=zhiMain(z0);
+    const t0g=tenGod(BZ.dayGan,g0), t0z=tenGod(BZ.dayGan,b0);
+    _fRows4.push({ cells:[LQ_YM, '年柱'+g0+z0+'，天干'+g0+'为'+t0g+'（'+GAN_WX[g0]+'，'+zuXi(GAN_WX[g0]).replace('为','')+'）、地支本气'+b0+'为'+t0z+'（'+GAN_WX[b0]+'，'+zuXi(GAN_WX[b0]).replace('为','')+'），干支'+(GAN_WX[g0]===GAN_WX[b0]?'同气':'异气')+'，祖荫助力偏薄、家业宜自立'] });
+    const g1=BZ.gans[1], z1=BZ.zhis[1], b1=zhiMain(z1);
+    const t1g=tenGod(BZ.dayGan,g1), t1z=tenGod(BZ.dayGan,b1);
+    const w1g=GAN_WX[g1], w1b=GAN_WX[b1];
+    const JIA_JIAO={'火':{'喜用':'重才情言传、家教宽而启智','忌神':'才情过盛、家教宜防骄纵','平':'才情外放、家教随性'},'金':{'喜用':'重规矩严正、管教有章','忌神':'规矩偏苛、家教宜防僵化','平':'家教守序、规矩随常'},'水':{'喜用':'重涵养润泽、家教宽和','忌神':'溺爱偏多、家教宜立界限','平':'家教温和、涵养为先'},'木':{'喜用':'重仁厚家风、家教和顺','忌神':'家教松散、宜立规矩','平':'家教仁和、顺性而养'},'土':{'喜用':'重朴实家道、家教厚重','忌神':'家教保守、宜开明通达','平':'家教厚实、重实务'}};
+    const jj=(JIA_JIAO[w1g]||{})[fuXi.indexOf(w1g)>=0?'喜用':(fuJi.indexOf(w1g)>=0?'忌神':'平')]||'家教随月令之气';
+    _fRows4.push({ cells:[LQ_YY, '月柱'+g1+z1+'，天干'+g1+'为'+t1g+'（'+w1g+'，'+zuXi(w1g).replace('为','')+'）、地支本气'+b1+'为'+t1z+'（'+w1b+'，'+zuXi(w1b).replace('为','')+'），'+jj] });
+    const g2=BZ.gans[2], z2=BZ.zhis[2], b2=zhiMain(z2);
+    const t2z=tenGod(BZ.dayGan,b2);
+    _fRows4.push({ cells:[LQ_RR, '日柱'+g2+z2+'，日主'+g2+GAN_WX[g2]+qiangS+'，地支本气'+b2+'为'+t2z+'（'+GAN_WX[b2]+'，'+zuXi(GAN_WX[b2]).replace('为','')+'），夫妻宫'+(fuXi.indexOf(GAN_WX[b2])>=0?'喜用得助、宜同心持家':'宫气平常、宜包容经营')] });
+    const g3=BZ.gans[3], z3=BZ.zhis[3], b3=zhiMain(z3);
+    const t3g=tenGod(BZ.dayGan,g3), t3z=tenGod(BZ.dayGan,b3);
+    const znTen=isMale?'官杀':'食伤';
+    const znWx=isMale?killWx:shangWx;
+    const znQue=/命局0个|不现|虚浮|无子女星/.test(String(fChildVal));
+    const znBase='时柱'+g3+z3+'，天干'+g3+'为'+t3g+'、地支本气'+b3+'为'+t3z+'；'+(isMale?'男命':'女命')+'以'+znTen+'为子女';
+    const znState=znWx?('，'+znTen+'（'+znWx+'，'+zuXi(znWx).replace('为','')+'）'):'';
+    _fRows4.push({ cells:['子女星', znBase+znState+(znQue?'，然原局不现、子女缘当前偏虚、须待岁运引出方厚':'')] });
+    if(famRel.length){
+      const c=cardStripBr(cardCleanCell(cardStripGeShu(cardCutYunTail(cardScl(fRelVal)))));
+      if(c) _fRows4.push({ cells:['宫位冲害', c] });
+    }
+  }
+  /* 4 风险预警与 5.1 家庭经营方向：行值在算出时直接组装。 */
+  const _fRiskText=cardStripTags(fRiskVal), _fShortText=cardStripTags(fShortVal), _fFalsifText=cardStripTags(fFalsifVal);
+  const _fRiskRows=[];
+  if(_fRiskText.length>3&&!/大运|流年|流月|流日|旺运|应期|引动|触发/.test(_fRiskText)) _fRiskRows.push({ cells:['风险提示', cardCutYunTail(cardScl(_fRiskText))] });
+  if(_fShortText&&!/大运|流年|流月|流日|旺运/.test(_fShortText)) _fRiskRows.push({ cells:['特征提示', cardCutYunTail(cardScl(_fShortText))] });
+  if(_fFalsifText&&!/大运|流年/.test(_fFalsifText)) _fRiskRows.push({ cells:['可证伪', cardCutYunTail(cardScl(_fFalsifText))] });
+  const _fJingRows=[];
+  [['子女教化',fJiaoVal],['家庭经营',fJingVal],['居家方位',fFangVal]].forEach(function(x){
+    const c=cardCleanCell(cardStripGeShu(cardCutYunTail(cardScl(cardStripTags(x[1])))));
+    if(c&&c.length>2) _fJingRows.push({ cells:[x[0], c] });
+  });
+  const familySections=[
+    { title:'本命基调', rows:[{ label:'本命基调', value:sF1 }] },
+    { title:'十神关系', heads:['项目','内容'], rows:fGodRowsOut.map(function(r){ return { cells:[r.label, r.value] }; }) },
+    { title:'神煞、纳音与十二长生', heads:['分类','名称','内容'], rows:
+      cardShaRows(BZ,'family').map(function(r){ return { cells:['神煞', r[0], r[1]] }; })
+      .concat(cardNayinGongRows(BZ).map(function(r){ return { cells:['纳音', r[0], r[1]] }; }))
+      .concat(cardChangShengRows(BZ,'family').map(function(r){ return { cells:['十二长生', r[0], r[1]] }; }))
+    },
+    { title:'神煞喜忌', heads:['补注'], rows:[{ cells:[fShaXjVal] }] },
+    { title:'六亲与命局特征', heads:['项目','状态与作用'], rows:_fRows4 },
+    { title:'风险预警', heads:['分类','提示'], rows:_fRiskRows },
+    { title:'家庭经营方向', heads:['项目','内容'], rows:_fJingRows },
+    { title:'古籍断语', heads:['断语','出处'], rows:dyRowList('家庭子女', BZ, A) },
+    { title:'家庭子女缘分', heads:['维度','层级','说明'], rows:(function(){
+      const sc={低:1,'待运':1.5,中:2,高:3};
+      let t=0,w=0;
+      [['根基',fslv],['亲情',fhlv],['缘分',filv]].forEach(function(o){
+        const ww=(o[0]===domF[0])?0.5:0.25; t+=(sc[o[1]]||1)*ww; w+=ww;
+      });
+      const tot=w?(t/w>=2.6?'高':t/w>=1.7?'中':'低'):'';
+      return [
+        { cells:['根基稳定', fslv, fBaseVal] },
+        { cells:['亲情和谐', fhlv, fHarmVal] },
+        { cells:['子女缘分', filv, fFateVal] },
+        { cells:['综合判定', tot, fJudgeVal] },
+        { cells:['原局潜力', tot, fLvlVal] },
+        { cells:['大运流年', '外部', fYunVal] },
+        { cells:['风水合局', '外部', fFengVal.replace(/^外部条件：/,'')] },
+        { cells:['家风环境', '外部', fHomeVal.replace(/^外部条件：/,'')] },
+        { cells:['个人经营', '内在', fActVal.replace(/^内在条件：/,'')] },
+        { cells:['总体取向', '', fCloseVal.replace(/^五者齐备，/,'')] }
+      ];
+    })() }
   ];
+  baziCardModelPublish('family', familySections.map(s=>({ title:s.title, heads:s.heads, rows:s.rows.filter(r=>r&&(r.cells||(r.value!==''&&r.value!=null))) })));
+  return familySections.filter(s=>s.value).map(s=>(s.title+'<br>'+s.value));
 }
 
 /* ============ 四柱宫位总表 ============
@@ -5898,11 +6852,11 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   const fuXi=A.fu.xiCats||[], fuJi=A.fu.jiCats||[];
   const xiSet=new Set(fuXi), jiSet=new Set(fuJi);
   function tenCat(gz){ const g=tenGod(dg,gz[0]), z=tenGod(dg,zhiMain(gz[1])); let tag=[]; [g,z].forEach(t=>{const c=shenCat(t); if(xiSet.has(c))tag.push('喜');else if(jiSet.has(c))tag.push('忌');}); return {g,z,tag:tag.length?tag.join(''):'中'}; }
-  // 格局用神/忌神表述多为"动宾用途句"（食伤生财/官杀护财/比劫夺财/官杀制刃…）：
+  // 格局用神、忌神表述多为"动宾用途句"（食伤生财、官杀护财、比劫夺财、官杀制刃…）：
   // 格局用神类集：数据层已编译为结构化字段（xiCats/jiCats），此处直接读取，不再解析用途句文本
   const geUseXiCats=(A.geUse&&A.geUse.xiCats)||[];
   const geUseJiCats=(A.geUse&&A.geUse.jiCats)||[];
-  // ---- 解说层数据源：把页面已算的“所选干支详情 / 与命局干支关系 / 所选干支间关系”提炼成可白话解说的结构化事实 ----
+  // ---- 解说层数据源：把页面已算的“所选干支详情、与命局干支关系、所选干支间关系”提炼成可白话解说的结构化事实 ----
   function relPlain(a,b,la,lb){
     const labs=(la&&lb)?[la,lb]:undefined; const pre=(la&&lb)?la+lb:'';
     const gr=ganRelations([a[0],b[0]], BZ, labs);
@@ -5946,7 +6900,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       default: return '中';
     }
   }
-  function keyHe(scName, x){   // 天干合：该派关键对象被合 → 优先解读（用神/调候字/药神/官杀财）
+  function keyHe(scName, x){   // 天干合：该派关键对象被合 → 优先解读（用神、调候字、药神、官杀财）
     const wx=GAN_WX[x];
     switch(scName){
       case '调候派': return (A.tiao.xiWx||[]).indexOf(wx)>=0?(x+'为调候取用，逢合则寒暖之济受阻'):'';
@@ -5975,7 +6929,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         else { const v=verdictWx(scName,w); ht='相合化'+w+'，'+({'喜':'化神为用、气聚成事','忌':'化神为忌、气杂耗力','中':'合绊留连'}[v]); }
         out.push('与'+up.lvl+up.gz+'相合，'+ht);
       } else if(/合而不化/.test(gt)){ out.push('与'+up.lvl+up.gz+'相合绊、气机交绊'); }
-      // 天干相克/相冲为中性事实（表3 已列），无损益信息，不复述
+      // 天干相克、相冲为中性事实（表3 已列），无损益信息，不复述
     }
     // 地支部分
     const zm=rel.match(/支(.+)$/);
@@ -6008,7 +6962,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       const hasHe=words.some(w=>w==='合'||w==='暗合');
       const rw=hasDong?(words.find(w=>w==='冲'||w==='刑'||w==='害'||w==='破'||w==='克')||'冲'):'合';
       const ten=pt.gTen||pt.zTen||''; const pillar=r.lab;
-      // 日柱天干命中＝日主本人被引动（受克=官杀压力、被合=合绊），子平/新派不得套"比劫/用神忌神"口径
+      // 日柱天干命中＝日主本人被引动（受克=官杀压力、被合=合绊），子平、新派不得套"比劫、用神忌神"口径
       const dayGanHit = pillar==='日柱' && (r.ganRels||[]).some(x=>x.cls==='he'||x.cls==='gchong'||x.cls==='ke');
       switch(scName){
         case '子平格局派': {
@@ -6071,7 +7025,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   function tiaoJi(gz){ return (A.tiao.jiWx||[]).indexOf(GAN_WX[gz[0]])>=0||(A.tiao.jiWx||[]).indexOf(ZHI_WX[gz[1]])>=0; }
   function bingXi(gz){ return GAN_WX[gz[0]]===A.bingYao.yao||ZHI_WX[gz[1]]===A.bingYao.yao; }
   function bingJi(gz){ return GAN_WX[gz[0]]===A.bingYao.bing||ZHI_WX[gz[1]]===A.bingYao.bing; }
-  // 每步神煞（支相对命局触发：驿马/桃花/天乙贵人/文昌）+ 十二长生含义：进每步解说，补"事象"
+  // 每步神煞（支相对命局触发：驿马、桃花、天乙贵人、文昌）+ 十二长生含义：进每步解说，补"事象"
   function stepSha(gz){
     const z=gz[1], dg2=BZ.dayGan, dz=BZ.dayZ, yz=BZ.yearZ;
     const YIMA={'申':'寅','子':'寅','辰':'寅','寅':'申','午':'申','戌':'申','亥':'巳','卯':'巳','未':'巳','巳':'亥','酉':'亥','丑':'亥'};
@@ -6096,7 +7050,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   // ===== 各流派对单个所选干支的解读（真分化：每派用自己的方法论，不重复面板事实） =====
   // 应期落点：本层引动哪些宫位（被冲克刑害或合），应在哪类人事；每层独立输出（大运十年与流年每年粒度不同，不跨层去重）
   const YQ_GONG={'年柱':'长辈祖上','月柱':'父母兄弟与平台','日柱':'自身配偶','时柱':'子女晚景'};
-  // 本层与命局的实质引动关系（排除纯比和/生克的中性事实）
+  // 本层与命局的实质引动关系（排除纯比和、生克的中性事实）
   function mingRelReal(F){ return (F.mingRels||[]).filter(r=>/冲|刑|害|合|克|破/.test(r.rel||'')); }
   function yqLine(s,m){
     const rels=(stepFacts(s).mingRels||[]).filter(r=>/冲|刑|害|合|克|破/.test(r.rel||'')); if(!rels.length) return '';
@@ -6105,18 +7059,18 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     return `引动落点${labs.join('、')}，主${gongs.join('、')}（${s.lvl||''}${YUN_LIANG_LVL[s.lvl]||''}）。`; }
   // 增量版：月柱根基只在最上层交代一次；神煞、长生仅取本层新增
   function yueStabInc(s, F){ return upperOf(s)?'':yueStab(F); }
-  // 神煞措辞按年龄门控：桃花/沐浴等成人情缘词对孩童转写，免"感情易动"落在小儿身上
+  // 神煞措辞按年龄门控：桃花、沐浴等成人情缘词对孩童转写，免"感情易动"落在小儿身上
   function shaMean(x){ const age=curAge; const A={'驿马':'主远行、变动、奔波','桃花':'感情易动、人际缘旺','天乙贵人':'得外力贵人之助','天乙贵人（另派）':'得外力贵人之助，按庚辛逢虎马取贵法','文昌':'利学业、文书、名声'}; if(baziAgeStage(age)!=='child'){ if(age!=null && age>=60 && x==='桃花') return ''; return A[x]||''; } const K={'驿马':'环境易变、家或居所易搬迁、出行增多','桃花':'人缘好、同伴相得、易得玩伴','天乙贵人':'得长辈外援之助','天乙贵人（另派）':'得长辈外援之助','文昌':'利启蒙、记问、学业'}; return K[x]||A[x]||''; }
   function shaClauseInc(s){ const sh=stepSha(s.gz); if(!sh.length) return ''; const had=[]; underStack(s).forEach(o=>{ stepSha(o.gz).forEach(x=>{ if(had.indexOf(x)<0) had.push(x); }); }); const nw=sh.filter(x=>had.indexOf(x)<0); if(!nw.length) return ''; const age=curAge; const segs=nw.map(x=>{ const m=shaMean(x); if(!m) return ''; const lab=(x==='桃花'&&baziAgeStage(age)==='child')?'人缘':x; return lab+'，'+m; }).filter(Boolean); if(!segs.length) return ''; return '；'+s.lvl+'新逢'+segs.join('；'+s.lvl+'新逢'); }
-  // 长生位与喜忌协调：判喜之步遇负面位（衰/病/死/绝）改写为中性蓄力语
+  // 长生位与喜忌协调：判喜之步遇负面位（衰、病、死、绝）改写为中性蓄力语
   const CS_NEU={'衰':'气机渐敛、宜稳中求进','病':'小有烦扰、宜养宜顾','死':'气机暗伏、宜静守待转','绝':'气机收敛、宜蓄力待时'};
   function csClauseInc(s, F, tag){ if(!F.cs) return ''; if(underStack(s).some(o=>o.gz[1]&&getChangSheng(dg,o.gz[1])===F.cs)) return ''; const base=csMean(F.cs); if(!base) return ''; const m=(tag==='喜'&&CS_NEU[F.cs])?CS_NEU[F.cs]:base; return '；'+s.lvl+'运行'+csDi(F.cs)+'，'+m; }
-  // 盲派口诀综合：纳音 / 空亡 / 凶煞（羊刃，灾煞，劫煞）/ 犯太岁 / 与上层天克地冲相刑 ， 全链路 saidDuan 只述一次
+  // 盲派口诀综合：纳音、空亡、凶煞（羊刃，灾煞，劫煞）/ 犯太岁、与上层天克地冲相刑 ， 全链路 saidDuan 只述一次
   //（数据与判定真源上收 bazi-mangpai.js：纳音象 MangPai.NY_XIANG、空亡落宫 MangPai.KONG_GONG、
   //  口诀神煞释义 MangPai.SHA_NOTE 与查法派生 MangPai.shaChain、犯太岁五条 MangPai.TAISUI_NOTE）
   function mangNayin(F){ if(!F.info||!F.info.wx) return ''; const nx=MangPai.nayinXiang(F.info.wx); if(!nx) return ''; const kt=`纳音${F.ny}，${nx}`; if(saidDuan.has(kt)) return ''; saidDuan.add(kt); return '；'+kt; }
 
-  // ===== 宫位应事，古籍断语：固定维度轴（①岁运应期/长生/纳音五行/十神临运/十神关系/神煞临运）=====
+  // ===== 宫位应事，古籍断语：固定维度轴（①岁运应期、长生、纳音五行、十神临运、十神关系、神煞临运）=====
   // 直接复用 stepFacts / stepCtxOf 已算引擎数据，保证每步维度覆盖一致；各维有则出、无则标"无"，编号固定不跳号
   const CS_DUANYU={'长生':{t:'气运初萌、生机方启，宜蓄势待发。',s:'三命通会，论寿夭'},'沐浴':{t:'桃花临身、情志易浮动，宜守心持正。',s:'三命通会，论咸池'},'冠带':{t:'渐入佳境、声名始显，宜进德修业。',s:'滴天髓，论衰旺'},'临官':{t:'得地乘权、事业渐兴，宜乘势有为。',s:'三命通会，论正官'},'帝旺':{t:'气盛当权、锋芒毕露，宜防过亢持盈。',s:'滴天髓，论衰旺'},'衰':{t:'气渐收敛、事多迟回，宜养锐守成。',s:'三命通会，论寿夭'},'病':{t:'气血易滞、宜调摄。',s:'滴天髓，论疾病'},'死':{t:'气机敛藏、宜静不宜动。',s:'滴天髓，论疾病'},'墓':{t:'气归库藏、事宜收敛，宜蓄藏聚气。',s:'三命通会，论寿夭'},'绝':{t:'气运孤绝、宜避锋守静。',s:'滴天髓，论疾病'},'胎':{t:'气始萌蕴、宜静养待时。',s:'三命通会，论寿夭'},'养':{t:'气渐滋长、宜培元固本。',s:'三命通会，论寿夭'}};
   const WX_DUANYU={'木':'甲乙寅卯木受亏则主肝胆，宜护肝息风。','火':'丙丁巳午火受亏则主心火，宜养心安神。','土':'戊己辰戌丑未土受亏则主脾胃，宜调中理脾。','金':'庚辛申酉金受亏则主肺金，宜润肺清金。','水':'壬癸亥子水受亏则主肾水，宜滋水固肾。'};
@@ -6131,7 +7085,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       if(m==='忌神') return `${LVL}${myTen}合${pillar}${pTen}，忌神被绊、其势稍缓`;
       return `${LVL}${myTen}合${pillar}${pTen}，气机交融、情意相投`;
     }
-    // 克 / 冲：我方十神攻彼方十神，损益视双方喜忌（被攻方喜忌优先定吉凶）
+    // 克、冲：我方十神攻彼方十神，损益视双方喜忌（被攻方喜忌优先定吉凶）
     if(p==='忌神'){ if(m==='喜用') return `${LVL}${myTen}相${kind}${pillar}${pTen}，用神制忌、最为得力`; return `${LVL}${myTen}相${kind}${pillar}${pTen}，忌神受制、反为去病`; }
     if(p==='喜用'){ if(m==='忌神') return `${LVL}${myTen}相${kind}${pillar}${pTen}，忌神攻用、宜防其损`; return `${LVL}${myTen}相${kind}${pillar}${pTen}，用神受扰、宜防其损`; }
     if(m==='喜用') return `${LVL}${myTen}相${kind}${pillar}${pTen}，用神受扰、宜防其损`;
@@ -6156,15 +7110,15 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     (F.mingRels||[]).forEach(r=>{
       const pGT=tenGod(dg,r.gz[0]), pZT=tenGod(dg,zhiMain(r.gz[1]));
       const gr=r.ganRels||[], zr=r.zhiRels||[];
-      const gHe=gr.some(x=>x.cls==='he'), zHe=zr.some(x=>x.w==='合'||x.w==='暗合'); // 合优先：同一柱天干/地支若既合又克，只取合，避免"得助"与"受扰"同现自相矛盾
+      const gHe=gr.some(x=>x.cls==='he'), zHe=zr.some(x=>x.w==='合'||x.w==='暗合'); // 合优先：同一柱天干、地支若既合又克，只取合，避免"得助"与"受扰"同现自相矛盾
       gr.forEach(x=>{ if(x.cls==='he') rl.push(_relLine(LVL,F.ganTen,_tenTag(F.ganTen,GAN_WX[s.gz[0]]),r.lab,pGT,_tenTag(pGT,GAN_WX[r.gz[0]]),'合')); else if(x.cls==='gchong') rl.push(_relLine(LVL,F.ganTen,_tenTag(F.ganTen,GAN_WX[s.gz[0]]),r.lab,pGT,_tenTag(pGT,GAN_WX[r.gz[0]]),'冲')); else if(x.cls==='ke'){ if(gHe) return; rl.push(_relLine(LVL,F.ganTen,_tenTag(F.ganTen,GAN_WX[s.gz[0]]),r.lab,pGT,_tenTag(pGT,GAN_WX[r.gz[0]]),'克')); } });
       zr.forEach(x=>{ if(x.w==='合'||x.w==='暗合') rl.push(_relLine(LVL,F.zhiTen,_tenTag(F.zhiTen,GAN_WX[zhiMain(s.gz[1])]),r.lab,pZT,_tenTag(pZT,GAN_WX[zhiMain(r.gz[1])]),'合')); else if(x.w==='冲'){ if(zHe) return; rl.push(_relLine(LVL,F.zhiTen,_tenTag(F.zhiTen,GAN_WX[zhiMain(s.gz[1])]),r.lab,pZT,_tenTag(pZT,GAN_WX[zhiMain(r.gz[1])]),'冲')); } else if(x.w==='刑') rl.push(`${LVL}地支${s.gz[1]}（${F.zhiTen}）与${r.lab}地支相刑，刑伤是非、宜防内耗（《玉照定真经》）`); else if(x.w==='害') rl.push(`${LVL}地支${s.gz[1]}（${F.zhiTen}）与${r.lab}地支相害，暗损阻隔、宜远是非（《玉照定真经》）`); else if(x.w==='破') rl.push(`${LVL}地支${s.gz[1]}（${F.zhiTen}）与${r.lab}地支相破，破耗离散、宜守不宜攻（《玉照定真经》）`); });
     });
     out.push('⑤ 十神关系：'+(rl.length?Array.from(new Set(rl)).slice(0,6).join('；'):'无'));
-    // ⑥ 神煞临运：与"所选干支详情"表同源（pillarShaMerged，日干+年支主轴+年干/日支备轴+纳音轴），
+    // ⑥ 神煞临运：与"所选干支详情"表同源（pillarShaMerged，日干+年支主轴+年干、日支备轴+纳音轴），
     //    走与本表同一口径的全神煞表，避免"表格有神煞、解读却写无"。
     //    义释读 SHA_MEAN 顶层真源（bazi-data.js）base 字段（含古籍本义，去尾括注与句读）；SHAS 无义释者只报名不灌空话。
-    //    年龄门控：child/late 档剔除婚恋情缘类（桃花/红艳/红鸾/天喜等），与 evGateSha/AGE_WORD.drop 同铁律。
+    //    年龄门控：child/late 档剔除婚恋情缘类（桃花、红艳、红鸾、天喜等），与 evGateSha/AGE_WORD.drop 同铁律。
     //    每条去尾句号再以分号连接,避免"。；"断裂致分号孤行
     let shaLine='无';
     let shaList=[];
@@ -6186,7 +7140,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   }
   // 岁运应期断语：走断语库岁运类（太岁犯岁、冲克宫位、六亲并见、年龄运限），只取步触发条目。
   // ext={age,yunGz,yunLast} 由渲染层按 selMeta 实算传入；缺则相关字段为 null/false，条目自然不触发，不臆测。
-  // 太岁诸条在 stepCtxOf 内仅流年层计算，大运/流月/流日天然不触发，杜绝串层。
+  // 太岁诸条在 stepCtxOf 内仅流年层计算，大运、流月、流日天然不触发，杜绝串层。
   function yunSuiYunDuan(s, BZ, A, ext){
     if(typeof window==='undefined' || !window.matchDuanyuStep || !window.stepCtxOf) return '';
     let sc=null, list=[];
@@ -6200,9 +7154,9 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     list.forEach(x=>{ const t=(x.say||''); if(t && !saidDuan.has(t)) cand.push({t, s:x.src}); });
     const out=cand.slice(0,4).map(x=>{ saidDuan.add(x.t); return String(x.t).replace(/[。；]+$/,''); });
     if(out.length) return '① 岁运应期：'+out.join('；');
-    // 无事件内容：四层一律列"无"（正答"①去哪里了"之疑）。事件类断语本论大运/流年之行运之体，
-    // 流月只零星命中（冲克宫位/天合地合），流日天然不落事件；但 ①-⑥ 为固定维度轴编号，
-    // 流月/流日缺号会从"②长生"起读，读者误以为漏了①；缺维统一补"无"占位，口径各层一致。
+    // 无事件内容：四层一律列"无"（正答"①去哪里了"之疑）。事件类断语本论大运、流年之行运之体，
+    // 流月只零星命中（冲克宫位、天合地合），流日天然不落事件；但 ①-⑥ 为固定维度轴编号，
+    // 流月、流日缺号会从"②长生"起读，读者误以为漏了①；缺维统一补"无"占位，口径各层一致。
     return '① 岁运应期：无';
   }
   // ⑦ 分类应事（yunCatDuan）无独立维度：其 15 小类 step 条目为十神、纳音、长生、神煞的机制重述，
@@ -6230,7 +7184,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(ks && !saidDuan.has(ks)){ saidDuan.add(ks); out.push(ks); }
     return out.length?('；'+out.join('；')):'';
   }
-  // 通根/虚透（盲派"虚透"概念）：判定真源 MangPai.xuTouOf，该步天干在命局无根则气浮
+  // 通根、虚透（盲派"虚透"概念）：判定真源 MangPai.xuTouOf，该步天干在命局无根则气浮
   function mangRoot(s){
     if(!MangPai.xuTouOf(BZ, s.gz[0])) return '';
     const o='；天干'+s.gz[0]+MangPai.XU_TOU;
@@ -6296,15 +7250,15 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     }
     x+=yueStabInc(s,F);
     // ---- 格局派补充（《子平真诠》维度补全）----
-    x+=geYongHeChong(s);   // P1-① 岁运用神被合/被冲（格局大忌）
+    x+=geYongHeChong(s);   // P1-① 岁运用神被合、被冲（格局大忌）
     x+=geXiangShen(s);     // P2-③ 相神护用（本层之气生用神方）
-    x+=geQingZhuo(s, tag); // P2-④ 清浊随岁运（浊得清/清受扰）
+    x+=geQingZhuo(s, tag); // P2-④ 清浊随岁运（浊得清、清受扰）
     if(s.lvl==='流月') x+=geYueLing(s);   // P1-② 流月值月令（月令本气对格局损益）
     x+=geOuterClause(s, tag);             // P3-⑤ 外格顺逆
     if(s.lvl==='流日') x+=`（天干${s.gz[0]}为${F.ganTen}、地支本气${zhiMain(s.gz[1])}为${F.zhiTen}）`;  // P3-⑥ 流日点名十神
     return x+'。';
   }
-  // P1-① 用神被合/被冲：命局用神字（天干/地支本气属用神十神类）被该步合走或冲根 → 格局派岁运大忌
+  // P1-① 用神被合、被冲：命局用神字（天干、地支本气属用神十神类）被该步合走或冲根 → 格局派岁运大忌
   function geYongHeChong(s){
     if(!geUseXiCats.length) return '';
     const xiC=[], xiZ=[];
@@ -6340,7 +7294,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(saidDuan.has(o)) return ''; saidDuan.add(o);
     return '；'+o;
   }
-  // P1-② 流月值月令：流月地支即当月月令，看其本气十神对格局用/忌的损益（格局派以月令为纲）
+  // P1-② 流月值月令：流月地支即当月月令，看其本气十神对格局用、忌的损益（格局派以月令为纲）
   function geYueLing(s){
     const mz=s.gz[1]; const mt=shenCat(tenGod(dg, zhiMain(mz)));
     let o='';
@@ -6350,7 +7304,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(saidDuan.has(o)) return ''; saidDuan.add(o);
     return '；'+o;
   }
-  // P3-⑤ 外格顺逆：从/专旺/化气/两气，顺其势则成、逆其气则破
+  // P3-⑤ 外格顺逆：从、专旺、化气、两气，顺其势则成、逆其气则破
   function geOuterClause(s, tag){
     const gn=A.geName||'';
     if(!/从|专旺|化气|两气/.test(gn)) return '';
@@ -6596,7 +7550,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(gp&&xp&&gp.r!=='中'&&xp.r!=='中'&&gp.r!==xp.r) return '（格局与扶抑视角相左故相反）'; return ''; }
   function consensusOf(s){ const up=upperOf(s);
     if(up){ const cu=tally(s), ut=tally(up), u=`${up.lvl}${up.gz}`;
-      // 本层五派判定与上层全同：不重复名单，依上一层结论（名单/主调已在上层给出）
+      // 本层五派判定与上层全同：不重复名单，依上一层结论（名单、主调已在上层给出）
       if(cu.v.every((x,i)=>x.r===ut.v[i].r)) return `五派判定与${u}全同、无新变，仍依上一层结论。`;
       const vn=viewNoteOf(cu.v);
       return gongChaOf(cu.v, s.gz, ut.v, vn)+'。';
@@ -6605,7 +7559,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     const vn=viewNoteOf(v);
     return gongChaOf(v, s.gz, '', vn)+'。';
   }
-  // 冗余层折叠：某层五派判定与上层全同、且无新增神煞/长生/应期宫位，则不铺表、一行收掉
+  // 冗余层折叠：某层五派判定与上层全同、且无新增神煞、长生、应期宫位，则不铺表、一行收掉
   function layerRedundant(s){
     const up=upperOf(s); if(!up) return false;
     const cu=tally(s), ut=tally(up); if(cu.v.some((x,i)=>x.r!==ut.v[i].r)) return false;
@@ -6618,8 +7572,8 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   }
 
   // 年龄门控统一走 xuanji-lib.js 唯一体系；本模块仅持有运行时 curAge 并调用之
-  // 大运/流年：各派末尾落“会遇到什么具体生活事件”，调用组合断语引擎，按流派喜忌切片，产出 宫位×十神类×引动×喜忌 的具体事象。
-  // SC_OPT 仍为各派喜忌集（盲派财官为喜、调候/病药走五行、格局/新派走十神类别），用于引擎通用兜底；
+  // 大运、流年：各派末尾落“会遇到什么具体生活事件”，调用组合断语引擎，按流派喜忌切片，产出 宫位×十神类×引动×喜忌 的具体事象。
+  // SC_OPT 仍为各派喜忌集（盲派财官为喜、调候、病药走五行、格局、新派走十神类别），用于引擎通用兜底；
   // 但本层“喜忌标签”由 areaNotes 直接以 verdictOf(sc,s) 经 forceTag 锁定，与“共识与分歧”完全同源，杜绝标签脱钩。
   const SC_OPT = {
     '子平格局派': { xiCats: Array.from(geUseXiCats), jiCats: Array.from(geUseJiCats) },
@@ -6656,21 +7610,21 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       '中':{base:'病药无引动、平稳守常',child:'病药不显、如常',late:'偏枯不显、顺原局'}
     }
   };
-  // 幼儿（<7）通用收尾白话：身心发育语境，不分流派（2 岁无课业/财官/事业可论）
+  // 幼儿（<7）通用收尾白话：身心发育语境，不分流派（2 岁无课业、财官、事业可论）
   const INFANT_BAIHUA={'喜':'成长顺遂、身心发育良好，家宅福泽护持','忌':'宜多养护，防体弱易感，起居饮食留意','中':'按部就班、顺其自然成长'};
   function baiHuaOf(scName, tag, age){
     const B=BAIHUA[scName]; if(!B) return '';
     const t=B[tag==='喜'?'喜':tag==='忌'?'忌':'中']; if(!t) return '';
     const st=baziAgeStage(age);
-    // 幼儿（<7）：流派收尾白话统一走"成长/养护"通用句，2 岁不谈课业考试、财官事业，只论身心发育
+    // 幼儿（<7）：流派收尾白话统一走"成长、养护"通用句，2 岁不谈课业考试、财官事业，只论身心发育
     if(baziInfant(age)) return INFANT_BAIHUA[tag==='喜'?'喜':tag==='忌'?'忌':'中']||'';
     if(scName==='新派（民国）'&&tag==='喜'&&st==='child')
       return (A.strength&&A.strength.indexOf('弱')<0)?'日主偏旺、精神头足、课业有余力':'日主得扶、课业有劲、师长助力明显';
     return (st==='child'&&t.child)?t.child:(st==='late'&&t.late)?t.late:t.base;
   }
-  // 具体事件（中性客观）：各派讲自己关注的领域（格局/做功/寒暖/旺衰/病药），不吹不贬、用"易/宜/可能"
+  // 具体事件（中性客观）：各派讲自己关注的领域（格局、做功、寒暖、旺衰、病药），不吹不贬、用"易、宜、可能"
   function shiJianOf(sc, s, F, age, tag){
-    if(baziInfant(age)) return [];   // 幼儿：具体事件（考试/功名/事业/姻缘）无现实对应，一律不输出
+    if(baziInfant(age)) return [];   // 幼儿：具体事件（考试、功名、事业、姻缘）无现实对应，一律不输出
     const st=baziAgeStage(age); const child=st==='child', late=st==='late';
     const tc=tenCat(s.gz); const cats=[shenCat(tc.g), shenCat(tc.z)];
     const t3=tag==='喜'?'喜':tag==='忌'?'忌':'中';
@@ -6746,8 +7700,8 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     return Array.from(new Set(ev)).filter(Boolean);
   }
   // ===== 本层断语（解读层，不复述表格数据）=====
-  // 本层断语职责：纳音/长生→盲派（csClauseInc/mangNayin）、空亡/凶煞/太岁/层级冲合→盲派（mangShaAll/mangKong）、
-  //         身弱遇财→新派（fXin）；与命局天克地冲/天合地合→与命局关系表已有、应事见共识行关键事件。
+  // 本层断语职责：纳音、长生→盲派（csClauseInc/mangNayin）、空亡、凶煞、太岁、层级冲合→盲派（mangShaAll/mangKong）、
+  //         身弱遇财→新派（fXin）；与命局天克地冲、天合地合→与命局关系表已有、应事见共识行关键事件。
   // 本行只保留评分结论（曲线体系，非任何流派维度）。
   function gaiLan(s, F){
     const parts=[];
@@ -6766,7 +7720,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     return parts.length?parts.join('。')+'。':'';
   }
   // 共识行关键事件（数据驱动：落点柱 × 关系类型 → 具体应事 + 应期；不用固定模板，避免每盘同样内容）
-  // 单五行 vs 首选用神共识（五派用神共识，公共基准不绑定单派）→ 用神/喜神/忌神/中
+  // 单五行 vs 首选用神共识（五派用神共识，公共基准不绑定单派）→ 用神、喜神、忌神、中
   function wxVsYong(wx){
     const Y=(A.synthesis&&A.synthesis.primary&&A.synthesis.primary.wx)||'';
     if(!Y||!wx) return '';
@@ -6775,7 +7729,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(WX_KE[wx]===Y||WX_KE[Y]===wx) return '忌神';
     return '';
   }
-  // 六亲星标注（与宫位分离，单独成句）：主导方十神 → 六亲（印母/财父/食伤子女/官杀女命夫/比劫兄弟），返回六亲字；日柱配偶宫单独处理
+  // 六亲星标注（与宫位分离，单独成句）：主导方十神 → 六亲（印母、财父、食伤子女、官杀女命夫、比劫兄弟），返回六亲字；日柱配偶宫单独处理
   function qinOf(gz, isZ){
     const g=tenGod(BZ.dayGan, isZ?zhiMain(gz[1]):gz[0]);
     if(g==='正印'||g==='偏印') return '母';
@@ -6785,7 +7739,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if((g==='正官'||g==='七杀') && !(BZ.sex===1||BZ.sex==='男'||BZ.sex===true)) return '夫';
     return '';
   }
-  // 岁运步年龄：流月/流日按钮无"X岁"文本（baziStepAge 解析不到），退化为当前命主年龄（流年-出生年+1），保证年龄门控对低层岁运同样生效
+  // 岁运步年龄：流月、流日按钮无"X岁"文本（baziStepAge 解析不到），退化为当前命主年龄（流年-出生年+1），保证年龄门控对低层岁运同样生效
   function stepAgeOf(m){
     let a=baziStepAge(m);
     if(a==null && BZ && BZ.curYear && BZ.birthYear) a=BZ.curYear-BZ.birthYear+1;
@@ -6797,7 +7751,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     const ZHI_MONTH={'子':'十一月','丑':'十二月','寅':'正月','卯':'二月','辰':'三月','巳':'四月','午':'五月','未':'六月','申':'七月','酉':'八月','戌':'九月','亥':'十月'};
     (F.mingRels||[]).forEach(cur=>{
       const rel=cur.rel||'';
-      // 仅强关系（冲刑害合克破、支半合/拱）生成具体应事；比和/相生等温和关系不落"引动…应兄弟"空话，仅关系表呈现
+      // 仅强关系（冲刑害合克破、支半合、拱）生成具体应事；比和、相生等温和关系不落"引动…应兄弟"空话，仅关系表呈现
       const hasStrong=/冲|刑|害|合|克|破/.test(rel) || (cur.zhiRels||[]).some(x=>x.w==='半合'||x.w==='拱');
       if(!hasStrong) return;
       const gHe=(cur.ganRels||[]).some(x=>x.cls==='he');
@@ -6807,7 +7761,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       const pillar=cur.lab;
       const gong=pillar==='年柱'?'长辈宫':pillar==='月柱'?'父母宫':pillar==='日柱'?'自身宫':(st==='child'?'晚辈宫':'子女宫');
       const who=pillar==='年柱'?'长辈':pillar==='月柱'?(st==='child'?'父母':'父母或工作平台'):pillar==='日柱'?'自身':(st==='child'?'同伴手足':'子女晚辈');
-      // 该柱干支喜忌方向（vs 首选用神共识）：喜用受动宜防/忌神受动去病；六合绊住力减/暂缓。
+      // 该柱干支喜忌方向（vs 首选用神共识）：喜用受动宜防、忌神受动去病；六合绊住力减、暂缓。
       // 标注对象跟随主导关系方：天干有实质关系（合冲克）标天干，否则地支有实质关系（冲合半合刑害破暗合）标地支
       // ，防"天干无涉（如甲甲比肩）却被标'甲被合力减'"张冠李戴（被合的是地支子辰半合）
       const gAct=(cur.ganRels||[]).some(x=>x.cls==='he'||x.cls==='gchong'||x.cls==='ke');
@@ -6819,7 +7773,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       let qinTxt='';
       if(pillar==='日柱'){ qinTxt = (st==='child') ? '' : '；引动日支、配偶宫动'; }   // 孩童（含婴幼儿）不谈配偶宫，避免"1岁引动配偶宫"突兀
       else if(tenN){ const q6=qinOf(cur.gz, isZ); qinTxt=q6?`；引动${tenN}、应${q6}`:`；引动${tenN}`; }
-      // 局类关系（半合/拱）：合局成形、按化神五行判得失，非六合"绊住力减"（半合化神得势，拱虚待时）
+      // 局类关系（半合、拱）：合局成形、按化神五行判得失，非六合"绊住力减"（半合化神得势，拱虚待时）
       const juR=(cur.zhiRels||[]).find(x=>x.w==='半合');
       let xj='';
       if(juR && !gAct && /合/.test(rel)&&!/冲|刑|害/.test(rel)){
@@ -6830,7 +7784,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         else xj=hua?`，${hua}局成形、与用神无涉`:'';
       } else {
         const mj=wxVsYong(isZ?ZHI_WX[mz[1]]:GAN_WX[mz[0]]);
-        // 天干主导时只看天干是否合（丙庚克+寅午半合：丙是被克非被合，不标"被合力减"）；地支主导时看支合（六合/暗合）
+        // 天干主导时只看天干是否合（丙庚克+寅午半合：丙是被克非被合，不标"被合力减"）；地支主导时看支合（六合、暗合）
         const isHe = gAct ? ((cur.ganRels||[]).some(x=>x.cls==='he')) : (/合/.test(rel)&&!/冲|刑|害/.test(rel));
         if(pillar==='日柱' && gAct){
           // 日主本人（日柱天干）被引动：受克=官杀压力、被合=合绊，日主是"我"，绝不套"忌神受制反为去病"（身强也不可把克身说成去病）
@@ -6884,7 +7838,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     return Array.from(new Set(ev));
   }
   // 岁运引动（表3所选干支间关系：本步 vs 上层所选干支的实质关系应事；非相邻跨层关系在表3 矩阵展示）
-  // 实质分析：合法分级（天合地合/天干合/地支合/半合/拱）+ 合化五行喜忌（对首选用神共识）+ 对象喜忌（用神受冲宜防/忌神受冲去病）
+  // 实质分析：合法分级（天合地合、天干合、地支合、半合、拱）+ 合化五行喜忌（对首选用神共识）+ 对象喜忌（用神受冲宜防、忌神受冲去病）
   function yunYinOf(s, F){
     const up=upperOf(s); if(!up) return '';
     const pr=(F.pairRels||[]).find(o=>o.lab===up.lvl);
@@ -6895,7 +7849,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     const hz6=(DIZHI_HE6.find(a=>(a[0]===z&&a[1]===uz)||(a[0]===uz&&a[1]===z))||[])[2]||'';
     const gC=pairIn(g,uf,TIANGAN_CHONG), zC=pairIn(z,uz,DIZHI_CHONG);
     const zBan=DIZHI_SANHE.find(a=>a.includes(z)&&a.includes(uz)&&z!==uz);
-    // ， 合类（天合地合/天干合/地支合/半合/拱）：合化五行喜忌 ，
+    // ， 合类（天合地合、天干合、地支合、半合、拱）：合化五行喜忌 ，
     if(hg||hz6||zBan){
       const comb=[];
       if(hg) comb.push(`${g}${uf}合化${hg}`);
@@ -6907,7 +7861,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       const tail=ok&&bad?'，合气喜忌交参':ok?'，合气为喜用、主吉':bad?'，合气为忌神、主凶':'，合气与用神无涉';
       return `与${u}${typ}（${comb.join('、')}）${tail}`;
     }
-    // ， 冲刑害破克类：对象喜忌（用神受冲宜防/忌神受冲去病），
+    // ， 冲刑害破克类：对象喜忌（用神受冲宜防、忌神受冲去病），
     const objJ=wxVsYong(GAN_WX[uf])||wxVsYong(ZHI_WX[uz]);
     const w=gC&&zC?'天克地冲':(gC||zC?'相冲':(pairIn(z,uz,DIZHI_XING)?'相刑':(pairIn(z,uz,DIZHI_HAI)?'相害':(pairIn(z,uz,DIZHI_PO)?'相破':'相克'))));
     const tail=objJ==='用神'||objJ==='喜神'?`，${uf}为${objJ}、受${w==='相害'?'暗损':'冲制'}宜防`
@@ -6918,17 +7872,17 @@ function buildSchoolsDeep(BZ, sel, selMeta){
   function areaNotes(sc, s, tag, m){
     const opt = SC_OPT[sc.name]; if(!opt) return '';
     let age = baziStepAge(m);
-    if(age==null && BZ.curYear && BZ.birthYear) age = BZ.curYear - BZ.birthYear + 1;   // 流月/流日无 period 年龄时退化为当前年龄，保证年龄门控生效
+    if(age==null && BZ.curYear && BZ.birthYear) age = BZ.curYear - BZ.birthYear + 1;   // 流月、流日无 period 年龄时退化为当前年龄，保证年龄门控生效
     let evs;
-    // forceTag=verdictOf 判定（与“共识与分歧”同源，杜绝标签脱钩）；school 启用 EV_SCHOOL 各派专属事象；大运/流年/流月/流日均适用。
+    // forceTag=verdictOf 判定（与“共识与分歧”同源，杜绝标签脱钩）；school 启用 EV_SCHOOL 各派专属事象；大运、流年、流月、流日均适用。
     try { evs = buildEventPrototypes(BZ, [{ gz: s.gz, lvl: s.lvl, age: age, year: m.year }], Object.assign({}, opt, { school: sc.name, forceTag: tag })); }
     catch(e){ return ''; }
     if(!evs || !evs.length) return '';
-    // 按 喜/中/忌 收集“去重后”的具体事象：引擎按十神类+喜忌出事件，与宫位无关，
-    // 同一事件会因年/月/日/时多柱引动而重复，故跨宫位去重。
+    // 按 喜、中、忌 收集“去重后”的具体事象：引擎按十神类+喜忌出事件，与宫位无关，
+    // 同一事件会因年、月、日、时多柱引动而重复，故跨宫位去重。
     const buckets = { '喜': new Set(), '中': new Set(), '忌': new Set() };
     const shas = (sc.name==='盲派') ? new Set() : null;   // 神煞门控：仅盲派引其事象
-    // 神煞跨层去重：上层（大运/流年/流月）已述之神煞，本层跳过
+    // 神煞跨层去重：上层（大运、流年、流月）已述之神煞，本层跳过
     const prevSha=[];
     underStack(s).forEach(o=>{ try{ stepSha(o.gz).forEach(x=>{ if(prevSha.indexOf(x)<0) prevSha.push(x); }); }catch(e){} });
     // 事件词跨层去重：上层已述之词组本层不再输出（与神煞 prevSha 同口径），
@@ -6941,7 +7895,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     }catch(e){} });
     evs.forEach(o => (o.protos||[]).forEach(p => {
       if(!buckets[p.tag]) return;
-      if(baziAgeStage(age)==='child' && p.cat==='财星') return;   // 领域裁剪：儿童不涉财运，财星事件词一律不输出（年龄侧重=学业/健康/家庭）
+      if(baziAgeStage(age)==='child' && p.cat==='财星') return;   // 领域裁剪：儿童不涉财运，财星事件词一律不输出（年龄侧重=学业、健康、家庭）
       const raw=(p.events||[]).filter(Boolean);
       const fresh=raw.filter(it=>prevEvents.indexOf(it)<0);
       (fresh.length?fresh:raw.slice(0,1)).forEach(it=>buckets[p.tag].add(it));
@@ -6949,8 +7903,8 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     }));
     const hasXi = buckets['喜'].size>0, hasJi = buckets['忌'].size>0, hasMid = buckets['中'].size>0;
     if(!hasXi && !hasJi && !hasMid) return '';
-    // 量级裁剪：大运/流年列全，流月至多两件、流日仅取最轻一件，配合 EV_LVL 四层专属措辞，使大运/流年/流月/流日字数不同、措辞各不同；
-    // 流月/流日另标“流月，/流日，”以明尺度（事件池本身已为月度/日内措辞，前缀不与池内“本月/当日”重复）。
+    // 量级裁剪：大运、流年列全，流月至多两件、流日仅取最轻一件，配合 EV_LVL 四层专属措辞，使大运、流年、流月、流日字数不同、措辞各不同；
+    // 流月、流日另标“流月，/流日，”以明尺度（事件池本身已为月度、日内措辞，前缀不与池内“本月、当日”重复）。
     const cap = (s.lvl==='流日') ? 1 : (s.lvl==='流月') ? 2 : (s.lvl==='流年') ? 4 : 6;
     const lvlPre = (s.lvl==='流月') ? '流月' : (s.lvl==='流日') ? '流日' : '';
     const head = { '喜':'（利）', '中':'（平）', '忌':'（防）' };
@@ -6967,11 +7921,11 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     if(shas && shas.size){ const s2 = Array.from(shas).join('、'); if(s2) res += '；' + s2; }   // 盲派神煞事象附于末尾
     return res;
   }
-  let curAge=null; // 神煞/长生年龄门控：渲染每步时按 selMeta.period 填入该步年龄，供 shaClauseInc/csMean 取用
-  const saidDuan=new Set();   // 断语跨层去重：同一断语（身弱遇财/落空亡/相刑等）全链路只述一次
+  let curAge=null; // 神煞、长生年龄门控：渲染每步时按 selMeta.period 填入该步年龄，供 shaClauseInc/csMean 取用
+  const saidDuan=new Set();   // 断语跨层去重：同一断语（身弱遇财、落空亡、相刑等）全链路只述一次
   const saidEv=new Set();     // 各派事件跨层去重：同派同事件只述一次，防流月流日重复
   // "流派"列长名的固定换行位：插入 <span class=sk-b>（移动端 block 断行、桌面 inline 单行），
-  // 为解读列留出最大宽度。短名（盲派/调候派/病药派）不处理。
+  // 为解读列留出最大宽度。短名（盲派、调候派、病药派）不处理。
   const _skBr = t => ({'宫位应事':'宫位<span class="sk-b">应事</span>','子平格局派':'子平<span class="sk-b">格局派</span>','新派（民国）':'新派<span class="sk-b">（民国）</span>','共识与分歧':'共识<span class="sk-b">与分歧</span>'})[t] || t;
   let h=`<h4 class="det-h">各流派解读运势</h4>`;
   // 岁运断语所需的运段上下文：同屏所选大运干支（判岁运并临）、该大运末岁（判将交未交之末年）
@@ -6995,15 +7949,15 @@ function buildSchoolsDeep(BZ, sel, selMeta){
       keyEventsOf(s, stepAgeOf(m)).forEach(k=>gw.push(k));
       const yy=yunYinOf(s, F); if(yy) gw.push(yy);
       curAge=stepAgeOf(m); if(curAge==null){ let up=upperOf(s),g=0; while(up&&curAge==null&&g++<5){ const ui=sel.indexOf(up); curAge=stepAgeOf((selMeta&&selMeta[ui])||{}); up=upperOf(up); } }   // 前置：⑥神煞年龄门控随本步年龄，不悬到上一步
-      // 安静步：无任何强引动时，区分完全无关系与只有温和比和/相生，各用一句平实说明，不灌空话
+      // 安静步：无任何强引动时，区分完全无关系与只有温和比和、相生，各用一句平实说明，不灌空话
       if(!gw.length){
         const mild=(stepFacts(s).mingRels||[]).some(r=>/比和|相生/.test(r.rel||''));
         gw.push(mild?`${s.lvl}与命局天干比和、相生，气机和顺、无冲克引动，宫位平顺`:`${s.lvl}与命局四柱无冲合刑害破之引动，宫位无明应`);
       }
       // 古籍断语融入宫位应事栏：
-      // ①~⑥ 为固定维度轴，编号恒按 ①②③④⑤⑥ 顺序排列：① 岁运应期（经典断语：犯太岁/天克地冲/天合地合/岁运并临/冲克宫位/六亲灾厄/年龄运限）恒列最前，
-      //    命中列实、未命中标"① 岁运应期：无"（四层同口径，含流月/流日），其后依次 ②长生 ③纳音五行 ④十神临运 ⑤十神关系 ⑥神煞临运
-      // ②-⑥ 固定维度（长生/纳音五行/十神临运/十神关系/神煞临运），按编号拆成独立条目逐行
+      // ①~⑥ 为固定维度轴，编号恒按 ①②③④⑤⑥ 顺序排列：① 岁运应期（经典断语：犯太岁、天克地冲、天合地合、岁运并临、冲克宫位、六亲灾厄、年龄运限）恒列最前，
+      //    命中列实、未命中标"① 岁运应期：无"（四层同口径，含流月、流日），其后依次 ②长生 ③纳音五行 ④十神临运 ⑤十神关系 ⑥神煞临运
+      // ②-⑥ 固定维度（长生、纳音五行、十神临运、十神关系、神煞临运），按编号拆成独立条目逐行
       { const _age=stepAgeOf(m);
         const _ext={ age:_age, yunGz:(_yunStep&&_yunStep.gz)||'',
           yunLast:(s.lvl==='流年' && _age!=null && _yunEndAge!=null && _age===_yunEndAge) };
@@ -7013,14 +7967,14 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         if(sy) gw.push(sy); /* ① 恒在最前：命中列实、未命中标"无"，序号①~⑥不乱序 */
         if(dyParts.length) dyParts.forEach(x=>gw.push(x));
       }
-      // 宫位应事单元格：引动落点 / 各柱应事 / 古籍断语各维度 逐条一行（<br> 分段），不再一段数百字
+      // 宫位应事单元格：引动落点、各柱应事、古籍断语各维度 逐条一行（<br> 分段），不再一段数百字
       h+=`<tr><td class="sk-c-name">${_skBr('宫位应事')}</td><td class="sk-c-read">${gw.map(x=>{ const t=String(x||'').replace(/[。；]+$/,''); return t?t+'。':''; }).filter(Boolean).join('<br>')}</td></tr>`; }
     schools.forEach(sc=>{ const tag=verdictOf(sc,s);
       let cell=sc.f(s, F); const ageNow=curAge;
       const mrTxt=schoolMingRel(sc.name, s, F);
       // 流派机制解读 与 干支关系损益 分行（<br>），避免"机制；关系"密排一段
       if(mrTxt){ if(cell&&!/。$/.test(cell)) cell+='。'; cell=(cell?cell+'<br>':'')+mrTxt+'。'; }
-      cell = baziAgeAdapt(null, cell, ageNow);   // 孩童/青年：统一走 xuanji-lib 年龄门控（事业转学业、婚姻转情缘等）
+      cell = baziAgeAdapt(null, cell, ageNow);   // 孩童、青年：统一走 xuanji-lib 年龄门控（事业转学业、婚姻转情缘等）
       // 人话层：术语判断后紧跟白话翻译 + 该派具体事件（中性客观），不分段、句号衔接成一段；
       // 词组级去重：used=术语+白话词组并集，事件词组不在 used 才保留，事件句之间亦互斥（防"课业平稳。课业平稳、纪律如常。"类句内自重复）
       const bh=baiHuaOf(sc.name, tag, ageNow);
@@ -7045,7 +7999,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
         rest.forEach(w=>used.add(w));
       });
       const tail=[bh2].concat(keep).filter(Boolean);
-      // 白话 + 各事件 另起一行（<br>）与机制/关系段分开，事件之间亦逐条分行
+      // 白话 + 各事件 另起一行（<br>）与机制、关系段分开，事件之间亦逐条分行
       if(tail.length){
         if(!/。$/.test(cell)) cell+='。';
         cell+='<br>'+tail.map(x=>{ const t=String(x||'').replace(/[。；]+$/,''); return t?t+'。':''; }).filter(Boolean).join('<br>');
@@ -7071,9 +8025,9 @@ function buildSchoolsDeep(BZ, sel, selMeta){
 /* 组合断语引擎（推断层）：把"岁运干支 × 命局"收敛为具体生活事件原型。
  *
  * 设计要点：
- *  - 具体事件 = 五维叠加：宫位(被引动的柱) × 十神类(岁运干支相对于日主的十神) × 喜忌 × 引动方式 × 旺衰/年龄。
+ *  - 具体事件 = 五维叠加：宫位(被引动的柱) × 十神类(岁运干支相对于日主的十神) × 喜忌 × 引动方式 × 旺衰、年龄。
  *  - 单维度必泛；本引擎做"组合查表"，确定性、无 LLM、可复现。
- *  - 流派切片：opt.school 命中 EV_SCHOOL 时按各派视角（格局用神/盲派做功/调候寒暖/新派旺衰/病药偏枯）出词；
+ *  - 流派切片：opt.school 命中 EV_SCHOOL 时按各派视角（格局用神、盲派做功、调候寒暖、新派旺衰、病药偏枯）出词；
  *    opt.forceTag 锁定本层喜忌标签，与页面 verdictOf 同源，避免共识判中而事件标利的脱钩。
  *  - 儿童与晚年同样按流派分化：EV_SCHOOL_CHILD / EV_SCHOOL_LATE 为年龄专用池，措辞随龄且随派而异。
  *  - 复用全局：bazi-data.js 的 tenGod / shenCat / getChangSheng / pairIn / tianGanHe / HIDE / GAN_WX /
@@ -7081,7 +8035,7 @@ function buildSchoolsDeep(BZ, sel, selMeta){
  *    本文件的 zhiMain / stripCat。
  *
  * 外部调用：buildEventPrototypes(BZ, sel, opt) → 事件原型数组。
- *   sel: [{gz, lvl, age, year}]（lvl 如 大运/流年/流月/流日；age/year 可选，用于年龄门控与应期）
+ *   sel: [{gz, lvl, age, year}]（lvl 如 大运、流年、流月、流日；age/year 可选，用于年龄门控与应期）
  *   opt: {xiCats,jiCats,xiWx,jiWx} 可选，流派自定义喜忌；缺省用扶抑(A.fu / A.synthesis)。
  */
 
@@ -7178,9 +8132,9 @@ const EV_BASE_LATE = {
 };
 
 /* ============ 3c. 五派专属事象字典（school-aware，消除“五派吐同一串”的硬伤） ============ */
-/* 设计：各派按自家视角（格局用神/盲派做功/调候寒暖/新派旺衰扶抑/病药偏枯）对同一十神类×喜忌给不同措辞。
- *  - 十神派（子平格局派/盲派/新派）按 十神类×喜忌 取词；
- *  - 五行派（调候派/病药派）按 标签(_TAG) 取词（其判定本就走五行，与十神类无关）。
+/* 设计：各派按自家视角（格局用神、盲派做功、调候寒暖、新派旺衰扶抑、病药偏枯）对同一十神类×喜忌给不同措辞。
+ *  - 十神派（子平格局派、盲派、新派）按 十神类×喜忌 取词；
+ *  - 五行派（调候派、病药派）按 标签(_TAG) 取词（其判定本就走五行，与十神类无关）。
  * 成人（16–59）走本字典；儿童走 EV_SCHOOL_CHILD、晚年走 EV_SCHOOL_LATE（措辞随龄、五派分化）。 */
 const EV_SCHOOL = {
   '子平格局派': {
@@ -7345,11 +8299,11 @@ const EV_SCHOOL_LATE = {
               '中': ['人际平顺、分合有常', '合作平淡、无大得失'] }
   }
 };
-/* ============ 3f. 层级专属事象（大运/流年/流月/流日 各一套措辞，杜绝“跨层同串、流日说开张”的量级错乱） ============ */
-/* 设计：大运回退各池 base（最丰富，cap=6）；流年/流月/流日 取本层专属措辞（cap=4/2/1）。
+/* ============ 3f. 层级专属事象（大运、流年、流月、流日 各一套措辞，杜绝“跨层同串、流日说开张”的量级错乱） ============ */
+/* 设计：大运回退各池 base（最丰富，cap=6）；流年、流月、流日 取本层专属措辞（cap=4、2、1）。
  *  - 尺度词：流年“年内”写在池内；流月“流月”、流日“流日”由五派解读章节的 areaNotes 前缀统一提供，本池内不带尺度前缀。
- *  - 成人（adult）五派全 4 层；儿童/晚年（child/late）仅增 流月/流日 两层专属，大运/流年取年龄专用 base，使“掌权/置业”不落错龄。
- *  - 五行派（调候/病药）无年龄变体，adult 层即年龄中性，child/late 回退主库 base。 */
+ *  - 成人（adult）五派全 4 层；儿童、晚年（child/late）仅增 流月、流日 两层专属，大运、流年取年龄专用 base，使“掌权、置业”不落错龄。
+ *  - 五行派（调候、病药）无年龄变体，adult 层即年龄中性，child/late 回退主库 base。 */
 const EV_LVL = {
   'adult': {
     '子平格局派': {
@@ -7744,7 +8698,7 @@ const EV_LVL = {
   }
 };
 function evSchoolEvents(school, catKey, tag, age, lvl){
-  // 层级专属措辞：大运回退各池 base；流年/流月/流日 取本层专属池（evSchoolEvents 第四参 lvl 驱动），使四层措辞完全不同。
+  // 层级专属措辞：大运回退各池 base；流年、流月、流日 取本层专属池（evSchoolEvents 第四参 lvl 驱动），使四层措辞完全不同。
   if(lvl && lvl!=='大运'){
     const grp = baziAgeStage(age) || 'adult';
     const L = EV_LVL[grp] && EV_LVL[grp][school];
@@ -7758,7 +8712,7 @@ function evSchoolEvents(school, catKey, tag, age, lvl){
   if(baziAgeStage(age)==='child') pick = EV_SCHOOL_CHILD;
   else if(baziAgeStage(age)==='late') pick = EV_SCHOOL_LATE;
   let sd = pick[school];
-  if(!sd) sd = EV_SCHOOL[school];   // 调候/病药无年龄变体，回退主库（_TAG 年龄中性）
+  if(!sd) sd = EV_SCHOOL[school];   // 调候、病药无年龄变体，回退主库（_TAG 年龄中性）
   if(!sd) return null;
   if(sd._TAG) return (sd._TAG[tag] && sd._TAG[tag].length) ? sd._TAG[tag] : null;
   if(sd[catKey] && sd[catKey][tag] && sd[catKey][tag].length) return sd[catKey][tag];
@@ -7769,7 +8723,7 @@ function evPoolFor(age){
   if(baziAgeStage(age)==='late') return EV_BASE_LATE;
   return EV_BASE;
 }
-/* 晚年/童年门控：桃花情缘、夫妻配偶类神煞与宫位强调，对相应年龄段失真，须剔除 */
+/* 晚年、童年门控：桃花情缘、夫妻配偶类神煞与宫位强调，对相应年龄段失真，须剔除 */
 function evGateSha(sha, age){
   if(age==null) return sha;
   if(baziAgeStage(age)==='late') return sha.filter(s => !/桃花|情缘|夫妻|配偶/.test(s));
@@ -7778,7 +8732,7 @@ function evGateSha(sha, age){
 function evGateEmph(emph, age){
   if(!emph) return emph;
   if(age!=null && (baziAgeStage(age)==='child' || baziAgeStage(age)==='late') && /配偶|夫妻|情缘|桃花/.test(emph)) return '';
-  // 童年期：剔除职场/婚育类宫位强调（事件池已用儿童专用，强调行亦须同步）
+  // 童年期：剔除职场、婚育类宫位强调（事件池已用儿童专用，强调行亦须同步）
   if(age!=null && baziAgeStage(age)==='child' && /配偶|夫妻|情缘|桃花|职场|上司|部下|调动|平台|官非|诉讼|降职|晋升|考公|合伙人/.test(emph)) return '';
   return emph;
 }
@@ -7838,7 +8792,7 @@ function evTriggered(BZ, gz){
   return out;
 }
 
-/* 喜忌判定：先按十神类别（扶抑/流派喜忌集合），未命中再按五行（合成 xiWxEff/jiWxEff，中和日主走此路） */
+/* 喜忌判定：先按十神类别（扶抑、流派喜忌集合），未命中再按五行（合成 xiWxEff/jiWxEff，中和日主走此路） */
 function evTag(cats, xiCats, jiCats, xiWx, jiWx, g, z){
   let hit = null;
   cats.forEach(c => { if(xiCats.has(c)) hit = hit || '喜'; else if(jiCats.has(c)) hit = '忌'; });
@@ -7853,7 +8807,7 @@ function evTag(cats, xiCats, jiCats, xiWx, jiWx, g, z){
 function evMakeProto(BZ, gz, dg, palace, rel, cats, tag, isMale, age, lvl, year, opt){
   const catKey = cats[0]; // 取天干十神类别为主轴（更显明）
   const pool = evPoolFor(age);
-  // 流派专属事象：儿童/晚年用 EV_SCHOOL_CHILD/LATE 年龄分化专用池，成人用 EV_SCHOOL；均按各派自家视角出词。
+  // 流派专属事象：儿童、晚年用 EV_SCHOOL_CHILD/LATE 年龄分化专用池，成人用 EV_SCHOOL；均按各派自家视角出词。
   const useSchool = !!(opt && opt.school);
   let base;
   if(useSchool){
@@ -7868,7 +8822,7 @@ function evMakeProto(BZ, gz, dg, palace, rel, cats, tag, isMale, age, lvl, year,
   const emph = evGateEmph(pInfo && pInfo.emph && pInfo.emph[catKey], age);
   // 年龄门控（再保险，统一走 xuanji-lib 唯一体系）
   events = ageGateEvents(events, age);
-  // 神煞 / 长生 事象
+  // 神煞、长生 事象
   const sha = evGateSha(evStepSha(BZ, gz, age), age);
   const cs = getChangSheng(dg, gz[1]);
   const csM = evCsMean(cs, age);
@@ -7933,7 +8887,7 @@ function buildEventPrototypes(BZ, sel, opt){
 
 // 易理象数：纯展示层（非断语）。将"五行生克过程模型"与"四土象数"两种易理观点体系化呈现，
 // 并以本盘五行旺衰、缺失、流通套入过程模型，给出个性化"本命五行阶段偏重"衔接段。
-// 展示层：不进入 synthesis/喜忌/格局/断语引擎
+// 展示层：不进入 synthesis/喜忌、格局、断语引擎
 function renderYiliModule(BZ){
   if(!BZ) return '';
   const WX5=['木','火','土','金','水'];
@@ -7996,7 +8950,7 @@ function renderYiliModule(BZ){
   html+=`</div></details>`;
 
   // ===== 五行生克易理（四时运行、五德性格）=====
-  /* 能量列：展示该生/克环节两五行之本命能量（完整五行能量生克）；日主所在五行加（日主）标记；两五行间以空格分隔 */
+  /* 能量列：展示该生、克环节两五行之本命能量（完整五行能量生克）；日主所在五行加（日主）标记；两五行间以空格分隔 */
   const _eOf=wx=>_es?(_es[wx]||0):0;
   const _enCell=(a,b)=>{ const ta=(a===dwx)?wxb(a)+'（日主） ':wxb(a)+' ', tb=(b===dwx)?wxb(b)+'（日主） ':wxb(b)+' '; return `${ta}${_eOf(a).toFixed(1)}  ${tb}${_eOf(b).toFixed(1)}`; };
   const shengRows=SHENG.map(p=>`<tr><td>${wxb(p[0])}生${wxb(p[1])}</td><td>${p[2]}</td><td>${p[3]}</td><td>${_enCell(p[0],p[1])}</td></tr>`).join('');
@@ -8006,7 +8960,7 @@ function renderYiliModule(BZ){
   html+=`<p class="ly-zh-p">五行非五种器物，乃五气运行之五阶段。《洪范》以曰字立义：水曰润下、火曰炎上、木曰曲直、金曰从革、土爰稼穑，句眼皆在运行方式，故观五行当以运行过程为本。</p>`;
   // 相生表：正生（运行之象）+ 反生 母多灭子 + 能量
   html+=`<div class="qtab-scroll"><table class="qtab yili-tbl yili-sc"><thead><tr><th>相生环节</th><th>运行之象</th><th>反生 母多灭子</th><th>能量</th></tr></thead><tbody>${shengRows}</tbody></table></div>`;
-  // 相克表：正克（制衡之义）+ 反侮 反克 / 相乘 过克 + 能量
+  // 相克表：正克（制衡之义）+ 反侮 反克、相乘 过克 + 能量
   html+=`<div class="qtab-scroll"><table class="qtab yili-tbl yili-sc"><thead><tr><th>相克环节</th><th>制衡之义</th><th>反侮 反克</th><th>相乘 过克</th><th>能量</th></tr></thead><tbody>${keRows}</tbody></table></div>`;
   html+=`<div class="qtab-scroll"><table class="qtab yili-tbl"><thead><tr><th>五行</th><th>五德</th><th>性格之象</th><th>能量</th></tr></thead><tbody>${wudeRows}</tbody></table></div>`;
   // 对盘主断：日主五行所主运行 + 最旺五行之德 + 流通断口 + 显著生克（纯展示，不进断语引擎）

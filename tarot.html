@@ -132,7 +132,7 @@ const ALT_PAIR={'火土':'火土','土火':'火土','风水':'风水','水风':'
 const ADJ={'10':[[0,1],[0,2],[0,3],[0,4],[0,5],[6,7],[7,8],[8,9]]};
 /* 三牌连判的中间位索引：凯尔特十字仅杖部为线性叙事，故只判杖部 */
 const TRI_IDX={'10':[7,8]};
-/* 最近一次抽牌的完整状态（问题/牌阵/结果），分享与连判共用 */
+/* 最近一次抽牌的完整状态（问题、牌阵、结果），分享与连判共用 */
 let LAST=null;
 /* 元素成势：满三张且为全阵唯一最多者为全局主导，至多一元素成局，不会双主并列 */
 function domLines(picks){
@@ -176,7 +176,7 @@ function comboLine(p){
   const t=p.rev?(p.card.toneR||0):(p.card.tone||0);
   return (COMBO[p.role]&&COMBO[p.role][t])||'';
 }
-/* 是/否倾向由吉凶基调推导 */
+/* 是、否倾向由吉凶基调推导 */
 function ynOf(p){ const t=p.rev?(p.card.toneR||0):(p.card.tone||0); return t===1?'是否：偏是':t===-1?'是否：偏否':'是否：未定'; }
 function cardFace(p,idx){
  const c=p.card;
@@ -199,7 +199,7 @@ function cardFace(p,idx){
   </div>
  </div>`;
 }
-/* 凯尔特十字固定小牌：只含位次/牌图/牌名/正逆，牌义在详断表 */
+/* 凯尔特十字固定小牌：只含位次、牌图、牌名、正逆，牌义在详断表 */
 function tileFace(p,idx){
  const c=p.card;
  const num=(c.num&&c.num!=='0')?`<div class="tt-num">${c.num}</div>`:'';
@@ -269,7 +269,7 @@ function triadLines(picks,midIdx){
  }
  return out;
 }
-/* 牌面详批弹窗：关键词、总义、四领域牌义、占星/时间/是否与位次信息 */
+/* 牌面详批弹窗：关键词、总义、四领域牌义、占星、时间、是否与位次信息 */
 function trOpen(i){
  const p=(window._TR_PKS||[])[i]; if(!p) return;
  const c=p.card;

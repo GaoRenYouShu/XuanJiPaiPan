@@ -93,7 +93,7 @@ const XT_BITS={1:[1,1,1],2:[1,1,0],3:[1,0,1],4:[1,0,0],5:[0,1,1],6:[0,1,0],7:[0,
 /* 后天洛书数（文王八卦数）：坎1坤2震3巽4乾6兑7艮8离9，中5无卦寄艮 */
 const HT_BITS={1:[0,1,0],2:[0,0,0],3:[1,0,0],4:[0,1,1],5:[0,0,1],6:[1,1,1],7:[1,1,0],8:[0,0,1],9:[1,0,1]};
 const HT_NAME={1:'坎',2:'坤',3:'震',4:'巽',5:'艮',6:'乾',7:'兑',8:'艮',9:'离'};
-/* 洛书地支宫数（后天/方位起卦用）：子坎1 丑寅艮8 卯震3 辰巳巽4 午离9 未申坤2 酉兑7 戌亥乾6 */
+/* 洛书地支宫数（后天、方位起卦用）：子坎1 丑寅艮8 卯震3 辰巳巽4 午离9 未申坤2 酉兑7 戌亥乾6 */
 const ZHI_HT={子:1,丑:8,寅:8,卯:3,辰:4,巳:4,午:9,未:2,申:2,酉:7,戌:6,亥:6};
 /* 日干序数（三要灵应派下卦取日干） */
 // GAN_NUM 由 xuanji-lib.js 提供
@@ -120,7 +120,7 @@ const MEIHUA_SCHOOLS={
 };
 function fillMhCat(){const el=document.getElementById('mhCat');if(!el)return;el.innerHTML=MH_CAT_LIST.map(k=>'<option>'+k+'</option>').join('')}
 function fillMhSchool(){document.getElementById('mhSchool').innerHTML=Object.keys(MEIHUA_SCHOOLS).map(k=>`<option>${k}</option>`).join('');}
-// ===== 梅花专业增强：八卦五行 / 体用生克 / 旺衰 / 应期 / 象意 / 分类占断 =====
+// ===== 梅花专业增强：八卦五行、体用生克、旺衰、应期、象意、分类占断 =====
 const TRIGRAM_WX={'乾':'金','兑':'金','坎':'水','震':'木','巽':'木','离':'火','艮':'土','坤':'土'};
 const WX_KE_MH={'金':'木','木':'土','土':'水','水':'火','火':'金'};      // 我克
 const SHENG_MH={'金':'水','水':'木','木':'火','火':'土','土':'金'};      // 我生
@@ -144,12 +144,12 @@ function guaWang(tiWx, monthZhi){
   if(WX_KE_MH[tiWx]===ling) return {label:'囚',desc:'体克月令，力受牵制'};
   return {label:'死',desc:'月令克体，气绝无力'};
 }
-// 应期多层判断：①先天数定日期 ②体用旺衰定远近 ③值日辰/入墓待冲/动爻用卦当日应
+// 应期多层判断：①先天数定日期 ②体用旺衰定远近 ③值日辰、入墓待冲、动爻用卦当日应
 function yingQi(ben, tiWx, yongWx, wangLabel, lunar, dong){
   const xu = TRIGRAMS[ben.upper].xt, xl = TRIGRAMS[ben.lower].xt;
   const x = xu + xl;
   const parts=[];
-  /* ①先天数应期：本卦上下卦先天数之和为基数，视卦体旺衰定日/月速率 */
+  /* ①先天数应期：本卦上下卦先天数之和为基数，视卦体旺衰定日、月速率 */
   const sp = wangLabel==='旺' ? '体卦当令气盛，期近（'+x+'日内或当月应）'
            : wangLabel==='相' ? '体卦次旺，期稍近（'+x+'日内）'
            : wangLabel==='死' ? '体卦失令，期远（'+x+'日后、经月应）'
@@ -158,9 +158,9 @@ function yingQi(ben, tiWx, yongWx, wangLabel, lunar, dong){
   /* ②值日辰：占事应于体卦值日或比合之日 */
   if(lunar){
     const dz=lunar.getDayInGanZhi()[1];
-    if(ZHI_WX_MH[dz]===tiWx) parts.push('体卦值日辰'+dz+'（日辰同气），当日可应');
-    else if(ZHI_WX_MH[dz]===yongWx) parts.push('用卦值日辰'+dz+'，事见应于'+dz+'日');
-    else parts.push('近应看值日：未来'+x+'日内逢'+tiWx+'之日（'+Object.keys(ZHI_WX_MH).filter(z=>ZHI_WX_MH[z]===tiWx).join('、')+'值日）可应');
+    if(ZHI_WX[dz]===tiWx) parts.push('体卦值日辰'+dz+'（日辰同气），当日可应');
+    else if(ZHI_WX[dz]===yongWx) parts.push('用卦值日辰'+dz+'，事见应于'+dz+'日');
+    else parts.push('近应看值日：未来'+x+'日内逢'+tiWx+'之日（'+Object.keys(ZHI_WX).filter(z=>ZHI_WX[z]===tiWx).join('、')+'值日）可应');
   }
   /* ③入墓待冲：体或用入墓库，须等冲墓之日方应 */
   if(lunar){
@@ -172,7 +172,7 @@ function yingQi(ben, tiWx, yongWx, wangLabel, lunar, dong){
   }
   /* ④月旺应期：体卦五行见当月或旺相之月最易应 */
   const wangMonth = Object.keys(WX_SEASON[SEASON_OF_MONTH[lunar?lunar.getMonthZhi():'寅']]).find(function(w){ return WX_SEASON[SEASON_OF_MONTH[lunar?lunar.getMonthZhi():'寅']][w]==='旺'; })||'木';
-  parts.push('月令应期：应于'+tiWx+'旺相之时（'+(wangMonth===tiWx?'本月当令正旺':SHENG_MH[wangMonth]===tiWx||SHENG_MH[tiWx]===wangMonth?'相生体之月':'次旺之月')+'），遇'+Object.keys(ZHI_WX_MH).filter(z=>ZHI_WX_MH[z]===tiWx).join('')+'月尤验');
+  parts.push('月令应期：应于'+tiWx+'旺相之时（'+(wangMonth===tiWx?'本月当令正旺':SHENG_MH[wangMonth]===tiWx||SHENG_MH[tiWx]===wangMonth?'相生体之月':'次旺之月')+'），遇'+Object.keys(ZHI_WX).filter(z=>ZHI_WX[z]===tiWx).join('')+'月尤验');
   return parts.join('；')+'。';
 }
 // 地支六冲（冲墓用）
@@ -235,16 +235,15 @@ const MH_CAT={
  '六畜':{'比和':'六畜平安','体克用':'六畜兴旺','用克体':'六畜多病','体生用':'六畜耗损','用生体':'六畜得养'}
 };
 const MH_CAT_LIST=Object.keys(MH_CAT);
-/* 体党用党：统计多卦中与体/用同五行的数量，定事体在我或外力 */
+/* 体党用党：统计多卦中与体、用同五行的数量，定事体在我或外力 */
 function dangCount(a,b,g){let x=0,y=0;g.forEach(w=>{if(w===a)x++;if(w===b)y++});return{ti:x,yong:y,other:g.length-x-y}}
 function dangText(c){return c.ti>c.yong?'体党'+c.ti+'卦、用党'+c.yong+'卦，体党众盛，事体在我，吉势有助':c.yong>c.ti?'用党'+c.yong+'卦、体党'+c.ti+'卦，用党势强，须防外力':'两党均势，成败相半'}
 /* 卦象吉凶总断（六十四卦 overview，梅花以体用为核心，总断为卦之定性） */
 const GUA_MEAN2={
  '乾为天':'天行刚健，自强不息，大吉','坤为地':'地势柔顺，厚德载物，吉','水雷屯':'云雷交动，初创艰难，宜慎','山水蒙':'山下出泉，蒙昧开智，平','水天需':'云上于天，待时而动，平','天水讼':'天水相违，争讼不和，凶','地水师':'地中藏水，师出有名，慎','水地比':'地上有水，亲比和乐，吉','风天小畜':'风行天上，蓄养未成，平','天泽履':'上天下泽，循礼而行，吉','地天泰':'天地交泰，上下亨通，大吉','天地否':'天地不交，闭塞不通，凶','天火同人':'天火相亲，同心同德，吉','火天大有':'火在天上，大有丰盈，大吉','地山谦':'地中有山，谦卑自牧，吉','雷地豫':'雷出地奋，欢乐和顺，吉','泽雷随':'泽中有雷，随时顺变，吉','山风蛊':'山下有风，整饬积弊，慎','地泽临':'泽上有地，以上临下，吉','风地观':'风行地上，观察审时，平','火雷噬嗑':'雷电交作，明刑正法，平','山火贲':'山下有火，文饰光华，吉','山地剥':'山附于地，剥落衰败，凶','地雷复':'雷在地中，一阳来复，吉','天雷无妄':'天下雷行，守正无妄，吉','山天大畜':'天在山中，蓄德养贤，吉','山雷颐':'山下有雷，颐养身心，平','泽风大过':'泽灭其木，栋桡过甚，凶','坎为水':'水洊而至，重险艰难，凶','离为火':'明两相继，附丽光明，吉','泽山咸':'山上有泽，两情相感，吉','雷风恒':'雷风相与，恒久守常，吉','天山遁':'天下有山，退避远害，平','雷天大壮':'雷在天上，壮盛正大，吉','火地晋':'明出地上，晋升上进，吉','地火明夷':'明入地中，韬晦待时，凶','风火家人':'风自火出，内外有序，吉','火泽睽':'火泽相背，乖离难合，凶','水山蹇':'山上有水，险阻难行，凶','雷水解':'雷雨大作，患难消解，吉','山泽损':'山下有泽，损己益人，平','风雷益':'风雷交助，损上益下，吉','泽天夬':'泽上于天，决断去邪，平','天风姤':'天下有风，邂逅相遇，平','泽地萃':'泽上于地，荟萃聚众，吉','地风升':'地中生木，循序上升，吉','泽水困':'泽中无水，困乏难伸，凶','水风井':'木上有水，井养不穷，吉','泽火革':'泽中有火，变革更新，吉','火风鼎':'木上有火，鼎新布化，吉','震为雷':'洊雷相震，警省修己，慎','艮为山':'兼山矗立，止所当止，平','风山渐':'山上有木，渐进有序，吉','雷泽归妹':'泽上有雷，婚配失正，凶','雷火丰':'雷电皆至，丰盛亨明，吉','火山旅':'山上有火，行旅寄寓，平','巽为风':'随风相继，谦逊入顺，吉','兑为泽':'两泽相丽，朋友讲习，吉','风水涣':'风行水上，涣散离析，凶','水泽节':'泽上有水，节制有度，平','风泽中孚':'泽上有风，诚信及物，吉','雷山小过':'山上有雷，小有过越，平','水火既济':'水在火上，功成守成，吉','火水未济':'火在水上，事未竟成，平'};
 /* 地支五行（梅花本地，与站内真源同值） */
-const ZHI_WX_MH={'子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火','午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'};
 const MU_KU_MH={金:'丑',木:'未',水:'辰',火:'戌',土:'辰'};
-/* 五行×四季旺相休囚死（行=季节，列=五行；春木旺/夏火旺/秋金旺/冬水旺/四季土旺） */
+/* 五行×四季旺相休囚死（行=季节，列=五行；春木旺、夏火旺、秋金旺、冬水旺、四季土旺） */
 const WX_SEASON={
   '春':{'木':'旺','火':'相','水':'休','金':'囚','土':'死'},
   '夏':{'火':'旺','土':'相','木':'休','水':'囚','金':'死'},
@@ -253,7 +252,7 @@ const WX_SEASON={
   '四季':{'土':'旺','金':'相','火':'休','木':'囚','水':'死'}
 };
 const SEASON_OF_MONTH={'寅':'春','卯':'春','辰':'四季','巳':'夏','午':'夏','未':'四季','申':'秋','酉':'秋','戌':'四季','亥':'冬','子':'冬','丑':'四季'};
-/* 八卦方位/先天数/五行色（外应法断用） */
+/* 八卦方位、先天数、五行色（外应法断用） */
 const GUA_DIR_NUM_COLOR={
   '乾':'西北 数1 金黄','兑':'正西 数2 素白','离':'正南 数3 赤红','震':'正东 数4 苍青','巽':'东南 数5 碧绿','坎':'正北 数6 玄黑','艮':'东北 数7 土黄','坤':'西南 数8 土褐'
 };
@@ -279,7 +278,7 @@ function renderMeihuaPro2(o){
   /* 读法：四土月（辰未戌丑）显示辰月（四季土旺）式，其余显示秋酉式 */
   const seasonLb = season==='四季' ? `${o.monthZhi||''}月（四季土旺）` : `${season}${o.monthZhi||''}`;
   const wangNote=`${seasonLb}：体卦${tiWx}为${tiInSeason}，用卦${yongWx}为${yongInSeason}。${tiInSeason==='旺'||tiInSeason==='相'?'体当令有气，事体有力':tiInSeason==='囚'||tiInSeason==='死'?'体失令受制，事体难成':'体平而不极'}`;
-  /* 五卦对体生克影响链：互/变/错/综 每卦上下卦五行对体卦生克 */
+  /* 五卦对体生克影响链：互、变、错、综 每卦上下卦五行对体卦生克 */
   const wuRel=(bits,label)=>{
     const low=trigramName(bits.slice(0,3)), up=trigramName(bits.slice(3,6));
     const lw=TRIGRAM_WX[low], uw=TRIGRAM_WX[up];
@@ -287,7 +286,7 @@ function renderMeihuaPro2(o){
     return `${label}${low}（下,${r(lw)}）、${up}（上,${r(uw)}）`;
   };
   const wuChain=`<b>互卦</b>${wuRel(o.huBits,'')}；<b>变卦</b>${wuRel(o.bianBits,'')}；<b>错卦</b>${wuRel(o.cuoBits,'')}；<b>综卦</b>${wuRel(o.zongBits,'')}。<br>生体者助事，克体者制事，比和者顺事，泄耗者费事。`;
-  /* 八卦方位/数/色（外应法断用） */
+  /* 八卦方位、数、色（外应法断用） */
   const dirColor=`体卦${o.tiName}：${GUA_DIR_NUM_COLOR[o.tiName]}；用卦${o.yongName}：${GUA_DIR_NUM_COLOR[o.yongName]}。`;
   /* 旺衰五行量化表：独立置于判断表前，五行×四季 旺相休囚死，标记体用所当季节 */
   const wangBlock=`<h3 class="rel-title rel-inline">旺衰五行量化</h3>
@@ -300,7 +299,7 @@ function renderMeihuaPro2(o){
     }).join('')}</tr>`).join('')}
   </tbody></table></div>
   <div class="wang-note">${wangNote}</div>`;
-  /* Table A：卦气旺衰/体党用党/卦象总断/应期/体用生克/流派解读 */
+  /* Table A：卦气旺衰、体党用党、卦象总断、应期、体用生克、流派解读 */
   const tableA=`
   <table class="ly-cat-tbl ly-zh-tbl mh-judge-tbl mh-tbl-gap-lg"><tbody>
     <tr><th>卦气旺衰</th><td>${wangRow}</td></tr>
@@ -448,8 +447,8 @@ function qigua(){
     if(solar){yearZhi=lunar.getYearZhi();}
   } else if(method==='ying'){
     /* 外应起卦（《梅花易数·三要灵应篇》）：以当下一念所见之声、色、方位、物之外应取数。
-       依描述文本判别类别（方位→色→声→物），五行先天数：水1/火2/木3/金4/土5；
-       多重外应主象权重叠加：四类全扫，各命中要素按类别权重（方位3/色2/声1.5/物1）
+       依描述文本判别类别（方位→色→声→物），五行先天数：水1、火2、木3、金4、土5；
+       多重外应主象权重叠加：四类全扫，各命中要素按类别权重（方位3、色2、声1.5、物1）
        累加到所隶五行，取权重最高者为上卦主象、次高者为下卦次象；仅一应时次象同主。 */
     const yval=document.getElementById('mhYingVal').value.trim();
     if(!yval){alert('请输入外应描述');return;}
@@ -478,7 +477,7 @@ function qigua(){
     const chars = method==='char' ? (document.getElementById('mhChar').value||'') : (document.getElementById('mhName').value||'');
     if(!chars){alert(method==='char'?'请输入字':'请输入姓名');return;}
     /* 拆字起卦：字数拆卦。1字=上1下(字+1)；多字前部分上卦、后部分下卦 */
-    /* 笔画统一走公共 getKangxiStroke（姓名学康熙笔画，简体/繁体各自正确取数），未收录返回0 */
+    /* 笔画统一走公共 getKangxiStroke（姓名学康熙笔画，简体、繁体各自正确取数），未收录返回0 */
     const n=chars.length;
     const cArr=Array.from(chars);
     const st=cArr.map(getKangxiStroke);
@@ -519,7 +518,7 @@ function qigua(){
     + (sc.dayBias==='season'?'；日加月令旺衰权重('+dayBias+')':'')
     + (sc.dongBias==='min'?'；动爻加分钟数('+mi+')':'');
   const methodLine = `起卦法（${sc.sys==='ht'?'后天洛书':'先天'}）：${sysNote}。上卦=（年+月+日${dayBias?'+旺衰'+dayBias:''}）÷${M}取余→${upName}(${up})；下卦=（年+月+日+${sc.hsrc==='gan'?'日干':'时'}${dayBias?'+旺衰'+dayBias:''}）÷${M}取余→${lowName}(${low})；动爻=（总和${sc.dongBias==='min'?'+分'+mi:''}）÷6取余→第${dong}爻。${srcNote}。`+(method==='ying'?(' '+yingNotes):'');
-  /* 体党用党：本/互/变/错/综五卦中，与体卦同五行者为体党，与用卦同五行者为用党 */
+  /* 体党用党：本、互、变、错、综五卦中，与体卦同五行者为体党，与用卦同五行者为用党 */
   const allTrigrams=[tiName,yongName,trigramName(huBits.slice(0,3)),trigramName(huBits.slice(3,6)),trigramName(bianBits.slice(0,3)),trigramName(bianBits.slice(3,6)),trigramName(cuoBits.slice(0,3)),trigramName(cuoBits.slice(3,6)),trigramName(zongBits.slice(0,3)),trigramName(zongBits.slice(3,6))];
   const _dang=dangCount(_tiWx,_yongWx,allTrigrams.map(t=>TRIGRAM_WX[t]));
   const _dangTxt=dangText(_dang);
@@ -540,14 +539,14 @@ function qigua(){
     else if(WX_KE_MH[mWxOfMonth]===_tiWx)mRel='月建克体，'+_tiWx+'受制';
     else mRel='体克月建，力有牵制';
     let dRel='';
-    if(_tiWx===ZHI_WX_MH[_dz])dRel='日辰'+_dz+'与体同气，得日扶';
-    else if(SHENG_MH[ZHI_WX_MH[_dz]]===_tiWx)dRel='日辰生体，得日助';
-    else if(SHENG_MH[_tiWx]===ZHI_WX_MH[_dz])dRel='体泄于日辰';
-    else if(WX_KE_MH[ZHI_WX_MH[_dz]]===_tiWx)dRel='日辰克体，受日制';
+    if(_tiWx===ZHI_WX[_dz])dRel='日辰'+_dz+'与体同气，得日扶';
+    else if(SHENG_MH[ZHI_WX[_dz]]===_tiWx)dRel='日辰生体，得日助';
+    else if(SHENG_MH[_tiWx]===ZHI_WX[_dz])dRel='体泄于日辰';
+    else if(WX_KE_MH[ZHI_WX[_dz]]===_tiWx)dRel='日辰克体，受日制';
     else dRel='日辰与体不涉';
     wangPair='月建：'+mRel+'；日辰：'+dRel+'。';
   }
-  /* 应期多层判断：先天数定期 + 体用旺衰定远近 + 值日辰/入墓待冲/月旺应期 */
+  /* 应期多层判断：先天数定期 + 体用旺衰定远近 + 值日辰、入墓待冲、月旺应期 */
   let yingDetail='';
   if(lunar){
     yingDetail=yingQi(hexInfo(benBits), _tiWx, _yongWx, guaWang(_tiWx,monthZhi).label, lunar, dong);

@@ -22,7 +22,7 @@
   } catch (e) { /* 挂载失败静默 */ }
 })();
 
-/* 分组导航：首页 + 历法 / 命理 / 三式 / 占卜 / 民俗 / 运气 / 相术 / 附录（八卷谱系） */
+/* 分组导航：首页 + 历法、命理、三式、占卜、民俗、运气、相术、附录（八卷谱系） */
 const NAV_GROUPS = [
   {type:'link', href:'index.html', name:'首页'},
   {type:'group', name:'历法', items:[
@@ -213,7 +213,7 @@ const ZHI_WX = {子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:
    及 gzAllColorSpan / WX_WORD_DENY 主体）由 assets/xuanji-lib.js 统一提供，全站统一调用；
    本文件仅保留框架级常量 WX_CLASS / GAN_WX / ZHI_WX。 */
 /* 句末标点归一：去掉结尾已有的句末标点（。？！；：、，.），补一个中文句号。
-   用于“补充说明”类独立小注，从顶层杜绝“符号多/没有”的不一致。 */
+   用于“补充说明”类独立小注，从顶层杜绝“符号多、没有”的不一致。 */
 function endDot(s){
   if(s==null) return s;
   s=(''+s).replace(/\s+$/,'');
@@ -222,7 +222,7 @@ function endDot(s){
 }
 /* 上色引擎主体（gzAllColorSpan / WX_WORD_DENY）由 assets/xuanji-lib.js 统一提供，全站统一调用。 */
 
-/* 神煞吉凶分类：吉神 / 凶煞 / 中性（其余）。用于四柱表与详情着色 */
+/* 神煞吉凶分类：吉神、凶煞、中性（其余）。用于四柱表与详情着色 */
 const SHA_JI = ['天乙贵人','文昌贵人','禄神','太极贵人','福星贵人','天厨贵人','学堂','词馆','国印贵人','金舆','暗禄','天医','德秀贵人','红鸾','天喜','月德贵人','月德合','天德贵人','天赦','三奇贵人','天德合','十灵日','六秀日'];
 const SHA_XIONG = ['羊刃','飞刃','红艳煞','流霞','血刃','劫煞','灾煞','亡神','孤辰','寡宿','丧门','吊客','破碎煞','勾煞','绞煞','天罗','地网','十恶大败','八专','九丑','孤鸾','阴差阳错','四废','童子','元辰','披麻','天转','地转'];
 function shaCat(n){ const base=(n||'').replace(/（[^）]+）$/,''); if(SHA_JI.indexOf(base)>=0) return 'ji'; if(SHA_XIONG.indexOf(base)>=0) return 'xiong'; return 'neutral'; }
@@ -537,7 +537,7 @@ function xjShareRecast(recast){
     window.addEventListener('pagehide',saveForm);
 
     /* select 赋值守卫：仅当快照值在当前选项列表中确有对应项时才赋。
-       否则保持页面既有取值，典型两种情形：① 快照里固化了空串（省/市下拉无空选项，
+       否则保持页面既有取值，典型两种情形：① 快照里固化了空串（省、市下拉无空选项，
        直接赋会把 selectedIndex 打成 -1、显示为空白）；② 上级下拉尚未级联出本级选项。
        注意：区县级下拉首项 value="" 表示"全市"，属合法取值，能匹配故不受影响。 */
     function selHas(el,v){
@@ -566,9 +566,9 @@ function xjShareRecast(recast){
               if(el.checked!==v){ el.checked=v; changed.push(el); if(!hook) fire(el); }
             }else if(el.value!==String(v)&&selHas(el,String(v))){
               el.value=String(v); changed.push(el);
-              /* 级联下拉（省/市/区县）必须"赋一个、派发一个"，按 DOM 顺序逐级推进：
+              /* 级联下拉（省、市、区县）必须"赋一个、派发一个"，按 DOM 顺序逐级推进：
                  下级的选项由上级 change 处理器重建，若先全部赋值再统一派发，
-                 下级取值在旧选项里匹配不上会被守卫跳过而丢失（表现即刷新后城市/区县变空白）。
+                 下级取值在旧选项里匹配不上会被守卫跳过而丢失（表现即刷新后城市、区县变空白）。
                  有重排钩子的页面（ai.js 挂了 window.xjRecast）结果重排仍交给钩子，
                  但 select 依旧逐项派发，级联属表单内部依赖，钩子不会替下拉重建下级的选项。 */
               if(!hook||el.tagName==='SELECT') fire(el);
@@ -797,15 +797,15 @@ function xjShareRecast(recast){
   }
   function reposition(e){
     if(!cur) return;
-    /* 列表自身滚动不重定位（e.target 在列表内就是 list 自己在滚）——
+    /* 列表自身滚动不重定位（e.target 在列表内就是 list 自己在滚），
        不守卫会把 maxHeight 短暂清零再重设，把 scrollTop 归 0，用户感觉就是滚不动 */
     if(e && e.target && cur.list.contains(e.target)) return;
     /* 弹框内的 select 锚点不会随窗口滚动而位移（弹框是 position:fixed 居中），
-       在弹框里再做重定位会把 maxHeight 清零重设，把列表 scrollTop 抹掉——
+       在弹框里再做重定位会把 maxHeight 清零重设，把列表 scrollTop 抹掉，
        这是用户反馈“月份下拉无法滚动选择”的另一条根因 */
     if(cur.inModal) return;
-    /* 滚动/缩放只重定位，不关闭：列表是 position:fixed，跟着视口走；
-       弹框打开瞬间 Chrome 会派发 scroll（scrollbar 出现/消失），
+    /* 滚动、缩放只重定位，不关闭：列表是 position:fixed，跟着视口走；
+       弹框打开瞬间 Chrome 会派发 scroll（scrollbar 出现、消失），
        若直接关闭，刚展开的列表就被自灭了 */
     try{ place(cur.sel, cur.list); }catch(_){}
   }
@@ -823,7 +823,7 @@ function xjShareRecast(recast){
     list.style.left = '0px'; list.style.top = '0px';
     list.style.maxHeight = '';
     var w = list.offsetWidth, h = list.offsetHeight;
-    /* 若 select 被祖先弹框包裹（.modal / .dt-modal / .ai-cfg），把列表也夹进该弹框内 —— 既不溢出弹框下方，
+    /* 若 select 被祖先弹框包裹（.modal / .dt-modal / .ai-cfg），把列表也夹进该弹框内 ， 既不溢出弹框下方，
        也不从弹框上方露出，与弹框整体语言一致；弹框常带 overflow:auto，列表超出必然被裁 */
     var host = sel.closest && sel.closest('.modal,.dt-modal,.ai-cfg');
     var hb = host ? host.getBoundingClientRect() : null;

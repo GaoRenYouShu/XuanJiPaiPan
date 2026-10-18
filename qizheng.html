@@ -338,7 +338,7 @@ function qzPai(){
   try{
     c = qz_compute({y, m, d, hh, mm, sex, tz: tzUse, lon, lat, qiHeng, mingFa, nodeMode, trueSolar});
   }catch(e){
-    document.getElementById('out').innerHTML = '<p class="notice">排盘失败：' + qzEsc(e.message) + '</p>';
+    console.error('[排盘]', e); document.getElementById('out').innerHTML = '<p class="notice">排盘失败，请核对输入后重试。</p>';
     return;
   }
   window.__qzChart = c;
@@ -590,7 +590,7 @@ function qzZeGo(){
       const r = qz_zejiScan(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], window.__qzChart.qiHeng, window.__qzChart.lon, window.__qzChart.lat);
       out.innerHTML = r.err ? '<p class="notice">' + qzEsc(r.err) + '</p>' : qzZeHtml(r);
     }catch(e){
-      out.innerHTML = '<p class="notice">择时失败：' + qzEsc(e.message) + '</p>';
+      console.error('[择时]', e); out.innerHTML = '<p class="notice">择时失败，请核对输入后重试。</p>';
     }
   }, 30);
 }

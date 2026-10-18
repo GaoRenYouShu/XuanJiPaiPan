@@ -211,8 +211,8 @@ function zwApplyModState(){
 }
 const POS={巳:[1,1],午:[2,1],未:[3,1],申:[4,1],辰:[1,2],酉:[4,2],卯:[1,3],戌:[4,3],寅:[1,4],丑:[2,4],子:[3,4],亥:[4,4]};
 const SANHE=['命宫','财帛','官禄','迁移']; /* 三方四正（命宫一组） */
-/* 宫位关联：四正=本宫+对宫；三方=再+两个三合宫。按地支三合/对冲动态算，供中宫连线与关联高亮。
-   三合：申子辰/寅午戌/巳酉丑/亥卯未；对冲：子午丑未寅申卯酉辰戌巳亥。 */
+/* 宫位关联：四正=本宫+对宫；三方=再+两个三合宫。按地支三合、对冲动态算，供中宫连线与关联高亮。
+   三合：申子辰、寅午戌、巳酉丑、亥卯未；对冲：子午丑未寅申卯酉辰戌巳亥。 */
 const ZW_SANHE={子:['申','子','辰'],午:['寅','午','戌'],辰:['申','子','辰'],戌:['寅','午','戌'],
   申:['申','子','辰'],寅:['寅','午','戌'],巳:['巳','酉','丑'],酉:['巳','酉','丑'],
   丑:['巳','酉','丑'],卯:['亥','卯','未'],亥:['亥','卯','未'],未:['亥','卯','未']};
@@ -242,8 +242,8 @@ function ziweiRead(astro, school, trans, sex){
   const palOf=o=>{const p=astro.palaces.find(x=>(x.majorStars||[]).concat(x.minorStars||[]).some(s=>s.mutagen===o));return p?p.name:'';};
   const luPal=palOf('禄'), jiPal=palOf('忌');
   const meanOf=rn=>{const r=ZIWEI_PAL_MEAN.find(x=>x[0]===rn);return r?r[1]:'';};
-  // 命宫主星本性/事业（具体：太阳、天梁）。事业方向只取[1]字段首段（逗号前方向词），剔除描述短语并去重
-  // 命宫主星本性/事业。事业方向=命宫各主星[1]（纯职业清单）合并去重，仅句首一个"宜"总领（宜A、B、C）
+  // 命宫主星本性、事业（具体：太阳、天梁）。事业方向只取[1]字段首段（逗号前方向词），剔除描述短语并去重
+  // 命宫主星本性、事业。事业方向=命宫各主星[1]（纯职业清单）合并去重，仅句首一个"宜"总领（宜A、B、C）
   const dualKey=(()=>{ const arr=(soulP&&soulP.majorStars||[]); return arr.map(s=>s.name).sort().join('+'); })();
   const natOf=(()=>{ const arr=(soulP&&soulP.majorStars||[]); const dual=ZW_DUAL_MEAN[dualKey]||''; const nm=dual?dual.split('，')[0]:arr.map(s=>ZW_STAR_MEAN[s.name]?ZW_STAR_MEAN[s.name][0].split('，')[0]:s.name).filter(Boolean).join('、'); const toks=arr.map(s=>ZW_STAR_MEAN[s.name]?(ZW_STAR_MEAN[s.name][1]||'').split(/[，,、]/).map(t=>t.trim()).filter(Boolean):[]).flat(); const uniq=toks.filter((v,i)=>toks.indexOf(v)===i); const dir=uniq.length?('宜'+uniq.join('、')):''; return {nm,dir,list:arr,dual}; })();
   // 命宫主星亮度 + 星性组合判断（具体到星，非"格局易成"泛话）
@@ -286,9 +286,9 @@ function ziweiRead(astro, school, trans, sex){
     ,'福德':'重心落精神福泽，一生着落在心性修养与福泽享受，宜修心养性、求内心安稳，福泽自随'
     ,'父母':'重心落长辈荫蔽，一生着落在父母师长庇荫与家学传承，宜敬上承恩、借长辈之助起步' };
   const bodyAdv=(BODY_ADV[bodyName]?('身宫落'+bodyName+'，'+BODY_ADV[bodyName]):'');
-  // 四化落宫分析：化禄/化忌之星实义 + 落宫人事（具体到星，非"主得助"泛话）
+  // 四化落宫分析：化禄、化忌之星实义 + 落宫人事（具体到星，非"主得助"泛话）
   const huaStar=o=>{const a=(trans&&trans[o])||[];return a[0]?a[0]:'';};
-  const huaWord=star=>{ // 该星化禄/化忌的具体含义（本性+化曜）
+  const huaWord=star=>{ // 该星化禄、化忌的具体含义（本性+化曜）
     const m=ZW_STAR_MEAN[star]; if(!m) return '';
     const nat=m[0].split('，')[0]||star; return nat;
   };
@@ -374,7 +374,7 @@ function zwBaziLink(astro, school, trans, sex){
   const WX_GAN={'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
   const JU_WX={'水二局':'水','木三局':'木','金四局':'金','土五局':'土','火六局':'火'};
   const dayWx=WX_GAN[dayGan]||'';
-  /* 十二宫 ↔ 八字对应（十神/宫位口径） */
+  /* 十二宫 ↔ 八字对应（十神、宫位口径） */
   const PAL_TEN={
     '命宫':['日主自身', '定本性基调与先天之势'],
     '财帛':['财星（正偏财）', '财帛主星属喜用则财来有源，属忌神则财来破耗'],
@@ -396,7 +396,7 @@ function zwBaziLink(astro, school, trans, sex){
   const soulP=astro.palaces.find(p2=>p2.name==='命宫');
   const soulStars=(soulP&&soulP.majorStars||[]);
   const soulWxList=soulStars.map(s=>WX_STAR[s.name]).filter(Boolean);
-  /* 五行完整生克：a(日主/本宫) 对 b(星曜)。含同气/相生/相克/生我/克我 */
+  /* 五行完整生克：a(日主、本宫) 对 b(星曜)。含同气、相生、相克、生我、克我 */
   function relOf(a,b){ if(!a||!b) return ''; if(a===b) return '同气'; const SH={'木':'火','火':'土','土':'金','金':'水','水':'木'}, KE={'木':'土','土':'水','水':'火','火':'金','金':'木'}; if(SH[a]===b) return a+'生'+b; if(SH[b]===a) return b+'生'+a; if(KE[a]===b) return a+'克'+b; if(KE[b]===a) return b+'克'+a; return ''; }
   const xiJiOf=wx=> xi.includes(wx)?'喜用':(ji.includes(wx)?'忌神':'中性');
   const xjCls=xj=> xj==='喜用'?'<span class="zw-xi">属喜用</span>':(xj==='忌神'?'<span class="zw-ji">属忌神</span>':'中性');
@@ -404,9 +404,9 @@ function zwBaziLink(astro, school, trans, sex){
   const HUA_ORDER=['禄','权','科','忌'];
   const huaPal={}; HUA_ORDER.forEach(o=>{ const arr=[]; astro.palaces.forEach(p2=>{(p2.majorStars||[]).concat(p2.minorStars||[]).forEach(s=>{ if(s.mutagen===o) arr.push({star:s.name,pal:p2.name,wx:WX_STAR[s.name]||''}); });}); huaPal[o]=arr; });
   const bodyP=astro.palaces.find(p2=>p2.isBodyPalace);
-  /* 主星本性/事业/婚缘/康健 摘要（ZW_STAR_MEAN） */
+  /* 主星本性、事业、婚缘、康健 摘要（ZW_STAR_MEAN） */
   function starMean(s){ const m=ZW_STAR_MEAN[s.name]; return m?m:null; }
-  /* 单宫：主星五行取首主星（多主星并列时以强者/首星为主） */
+  /* 单宫：主星五行取首主星（多主星并列时以强者、首星为主） */
   function palWx(p2){ const maj=p2.majorStars||[]; return maj.length?WX_STAR[maj[0].name]||'':''; }
   function palMj(p2){ const maj=p2.majorStars||[]; return maj.length?maj.map(s=>s.name+(s.brightness?'（'+s.brightness+'）':'')).join('、'):'空宫'; }
   /* ---- 组装 ---- */
@@ -416,7 +416,7 @@ function zwBaziLink(astro, school, trans, sex){
     const t=PAL_TEN[p2.name]; if(!t) return;
     const mj=palMj(p2), wx=palWx(p2), xj=wx?xiJiOf(wx):'';
     const starRel=wx&&dayWx?relOf(dayWx,wx):'';
-    /* 主星本性/事业摘要 */
+    /* 主星本性、事业摘要 */
     const nat=(p2.majorStars||[]).map(s=>{const m=starMean(s); return m?`${s.name}${m[0]?m[0].split('，')[0]:''}（${m[1]?m[1].split(/[，,、]/)[0]:''}）`:'';}).filter(Boolean).join('；');
     rows+=`<tr><th>${p2.name}${p2.isBodyPalace?'身':''}</th><td>
       <span class="zw-key">${t[0]}</span>：${mj}${wx?('（'+wx+'）'):''}${starRel?('　<span class="zw-key">'+starRel+'</span>'):''}${wx?('　'+xjCls(xj)):''}
@@ -447,7 +447,7 @@ function zwBaziLink(astro, school, trans, sex){
     const nat=(p2&&p2.majorStars||[]).map(s=>{const m=starMean(s);return m&&m[0]?`${s.name}${m[0].split('，')[0]}`:'';}).filter(Boolean).join('、');
     return `${nm}：${mj}${wx?('（'+wx+'，'+xjCls(xj)+'）'):''}${nat?('<span class="zw-note">　'+nat+'</span>'):''}`;
   }).join('<br>');
-  /* 四化派：化禄/化忌 落宫 vs 喜忌 */
+  /* 四化派：化禄、化忌 落宫 vs 喜忌 */
   const huaLine=HUA_ORDER.map(o=>{
     const arr=huaPal[o]||[];
     if(!arr.length) return '化'+o+'：无';
@@ -609,7 +609,7 @@ function zwDingPan(astro, school){
   const tip=(jiPalComma?('又'+jiC):jiC)+'　'+adv[level];
   return {label,level,zuhe:geJu,geju:geList,trans:['禄'+lu,'权'+quan,'科'+ke,'忌'+ji].join('　'),san:sanStr,tip};
 }
-/* 流年断语：取当年(今年)流年盘，给"今年运势"白话重点。含流年干支/命宫/四化落宫 */
+/* 流年断语：取当年(今年)流年盘，给"今年运势"白话重点。含流年干支、命宫、四化落宫 */
 /* 流年应期：以流年四化与生年四化逐宫落位，分宫逐项断当年何事当应。
    流年盘每宫之 name 是本命宫名，流年宫名另在同序的 yearly.palaceNames，
    两者并出方能说清此年何领域、承何底子。
@@ -745,7 +745,7 @@ function zwLiuNian(astro, sex, school){
       const p=roleOf(role);
       return `<p class="ly-zh-p sub">${zwSanRead(role, p&&p.majorStars||[], school)}</p>`;
     }).join('');
-    // 整体吉凶判定（统计庙旺/陷弱）
+    // 整体吉凶判定（统计庙旺、陷弱）
     const sanAll=SAN3.reduce((acc,role)=>{const p=roleOf(role);(p&&p.majorStars||[]).forEach(s=>acc.push(s));return acc;},[]);
     const strong=sanAll.filter(s=>s.brightness==='庙'||s.brightness==='旺'||s.brightness==='得').length;
     const weak=sanAll.filter(s=>s.brightness==='陷'||s.brightness==='不').length;
@@ -776,7 +776,7 @@ function zwLiuNian(astro, sex, school){
   }
   return {ok:true, gz, body, yingqi:zwLiuNianYingQi(as, y), liuyao:zwLiuYaoRead(as, y, '')};
 }
-/* 选定日期 → 推算该日期所在大运 + 流年/流月/流日/流时（按派别：三合看三方四正、四化看四化）
+/* 选定日期 → 推算该日期所在大运 + 流年、流月、流日、流时（按派别：三合看三方四正、四化看四化）
    时辰走 iztro 的第二参数（语义同排盘：0 早子、1 丑、11 亥、12 晚子），未选时刻则不下传，
    引擎自行按当下时辰取流时。 */
 function zwDateCalc(astro, dateStr, school, timeIndex){
@@ -809,7 +809,7 @@ function zwDateCalc(astro, dateStr, school, timeIndex){
     let mgLuo='';
     if(mg&&mg.name&&mg.name!=='命宫'){ const pm2=palMeanOf(mg.name); mgLuo=`，落本命${mg.name}宫位，主${pm2||mg.name}`; }
     let nat='', care='';
-    // 命宫或对宫（迁移）主星自然属性；命宫空宫时借对宫主星断本性/事业（与本站空宫借星惯例一致，避免空宫白板）
+    // 命宫或对宫（迁移）主星自然属性；命宫空宫时借对宫主星断本性、事业（与本站空宫借星惯例一致，避免空宫白板）
     if(mgS.length){ nat=mgS.map(s=>starNature(s.name)).filter(Boolean).join('、'); care=mgS.map(s=>starCar(s.name)).filter(Boolean).join('、'); }
     else {
       const opp=ZW_CHONG[mg?mg.earthlyBranch:''];
@@ -865,7 +865,7 @@ function zwDateCalc(astro, dateStr, school, timeIndex){
     }
     return {name, gz:gzOf(o), rows};
   };
-  // 组表：每层一格表格（流年/流月/流日 3 表）
+  // 组表：每层一格表格（流年、流月、流日 3 表）
   const tblFor=d=>{
     if(!d) return `<table class="zp-yun-tbl"><caption>${d?d.name:'—'}</caption><tbody><tr><td>—</td><td>暂不可用</td></tr></tbody></table>`;
     return `<table class="zp-yun-tbl"><caption>${d.name}（${d.gz}）</caption><tbody>
@@ -883,7 +883,7 @@ function zwDateCalc(astro, dateStr, school, timeIndex){
   const yaoOf=(lyr,nm)=>zwLiuYaoRead(as, lyr, nm);
   return `<div class="zp-yun-grid y2">${dayunT}${yaoOf(h.decadal,'大限')}${yearT}${yaoOf(h.yearly,'流年')}${monthT}${yaoOf(h.monthly,'流月')}${dayT}${yaoOf(h.daily,'流日')}${hourT}${yaoOf(h.hourly,'流时')}</div>`;
 }
-/* 大运/流年/流月/流日/流时 选择器：选日期与时辰 → 输出该刻五层运势（默认当前日期与当前时辰），按派别区分
+/* 大运、流年、流月、流日、流时 选择器：选日期与时辰 → 输出该刻五层运势（默认当前日期与当前时辰），按派别区分
    时辰下拉留"自动"一档：不选时刻时引擎按当下时辰取流时，选了才按所选时辰定，故默认即当下之时。 */
 const ZW_YUN_HOURS=[['早子','23至1'],['丑','1至3'],['寅','3至5'],['卯','5至7'],['辰','7至9'],['巳','9至11'],
   ['午','11至13'],['未','13至15'],['申','15至17'],['酉','17至19'],['戌','19至21'],['亥','21至23'],['晚子','23至1']];
@@ -1073,7 +1073,7 @@ function zwLaiYin(astro){
   const m=ZIWEI_PAL_MEAN.find(x=>x[0]===origin.name);
   const gm=meanMap[origin.name];
   const stars=(origin.majorStars||[]).map(s=>s.name+(s.brightness?('（'+s.brightness+'）'):'')).join('、')||'空宫';
-  /* 来因宫能量分级色：dp-0红=己身强宫（命/福/疾）dp-1金=事用宫（财/官/迁/田）dp-3蓝灰=亲缘宫（夫/子/兄/友/仆/父） */
+  /* 来因宫能量分级色：dp-0红=己身强宫（命、福、疾）dp-1金=事用宫（财、官、迁、田）dp-3蓝灰=亲缘宫（夫、子、兄、友、仆、父） */
   const laiYinLv=name=>name==='命宫'||name==='福德'||name==='疾厄'?'dp-0':(name==='财帛'||name==='官禄'||name==='迁移'||name==='田宅'?'dp-1':'dp-3');
   return `<h3 class="rel-title">来因宫（北派飞星）</h3>
     <div class="info-box zp-ding">
@@ -1196,7 +1196,7 @@ function zwSheng(astro){
   return `<h3 class="rel-title">四套十二神</h3>${tbl}
     <p class="ly-zh-p sub-note">长生十二神主该宫气机之生旺衰败，<span class="yi">长生、临官、帝旺</span>主气旺得时，<span class="ji">病、死、墓、绝</span>主气衰需养；博士十二神主该宫人事助力，<span class="yi">博士、青龙、将军</span>为吉，<span class="ji">伏兵、大耗、小耗</span>需防；岁前十二神随岁君流转，<span class="yi">岁建、龙德、天德</span>为吉，<span class="ji">丧门、白虎、吊客、病符</span>主一年之扰；将前十二神随将星流转，<span class="yi">将星、攀鞍、岁驿</span>为吉，<span class="ji">劫煞、灾煞、天煞、亡神</span>主刑伤耗损。四套同看，一宫之气机、人事、岁运、将令乃全。</p>`;
 }
-/* 宫位×主星针对性解读：把"某宫 + 星曜 + 亮度"转成语义明确的吉凶白话（供三方四正/详断/流年表格复用） */
+/* 宫位×主星针对性解读：把"某宫 + 星曜 + 亮度"转成语义明确的吉凶白话（供三方四正、详断、流年表格复用） */
 function zwSanRead(role, stars, school){
   if(!stars||!stars.length) return (role==='命宫'?'其宫无主星，凭三方及对宫借星参断，力量借位而显':'空宫无主星，借对宫与命宫冲照之力断此宫人事');
   const palMean=(ZIWEI_PAL_MEAN.find(r=>r[0]===role)||[])[1]||'';
@@ -1219,7 +1219,7 @@ function zwSanRead(role, stars, school){
     else if(bri==='陷') briTxt='落陷失势，力弱需防';
     else if(bri==='不') briTxt='不得地，力道平常';
     else briTxt='亮度平常，吉凶参半';
-    // 事业/本性方向（第二义为纯职业清单，"宜"在句首统一）
+    // 事业、本性方向（第二义为纯职业清单，"宜"在句首统一）
     const dir=m[1]?('，宜'+m[1].split('，')[0]):'';
     return `${s.name}${briTxt}${dir}`;
   });
@@ -1336,7 +1336,7 @@ function zwHePan(astroM, astroF, school, sexM, sexF){
   {
     const tM=transOf(astroM), tF=transOf(astroF);
     let raw=0, det=[];
-    /* 一方生年四化飞入对方宫位：禄权科吉、忌减分；化入对方命宫/夫妻宫定向加减（吉化加持、忌化更凶） */
+    /* 一方生年四化飞入对方宫位：禄权科吉、忌减分；化入对方命宫、夫妻宫定向加减（吉化加持、忌化更凶） */
     const fly=(t,own,other)=>{
       ['禄','权','科','忌'].forEach(h=>{
         (t[h]||[]).forEach(x=>{
@@ -1496,7 +1496,7 @@ function zwHePan(astroM, astroF, school, sexM, sexF){
   if(!interRows) interRows='<tr><th>四化</th><td colspan="4">双方四化互涉未成象，以宫位生克参断为主。</td></tr>';
   /* 速览对照行 */
   const brief=(nm,a)=>{ const s=soulOf(a), b=bodyOf(a);
-    return `<tr><th>${nm}命盘</th><td class="zw-hp-det">${a.fiveElementsClass}　命宫${s.earthlyBranch}宫（${mjOf(s).map(x=>x.name+(x.brightness?'（'+x.brightness+'）':'')).join('、')||'空宫'}）　身宫${b?b.name:'未定'}　命主${a.soul}　身主${a.body}</td></tr>`; };
+    return `<tr><th>${nm}命盘</th><td class="zw-hp-det">${a.fiveElementsClass}　命宫${s.earthlyBranch}宫（${mjOf(s).map(x=>x.name+(x.brightness?'，'+x.brightness:'')).join('、')||'空宫'}）　身宫${b?b.name:'未定'}　命主${a.soul}　身主${a.body}</td></tr>`; };
   /* 六维得分表行（得分展示用"分制"形式，不用斜杠）：主评分维度随流派，非本派纲维度列为参考 */
   const scCell=(v,max)=>`<b>${v}</b><span class="zw-hp-max">满分${max}</span>`;
   const MAIN_SX=['命宫主星五行','夫妻宫互参','三方四正互参','身宫着力','五行局互参'];
@@ -1587,7 +1587,6 @@ const ZW_MODE_KEY='ZW_PAGE_MODE', ZW_SAVED_KEY='ZW_SAVED', ZW_SAVED_SESS_KEY='ZW
 const ZW_LUNAR_M=['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 const ZW_LUNAR_D=['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
 /* 时支还原钟面整点：bazi-core.js 的 TZ_HOUR 是顶层 const，跨 script 取不到，此处按同一约定列明 */
-const ZW_TZ_HOUR={'子':0,'丑':2,'寅':4,'卯':6,'辰':8,'巳':10,'午':12,'未':14,'申':16,'酉':18,'戌':20,'亥':22};
 /* 字段显隐：本页 .form-row 为 flex 容器，会压过浏览器对 hidden 属性的默认样式，故显式兑现一次 */
 function zwShow(id,on){ const el=document.getElementById(id); if(el) el.hidden=!on; }
 function zwMode(){
@@ -1777,7 +1776,7 @@ function zwPillarPick(){
   if(!dv) return;
   document.getElementById('zDate').value=dv;
   const tz=(document.getElementById('zptZ')||{}).value||'子';
-  document.getElementById('zTime').value=String(ZW_TZ_HOUR[tz]).padStart(2,'0')+':00';
+  document.getElementById('zTime').value=String(TZ_HOUR[tz]).padStart(2,'0')+':00';
   try{ paipan(); }catch(e){}
 }
 /* 已存取用：localStorage 为主、sessionStorage 为备，与八字页同式，
@@ -1911,7 +1910,7 @@ function paipan(){
   let astro;
   try{
     astro=iztro.astro.bySolar(`${clk.y}-${clk.m}-${clk.d}`, clk.ti, sex, true, 'zh-CN');
-  }catch(e){document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+e.message+'</p>';return;}
+  }catch(e){console.error('[排盘]', e);document.getElementById('out').innerHTML='<p class="notice">排盘失败，请核对输入后重试。</p>';return;}
   window.__zwBranches={}; astro.palaces.forEach(p=>window.__zwBranches[p.earthlyBranch]=p.name);
   window.__zwAstro=astro;
   /* ---- 双人合盘：勾选时排对方盘，与主盘同一条折算链（经度取第二人自己的出生地） ---- */
@@ -1931,7 +1930,7 @@ function paipan(){
     const fclk=zwClockToPalace(fy0,fm0,fd0,fhh0,fmi0,zwLngOf('zF'),dstMode,sunMode,ziMode);
     try{
       astroF=iztro.astro.bySolar(`${fclk.y}-${fclk.m}-${fclk.d}`, fclk.ti, sexF, true, 'zh-CN');
-    }catch(e){document.getElementById('out').innerHTML='<p class="notice">第二人排盘失败：'+e.message+'</p>';return;}
+    }catch(e){console.error('[第二盘]', e);document.getElementById('out').innerHTML='<p class="notice">第二人排盘失败，请核对输入后重试。</p>';return;}
   }
   const school=document.getElementById('zSchool').value;
   window.__zwSchool=school;
@@ -2104,7 +2103,7 @@ function paipan(){
         schoolNote='本宫无化曜直入，四化未在此宫肇动，事情平稳、以静观为主，忌冲未临故少波动。';
       }
     }
-    // 三方四正落座 + 针对性解读（对宫/三合宫之主星，评本宫强弱），每宫一行
+    // 三方四正落座 + 针对性解读（对宫、三合宫之主星，评本宫强弱），每宫一行
     const sanReadLines=sanBr.map(b=>{
       const q=astro.palaces.find(x=>x.earthlyBranch===b);
       if(!q) return '';
@@ -2194,7 +2193,7 @@ function paipan(){
   zwRenderTiming(astro);
   zwApplyModState();
   window.__zwInitDone=true;
-  // AI 上下文 / 复制排盘数据（按流派区分）
+  // AI 上下文、复制排盘数据（按流派区分）
   const palLines=astro.palaces.map(p=>{
     const mj=(p.majorStars||[]).map(s=>s.name+(s.brightness||'')+(s.mutagen?'化'+s.mutagen:'')).join(' ')||'无';
     return `${p.name}（${p.heavenlyStem}${p.earthlyBranch}）：${mj}`;
@@ -2259,7 +2258,7 @@ function bindYunPicker(){
 /* 当前时辰转 iztro 时辰 index：0 早子、1 丑、11 亥、12 晚子。 */
 function zwTimeIndexFromHours(h){ return Math.floor(((h+1)%24)/2); }
 function zwNowTimeIndex(){ try{ return zwTimeIndexFromHours(xjNowDate().getHours()); }catch(e){ return 0; } }
-/* ===== 紫微盘交互：悬停/点击宫 → 本宫加深 + 三方四正关联宫变色；中宫画布以 12 个边界点折线连接 4 宫（参照 iztro Line 4 段折线穿过中宫） ===== */
+/* ===== 紫微盘交互：悬停、点击宫 → 本宫加深 + 三方四正关联宫变色；中宫画布以 12 个边界点折线连接 4 宫（参照 iztro Line 4 段折线穿过中宫） ===== */
 function zwDrawLinks(focusName){
   const board=document.querySelector('.zw-board'); if(!board) return;
   const canvas=board.querySelector('.zw-links'); if(!canvas) return;

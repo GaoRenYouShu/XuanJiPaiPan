@@ -38,7 +38,7 @@ window.NAME_HOMOPHONE = (function () {
         fullHit[w.word] = true;
       }
     });
-    /* part 与 full 词条统一做包含级扫描（2 音节词如 输光/月经 命中 3 字名） */
+    /* part 与 full 词条统一做包含级扫描（2 音节词如 输光、月经 命中 3 字名） */
     d.full.concat(d.part).forEach(function (w) {
       if (fullHit[w.word]) return;                       /* 全名命中过的不重复报 */
       var L = w.sylls.length;
@@ -47,7 +47,7 @@ window.NAME_HOMOPHONE = (function () {
         for (var j = 0; j < L; j++) if (seq[i + j] !== w.sylls[j]) { ok = false; break; }
         if (ok) {
           /* 词长分级：≥2 音节=mid（词级双关）；单音节=low（弱提示，仅 UI 折叠展示，
-           * 避免 李/杜/王 等大姓被孤立音节误伤，主流谐音避讳为词级双关判定） */
+           * 避免 李、杜、王 等大姓被孤立音节误伤，主流谐音避讳为词级双关判定） */
           hits.push({ word: w.word, kind: 'part', severity: L >= 2 ? 'mid' : 'low', at: i, note: '' });
           break;
         }

@@ -71,7 +71,6 @@
 <script>
 /* ---------- 本地计算辅助 ---------- */
 /* 地支方位：DIZHI_CHONG / pairChong / 太岁常量由 assets/xuanji-lib.js、assets/taisui-data.js 共享提供 */
-const ZHI_FANG={子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北'};
 /* 胎神（日、月干支占处，据《玉匣记》歌诀：甲己占门、乙庚碓磨、丙辛厨灶、丁壬仓库、戊癸占房） */
 const GAN_TAISHEN={甲:'门',己:'门',乙:'碓磨',庚:'碓磨',丙:'厨灶',辛:'厨灶',丁:'仓库',壬:'仓库',戊:'房',癸:'房'};
 const ZHI_TAISHEN={子:'碓磨',丑:'厕',寅:'户',卯:'门',辰:'厨',巳:'灶',午:'厕',未:'井',申:'仓',酉:'户',戌:'房',亥:'床'};
@@ -431,7 +430,7 @@ function feiXingGrid(center){
 }
 /* 年飞星入中宫：三元九运 180 年一循环，年紫白入中诀上元甲子一白求、中元甲子四绿游、下元甲子七赤起，九星逆行顺年头；锚点：上元起 1864（甲子年一白入中） */
 function yearStar(y){
-  const C=180; const idx=(((y-1864)%C)+C)%C; const base=idx<60?1:(idx<120?4:7); /* 上/中/下元甲子入中星 */
+  const C=180; const idx=(((y-1864)%C)+C)%C; const base=idx<60?1:(idx<120?4:7); /* 上、中、下元甲子入中星 */
   const off=(((y-1864)%60)+60)%60; let s=(base-off)%9; if(s<=0)s+=9; return s;
 }
 /* 月飞星入中宫：月家紫白，正月起星按年支三组定（子午卯酉八白、辰戌丑未五黄、寅申巳亥二黑），按节气月序逐月逆减 */
@@ -585,7 +584,7 @@ function query(){
   const festList=[]; sf.concat(sOf).forEach(f=>festList.push(f)); lf.concat(lOf).forEach(f=>festList.push(f));
   const festRow=festList.length?('<div class="lhl-i"><span class="k">节日</span><span class="v">'+festList.join('、')+'</span></div>'):'';
   const yStar=yearStar(y), mStar=monthStar(y,yZhi,mZhi);
-  const suiPo = Object.keys(ZHI_FANG).find(k=>pairChong(k,yZhi)) || '';
+  const suiPo = Object.keys(window.ZHI_FANG).find(k=>pairChong(k,yZhi)) || '';
   /* 三柱相冲 */
   const chong=[];
   const cols=[['年',yZhi],['月',mZhi],['日',dyZhi]];
@@ -625,7 +624,7 @@ function query(){
   html+=`<h3 class="rel-title">基础信息</h3><div class="lhl-info">
     <div class="lhl-i wide"><span class="k">宜</span><span class="v yi">${yiTxt}</span></div>
     <div class="lhl-i wide"><span class="k">忌</span><span class="v ji">${jiTxt}</span></div>
-    <div class="lhl-i lhl-oneline"><span class="k">岁煞冲煞</span><span class="v"><span class="lhl-s">太岁 ${yZhi}（${ZHI_FANG[yZhi]}）</span><span class="lhl-br"></span><span class="lhl-s">岁破 ${suiPo}（${ZHI_FANG[suiPo]}）</span><span class="lhl-br"></span><span class="lhl-s">${tipSpan('冲煞')} 冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}</span><span class="lhl-br"></span><span class="lhl-s">${tipSpan('时冲')} ${hTime.getChongDesc()} 煞${hTime.getSha()}</span></span></div>
+    <div class="lhl-i lhl-oneline"><span class="k">岁煞冲煞</span><span class="v"><span class="lhl-s">太岁 ${yZhi}（${window.ZHI_FANG[yZhi]}）</span><span class="lhl-br"></span><span class="lhl-s">岁破 ${suiPo}（${window.ZHI_FANG[suiPo]}）</span><span class="lhl-br"></span><span class="lhl-s">${tipSpan('冲煞')} 冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}</span><span class="lhl-br"></span><span class="lhl-s">${tipSpan('时冲')} ${hTime.getChongDesc()} 煞${hTime.getSha()}</span></span></div>
     <div class="lhl-i"><span class="k">太岁</span><span class="v">${taiSuiText(ygz,yZhi,suiPo)}</span></div>
     <div class="lhl-i"><span class="k">三柱相冲</span><span class="v">${chong.length?chong.join('；'):'三柱无互冲'}</span></div>
     <div class="lhl-i"><span class="k">值神</span><span class="v">${tipSpan(lunar.getDayTianShen())}（${lunar.getDayTianShenType()}）</span></div>
@@ -707,7 +706,7 @@ window.addEventListener('load', function () {
       const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
       const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
       const yearZhi=lunar.getYearZhi(), monthZhi=mGZ[1], dayGan=dGZ[0], dayZhi=dGZ[1];
-      const suiPo=Object.keys(ZHI_FANG).find(k=>pairChong(k,yearZhi))||'';
+      const suiPo=Object.keys(window.ZHI_FANG).find(k=>pairChong(k,yearZhi))||'';
       const xing=(XING_TAI[yearZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
       const hai=ZHI_SHENG[HAI_TAI[yearZhi]]||'无', po=ZHI_SHENG[PO_TAI[yearZhi]]||'无';
       const yx=lunar.getYueXiang();

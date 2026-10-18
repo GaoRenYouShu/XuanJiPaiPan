@@ -14,7 +14,7 @@ const ENC_MARKER = '__ai_enc';
    2) 本地口令：用户自设口令，PBKDF2（SHA-256，10 万次迭代）派生密钥；salt 存 localStorage 保证同站点多页面共用，
       派生密钥仅驻 sessionStorage 内存，关闭标签页即丢失，重开需重新验证口令（或重填 Key）。
    3) 不支持 crypto.subtle 的环境（非 HTTPS/localhost 旧浏览器）退化为 XOR+Base64 弱混淆，仅防 grep 明文。
-   内存中 apiKey 仍为明文（fetch 需 Bearer 原文），安全边界在落盘/跨窗口传递链路。 */
+   内存中 apiKey 仍为明文（fetch 需 Bearer 原文），安全边界在落盘、跨窗口传递链路。 */
 
 const AI_PW_SALT_KEY = 'xuanji_ai_pwsalt';
 const AI_PW_SESS = 'xuanji_ai_pwsess';
@@ -106,7 +106,7 @@ function isPasswordMode(){
   return _CRYPTO_OK && _passwordKeyPromise && _hasPasswordSession();
 }
 
-/* 加密字符串：mode 缺省取当前模式（设备绑定/口令），降级时走弱混淆 */
+/* 加密字符串：mode 缺省取当前模式（设备绑定、口令），降级时走弱混淆 */
 async function _encryptStr(plain, mode){
   if (plain == null) return null;
   if (!_CRYPTO_OK){
@@ -201,7 +201,7 @@ async function _decryptCfg(cfg){
 /* 读取配置：优先 localStorage，window.name 作为同标签页兜底、互补
    文件协议、隐私模式、localStorage 被禁等场景下，window.name 仍可跨页传递。
    解密在读取时一次性完成；返回值中 apiKey 为明文（内存中）。 */
-/* 内存缓存：getAiCfg 同步从缓存读；初始化与写入时异步解密/加密 */
+/* 内存缓存：getAiCfg 同步从缓存读；初始化与写入时异步解密、加密 */
 let __aiCfgCache = null;
 let __aiCfgReady = null; // Promise：初始加载完成后 resolve
 let __aiWriteQ = Promise.resolve(); // 串行写队列，避免并发覆盖
@@ -539,7 +539,7 @@ async function setLocalPassword(){
     refreshEncModeTip();
     const msg = document.getElementById('aiCfgMsg');
     if (msg) msg.textContent = '已启用本地口令加密，当前及后续保存的 Key 以口令加密。';
-  }catch(e){ alert('设置失败：' + e.message); }
+  }catch(e){ console.error('[设置]', e); alert('设置失败，请核对填写内容后重试。'); }
 }
 
 /* 清除本地口令加密：退出口令模式，恢复设备绑定（已有 Key 立即按设备绑定重写落盘） */
@@ -649,7 +649,7 @@ async function exportAiConfig(withKey){
         }
       }
     }catch(e){
-      const msg=document.getElementById('aiCfgMsg'); if(msg) msg.textContent='加密失败：' + e.message; return;
+      console.error('[加密]', e); const msg=document.getElementById('aiCfgMsg'); if(msg) msg.textContent='加密失败，请稍后重试。'; return;
     }
   }
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json;charset=utf-8' });
@@ -884,7 +884,7 @@ function normalizeHistory(h){
 /* ================= 盘面分享与数据 =================
    全站排盘页通用：复制分享链接、导出 JSON、复制 JSON、导入 JSON。
    通过 mountAI(getContext, pageTitle, { share: { page, title, collect, restore, recast } }) 启用；
-   collect/restore/recast 可用页面专属实现，缺省抓取/回填全部带 id 的表单控件。
+   collect/restore/recast 可用页面专属实现，缺省抓取、回填全部带 id 的表单控件。
    分享链接格式：当前地址 + #xj=<base64url(JSON{p,d})>，仅存在于链接中，不写入存储。 */
 function shareB64e(s){ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function shareB64d(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; return decodeURIComponent(escape(atob(s))); }
@@ -1236,7 +1236,7 @@ function showCopyTip(msg){
 
 /* ---- 多模型并行解析 + 对话 ----
    每条历史消息都带 models 数组，标出它属于哪些模型；
-   首次解析 / 重新解析：使用面板中勾选的模型，清空历史并重新生成；
+   首次解析、重新解析：使用面板中勾选的模型，清空历史并重新生成；
    对话：勾选哪些模型，就由哪些模型回答，全部输出集中在当前活动标签页。 */
 async function runAiAnalyze(question, selectedIdx){
   openAiBlock();

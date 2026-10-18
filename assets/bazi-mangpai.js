@@ -96,7 +96,7 @@
     '天喜': '天喜临运，喜事有应、家和事顺',
     '将星': '将星临运，掌事得力、威望有增',
     '华盖': '华盖临运，才思独运、宜静思深造',
-    '血刃': '血刃临运，防外伤血光、出行留意',
+    '血刃（盲派）': '血刃临运，防外伤血光、出行留意。盲派以羊刃之冲取血刃，与通书按日干起之血刃歌诀属不同体系，两法并见各具其义',
     '禄': '逢禄得禄，禄为财官之本，力有所归'
   };
   /* 犯太岁五条（流年口诀） */
@@ -281,7 +281,8 @@
         if (grp[2] === z) out.push({ name: '华盖', text: SHA_NOTE['华盖'] });
       }
     }
-    if (typeof YANGREN_LUQIAN !== 'undefined' && zhiOpp(YANGREN_LUQIAN[dg]) === z) out.push({ name: '血刃', text: SHA_NOTE['血刃'] });
+    // 血刃（盲派）：盲派以羊刃之冲取之，与通书血刃歌诀按日干起属不同体系，照纳音轴查法后缀先例带（盲派）括注同出
+    if (typeof YANGREN_LUQIAN !== 'undefined' && zhiOpp(YANGREN_LUQIAN[dg]) === z) out.push({ name: '血刃（盲派）', text: SHA_NOTE['血刃（盲派）'] });
     if (typeof getChangSheng === 'function' && getChangSheng(dg, z) === '临官') out.push({ name: '禄', text: SHA_NOTE['禄'] });
     return out;
   }

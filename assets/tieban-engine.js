@@ -306,7 +306,7 @@ function pickText(catKey, H, key, nth){
   return {t:it.t, b:it.b, no:it.no || (idx+1), catName:cat.name, idx:idx, poolLen:pool.length};
 }
 
-/* 大运/流年条文：以干支太玄数与岁次作种子 */
+/* 大运、流年条文：以干支太玄数与岁次作种子 */
 function pickStepText(catKey, gz, seedNum, nth){
   var T = window.TIEBAN_TIAOWEN;
   var cat = T && T.cats && T.cats[catKey];

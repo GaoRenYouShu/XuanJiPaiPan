@@ -67,7 +67,7 @@ body{
   text-rendering:optimizeLegibility;
 }
 a{color:inherit;text-decoration:none}
-/* 下拉：闭合态不改、不包壳 —— 各页 .field select、.ai-form select、.dt-month 等各有
+/* 下拉：闭合态不改、不包壳 ， 各页 .field select、.ai-form select、.dt-month 等各有
    主题（边框色、底色、字色、圆角 10px 或 0），保留原生 select 即天然同貌，零复制、零冲突、不动布局。
    （若用 span 包壳 + button 复制样式，会被页面按钮规则串改：.dt-head button
    的 width:26px、height:26px 特异性 (0,1,1) 压过 .sel-btn (0,1,0)，把月份下拉压成 26px。）
@@ -86,8 +86,8 @@ select option{font-family:inherit}
 .sel-opt{display:flex;align-items:center;height:var(--sel-opt-h,32px);padding:0 12px;cursor:pointer;white-space:nowrap;font-family:inherit;box-sizing:border-box}
 .sel-opt:hover{background:var(--tk-tint,var(--gold-bg))}
 /* 选中项：取当前页主体色 --tk（由 .dtm-* 类带出，见 app.js 自绘列表），无主题页回落 --red。
-   不再写死 --red——选中项须随各页主体色；
-   字重 400 与弹框选中态同口径——层级靠颜色区分，不靠加粗。 */
+   不再写死 --red，选中项须随各页主体色；
+   字重 400 与弹框选中态同口径，层级靠颜色区分，不靠加粗。 */
 .sel-opt.on{color:var(--tk,var(--red));font-weight:400}
 .wrap{max-width:1080px;margin:0 auto;padding:0 var(--sp-4)}
 
@@ -99,7 +99,7 @@ select option{font-family:inherit}
 }
 .topbar .wrap{display:flex;align-items:center;gap:var(--sp-4);height:62px}
 /* 顶栏与首页"目录册页"同语言：墨黑、朱砂点缀、宋体题签、下划线代替药丸 */
-/* 品牌锁排：朱印 + 双行题字（中文题签 / 拉丁刻印），印与字等高咬合 */
+/* 品牌锁排：朱印 + 双行题字（中文题签、拉丁刻印），印与字等高咬合 */
 .brand{display:flex;align-items:center;gap:var(--sp-3)}
 .brand .seal{width:36px;height:36px;flex:none;display:block}
 .brand .seal img{display:block;width:100%;height:100%}
@@ -203,7 +203,7 @@ select option{font-family:inherit}
    故 .page 底部 padding 归零，避免与 footer 顶部 padding 叠加成双倍间隙。
    首页等 .hm-page 已显式 padding:0 24px，与此一致。 */
 .page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
-/* 全站 .info-box 高级卡片语言（对齐历法页/首页模块）：纯白底 + 细边 + 圆角 + 极淡阴影，克制不厚重。
+/* 全站 .info-box 高级卡片语言（对齐历法页、首页模块）：纯白底 + 细边 + 圆角 + 极淡阴影，克制不厚重。
    特殊语义变体（.q-quant/.nayin-box/.info-grid.base-info .info-box 等）以更特异性规则保留透明，不受本规则影响；
    历法页 .cal-page .info-box 更特异，依旧白卡语言，本规则不冲突。 */
 .page .info-box{
@@ -318,7 +318,7 @@ a.btn{display:inline-flex;align-items:center}
   .bazi-table.equal8{table-layout:auto}
   .bazi-table.equal8 th:first-child,.bazi-table.equal8 td:first-child{width:auto;white-space:nowrap}
 }
-/* 基础信息四柱表：表头行/行标签列去深色背景（与全站量化四柱 .qtab、人生议题 .stab 统一为透明仅留边框）。
+/* 基础信息四柱表：表头行、行标签列去深色背景（与全站量化四柱 .qtab、人生议题 .stab 统一为透明仅留边框）。
    仅作用于八字页基础信息模块，合婚页四柱表保持原样；金字文字颜色保留。 */
 #mod-base .bazi-table th{background:transparent}
 #mod-base .bazi-table td:first-child{background:transparent}
@@ -345,7 +345,7 @@ a.btn{display:inline-flex;align-items:center}
 .bg-mu{background:#5DC336}.bg-huo{background:#F65352}.bg-tu{background:#A07040}.bg-jin{background:#D4A017}.bg-shui{background:#4190FA}
 .bg-yin{background:#8e7cc3}.bg-yang{background:#e0a96d}
 .bg-sheng{background:#5DC336}.bg-ke{background:#F65352}
-/* 量化表标签配色：覆盖 .qtab td.lbl 默认金色，使五行/阴阳/十神/六亲/生克按语义上色 */
+/* 量化表标签配色：覆盖 .qtab td.lbl 默认金色，使五行、阴阳、十神、六亲、生克按语义上色 */
 .qtab td.lbl.wx-mu,.qtab th.wx-mu{color:#5DC336}
 .qtab td.lbl.wx-huo,.qtab th.wx-huo{color:#F65352}
 .qtab td.lbl.wx-tu,.qtab th.wx-tu{color:#A07040}
@@ -402,7 +402,7 @@ a.btn{display:inline-flex;align-items:center}
 .lqkj-grid .info-box.lqkj-line.lq-科 .lq-h{background:#2b6cb0}
 .lqkj-grid .info-box.lqkj-line.lq-忌 .lq-h{background:var(--red)}
 .info-grid.base-info{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-/* 基础信息四块（农历 / 生肖星座二十八宿 / 命宫胎元身宫 / 节气）：去背景色、去阴影，仅留边框，弱化色块噪音 */
+/* 基础信息四块（农历、生肖星座二十八宿、命宫胎元身宫、节气）：去背景色、去阴影，仅留边框，弱化色块噪音 */
 .info-grid.base-info .info-box{background:transparent;box-shadow:none}
 .info-grid.mh-top{grid-template-columns:repeat(3,1fr)}
 /* 梅花易数：分类专项占断卡片（恢复原格式） */
@@ -426,13 +426,13 @@ a.btn{display:inline-flex;align-items:center}
 .overview-card .ov-v{font-size:14px;font-weight:400;color:var(--gold2);line-height:1.3;min-width:0;word-break:break-word}
 @media (max-width:560px){
   .zp-yun-grid{grid-template-columns:1fr !important}
-  /* 手机端紧凑化：基础信息卡片（农历/生肖/命宫/节气）内容与表格内容（td 13px/lh1.4）对齐。
+  /* 手机端紧凑化：基础信息卡片（农历、生肖、命宫、节气）内容与表格内容（td 13px/lh1.4）对齐。
      必须用 #mod-base 提级：基线 .info-box p{13.5px}（文件后部 246 行）同特异性会覆盖此处的 13px，
      提级后 (1,1,1) > (0,1,1) 才真正生效 */
-  #mod-base .info-box{padding:var(--sp-2) var(--sp-3)}  /* 基础信息区 info-box padding 定制（圆角/边框随基础规则） */
+  #mod-base .info-box{padding:var(--sp-2) var(--sp-3)}  /* 基础信息区 info-box padding 定制（圆角、边框随基础规则） */
   #mod-base .info-box h4{font-size:12px;margin-bottom:var(--sp-1);line-height:1.3}
   #mod-base .info-box p{font-size:13px;line-height:1.4}
-  /* 节气框（.jq）：手机端再缩一号（11px），当令/下一节各一行紧凑排布，少占空间 */
+  /* 节气框（.jq）：手机端再缩一号（11px），当令、下一节各一行紧凑排布，少占空间 */
   #mod-base .info-box p.jq{font-size:11px;line-height:1.35}
   #mod-base .info-box .gua-sub{font-size:11px;line-height:1.4}
   .bazi-table td.small .tip{line-height:1.2}.overview-card{gap:var(--sp-1) var(--sp-2);padding:var(--sp-2) var(--sp-3);margin:var(--sp-2) 0 var(--sp-1);border-radius:0}.overview-card .ov-item{flex:1 1 auto;white-space:nowrap;gap:var(--sp-1)}
@@ -495,7 +495,7 @@ a.btn{display:inline-flex;align-items:center}
 
 /* calendar */
 .cal-title{font-weight:700;font-size:1.05rem;margin:var(--sp-1) 0 var(--sp-2);text-align:center;color:var(--gold2)}
-/* 万年历 翻月/翻年 导航：标题居中、箭头分列两侧，桌面与手机均保持一行 */
+/* 万年历 翻月、翻年 导航：标题居中、箭头分列两侧，桌面与手机均保持一行 */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-2)}
 .cal-nav-grp{display:flex;gap:var(--sp-1);flex:0 0 auto}
 .cal-nav .cal-title{flex:1 1 auto;margin:0}
@@ -505,7 +505,7 @@ a.btn{display:inline-flex;align-items:center}
 .data-export-target{display:block}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--sp-2) var(--sp-2);
   padding:0;border:0;border-radius:0;background:transparent;margin-top:var(--sp-4)}
-/* 详情区淡入（日期切换/排盘完成后） */
+/* 详情区淡入（日期切换、排盘完成后） */
 @keyframes fadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 #dayDetail,#out,.detail-anim{animation:fadeInUp .3s ease}
 /* 结果区与其后紧邻的一块（二级折叠区、附加功能面板）之间取区块间档 --sp-4，
@@ -516,7 +516,7 @@ a.btn{display:inline-flex;align-items:center}
 /* 结果区带快速翻查导航时不短于一屏的旧方案（#out.has-nav{min-height:100vh}）已废弃：
    min-height 拉伸的空白落在 #out 流内末尾（结尾免责语之后），把下方"关联数术 深入分析"板块推远，
    免责语与该板块之间出现整屏级大间距。短内容时吸顶导航行程不足的代价由页面下方
-   "关联数术"/附加功能/页脚等长内容兜底（页面仍可滚动），两害相权取其轻。 */
+   "关联数术"/附加功能、页脚等长内容兜底（页面仍可滚动），两害相权取其轻。 */
 /* 骨架屏：日历加载占位（6行×7列灰块） */
 .skeleton-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--sp-2) var(--sp-2);padding:var(--sp-3);border:1px solid var(--line);border-radius:0;background:var(--card)}
 .sk-cell{min-height:58px;border-radius:0;background:linear-gradient(100deg,#f0efe9 40%,#f8f7f2 50%,#f0efe9 60%);background-size:200% 100%;animation:skShimmer 1.4s infinite}
@@ -529,7 +529,7 @@ a.btn{display:inline-flex;align-items:center}
 .cal-cell:hover{background:var(--cal-hover)}
 /* 周末日期红字（页级覆写会换为各自朱砂色） */
 .cal-cell.weekend .sd-num{color:#F65352;font-weight:700}
-/* 日历格角标：五历页共用一套四角定位——同一字号、同一行高、同一内缩。
+/* 日历格角标：五历页共用一套四角定位，同一字号、同一行高、同一内缩。
    四角分工：左上＝节日、斋、吉、殊，右上＝节气、圣诞，左下＝休、班，右下＝纪念日。
    行高一律取 1，行盒即字号，左右角标同现时字顶同高（行高 normal 会让字在行盒内下沉）。 */
 .cal-cell .jq-mark,.cal-cell .fest-mark,.cal-cell .mem-mark,.cal-cell .rest-mark,.cal-cell .mk{
@@ -537,7 +537,7 @@ a.btn{display:inline-flex;align-items:center}
 .cal-cell .jq-mark{right:var(--sp-1);color:#3c7a3c}
 /* 节日角标：窄屏隐去节日名后由它顶替，红色"节"与右上的节气角标（节、气）靠色相区分 */
 .cal-cell .fest-mark{left:var(--sp-1);display:none;color:var(--red)}
-/* 今日：颜色由各页主题段给定终值（黛青/藏蓝/袈裟金/玄青/藏红），本站只保文字转白的兜底 */
+/* 今日：颜色由各页主题段给定终值（黛青、藏蓝、袈裟金、玄青、藏红），本站只保文字转白的兜底 */
 .cal-cell.today{color:#fff}
 /* .slot 是格内节气与节日的共用槽（万年历、老黄历两页以 slot-jq 与 slot-fest 分色），
    取色规则带页前缀且在本条之后（如 slot-jq 与 slot-fest 分取绿与红），
@@ -567,7 +567,7 @@ a.btn{display:inline-flex;align-items:center}
 /* 宫名沉底（参考站形态）铁律：星曜 order:1 占满上方，宫名 order:2 沉底。DOM 顺序 head 在前，必须用 order 翻转 */
 .zp-v .zw-pal .zw-stars{order:1;display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.3;flex:1;min-height:0}
 .zp-v .zw-pal .zw-head{order:2;margin-top:auto;display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-1);flex-shrink:0;line-height:1.15}
-/* 本站黑金色系：宫名/干支/主星大字=金、亮度=金半透、次星/辅曜=墨灰 */
+/* 本站黑金色系：宫名、干支、主星大字=金、亮度=金半透、次星、辅曜=墨灰 */
 .zp-v .zw-pal .zw-pname{font-weight:bold;color:var(--gold2);font-size:14px;white-space:nowrap;line-height:1.1}
 .zp-v .zw-pal .zw-gz{font-size:12px;color:var(--gold2);white-space:nowrap;font-weight:600;line-height:1.1}
 .zp-v .zw-pal .zw-major{font-size:15px;font-weight:bold;color:var(--gold2);line-height:1.25}
@@ -590,17 +590,17 @@ a.btn{display:inline-flex;align-items:center}
 .zp-v .zw-center .zw-ct td{padding:0 4px;vertical-align:middle;overflow:hidden}
 .zp-v .zw-center .zw-ct td.k{white-space:nowrap;color:var(--gold2);text-align:right;font-weight:600;width:17%}
 .zp-v .zw-center .zw-ct td.v{color:var(--ink);text-align:left;width:33%;word-break:break-all;overflow-wrap:anywhere}
-/* 宽行（八字/阳历/农历/时辰）：标签与 .k 同列同宽右对齐（列位一致，视觉上与命主/命宫/生肖对齐成一竖列），
+/* 宽行（八字、阳历、农历、时辰）：标签与 .k 同列同宽右对齐（列位一致，视觉上与命主、命宫、生肖对齐成一竖列），
    值跨三列左对齐；标签列对齐由结构保证（同列 17%），值列宽余 83% 不易折行 */
 .zp-v .zw-center .zw-ct td.wk{white-space:nowrap;color:var(--gold2);text-align:right;font-weight:600;width:17%}
 .zp-v .zw-center .zw-ct td.wv{color:var(--ink);text-align:left;width:83%;white-space:normal;word-break:break-all;overflow-wrap:anywhere}
 .zp-v .zw-center .zw-ct-head{display:flex;gap:var(--sp-2);justify-content:center;align-items:baseline;margin-bottom:var(--sp-1)}
 .zp-v .zw-center .zw-ct-head span{font-weight:bold;color:var(--gold2);font-size:13px;white-space:nowrap}
-/* 三方四正/化禄/化忌：本站暖色浅 tint，纯背景不加边框不盖字 */
+/* 三方四正、化禄、化忌：本站暖色浅 tint，纯背景不加边框不盖字 */
 .zp-v .zw-3he{background:#f4f7f0}
 .zp-v .zw-hua-lu{background:#fdf4ee}
 .zp-v .zw-hua-ji{background:#f8f7f5}
-/* 交互态：金/暖浅 tint（本站色系），纯背景不加边框不盖字 */
+/* 交互态：金、暖浅 tint（本站色系），纯背景不加边框不盖字 */
 .zp-v .zw-pal.zw-focused{background:#f1ecdd;z-index:3}
 .zp-v .zw-pal.zw-rel{background:#f2f6ee;z-index:2}
 .zp-v .zw-pal.zw-focused.zw-rel{background:#e6e0cf}
@@ -612,7 +612,7 @@ a.btn{display:inline-flex;align-items:center}
 .zw-pal-mean th,.zw-pal-mean td{border:1px solid var(--line);padding:5px 8px;font-size:var(--tier4);text-align:left}
 .zw-pal-mean th{background:transparent;color:var(--gold2);font-weight:400}
 .zw-pal-mean td:first-child{font-weight:400}
-/* 四化 / 禄权科忌 */
+/* 四化、禄权科忌 */
 .lqkj-wrap{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-2)}
 .lqkj{font-size:14px;font-weight:700;padding:var(--sp-1) var(--sp-3);border-radius:0;border:1px solid var(--line);background:var(--card)}
 .lq-禄{color:#2e8b57;border-color:#2e8b57}
@@ -651,7 +651,7 @@ a.btn{display:inline-flex;align-items:center}
 .zh-pd .ly-zh-p{font-size:13.5px;line-height:1.75;margin:var(--sp-1) 0 0}
 .zh-pd .ly-zh-p b{color:var(--gold-brown);font-weight:700}
 .zh-pd b{color:var(--gold2);font-weight:400}
-/* 大运/流年/流月/流日 日期选择器 */
+/* 大运、流年、流月、流日 日期选择器 */
 .yf-picker{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin:var(--sp-2) 0 var(--sp-2)}
 .yf-picker label{font-size:13px;color:var(--gold2);font-weight:400}
 .yf-picker .btn{background:var(--gold2);color:#fff;border:none;border-radius:0;padding:0 16px;font-size:13px;cursor:pointer;font-weight:700}
@@ -659,10 +659,10 @@ a.btn{display:inline-flex;align-items:center}
 .yf-hint{font-size:12px;color:var(--ink2)}
 .zp-yunout .ly-zh-p{font-size:13px;line-height:1.8;color:var(--ink)}
 .zp-yunout + .sub-note,.zp-ding .sub-note{font-size:12px;color:var(--ink2);line-height:1.7;margin-top:var(--sp-1)}
-/* 长生/博士等吉凶色（对齐八字 .yi绿/.ji红）：endpoint 需 .zp-yun-tbl 内定义 */
+/* 长生、博士等吉凶色（对齐八字 .yi绿/.ji红）：endpoint 需 .zp-yun-tbl 内定义 */
 .zp-yunout .yi,.zp-yun-tbl .yi{color:var(--green);font-weight:400}
 .zp-yunout .ji,.zp-yun-tbl .ji{color:#F65352;font-weight:400}
-/* 大运/流年/流月/流日 推算结果表格（统一为全站 .stab 风格：细边框、金棕表头、table-layout:auto 自适应） */
+/* 大运、流年、流月、流日 推算结果表格（统一为全站 .stab 风格：细边框、金棕表头、table-layout:auto 自适应） */
 .zp-yunout .zp-dayun-line{font-size:13px;color:var(--gold-brown);font-weight:700;margin:var(--sp-1) 0 var(--sp-2)}
 .zp-yun-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-2)}
 .zp-yun-tbl{width:100%;table-layout:auto;border-collapse:collapse;margin:var(--sp-1) 0 var(--sp-3);font-size:13px;background:var(--card)}
@@ -699,7 +699,7 @@ footer .ref a:hover{color:var(--red)}
 .tip.wx-tu,.tip.wx-tu:hover{color:#A07040}
 .tip.wx-jin,.tip.wx-jin:hover{color:#D4A017}
 .tip.wx-shui,.tip.wx-shui:hover{color:#4190FA}
-/* 神煞吉凶分类着色（复用系统色：吉=绿/凶=红/中性=墨灰） */
+/* 神煞吉凶分类着色（复用系统色：吉=绿、凶=红、中性=墨灰） */
 .tip.sha-ji{color:#1f7a3d}
 .tip.sha-xiong{color:#F65352}
 .tip.sha-neutral{color:var(--ink2)}
@@ -725,9 +725,9 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 /* 表容器：限宽不撑破版面，宽表由容器横向滚动兜底。排布全站一致，页面段只写本页线与底距 */
 .tbl-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tbl-wrap:has(> table):has(+ .sub-note) > table{margin-bottom:0}
-/* 月历一览（佛历/道历当月列表）：浅灰轻量文字，与顶部判定卡片区分层级 */
+/* 月历一览（佛历、道历当月列表）：浅灰轻量文字，与顶部判定卡片区分层级 */
 .info-box .cal-month-list{color:var(--ink2);font-size:12.5px;line-height:1.7}
-/* 强提示（旺衰阈值敏感性 / 流派取舍等）：色块强调但不加粗，遵守“总结性文案禁粗体”约定 */
+/* 强提示（旺衰阈值敏感性、流派取舍等）：色块强调但不加粗，遵守“总结性文案禁粗体”约定 */
 .warn-note{display:block;margin-top:var(--sp-1);padding:var(--sp-1) var(--sp-2);
   background:rgba(168,120,31,.08);color:#7a5b12;font-size:12px;line-height:1.55;border-radius:0}
 
@@ -821,7 +821,7 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 /* 五行统计表（替代双 wxbar 行，更紧凑，保留五行上色与五行旺衰扁平图标） */
 
 /* 关系 chips ： 每个 pill 文字不换行，手机端整块移动而非从中间截断色块 */
-/* 天干关系 / 地支关系：两块的纵向间距与下方"量化四柱"对齐（统一 12px），手机端自适应 */
+/* 天干关系、地支关系：两块的纵向间距与下方"量化四柱"对齐（统一 12px），手机端自适应 */
 .rel-wrap{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-1)}
 .rel-title.rel-gap{margin-top:var(--sp-3)}
 /* 标题带随行元素（徽标、说明件）时取横排：排布只此一处，页面段不再覆写 */
@@ -836,8 +836,8 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .rel.hai{background:#f0e9f7;border-color:#d3c3ec;color:#5a2b8e}
 .rel.anhe{background:#eef0f2;border-color:#cfd4da;color:#4a5560}   /* 暗合：隐秘、中性 */
 .rel.gchong{background:#fdecea;border-color:#e6a8a0;color:var(--red)}   /* 天干相冲 */
-.rel.zheng{background:#fff5e0;border-color:#e8cf94;color:#9a6f08}   /* 争合/妒合 */
-.rel.bihe{background:#f7f0e3;border-color:#d8c69a;color:#8a6d3b}   /* 比和/比肩：同气帮扶 */
+.rel.zheng{background:#fff5e0;border-color:#e8cf94;color:#9a6f08}   /* 争合、妒合 */
+.rel.bihe{background:#f7f0e3;border-color:#d8c69a;color:#8a6d3b}   /* 比和、比肩：同气帮扶 */
 @media(max-width:540px){.rel-wrap{gap:var(--sp-3) var(--sp-2);line-height:2}.rel{padding:var(--sp-1) var(--sp-2)}}
 /* 结果区小节标题：视觉层级第二级，字号取 --tier2，须严格大于第三级 .det-h 的 --tier3。
    上距取区块档 --sp-4，与排盘页结果区顶层模块间距同值，不取页面级档 --sp-5；
@@ -852,7 +852,7 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .fold-block>summary.rel-title::before{content:'▸';color:var(--gold2);font-size:12px;line-height:1}
 .fold-block[open]>summary.rel-title::before{content:'▾'}
 
-/* 大运/流年/流月/流日：标签置于每排上方，节省横向空间 */
+/* 大运、流年、流月、流日：标签置于每排上方，节省横向空间 */
 .dyn{margin-top:var(--sp-2)}
 .dyn-block{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-1);margin:var(--sp-2) 0}
 .dyn-label{font-size:13px;font-weight:700;color:var(--gold2);padding-left:2px;margin:0;background:transparent;border:none}
@@ -868,7 +868,7 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .dyn-btn.active .cs{color:#fff}
 .dyn-btn.lr{min-width:46px;padding:var(--sp-1) var(--sp-2)}
 .dyn-btn.lr .g{font-size:12px}
-/* 卡片式信息：dy-top（年/月/日）、dy-age（岁数）、tg（十神简称，单字）、cs（十二运）；统一供大运、流年、流月、流日 */
+/* 卡片式信息：dy-top（年、月、日）、dy-age（岁数）、tg（十神简称，单字）、cs（十二运）；统一供大运、流年、流月、流日 */
 .dyn-btn .dy-top{font-size:11px;color:var(--gold2);display:block;margin-bottom:var(--sp-1)}.dyn-btn .dy-age{font-size:10px;color:var(--ink2);display:block;margin-bottom:var(--sp-1)}
 .dyn-btn.active .dy-top{color:#fff}.dyn-btn.active .dy-age{color:#fff}
 .dyn-btn .ss-compact{display:block;font-size:10px;color:var(--ink2);line-height:1.25;margin-top:var(--sp-1)}
@@ -950,7 +950,7 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 /* margin-top 取页面同类模块间距（score/hex/ss/bk-box 内 .sub-note 的下间距 10px），拉开前言与卡片网格的间距 */
 .sk-wrap.school-grid{display:grid;grid-template-columns:1fr;gap:var(--sp-2);align-items:start;margin-top:var(--sp-2)}
 .sk-block.sk-head{border:none;padding:0 0 var(--sp-1);border-radius:0;background:transparent}
-/* 大运流年关系色块：去边框背景，只保留字体颜色；干/支分行，允许折行防撑破 */
+/* 大运流年关系色块：去边框背景，只保留字体颜色；干、支分行，允许折行防撑破 */
 .sk-block .rel{background:transparent;border:none;padding:0;margin:0 var(--sp-1);cursor:pointer;white-space:normal;word-break:break-all}
 .sk-block .rel-row{display:flex;flex-direction:column;gap:var(--sp-1) 0;width:100%;align-items:flex-start}
 .sk-block .rel-g,.sk-block .rel-z{display:block;width:100%;white-space:normal}
@@ -992,7 +992,7 @@ table.yun-tbl.sk-sub th.sk-c-read,table.yun-tbl.sk-sub td.sk-c-read{width:auto}.
   table.yun-tbl.sk-sub td,table.yun-tbl.sk-sub thead th{padding:6px 6px}
 }
 
-/* 所选干支详情 / 与命局关系 / 所选干支间关系：复用 .yun-tbl 框架（与"各流派解读"同框架）。
+/* 所选干支详情、与命局关系、所选干支间关系：复用 .yun-tbl 框架（与"各流派解读"同框架）。
    数据列布局要点（detail）：table-layout:auto（覆盖 .yun-tbl 基类 fixed）+ 数据列 25% + padding 4px。
    fixed 布局下窄屏列宽被 .mh-ref td 的 8px 左右 padding 压缩到内容区 33px、4 汉字放不下，
    且 nowrap 长神煞名会撑宽单列压缩其余列；auto+anywhere（下方 td word-break）让 min-content 退化为单字、
@@ -1035,12 +1035,12 @@ table.yun-tbl.rel td .rel.zheng,table.yun-tbl.pairrel td .rel.zheng{color:#9a6f0
 table.yun-tbl.rel td .rel.bihe,table.yun-tbl.pairrel td .rel.bihe{color:#8a6d3b}
 table.yun-tbl.rel td .rel.spec-he,table.yun-tbl.pairrel td .rel.spec-he{color:#1f7a3d}
 table.yun-tbl.rel td .rel.spec-chong,table.yun-tbl.pairrel td .rel.spec-chong{color:#F65352}
-/* 所选干支间关系：relHTML 的干/支结构在表内纵向堆叠 */
+/* 所选干支间关系：relHTML 的干、支结构在表内纵向堆叠 */
 table.yun-tbl.pairrel td .rel-row,table.yun-tbl.rel-matrix td .rel-row{display:block}
 table.yun-tbl.pairrel td .rel-g,table.yun-tbl.pairrel td .rel-z,
 table.yun-tbl.rel-matrix td .rel-g,table.yun-tbl.rel-matrix td .rel-z{display:block;white-space:normal}
 table.yun-tbl.pairrel td .rel-sep,table.yun-tbl.rel-matrix td .rel-sep{display:none}
-/* 所选干支间关系：矩阵（横轴＝纵轴＝大运/流年/流月/流日；去 .yun-scroll 包裹，fixed 布局 + min-width:0 保证手机端不横向滚动） */
+/* 所选干支间关系：矩阵（横轴＝纵轴＝大运、流年、流月、流日；去 .yun-scroll 包裹，fixed 布局 + min-width:0 保证手机端不横向滚动） */
 table.yun-tbl.rel-matrix{table-layout:fixed;width:100%;min-width:0;border-collapse:collapse}
 table.yun-tbl.rel-matrix th,table.yun-tbl.rel-matrix td{white-space:normal;word-break:break-word;overflow-wrap:anywhere;vertical-align:top;line-height:1.5;text-align:left}
 table.yun-tbl.rel-matrix thead th{background:var(--card);color:var(--gold2);font-weight:400;white-space:nowrap;text-align:center}
@@ -1090,8 +1090,8 @@ table.yun-tbl.rel-matrix td .rel{margin-right:0}
 .tip-body .wd-g{color:var(--green)}
 .tip-body .wd-x{color:var(--red)}
 
-/* ===== 共享日期/时间选择器（自建弹层，响应式模式也可弹出） ===== */
-/* 隐藏原生日历/时钟指示器：它在设备模拟模式下会被压制无法弹出，改由自建图标触发 */
+/* ===== 共享日期、时间选择器（自建弹层，响应式模式也可弹出） ===== */
+/* 隐藏原生日历、时钟指示器：它在设备模拟模式下会被压制无法弹出，改由自建图标触发 */
 input[type="text"].dt-input::-webkit-calendar-picker-indicator,
 input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
 input[type="text"].dt-input::-moz-calendar-picker-indicator,
@@ -1135,7 +1135,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 .dt-head button[data-act="y+"]{margin-left:auto;margin-right:var(--sp-4)}
 /* 年份框隐去原生上下箭头：该箭头占内容区右侧约 13px，使数字与箭头的间隙只剩约 4px，
    远比数字与左侧边框的约 9px 窄，观感偏挤。年月步进已由左右四键承担，箭头冗余。 */
-/* 年/月控件与步进钮同为 26px 高，使整行等高：头部行不再被输入框撑到 33px 而让按钮居中下沉 3.5px，
+/* 年、月控件与步进钮同为 26px 高，使整行等高：头部行不再被输入框撑到 33px 而让按钮居中下沉 3.5px，
    × 与 » 才能在同一水平线上（× 的 top 就是内容区顶部）。padding 归零、行高收紧以在 26px 内居中。 */
 .dt-year{width:66px;height:26px;text-align:center;padding:0 var(--sp-1);line-height:1.1;border:1px solid var(--line);border-radius:0;font-size:13px;font-weight:400;font-family:inherit;background:var(--card);color:var(--ink);flex:0 0 auto;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield}
 .dt-year::-webkit-outer-spin-button,.dt-year::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -1151,7 +1151,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 
    同口径扩至整张弹框：
    .dt-title（17/700）、.dt-week span（12/700）、.dt-cell（15）、.dt-cell.today（700）、.dt-opt（15）、
-   .dt-opt.on —— 全部统一到 13px/400。区分层级靠背景色（today 满填 / on 红底），不靠字重。 */
+   .dt-opt.on ， 全部统一到 13px/400。区分层级靠背景色（today 满填 / on 红底），不靠字重。 */
 .dt-month{width:auto;min-width:64px;height:26px;padding:0 var(--sp-1);border:1px solid var(--line);border-radius:0;font-size:13px;font-weight:400;font-family:inherit;background:var(--card);color:var(--ink);flex:0 0 auto;cursor:pointer;text-align:center}
 .dt-title{font-size:13px;font-weight:400}
 .dt-week{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-1);margin-bottom:var(--sp-1)}
@@ -1204,7 +1204,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 /* 四柱纳音无纯罗列表（与基础表纳音列合一）；综合参考仅保留分析判断 */
 .nayin-bd .ly-zh-p:first-child{margin-top:0}
 
-/* 万年历/佛历/道历：今日恒为红色；选中用偏暗暖沙色块（比 hover 深，非红色系）
+/* 万年历、佛历、道历：今日恒为红色；选中用偏暗暖沙色块（比 hover 深，非红色系）
    hover --cal-hover(#ecebe5) → 选中 #d5c5ae */
 .cal-cell.selected:not(.today){background:#d5c5ae;border-color:transparent}.cal-cell .festival+.ld{display:none}
 /* 日历格槽位分层：节气、节日各占一固定槽，同日可并存，互不顶掉；
@@ -1214,7 +1214,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 .cal-cell .slot-fest{color:var(--gold2)}
 /* 仅两槽皆满时隐藏农历日；单槽时保留（万年历主题要求农历日恒现） */
 .cal-cell .slot-jq~.slot-fest~.ld{display:none}
-/* 休班标：与另三枚角标同一处理——只给字色、不给底色，不加边框圆角，落左下角。
+/* 休班标：与另三枚角标同一处理，只给字色、不给底色，不加边框圆角，落左下角。
    休＝法定假（节日红轴），班＝调休补班（黛青次墨，与周末红数字相互区别） */
 .cal-cell .rest-mark{top:auto;bottom:var(--sp-1);left:var(--sp-1);display:none}
 .cal-cell .rest-mark.on{display:block}
@@ -1318,7 +1318,7 @@ footer .geo-foot svg{flex:none;width:12px;height:12px;fill:none;stroke:currentCo
 .de-chip{display:inline-block;font-size:12px;padding:1px var(--sp-2);border-radius:0;border:1px solid #ccc}
 .de-on{background:#eafaf1;color:#1e8449;border-color:#a9dfbf}
 .de-off{background:#f4f4f4;color:#999;border-color:#ddd}
-/* 扶抑用神：喜 / 忌 分组，每个十神类别独立色块、自动分段换行 */
+/* 扶抑用神：喜、忌 分组，每个十神类别独立色块、自动分段换行 */
 .fu-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1);margin:var(--sp-1) 0}
 .fu-tag{flex:0 0 auto;font-weight:400;margin-right:var(--sp-1)}
 .fu-pill{display:inline-block;padding:var(--sp-1) var(--sp-3);border-radius:0;font-size:13px;line-height:1.6;white-space:nowrap}
@@ -1347,21 +1347,21 @@ footer .geo-foot svg{flex:none;width:12px;height:12px;fill:none;stroke:currentCo
 .ge-cheng{color:#1f7a3d}
 .ge-bian{color:#9a6b00}
 .ge-po{color:#F65352}
-/* 列宽：大运/起运岁/吉凶 窄，关键引动占主宽，避免挤压 */
+/* 列宽：大运、起运岁、吉凶 窄，关键引动占主宽，避免挤压 */
 .yun-tbl th:nth-child(1),.yun-tbl td:nth-child(1){width:38px;padding:6px 3px;white-space:nowrap;text-align:center}
 .yun-tbl th:nth-child(2),.yun-tbl td:nth-child(2){width:50px;padding:6px 3px;white-space:nowrap;text-align:center}
 .yun-tbl th:nth-child(3),.yun-tbl td:nth-child(3){width:16%}
 .yun-tbl th:nth-child(4),.yun-tbl td:nth-child(4){width:42%}
 .yun-tbl th:nth-child(5),.yun-tbl td:nth-child(5){width:38px;padding:6px 3px;white-space:nowrap;text-align:center}
-/* 岁运引动：用 auto 布局，使大运/起运岁/吉凶三列真正按内容收缩（只比字符略宽）。
+/* 岁运引动：用 auto 布局，使大运、起运岁、吉凶三列真正按内容收缩（只比字符略宽）。
    fixed 布局下 5 列均有显式宽，表格宽于列宽之和时多余宽度被按比例摊回窄列，导致“改了没效果”。
    此处用 width:1% + nowrap 让三列收缩到内容，关键引动（第4列）用 width:auto 吃掉剩余宽度。 */
 /* 岁运引动：桌面 fixed 布局 + 显式百分比，四列强制按比分配、内容折行；
-   大运/吉凶两列等宽窄列，关键引动吃主宽，用忌居中可换行。
+   大运、吉凶两列等宽窄列，关键引动吃主宽，用忌居中可换行。
    表宽显式 100% 供桌面 fixed 取基准（缺它退化为按内容取宽，与 rel-matrix 同式）；
    移动端列宽由下方 tbl-hs 列宽契约接手，用忌列内容层在页内分片另设上限。 */
 table.yun-tbl.yd{table-layout:fixed;width:100%;min-width:0}
-table.yun-tbl.yd th:nth-child(1),table.yun-tbl.yd td:nth-child(1){width:19%;padding:6px 4px;text-align:center;line-height:1.35;word-break:break-word;overflow-wrap:anywhere} /* 大运（干支/岁数/年份三行；加宽至 19% 容纳"约 XXXX–XXXX 年"，并允许 word-break 防撑出框外） */
+table.yun-tbl.yd th:nth-child(1),table.yun-tbl.yd td:nth-child(1){width:19%;padding:6px 4px;text-align:center;line-height:1.35;word-break:break-word;overflow-wrap:anywhere} /* 大运（干支、岁数、年份三行；加宽至 19% 容纳"约 XXXX–XXXX 年"，并允许 word-break 防撑出框外） */
 .yun-age{font-size:12px;color:var(--ink2);line-height:1.3} /* 大运内岁数：浅色缩小，与关键引动列正文同调 */
 .yun-flip-tag{display:inline-block;margin-top:var(--sp-1);font-size:11px;line-height:1.4;color:var(--ink2);white-space:nowrap} /* 喜忌随运翻标记：与岁数同列同调，只作小字注记，不画框不作警示色 */
 table.yun-tbl.yd th:nth-child(2),table.yun-tbl.yd td:nth-child(2){width:15%;white-space:normal;word-break:break-word;text-align:center;line-height:1.5} /* 用忌：居中可换行 */
@@ -1391,7 +1391,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 /* 十神宫位：子标题与纳音小标题同形，但本卡片内去掉半粗、收紧段距，符合同框间距标准 */
 .shishen-card .nayin-h{font-weight:400;margin:var(--sp-2) 0 var(--sp-1)}
 .core-box{display:flex;flex-direction:column;gap:var(--sp-4);margin-top:var(--sp-1)}
-/* 宜忌选择：后天补救：复用纳音表的紧凑表格样式（与 .nayin-rel 一致：12px/居中/表头 paper2+金/末列左对齐），
+/* 宜忌选择：后天补救：复用纳音表的紧凑表格样式（与 .nayin-rel 一致：12px/居中、表头 paper2+金、末列左对齐），
    此处仅补项目列窄列金字、宜绿忌红，视觉与前文纳音表格统一 */
 .remedy{margin-top:var(--sp-2)}
 .remedy-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:var(--sp-2)}
@@ -1407,7 +1407,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
    既超桌面终值又于右侧空出大量留白），一行容不下即整字段换行 */
 @media(max-width:600px){
   .form-row.r2 .field{flex:0 0 auto;width:auto;min-width:0}
-  /* r3: 性别/子时/按钮保持单排，不强制分两列 */
+  /* r3: 性别、子时、按钮保持单排，不强制分两列 */
   .form-row.r3 .field{flex:0 0 auto}
   .form-row.r3 #bSex{min-width:40px !important;max-width:80px !important}
   .form-row.r3 .btn{flex:0 0 auto}
@@ -1488,7 +1488,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
 .birth-group.compact .field.hh-true{flex:0 0 auto;min-width:auto;width:auto}
 /* 标题独占一行（width:100% 的 flex 项），与下方字段的间距由容器 row-gap（--sp-2）单独承担；
-   此处不可再给 margin-bottom——否则与 row-gap 叠加成 16px（实测双倍），
+   此处不可再给 margin-bottom，否则与 row-gap 叠加成 16px（实测双倍），
    与 .hh-card 作用域（margin:0）及窄屏 media（margin:0）的 8px 口径都不一致 */
 .birth-group.compact .group-label{width:100%;margin:0}
 /* 出生地三级下拉宽度（全档生效，不随视口分档；紧凑组 compact）：三级一律定宽，
@@ -1564,11 +1564,11 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   .info-grid.mh-ti{grid-template-columns:1fr}
   .fei-wrap{grid-template-columns:1fr;gap:var(--sp-3);justify-items:center}
   .dyn-btn{min-width:42px;padding:var(--sp-1) var(--sp-2)}
-  /* 大运/流年/流月：手机端参考问真八字式卡片横向滚动 */
+  /* 大运、流年、流月：手机端参考问真八字式卡片横向滚动 */
   .dyn-block{margin:var(--sp-2) 0;gap:var(--sp-1);align-items:stretch}
   .dyn-label{font-size:12px;font-weight:700;color:var(--gold2);background:transparent;border:none;padding:0;margin:0;writing-mode:horizontal-tb;letter-spacing:0}
   .dyn-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:var(--sp-1);gap:var(--sp-1);align-items:stretch}
-  /* 逐行按类同规，不按行 id 列举：dyn-row 内任何按钮行（大运/流年/小运/流月）都同口径，新增行不必再登记 */
+  /* 逐行按类同规，不按行 id 列举：dyn-row 内任何按钮行（大运、流年、小运、流月）都同口径，新增行不必再登记 */
   .dyn-row .dyn-btn{min-width:38px;padding:var(--sp-1) var(--sp-1);font-size:11px;border-radius:0;gap:0}
   .dyn-row .dyn-btn .g{font-size:11px;letter-spacing:0;white-space:nowrap}
   .dyn-row .dyn-btn .dy-top{font-size:9px}
@@ -1599,7 +1599,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   .cal-page .form-row .field input{width:auto}
   .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
   .ai-chat{max-height:480px}#aiCfgForm .ai-actions{gap:var(--sp-3)!important}#aiCfgForm .ai-actions > div{gap:var(--sp-3)!important}
-  /* 万年历/老黄历/佛历/道历/藏历：手机端日历自适应，防止撑破容器 */
+  /* 万年历、老黄历、佛历、道历、藏历：手机端日历自适应，防止撑破容器 */
   .cal-grid{gap:var(--sp-1) var(--sp-1);width:100%;max-width:100%;box-sizing:border-box;padding:var(--sp-2)}
   .cal-grid .wd{font-size:12px;padding:var(--sp-1) 0}
   /* 格高与角标带：上下内边距各取 --sp-3，恰是一条角标带的高度（内缩 --sp-1 加字号 8px）；
@@ -1639,7 +1639,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 }
 
 
-/* 大六壬 天地盘：宫格与四课/三传完全同款，白底+细边+10px 圆角+阴影，hover 整宫变色，无金框 */
+/* 大六壬 天地盘：宫格与四课、三传完全同款，白底+细边+10px 圆角+阴影，hover 整宫变色，无金框 */
 .lr-board{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:var(--sp-2);
   width:100%;max-width:480px;aspect-ratio:1/1;margin:var(--sp-2) auto;min-width:0}
 .lr-cell{border:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none;
@@ -1865,7 +1865,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 @media (hover:hover) and (pointer:fine){
 .mod-head:hover{background:var(--gold-bg);box-shadow:none}
 }
-/* 模块head八卦图标：咖金色卦象 + 极浅米圆底，作模块视觉锚点（本命按性别乾/坤，其余固定卦象） */
+/* 模块head八卦图标：咖金色卦象 + 极浅米圆底，作模块视觉锚点（本命按性别乾、坤，其余固定卦象） */
 .gua-ico{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
   width:22px;height:22px;border-radius:0;background:#f6efda;color:var(--gold2);
   font-size:15px;line-height:1}
@@ -1879,19 +1879,19 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .mod.collapsed .mod-body{display:none}
 .mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
 .mod:last-child{margin-bottom:0}
-/* bazi 四大模块 section.mod：去外层卡片框（border/背景/阴影/大 padding），把版面让给内容，一层层框占空间且移动端挤压。
+/* bazi 四大模块 section.mod：去外层卡片框（border/背景、阴影、大 padding），把版面让给内容，一层层框占空间且移动端挤压。
    仅命中 <section class="mod">（bazi/hehun 可折叠模块容器），不影响首页 .grid 的 <a class="mod"> 工具卡；
-   mod-head 白卡标题保留为模块唯一视觉锚点（其间距随 .mod-head 既有规则，桌面/移动各自compact）。
+   mod-head 白卡标题保留为模块唯一视觉锚点（其间距随 .mod-head 既有规则，桌面、移动各自compact）。
    @media screen 使其不干扰 @media print 的 .mod 分隔框。 */
 @media screen{
   section.mod{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none}
 }
 
-/* 佛历详情卡片：桌面 5 列一排（圣诞/斋期/二十八宿/杨公忌/节气 占满一排）；手机端 2 列配对 */
+/* 佛历详情卡片：桌面 5 列一排（圣诞、斋期、二十八宿、杨公忌、节气 占满一排）；手机端 2 列配对 */
 .fo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-2)}
-/* 道历详情卡片：桌面 4 列一排（圣诞/吉忌/斋醮/节气 占满一排）；手机端 2 列 */
+/* 道历详情卡片：桌面 4 列一排（圣诞、吉忌、斋醮、节气 占满一排）；手机端 2 列 */
 .dao-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-2);margin-top:var(--sp-3)}
-/* 万年历详情卡片：桌面 5 列（公历/农历/干支/生肖星座/五行 占满一排）；手机端 2 列 + 五行满宽 + 宜忌竖排 */
+/* 万年历详情卡片：桌面 5 列（公历、农历、干支、生肖星座、五行 占满一排）；手机端 2 列 + 五行满宽 + 宜忌竖排 */
 .wnl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-2)}
 /* 万年历页卡片统一语言（仅 .cal-page 作用域，避免影响全站 .info-box/.today-card）：
    today-card / 信息卡统一 纯白底 + 细边 + 14px 圆角 + 轻阴影，与日历格同框；
@@ -1907,12 +1907,12 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   background:var(--card);border:1px solid var(--line);border-top:2px solid var(--gold);
   border-radius:0;box-shadow:var(--shadow);padding:var(--sp-3) var(--sp-4);
 }
-/* 历法页卡片顶部 2px 色条语义标签：普通信息卡=咖金（基础规则已设）、宜/吉=绿、忌/凶=红 */
+/* 历法页卡片顶部 2px 色条语义标签：普通信息卡=咖金（基础规则已设）、宜、吉=绿、忌、凶=红 */
 .cal-page .info-box.yi{border-top:2px solid var(--green)}
 .cal-page .info-box.ji{border-top:2px solid var(--red)}
 /* 三框一排（佛历第二排）：占满整行；手机端竖叠 */
 .cal-row4{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2);margin-top:var(--sp-3)}
-/* 两框并排（佛历文书/宿曜、道历文书/胎神、当月一览 等）；手机端竖叠 */
+/* 两框并排（佛历文书、宿曜、道历文书、胎神、当月一览 等）；手机端竖叠 */
 .row-2{display:flex;gap:var(--sp-3);margin-top:var(--sp-3)}
 .row-2 > .info-box{flex:1 1 0;min-width:0}
 /* 详情卡片默认左对齐 */
@@ -1955,7 +1955,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 .confirm-tb th{background:var(--card);color:var(--ink2);}
 .confirm-tb td .btn{padding:0 12px;font-size:13px}
 
-/* ===== 运势事件分析表（大运事件 / 流年事件） ===== */
+/* ===== 运势事件分析表（大运事件、流年事件） ===== */
 .yun-ev-title{font-size:13px;color:var(--gold2);margin:var(--sp-3) 0 var(--sp-1)}
 table.yun-tbl.yun-ev{table-layout:fixed;width:100%;min-width:0}
 table.yun-tbl.yun-ev th,table.yun-tbl.yun-ev td{white-space:normal;word-break:break-word;overflow-wrap:anywhere;vertical-align:top;line-height:1.6;text-align:left}
@@ -1978,7 +1978,7 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
 }
 .confirm-banner{background:var(--paper2);border:1px solid var(--line);border-radius:0;padding:var(--sp-2) var(--sp-3);margin:0 0 var(--sp-3);font-size:14px;}
 
-/* ===== 八字扩展模块：透明评分 / 终身卦 / 称骨 / 十神定位 / 百科 ===== */
+/* ===== 八字扩展模块：透明评分、终身卦、称骨、十神定位、百科 ===== */
 .score-box{background:transparent}
 .score-box .sub-note{margin:var(--sp-1) 0 var(--sp-2);}
 .score-tbl{width:100%;border-collapse:collapse;font-size:14px;margin:var(--sp-1) 0 var(--sp-2);}
@@ -2019,19 +2019,19 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
   .bazi-top .field{gap:var(--sp-1);min-width:0}
 }
 
-/* ===== 导出工具条（图片 / 打印 / PDF） ===== */
+/* ===== 导出工具条（图片、打印 / PDF） ===== */
 .export-bar{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin:0 0 var(--sp-3);padding:var(--sp-2) var(--sp-3);background:var(--paper2);border:1px solid var(--line);border-radius:0}
 .export-bar .btn{margin:0}
 
-/* 岁运引动 / 流年事件 长表：桌面与手机统一直接展开（不再折叠），由 .yun-scroll 提供横向滚动 */
+/* 岁运引动、流年事件 长表：桌面与手机统一直接展开（不再折叠），由 .yun-scroll 提供横向滚动 */
 
-/* ===== 打印 / 存PDF 样式 ===== */
+/* ===== 打印、存PDF 样式 ===== */
 .exp-title{display:none}
-/* 打印页边距：统一留白，避免浏览器默认边距过窄/不对称的差异 */
+/* 打印页边距：统一留白，避免浏览器默认边距过窄、不对称的差异 */
 @page{margin:14mm 12mm}
 @media print{
   /* 配色转灰：在打印作用域内重定义主题令牌为中性灰，整页去暖色（分页安全，不会破坏多页分页）；
-     五行/干支的 .wx-* 文字色为硬编码常量、不受变量影响，保留为极轻量的色标（几乎不耗墨），
+     五行、干支的 .wx-* 文字色为硬编码常量、不受变量影响，保留为极轻量的色标（几乎不耗墨），
      以维持金木水火土的可辨读；完全去色可在本作用域内定义 .wx-mu/.wx-huo/.wx-tu/.wx-jin/.wx-shui。 */
   :root{
     --gold:#6b6b6b; --gold2:#333; --red:#5a5a5a; --paper:#f3f3f3; --paper2:#eaeaea;
@@ -2051,7 +2051,7 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
   .wrap,.page{max-width:none;margin:0;padding:0}
   /* 打印时展开全部模块与 details，确保整页完整输出 */
   .mod.collapsed .mod-body{display:block !important}
-  /* 整模块不设 break-inside:avoid：本命分析等较长模块可顺页流动，避免被整体推到下一页、造成顶部（天干/地支关系）独占一页的空白浪费；
+  /* 整模块不设 break-inside:avoid：本命分析等较长模块可顺页流动，避免被整体推到下一页、造成顶部（天干、地支关系）独占一页的空白浪费；
      仅内层小框（info-box 等）保留断页保护，避免单框被拦腰截断 */
   .mod{margin:0 0 var(--sp-3);border:1px solid var(--line);border-radius:0;overflow:visible}
   .mod-head{break-after:avoid;cursor:default}
@@ -2061,7 +2061,7 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
   .yun-scroll{overflow:visible !important}
   .info-grid.base-info{break-inside:avoid}
   a[href]:after{content:""}
-  /* 打印精简：去掉内层装饰框（各流派解读 / 纳音 / 核心解读 / 量化 / 宜忌 等）的四角包围线框，
+  /* 打印精简：去掉内层装饰框（各流派解读、纳音、核心解读、量化、宜忌 等）的四角包围线框，
      避免框线过密、影响打印美观；仅保留三大模块（.mod）的轻量分隔。
      数据表格的网格线保留，以保证可读性。 */
   .info-box,.nayin-box,.life-card,.zr-mod,.rem-block{
@@ -2069,14 +2069,14 @@ table.yun-tbl.yun-ev .ev-coping{font-size:12px;line-height:1.55;color:var(--ink2
     box-shadow:none !important;
   }
   .zr-mod-b{border-top:none !important;padding-top:var(--sp-2) !important;background:transparent !important}
-  /* 关系标签（天干/地支关系 chips）在打印中去除圆角边框，仅作浅色文字，降低密集感 */
+  /* 关系标签（天干、地支关系 chips）在打印中去除圆角边框，仅作浅色文字，降低密集感 */
   .rel{border:1px solid #e7e0cf !important;background:transparent !important;border-radius:0 !important;padding:2px var(--sp-2) !important}
   /* 分页保护：标题不孤尾（避免标题落在页尾而正文跳下一页）、表格行与列表项不被拦腰截断 */
   .rel-title,.mod-head,h2,h3,h4,caption,.fei-cap,.mh-cat-title,.cal-title{break-after:avoid}
   tr,li,.rel{break-inside:avoid}
 }
 
-/* ===== 手机端正文/标题层级统一 =====
+/* ===== 手机端正文、标题层级统一 =====
  * 手机端沿用全站字号四档：模块标题 tier1 17 > 折叠题名 tier2 16 > 小节标题 tier3 14 > 标注 tier4 13；
  * 正文在窄屏降到 13px/行高1.6 以对齐表格，卡片 padding 12px 10px。 */
 @media(max-width:640px){
@@ -2122,7 +2122,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
 /* ===== 移动端：表格列宽与对齐精调 =====
    ① 各流派解读"流派"列长名固定换行（.sk-b 移动端 block）给解读列留位，桌面 inline 单行；
    ② 宜忌表项目列 ≤3 汉字宽，加宽内容列；
-   ③ 岁运引动大运表：大运/用忌 ≤5em、吉凶 ≤3em，关键引动占余宽，去 540px min-width 消横向滚动条。 */
+   ③ 岁运引动大运表：大运、用忌 ≤5em、吉凶 ≤3em，关键引动占余宽，去 540px min-width 消横向滚动条。 */
 
 @media(max-width:640px){
   .sk-b{display:block;white-space:nowrap}
@@ -2137,7 +2137,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
   table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:3em}
 }
 
-/* ============ 圆盘通用件（万年历 节气/经络、老黄历 时辰/二十八宿、佛历 二十七宿/月相 六盘共用） ============
+/* ============ 圆盘通用件（万年历 节气、经络、老黄历 时辰、二十八宿、佛历 二十七宿、月相 六盘共用） ============
    骨架、尺寸、字号一律在此定；颜色全部走 --wheel-* 令牌，各页只在主题段覆写令牌，不重写规则
    （对齐站内主题令牌覆写式，新增页加盘时只需给自己的 .page-X 补一组令牌）。
    环带自外向内：外侧标签 → 弧带 → 外圈 → 刻度 → 内圈标签 → 内界圈 → 盘心；指针只走盘心与内界圈之间。
@@ -2174,7 +2174,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
 /* 🔴 全盘的字重只有两处加粗：盘内的"节"（.w-lab-j）与选中态（.w-lab-cur）。其余一切字、
    连同盘下的详情条，一律不加粗，加粗多了就压不住版面，破全站克制的纸本调。 */
 .wheel .w-lab-j{font-weight:700;fill:var(--wheel-deep,#333)}
-/* 当令/选中字：.w-lab-j 在前、.w-lab-cur 在后，两者同特异度时由源序决定，确保选中态压过"节"的加重；
+/* 当令、选中字：.w-lab-j 在前、.w-lab-cur 在后，两者同特异度时由源序决定，确保选中态压过"节"的加重；
    经络名等自带内联 fill 的角色不受此处 fill 影响（内联声明恒胜样式表），只取到字重。 */
 .wheel .w-lab-cur{font-weight:700;fill:var(--wheel-cur,#333)}
 .wheel .w-tag{font-size:12px;text-anchor:middle;dominant-baseline:central}
@@ -2306,8 +2306,8 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
 
 /* ===== 万年历页 黛青主题（仅 wannianli.html 的 .page-wnl 作用域） =====
    语言对齐首页"纸本目录"：整页零圆角、零投影、零渐变，只留细线与实色块；
-   配色收敛为黛青（青瓷）单色轴，不再引鎏金等点缀色；宜绿/忌红等语义色保留；
-   老黄历/佛历/道历（同用 .cal-page）不受影响。 */
+   配色收敛为黛青（青瓷）单色轴，不再引鎏金等点缀色；宜绿、忌红等语义色保留；
+   老黄历、佛历、道历（同用 .cal-page）不受影响。 */
 .page-wnl{
   --wnl:#175a63;        /* 黛青主色 */
   --wnl2:#0f454d;       /* 黛青深：hover/标题重音 */
@@ -2329,7 +2329,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
      两盘制式统一：弧用主体色，字按五行色（与纳音上色同源，季名与经名皆然）；
      当令与选中色（加粗弧、指针、圆点、内圈选中字）同取本页主体色，与 --wheel-arc 同源；
      一色两重（弧 .22 淡、加粗弧实色 4px）即可分出当前与其余，不再引第二支色。
-     注：日历格的"节/气"角标（.jq-mark / .slot-jq）取 #1f7a68，是格内小字，与圆盘无涉。 */
+     注：日历格的"节、气"角标（.jq-mark / .slot-jq）取 #1f7a68，是格内小字，与圆盘无涉。 */
   --wheel-serif:var(--wnl-serif);
   --wheel-line:var(--wnl-line);
   --wheel-arc:var(--wnl);
@@ -2410,9 +2410,9 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
 
 /* ===== 佛历页 袈裟金、檀褐 主题（仅 foli.html 的 .page-foli 作用域） =====
    语言对齐首页"纸本目录"：整页零圆角、零投影、零渐变，只留细线与实色块；
-   配色独立换为 袈裟金（深琥珀）主色 + 檀褐/朱砂点缀，佛经古卷与僧衣意象；
-   斋日格佛经纸底、佛诞金字加深；宜绿/忌红、周末红等语义色保留；
-   万年历/老黄历/道历不受影响。 */
+   配色独立换为 袈裟金（深琥珀）主色 + 檀褐、朱砂点缀，佛经古卷与僧衣意象；
+   斋日格佛经纸底、佛诞金字加深；宜绿、忌红、周末红等语义色保留；
+   万年历、老黄历、道历不受影响。 */
 .page-foli{
   --foli:#9c6f24;          /* 袈裟金主色 */
   --foli2:#7a571c;         /* 深琥珀：hover/强调 */
@@ -2432,7 +2432,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
   --gold-bg:var(--foli-tint);
 
 
-  /* 圆盘令牌（通用件 .wheel 用）：弧带与"当令/选中"都用袈裟金主色。
+  /* 圆盘令牌（通用件 .wheel 用）：弧带与"当令、选中"都用袈裟金主色。
      吉凶两色走 --wheel-good/--wheel-bad，用于二十七宿盘的宿名与盘心。 */
   --wheel-serif:var(--foli-serif);
   --wheel-line:var(--foli-line);
@@ -2448,7 +2448,7 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
 
 /* ===== 道历页 玄青、紫炁 主题（仅 daoli.html 的 .page-daoli 作用域） =====
    与前三页同构的高级卡片语言，配色独立换为 玄青（玄门尚玄）主色 + 紫炁点缀（紫炁东来）；
-   宜绿/忌红、节气绿等语义色保留 */
+   宜绿、忌红、节气绿等语义色保留 */
 .page-daoli{
   --dao:#3a3f52;           /* 玄青主色 */
   --dao2:#2c3040;          /* 深玄青：hover/强调 */
@@ -2615,7 +2615,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 .dtm-hj{--tk:#8c3548;--tk2:#70293a;--tk-ink:#42333a;--tk-line:#e3d1d6;--tk-tint:#faf1f3}
 .dtm-zl{--tk:#8f2f22;--tk2:#6f2318;--tk-ink:#4a4038;--tk-line:#e9d1ce;--tk-tint:#fbecea}
 .dtm-zw{--tk:#5a3a7e;--tk2:#483064;--tk-ink:#3c3444;--tk-line:#dbd2e6;--tk-tint:#f4eff8}
-/* 容器：须写 [class*="dtm-"]（它含容器自身）——dtm-* 由 app.js 加在 .modal 自身，
+/* 容器：须写 [class*="dtm-"]（它含容器自身），dtm-* 由 app.js 加在 .modal 自身，
    后代选择器 .dtm-x .modal 永不匹配，原写法致 2px 金边长期未被主题覆盖。
    本段只写色：有无边框、圆角、间距等骨架一律在基础层 .dt-* 定义。 */
 .dt-modal[class*="dtm-"]{border:1px solid var(--tk-line);color:var(--tk-ink)}
@@ -2669,7 +2669,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
    主按钮与强调取夜穹靛蓝（星图穹顶夜幕），表头、引用与面板头取淡金雾底，
    结果宿名与次按钮取鎏金（星图鎏金刻线）；金底一律配深墨字（白字对比不足）。
    四象标签（青龙绿、玄武蓝、白虎灰、朱雀红）与宜忌吉凶语义色、星图诸色保留；
-   鎏金两档（--xx-gold／--xx-star）已撤：宿名原取鎏金，色相 38 度与靛蓝主色相冲，改取深档 --xx2 */
+   鎏金两档（--xx-gold、--xx-star）已撤：宿名原取鎏金，色相 38 度与靛蓝主色相冲，改取深档 --xx2 */
 .page-xx{
   --xx:#2c3e5d;          /* 夜穹靛蓝主色：主按钮、强调 */
   --xx2:#1f2d47;         /* 深靛：hover与强调 */
@@ -2779,7 +2779,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
    行距 12px（不小于相邻平行线最小间距），使各卡的上线读作分栏而非断线 */
 /* 取数卡主字：通用件取全站墨色，本页须落回页内色族，否则整片卡主字为页外黑 */
 /* 悬停反馈见上：取数卡与三运行各有一条，皆本页色系 */
-/* 吉凶档字色走站内 .luck-吉/.luck-凶 体系，此处不得覆盖（吉绿/凶红） */
+/* 吉凶档字色走站内 .luck-吉/.luck-凶 体系，此处不得覆盖（吉绿、凶红） */
 
 /* 标签与高亮：标签随通用件 .zr-tag 的形态（无框无底），只取本页色
    （底能去则去；纯白不作卡内标签底） */
@@ -2844,7 +2844,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 五行输出配额选择器：五行各一小选框，与推荐数量框同款式，空间不足自然换行 */
 /* 输出区静态样式 */
 /* 原 .nm-mt6（6px），归一到 4px 栅格后改档位命名，与 --sp-1 对应 */
-/* 速查表命中行：只作暗金着色，不叠字重——高亮靠色不靠字重，与本页其余强调一致 */
+/* 速查表命中行：只作暗金着色，不叠字重，高亮靠色不靠字重，与本页其余强调一致 */
 /* 避讳与字辈核查行：与同位置的 .ly-zh-p、相邻的 .nm-hits 同取同组档 --sp-2 */
 /* 出生日期框：按内容加左右对称间距定 96px（日期组件 .dt-wrap 为 flex，亦禁其伸展） */
 /* 异常堆栈（仅在分析抛错时出现）：等宽直排、限高可滚，取本页警示红 */
@@ -2897,7 +2897,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 /* ===== 七政四余页 曜石、鎏金 主题（qizheng.html，.page-qz 作用域） =====
    对齐其余主题页，配色独立换为 曜石黑紫（古星图夜幕）主色 + 鎏金（七政化曜金线）点缀；
-   旺蓝/陷红/乐绿/闲褐等庙旺语义色与命红线、身线蓝保留；按钮无彩色晕染 */
+   旺蓝、陷红、乐绿、闲褐等庙旺语义色与命红线、身线蓝保留；按钮无彩色晕染 */
 .page-qz{
   --qz:#3b3054;
   --qz2:#2d2440;
@@ -2940,7 +2940,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 /* ===== 奇门遁甲页 玄圭、洛书 主题（qimen.html，.page-qm 作用域） =====
    对齐其余主题页，配色独立换为 玄圭墨青（洛书九宫古玉）主色 + 洛书朱砂点缀；
-   九宫吉凶语义色（吉绿/凶红/中平灰）、阴阳兵旗徽章、值符金/值使绿锚定全部保留；按钮无彩色晕染 */
+   九宫吉凶语义色（吉绿、凶红、中平灰）、阴阳兵旗徽章、值符金、值使绿锚定全部保留；按钮无彩色晕染 */
 .page-qm{
   --qm:#2d4f5c;
   --qm2:#213b45;
@@ -3014,7 +3014,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 中：元数据网格（两列、标签小字暗金、值正文） */
 /* 右：评级区（徽章+分数+可视化条） */
 /* 评级明细：四行权重条（名称+分数+条+说明悬浮） */
-/* 拆解/模块卡通用：部件徽章与标签 */
+/* 拆解、模块卡通用：部件徽章与标签 */
 /* 行文内嵌的字框与前后文字留出呼吸空隙（添笔成字、摘字等句式）；字组容器内走 gap 不另加外距 */
 /* 行文内联的徽标（活拆、摘字、假借行）：与前后文字留缝；cz-chai-row 为 flex 已有 gap，排除防叠加 */
 /* 断曰：楷体居中、引号装饰 */
@@ -3036,7 +3036,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 /* ===== 太乙神数页 紫微垣、天青 主题（taiyi.html，.page-ty 作用域） =====
    太乙居紫微垣（天帝之星）：天青蓝紫主色 + 垣墙银金点缀；
-   十六宫神将（太乙金/文臣绿/武臣赤）、八门吉凶、九宫分野语义色保留；轻内容页装饰密度收敛 */
+   十六宫神将（太乙金、文臣绿、武臣赤）、八门吉凶、九宫分野语义色保留；轻内容页装饰密度收敛 */
 .page-ty{
   --ty:#3d4d7a;
   --ty2:#303d63;
@@ -3297,7 +3297,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* ===== 民俗占法页 绛朱主题（minsu.html，.page-ms 作用域） =====
    民俗以称骨、犯月、本命佛、号码吉凶四法为体，主题取绛朱（朱批印泥、绛纸朱印）主色，
    与站内其他页面主题色区分（择日朱批偏素笺暖米、皇极绛帐偏深、本页绛朱为印泥正红族）；
-   吉凶语义色（宜绿/凶红徽标）保留；已有 .ms-page 段（本文件前部）结构规则不动，仅变量与配色随本段覆写 */
+   吉凶语义色（宜绿、凶红徽标）保留；已有 .ms-page 段（本文件前部）结构规则不动，仅变量与配色随本段覆写 */
 .page-ms{
   --ms:#b23a3f;          /* 绛朱主色 */
   --ms2:#7a2529;         /* 深绛朱：hover/强调（对白底 5.7:1 达 AA，修小字发虚） */
@@ -3601,7 +3601,7 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 /* ===== 页级样式：bazi（page-bazi）===== */
 /* 本页移除 body 独有覆盖，统一走 assets/style.css 全局布局，使顶栏全幅、内容区居中见下方 .wrap 规则。 */
-/* 四柱干支模式：年/月/日/时 双字迷你下拉横向留 8px（而非 2px），避免干支文字贴左；高度与全站控件同为 30px */
+/* 四柱干支模式：年、月、日、时 双字迷你下拉横向留 8px（而非 2px），避免干支文字贴左；高度与全站控件同为 30px */
 /* 确认面板：表头 th 去默认粗体；框体线色与去底见本段确认框规则。
    面板标题属区块标题，与 info-box h4 同级同组件，字色取深松青而非正文灰 */
 
@@ -3612,22 +3612,22 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 出生地分组：底色与上下细线由本页出生地分组规则给出，此处不再另设 */
 
 /* 移动端：确认横幅字号随本页正文档收至 13px；控件盒尺寸由通用段给出，窄屏不另覆写 */
-/* 出生地模块（省份/城市/区县/经度/真太阳时整组）：独立组件，只在公历/农历模式显示，四柱/已存一律不呈现。 单条 CSS 声明式控制（不依赖 JS 时序），body 模式类由 bazi-app.js 的 toggleBaziMode 维护。 */
+/* 出生地模块（省份、城市、区县、经度、真太阳时整组）：独立组件，只在公历、农历模式显示，四柱、已存一律不呈现。 单条 CSS 声明式控制（不依赖 JS 时序），body 模式类由 bazi-app.js 的 toggleBaziMode 维护。 */
 body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 已存列表说明：与上方列表拉开距离 */
 /* 一生运势四小节题（事业财运、婚姻感情、性格健康、家庭子女）：小节主题档，字号取四档令牌 */
-/* 表格样式：透明无底色、仅留边框，与站内"量化四柱"一致。 列宽完全自适应（table-layout:auto），表格按各列内容字数自动分配宽度，首列短标签（组合/分类/项目/宫位十神…）自然取整词宽、整词显示，不写死任何 px/em，也不按字数加收窄类锁定列宽； 内容需换行时按字符自然断行（不强行 1 字孤行、也不锁单字宽）。 字体/间距与 .qtab 对齐：13px、padding 5px7px、行高 1.7、表下距 14px。 */
+/* 表格样式：透明无底色、仅留边框，与站内"量化四柱"一致。 列宽完全自适应（table-layout:auto），表格按各列内容字数自动分配宽度，首列短标签（组合、分类、项目、宫位十神…）自然取整词宽、整词显示，不写死任何 px/em，也不按字数加收窄类锁定列宽； 内容需换行时按字符自然断行（不强行 1 字孤行、也不锁单字宽）。 字体、间距与 .qtab 对齐：13px、padding 5px7px、行高 1.7、表下距 14px。 */
 /* 6.2 五行行业对照：table-layout:auto 下“五行”“宜忌”两列按内容（各 2 字）自然取宽，行业列占余宽，不写死列宽。 */
 /* 古籍断语表(stab-a2)：断语列(第1列)占余宽、内容长时自然换行；出处列(第2列)按内容量取整条单行宽，上限取可用宽一半，由脚本写入内联宽度。 */
-/* 表格内 <b> 一律常规字重（干支/数值等去除粗体） */
-/* 八字页内容区：居中限宽 1080px（与其他排盘工具一致），两端留白；宽表（四柱/大运/流年）由 .tbl-wrap{overflow-x:auto} 横向滚动兜底，不撑破页面 */
+/* 表格内 <b> 一律常规字重（干支、数值等去除粗体） */
+/* 八字页内容区：居中限宽 1080px（与其他排盘工具一致），两端留白；宽表（四柱、大运、流年）由 .tbl-wrap{overflow-x:auto} 横向滚动兜底，不撑破页面 */
 /* 已存八字面板：透底无框、极简（与站点"无包裹框、无背景色"一致） */
 /* 顶部输入行：字段与控件均按内容自适应（见下）。行内横向间距不在此声明，交回 .form-row 通用终值 --sp-3；
    窄屏 ≤900 由下方 .page-bazi .form-row 段收回 --sp-2。
    下距取 --sp-3：本行下方紧邻 .opts，其首子即带上线的出生地组，该上线与上排控件的 1px 下边框是一对
    相邻平行线，间距须与全站该处一致为 12px，第二条判据的下限亦为 12px。 */
 
-/* 顶部控件按内容自适应：.field 是 flex 列容器，子控件默认被拉伸到字段宽，故以 align-self:flex-start 回到内容宽。 select 取最长选项宽（width:auto 即浏览器自适应）；姓名、农历年为文本/数字框，width:auto 会回落浏览器默认 size=20 约 170px，故按内容显式定宽（姓名 96px 与全站日期框同口径、农历年 76px 为四位数年份＋数字步进器的最小不裁切宽）。 */
+/* 顶部控件按内容自适应：.field 是 flex 列容器，子控件默认被拉伸到字段宽，故以 align-self:flex-start 回到内容宽。 select 取最长选项宽（width:auto 即浏览器自适应）；姓名、农历年为文本、数字框，width:auto 会回落浏览器默认 size=20 约 170px，故按内容显式定宽（姓名 96px 与全站日期框同口径、农历年 76px 为四位数年份＋数字步进器的最小不裁切宽）。 */
 /* 出生时间：全站统一宽 72px，字段收缩后不另定宽 */
 /* 农历模式（桌面）：8 项贴内容自适应占一排（flex:0 0 auto），不拥挤； 闰月勾选框复用 .field.chk 现成样式（与"真太阳时校正"同款），不设固定宽 */
 .mode-lunar:where(.bz-root) .bazi-top{flex-wrap:nowrap}
@@ -3705,22 +3705,22 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
    下边线收束内容与页脚免责声明，不可省）；对话区圆角一并归零 */
 
 /* 打印：恢复素底与中性线 */
-/* 八字页 stab/otab 系表格（古籍断语/量化四柱等主力表）同步松青 */
+/* 八字页 stab/otab 系表格（古籍断语、量化四柱等主力表）同步松青 */
 /* ② 提示词默认字色：全局 .tip 为朱红 var(--red2)，在本页与语义红混淆；降为深松青。
-   默认态用 :where 零特异性——低于 .tip.sha-ji/.tip.sha-xiong/.tip.wx-* 等语义规则，不破坏必须上色字；
+   默认态用 :where 零特异性，低于 .tip.sha-ji/.tip.sha-xiong/.tip.wx-* 等语义规则，不破坏必须上色字；
    悬停态全局 .tip:hover 会把字染回朱红，此处同特异性(0,2,0)且靠后，覆盖为深松青+松青淡底 */
 /* ③ 卷首带（时间摘要行 ts-box）：不画线，数值取深松青（不与"凶"的朱红混淆）。
    🔴 本块是 .mod-body 的首块，上方紧邻 .mod-head 的下边线，此处再画上线即成双线，
    纸本目录只画一条线的判据即针对此形，故只留 .mod-head 那一条。 */
-/* ④ 流派解读卡/公式/结构派内显式 var(--ink)/var(--red2)：归松墨灰 / 深松青 */
-/* ④b 数据表正文：bazi-table/qtab 基字色 var(--ink) 纯黑 → 松墨灰；表头/行标签维持深松青（语义标签类更高特异性，不受影响） */
-/* ④c 运势曲线图例/浮层/卦辞卡/评分表：显式 var(--ink) 纯黑 → 松墨灰 */
-/* ⑤ 量化四柱表：数字纯黑归松墨灰；占比/汇总 #8a7f66 暖灰 → 灰松（与辅注同层） */
+/* ④ 流派解读卡、公式、结构派内显式 var(--ink)/var(--red2)：归松墨灰、深松青 */
+/* ④b 数据表正文：bazi-table/qtab 基字色 var(--ink) 纯黑 → 松墨灰；表头、行标签维持深松青（语义标签类更高特异性，不受影响） */
+/* ④c 运势曲线图例、浮层、卦辞卡、评分表：显式 var(--ink) 纯黑 → 松墨灰 */
+/* ⑤ 量化四柱表：数字纯黑归松墨灰；占比、汇总 #8a7f66 暖灰 → 灰松（与辅注同层） */
 /* ⑥ 表单标签：随 --bz-ink2 重挂归灰松，无需单独覆盖 */
-/* ⑦ 大运/流年时间轴按钮：激活态朱红底与页面松青主题相冲，换松青主色；悬停浅底、去投影；
+/* ⑦ 大运、流年时间轴按钮：激活态朱红底与页面松青主题相冲，换松青主色；悬停浅底、去投影；
    按钮 UA 默认不继承正文字色（黑），显式给松墨灰 */
 /* ⑧ 三得芯片未中态：#999 太浅，归灰松，保持与已中态(绿)的语义对比 */
-/* ⑨ 四柱表日主格"元男/元女"：性别蓝/粉为点缀色，属非必须上色 → 归松墨灰 */
+/* ⑨ 四柱表日主格"元男、元女"：性别蓝、粉为点缀色，属非必须上色 → 归松墨灰 */
 /* ⑩ 强提示块（流派取舍等）：原赭金底 #7a5b12，改上下细线夹出，不铺底色 */
 
 /* 基础信息字段流：农历、生肖、星座、二十八宿、命宫、胎元、身宫、命卦、当令、下一节
@@ -3809,7 +3809,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
    ① 直角、抬高到 64，与另三页同高；
    ② 节日与农历日**并存**不互相顶掉（全局 .festival+.ld{display:none} 会让节日那天看不到"道八月廿五"，
       万年历、老黄历、佛历均已显式打开）；
-   ③ 节日名改朱砂红、周末日期红、农历日墨灰——与万年历同一组三条色轴。
+   ③ 节日名改朱砂红、周末日期红、农历日墨灰，与万年历同一组三条色轴。
    （左上角小色条不在此处取消：道历与佛历共用第 481 行那条"宗教节日格去左条色标"的规则，已归零。） */
 /* 两枚单字角标（照佛历 .mk 同一套写法）：左上"斋"＝道教斋期（十直日、三会朝真、三元斋、八节斋、
    五腊、八会、天赦斋、庚申甲子守夜），右上"诞"＝神仙圣诞（判据＝节日名含"诞"，照佛历 .mk-d；
@@ -3875,7 +3875,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 窄屏题头到上线收到移动端更小档 --sp-2；本块排在基条之后，同权重下由后位取终值 */
 /* 盘面文字按段断行，不在字与字之间拆断；盘面标题（含括注的长题）不在此列，
    按正文流式自适应换行，否则只能断在全角空格处，括注整段落到第二行 */
-/* 紫白飞星颜色：调用全站已有 fei-1..fei-9（style.css，老黄历/道历同款），星色依飞星本身 */
+/* 紫白飞星颜色：调用全站已有 fei-1..fei-9（style.css，老黄历、道历同款），星色依飞星本身 */
 /* 吉凶徽标：宫格内以文字标注吉凶，三要、六事各宫沿用 */
 
 /* 正文加粗一律暗金（标题非 b 不受影响；带类或内联色者按自身色） */
@@ -3937,9 +3937,9 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
    因第二条判据定“相邻平行线间距不得小于 12 像素”，上方控件的 1px 下边框与本组 1px 顶线即一对相邻平行线。 */
 /* 窄屏题头到上线收到移动端更小档 --sp-2；本块排在基条之后，同权重下由后位取终值 */
 /* 宽表格横向滚动：多列表窄屏出滚动条而非挤压 */
-/* 正文加粗一律暗金（标题非 b 不受影响；带类/内联色者按自身色） */
-/* 穴场形峦自检：行式选择（上相/下相对照 + 单选） */
-/* 补龙逐支/相主逐干并排表：桌面自适应屏宽（不出底部滚动条），窄屏单列 */
+/* 正文加粗一律暗金（标题非 b 不受影响；带类、内联色者按自身色） */
+/* 穴场形峦自检：行式选择（上相、下相对照 + 单选） */
+/* 补龙逐支、相主逐干并排表：桌面自适应屏宽（不出底部滚动条），窄屏单列 */
 /* 页顶结论卡与步骤条：主线“避凶选吉”的总览，与底部总判定表同源联动 */
 /* 综合判定表：fixed 布局按列定宽（步骤118、得分70、等级64），要点列自适应换行分段，桌面窄屏都不出横向滚动 */
 /* 静态知识参考（fs-ref）：二级折叠区统一形制（同 .mh-ref），页面段只写线色 */
@@ -3949,7 +3949,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 /* 模块头分数徽标：八步各自评分与最终分就地显示（两分制的分项分），与页末综合判定同源。
    靠右排（margin-left:auto）；未评取本页次级字色、达标吉绿、未达标凶红，不上第三支色相。 */
-/* 综合判定得分条：长度=分数，颜色分档（绿上格/浅绿可用/金慎/红短板），首屏可挑 */
+/* 综合判定得分条：长度=分数，颜色分档（绿上格、浅绿可用、金慎、红短板），首屏可挑 */
 /* 得分条三档：高档取吉绿、中档取本页主体色深档、低档取凶红，三档均取语义色令牌 */
 
 /* 聚焦态不限定 .field 祖先：峦头自检等处的下拉直接落在行内，一并归此条统管 */
@@ -3998,10 +3998,10 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
    取数函数 monthFestList、monthZhaiList 仍留给 AI 提词的当月小节。 */
 
 /* 附加功能面板（.ai-block）：去框改线，上下各一条线夹出（与卷首带 .today-card 同款）；
-   面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省——去下边线会露出 .ai-body 的
+   面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省，去下边线会露出 .ai-body 的
    12px 底内边距，底部空白比有下框线的页面多 12px（仅 page-foli 作用域，他页不动） */
 /* 按钮语义：AI 解析=袈裟金实底主按钮，全面板唯一强调色；配置模型与 soft 同档=描边次按钮（面板内不再有第二块实底色） */
-/* 对话区（配置模型后出现）：标签页/气泡随主题换色，圆角归零与本页一致 */
+/* 对话区（配置模型后出现）：标签页、气泡随主题换色，圆角归零与本页一致 */
 
 /* 手机端：卷首字号回退一档；字段流转单栏，分段符由 0.9em 间隙改整行换行 */
 
@@ -4087,7 +4087,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 定位字段流：键绛色、值墨灰，行间一条浅线（与藏历 .zl-info 同制式）。
    卷首带的下边线即本段的顶线，此处不再另划一条，免得两线相距 12px 读作重线 */
 
-/* 皇极尺：分段条。未到段留白、已过段绛浅线填实、当前段绛色满填——
+/* 皇极尺：分段条。未到段留白、已过段绛浅线填实、当前段绛色满填，
    三档只差明度不换色相，主位由实色块承担，不靠阴影 */
 
 /* 元会运世定位盘的本会扇面：自盘心到会弧铺一层极淡绛色，
@@ -4166,8 +4166,8 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 详情区卷首带：上下细线夹出（对齐首页 .hm-head 上下线骨架），无框无底 */
 /* 卷首竖排居中：公历小字在上、日期大字在下，再接农历（对齐首页卷首的公历转农历次第） */
 /* 九宫飞星折叠三角：取本页主体色朱红 */
-/* 信息块去框改线（首页骨架为线不为框）：标题宋体加字距，下接一条细线作分隔；宜/忌语义由标题字色承载 */
-/* 清零 .cal-page 给宜/忌两块的 2px 顶条，全页只保留下线一种线 */
+/* 信息块去框改线（首页骨架为线不为框）：标题宋体加字距，下接一条细线作分隔；宜、忌语义由标题字色承载 */
+/* 清零 .cal-page 给宜、忌两块的 2px 顶条，全页只保留下线一种线 */
 /* 九宫飞星：去卡片框，随全局 .fold-block 的线语言（顶距同全站二级折叠区 --sp-4） */
 
 /* 老黄历基础信息：分栏字段流（宜忌通栏、余项双栏）；
@@ -4178,7 +4178,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 分段符：电脑端为 0.9em 空格间隙（内容一行流式、装不下自然换行）；移动端为整行换行 */
 /* 纳音干支五行项整体不拆行，折行只发生在项与项之间 */
 
-/* 附加功能面板：去框改线，上下各一条线夹出（与卷首带 .today-card 同款）；面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省——去下边线会露出 .ai-body 的 12px 底内边距，底部空白比有下框线的页面多 12px */
+/* 附加功能面板：去框改线，上下各一条线夹出（与卷首带 .today-card 同款）；面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省，去下边线会露出 .ai-body 的 12px 底内边距，底部空白比有下框线的页面多 12px */
 /* 按钮语义：AI 解析=藏蓝实底主按钮，全面板唯一强调色；配置模型与 soft 同档=描边次按钮（面板内不再有第二块实底色） */
 
 
@@ -4247,7 +4247,7 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 /* 爻图：六爻行高一致，标签区单行渐隐（完整内容见悬停提示） */
 /* 卦象板上游是带行线的起卦信息表，末行下线已承担分隔，此处不得再画上边线（否则双线） */
 /* 爻符：阳爻实画、阴爻断画同取本页主体色 */
-/* 爻位标签：凶红 / 警示金褐 / 中性灰蓝 / 临日月金，统一描边式 */
+/* 爻位标签：凶红、警示金褐、中性灰蓝、临日月金，统一描边式 */
 /* 表格：线条模式，只留行线与容器顶线，左右与竖线一律不画（同历法页基础信息条） */
 /* 键值型表：键列取历法页基础信息条的同款定宽 */
 /* 表间距修饰类须排在 .ly-cat-tbl 之后：同特异性下源序决定胜负，写在前面会被基线的 sp-1 吃掉 */
@@ -4290,7 +4290,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 /* 旺衰五行量化表：六列均分铺满容器；窄屏由 .mh-tbl-wrap 横滚兜底，不撑破页面。
    此表不可挂 .ly-zh-tbl：键值表的 th 定宽 88px 在 table-layout:fixed 下逐列生效，
    六列即 528px，窄屏会把整页顶出横向滚动。 */
-/* 爻图：梅花卦画为纯爻条（无六亲/神煞侧列），采用紧凑秀气的卦画式布局 */
+/* 爻图：梅花卦画为纯爻条（无六亲、神煞侧列），采用紧凑秀气的卦画式布局 */
 /* 卦象板上游是带行线的起卦信息表（末行为体用），末行下线已承担分隔，此处不得再画上边线（否则双线） */
 /* 爻符：阳爻实画、阴爻断画同取本页主体色 */
 /* 八卦类象全表 */
@@ -4316,19 +4316,19 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 
 /* 表单：标签深绛加粗、绛线描边白底控件、聚焦绛色光圈 */
 /* 模块内表单行：模块内不加底色（对齐全站 .form-row 无底色口径） */
-/* 主按钮（称骨/查犯月/查本命佛/测号码）绛朱实底 */
+/* 主按钮（称骨、查犯月、查本命佛、测号码）绛朱实底 */
 
 
 /* 模块题头（section.mod）：绛纸淡底带 + 深绛题字（对齐全站 .mod-head：无顶部饰条、外壳无框） */
-/* 参考折叠（八十一数理/称骨歌/败子歌/八星配对）：去框内底色，对齐其他页 details 素底口径 */
+/* 参考折叠（八十一数理、称骨歌、败子歌、八星配对）：去框内底色，对齐其他页 details 素底口径 */
 
-/* 结果区：表格绛染表头、卡片/附注/本命佛绛线，值字深绛 */
+/* 结果区：表格绛染表头、卡片、附注、本命佛绛线，值字深绛 */
 
-/* 结果区：模块内去底色，仅保留描边/字级/首列/徽章，与其他页模块内素底口径一致 */
+/* 结果区：模块内去底色，仅保留描边、字级、首列、徽章，与其他页模块内素底口径一致 */
 /* 结果卡：绛线描边（底色回归 .ms-page 既有 paper2，无投影） */
-/* 首列标签（分项/骨重表、数理表、八星表）深绛半粗强调，纠正 .ms-c0 被 .ms-tbl td 压盖 */
-/* 歌诀卡：朱墨正文（原鎏金 2.8:1 对比不足），底色/结构不动 */
-/* 吉/凶徽章：填色淡底 + 语义文字色；吉凶徽章去内边框，只保留背景色块（无则保留线） */
+/* 首列标签（分项、骨重表、数理表、八星表）深绛半粗强调，纠正 .ms-c0 被 .ms-tbl td 压盖 */
+/* 歌诀卡：朱墨正文（原鎏金 2.8:1 对比不足），底色、结构不动 */
+/* 吉、凶徽章：填色淡底 + 语义文字色；吉凶徽章去内边框，只保留背景色块（无则保留线） */
 /* 长表横滚淡出提示：表尾右缘渐隐，暗示可横向滚动（移动端表格被截断像坏了的问题） */
 /* 三世书三表由脚本插入，无 .ms-tbl-wrap 包裹：列多被压会把三字宫位挤成单字，补最小宽并由该容器横滚兜底 */
 #msSanshiBody{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -4360,7 +4360,7 @@ to{transform:translateY(-30px) rotateY(180deg)}}
 /* 克应短句：断行落在顿号与逗号处，末字不再独占一行；超长串仍由 overflow-wrap 兜底 */
 /* 格局出处小标 */
 /* 徽章：宫内 .qi-badge 内与宫位详情弹层内两处使用，弹层挂 body 下无 .page-qm 上下文，故两套选择器并列书写 */
-/* 值符/值使宫格锚定：金/绿描边 + 内侧微光，突出断事枢轴 */
+/* 值符、值使宫格锚定：金、绿描边 + 内侧微光，突出断事枢轴 */
 /* 排盘过渡：九宫盘逐格淡入浮现 */
 @keyframes qiFade{from{opacity:0;transform:translateY(4px)}
 to{opacity:1;transform:none}}
@@ -4378,13 +4378,13 @@ to{opacity:1;transform:none}}
 /* 术语速查折叠框：与页面底色齐平，不加卡片底 */
 /* 白话解读：两列，标签列金色不换行，内容列自动换行 */
 /* 术语速查：两列，术语列不换行，解释列自动换行 */
-/* 奇门表格：基础信息/格局/综合判断 通用，列宽按内容最大宽度自适应 */
+/* 奇门表格：基础信息、格局、综合判断 通用，列宽按内容最大宽度自适应 */
 /* 三列以上的数据表不得被压成单字列：最小宽保底、由模块体横向滚动兜底。
    两列键值表不在此列，仍随屏流式（:has 只挑出含第三列的表） */
-/* 电脑端：综合判断第一列（标签）4字内不换行（总体/用神定位等一行） */
+/* 电脑端：综合判断第一列（标签）4字内不换行（总体、用神定位等一行） */
 /* td 内 flex 容器：单独 div 承载，避免 display:flex 直接打在 td 上与 border-collapse 冲突产生粗边框 */
 /* 八字联动解读表：移动端 th 不卡 55px，短标签不换行 */
-/* 格局表：吉凶列窄，断语/出处列宽（按内容最大宽自适应） */
+/* 格局表：吉凶列窄，断语、出处列宽（按内容最大宽自适应） */
 /* 格局表吉凶色：吉绿凶红（本站用色），直接命中 td 上的类 */
 /* 宫格 hover/点击反馈：悬停背景变暗（同大六壬天地盘） */
 
@@ -4444,7 +4444,7 @@ to{opacity:1;transform:none}}
   /* 深色主题（跟随系统）：本页令牌与专属规则变体 */
 
 /* ===== 页级样式：shuoming（page-sm）===== */
-/* ═══ 文档页：全站纸本谱系（一种红、两级灰、一条线）+ 文档站三段式骨架 ═══ 左：卷/工具/模块树 + 检索；中：正文（980 上限内单栏）；右：本页目录（随滚动高亮）。 */
+/* ═══ 文档页：全站纸本谱系（一种红、两级灰、一条线）+ 文档站三段式骨架 ═══ 左：卷、工具、模块树 + 检索；中：正文（980 上限内单栏）；右：本页目录（随滚动高亮）。 */
 /* ── 左栏 ── */
 /* ── 正文 ── */
 /* 正文栏左右内距须对称：左右各留一道与本栏外侧竖线（左为侧栏 border-right、右为右栏 border-left）的间隔。
@@ -4469,7 +4469,7 @@ to{opacity:1;transform:none}}
 
 
 
-/* 主按钮（查询犯太岁/查询年月日生/仪轨）岁星青实底，去投影 */
+/* 主按钮（查询犯太岁、查询年月日生、仪轨）岁星青实底，去投影 */
 
 /* 表格：虚线行线 + 透明表头（对齐站内 ms-tbl/ts-tbl 口径），首列干支去楷体衬线防小字发虚 */
 /* 头卡主值（干支大字）：走站内大字档（宋体 400/22px，同五历页 .lunar-info .ln），不越页头 23px */
@@ -4496,7 +4496,7 @@ to{opacity:1;transform:none}}
 /* 九宫分野（九州）表 */
 /* 太乙所落之宫：金底标识，与十六宫神将盘、太乙八门同色 */
 /* 详细版推演：表格形式 */
-/* 参考详解表（神将/格局/主客算）：内容列左对齐，行高舒适 */
+/* 参考详解表（神将、格局、主客算）：内容列左对齐，行高舒适 */
 /* 神将详解、格局详解、主客算说明三框无背景色 */
 /* 移动端：表单、十六宫、八门、表格 */
 /* 窄屏：盘与表上下堆叠、各自占满一行（盘面居中，表格全宽） */
@@ -4529,7 +4529,7 @@ to{opacity:1;transform:none}}
 /* 凯尔特十字框架：牌面按塔罗原比例（11:20）完整显示，不再裁条；交汇牌横置叠于十字中轴。 十字区 6 张：纵列 冠冕→交汇→现状→根源、横列 过去→现状→未来；右柱 4 张竖排 */
 /* 交汇牌：横置（旋转90°）悬浮于十字中轴，占满三列宽度，牌面完整不裁切 */
 
-/* 十张详断表：位次 / 牌 / 牌义与位义 */
+/* 十张详断表：位次、牌、牌义与位义 */
 /* 凯尔特十字详断表：与综合判断表同款（仅顶线与逐行下线） */
 /* 综合判断表格：项目｜解读 两列（体例对齐雷诺曼 ln-table，色用塔罗主题线色与金字） */
 /* 塔罗综合判断表：参考历法页基础信息表的线条模式（仅顶线与逐行下线，键列取定宽） */
@@ -4613,13 +4613,13 @@ to{opacity:1;transform:none}}
 /* 选中：青瓷淡染 + 黛青细描（原棕褐色换青瓷） */
 /* hover 不落在今日格上：否则同特异性后来覆盖黛青底，白字配浅底不可读；今日格悬停改加深黛青 */
 /* 格内色轴收敛为三条：节日红（喜庆）、节气青碧（自然节点）、农历墨灰（正文）。
-   左上角小色条（全局 .cal-cell::before）属装饰性色标，本页取消：节气由右上"节/气"角标承载，
+   左上角小色条（全局 .cal-cell::before）属装饰性色标，本页取消：节气由右上"节、气"角标承载，
    节日由红字承载，窄屏红字隐去后由左上红色"节"角标承载，信息不丢 */
 
 /* 详情区卷首带：上下细线夹出（对齐首页 .hm-head 上下线骨架），无框无底 */
 /* 卷首竖排居中：公历小字在上、日期大字在下，再接农历（对齐首页卷首的公历转农历次第） */
 
-/* 日历格日期数字同步墨青灰；周末红/今日白不受影响 */
+/* 日历格日期数字同步墨青灰；周末红、今日白不受影响 */
 /* 小节标题：本页无鎏金，标题须随墨黛色、宋体宽字距（对齐老黄历同一口径）。
    缺此规则时，本页新引入的 .rel-title 会回落到全站默认的鎏金 700 粗，即为配色泄漏。 */
 /* 基础信息：分栏字段流（形态对齐老黄历）；纳音、节气、时令、节日双栏，宜忌通栏；
@@ -4627,9 +4627,9 @@ to{opacity:1;transform:none}}
 /* 宜忌行内的可点术语：沿用本行吉凶色，只以悬停底色点出可点，行内不再掺第二种颜色（同老黄历） */
 /* 纳音干支五行项整体不拆行，折行只发生在项与项之间 */
 
-/* 附加功能面板：去框改线，上下各一条线夹出（与卷首带 .today-card 同款）；面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省——去下边线会露出 .ai-body 的 12px 底内边距，底部空白比有下框线的页面多 12px（仅 page-wnl 作用域，他页不动） */
+/* 附加功能面板：去框改线，上下各一条线夹出（与卷首带 .today-card 同款）；面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省，去下边线会露出 .ai-body 的 12px 底内边距，底部空白比有下框线的页面多 12px（仅 page-wnl 作用域，他页不动） */
 /* 按钮语义：AI 解析=黛青实底主按钮，全面板唯一强调色；配置模型与 soft 同档=青瓷描边次按钮（面板内不再有第二块实底色） */
-/* 对话区（配置模型后出现）：标签页/气泡随主题换色，圆角归零与本页一致 */
+/* 对话区（配置模型后出现）：标签页、气泡随主题换色，圆角归零与本页一致 */
 
 /* 手机端：卷首字号回退一档，信息块间距收紧 */
 
@@ -4685,7 +4685,7 @@ to{opacity:1;transform:none}}
 /* 宿名取主色深档：原取鎏金点缀，色相落在 30 至 60 度区间，与靛蓝主色相冲（配色铁律第 1.4 条） */
 /* 示意星图：画布与站内圆盘通用件同制式（440 见方、盘心 220），几何走 assets/wheel.js；
    容器挂 .wheel 类，故骨架元素（盘缘、盘心圈、刻度、宿名、盘心三行）走通用件 .w-* 规则，
-   字族与色值按本页玄夜鎏金主题特化——夜幕底色以 clipPath 限制在盘内圆，圆外留纸本白底，
+   字族与色值按本页玄夜鎏金主题特化，夜幕底色以 clipPath 限制在盘内圆，圆外留纸本白底，
    圆形图版嵌入纸页（古籍星图语言），鎏金细圈收束图版外缘。 */
 /* 夜幕与散星、连金线、今日值宿高亮：色值与鎏金细节 */
 /* 骨架元素走通用件 .w-* 形制 + 星图色：盘缘鎏金、内界圈冷蓝虚线、盘心圈、夜空底；与全站令牌对齐 */
@@ -4777,7 +4777,7 @@ to{opacity:1;transform:none}}
 /* 小节标题：随墨赭色、宋体宽字距（与佛历、道历同一口径）。
    缺此规则时本页的 .rel-title 会回落到全站默认的鎏金 700 粗，即为配色泄漏。 */
 /* 基础信息：双栏字段流。
-   本日殊胜由"殊胜日圆盘"承担、本月重日缺日由"重日缺日盘"承担，两项不入字段流——
+   本日殊胜由"殊胜日圆盘"承担、本月重日缺日由"重日缺日盘"承担，两项不入字段流，
    同一份数据在盘上能一眼看出全月分布，字段流再列一遍即是重复。 */
 
 
@@ -4787,7 +4787,7 @@ to{opacity:1;transform:none}}
 /* 附加功能面板（.ai-block）：去框改线，上下各一条线夹出（与卷首带 .today-card 同款）；
    面板是页尾元素，下边线承担"内容→免责声明"的收束，不可省 */
 /* 按钮语义：AI 解析=藏红实底主按钮，全面板唯一强调色；配置模型与 soft 同档=描边次按钮 */
-/* 对话区（配置模型后出现）：标签页/气泡随主题换色，圆角归零与本页一致 */
+/* 对话区（配置模型后出现）：标签页、气泡随主题换色，圆角归零与本页一致 */
 
 /* 流派说明折叠框：随全局 .fold-block 的线语言，去白瓷卡 */
 
@@ -4824,7 +4824,7 @@ to{opacity:1;transform:none}}
 /* ===== 页级样式：zeri（page-zeri）===== */
 /* ── 择日页间距 ──────────────────────────────────────────────────────── 档位 --sp-1..5（4/8/12/16/24，4px 栅格）已提升为全站 token，定义在 assets/style.css 的 :root， 此处不再重复定义，全页直接继承。语义分工见 style.css :root 注释。 注：1~2px 的 margin 属行内基线微调（文字对齐），不属布局间距，保留原值不入档。 */
 /* 模式切换（择事、造命）：两模式模块整组显隐。[hidden] 须显式声明，否则 .form-row 的 display:flex 等会压过 UA 默认 */
-/* 模式切换钮（择事、造命）：整条居中，与年月导航 .nav-btn 同一语言——纯字符、无框无底；
+/* 模式切换钮（择事、造命）：整条居中，与年月导航 .nav-btn 同一语言，纯字符、无框无底；
    未选中取朱批红，选中项以实底朱批标示当前模式。line-height 显式写 1.2，避免继承正文 1.7 使按钮偏高 */
 /* 可用时辰题头：标签取本页主体色并缩至 12.5px，避免落回全站金字；同时覆盖 .zm-hours-head 内同名标签（该处无自有规则，会随继承放大） */
 /* 时辰勾选：纯复选框加文字，无外框无底色。选中态由文字主题色与原生勾选表达，字重保持常规（12 项同时加粗会撑动字宽致整排抖动）；未选中淡化至 .55，靠亮度区分；项间距 12px，整块高约 34px */
@@ -4842,13 +4842,13 @@ to{opacity:1;transform:none}}
 /* 造命排盘行与上方宝宝出生地框的间距由统一样式承担：模块内直接子元素一律 margin-bottom:var(--sp-3)，出生地框的下边距即排盘行的上间距，不另补值 */
 /* 造命排盘行：桌面端（≥641px）太岁勾选与排盘按钮同排一行、标签不折行。 移动端不设任何规则，保持 .form-row 既有换行排布 */
 /* 视图切换行下边距取 12px：大于卡间 8px，切换行与首张卡片层次分明 */
-/* 视图切换钮（整体排名、每日最优时辰）：与顶部模式切换钮 .zr-mode-btn 同款——无框无底、常态朱批字、选中朱批实底白字；
+/* 视图切换钮（整体排名、每日最优时辰）：与顶部模式切换钮 .zr-mode-btn 同款，无框无底、常态朱批字、选中朱批实底白字；
    层级靠底色不靠字重 */
 /* .zr-card 为 4 列网格，仅 .jz-verdict/.jz-detail 声明了跨列；造命卡片新增元素须同样跨全列，否则会被塞进单列 */
 /* 分项芯片：素笺淡底托出层名，不加框、不加粗 */
 /* 评分明细按精择吉日的口径直接铺开，复用 .jz-detail 绿框，四层各占一列。行距由 .jz-detail 的 grid gap 控制，层块自身 margin 归零 */
 /* 层标题独占一行（.zm-lt display:block）：层名独占一行、条目自下一行起排，条目归属不随内容宽度漂移；层级靠字色不靠字重 */
-/* 家长缘分按家长分组：组标题独占一行，组内每条一行（条目已去掉家长一/二前缀，靠分组边界表达归属，逐条再冠称谓只会满屏重复）。其余三层不带 .zm-grp/.blk，仍是层内一行内联排列 */
+/* 家长缘分按家长分组：组标题独占一行，组内每条一行（条目已去掉家长一、二前缀，靠分组边界表达归属，逐条再冠称谓只会满屏重复）。其余三层不带 .zm-grp/.blk，仍是层内一行内联排列 */
 
 /* 页头：卷首式（对齐首页 .hm-head 骨架：上下细线夹题、末尾竖线收束） */
 
@@ -4874,11 +4874,11 @@ to{opacity:1;transform:none}}
 
 /* 吉日候选（①黄道吉日与④精择吉日通用）：细线取本页朱批浅线；仅上吉档以上（zr-hd）顶线转朱批以示重要 */
 
-/* 吉凶说明/喜用神 info-box：去框改线，标题下接一条细线作分隔，宜/忌语义由标题字色承载 */
+/* 吉凶说明、喜用神 info-box：去框改线，标题下接一条细线作分隔，宜、忌语义由标题字色承载 */
 
 /* 用字说明折叠表（mh-ref）：形制与题名由通用段给出，本页只补线色与表头素笺底 */
 
-/* AI 面板：去框改线，上下各接一条细线；按钮只两档——朱批实底主按钮（.btn），
+/* AI 面板：去框改线，上下各接一条细线；按钮只两档，朱批实底主按钮（.btn），
    素笺纸底次按钮（.btn.gold 与 .btn.soft 同款），与样板页同口径 */
 
 /* 提示条（.notice）：去框改线，上下各接一条细线，底色去除 */
@@ -4957,7 +4957,7 @@ to{opacity:1;transform:none}}
 .sx-jg .jg-grid{fill:none;stroke:#b6a3c8;stroke-width:1.5;stroke-dasharray:7 5}
 .sx-jg .jg-gong{font-size:24px;fill:var(--sx-deep);text-anchor:middle}
 .sx-jg .jg-ming-t{font-size:20px;fill:var(--sx2);text-anchor:middle}
-/* 八丘示意图与九宫图共用手形、指环与虚线类，丘名标注另设两级：丘名主标与第一/第二序号 */
+/* 八丘示意图与九宫图共用手形、指环与虚线类，丘名标注另设两级：丘名主标与第一、第二序号 */
 .sx-jg .jg-hill-t{font-size:14px;fill:var(--sx-deep);text-anchor:middle}
 .sx-jg .jg-hill-n{font-size:12px;fill:var(--sx-ink2);text-anchor:middle}
 /* 三大主线图实线与辅助线图虚线：同用手形底图，主线取紫棠实笔细于轮廓，辅助线取次级字色虚线，参照线取本页浅线 */

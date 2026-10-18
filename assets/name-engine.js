@@ -1,6 +1,6 @@
 /* ============================================================
  * 姓名学引擎（assets/name-engine.js）
- * 纯算法：五格剖象 / 三才 / 三运 / 喜用匹配 / 综合评分。
+ * 纯算法：五格剖象、三才、三运、喜用匹配、综合评分。
  * 依赖：kangxi.js（getKangxiStroke / KANGXI_NAME / KANGXI_EXT）、jianfan.js、name-data.js。
  * 全部为纯函数，页面层负责输入校验与渲染。
  * ============================================================ */
@@ -35,7 +35,7 @@ window.NAME_ENGINE = (function(){
   /* ---- 字档取数：统一字档为唯一真源（康熙笔画、简体笔画、部首号、读音） ----
    * 多音字取首个为常读音；姓氏位另走姓氏异读表，不按常读。
    * 语义层（字义五行、一句话本义、寓意标签）在语义片就位时一并带出；
-   * 语义片未加载时对应字段为 null，不回落旧表——旧表取值属 T13 接线前行为。 */
+   * 语义片未加载时对应字段为 null，不回落旧表，旧表取值属 T13 接线前行为。 */
   function getChar(c){
     var A = window.NAME_ARCHIVE_CORE ? window.NAME_ARCHIVE_CORE.chars : null;
     var v = A ? (A[c] || null) : null;
@@ -63,9 +63,9 @@ window.NAME_ENGINE = (function(){
     ren = xst[xst.length-1] + mst[0];
     if(mst.length===1){ di = mst[0]+1; } else { di = mst.reduce(function(a,b){return a+b;},0); }
     zong = xst.reduce(function(a,b){return a+b;},0) + mst.reduce(function(a,b){return a+b;},0);
-    /* 外格（通行定义，按姓/名字数分情形，可延用至名 3~4 字；
+    /* 外格（通行定义，按姓、名字数分情形，可延用至名 3~4 字；
        通用式：外格＝姓首成分（复姓取首字笔画，单姓取虚一 1）+名末成分（多字名取末字笔画，单名取虚一 1），
-       与 总-人+1 简式仅在单姓双名/复姓单名时等值，复姓双名与长名须按本式） */
+       与 总-人+1 简式仅在单姓双名、复姓单名时等值，复姓双名与长名须按本式） */
     if(xst.length===1 && mst.length===1){ wai = 2; }                    /* 单姓单名：虚一+虚一＝2 */
     else if(xst.length===1){ wai = mst[mst.length-1]+1; }               /* 单姓多字名：名末+虚一 */
     else if(mst.length===1){ wai = xst[0]+1; }                          /* 复姓单名：姓首+虚一 */
@@ -106,7 +106,7 @@ function yiWxOf(ch){
 }
 
 /* ---- 综合分析入口 ----
- * xing/ming：汉字字符串；linkXi/linkJi：可选，八字喜用/忌神五行数组（['木','水']）。
+ * xing/ming：汉字字符串；linkXi/linkJi：可选，八字喜用、忌神五行数组（['木','水']）。
  * 返回结构化结果；failed 数组非空表示含未收录字。 */
 function analyze(xing, ming, linkXi, linkJi){
   var xchars=[...xing], mchars=[...ming];
@@ -197,9 +197,9 @@ function analyze(xing, ming, linkXi, linkJi){
  *   音律＝名段平仄起伏与同音洁净（按 NAME_PHON 读音现算）；
  *   字义寓意＝名字段褒义寓意档案覆盖（按 NAME_YUYI/NAME_ETYM 现查）；
  *   组合意境＝姓与名相邻字对义类联动逐对分析（义类取 NAME_CHARS 档案）；
- *   字形＝结构变化/开合/疏密/轻重/繁简折算；数理配置＝五格三才三运打包折算。 */
+ *   字形＝结构变化、开合、疏密、轻重、繁简折算；数理配置＝五格三才三运打包折算。 */
 /* 缺陷封顶：分项存在负向缺陷时不得给满分（每条缺陷压 capPer 分，保底 floor）。
- * 原则：有描述为'欠起伏/拗口/易混/平平/俗白/缺档案'等缺陷的分项，分数必须低于满分。 */
+ * 原则：有描述为'欠起伏、拗口、易混、平平、俗白、缺档案'等缺陷的分项，分数必须低于满分。 */
 function capFlaws(full, flaws, capPer, floor){
   var n=flaws.length;
   if(!n) return full;
@@ -244,12 +244,12 @@ function score(r){
     var redup=(nameChars.length===2 && nameChars[0]===nameChars[1]);
     if(redup){ notes.push('叠音亲昵，读来顺口'); v+=3; }
     else if(dup){ notes.push('名内有同音字，口语易混'); v-=4; }
-    /* 双声/叠韵/声母三连（与推荐引擎 soundScore 同规） */
+    /* 双声、叠韵、声母三连（与推荐引擎 soundScore 同规） */
     var NM_INI=['zh','ch','sh','b','p','m','f','d','t','n','l','g','k','h','j','q','x','r','z','c','s','y','w'];
     function iniOf(p0){ for(var i=0;i<NM_INI.length;i++){ if(p0.indexOf(NM_INI[i])===0) return NM_INI[i]; } return ''; }
     var inis=nameChars.map(function(ch){ return P[ch]?iniOf(plain(ch)):''; });
     var finals=nameChars.map(function(ch){ if(!P[ch]) return ''; var p1=plain(ch); var ii=iniOf(p1); return ii?p1.slice(ii.length):p1; });
-    var SONORANT=/^(l|m|n|r)$/; /* 流音鼻音类：双声为柔连之美（玲珑/绵绵），非声病 */
+    var SONORANT=/^(l|m|n|r)$/; /* 流音鼻音类：双声为柔连之美（玲珑、绵绵），非声病 */
     var ini3=(inis.length>=3 && inis.every(function(x){return x===inis[0] && x;}));
     var ini2=(inis.length===2 && inis[0]===inis[1] && inis[0]);
     if(ini3 && SONORANT.test(inis[0])){ notes.push('声母连贯柔和（流音双声），读来清亮'); v+=2; }
@@ -259,15 +259,15 @@ function score(r){
     if(fin2 && !redup){ notes.push('名内两字韵母相同（叠韵），稍拗口'); v-=2; }
     if(!notes.length) notes.push('声调错落，无同音之弊');
     yinlvNote=notes.join('；');
-    /* 缺陷封顶：欠起伏/同音/拗口/叠韵任一存在即不得满分 */
+    /* 缺陷封顶：欠起伏、同音、拗口、叠韵任一存在即不得满分 */
     var FLAW=/欠起伏|同音|拗口|叠韵|雷同/;
     var flaws=notes.filter(function(x){ return FLAW.test(x); });
     yinlv=Math.max(4, Math.min(capFlaws(20, flaws, 3, 10), v*2));
   })();
 
-  /* 俗白叠字判定（可泛化口径）：叠字用字属通用组扣档字（适用度<0，多为具象/方位/口语字根）
-   * 时作大名显乳名感，雅致降档；雅义类字（才学/天象/吉祥/水泽…，适用度≥0）叠字不扣。
-   * 吉庆白名单（多多/乐乐/满满/安安等吉利语叠字）豁免。 */
+  /* 俗白叠字判定（可泛化口径）：叠字用字属通用组扣档字（适用度<0，多为具象、方位、口语字根）
+   * 时作大名显乳名感，雅致降档；雅义类字（才学、天象、吉祥、水泽…，适用度≥0）叠字不扣。
+   * 吉庆白名单（多多、乐乐、满满、安安等吉利语叠字）豁免。 */
   var NM_REDUP_OK = '多乐满安圆年余喜';
   var ziyi=0, ziNote='';
   if(!nameChars.length){ ziyi=18; ziNote='无名字段'; }
@@ -316,7 +316,7 @@ function score(r){
   }
   /* 按对数归一：多字名不因字对多而累计冲顶 */
   var avg = pairs.length ? yj/pairs.length : 0;
-  /* 缺陷封顶：含'观感平平/泛用'缺陷对时，意境不得进 13/15 高档 */
+  /* 缺陷封顶：含'观感平平、泛用'缺陷对时，意境不得进 13/15 高档 */
   var YJ_FLAW=/观感平平|泛用/;
   var yjFlaws=pairs.filter(function(x){ return YJ_FLAW.test(x); });
   var yjFen = pairs.length===0 ? 8
@@ -326,7 +326,7 @@ function score(r){
   var yjNote = pairs.length===0 ? '用字缺义类档案，无组合分析，按中位计'
     : pairs.join('；');
 
-  /* 字形：结构变化/轻重/繁简折算（真实计算） */
+  /* 字形：结构变化、轻重、繁简折算（真实计算） */
   var xing2, xingNote='';
   (function(){
     if(!nameChars.length){ xing2=3; xingNote='无名字段'; return; }
@@ -399,8 +399,8 @@ function score(r){
 function luckTxtWx(l){ return l==='ji'?'吉':(l==='xj'?'半吉':'凶'); }
 
   /* ---- 长姓名（少数民族音译名等无汉姓结构）分析 ----
-   * 专业口径：长译名为本名加父名等非汉姓结构，五格剖象的姓/名边界不存在，
-   * 天格/人格/地格/外格公式前提不成立，故不排五格、不排三才三运，亦不评分。
+   * 专业口径：长译名为本名加父名等非汉姓结构，五格剖象的姓、名边界不存在，
+   * 天格、人格、地格、外格公式前提不成立，故不排五格、不排三才三运，亦不评分。
    * 仅给站得住的内容：逐字康熙笔画（简转繁透明映射）+ 全名总笔画 → 总格 81 数理 + 各字义五行（数理对照）。
    * full: 汉字串（分隔符已由页面剔除）；linkXi/linkJi：八字联动五行（可选）。 */
   function analyzeLong(full, linkXi, linkJi){
@@ -415,11 +415,11 @@ function luckTxtWx(l){ return l==='ji'?'吉':(l==='xj'?'半吉':'凶'); }
     var m=n81(total), info=window.NAME_DATA.NAME81[m-1];
     var zongGe={raw:total, num:m, luck:info.luck, key:info.key, tag:info.tag,
                 wx:window.NAME_DATA.WX_OF_NUM[m%10]};
-    /* 各字双轨五行：义五行为主（'—'为无共识），数理五行对照 */
+    /* 各字双轨五行：义五行为主（'：'为无共识），数理五行对照 */
     var yiWx=plans.map(function(p){ return yiWxOf(p.ch) || '—'; });
     var charWx=yiWx;
     var shuWx=plans.map(function(p){ return window.NAME_DATA.WX_OF_NUM[p.strokes%10]; });
-    /* 八字联动：按义五行统计补忌（'—'中性不计），不下五格结论 */
+    /* 八字联动：按义五行统计补忌（'：'中性不计），不下五格结论 */
     var match=null;
     var xi=linkXi||[], ji=linkJi||[];
     if(xi.length||ji.length){

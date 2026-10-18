@@ -102,8 +102,8 @@ function xzTzTouch(){ window.__xzTzTouched=true; }
 /* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
    缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
 const XZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。星盘的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
-/* 手动经纬度宽容解析：接受十进制、度分（°′）、度分秒、W/E/S/N 与中文“西经/东经/南纬/北纬”
-   前缀等多种写法。返回 {v, ok, bad}：ok 时 v 为十进制度（负=西经/南纬）；
+/* 手动经纬度宽容解析：接受十进制、度分（°′）、度分秒、W/E/S/N 与中文“西经、东经、南纬、北纬”
+   前缀等多种写法。返回 {v, ok, bad}：ok 时 v 为十进制度（负=西经、南纬）；
    有内容但无法解析时 ok=false、bad=原文（供警示），空串返回 {ok:null}。
    度分混合写法（如 -74°30′ 折算 -74.5）按“最后一段是分、再有第三段是秒”的顺序折算。 */
 function xzCoordParse(s, isLat){
@@ -111,7 +111,7 @@ function xzCoordParse(s, isLat){
   /* 归一化：全角句点与 Unicode 减号（−）转 ASCII，兼容粘贴文本 */
   const str = s.trim().replace(/．/g, '.').replace(/[−–—]/g, '-');
   const nums = (str.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
-  /* 半球前缀：西经（W）与南纬（S）强制负，东经（E）与北纬（N）强制正，按经/纬取对应字母 */
+  /* 半球前缀：西经（W）与南纬（S）强制负，东经（E）与北纬（N）强制正，按经、纬取对应字母 */
   const hemiW = isLat ? (/S/i.test(str) || str.includes('南')) : (/W/i.test(str) || str.includes('西'));
   const hemiE = isLat ? (/N/i.test(str) || str.includes('北')) : (/E/i.test(str) || str.includes('东'));
   if(!nums.length){ return {ok: false, bad: s}; }
@@ -120,11 +120,11 @@ function xzCoordParse(s, isLat){
   if(nums.length === 1){
     v = nums[0] < 0 ? -abs[0] : abs[0];
   } else {
-    /* 度分/度分秒折算：符号取第一段的符号；-74°30′ → -(74+30/60) */
+    /* 度分、度分秒折算：符号取第一段的符号；-74°30′ → -(74+30/60) */
     v = abs[0] + (abs[1] || 0) / 60 + (abs[2] || 0) / 3600;
     if(nums[0] < 0) v = -v;
   }
-  /* 半球前缀强制覆盖符号（带 W/S 时正数也按西/南处理；带 E/N 时负号视为笔误纠正为正） */
+  /* 半球前缀强制覆盖符号（带 W/S 时正数也按西、南处理；带 E/N 时负号视为笔误纠正为正） */
   if(hemiW) v = -Math.abs(v);
   else if(hemiE) v = Math.abs(v);
   const lim = isLat ? 90 : 180;
@@ -132,9 +132,9 @@ function xzCoordParse(s, isLat){
   return {ok: true, v: Math.round(v * 10000) / 10000};
 }
 /* 境外手填经纬度的健壮性提示与核对回显：
-   半填（另一项回退出生地成混合坐标）、无效输入（非数字或超出经度±180/纬度±90，已忽略并回退）、
+   半填（另一项回退出生地成混合坐标）、无效输入（非数字或超出经度±180、纬度±90，已忽略并回退）、
    疑似境外经度（中国范围约东经73°–135°之外）而时区仍为默认 UTC+8 时提醒核对；
-   手动经纬完整生效时回显半球标注（东经/西经、北纬/南纬），供用户核对正负号是否填反 */
+   手动经纬完整生效时回显半球标注（东经、西经、北纬、南纬），供用户核对正负号是否填反 */
 function xzCoordWarn(lonV, latV, lon, lat, tz, place, bads){
   const parts = [];
   const bads2 = (bads || []).filter(x => x != null);
@@ -172,7 +172,7 @@ function renderWheel(chart){
   s += `<circle class="ring" cx="${cx}" cy="${cy}" r="${R}"/>`;
   s += `<circle class="ring2" cx="${cx}" cy="${cy}" r="${R*0.82}"/>`;
   s += `<circle class="ring2" cx="${cx}" cy="${cy}" r="${R*0.46}"/>`;
-  /* 宫线 + 宫号/宫头星座/星体（按第 h 宫两宫线夹角的屏幕中点定位，宫宽不恒 30°）
+  /* 宫线 + 宫号、宫头星座、星体（按第 h 宫两宫线夹角的屏幕中点定位，宫宽不恒 30°）
      🔴 全盘文字一律正立不加 transform：西洋盘是盘转字不转，ASC 恒锚 9 点，整条黄道随出生
      时刻地点转，第几宫落在哪个屏幕方位是随盘变的，不比二十八宿、十二时辰各有固有方位语义，
      故不适用全站最外圈环布 WHEEL.ring 那条口径；且象限宫位制下宫宽自几度至三百余度不等，
@@ -462,7 +462,7 @@ function xzPai(){
   const xzTzTouched = !!window.__xzTzTouched;
   const tz = parseFloat(tzEl0.value) || 8;
   /* 经纬度：手动输入优先（境外出生），留空按出生地省市区联动取数（区县级经度、缺则省级中心）。
-     宽容解析（十进制/度分/度分秒/W E S N/中文半球前缀），无效值忽略回退出生地并警示 */
+     宽容解析（十进制、度分、度分秒/W E S N/中文半球前缀），无效值忽略回退出生地并警示 */
   const lonV = document.getElementById('xzLon').value, latV = document.getElementById('xzLat').value;
   const prov = document.getElementById('xzProv').value;
   const lonP = xzCoordParse(lonV, false), latP = xzCoordParse(latV, true);
@@ -494,7 +494,7 @@ function xzPai(){
   try{
     chart = xz_compute(y, m, d, hh, mm, sex, tzUse, lon, lat, system);
   }catch(e){
-    document.getElementById('out').innerHTML = '<p class="notice">排盘失败：' + e.message + '</p>';
+    console.error('[排盘]', e); document.getElementById('out').innerHTML = '<p class="notice">排盘失败，请核对输入后重试。</p>';
     return;
   }
   window.__xzChart = chart; /* 行运区局部刷新（改日期不重排本命盘）共用当前本命盘 */
@@ -532,7 +532,7 @@ function xzPai(){
     try{
       chartB = xz_compute(by, bm, bd, bhh, bmm, document.getElementById('xzBSex').value, bTz, blon, blat, system);
     }catch(e){
-      document.getElementById('out').innerHTML = '<p class="notice">第二人排盘失败：' + e.message + '</p>';
+      console.error('[第二盘]', e); document.getElementById('out').innerHTML = '<p class="notice">第二人排盘失败，请核对输入后重试。</p>';
       return;
     }
   }
@@ -626,7 +626,7 @@ function xzPai(){
   }
   /* ---- 核心解读 ---- */
   const synth = buildSynthesis(chart);
-  /* ---- Vedic：九曜落座 / 月宿详情 / 大运 / 副运 / Dosha 与 Yoga ---- */
+  /* ---- Vedic：九曜落座、月宿详情、大运、副运 / Dosha 与 Yoga ---- */
   const vim = chart.vim;
   const vg = xz_vedicYoga(chart);
   const age = xzAgeNow(chart.dt);
@@ -1315,7 +1315,7 @@ function xzTrTimeTitle(chart){
   const cd = xzAddDays(t0.getFullYear(), t0.getMonth() + 1, t0.getDate(), 365);
   return `${xzYmdStr(t0.getFullYear(), t0.getMonth() + 1, t0.getDate())} 至 ${xzYmdStr(cd.y, cd.m, cd.d)}`;
 }
-/* =================== 推运（次限 / 太阳弧 / 太阳回归）渲染 =================== */
+/* =================== 推运（次限、太阳弧、太阳回归）渲染 =================== */
 /* 推运日期输入：默认今天，点"查看推运"仅重算推运区三块，不动本命盘其他区块 */
 window.xzPrGo = function(){
   const v = (document.getElementById('xzPrDate') || {}).value || '';
@@ -1629,7 +1629,7 @@ function xzFtGo(){
   if(chart) document.getElementById('xzFtDay').innerHTML = xzFortuneDayHtml(chart, p[0], p[1], p[2]);
 }
 /* 合盘综合建议（结构化，行式结论表与八字合婚页同款）：
-   亮点/短板按得分率分档直出各维判语（≥70% 归亮点、<45% 归短板），相处之道按命中的短板维度给定向对策，
+   亮点、短板按得分率分档直出各维判语（≥70% 归亮点、<45% 归短板），相处之道按命中的短板维度给定向对策，
    对策表单源维护、不做无证据的泛泛建议；无命中时给中性兜底。 */
 function xzRelAdviceHtml(m){
   const its = m.core.items.concat(m.spec.items);

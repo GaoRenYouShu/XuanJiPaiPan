@@ -831,7 +831,7 @@ function hlSaveModState(){
     }catch(e){}
     var v=JSON.stringify(o);
     try{ localStorage.setItem(HL_MOD_KEY,v); }catch(e){}   /* 普通模式持久化 */
-    try{ sessionStorage.setItem(HL_MOD_KEY,v); }catch(e){} /* 隐私/无痕模式兜底：同一会话刷新保留 */
+    try{ sessionStorage.setItem(HL_MOD_KEY,v); }catch(e){} /* 隐私、无痕模式兜底：同一会话刷新保留 */
   }catch(e){}
 }
 function hlApplyModState(){
@@ -848,7 +848,7 @@ function hlApplyModState(){
     }
   }catch(e){}
 }
-/* 页内 details 折叠块展开/收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
+/* 页内 details 折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
 try{ document.addEventListener('toggle',function(e){ if(e.target&&e.target.tagName==='DETAILS'&&e.target.id) hlSaveModState(); },true); }catch(e){}
 
 function hlInit(){

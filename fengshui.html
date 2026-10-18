@@ -1565,7 +1565,7 @@ function drawLayout(){
     }
     return `<tr><td class="lbl-1">${name}</td><td>${dirTxt(d)}</td><td class="${gx==='吉'?'fs-badge-g':'fs-badge-r'}">${PICK[name]}（${gx}）</td><td>${dcTxt}</td><td>${flowSha}</td><td>${tipTxt}</td></tr>`;
   }).join('');
-  /* 当年流年提示：体常运变——宅体按命卦格局一次定好，逐年旺衰神煞仅主当年避忌 */
+  /* 当年流年提示：体常运变，宅体按命卦格局一次定好，逐年旺衰神煞仅主当年避忌 */
   const ns=FS.nianSha(flowY);
   /* 当运旺星（当令星）落宫：山盘管丁、向盘管财 */
   let wangDing='未排盘', wangCai='未排盘';
@@ -2292,7 +2292,7 @@ function collectVerdicts(){
   const b=getBase(), vs=[];
   const xk=FS.xuanKong(b.sitShan, b.faceShan, b.flowYear, b.deg, b.faceDeg, b.yunOv);
   const mg=mingGua(b.mingYear, b.male);
-  /* 立向域：玄空格局 / 三合大利向 / 形法峦头 */
+  /* 立向域：玄空格局、三合大利向、形法峦头 */
   if(xk){
     const gj=xk.geju;
     const bad=gj.indexOf('上山下水')>=0||gj.indexOf('不济')>=0;
@@ -2305,7 +2305,7 @@ function collectVerdicts(){
   }
   const lt=FS.luantou(collectLt());
   if(lt) vs.push({yu:'lixiang', fa:'形法', jx:lt.got>=76?'吉':(lt.got<60?'凶':'平'), mean:'外部峦头强度评'+lt.got+'（'+lt.grade+'）'});
-  /* 门域：八宅门星 / 玄空门宫向星旺衰 */
+  /* 门域：八宅门星、玄空门宫向星旺衰 */
   const doorGua=b.doorGua||'';
   if(doorGua&&mg){
     const star=FS.youXing(mg.gua, doorGua);
@@ -2318,7 +2318,7 @@ function collectVerdicts(){
         mean:'门宫向星'+fw+'（'+((fw==='旺'||fw==='生')?'纳得旺气':(fw==='退'?'退气平平':'纳的是死煞之气'))+'）'});
     }
   }
-  /* 灶域：八宅灶座压凶 / 玄空灶宫星气 */
+  /* 灶域：八宅灶座压凶、玄空灶宫星气 */
   const stoveGua=(document.getElementById('yzStove')||{}).value||'';
   if(stoveGua&&mg){
     const star=FS.youXing(mg.gua, stoveGua);
@@ -2334,7 +2334,7 @@ function collectVerdicts(){
         mean:'灶宫山'+sc+'向'+fc+(sha&&!live?'（失令凶星，灶火压之为吉）':(live?'（旺气之方，灶压之伤吉）':'（平气之方）'))});
     }
   }
-  /* 方位催动域：玄空旺方 / 八宅生气方 / 金锁合局 */
+  /* 方位催动域：玄空旺方、八宅生气方、金锁合局 */
   if(xk){
     const caiPal=xk.faceBoard.filter(x=>x.star===xk.yun.yun).map(x=>x.palace);
     vs.push({yu:'fangwei', fa:'玄空', jx:caiPal.length?'吉':'平',

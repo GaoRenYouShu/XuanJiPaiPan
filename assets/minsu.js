@@ -685,7 +685,7 @@
     try {
       var raw = null;
       try { raw = localStorage.getItem(MS_MOD_KEY); } catch (e) {}
-      if (!raw) { try { raw = sessionStorage.getItem(MS_MOD_KEY); } catch (e) {} }  /* localStorage 不可用（隐私模式/被清）时回退 sessionStorage */
+      if (!raw) { try { raw = sessionStorage.getItem(MS_MOD_KEY); } catch (e) {} }  /* localStorage 不可用（隐私模式、被清）时回退 sessionStorage */
       var o = raw ? JSON.parse(raw) : null;
       return (o && typeof o === 'object') ? o : {};
     } catch (e) { return {}; }
@@ -705,7 +705,7 @@
       } catch (e) {}
       var v = JSON.stringify(o);
       try { localStorage.setItem(MS_MOD_KEY, v); } catch (e) {}   /* 普通模式持久化 */
-      try { sessionStorage.setItem(MS_MOD_KEY, v); } catch (e) {} /* 隐私/无痕模式兜底：同一会话 F5 刷新时 sessionStorage 一定保留 */
+      try { sessionStorage.setItem(MS_MOD_KEY, v); } catch (e) {} /* 隐私、无痕模式兜底：同一会话 F5 刷新时 sessionStorage 一定保留 */
     } catch (e) {}
   }
   function applyModState() {
@@ -722,7 +722,7 @@
       }
     } catch (e) {}
   }
-  /* 页内参考折叠块展开/收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
+  /* 页内参考折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
   try { document.addEventListener('toggle', function (e) { if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveModState(); }, true); } catch (e) {}
 
   /* ===== 10. 初始化 ===== */

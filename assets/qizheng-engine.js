@@ -22,7 +22,7 @@ function qz_toJd(y, m, d, hh, mi, tz){
   return (dt.getTime() - tz * 3600000) / 86400000 + 2440587.5;
 }
 
-/* ===== 真太阳时：NOAA 均时差（分钟）+ 经度差 4 分/度 =====
+/* ===== 真太阳时：NOAA 均时差（分钟）+ 经度差 4 分、度 =====
    经度差相对所取时区的中央经线（tz×15°，东八区即 120°E），境外时区同样适用 */
 function qz_trueSolar(y, m, d, hh, mi, lon, tz){
   const utc0 = Date.UTC(y, 0, 1);
@@ -99,7 +99,7 @@ function qz_gongDeg(lon, qiHeng, jd){
   return qz_norm360(x) % 30;
 }
 
-/* ===== 上升点 / 中天（Meeus 解析公式，同星占页已验证实现） ===== */
+/* ===== 上升点、中天（Meeus 解析公式，同星占页已验证实现） ===== */
 function qz_ascCalc(jd, lon, lat){
   const T = (jd - 2451545.0) / 36525;
   const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000;
@@ -295,7 +295,7 @@ function qz_xianStages(mingIdx, pl){
   }
   return arr;
 }
-/* 度级行限年表：限沿黄经减少方向行进（限序逆行十二宫），每年行 30/年限 度 */
+/* 度级行限年表：限沿黄经减少方向行进（限序逆行十二宫），每年行 30、年限 度 */
 const QZ_XIAN_GOOD = {jupiter:'吉', venus:'吉', mercury:'吉', qi:'吉', sun:'吉', moon:'吉',
                       mars:'厉', saturn:'缓', rahu:'凶', ketu:'凶', apogee:'凶'};
 function qz_xianRows(stages, lumLon, birthYear, curAge){

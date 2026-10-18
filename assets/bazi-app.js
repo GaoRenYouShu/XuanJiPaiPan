@@ -438,7 +438,7 @@ if (typeof window !== 'undefined') {
 
 
 /* ===================== 页面交互与装配 ===================== */
-/* 入口 paipan / paipanPillar / 模块折叠状态 / 事件 / 初始化，最后加载。 */
+/* 入口 paipan / paipanPillar / 模块折叠状态、事件、初始化，最后加载。 */
 /* 页面交互初始化仅八字页执行（以 bMode 表单为标志）：他页（如姓名学页）只复用
    buildBaziState/getAnalysis/getBazi 排盘 API 直算喜用，不挂载本页 UI 与导航 */
 var BAZI_PAGE_UI = !!document.getElementById('bMode');
@@ -517,7 +517,7 @@ function paipan(){
   if(document.getElementById('bMode').value==='hourless'){ if(typeof paipanHourless==='function'){ paipanHourless(); return; } }
   if(document.getElementById('bMode').value==='pillar'){ paipanPillar(); return; }
   clearFormErr();
-  /* 输入源：公历直接取 bDate；农历按 年/月（闰月勾选取闰）/日 转公历后统一走公历排盘链 */
+  /* 输入源：公历直接取 bDate；农历按 年、月（闰月勾选取闰）/日 转公历后统一走公历排盘链 */
   const mode=document.getElementById('bMode').value;
   let dv;
   if(mode==='lunar'){
@@ -540,7 +540,7 @@ function paipan(){
     dv=document.getElementById('bDate').value;
   }
   if(!dv){ showFormErr('请选择出生日期'); return; }
-  /* 时辰显式校验：空白/越界一律报错，不再静默默认 12:00。 */
+  /* 时辰显式校验：空白、越界一律报错，不再静默默认 12:00。 */
   const tvRaw=document.getElementById('bTime').value;
   if(!tvRaw){ showFormErr('请选择出生时辰'); return; }
   const tvParts=String(tvRaw).split(':');
@@ -641,7 +641,7 @@ function paipan(){
       window.__dualCols2=(function(){
         try{ return built2.cols || null; }catch(e){ return null; }
       })();
-    }catch(e){ showFormErr('第二盘装配失败：'+((e&&e.message)||e)); return; }
+    }catch(e){ console.error('[第二盘]', e); showFormErr('第二盘装配失败，请核对输入后重试。'); return; }
   }
   /* 挂农历对象（表法定配偶方位用；本接口返回里恒有）。
      夜子时、夏令折算或太阳时校正跨日后 lunar 会指向次日，表法须按出生当天农历查 → 不同日时回退前一天；
@@ -666,7 +666,7 @@ function paipan(){
   foot.className='notice notice-bottom';
   foot.innerHTML='以上为依格局、五行、十神、神煞及大运流年流月流日的常规推演，各派结论可能不同，仅供文化研究与参考；健康与人生重大决定请务必咨询专业人士，切勿迷信。';
   document.getElementById('out').appendChild(foot);
-  if(!baziInitDone) restoreYunSel(); /* 初始化：恢复已保存的岁运选择（大运/流年/流月/流日），在 renderDyn 默认选择之后覆盖 */
+  if(!baziInitDone) restoreYunSel(); /* 初始化：恢复已保存的岁运选择（大运、流年、流月、流日），在 renderDyn 默认选择之后覆盖 */
   if(baziInitDone) savePillarSel(); /* 仅页面初始化完成后才持久化，避免初始渲染覆盖已保存状态 */
   applyModState(); /* 刷新重排后读回三大模块折叠状态，避免展开被复位 */
   /* 人生议题表格化：挂到渲染生命周期内（与三大板块同一层），每次真正重排后自动重建。
@@ -727,7 +727,7 @@ function toggleBaziMode(){
   document.body.classList.toggle('mode-pillar',isPillar);
   document.body.classList.toggle('mode-lunar',isLunar);
   document.body.classList.toggle('mode-date',!isPillar && !isSaved && !isLunar);
-  /* 出生地相关组（省/市/区、手动经度、真太阳时校正）：公历、农历与时辰未定三模式经换算校正，四柱/已存不显示 */
+  /* 出生地相关组（省、市、区、手动经度、真太阳时校正）：公历、农历与时辰未定三模式经换算校正，四柱、已存不显示 */
   const hasBirthSect = (mode==='date' || mode==='lunar' || isHourless) && !isSaved;
   /* 公历日期与出生时间两字段按模式切换显隐，走单一显隐原语 gs；姓名框在名人模式复用作人名检索 */
   gs('fDate', !isSaved && !isLunar && !isCeleb && !isPillar);
@@ -745,7 +745,7 @@ function toggleBaziMode(){
   /* 双盘对照第二盘块：勾选才显（照紫微、占星双人合盘范式）；块内日期形态随主盘历法（主盘农历则第二盘同显农历字段），
      非日期模式（四柱、名人、已存）整块随勾选一并隐藏（对照无源） */
   dualRelSync();
-  /* 出生地整组（省/市/区、手动经度、真太阳时校正）：仅公历/农历且非已存时显示，整组显隐即涵盖内层字段 */
+  /* 出生地整组（省、市、区、手动经度、真太阳时校正）：仅公历、农历且非已存时显示，整组显隐即涵盖内层字段 */
   gs('birthGroup', hasBirthSect);
   gs('optsRow', !isSaved); /* 已存模式下隐藏输入行排盘按钮，改用列表内"排盘" */
   gs('bZiField', !isSaved && !isPillar);
@@ -755,7 +755,7 @@ function toggleBaziMode(){
      夏令时是时间折算口径而非出生地取值，两者分列后各自的显隐条件也随之分开 */
   gs('bDstField', !isSaved && !isPillar);
   gs('bYearAxisField', !isSaved && !isPillar);
-  /* 空亡基准下拉：仅公历/农历模式可选日柱/年柱流派；四柱/已存固定用日柱六甲空亡（子平主流），隐藏切换，空亡仍按日柱轴标注 */
+  /* 空亡基准下拉：仅公历、农历模式可选日柱、年柱流派；四柱、已存固定用日柱六甲空亡（子平主流），隐藏切换，空亡仍按日柱轴标注 */
   gs('bKongField', !isSaved && !isPillar);
   /* 起运法与长生土行同列时间折算与流派行：起运法需出生时刻折算，四柱模式未确认出生时间故随之隐藏；
      长生土行只论日干与各地支，四柱模式照常可选，仅已存模式隐藏 */
@@ -766,12 +766,12 @@ function toggleBaziMode(){
   /* 持久化当前页面模式（独立于条目 mode，避免刷新后丢失"已存"选择） */
   try{ localStorage.setItem(PAGE_MODE_KEY, mode); }catch(e){}
   if(baziInitDone && !isSaved) savePillarSel(); /* 已存模式不持久化 PILLAR_KEY（列表独立存储）；其它模式切换持久化 mode */
-  /* 四柱/已存模式清空命局输出区，避免旧 date 模式输出残留 */
+  /* 四柱、已存模式清空命局输出区，避免旧 date 模式输出残留 */
   if(isPillar || isSaved || isCeleb || isHourless){
     const _out=document.getElementById('out');
     if(_out) _out.innerHTML='';
   }
-  /* 切回公历/农历且输出区为空：用当前输入自动重排，避免切换后空白需手动点"排盘"（仅在初始化完成后，防与初始自动排盘冲突）。
+  /* 切回公历、农历且输出区为空：用当前输入自动重排，避免切换后空白需手动点"排盘"（仅在初始化完成后，防与初始自动排盘冲突）。
      回调时现查输出区：名人直排等流程在切换后已随即渲染结果，此刻输出区非空即跳过，免得重排抹掉随后写入的提示 */
   if(!isPillar && !isSaved && !isCeleb && document.getElementById('out').innerHTML==='' && baziInitDone){
     if(window.paipan) setTimeout(()=>{ const _o=document.getElementById('out'); if(_o && _o.innerHTML===''){ try{ paipan(); }catch(e){} } }, 0);
@@ -882,7 +882,7 @@ function paipanPillar(){
   const sex=parseInt(document.getElementById('bSex').value);
   /* 空亡基准轴：四柱模式同样需从 bKong 读取（日期模式在 paipan 内读取；本函数不读会导致
      切换轴后空亡行不变，沿用上一次渲染的轴）。并同步时间折算与流派说明显隐。
-     四柱/已存模式固定用日柱六甲空亡（隐藏了基准切换框，强制 day 轴，防残留年柱选择贯穿）。 */
+     四柱、已存模式固定用日柱六甲空亡（隐藏了基准切换框，强制 day 轴，防残留年柱选择贯穿）。 */
   kongAxis=(document.getElementById('bMode').value==='pillar'||document.getElementById('bMode').value==='saved')?'day':document.getElementById('bKong').value;
   qiYunSect=(document.getElementById('bQiYun')||{}).value==='2'?2:1; /* 四柱模式同读起运法，两派交运日并列由此定 */
   changShengSect=(document.getElementById('bCsSect')||{}).value==='2'?2:1;
@@ -900,7 +900,7 @@ function paipanPillar(){
   const candYears=pillarCandYears(yg+yz, span);
   const dayGan=dg;
   /* 装配委托 buildBaziState（与第三方 getBazi 同源，单一真源）。
-     hasDate/isBC/候选日期/年柱旬空等站点特有逻辑仍在此处理，仅四柱 BZ/CTX/cols 委托。 */
+     hasDate/isBC/候选日期、年柱旬空等站点特有逻辑仍在此处理，仅四柱 BZ/CTX/cols 委托。 */
   const built = buildBaziState({ pillars:[yg+yz, mg+mz, dg+dz, tg+tz], sex, kongAxis });
   BZ = built.BZ;
   CTX = built.CTX;
@@ -1021,7 +1021,7 @@ function savePillarSel(){
   /* 出生日期模式输入项一并持久化 */
   try{ const d=document.getElementById('bDate'); if(d) o.bDate=d.value; }catch(e){}
   try{ const t=document.getElementById('bTime'); if(t) o.bTime=t.value; }catch(e){}
-  /* 农历模式输入项一并持久化（年/月/闰月/日） */
+  /* 农历模式输入项一并持久化（年、月、闰月、日） */
   try{ const y=document.getElementById('bLunarY'); if(y) o.bLunarY=y.value; }catch(e){}
   try{ const m=document.getElementById('bLunarM'); if(m) o.bLunarM=m.value; }catch(e){}
   try{ const d=document.getElementById('bLunarD'); if(d) o.bLunarD=d.value; }catch(e){}
@@ -1038,7 +1038,7 @@ function savePillarSel(){
   try{ const pv=document.getElementById('bProv'); if(pv) o.bProv=pv.value; }catch(e){}
   try{ const ct=document.getElementById('bCity'); if(ct) o.bCity=ct.value; }catch(e){}
   try{ const dt=document.getElementById('bDist'); if(dt) o.bDist=dt.value; }catch(e){}
-  /* 岁运选择一并持久化：大运/流年/流月干支 + 流日公历日期，刷新后 restoreYunSel 恢复点选 */
+  /* 岁运选择一并持久化：大运、流年、流月干支 + 流日公历日期，刷新后 restoreYunSel 恢复点选 */
   try{ const bz=window.BZ; if(bz){
     if(bz.dyGZ) o.dyGZ=bz.dyGZ;
     if(bz.lnGZ) o.lnGZ=bz.lnGZ;
@@ -1065,7 +1065,7 @@ function loadPillarSel(){
 /* ============ 已存八字（独立列表，最多 9 条，按保存先后顺序排列） ============ */
 /*
  * 持久化方案：localStorage + sessionStorage 双保险
- *   - localStorage：主存储，页面刷新/重开标签页仍保留（同浏览器）
+ *   - localStorage：主存储，页面刷新、重开标签页仍保留（同浏览器）
  *   - sessionStorage：会话级备份，防止 localStorage 写入失败（如配额、隐私模式部分浏览器实现）
  * 读取优先级：localStorage > sessionStorage > 空数组
  * 写入策略：同时写入两者，确保至少一处有数据
@@ -1193,12 +1193,12 @@ function loadSavedEntry(i){
   }
   paipan(); /* 直接排出该八字（四柱模式含空亡基准等沿用当前选项） */
 }
-/* 刷新后恢复岁运选择（大运/流年/流月/流日）：初始化完成前由 paipan/paipanPillar 调用一次，
+/* 刷新后恢复岁运选择（大运、流年、流月、流日）：初始化完成前由 paipan/paipanPillar 调用一次，
    在 renderDyn 默认选择之后，按保存值重新点选对应按钮（找不到则保持默认，安全降级） */
 function restoreYunSel(){
   const saved=loadPillarSel(); if(!saved || !window.BZ) return;
   const byText=(sel,txt)=>{ let b=null; try{ document.querySelectorAll(sel).forEach(x=>{ const t=(x.textContent||'').replace(/\s+/g,''); if(txt && t.indexOf(txt)>=0) b=x; }); }catch(e){} return b; };
-  // 程序化点选用 dispatchEvent 而非 click()：click() 会让按钮获得焦点，浏览器自动滚动到该元素（运势分析模块），刷新/排盘后页面被"跳走"；dispatchEvent 触发 onclick 但不改变焦点、不滚动
+  // 程序化点选用 dispatchEvent 而非 click()：click() 会让按钮获得焦点，浏览器自动滚动到该元素（运势分析模块），刷新、排盘后页面被"跳走"；dispatchEvent 触发 onclick 但不改变焦点、不滚动
   const fire=b=>{ try{ b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true})); }catch(e){} };
   try{
     if(saved.dyGZ){ const d=byText('#dys .dyn-btn', saved.dyGZ); if(d) fire(d); }
@@ -1227,7 +1227,7 @@ function restoreYunSel(){
     fill('pdG',GAN,dGZ[0]); fill('pdZ',ZHI_ORDER,dGZ[1]);
     fill('ptG',GAN,wuZhuDun(dGZ[0])); fill('ptZ',ZHI_ORDER,'子'); /* 五鼠遁：子时 */
   }catch(e){}
-  /* 恢复输入方式 / 性别 / 已确认出生日期（浏览器刷新对 <select> 的还原不可靠，这里显式兜底） */
+  /* 恢复输入方式、性别、已确认出生日期（浏览器刷新对 <select> 的还原不可靠，这里显式兜底） */
   if(saved){
     /* 恢复输入方式：优先读 PAGE_MODE_KEY（用户主动选择的页面模式），降级到 PILLAR_KEY.mode */
     {
@@ -1247,7 +1247,7 @@ function restoreYunSel(){
     /* 恢复出生日期模式输入项 */
     try{ const d=document.getElementById('bDate'); if(d && saved.bDate) d.value=saved.bDate; }catch(e){}
     try{ const t=document.getElementById('bTime'); if(t && saved.bTime) t.value=saved.bTime; }catch(e){}
-    /* 恢复农历模式输入项（年/月/日/闰月） */
+    /* 恢复农历模式输入项（年、月、日、闰月） */
     try{ const y=document.getElementById('bLunarY'); if(y && saved.bLunarY) y.value=saved.bLunarY; }catch(e){}
     try{ const m=document.getElementById('bLunarM'); if(m && saved.bLunarM) m.value=saved.bLunarM; }catch(e){}
     try{ const d=document.getElementById('bLunarD'); if(d && saved.bLunarD) d.value=saved.bLunarD; }catch(e){}
@@ -1300,7 +1300,7 @@ function readModState(){
   try{
     let raw=null;
     try{ raw=localStorage.getItem(BAZI_MOD_KEY); }catch(e){}
-    if(!raw){ try{ raw=sessionStorage.getItem(BAZI_MOD_KEY); }catch(e){} }  /* localStorage 不可用（隐私模式/被清）时回退 sessionStorage */
+    if(!raw){ try{ raw=sessionStorage.getItem(BAZI_MOD_KEY); }catch(e){} }  /* localStorage 不可用（隐私模式、被清）时回退 sessionStorage */
     const o=raw?JSON.parse(raw):null;
     return (o&&typeof o==='object')?o:{};
   }catch(e){ return {}; }
@@ -1321,7 +1321,7 @@ function saveModState(){
     }catch(e){}
     const v=JSON.stringify(o);
     try{ localStorage.setItem(BAZI_MOD_KEY, v); }catch(e){}   /* 普通模式持久化 */
-    try{ sessionStorage.setItem(BAZI_MOD_KEY, v); }catch(e){} /* 隐私/无痕模式兜底：同一会话 F5 刷新时 sessionStorage 一定保留（localStorage 在部分隐私实现中刷新即失） */
+    try{ sessionStorage.setItem(BAZI_MOD_KEY, v); }catch(e){} /* 隐私、无痕模式兜底：同一会话 F5 刷新时 sessionStorage 一定保留（localStorage 在部分隐私实现中刷新即失） */
   }catch(e){}
 }
 function applyModState(){
@@ -1338,7 +1338,7 @@ function applyModState(){
     }
   }catch(e){}
 }
-/* 页内折叠块展开/收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
+/* 页内折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
 try{ document.addEventListener('toggle', e=>{ if(e.target && e.target.tagName==='DETAILS' && e.target.id) saveModState(); }, true); }catch(e){}
 
 /* ---------- 弹窗 ---------- */
@@ -1492,7 +1492,7 @@ if (BAZI_PAGE_UI) mountAI(function(){
     life=`\n核心解读：\n喜用神：${A.fu.xi.join('、')}；忌：${A.fu.ji.join('、')}`;
     remedy=`\n宜忌补救：方位：${(['木','火','土','金','水'].filter(w=>A.fu.xi.join('').indexOf(w)>=0).map(w=>({'木':'东','火':'南','土':'中','金':'西','水':'北'}[w])).join('、')||'中宫')}；颜色：${(['木','火','土','金','水'].filter(w=>A.fu.xi.join('').indexOf(w)>=0).map(w=>({'木':'青绿','火':'红紫','土':'黄褐','金':'白金','水':'黑蓝'}[w])).join('、')||'中性色')}`;
   }catch(e){}
-  // 数据类字段：十神 / 纳音 / 十二长生 / 神煞 / 称骨
+  // 数据类字段：十神、纳音、十二长生、神煞、称骨
   let tgArr = ['年','月','日','时'].map((lab,i)=>{
     const tg = i===2 ? '日主' : tgAbbr(tenGod(BZ.dayGan, BZ.gans[i]));
     const tz = tgAbbr(tenGod(BZ.dayGan, zhiMain(BZ.zhis[i])));
@@ -1510,21 +1510,21 @@ if (BAZI_PAGE_UI) mountAI(function(){
   // 旺相休囚死（月令季节性五行旺衰）
   let wxState='';
   try{ const wxs=wangXiang(BZ.monthZ); wxState='\n旺相休囚死：'+['木','火','土','金','水'].map(w=>w+wxs[w]).join(' '); }catch(e){}
-  // 量化四柱（五行旺衰 / 阴阳五行 / 十神 / 六亲 / 生克）：取与量化四柱圆盘同源的纯文本摘要，
+  // 量化四柱（五行旺衰、阴阳五行、十神、六亲、生克）：取与量化四柱圆盘同源的纯文本摘要，
   // 直接由数据算出，不经页面渲染结果反抓，与页面渲染形态解耦
   let quant='';
   try{ const qTxt=quantSummaryText(BZ); if(qTxt) quant='\n旺衰量化（结论与依据）：\n'+qTxt; }catch(e){}
-  // 各流派解读格局（子平 / 盲派 / 调候 / 新派 / 病药）：仅保留交叉共识结论行，略去各派长文
+  // 各流派解读格局（子平、盲派、调候、新派、病药）：仅保留交叉共识结论行，略去各派长文
   let school='';
   try{ const A=getAnalysis(BZ);
     const sTxt=htmlToText(renderSchoolDiffInner(A,BZ));
     const keep=sTxt.split('\n').filter(l=>/共识|交叉|一致|结论/.test(l)).slice(0,10);
     school=keep.length?('\n流派交叉共识：\n'+keep.join('\n')):'';
   }catch(e){}
-  // 命局断事（财官印食 + 神煞引事 + 特殊格局/结构病 + 五行失衡/巳火变色龙）；标题行由渲染自带
+  // 命局断事（财官印食 + 神煞引事 + 特殊格局、结构病 + 五行失衡、巳火变色龙）；标题行由渲染自带
   let duan='';
   try{ duan='\n'+htmlToText(duanShiMingJu(BZ)); }catch(e){}
-  // 岁运引动（大运起运/用忌/吉凶/关键引动 + 当前流年）；标题行由渲染自带
+  // 岁运引动（大运起运、用忌、吉凶、关键引动 + 当前流年）；标题行由渲染自带
   let yunDong='';
   try{ const t=htmlToText(renderYunDong(BZ)); if(t) yunDong='\n'+t; }catch(e){}
   // 流年事件（当前所处大运十年）；标题行由渲染自带
@@ -1533,10 +1533,10 @@ if (BAZI_PAGE_UI) mountAI(function(){
   // 十神宫位（人生议题前）
   let ssPos='';
   try{ const t=htmlToText(renderShiShenPos(BZ)); if(t) ssPos='\n'+t; }catch(e){}
-  // 人生议题四卡（事业财运/婚姻感情/性格健康/家庭子女）
+  // 人生议题四卡（事业财运、婚姻感情、性格健康、家庭子女）
   let lifeCards='';
   try{ const t=htmlToText(renderLifeDeep(BZ)); if(t) lifeCards='\n'+t; }catch(e){}
-  // 所选干支详情（与命局关系/所选干支间关系/各流派解读运势）：读动态详情面板，与页面完全一致
+  // 所选干支详情（与命局关系、所选干支间关系、各流派解读运势）：读动态详情面板，与页面完全一致
   let dyn='';
   try{ const db=document.getElementById('dynDetail'); if(db){ const t=htmlToText(db.outerHTML); if(t) dyn='\n'+t; } }catch(e){}
   return `${m.sex}命\n四柱：${m.pillars}\n日主：${BZ.dayGan}（${m.dayGanWx}）\n农历：${m.lunarStr}\n生肖、星座、二十八宿：属${m.sx}，${m.xz}座，${m.xiu}\n命宫、胎元、身宫：${m.mingGong}/${m.taiYuan}/${m.shenGong}\n文昌位：${m.wenChangFang}（${m.wenChang}），天乙贵人：${m.tianYi}\n${m.jieQi}\n五行统计（不计藏干）：${wx}\n五行统计（计入藏干）：${wx2}${wxState}\n天干关系：${gr}\n地支关系：${zr}\n大运：${dayun}\n当前选取：${sel.length?sel.join('，'):'未选大运流年'}${analysis}${life}${remedy}${shishen}${nayin}${changsheng}${shensha}${kong}${chengu}${quant}${school}${duan}${ssPos}${lifeCards}${yunDong}${yunEvent}${dyn}`;

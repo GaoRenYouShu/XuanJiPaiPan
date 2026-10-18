@@ -19,7 +19,7 @@ window.NAME_ZODIAC = (function () {
     for (var z in d.branches) if (d.branches[z] === branch) return z;
     return null;
   }
-  /* 公历年粗排（立春/正月边界由调用方用 lunar.js 精确定支后传 branch） */
+  /* 公历年粗排（立春、正月边界由调用方用 lunar.js 精确定支后传 branch） */
   function branchFromYearLunar(year) { return ((year - 4) % 12 + 12) % 12; }
 
   /* 单字 × 生肖 → {yi:[字根], ji:[字根], radicalNo} */

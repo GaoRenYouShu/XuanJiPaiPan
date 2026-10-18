@@ -60,7 +60,7 @@ function yearBase(year){
   return { gz:gz, gan:gz.charAt(0), zhi:gz.charAt(1), sheng:l.getYearShengXiao(), nayin:l.getYearNaYin() };
 }
 
-/* 客主加临单步：客气、主气五行同气/相生/相克定关系与相得断语
+/* 客主加临单步：客气、主气五行同气、相生、相克定关系与相得断语
  * 【定源】《素问·五运行大论》"相得则和，不相得则病"；客胜主为从、主胜客为逆
  * （《素问·至真要大论》），断语为通行归纳。 */
 function jiaLinOne(zhu, ke){

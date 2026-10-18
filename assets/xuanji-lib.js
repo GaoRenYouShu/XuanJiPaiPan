@@ -177,7 +177,7 @@ function gzAllColorSpan(str){
   let out='';
   for(let i=0;i<n;i++){
     const ch=chars[i];
-    if(inTag[i]){ out+=ch; continue; }            // 标签/属性原样保留
+    if(inTag[i]){ out+=ch; continue; }            // 标签、属性原样保留
     if(srcWx[i]>0){ out+=ch; continue; }          // 源码已着色（如表格 wxSpan），不二次包裹
     if(nayinStart[i]){                            // 纳音名：整串按其五行上色（不逐字切断）
       const ns=nayinStart[i]; const cls=WX_CLASS[ns.wx]||'';
@@ -338,7 +338,7 @@ function applyDstCorrection(y, m, d, h, mi, mode){
    口径：十二支归并八方位（子北、卯东、午南、酉西；丑寅东北、辰巳东南、未申西南、戌亥西北），
    与老黄历页岁煞行 ZHI_FANG、择日引擎 ZHI_BAGUA、风水页 taiSuiFang 口径一致；
    bazi-data.js 另有同名 const（八字域内部使用），加载顺序在 xuanji-lib 之前或之后的页面均以本表为跨模块消费真源 */
-window.ZHI_FANG = window.ZHI_FANG || {子:'北',丑:'东北',寅:'东北',卯:'东',辰:'东南',巳:'东南',午:'南',未:'西南',申:'西南',酉:'西',戌:'西北',亥:'西北'};
+window.ZHI_FANG = window.ZHI_FANG || {子:'正北',丑:'东北',寅:'东北',卯:'正东',辰:'东南',巳:'东南',午:'正南',未:'西南',申:'西南',酉:'正西',戌:'西北',亥:'西北'};
 
 /* ===== 周次（万年历、老黄历、道历共用；取数走 lunar.js 的 SolarWeek 与 SolarMonth） =====
    一周以周一起例，与三页日历格首列同为周一（getStart 即周首序数，周一为 1）。

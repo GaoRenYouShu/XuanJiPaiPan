@@ -1,8 +1,8 @@
 /* 占星术 参考数据表 + 星历调用入口
    星历计算由 astronomy-engine（VSOP87，MIT）通过 xz-ephem.js 适配层提供，全部浏览器本地计算。
    本文件含：
-   - 星座/守护星/元素/宫位含义/庙旺落陷/相位容许度/27宿/九曜大运 参考数据
-   - 数学辅助（归一化/黄经取度/儒略日/上升点/岁差/庙旺落陷判定/整宫制/相位/Vimshottari）
+   - 星座、守护星、元素、宫位含义、庙旺落陷、相位容许度、27宿、九曜大运 参考数据
+   - 数学辅助（归一化、黄经取度、儒略日、上升点、岁差、庙旺落陷判定、整宫制、相位/Vimshottari）
    标注：所有结果为近似，落宫、相位 orb 采用常用容许度。 */
 
 'use strict';
@@ -135,7 +135,7 @@ const XZ_EL_TRAIT = {
 const XZ_SIGN_POLAR = ['阳','阴','阳','阴','阳','阴','阳','阴','阳','阴','阳','阴'];
 /* 三态：开创始新局、固定守成、变动应变 */
 const XZ_SIGN_MODAL = ['开创','固定','变动','开创','固定','变动','开创','固定','变动','开创','固定','变动'];
-/* 星座档案：守护星（古/今）、诞生石、幸运色、幸运数、幸运日、恋爱倾向、事业倾向、财运倾向、最佳配对、挑战配对 */
+/* 星座档案：守护星（古、今）、诞生石、幸运色、幸运数、幸运日、恋爱倾向、事业倾向、财运倾向、最佳配对、挑战配对 */
 const XZ_SIGN_PROFILE = {
   白羊:{ruler:'火星（古今同）', birth:'钻石', color:'红', num:'1、9', day:'星期二',
     love:'爱得热烈直接，喜欢就表白，享受追求的过程，需要一个尊重其独立的伴侣，学着配合对方的节奏是长期课题',
@@ -227,7 +227,7 @@ const XZ_PLANETS = [
   {key:'pluto', name:'冥王星', glyph:'♇', cn:'冥王星'}
 ];
 
-/* ---------- 庙旺落陷（西洋古典，本垣、旺/弱、落） ---------- */
+/* ---------- 庙旺落陷（西洋古典，本垣、旺、弱、落） ---------- */
 const XZ_DIGNITY = {
   sun:    {dom:['狮子'],            exa:'白羊', det:['水瓶'],          fal:'天秤'},
   moon:   {dom:['巨蟹'],            exa:'金牛', det:['摩羯'],          fal:'天蝎'},
@@ -299,7 +299,7 @@ const XZ_NAV_NAME = {sun:'太阳', moon:'月亮', mars:'火星', mercury:'水星
 
 /* 27 宿详情：汉名、守护神、象征、宿性 Gana、四 Pada 姓名首音节、义涵。
    汉名为与印度 27 宿起点对应的中国二十八宿通行对译；Gana 分天神(Deva)、人(Manushya)、阿修罗(Rakshasa)。
-   Nadi（风量/火量/水量）各派口传不一，本表不列，以免给出不确数据。 */
+   Nadi（风量、火量、水量）各派口传不一，本表不列，以免给出不确数据。 */
 const XZ_NAK_INFO = [
   {cn:'娄宿', deva:'双马神童 Ashwini Kumaras', sym:'马头', gana:'天神', pada:['Chu','Che','Cho','La'], mean:'行动迅捷，善开启，宜急事与医事'},
   {cn:'胃宿', deva:'阎摩 Yama', sym:'女阴', gana:'人', pada:['Li','Lu','Le','Lo'], mean:'承载与约束，含取舍与蜕变之象'},
@@ -496,7 +496,7 @@ function xz_dispositorChain(planets){
 function xz_houseOf(lon, ascSignIdx){
   return ((xz_signIndex(lon) - ascSignIdx + 12) % 12) + 1;
 }
-/* Placidus 分宫：以中天 MC 与上升 ASC 为锚，把昼半弧/夜半弧按时间三等分求中间宫头。
+/* Placidus 分宫：以中天 MC 与上升 ASC 为锚，把昼半弧、夜半弧按时间三等分求中间宫头。
    昼半弧 SA=90°+AD、夜半弧 SN=90°−AD，AD=asin(tanφ×tanδ)（升差，随宫头赤纬变化），
    因此每个宫头黄经须固定点迭代：RA←RAMC+f×SA（11/12 宫，东侧地平上）
    与 RA←RAMC+180°−g×SN（2/3 宫，东侧地平下），再由 RA 反解黄经，迭代至收敛。
@@ -803,7 +803,7 @@ function xz_navamsa(lonS){
   const si = Math.floor(n / 30), deg = n - si * 30;
   const step = 30 / 9;
   const part = Math.min(8, Math.floor(deg / step));
-  const start = [0, 9, 6][si % 3];  // 活动/固定/变动宫对应起始星座序号
+  const start = [0, 9, 6][si % 3];  // 活动、固定、变动宫对应起始星座序号
   return xz_signName((start + part) * 30 + 1);
 }
 
@@ -851,7 +851,7 @@ const XZ_D9_HOUSE_MEAN = {
   9:'婚后共同信念与远行', 10:'婚姻带来的社会身份', 11:'婚姻延伸的人脉与收益', 12:'私密相处与彼此退让'
 };
 
-/* 大运组合判读：Mahadasha × Antardasha 的吉凶叠加（和谐/紧张/交点） */
+/* 大运组合判读：Mahadasha × Antardasha 的吉凶叠加（和谐、紧张、交点） */
 function xz_dashaPair(m, a){
   const HAR = {sun:'月亮、火星、木星', moon:'太阳、水星、木星', mars:'太阳、月亮、木星', mercury:'月亮、金星、木星',
                jupiter:'太阳、月亮、火星', venus:'水星、土星', saturn:'水星、金星', rahu:'', ketu:''};
@@ -870,7 +870,7 @@ function xz_vedicHouse(lonS, lagnaS){
   return ((xz_signIndex(lonS) - xz_signIndex(lagnaS) + 12) % 12) + 1;
 }
 
-/* 印度体系尊贵：旺 / 陷 / 本垣强位 / 本垣 / 平 */
+/* 印度体系尊贵：旺、陷、本垣强位、本垣、平 */
 function xz_vedicDignity(key, lonS){
   const d = XZ_VEDIC_DIGNITY[key];
   if(!d) return {tag:'平', note:'未纳入印度尊贵体系'};
@@ -1014,9 +1014,9 @@ function xz_vedicYoga(chart){
 
   /* 财富格（Dhana Yoga）：财帛宫主与福德宫主同宫（经典），
      4 条子判定：① 2 宫主与 11 宫主同宫（经典财格）
-     ② 5 宫主与 9 宫主同宫（智慧/运气财格）
+     ② 5 宫主与 9 宫主同宫（智慧、运气财格）
      ③ 命主与 2/5/9/11 任一宫主同宫（命主参与财格）
-     ④ 2/5/9/11/命宫主之间有互视（parivartana，宫主互换宫位，是财富流通之格） */
+     ④ 2/5/9/11、命宫主之间有互视（parivartana，宫主互换宫位，是财富流通之格） */
   const dhLords = [1, 2, 5, 9, 11];
   // 计算各宫宫主
   const lordOf = {};
@@ -1555,7 +1555,7 @@ function xz_axisDedupe(hits){
 function xz_matchCtx(chartA, chartB){
   return { hits: xz_axisDedupe(xz_synastryAspects(chartA, chartB)), comp: xz_compositeChart(chartA, chartB) };
 }
-/* Composite 组合中点盘：每颗行星取两人同名星黄经中点，轴点（上升/中天）同取中点。
+/* Composite 组合中点盘：每颗行星取两人同名星黄经中点，轴点（上升、中天）同取中点。
    组合盘无真实出生时刻与地点，宫位制不依赖分宫迭代，恒用整宫（中点 ASC 起第 1 宫），
    属组合盘的通用呈现口径。返回行星落座与内部主要相位。 */
 function xz_compositeChart(chartA, chartB){
@@ -1766,7 +1766,7 @@ function xz_matchScore(chartA, chartB, ctx){
   return { items, total, level: xz_matchLevel(total), advice: xz_matchAdvice(total) };
 }
 
-/* 七维/综合分共用档位：五档映射与判语，合婚页同款（81/61/41/21 分界）。
+/* 七维、综合分共用档位：五档映射与判语，合婚页同款（81/61/41/21 分界）。
    level 供综合分盒展示，advice 供综合建议；七维与综合分同用一套档位口径。 */
 function xz_matchLevel(total){
   if(total >= 81) return '深度契合';

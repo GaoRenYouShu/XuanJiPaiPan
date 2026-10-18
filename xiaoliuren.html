@@ -98,7 +98,7 @@ const GONG=[
    cats:{hun:'婚事不成，落空。',cai:'求财无利益，落空。',bing:'病逢暗鬼，虚怯，宜祷禳。',ren:'行人有灾殃，阻隔，返期难定。',shi:'失物寻不见，已遗失难获。',xun:'寻人不见，音信渺茫，难寻。',chan:'生产不顺，虚惊，宜防。',xue:'学业无成，落空，宜改期。',qiu:'求职无果，落空，宜另寻机会。',hehuo:'合伙无益，虚耗，宜防。',jia:'家宅空落，防虚耗，宜静守。',kai:'开张不利，客源空落，不宜开业。',xing:'行人有灾殃，失物寻不见。',guan:'官事有刑伤，凶。',chu:'出行不利，落空。',mou:'谋事不成，虚耗。',jiao:'交易不成，落空。'}},
 ];
 /* 两宫合断（日加时断）：以"日宫所落"加"时宫所落"，据二宫关系断其结果。
-   30 组经典断语（六宫 × 除本宫外五宫），主断婚姻/失物/办事等。 */
+   30 组经典断语（六宫 × 除本宫外五宫），主断婚姻、失物、办事等。 */
 const HE_RI={
  '大安':{'留连':'办事不周全，失物西北去，婚姻晚几天。','速喜':'事事自己起，失物当日见，婚姻自己提。','赤口':'办事不顺手，失物不用找，婚姻两分手。','小吉':'事事从己及，失物不出门，婚姻成就地。','空亡':'病人要上床，失物无踪影，事事不顺情。'},
  '留连':{'大安':'办事两分张，婚姻有喜事，先苦后来甜。','速喜':'事事由自己，婚姻有成意，失物三天里。','赤口':'病者死人口，失物准丢失，婚姻两分手。','小吉':'事事不用提，失物东南去，病者出人齐。','空亡':'病人准死亡，失物不见面，婚姻两分张。'},
@@ -113,7 +113,7 @@ const GONG_NUM={'大安':'1、5、7','留连':'2、8、10','速喜':'3、6、9',
 /* 五行生克（小六壬页局部表，供合参合断的三宫五行关系分析） */
 const WX_SH={'木':'火','火':'土','土':'金','金':'水','水':'木'};
 const WX_KE={'木':'土','火':'金','土':'水','金':'木','水':'火'};
-function wxShengKe(a,b){ /* 五行关系：比和/相生/被生/相克/被克 */
+function wxShengKe(a,b){ /* 五行关系：比和、相生、被生、相克、被克 */
   if(a===b) return '比和';
   if(WX_SH[a]===b) return '相生';
   if(WX_SH[b]===a) return '被生';
@@ -131,7 +131,7 @@ function wxRelDesc(a,b,role){
   if(r==='被克') return `${role}：${bs}克${as}，事受制约`;
   return '';
 }
-/* 小六壬各流派：起课掌诀差异（月/日/时起宫偏移），落宫不同即排盘不同；
+/* 小六壬各流派：起课掌诀差异（月、日、时起宫偏移），落宫不同即排盘不同；
    断语六宫为共有文化内容，学派差别主要在起课与侧重。 */
 const SCHOOLS=[
   {id:'ma',  name:'诸葛马前课',     m0:0,d0:0,t0:0, note:'最通行之法（通法）。月从大安起顺数月数，落宫接数日，再接数时。'},
@@ -151,7 +151,7 @@ function fillShichen(){
   const sel=document.getElementById('shichen');
   sel.innerHTML=SHI_NAME.map((s,i)=>`<option value="${i}">${s}</option>`).join('');
 }
-// 起卦方式切换：时间 / 数字 / 随机 / 汉字笔画
+// 起卦方式切换：时间、数字、随机、汉字笔画
 function switchQiMode(){
   const mode=document.getElementById('qiMode').value;
   const showTime = mode==='time';
@@ -161,7 +161,7 @@ function switchQiMode(){
   ['fDate','fShi'].forEach(id=>document.getElementById(id).style.display = showTime?'':'none');
   ['fNum1','fNum2','fNum3'].forEach(id=>document.getElementById(id).style.display = showNum?'':'none');
   document.getElementById('fChar').style.display = showChar?'':'none';
-  // 汉字模式：清空预填值并确保可编辑（防被日期选择器预填/只读）
+  // 汉字模式：清空预填值并确保可编辑（防被日期选择器预填、只读）
   if(showChar){
     const qc=document.getElementById('qChar');
     qc.value='';
@@ -209,7 +209,7 @@ function xlrApplyFold(){
   document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
 }
 function renderRef(){
-  // 掌诀指图：三指（食/中/无名）六节，指尖排上、指根排下；每节一张白卡，复用大六壬四课/三传同款样式（lr-ke）
+  // 掌诀指图：三指（食、中、无名）六节，指尖排上、指根排下；每节一张白卡，复用大六壬四课、三传同款样式（lr-ke）
   const COLS=[
     {finger:'食指', cells:[{g:1,seg:'指尖'},{g:0,seg:'指根'}]},
     {finger:'中指', cells:[{g:2,seg:'指尖'},{g:5,seg:'指根'}]},
@@ -252,7 +252,7 @@ function query(){
     lunarStr=`农历 ${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}　${ZHI[shiIdx]}时`;
     srcNote=`（月${lm}日${ld}时${shi}）`;
   } else {
-    // 变通取数：数字/随机/汉字笔画 → 三数代月/日/时
+    // 变通取数：数字、随机、汉字笔画 → 三数代月、日、时
     let n1,n2,n3;
     if(mode==='num'||mode==='rand'){
       n1=parseInt(document.getElementById('qNum1').value,10)||1;
@@ -276,13 +276,13 @@ function query(){
     lunar=lunar||null;
   }
   document.getElementById('lunarLine').textContent = lunarStr+srcNote;
-  // 起课：按所选流派掌诀，月/日/时起宫偏移不同 → 落宫不同（排盘不同）
+  // 起课：按所选流派掌诀，月、日、时起宫偏移不同 → 落宫不同（排盘不同）
   const sch=SCHOOLS.find(s=>s.id===document.getElementById('school').value)||SCHOOLS[0];
   const gMonth=(sch.m0+(lm-1))%6;
   const gDay=((sch.m0)+(lm-1)+(ld-1)+sch.d0)%6;
   const gTime=((sch.m0)+(lm-1)+(ld-1)+sch.d0+(shi-1)+sch.t0)%6;
   // 占事盘：时宫基础上再叠“时辰序”顺行。时间模式取地支序 shiIdx；
-  // 数字/汉字/随机模式无地支时辰，以第三原始数 rawS 顺行；若结果与时宫重合则再顺移一格，确保占事盘独立。
+  // 数字、汉字、随机模式无地支时辰，以第三原始数 rawS 顺行；若结果与时宫重合则再顺移一格，确保占事盘独立。
   let gFour=null;
   if(sch.four){
     const fourExtra=(mode==='time')?shiIdx:rawS;
@@ -330,7 +330,7 @@ function query(){
     ['白话提要', fg.brief]
   ];
   const hecanHtml='<h3 class="rel-title">合参合断</h3><table class="xlr-table xlr-hecan-tbl"><tbody>'+hecanRows.map(r=>`<tr><th>${r[0]}</th><td class="xlr-hecan-td">${r[1]}</td></tr>`).join('')+'</tbody></table>';
-  // 占类专项断：表格化（16 类，四列：类别/五行/关系/说明，五行生克单列显示）
+  // 占类专项断：表格化（16 类，四列：类别、五行、关系、说明，五行生克单列显示）
   const CATS=[['婚姻','hun'],['求财','cai'],['疾病','bing'],['行人','ren'],['失物','shi'],['寻人','xun'],['生产','chan'],['官非','guan'],['出行','chu'],['谋事','mou'],['交易','jiao'],['学业','xue'],['求职','qiu'],['合伙','hehuo'],['家宅','jia'],['开张','kai']];
   const CAT_WX={'婚姻':'火','求财':'金','疾病':'土','行人':'水','失物':'土','寻人':'水','生产':'金','官非':'金','出行':'火','谋事':'火','交易':'金','学业':'火','求职':'金','合伙':'木','家宅':'土','开张':'金'};
   const wxRelTxt={'比和':'同气','相生':'得助','被生':'气散','相克':'受制','被克':'不顺'};

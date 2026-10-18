@@ -7,7 +7,7 @@
  * 口径：
  *   起卦与 meihua.html 字占同源：上卦=康熙笔画%8（余0取8）、下卦=(笔画%8)+1（余0取8）、
  *   动爻=笔画×2%6（余0取6）；动爻在上卦（>3）则体=下卦、用=上卦，反之体=上卦、用=下卦。
- *   数理走 NAME_DATA.NAME81（超 81 减 80 取模），拆解/卦象/旺衰喜用按本页权重加权评级。
+ *   数理走 NAME_DATA.NAME81（超 81 减 80 取模），拆解、卦象、旺衰喜用按本页权重加权评级。
  * ============================================================ */
 window.CEZI_ENGINE = (function(){
   'use strict';
@@ -32,7 +32,7 @@ window.CEZI_ENGINE = (function(){
 
   /* 八卦五行（起卦体用、互变参断共用） */
   const TRI_WX = {'乾':'金','兑':'金','离':'火','震':'木','巽':'木','坎':'水','艮':'土','坤':'土'};
-  /* 体用生克：名称/分值/断语 */
+  /* 体用生克：名称、分值、断语 */
   const TIYONG_SCORE = {'比和':1.0,'用生体':0.95,'体克用':0.8,'体生用':0.55,'用克体':0.3};
   function tiYongRel(tiWx,yongWx){
     if(tiWx===yongWx) return {rel:'比和', v:TIYONG_SCORE['比和'],   txt:'体用同心，事多遂意'};
@@ -262,7 +262,7 @@ window.CEZI_ENGINE = (function(){
     {min:0,  name:'凶',   cls:'lv-xx'}
   ];
   const LUCK_V = {ji:1.0, ping:0.6, xiong:0.3};
-  /* 互变参断三态分组：比和/用生体为吉，体克用/体生用为可成，用克体为阻 */
+  /* 互变参断三态分组：比和、用生体为吉，体克用、体生用为可成，用克体为阻 */
   function relGroup(rel){ return (rel==='比和'||rel==='用生体') ? 'ji' : (rel==='用克体') ? 'zu' : 'cheng'; }
 
   /* ============================================================
@@ -330,7 +330,7 @@ window.CEZI_ENGINE = (function(){
     const total = Math.round(items.reduce(function(s,it){ return s + it.w*it.v; },0));
     const level = LEVELS.find(function(l){ return total>=l.min; }) || LEVELS[4];
 
-    /* 断语：吉/平/凶 档位映射 */
+    /* 断语：吉、平、凶 档位映射 */
     const luckKey = (level.name==='大吉'||level.name==='吉') ? 'ji' : (level.name==='平' ? 'ping' : 'xiong');
     const ying = YINGQI[mainWx] || YINGQI.土;
     const yingNear = wai.wang ? (wai.wang.label==='旺'||wai.wang.label==='相' ? '期近' : '期缓') : '期不定';

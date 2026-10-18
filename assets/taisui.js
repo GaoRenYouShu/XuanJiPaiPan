@@ -728,7 +728,7 @@ function applyTsModState(){
     }
   }catch(e){}
 }
-/* 页内折叠块展开/收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
+/* 页内折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
 try{ document.addEventListener('toggle', function(e){ if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveTsModState(); }, true); }catch(e){}
 /* ===== 14. 初始化 ===== */
 function init(){

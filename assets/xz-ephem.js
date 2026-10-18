@@ -109,7 +109,7 @@ function xz_ephem_longitudes(jd){
   return out;
 }
 
-/* 十星视运动速度（度/日）：取出生时刻前后各半日的黄经差分，
+/* 十星视运动速度（度、日）：取出生时刻前后各半日的黄经差分，
    差值按 360° 环绕归一到 -180..180，负值即西行（逆行）。 */
 function xz_ephem_speeds(jd){
   const a = xz_lons10(jd - 0.5), b = xz_lons10(jd + 0.5);
