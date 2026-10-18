@@ -347,6 +347,28 @@ const JIE_QI_JIE = ['立春','惊蛰','清明','立夏','芒种','小暑','立�
 function jieQiIsJie(name){ return JIE_QI_JIE.indexOf(name) >= 0; }
 window.jieQiIsJie = jieQiIsJie;
 
+/* ===== 节日取数（万年历、老黄历共用） =====
+   历法库把节日分作四族：公历节日、公历其他节日、农历节日、农历其他节日。
+   holiday.js 的纪念日表（MEMORIAL）是本站策展的第五族，专收国家与民族层面的重大纪念日。
+   日历格只出一节，日期详情列出该日全部节日，两处共用本件的同一份取数，免两页各排一次次序。 */
+function festParts(solar, y, m, d){
+  const lunar = solar.getLunar();
+  const sf = solar.getFestivals() || [], sOf = solar.getOtherFestivals() || [];
+  const lf = lunar.getFestivals() || [], lOf = lunar.getOtherFestivals() || [];
+  const mem = (typeof memorialOf === 'function') ? memorialOf(y, m, d) : '';
+  const all = [];
+  sf.concat(lf).forEach(f => { if (all.indexOf(f) < 0) all.push(f); });
+  if (mem && all.indexOf(mem) < 0) all.push(mem);
+  lOf.concat(sOf).forEach(f => { if (all.indexOf(f) < 0) all.push(f); });
+  const pick = sf[0] || lf[0] || mem || lOf[0] || sOf[0]
+    || (lunar.getDayInChinese() === '初一' ? lunar.getMonthInChinese() + '月' : '');
+  /* hasMain 只认主节，hasAny 四族皆认：窄屏两槽隐去后由角标顶替，
+     凡格上真有节日者一律点亮节字，只余初一月份名的日子不亮，免空标 */
+  return {sf:sf, lf:lf, sOf:sOf, lOf:lOf, mem:mem, all:all, pick:pick,
+    hasMain:!!(sf[0] || lf[0]), hasAny:!!(sf[0] || lf[0] || sOf[0] || lOf[0])};
+}
+window.festParts = festParts;
+
 /* ===== 周次（万年历、老黄历、道历共用；取数走 lunar.js 的 SolarWeek 与 SolarMonth） =====
    一周以周一起例，与三页日历格首列同为周一（getStart 即周首序数，周一为 1）。
    月内第几周按所在月计、年内第几周按所在年计，两途并存不取其一；

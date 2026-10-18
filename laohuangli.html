@@ -543,13 +543,14 @@ function renderGrid(){
   for(let d=1;d<=dim;d++){
     const solar=Solar.fromYmd(Y,M,d), lunar=solar.getLunar();
     const jq=lunar.getJieQi();
-    const lf=lunar.getFestivals(), sf=solar.getFestivals();
-    const mem=memorialOf(Y,M,d);
-    /* 槽位分层（对齐万年历）：节气与节日各占一槽，互不顶掉；无节日的日子由纪念日补进节日槽，
-       初一的月份名最后兜底。窄屏两槽一律隐去，节日与纪念日改由左上红色节字、右下墨色纪字
-       两枚角标点出，故另存两个判据：hasFest 管节字角标，mem 管纪字角标 */
-    const hasFest=!!(sf[0]||lf[0]);
-    const fest=sf[0]||lf[0]||mem||(lunar.getDayInChinese()==='初一'?lunar.getMonthInChinese()+'月':'');
+    /* 节日取数走 xuanji-lib 的 festParts，与万年历同一份：格上只出一名，余下的留到下面节日行 */
+    const fp=festParts(solar,Y,M,d);
+    const mem=fp.mem;
+    /* 槽位分层（对齐万年历）：节气与节日各占一槽，互不顶掉。窄屏两槽一律隐去，
+       节日与纪念日改由左上红色节字、右下墨色纪字两枚角标点出；
+       节字角标只认四族真节（hasAny），只余初一月份名的日子留白不亮红，mem 管纪字角标 */
+    const hasFest=fp.hasAny;
+    const fest=fp.pick;
     const jqMark=jq?`<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>`:'';
     const ld=lunar.getDayInChinese();
     const isToday=new Date(Y,M-1,d).toDateString()===todayStr;
@@ -557,7 +558,7 @@ function renderGrid(){
     const key=`${Y}-${M}-${d}`;
     const sel=key===selKey?' selected':'';
     const wk=(wd===0||wd===6)?' weekend':'';
-    cells.push(`<div class="cal-cell${isToday?' today':''}${wk}${sel}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd"><span class="sd-num">${d}</span></div>${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark">节</span>':''}${jq?`<div class="slot slot-jq">${jq}</div>`:''}${fest?`<div class="slot slot-fest" title="${fest}">${fest}</div>`:''}<div class="ld">${ld}</div></div>`);
+    cells.push(`<div class="cal-cell${isToday?' today':''}${wk}${sel}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd"><span class="sd-num">${d}</span></div>${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+fp.all.join('、')+'">节</span>':''}${jq?`<div class="slot slot-jq">${jq}</div>`:''}${fest?`<div class="slot slot-fest" title="${fp.all.join('、')}">${fest}</div>`:''}<div class="ld">${ld}</div></div>`);
   }
   const total=startWd+dim; const tail=(7-total%7)%7;
   for(let i=1;i<=tail;i++) cells.push(`<div class="cal-cell other"><div class="sd">${i}</div></div>`);
@@ -577,12 +578,12 @@ function query(){
   /* 时柱取当前时辰：库 getTimes() 以 00:00 起两小时一辰、末项 23:00 为夜子时，按当前钟点定位该项 */
   const hTimes=lunar.getTimes(), hrNow=new Date().getHours();
   const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];
-  /* 节日取数与万年历同一口径：公历节日、公历其他节日、农历节日、农历其他节日四项并集，
-     含国家重大纪念日（九一八、烈士纪念日等）。整行按有无节日取舍：无节日则一行不出，
+  /* 节日取数与万年历同一份 xuanji-lib 的 festParts：公历节日、公历其他节日、农历节日、
+     农历其他节日四项并集，含国家重大纪念日（九一八、烈士纪念日等）。
+     日历格上只出一名，此处全列。整行按有无节日取舍：无节日则一行不出，
      不留“无”占位，其后的项自动上移。 */
-  const sf=solar.getFestivals()||[], sOf=solar.getOtherFestivals()||[], lf=lunar.getFestivals()||[], lOf=lunar.getOtherFestivals()||[];
-  const festList=[]; sf.concat(sOf).forEach(f=>festList.push(f)); lf.concat(lOf).forEach(f=>festList.push(f));
-  const festRow=festList.length?('<div class="lhl-i"><span class="k">节日</span><span class="v">'+festList.join('、')+'</span></div>'):'';
+  const fpRow=festParts(solar,y,m,d);
+  const festRow=fpRow.all.length?('<div class="lhl-i"><span class="k">节日</span><span class="v">'+fpRow.all.join('、')+'</span></div>'):'';
   const yStar=yearStar(y), mStar=monthStar(y,yZhi,mZhi);
   const suiPo = Object.keys(window.ZHI_FANG).find(k=>pairChong(k,yZhi)) || '';
   /* 三柱相冲 */
