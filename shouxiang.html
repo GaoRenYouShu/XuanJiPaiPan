@@ -253,36 +253,8 @@ window.addEventListener('load', function () {
     /* 折叠状态持久化：localStorage 为主、sessionStorage 兜底，以已存为底 */
     var SX_MOD_KEY = 'sxModState';
     var sxModNavReady = false;
-    function readSxModState(){
-      try{
-        var raw = null;
-        try{ raw = localStorage.getItem(SX_MOD_KEY); }catch(e){}
-        if (!raw){ try{ raw = sessionStorage.getItem(SX_MOD_KEY); }catch(e){} }
-        var o = raw ? JSON.parse(raw) : null;
-        return (o && typeof o === 'object') ? o : {};
-      }catch(e){ return {}; }
-    }
-    function saveSxModState(){
-      if (!sxModNavReady) return;
-      try{
-        var o = readSxModState();
-        var els = document.querySelectorAll('.mod[id]');
-        for (var i = 0; i < els.length; i++){ o[els[i].id] = els[i].classList.contains('collapsed'); }
-        var v = JSON.stringify(o);
-        try{ localStorage.setItem(SX_MOD_KEY, v); }catch(e){}
-        try{ sessionStorage.setItem(SX_MOD_KEY, v); }catch(e){}
-      }catch(e){}
-    }
-    function applySxModState(){
-      var o = readSxModState();
-      try{
-        var els = document.querySelectorAll('.mod[id]');
-        for (var i = 0; i < els.length; i++){
-          if (o[els[i].id] === true) els[i].classList.add('collapsed');
-          else if (o[els[i].id] === false) els[i].classList.remove('collapsed');
-        }
-      }catch(e){}
-    }
+        function saveSxModState(){ xjSaveModCollapsed(SX_MOD_KEY, function(){ return sxModNavReady; }, '.mod[id]'); }
+    function applySxModState(){ xjApplyModCollapsed(SX_MOD_KEY, '.mod[id]'); }
 
     function qtabWrap(inner){ return '<div class="qtab-scroll"><table class="qtab">' + inner + '</table></div>'; }
     function sign(n){ return n > 0 ? '+' + n : String(n); }

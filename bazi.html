@@ -299,19 +299,7 @@ function extract(card, gs, maxLen, max){
  *       无法表格化的总结性文字以"补充说明"附加在表格后。
  */
 function scl(s){ return String(s==null?'':s).replace(/[。；；\s]+$/,'').trim(); }
-function cutYunTail(s){ let t=String(s||'');
-  t=t.replace(/[，、；](?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
-  /* "即便岁运引出亦多主约束压力"类："即"非须、待、借、看，且须在"岁运"剥除前处理，防残留"即便"孤词 */
-  t=t.replace(/[，、；]?[^。，；]{0,2}便岁运[^。，；]*/g,'');
-  /* "公职须借岁运透出"类：逗号后带前词的须借岁运尾巴，须在通用"岁运"剥除前整段剥，防残留"公职须借、公职" */
-  t=t.replace(/[，、；][^。，；]{0,4}(?:须|待|借|须看|看)(?:岁|歲)运[^。，；]*/g,'');
-  t=t.replace(/[，、；]?岁运[^。，；]*/g,'');
-  t=t.replace(/[。，、；]?(?:旺运|去病之运|逢[^。，；]{0,5}运|运引|应期|临运)[^。，；]*/g,'');
-  t=t.replace(/[，、；]\s*$/,'');
-  t=t.replace(/[，、；]?(?:须|待|借|看)+$/,'');
-  t=t.replace(/[，、；](?:宜|须|待|借|看)[。，、；]?$/,'');
-  return t.trim();
-}
+function cutYunTail(s){ return cardCutYunTail(s); }
 function escT(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\uFF0F/\u2502|]/g,'、'); }
 /* escC = escT 基础上删除十神个数信息（"命局X个"等无意义计数） */
 function escC(s){ return escT(String(s==null?'':s).replace(/命局\d+个[、，,；;]?/g,'')); }
@@ -538,14 +526,7 @@ function levelBlock(card, title){
   return sec(title, rows, ['维度','层级','说明'], 0, 'stab-a3');
 }
 /* 单元格收尾：去尾随圈序号（②③④…）、补齐失衡全角括号（cutYunTail 剥"、待岁运引出"会留孤儿左括号 */
-function cleanCell(s){
-  let t=String(s==null?'':s);
-  t=t.replace(/^[①②③④⑤⑥⑦⑧⑨⑩]+/,'').replace(/[①②③④⑤⑥⑦⑧⑨⑩]+$/,'').trim();
-  // 补齐{开多闭}的全角括号（营养强括号内被剥闭符）
-  let openCount=(t.match(/（/g)||[]).length, closeCount=(t.match(/）/g)||[]).length;
-  if(openCount>closeCount) t+='）'.repeat(openCount-closeCount);
-  return t;
-}
+function cleanCell(s){ return cardCleanCell(s); }
 /* ========== 择偶方位两法（宫位法、择偶方向表法）========== */
 const GAN_FANG2={'甲':'东','乙':'东','丙':'南','丁':'南','戊':'中央','己':'中央','庚':'西','辛':'西','壬':'北','癸':'北'};
 const FANG_CHONG2={'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'};
@@ -554,46 +535,10 @@ const MONTH_JIAN2=['','寅','卯','辰','巳','午','未','申','酉','戌','亥
  * 顺序：① 夫妻星天干透出（跳日干自身）→ 以坐下地支方位为主、天干所主方位为辅；
  *      ② 不现则查地支藏干（含日支）→ 以藏夫妻星之地支方位为据；
  *      ③ 再不现则取夫妻宫（日支）方位。 */
-function gongWeiFa(BZ, isMale){
-  const want=isMale?['正财','偏财']:['正官','七杀'];
-  for(let i=0;i<4;i++){
-    if(i===2) continue;
-    const g=BZ.gans[i];
-    if(!g) continue;
-    const t=tenGod(BZ.dayGan,g);
-    if(want.indexOf(t)>=0){
-      return {star:t, pos:['年柱','月柱','时柱'][i<2?i:2], zhi:BZ.zhis[i], fang:ZHI_FANG[BZ.zhis[i]], ganFang:GAN_FANG2[g]};
-    }
-  }
-  for(let i=0;i<4;i++){
-    const z=BZ.zhis[i];
-    if(!z) continue;
-    const hid=HIDE[z]||[];
-    for(let k=0;k<hid.length;k++){
-      const t=tenGod(BZ.dayGan,hid[k]);
-      if(want.indexOf(t)>=0){
-        return {star:t, pos:['年支','月支','日支','时支'][i], zhi:z, fang:ZHI_FANG[z], cang:['本气','中气','余气'][k], cangGan:hid[k]};
-      }
-    }
-  }
-  const dz=BZ.dayZ||BZ.zhis[2];
-  if(dz) return {star:'', pos:'夫妻宫', zhi:dz, fang:ZHI_FANG[dz]};
-  return null;
-}
+function gongWeiFa(BZ,isMale){ return xjGongWeiFa(BZ,isMale,ZHI_FANG,GAN_FANG2); }
 /* 择偶方向表法：按农历出生月日，自月建落宫起一顺数至出生日期，落宫方向及其对冲方向即可能方位；
  * 闰月按当月算、夜子时仍按当天日期查（lunar 已按页面口径取好日期，此处直接取月日）。 */
-function zeOuBiaoFa(BZ){
-  const L=BZ.lunar;
-  if(!L) return null;
-  const m=Math.abs(L.getMonth()||0), d=L.getDay()||0;
-  if(!m||!d) return null;
-  const start=MONTH_JIAN2[m];
-  if(!start) return null;
-  const Z='子丑寅卯辰巳午未申酉戌亥';
-  const idx=(Z.indexOf(start)+d-1)%12;
-  const luo=Z[idx], cz=FANG_CHONG2[luo];
-  return {month:m, day:d, start:start, luo:luo, fang:ZHI_FANG[luo], chongZhi:cz, chongFang:ZHI_FANG[cz]};
-}
+function zeOuBiaoFa(BZ){ return xjZeOuBiaoFa(BZ,MONTH_JIAN2,FANG_CHONG2,ZHI_FANG); }
 function renderMarry7(card,BZ,A,eS,isMale){
   let h='';
   // 1.1 十神经典断语（直调顶层 REL.tenCombo，marry 方向＋婚姻主题句，性别由顶层门控）

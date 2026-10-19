@@ -332,36 +332,10 @@ function yueJiang(lunar,mode){
 }
 let LAST=null;
 /* 折叠态属交互态：模块与折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function dlrReadModState(){
-  try{
-    let raw = localStorage.getItem('dlrModState');
-    if(!raw) raw = sessionStorage.getItem('dlrModState');
-    const s = JSON.parse(raw || '{}');
-    return (s && typeof s === 'object') ? s : {};
-  }catch(e){ return {}; }
-}
-function dlrSaveModState(){
-  if(!window.__dlrInitDone) return;   /* 初始化完成前不写，避免覆盖已存状态 */
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o = dlrReadModState();
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { o[m.id] = !m.classList.contains('collapsed'); });
-    document.querySelectorAll('#out details[id]').forEach(d => { o[d.id] = d.open; });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem('dlrModState', v); }catch(e){}
-    try{ sessionStorage.setItem('dlrModState', v); }catch(e){}
-  }catch(e){}
-}
 function dlrToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  dlrSaveModState();
-}
-function dlrApplyModState(){
-  const s = dlrReadModState();
-  document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  document.querySelectorAll('#out details[id]').forEach(d => { if(d.id in s) d.open = !!s[d.id]; });
+  xjSaveModState('dlrModState','#out details[id]','__dlrInitDone');
 }
 function query(){
  try{
@@ -759,7 +733,7 @@ function render(o){
        <p class="sub-note">${DLR_SCHOOL_NOTE}${presetNote}</p>
      </div></div></section>
     <section class="mod collapsed" id="dlrModSynth"><div class="mod-head" onclick="dlrToggleMod('dlrModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">六、综合判断</span><span class="mod-sub">毕法赋 天将象意</span></div><div class="mod-body">${baihua(o)}<details class="lr-bifa" id="lrBifa" open><summary>毕法赋断语（《六壬大全》卷十，凌福之）</summary>${bifaTable(o)}</details><details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details></div></section>`;
-  dlrApplyModState();
+  xjApplyModState('dlrModState','#out details[id]');
 }
 /* 刷新重出：顶层机制回填输入后按此钩子重排；changed 为空即不动，折叠态与滚动位置保持 */
 window.xjRefreshHook=function(changed){
@@ -781,7 +755,7 @@ window.addEventListener('load', function () {
     document.getElementById('dlJiang').addEventListener('change', query);
     document.addEventListener('toggle', function(e){
       const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) dlrSaveModState();
+      if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) xjSaveModState('dlrModState','#out details[id]','__dlrInitDone');
     }, true);
     (function(){const n=new Date();document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;document.getElementById('shichen').value=Math.floor(((n.getHours()+1)%24)/2);query();window.__dlrInitDone=true;})();
     mountAI(function(){

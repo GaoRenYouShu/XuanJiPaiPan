@@ -791,11 +791,7 @@
      该层差异天然小且以 60 为基线，会小幅压低综合分；此处不另设特例上吉线，改由权重如实承担
      （见 WEIGHTS 说明），故"上吉"唯命局结构、大运、家长缘、避凶四项俱优者可得，符"诸项俱优"之义。 */
   function gradeOf(t){
-    if(t>=88) return {t:'上吉', k:'v-daji', d:'命局结构佳、大运不悖、家长缘合，诸项俱优'};
-    if(t>=76) return {t:'中吉', k:'v-zhongji', d:'命局可用、无明显破败，可择'};
-    if(t>=60) return {t:'平',   k:'v-ping', d:'吉凶参半，须权衡短板'};
-    if(t>=40) return {t:'可备', k:'v-ping', d:'有明显短板，仅作备选；伤损较重者宜避'};
-    return {t:'不宜', k:'v-daxiong', d:'结构破败或关煞叠见，切勿用'};
+    return xjJzGrade(t,{da:'上吉',daK:'v-daji',daD:'命局结构佳、大运不悖、家长缘合，诸项俱优',zhong:'中吉',zhongK:'v-zhongji',zhongD:'命局可用、无明显破败，可择',ping:'平',pingK:'v-ping',pingD:'吉凶参半，须权衡短板',xiong:'可备',xiongK:'v-ping',xiongD:'有明显短板，仅作备选；伤损较重者宜避',daXiong:'不宜',daXiongK:'v-daxiong',daXiongD:'结构破败或关煞叠见，切勿用'});
   }
 
   function scoreOne(BZ, A, ctx){

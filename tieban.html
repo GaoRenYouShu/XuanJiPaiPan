@@ -179,29 +179,6 @@
     }
 /* ============ 刻分与分金选项 ============ */
 /* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function tbReadFold(){
-  try{
-    let raw=localStorage.getItem('tbFoldState');
-    if(!raw) raw=sessionStorage.getItem('tbFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function tbSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=tbReadFold();
-    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('tbFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('tbFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function tbApplyFold(){
-  const o=tbReadFold();
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 function rebuildKeOptions(){
   const zhiH = parseInt(document.getElementById('hInput').value,10);
   const sel = document.getElementById('kInput');
@@ -736,7 +713,7 @@ window.addEventListener('load', function () {
     renderTermGloss();
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) tbSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('tbFoldState','details[id]');
     },true);
     window.addEventListener('resize', ()=>{ clearTimeout(_citeT); _citeT = setTimeout(fitCiteCols, 150); });
     document.getElementById('bLng').addEventListener('change', ()=>{ if(LAST && readSunMode()!=='off') query(); });
@@ -752,7 +729,7 @@ window.addEventListener('load', function () {
     rebuildFengOptions();
     if(applyLinkParams()){ query(); }
     else { setToday(); };
-    tbApplyFold();
+    xjApplyFold('tbFoldState','details[id]');
     mountAI(function(){
       if(!LAST) return '';
       const R = LAST;
@@ -785,7 +762,7 @@ window.addEventListener('load', function () {
     `;
     }, '铁板神数', { share:{ page:'tieban', title:'铁板神数在线排盘', collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ try{ query(); }catch(e){} }); } } });
     if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
-    tbApplyFold();;
+    xjApplyFold('tbFoldState','details[id]');;
   }, 0);
 });
 </script>

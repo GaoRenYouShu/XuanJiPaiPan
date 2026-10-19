@@ -89,7 +89,7 @@ const COMBO_LN={
   core:{1:'核心明亮，整局有主心骨',0:'核心平稳，成事在人为','-1':'核心承压，此局之结在此牌'}
 };
 /* Fisher-Yates 洗牌 */
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffle(a){ return xjShuffle(a); }
 function comboLine(p){return (COMBO_LN[p.role]&&COMBO_LN[p.role][p.card.tone])||'';}
 function keyPick(picks,sp){
   const byPos=n=>picks.find(p=>p.pos===n);

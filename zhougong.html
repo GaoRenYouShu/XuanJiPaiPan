@@ -122,29 +122,6 @@
 <script defer src="assets/zhougong.js"></script>
 <script>
 /* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function zgReadFold(){
-  try{
-    let raw=localStorage.getItem('zgFoldState');
-    if(!raw) raw=sessionStorage.getItem('zgFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function zgSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=zgReadFold();
-    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('zgFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('zgFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function zgApplyFold(){
-  const o=zgReadFold();
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 var zgBadge = { 1:'吉', '-1':'凶', 0:'兼' };
 var ZG_ON_CAT = 0;
 function zgLuckBadge(luck){
@@ -352,10 +329,10 @@ window.addEventListener('load', function () {
   setTimeout(function () {
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) zgSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('zgFoldState','details[id]');
     },true);
     renderChrome('zhougong.html');
-    zgApplyFold();
+    xjApplyFold('zgFoldState','details[id]');
     ZG_DM_SETS.forEach(function(r){
       var bare = r[2].replace(/^梦/, '');
       if (!ZG_DM_DUI.hasOwnProperty(bare)) { ZG_DM_DUI[bare] = []; ZG_DM_NORM[bare] = r[2]; }

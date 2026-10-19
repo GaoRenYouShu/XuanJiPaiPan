@@ -807,47 +807,9 @@ function hlCurLichunYear(){
 var HL_MOD_KEY='hlModState';
 var hlInitDone=false;
 function _hlAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return []; } }
-function hlReadModState(){
-  try{
-    var raw=null;
-    try{ raw=localStorage.getItem(HL_MOD_KEY); }catch(e){}
-    if(!raw){ try{ raw=sessionStorage.getItem(HL_MOD_KEY); }catch(e){} }  /* localStorage 不可用（隐私模式）时回退 sessionStorage */
-    var o=raw?JSON.parse(raw):null;
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
 function toggleMod(id){ var el=document.getElementById(id); if(el) el.classList.toggle('collapsed'); hlSaveModState(); }
-function hlSaveModState(){
-  if(!hlInitDone) return;
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：恢复折叠态本身会触发 toggle 回调本函数，不在场的件若整份重写就会被抹掉 */
-    var o=hlReadModState();
-    _hlAllModIds().forEach(function(id){ var e=document.getElementById(id); if(e) o[id]=e.classList.contains('collapsed'); });
-    /* 页内 details 折叠块（经文检索等）的 open 状态一并持久化 */
-    try{
-      var zr=(o._zr&&typeof o._zr==='object')?o._zr:{};
-      document.querySelectorAll('details[id]').forEach(function(d){ zr[d.id]=d.open; });
-      if(Object.keys(zr).length) o._zr=zr;
-    }catch(e){}
-    var v=JSON.stringify(o);
-    try{ localStorage.setItem(HL_MOD_KEY,v); }catch(e){}   /* 普通模式持久化 */
-    try{ sessionStorage.setItem(HL_MOD_KEY,v); }catch(e){} /* 隐私、无痕模式兜底：同一会话刷新保留 */
-  }catch(e){}
-}
-function hlApplyModState(){
-  var o=hlReadModState();
-  try{
-    _hlAllModIds().forEach(function(id){
-      var e=document.getElementById(id); if(!e) return;
-      if(o[id]===true) e.classList.add('collapsed');
-      else if(o[id]===false) e.classList.remove('collapsed');
-    });
-    /* 恢复内部折叠块 open 状态（须在模块展开后执行，DOM 已就绪） */
-    if(o._zr&&typeof o._zr==='object'){
-      Object.keys(o._zr).forEach(function(id){ var d=document.getElementById(id); if(d&&d.tagName==='DETAILS') d.open=(o._zr[id]===true); });
-    }
-  }catch(e){}
-}
+function hlSaveModState(){ xjSaveEngineModState(HL_MOD_KEY, function(){ return hlInitDone; }, _hlAllModIds); }
+function hlApplyModState(){ xjApplyEngineModState(HL_MOD_KEY, _hlAllModIds); }
 /* 页内 details 折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
 try{ document.addEventListener('toggle',function(e){ if(e.target&&e.target.tagName==='DETAILS'&&e.target.id) hlSaveModState(); },true); }catch(e){}
 

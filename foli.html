@@ -123,20 +123,9 @@ function tipSpan(name){
 }
 /* 弹窗（术语释义、逐宿释义共用）：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
    点遮罩或右上角关闭，ESC 亦可关（与老黄历、万年历弹窗同制式，各页自成一份、不跨页共用） */
-function _foliMask(){
-  let mask=document.getElementById('foliMask');
-  if(!mask){
-    mask=document.createElement('div'); mask.id='foliMask'; mask.className='modal-mask';
-    mask.setAttribute('role','dialog');
-    mask.innerHTML='<div class="modal"><span class="close" onclick="closeFoliTip()" aria-label="关闭">×</span><div id="foliTipBody"></div></div>';
-    mask.addEventListener('click',function(e){ if(e.target===mask) closeFoliTip(); });
-    document.body.appendChild(mask);
-  }
-  return mask;
-}
 function closeFoliTip(){ const m=document.getElementById('foliMask'); if(m) m.classList.remove('show'); }
 function _foliShow(title, body){
-  _foliMask();
+  xjTipMask('foliMask','foliTipBody','closeFoliTip');
   document.getElementById('foliTipBody').innerHTML='<h3 class="tip-title">'+title+'</h3><div class="tip-body">'+body+'</div>';
   document.getElementById('foliMask').classList.add('show');
 }
@@ -262,18 +251,7 @@ function foliXiuGroups(){
   return gs;
 }
 /* 加粗弧、指针、圆点三件随选中走的公共改写（与老黄历 wheelSpot 同法，各页自成一份，不跨页共用） */
-function foliWheelSpot(ids,dg,a0,a1){
-  const arc=document.getElementById(ids.arc);
-  if(arc) arc.setAttribute('d',WHEEL.arc(FW_ARC,a0,a1));
-  const q0=WHEEL.px(FW_P0,dg), q1=WHEEL.px(FW_P1,dg);
-  const ln=document.getElementById(ids.needle);
-  if(ln){
-    ln.setAttribute('x1',WHEEL.n(q0[0])); ln.setAttribute('y1',WHEEL.n(q0[1]));
-    ln.setAttribute('x2',WHEEL.n(q1[0])); ln.setAttribute('y2',WHEEL.n(q1[1]));
-  }
-  const dt=document.getElementById(ids.dot);
-  if(dt){ dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1])); }
-}
+function foliWheelSpot(ids,dg,a0,a1){ return xjWheelSpot(ids,dg,a0,a1,{arc:FW_ARC,p0:FW_P0,p1:FW_P1}); }
 function foliXiuWheel(foto){
   const cur=foto.getXiu();
   FOLI_XIU_CUR=Math.max(0,FOLI_XIU.indexOf(cur));
@@ -337,18 +315,13 @@ function foliXiuDetailHTML(i){
   const full=hasNote?'<span class="tip" onclick="showXiuTipByName(\''+x.nm+'\')">'+x.full+'</span>':x.full;
   return `${full}，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`;
 }
-function foliPickXiu(i){
-  if(!FOLI_XIU_ITEMS||!FOLI_XIU_ITEMS[i]) return;
-  FOLI_XIU_SEL=i;
-  const x=FOLI_XIU_ITEMS[i], sp=foliXiuSpan(i);
-  WHEEL.pick('foliXiuWheel',i);
-  WHEEL.lab('foliXiuWheel',i);
-  foliWheelSpot(FOLI_XIU_IDS,foliXiuMid(i),sp[0],sp[1]);
-  WHEEL.text('foliXiuC1',x.full);
-  WHEEL.text('foliXiuC2',x.luck,x.good?'var(--wheel-good)':'var(--wheel-bad)');
-  WHEEL.text('foliXiuC3',x.xiang);
-  const d=document.getElementById('foliXiuDetail'); if(d) d.innerHTML=foliXiuDetailHTML(i);
-}
+const FOLI_PICK_XIU = {arr:function(){return FOLI_XIU_ITEMS;}, setSel:function(v){FOLI_XIU_SEL=v;}, wheel:'foliXiuWheel', span:foliXiuSpan,
+  spot:function(x,sp,i){ foliWheelSpot(FOLI_XIU_IDS,foliXiuMid(i),sp[0],sp[1]); },
+  c1:['foliXiuC1',function(x){return x.full;}],
+  c2:['foliXiuC2',function(x){return x.luck;},function(x){return x.good?'var(--wheel-good)':'var(--wheel-bad)';}],
+  c3:['foliXiuC3',function(x){return x.xiang;}],
+  detailId:'foliXiuDetail', detail:function(x,i){return foliXiuDetailHTML(i);}};
+function foliPickXiu(i){ xjPickCommon(i, FOLI_PICK_XIU); }
 /* ===== 斋日盘（按农历月的逐日排布） =====
    佛历斋期共五类：朔望斋、六斋日、十斋日、观音斋都落在固定的农历日上，
    故以“农历月的每一天”为天然成环的序列：外圈标斋期单字，内圈排农历日名，

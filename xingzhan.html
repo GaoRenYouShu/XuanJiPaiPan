@@ -106,31 +106,6 @@ const XZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市
    前缀等多种写法。返回 {v, ok, bad}：ok 时 v 为十进制度（负=西经、南纬）；
    有内容但无法解析时 ok=false、bad=原文（供警示），空串返回 {ok:null}。
    度分混合写法（如 -74°30′ 折算 -74.5）按“最后一段是分、再有第三段是秒”的顺序折算。 */
-function xzCoordParse(s, isLat){
-  if(s == null || s.trim() === '') return {ok: null};
-  /* 归一化：全角句点与 Unicode 减号（−）转 ASCII，兼容粘贴文本 */
-  const str = s.trim().replace(/．/g, '.').replace(/[−–—]/g, '-');
-  const nums = (str.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
-  /* 半球前缀：西经（W）与南纬（S）强制负，东经（E）与北纬（N）强制正，按经、纬取对应字母 */
-  const hemiW = isLat ? (/S/i.test(str) || str.includes('南')) : (/W/i.test(str) || str.includes('西'));
-  const hemiE = isLat ? (/N/i.test(str) || str.includes('北')) : (/E/i.test(str) || str.includes('东'));
-  if(!nums.length){ return {ok: false, bad: s}; }
-  let v = 0;
-  const abs = nums.map(n => Math.abs(n));
-  if(nums.length === 1){
-    v = nums[0] < 0 ? -abs[0] : abs[0];
-  } else {
-    /* 度分、度分秒折算：符号取第一段的符号；-74°30′ → -(74+30/60) */
-    v = abs[0] + (abs[1] || 0) / 60 + (abs[2] || 0) / 3600;
-    if(nums[0] < 0) v = -v;
-  }
-  /* 半球前缀强制覆盖符号（带 W/S 时正数也按西、南处理；带 E/N 时负号视为笔误纠正为正） */
-  if(hemiW) v = -Math.abs(v);
-  else if(hemiE) v = Math.abs(v);
-  const lim = isLat ? 90 : 180;
-  if(!Number.isFinite(v) || Math.abs(v) > lim){ return {ok: false, bad: s}; }
-  return {ok: true, v: Math.round(v * 10000) / 10000};
-}
 /* 境外手填经纬度的健壮性提示与核对回显：
    半填（另一项回退出生地成混合坐标）、无效输入（非数字或超出经度±180、纬度±90，已忽略并回退）、
    疑似境外经度（中国范围约东经73°–135°之外）而时区仍为默认 UTC+8 时提醒核对；
@@ -426,28 +401,10 @@ function xzRelWheelBlk(id, title, list, selKey){
   return xzWheelBlk(id, title, items, xzWheelSign(anchor.lonT), detail);
 }
 /* 大模块折叠：机制与八字页 .mod 一致（collapsed 类切换 + localStorage 持久化，键独立防串页） */
-function xzSaveModState(){
-  if(!window.__xzInitDone) return;   /* 与八字页一致：初始化完成前不写，避免覆盖已存状态 */
-  try{
-    const o = {};
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { o[m.id] = !m.classList.contains('collapsed'); });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem('xzModState', v); }catch(e){}
-    try{ sessionStorage.setItem('xzModState', v); }catch(e){}   /* 隐私模式兜底 */
-  }catch(e){}
-}
 function xzToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  xzSaveModState();
-}
-function xzApplyModState(){
-  try{
-    let raw = localStorage.getItem('xzModState');
-    if(!raw) raw = sessionStorage.getItem('xzModState');   /* 与八字页一致：隐私模式兜底 */
-    const s = JSON.parse(raw || '{}');
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  }catch(e){}
+  xjSaveModSections('xzModState','__xzInitDone');
 }
 function xzPai(){
   const dv = document.getElementById('xzDate').value;
@@ -465,7 +422,7 @@ function xzPai(){
      宽容解析（十进制、度分、度分秒/W E S N/中文半球前缀），无效值忽略回退出生地并警示 */
   const lonV = document.getElementById('xzLon').value, latV = document.getElementById('xzLat').value;
   const prov = document.getElementById('xzProv').value;
-  const lonP = xzCoordParse(lonV, false), latP = xzCoordParse(latV, true);
+  const lonP = xjCoordParse(lonV, false), latP = xjCoordParse(latV, true);
   const bads = [lonP.ok === false ? lonV : null, latP.ok === false ? latV : null];
   let lon = lonP.ok ? lonP.v : null;
   let lat = latP.ok ? latP.v : null;
@@ -509,7 +466,7 @@ function xzPai(){
     const bTz = parseFloat(document.getElementById('xzBTz').value) || 8;
     const blonV = document.getElementById('xzBLon').value, blatV = document.getElementById('xzBLat').value;
     const bprov = document.getElementById('xzBProv').value;
-    const blonP = xzCoordParse(blonV, false), blatP = xzCoordParse(blatV, true);
+    const blonP = xjCoordParse(blonV, false), blatP = xjCoordParse(blatV, true);
     const bBads = [blonP.ok === false ? blonV : null, blatP.ok === false ? blatV : null];
     let blon = blonP.ok ? blonP.v : null;
     let blat = blatP.ok ? blatP.v : null;
@@ -778,7 +735,7 @@ function xzPai(){
         ${synRows(buildOverall(chart))}
       </div>
     </section>`;
-  xzApplyModState();
+  xjApplyModSections('xzModState');
   window.__xzInitDone = true;
   /* 行运日期输入为动态节点，重绑一次自建弹层（幂等：已绑定的节点自动跳过） */
   if(window.initPickers) initPickers();

@@ -45,10 +45,7 @@ const ZL_SUN_TAB=[0,6,10,11];
 function zlSchool(k){ return ZL_SCHOOLS[k]||ZL_SCHOOLS['phugpa']; }
 
 /* 公历 ↔ 儒略日数（JDN，整数，正午起算）：Janson 算法全程以 JDN 为输入输出 */
-function zlGregToJdn(y,m,d){
-  const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3;
-  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;
-}
+function zlGregToJdn(y,m,d){ return _jdFromYmd(y,m,d); }
 function zlJdnToGreg(jdn){
   const a=jdn+32044, b=Math.floor((4*a+3)/146097), c=a-Math.floor(146097*b/4);
   const d2=Math.floor((4*c+3)/1461), e=c-Math.floor(1461*d2/4), mo=Math.floor((5*e+2)/153);

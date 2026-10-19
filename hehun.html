@@ -197,45 +197,9 @@ const MONTH_JIAN2=['','寅','卯','辰','巳','午','未','申','酉','戌','亥
  * ① 夫妻星天干透出（跳日干自身）→ 以坐下地支方位为主、天干所主方位为辅；
  * ② 不现则查地支藏干（含日支）→ 以藏夫妻星之地支方位为据；
  * ③ 再不现则取夫妻宫（日支）方位。 */
-function gongWeiFa(BZ, isMale){
-  const want=isMale?['正财','偏财']:['正官','七杀'];
-  for(let i=0;i<4;i++){
-    if(i===2) continue;
-    const g=BZ.gans[i];
-    if(!g) continue;
-    const t=tenGod(BZ.dayGan,g);
-    if(want.indexOf(t)>=0){
-      return {star:t, pos:['年柱','月柱','时柱'][i<2?i:2], zhi:BZ.zhis[i], fang:ZHI_FANG[BZ.zhis[i]], ganFang:GAN_FANG2[g]};
-    }
-  }
-  for(let i=0;i<4;i++){
-    const z=BZ.zhis[i];
-    if(!z) continue;
-    const hid=HIDE[z]||[];
-    for(let k=0;k<hid.length;k++){
-      const t=tenGod(BZ.dayGan,hid[k]);
-      if(want.indexOf(t)>=0){
-        return {star:t, pos:['年支','月支','日支','时支'][i], zhi:z, fang:ZHI_FANG[z], cang:['本气','中气','余气'][k], cangGan:hid[k]};
-      }
-    }
-  }
-  const dz=BZ.dayZ||BZ.zhis[2];
-  if(dz) return {star:'', pos:'夫妻宫', zhi:dz, fang:ZHI_FANG[dz]};
-  return null;
-}
+function gongWeiFa(BZ,isMale){ return xjGongWeiFa(BZ,isMale,ZHI_FANG,GAN_FANG2); }
 /* 方向表法：按农历出生月日，自月建落宫起一顺数至出生日期，落宫方向及其对冲方向即可能方位 */
-function zeOuBiaoFa(BZ){
-  const L=BZ.lunar;
-  if(!L) return null;
-  const m=Math.abs(L.getMonth()||0), d=L.getDay()||0;
-  if(!m||!d) return null;
-  const start=MONTH_JIAN2[m];
-  if(!start) return null;
-  const Z='子丑寅卯辰巳午未申酉戌亥';
-  const idx=(Z.indexOf(start)+d-1)%12;
-  const luo=Z[idx], cz=FANG_CHONG2[luo];
-  return {month:m, day:d, start:start, luo:luo, fang:ZHI_FANG[luo], chongZhi:cz, chongFang:ZHI_FANG[cz]};
-}
+function zeOuBiaoFa(BZ){ return xjZeOuBiaoFa(BZ,MONTH_JIAN2,FANG_CHONG2,ZHI_FANG); }
 /* 干支关系判定一律引全站唯一真源（bazi-rel.js 引 bazi-data.js / xuanji-lib.js）：
  *   天干五合 TIANGAN_HE（含化神，tianGanHe 取化）、天干四冲 TIANGAN_CHONG、
  *   地支六合 DIZHI_HE6（含化神）、三合 DIZHI_SANHE、六冲 DIZHI_CHONG、

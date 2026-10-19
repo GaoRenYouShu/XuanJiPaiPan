@@ -8958,3 +8958,45 @@ function renderYiliModule(BZ){
 
   return html;
 }
+
+/* ===== 八字与合婚两页共用：宫位法与择偶表 =====
+   两页同文，所用方位与月建表由页传入，本件不另存一份。 */
+function xjGongWeiFa(BZ, isMale){
+  const want=isMale?['正财','偏财']:['正官','七杀'];
+  for(let i=0;i<4;i++){
+    if(i===2) continue;
+    const g=BZ.gans[i];
+    if(!g) continue;
+    const t=tenGod(BZ.dayGan,g);
+    if(want.indexOf(t)>=0){
+      return {star:t, pos:['年柱','月柱','时柱'][i<2?i:2], zhi:BZ.zhis[i], fang:zhiFang[BZ.zhis[i]], ganFang:ganFang[g]};
+    }
+  }
+  for(let i=0;i<4;i++){
+    const z=BZ.zhis[i];
+    if(!z) continue;
+    const hid=HIDE[z]||[];
+    for(let k=0;k<hid.length;k++){
+      const t=tenGod(BZ.dayGan,hid[k]);
+      if(want.indexOf(t)>=0){
+        return {star:t, pos:['年支','月支','日支','时支'][i], zhi:z, fang:zhiFang[z], cang:['本气','中气','余气'][k], cangGan:hid[k]};
+      }
+    }
+  }
+  const dz=BZ.dayZ||BZ.zhis[2];
+  if(dz) return {star:'', pos:'夫妻宫', zhi:dz, fang:zhiFang[dz]};
+  return null;
+}
+
+function xjZeOuBiaoFa(BZ){
+  const L=BZ.lunar;
+  if(!L) return null;
+  const m=Math.abs(L.getMonth()||0), d=L.getDay()||0;
+  if(!m||!d) return null;
+  const start=monthJian[m];
+  if(!start) return null;
+  const Z='子丑寅卯辰巳午未申酉戌亥';
+  const idx=(Z.indexOf(start)+d-1)%12;
+  const luo=Z[idx], cz=fangChong[luo];
+  return {month:m, day:d, start:start, luo:luo, fang:zhiFang[luo], chongZhi:cz, chongFang:zhiFang[cz]};
+}

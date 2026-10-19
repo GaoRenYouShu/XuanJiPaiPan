@@ -372,22 +372,6 @@ function xz_ayanamsa(jd){
 }
 
 /* =================== 上升点（黄道：地平交线数值解） =================== */
-function xz_ascendant(jd, lon, lat){
-  const T = (jd - 2451545.0) / 36525;
-  const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - T*T*T / 38710000;
-  const lst = xz_norm360(gmst + lon);              // RAMC（度）
-  const eps = 23.439291111 - 0.013004167 * T - 0.0000001639 * T * T + 0.0000005036 * T * T * T;
-  const er = eps * XZ_DEG, fr = lat * XZ_DEG, lstR = lst * XZ_DEG;
-  // 解析法求上升点（黄道与东方地平线交点＝上升 ASC），精度达机器级
-  // 标准公式（Meeus）：tan(ASC) = cos(RAMC) / -( sin(RAMC)cosε + tanφsinε )
-  //  => ASC = atan2( cos(RAMC), -( sin(RAMC)cosε + tanφsinε ) )，结果即黄道黄经，归一化 0..360
-  const y = Math.cos(lstR);
-  const x = -(Math.sin(lstR) * Math.cos(er) + Math.tan(fr) * Math.sin(er));
-  const ascLon = xz_norm360(Math.atan2(y, x) * XZ_RAD);
-  // 中天 MC：黄道与子午线交点，tan(MC) = tan(RAMC) / cosε
-  const mcLon = xz_norm360(Math.atan2(Math.sin(lstR), Math.cos(lstR) * Math.cos(er)) * XZ_RAD);
-  return {lon: ascLon, mc: mcLon, ramc: lst, eps};
-}
 
 /* =================== 庙旺落陷判定 =================== */
 function xz_dignity(key, signName){
@@ -1080,7 +1064,7 @@ function xz_compute(y, m, d, hh, mm, sex, tz, lon, lat, system){
   const longitudes = xz_ephem_longitudes(jd);
   const speeds = xz_ephem_speeds(jd);
   const ayan = xz_ayanamsa(jd);
-  const asc = xz_ascendant(jd, lon, lat);
+  const asc = xjAscCalc(jd, lon, lat);
   const sid = {};
   for(const k in longitudes) sid[k] = xz_norm360(longitudes[k] - ayan);
 
@@ -1344,7 +1328,7 @@ function xz_secProg(chart, y, m, d){
   if(jdT < chart.jd) return {neg: true};
   const pjd = chart.jd + years;
   const list = xz_transitSnap(pjd, chart.cusps);
-  const pasc = xz_ascendant(pjd, chart.lon, chart.lat);
+  const pasc = xjAscCalc(pjd, chart.lon, chart.lat);
   const lons = {};
   list.forEach(p => lons[p.key] = p.lonT);
   lons.asc = pasc.lon;
@@ -1394,7 +1378,7 @@ function xz_solarReturn(chart, yr){
   }
   const jdR = (lo + hi) / 2;
   const list = xz_transitSnap(jdR, chart.cusps);
-  const ascR = xz_ascendant(jdR, chart.lon, chart.lat);
+  const ascR = xjAscCalc(jdR, chart.lon, chart.lat);
   const lons = {};
   list.forEach(p => lons[p.key] = p.lonT);
   const hits = xz_crossAspects(lons, xz_natalPoints(chart), null, true).slice(0, 24);
@@ -1594,7 +1578,7 @@ function xz_davisonChart(chartA, chartB, want){
     if(lonD < -180) lonD += 360;
   }
   const latD = (chartA.lat + chartB.lat) / 2;
-  const asc = xz_ascendant(jdD, lonD, latD);
+  const asc = xjAscCalc(jdD, lonD, latD);
   let cusps, sysFallback = false;
   if(want === 'placidus'){
     const pc = xz_houseCusps(asc, latD);

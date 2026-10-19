@@ -307,6 +307,7 @@
 <script defer src="assets/fengshui-engine.js"></script>
 <script defer src="assets/fs-luo.js"></script>
 <script defer src="assets/fs-mag.js"></script>
+<script defer src="assets/fengshui-common.js"></script>
 <script defer src="assets/bazi-data.js"></script>
 <script defer src="assets/bazi-rel.js"></script>
 <script defer src="assets/zeri-engine.js"></script>
@@ -332,87 +333,22 @@ function fwDetail(id,html){ const e=document.getElementById(id); if(e) e.innerHT
 /* 取所在地经纬度：手填两项齐全即优先，否则按省市区经 latlng.js 取数。
    所在地未定即无坐标可取，返回空而磁偏角留空不折算（磁偏角框空即古法直读磁北），
    不回退任一城市坐标：按别人的所在地折出来的磁偏角不著来历。 */
-function fsGeoCoord(){
-  const lo=parseFloat((document.getElementById('fsLng')||{}).value);
-  const la=parseFloat((document.getElementById('fsLat')||{}).value);
-  if(isFinite(lo)&&isFinite(la)) return {lng:lo, lat:la};
-  const sp=document.getElementById('fsProv'); if(!sp||!sp.value) return null;
-  const sc=document.getElementById('fsCity'), sd=document.getElementById('fsDist');
-  const lng=findLng(sp.value, sc&&sc.value, sd&&sd.value);
-  const lat=findLat(sp.value, sc&&sc.value, sd&&sd.value);
-  if(lng==null||lat==null) return null;
-  return {lng, lat};
-}
 function fsDeclTouch(){
   FS_DECL_TOUCH=document.getElementById('baseDecl').value!=='';
   fsMagNote();
 }
-function fsGeoPick(){
-  const el=document.getElementById('baseDecl');
-  if(el && !FS_DECL_TOUCH){
-    const c=fsGeoCoord();
-    el.value=c?FS_MAG.decl(c.lat, c.lng, new Date()).toFixed(2):'';
-  }
-  fsMagNote();
-}
+function fsDeclNow(){ return new Date(); }
 /* 罗盘实测读数为磁北，按当地磁偏角折真北：东偏为正、西偏为负，真方位＝磁方位＋磁偏角。
    磁偏角留空即不折算（古法直读磁北）。 */
-function fsMagTrue(deg){
-  if(deg==null || !isFinite(deg)) return undefined;
-  const d=parseFloat((document.getElementById('baseDecl')||{}).value);
-  if(!isFinite(d)) return deg;
-  return ((deg+d)%360+360)%360;
-}
 /* 实测坐度已填时，坐山随折算后坐度所属之山：坐度是罗盘实测读数，坐山是它的归类，两者不得各行其是。
    磁偏角折算把真北坐度推入邻山时，坐山若不跟随即误报骑缝空亡：实测坐度 100 度、磁偏角 -7.56 度，
    真北坐度 92.44 度落卯山（82.5 至 97.5 度），坐山若仍留乙则与乙山中线（105 度）差 12.56 度，
    越过 7.25 度即判骑缝空亡；坐山随坐度落卯，与卯山中线（90 度）只差 2.44 度，判正向。
    坐度留空则不动，坐山仍可自由选。取地盘正针定山，与立向口径一致。 */
-function fsSitFromDeg(){
-  const dv=document.getElementById('baseDeg').value;
-  const deg=fsMagTrue(dv===''?null:parseFloat(dv));
-  if(deg===undefined) return;
-  const z=FS.zhenShan(deg, 'zheng');
-  if(!z) return;
-  const sitEl=document.getElementById('baseSit'), faceEl=document.getElementById('baseFace');
-  if(!sitEl) return;
-  sitEl.value=z.shan;
-  if(faceEl) faceEl.selectedIndex=(FS.SHAN_LIST.indexOf(z.shan)+12)%24;
-}
 /* 提示行只出专业结果：未填坐度不出；已填坐度时给折算与否与折算后坐度，
    不写取数来源、模型名、经纬度与两源差值 */
-function fsMagNote(){
-  const el=document.getElementById('fsMagNote'); if(!el) return;
-  const t=fsMagTrue(parseFloat(document.getElementById('baseDeg').value));
-  if(t===undefined){ el.textContent=''; return; }
-  const d=parseFloat(document.getElementById('baseDecl').value);
-  el.textContent=isFinite(d)
-    ? `已按当地磁偏角折算真北，折算后坐度 ${t.toFixed(1)}°`
-    : '所填坐度按真北论，未作折算';
-}
 /* 重新取当地磁偏角：按所在地取数填入磁偏角框，并据新值重算全页；取不到则保持现值不动，
    不向页面报取数过程 */
-function fsMagOnline(){
-  const btn=document.getElementById('fsMagBtn');
-  const c=fsGeoCoord(); if(!c) return;
-  if(btn){ btn.disabled=true; btn.textContent='取数中'; }
-  let got=false;
-  FS_MAG.online(c.lat, c.lng, new Date()).then(v=>{
-    if(v==null) return;
-    document.getElementById('baseDecl').value=v.toFixed(2);
-    FS_DECL_TOUCH=true;
-    got=true;
-  }).catch(()=>{}).then(()=>{
-    if(btn){ btn.disabled=false; btn.textContent='重新取当地磁偏角'; }
-    if(got) fsApplyBase(); else fsMagNote();
-  });
-}
-function fsGeoInit(){
-  const sp=document.getElementById('fsProv'); if(!sp) return;
-  const trio=fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
-  fsGeoPick();
-  placeIpPrefill({manualKey:'fsy_geo_manual', group:document.getElementById('fsGeoGroup'), trio:trio, onDone:fsGeoPick});
-}
 /* 全局基础设定读取 */
 function getBase(){
   const by=parseInt(document.getElementById('baseYear').value,10)||1940;
@@ -444,15 +380,6 @@ function fillBase(){
    故不存在多份状态互不同步；程序赋值不触发 change 事件，也不会回环。
    第 8 步择日模块另有成课自有控件 ckSit/ckFace/ckLong/ckXm（经 ckSyncBase 等与基础设定同步），不在此列，避免重复入口。
    形法四步（觅龙、察砂、观水、点穴）与第 5 步之外的各步不涉坐向计算，不设本层控件。 */
-function fsSetLocalBase(which,el){
-  if(which==='sit'){
-    document.getElementById('baseSit').value=el.value;
-    document.getElementById('baseFace').selectedIndex=(FS.SHAN_LIST.indexOf(el.value)+12)%24;
-  }else if(which==='face') document.getElementById('baseFace').value=el.value;
-  else if(which==='deg') document.getElementById('baseDeg').value=el.value;
-  else document.getElementById('baseYear2').value=el.value;
-  fsApplyBase();
-}
 function fillLocalBase(){
   const sit=document.getElementById('baseSit'), face=document.getElementById('baseFace');
   if(!sit||!face) return;
@@ -461,11 +388,9 @@ function fillLocalBase(){
   syncLocalBase();
 }
 function syncLocalBase(){
-  const v=id=>{ const e=document.getElementById(id); return e?e.value:''; };
-  document.querySelectorAll('.fs-lb-sit').forEach(el=>{ el.value=v('baseSit'); });
-  document.querySelectorAll('.fs-lb-face').forEach(el=>{ el.value=v('baseFace'); });
-  document.querySelectorAll('.fs-lb-deg').forEach(el=>{ el.value=v('baseDeg'); });
-  document.querySelectorAll('.fs-lb-year').forEach(el=>{ el.value=v('baseYear2'); });
+  fsSyncLocalBase([
+    {sel:'.fs-lb-sit',src:'baseSit'},{sel:'.fs-lb-face',src:'baseFace'},{sel:'.fs-lb-deg',src:'baseDeg'},{sel:'.fs-lb-year',src:'baseYear2'}
+  ]);
 }
 function renderXlInput(){
   Object.keys(XL_HOST_IN).forEach(k=>{
@@ -672,22 +597,10 @@ function drawXuanKong(){
     </div>`;
   fsXkDetail();
 }
-function fsXkRow(i){
-  const d=FS_XK_DATA, n=FS_ZB_ORDER[i];
-  return {palace:n,
-    yun:d.yunBoard.find(x=>x.palace===n).star,
-    sit:d.sitBoard.find(x=>x.palace===n).star,
-    face:d.faceBoard.find(x=>x.palace===n).star};
-}
+function fsXkRow(i){ return fsXkRowCommon(i); }
 /* 盘心三行：一行立极结论（中宫入中之星＝当运之星，不随点选变），二行该宫宫名方位与运星，
    三行判定（所选之宫山向两星相会之吉凶，带吉凶色）。 */
-function fsXkCoreTxt(i){
-  const d=FS_XK_DATA, r=fsXkRow(i), cj=FS.comboJx(r.sit, r.face);
-  return [STAR_NAMES[d.yun.yun],
-    FS.NINE_BAGUA[r.palace]+FS.NINE_DIR[r.palace]+' 运'+r.yun,
-    '山'+r.sit+'向'+r.face+' '+cj.jx,
-    fwJxFill(cj.jx)||'var(--wheel-ink2)'];
-}
+function fsXkCoreTxt(i){ return fsXkCoreTxtCommon(i); }
 function fsXkCore(i){
   const t=fsXkCoreTxt(i);
   WHEEL.text('fsXkC1',t[0]);
@@ -703,58 +616,7 @@ function fsXkNeedle(i){
   nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1]));
   dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
 }
-function fsXkWheelSvg(){
-  const d=FS_XK_DATA; if(!d) return '';
-  const yun=d.yun.yun, b=getBase();
-  const iSit=FS_ZB_ORDER.indexOf(FS_GUA_NUM[b.sitShan]), iFace=FS_ZB_ORDER.indexOf(FS_GUA_NUM[b.faceShan]);
-  let s='';
-  for(let i=0;i<8;i++) s+=`<path d="${WHEEL.arc(FW_ARC,i*45-22.5,i*45+22.5)}" class="w-arc"/>`;
-  /* 到山到向：坐山宫与向首宫那两根刻度加重，盘上自成一条坐向轴，一眼可见坐向落于哪两宫 */
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_TICK0,i*45), c=WHEEL.px(FW_TICK1,i*45);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="${i===iSit||i===iFace?'w-tick-j':'w-tick'}"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const bd=WHEEL.band(FW_IN3,FW_HIT1,i*45-22.5,i*45+22.5);
-    s+=`<path d="${bd}" class="w-hit${i===FS_XK_SEL?' is-on':''}" data-i="${i}" onclick="fsPickXk(${i})"/>`
-      +`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsXkCur" d="${WHEEL.arc(FW_ARC,FS_XK_SEL*45-22.5,FS_XK_SEL*45+22.5)}" class="w-arc w-arc-cur"/>`;
-  /* 外签宫名与方位 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const a=WHEEL.px(FW_LAB_OUT,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_XK_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.NINE_BAGUA[n]}${FS.NINE_DIR[n]}</text>`;
-  });
-  /* 内签一：运星名，色取该星本身的吉凶 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const r=fsXkRow(i), a=WHEEL.px(FW_LAB_ZW,i*45), f=fwJxFill(FS.STAR_JX[r.yun]);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_XK_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.radial(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${STAR_NAMES[r.yun]}</text>`;
-  });
-  /* 内签二：山星与向星同格左右并排，各按自己那一档旺衰着色 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const r=fsXkRow(i);
-    [[-12,'山'+r.sit,FS.starWangShuai(r.sit,yun)],[12,'向'+r.face,FS.starWangShuai(r.face,yun)]].forEach(pr=>{
-      const ang=i*45+pr[0], a=WHEEL.px(FW_LAB_SX,ang);
-      s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_XK_SEL?' w-lab-cur':''}" data-i="${i}"`
-        +` style="fill:${fwWangFill(pr[2])}"`
-        +` transform="rotate(${WHEEL.radial(ang)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${pr[1]}</text>`;
-    });
-  });
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN3}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,FS_XK_SEL*45), q1=WHEEL.px(FW_P1_3,FS_XK_SEL*45);
-  s+=`<line id="fsXkNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsXkDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  const ct=fsXkCoreTxt(FS_XK_SEL);
-  s+=`<text id="fsXkC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsXkC2" x="${FW_C}" y="${FW_C+14}" class="w-c2">${ct[1]}</text>`
-    +`<text id="fsXkC3" x="${FW_C}" y="${FW_C+34}" class="w-c3" style="fill:${ct[3]}">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsXkWheel" viewBox="0 0 440 440" role="img" aria-label="玄空飞星山向盘：外圈八宫方位，内两圈为运星与山向星，坐山宫与向首宫刻度加重为坐向轴，点选一宫看该宫山向旺衰与断事">${s}</svg>`;
-}
+function fsXkWheelSvg(){ const b=getBase(); return xjFsXkWheelSvg({axis:function(){return {sit:FS_ZB_ORDER.indexOf(FS_GUA_NUM[b.sitShan]),face:FS_ZB_ORDER.indexOf(FS_GUA_NUM[b.faceShan])};},geo:{in:window.SD_IN||104,hit1:window.SD_HIT1||198,zw:window.SD_ZW||152,sx:window.SD_SX||120,p0:window.SD_P0||82,p1:window.SD_P1||100,out:window.FW_OUT||182,core:window.FW_CORE||78,c:window.FW_C||220}}); }
 /* 顺逆之由：山盘以运盘到山之星入中、向盘以到向之星入中，查该星数在元旦盘所落卦宫，
    取宫中与坐山（向首）同三元龙之山，以该山阴阳定顺逆；五黄入中无卦可取，依坐山（向首）本山阴阳。
    口径出自指南 5.4 与引擎 flyYang：三元龙取指南 2.4（天元四维阳、四正阴；人元寅申巳亥阳、乙辛丁癸阴；
@@ -787,19 +649,16 @@ function fsXkDetail(){
     +`<span class="wd-br"></span>`
     +`坐向轴 盘上加重的那两根刻度即坐山宫与向首宫。`);
 }
-function fsPickXk(i){
-  FS_XK_SEL=i;
-  WHEEL.pick('fsXkWheel',i);
-  WHEEL.lab('fsXkWheel',i);
-  fsXkNeedle(i);
-  const root=document.getElementById('fsXkWheel'), cur=document.getElementById('fsXkCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsXkCore(i);
-  fsXkDetail();
-}
+const FS_PICK_CONF = {
+  xk:{state:function(v){FS_XK_SEL=v;},wheel:'fsXkWheel',cur:'fsXkCur',needle:fsXkNeedle,core:fsXkCore,detail:fsXkDetail},
+  ct:{state:function(v){FS_CT_SEL=v;},wheel:'fsCtWheel',cur:'fsCtCur',needle:fsCtNeedle,core:fsCtCore,detail:fsCtDetail},
+  td:{state:function(v){FS_TD_SEL=v;},wheel:'fsTdWheel',cur:'fsTdCur',needle:fsTdNeedle,core:fsTdCore,detail:fsTdDetail},
+  xm:{state:function(v){FS_XM_SEL=v;},wheel:'fsXmWheel',cur:'fsXmCur',needle:fsXmNeedle,core:fsXmCore,detail:fsXmDetail},
+  ns:{state:function(v){FS_NS_SEL=v;},wheel:'fsNsWheel',cur:'fsNsCur',needle:fsNsNeedle,core:fsNsCore,detail:fsNsDetail},
+  sh:{state:function(v){FS_SH_SEL=v;},wheel:'fsShWheel',cur:'fsShCur',needle:fsShNeedle,core:fsShCore,detail:fsShDetail},
+  zh:{state:function(v){FS_ZH_SEL=v;},wheel:'fsZhWheel',cur:'fsZhCur',needle:fsZhNeedle,core:fsZhCore,detail:fsZhDetail,beforeCore:function(i){ fsZhMark(i); }},
+};
+function fsPickXk(i){ fsPickCommon(i, FS_PICK_CONF.xk); }
 /* 罗经立向盘（三盘三针，含实测坐度判定）：盘面之外的文字一律收在盘下详情条一处。
    盘上不加图注：三针各主何事与用事口径都是定则，写在盘上会与盘下重出一遍；
    盘上不自造图注件，定则与随点选走的数据同出一处。 */
@@ -1056,24 +915,8 @@ function fsTdDetail(){
     +`<span class="wd-br"></span>`
     +`透地六十龙 每龙六度，本山所交之龙即格龙所得；边界相交者为半交，须以实测坐度定之`);
 }
-function fsPickCt(i){
-  FS_CT_SEL=i;
-  WHEEL.pick('fsCtWheel',i);
-  WHEEL.lab('fsCtWheel',i);
-  fsCtNeedle(i);
-  const root=document.getElementById('fsCtWheel'), cur=document.getElementById('fsCtCur');
-  if(root&&cur){ const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)'); if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d')); }
-  fsCtCore(i); fsCtDetail();
-}
-function fsPickTd(i){
-  FS_TD_SEL=i;
-  WHEEL.pick('fsTdWheel',i);
-  WHEEL.lab('fsTdWheel',i);
-  fsTdNeedle(i);
-  const root=document.getElementById('fsTdWheel'), cur=document.getElementById('fsTdCur');
-  if(root&&cur){ const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)'); if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d')); }
-  fsTdCore(i); fsTdDetail();
-}
+function fsPickCt(i){ fsPickCommon(i, FS_PICK_CONF.ct); }
+function fsPickTd(i){ fsPickCommon(i, FS_PICK_CONF.td); }
 function drawChuanTou(){
   const out=document.getElementById('ctOut'); if(!out) return;
   const b=getBase();
@@ -1150,12 +993,7 @@ function fsXmCore(i){
   WHEEL.text('fsXmC2',t[1],t[3]);
   WHEEL.text('fsXmC3',t[2]);
 }
-function fsXmNeedle(i){
-  const ln=document.getElementById('fsXmNeedle'), dt=document.getElementById('fsXmDot');
-  const a=WHEEL.px(FW_P0,fwZhiDeg(i)), c=WHEEL.px(FW_P1,fwZhiDeg(i));
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(c[0])); ln.setAttribute('y2',WHEEL.n(c[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(c[0])); dt.setAttribute('cy',WHEEL.n(c[1])); }
-}
+function fsXmNeedle(i){ fsNeedleCommon('fsXmNeedle','fsXmDot',fwZhiDeg(i),false); }
 function fsXmWheelSvg(){
   const d=FS_XM_DATA; if(!d) return '';
   let s='';
@@ -1203,19 +1041,7 @@ function fsXmDetail(){
     +`<span class="wd-br"></span>`
     +`周天以地盘子山正中为零度、每支三十度，与分金环同一基准。`);
 }
-function fsPickXm(j){
-  FS_XM_SEL=j;
-  WHEEL.pick('fsXmWheel',j);
-  WHEEL.lab('fsXmWheel',j);
-  fsXmNeedle(j);
-  const root=document.getElementById('fsXmWheel'), cur=document.getElementById('fsXmCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[j]) cur.setAttribute('d',arcs[j].getAttribute('d'));
-  }
-  fsXmCore(j);
-  fsXmDetail();
-}
+function fsPickXm(i){ fsPickCommon(i, FS_PICK_CONF.xm); }
 /* ===================== 8 择日：避煞择日 ===================== */
 /* 真太岁方位（安葬流年避忌） */
 function drawNianSha(){
@@ -1268,12 +1094,7 @@ function fsNsCore(j){
   WHEEL.text('fsNsC2',t[1],t[3]);
   WHEEL.text('fsNsC3',t[2]);
 }
-function fsNsNeedle(j){
-  const ln=document.getElementById('fsNsNeedle'), dt=document.getElementById('fsNsDot');
-  const a=WHEEL.px(FW_P0,fwZhiDeg(j)), c=WHEEL.px(FW_P1,fwZhiDeg(j));
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(c[0])); ln.setAttribute('y2',WHEEL.n(c[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(c[0])); dt.setAttribute('cy',WHEEL.n(c[1])); }
-}
+function fsNsNeedle(j){ fsNeedleCommon('fsNsNeedle','fsNsDot',fwZhiDeg(j),false); }
 function fsNsWheelSvg(){
   const b=getBase();
   const iSit=FS_ZHI.indexOf(FS.SHAN_SHUANGZHI[b.sitShan]||b.sitShan), iFace=FS_ZHI.indexOf(FS.SHAN_SHUANGZHI[b.faceShan]||b.faceShan);
@@ -1326,19 +1147,7 @@ function fsNsDetail(){
     +`<span class="wd-br"></span>`
     +`坐向轴 盘上加重的那两根刻度即坐山与向首所落之支，其周天区间即上方所记。`);
 }
-function fsPickNs(j){
-  FS_NS_SEL=j;
-  WHEEL.pick('fsNsWheel',j);
-  WHEEL.lab('fsNsWheel',j);
-  fsNsNeedle(j);
-  const root=document.getElementById('fsNsWheel'), cur=document.getElementById('fsNsCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[j]) cur.setAttribute('d',arcs[j].getAttribute('d'));
-  }
-  fsNsCore(j);
-  fsNsDetail();
-}
+function fsPickNs(i){ fsPickCommon(i, FS_PICK_CONF.ns); }
 /* 安葬大利月：逐节气月扫月家煞到山（月三煞、月破凶；月刑、月害、月五黄次忌） */
 function drawYue(){
   const out=document.getElementById('yueOut');
@@ -1365,17 +1174,7 @@ function drawYue(){
 /* 日紫白历法上下文：以 lunar.js 取立春年、节气月、三元阴阳遁分段（与阳宅页同例） */
 function YIN_CTX(y,m,d){
   const gzIdx=gz=>{ for(let k=0;k<60;k++){ if(FS.GAN[k%10]+FS.ZHI[k%12]===gz) return k; } return 0; };
-  const pickJQ=(name,ref,after)=>{
-    const cand=[];
-    for(const ly of [y-1,y,y+1]){
-      const s=Solar.fromYmd(ly,1,1).getLunar().getJieQiTable()[name];
-      if(s) cand.push(s.getYear()*10000+s.getMonth()*100+s.getDay());
-    }
-    cand.sort((a,b)=>a-b);
-    if(!after){ let ch=null; for(const c of cand) if(c<=ref) ch=c; return ch||cand[0]; }
-    for(const c of cand) if(c>ref) return c;
-    return cand[cand.length-1];
-  };
+  const pickJQ=(name,ref,after)=>xjPickJQ(name,ref,after,y);
   const q=y*10000+m*100+d;
   /* 日紫白三元阴阳遁（《选择求真》）：阳遁上元（冬至-雨水）甲子一白、中元（雨水-谷雨）七赤、下元（谷雨-夏至）四绿，顺行；
      阴遁上元（夏至-处暑）甲子九紫、中元（处暑-霜降）三碧、下元（霜降-冬至）六白，逆行 */
@@ -1898,76 +1697,9 @@ function fsShNeedle(i){
   nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1]));
   dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
 }
-function fsShWheelSvg(){
-  const d=FS_SH_DATA; if(!d) return '';
-  let s='';
-  for(let i=0;i<12;i++){
-    const a=fsShDeg(i);
-    s+=`<path d="${WHEEL.arc(FW_ARC,a-15,a+15)}" class="w-arc"/>`;
-  }
-  for(let i=0;i<12;i++){
-    const a=fsShDeg(i), c=WHEEL.px(FW_TICK0,a), e=WHEEL.px(FW_TICK1,a);
-    s+=`<line x1="${WHEEL.n(c[0])}" y1="${WHEEL.n(c[1])}" x2="${WHEEL.n(e[0])}" y2="${WHEEL.n(e[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<12;i++){
-    const a=fsShDeg(i), bd=WHEEL.band(FW_IN,FW_HIT1,a-15,a+15);
-    s+=`<path d="${bd}" class="w-hit${i===FS_SH_SEL?' is-on':''}" data-i="${i}" onclick="fsPickSh(${i})"/>`
-      +`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsShCur" d="${WHEEL.arc(FW_ARC,fsShDeg(FS_SH_SEL)-15,fsShDeg(FS_SH_SEL)+15)}" class="w-arc w-arc-cur"/>`;
-  /* 外签十二宫名：宫名二字与单字并存（衰病死墓绝胎养皆单字），一律沿圆周环布 */
-  for(let i=0;i<12;i++){
-    const a=WHEEL.px(FW_LAB_OUT,fsShDeg(i)), f=fwJxFill(d.gongJx[i]);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_SH_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.ring(fsShDeg(i))} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${d.gong[i].gong}</text>`;
-  }
-  /* 内签地支：单字走取字角，四正放正 */
-  for(let i=0;i<12;i++){
-    const a=WHEEL.px(FW_LAB_IN,fsShDeg(i));
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SH_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.dir(fsShDeg(i))} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${d.gong[i].zhi}</text>`;
-  }
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,fsShDeg(FS_SH_SEL)), q1=WHEEL.px(FW_P1,fsShDeg(FS_SH_SEL));
-  s+=`<line id="fsShNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsShDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  const ct=fsShCoreTxt(FS_SH_SEL);
-  s+=`<text id="fsShC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsShC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="fill:${ct[3]}">${ct[1]}</text>`
-    +`<text id="fsShC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsShWheel" viewBox="0 0 440 440" role="img" aria-label="三合水法长生十二宫盘：取角按天盘缝针，外圈十二宫名，内圈地支方位，点选一宫看该宫断水">${s}</svg>`;
-}
-function fsShDetail(){
-  const d=FS_SH_DATA; if(!d) return;
-  const i=FS_SH_SEL, g=d.gong[i], jx=d.gongJx[i];
-  const bad=jx.indexOf('凶')>=0;
-  fwDetail('fsShDetail',
-    `${g.gong}宫 ${g.zhi}方（缝针） <span class="${bad?'wd-x':'wd-g'}">${jx}</span> ${SH_USE[i]}`
-    +`<span class="wd-br"></span>`
-    +`${d.gongNote[i]}`
-    +`<span class="wd-br"></span>`
-    +`${d.ju}：${d.zs}起长生、帝旺在${d.miao}、墓库在${d.mu} 收山出煞：${d.shou}`
-    +`<span class="wd-br"></span>`
-    +`来水宜长生、冠带、临官、帝旺四宫，去水宜衰、墓、绝、胎四宫；沐浴来水不吉而宜去。`
-    +`<span class="wd-br"></span>`
-    +FS.SH_QUJIAO);
-}
-function fsPickSh(i){
-  FS_SH_SEL=i;
-  WHEEL.pick('fsShWheel',i);
-  WHEEL.lab('fsShWheel',i);
-  fsShNeedle(i);
-  const root=document.getElementById('fsShWheel'), cur=document.getElementById('fsShCur');
-  if(root){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsShCore(i);
-  fsShDetail();
-}
+function fsShWheelSvg(){ return xjFsShWheelSvg(); }
+function fsShDetail(){ return fsShDetailCommon(); }
+function fsPickSh(i){ fsPickCommon(i, FS_PICK_CONF.sh); }
 function fsZhData(){
   const b=getBase(), y=b.flowYear;
   return {b, y, gz:FS.yearGZ(y), ns:FS.nianSha(y), sw:FS.sanHeWater(b.sitShan)};
@@ -1993,13 +1725,7 @@ function fsZhCoreTxt(i){
     hit.length?hit.join('、')+'到山':'本年四煞不到山',
     hit.length?'var(--wheel-bad)':'var(--wheel-good)'];
 }
-function fsZhCore(i){
-  const t=fsZhCoreTxt(i);
-  WHEEL.text('fsZhC0',t[0]);
-  WHEEL.text('fsZhC1',t[1]);
-  WHEEL.text('fsZhC2',t[2]);
-  WHEEL.text('fsZhC3',t[3],t[4]);
-}
+function fsZhCore(i){ fsCoreCommon(['fsZhC0','fsZhC1','fsZhC2','fsZhC3'],function(){ return fsZhCoreTxt(i); }); }
 /* 指针与端点随选中山的取度转（坐山用实测坐度、他山用山心度），只走盘心圆与内界圈之间 */
 function fsZhNeedle(i){
   const root=document.getElementById('fsZhWheel'); if(!root) return;
@@ -2080,20 +1806,7 @@ function fsZhWheelSvg(){
     +`<text id="fsZhC3" x="${FW_C}" y="${FW_C+34}" class="w-c3" style="fill:${ct[4]}">${ct[3]}</text>`;
   return `<svg class="wheel" id="fsZhWheel" viewBox="0 0 440 440" role="img" aria-label="阴宅综合罗经盘：外圈二十四山，其内为周天刻度、三合长生十二宫与十二支位，盘心为天池；点选一山看该山坐度、双山、宫位与到山方煞合参">${s}</svg>`;
 }
-function fsPickZh(i){
-  FS_ZH_SEL=i;
-  WHEEL.pick('fsZhWheel',i);
-  WHEEL.lab('fsZhWheel',i);
-  fsZhNeedle(i);
-  const root=document.getElementById('fsZhWheel'), cur=document.getElementById('fsZhCur');
-  if(root){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsZhMark(i);
-  fsZhCore(i);
-  fsZhDetail();
-}
+function fsPickZh(i){ fsPickCommon(i, FS_PICK_CONF.zh); }
 /* 内两圈随选中山的双山配支高亮：十二宫与十二支同轴，一支即一格。
    这两圈的字不带 data-i，故 WHEEL.lab 不认它们，支序另走 data-g。
    初始渲染后亦须调用一次，否则一进页面内两圈无高亮、须点一下才亮 */
@@ -2840,7 +2553,7 @@ window.addEventListener('load', function () {
     })();
     renderXlInput();
     fillBase();
-    fsGeoInit();
+    fsGeoInit('fsy_geo_manual');
     fillBuLong();
     (function(){
       const n=new Date();

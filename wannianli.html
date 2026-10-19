@@ -164,20 +164,9 @@ function showJingluoTip(i){
 }
 /* 弹窗（物候释义、时令规则共用）：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
    点遮罩或右上角关闭，ESC 亦可关。 */
-function _wnlMask(){
-  let mask=document.getElementById('wnlMask');
-  if(!mask){
-    mask=document.createElement('div'); mask.id='wnlMask'; mask.className='modal-mask';
-    mask.setAttribute('role','dialog');
-    mask.innerHTML='<div class="modal"><span class="close" onclick="closeWnlTip()" aria-label="关闭">×</span><div id="wnlTipBody"></div></div>';
-    mask.addEventListener('click',function(e){ if(e.target===mask) closeWnlTip(); });
-    document.body.appendChild(mask);
-  }
-  return mask;
-}
 function closeWnlTip(){ const m=document.getElementById('wnlMask'); if(m) m.classList.remove('show'); }
 function _wnlShow(title, body){
-  _wnlMask();
+  xjTipMask('wnlMask','wnlTipBody','closeWnlTip');
   document.getElementById('wnlTipBody').innerHTML='<h3 class="tip-title">'+title+'</h3><div class="tip-body">'+body+'</div>';
   document.getElementById('wnlMask').classList.add('show');
 }
@@ -195,11 +184,7 @@ function showShilingTip(item){
 }
 /* 经络当令弹窗：当令经的全名、时段与宜做（取 shiling.js SHILING_JINGLUO 单一真源）；
    按传入时支取数，与行内所示同一时辰，不按点击时刻重推 */
-function showDangLingTip(zhi){
-  const j=(typeof SHILING_JINGLUO!=='undefined')?SHILING_JINGLUO.find(function(x){return x.zhi===zhi;}):null;
-  if(!j) return;
-  _wnlShow(j.zhi+'时 '+j.jing, j.full+'，当令时段 '+j.range+'。宜 '+j.yi+'。');
-}
+function showDangLingTip(zhi){ return xjShowDangLingTip(zhi,_wnlShow); }
 /* 通书术语弹窗（宜忌诸名）：释义取 tongshu-terms.js 单一真源，与老黄历页同一张表 */
 function showTongshuTip(name){
   const o=(typeof tongshuMean==='function')?tongshuMean(name):null;
@@ -403,13 +388,7 @@ function jingluoWheel(){
 }
 /* 年占十六项：依农历正月初一的日干支起例，一整年只此一份，故按农历年取数，不随所查日期逐日重算。
    取数走 lunar.js 的 LunarYear，页内不另抄一套口诀。 */
-function yearZhanRow(y){
-  const L=(typeof LunarYear!=='undefined')?LunarYear.fromYear(y):null;
-  if(!L) return '';
-  return [L.getCaoZi(),L.getDeJin(),L.getFenBing(),L.getGengTian(),L.getGongZhu(),L.getHuaShou(),
-    L.getJiaTian(),L.getKanCan(),L.getQiangMi(),L.getRenBing(),L.getRenChu(),L.getTouLiang(),
-    L.getTuoGu(),L.getZhiShui(),L.getYuan(),L.getYun()].join('　');
-}
+function yearZhanRow(y){ return xjYearZhanRow(y); }
 /* 年占弹窗：十六项逐条给算法口径，项名照库出、不复述一遍行内已有之数 */
 const YZ_RULE={
   getCaoZi:'正月内第一个子日在初几，草子便收几分，草子是荒年杂粮的收成占',
@@ -429,25 +408,7 @@ const YZ_RULE={
   getYuan:'三元九运：上元、中元、下元各六十年，一百八十年一循环，此年所属之元',
   getYun:'三元九运：每元分三运、每运二十年，此年所属之运'
 };
-function showYearZhanTip(y){
-  const L=(typeof LunarYear!=='undefined')?LunarYear.fromYear(y):null;
-  if(!L) return;
-  const lines=Object.keys(YZ_RULE).map(function(k){
-    const v=(typeof L[k]==='function')?L[k]():'';
-    return v?('<b>'+v+'</b>　'+YZ_RULE[k]):'';
-  }).filter(Boolean);
-  _wnlShow(y+'年（'+L.getGanZhi()+'）年占', lines.join('<br>'));
-}
-/* 节气行：节与气分列两行，取 getPrevJie/getNextJie 与 getPrevQi/getNextQi 各给前后一气，
-   本日正逢交节者由 getCurrentJie/getCurrentQi 判出、在该气后标“本日”。行内只给日期，
-   交节时刻归节气圆盘，同数不两处重出。 */
-function jieqiLines(lunar){
-  const md=function(x){ return x.getName()+' '+x.getSolar().toYmd(); };
-  const j=lunar.getCurrentJie(), q=lunar.getCurrentQi();
-  const pj=lunar.getPrevJie(), nj=lunar.getNextJie(), pq=lunar.getPrevQi(), nq=lunar.getNextQi();
-  const tag=function(x,cur){ return md(x)+(cur&&cur.getName()===x.getName()?'（本日）':''); };
-  return ['节：上 '+md(pj)+'　下 '+tag(nj,j), '气：上 '+md(pq)+'　下 '+tag(nq,q)];
-}
+function showYearZhanTip(y){ return xjShowYearZhanTip(y,_wnlShow); }
 function showDay(str, el){
   const key = str.split('-').map(Number).join('-');
   lastSel = key;
@@ -500,7 +461,7 @@ function showDay(str, el){
     <div class="wnl-i"><span class="k">纳音</span><span class="v">${ngwRow('年',lunar.getYearNaYin(),ygz,yWx,ySx)}<span class="wnl-br"></span>${ngwRow('月',lunar.getMonthNaYin(),mgz,mWx,mSx)}<span class="wnl-br"></span>${ngwRow('日',lunar.getDayNaYin(),dgz,dWx,dSx)}<span class="wnl-br"></span>${ngwRow('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())}</span></div>
     <div class="wnl-i"><span class="k tip" onclick="showTongshuTip('冲煞')">冲煞</span><span class="v">日冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}<span class="wnl-br"></span>${tipSpan('时冲')} ${hTime.getChongDesc()} 煞${hTime.getSha()}</span></div>
     <div class="wnl-i"><span class="k tip" onclick="showTongshuTip('六曜')">六曜</span><span class="v">${tipSpan(lunar.getLiuYao())}</span></div>
-    <div class="wnl-i"><span class="k">节气</span><span class="v">${jieqiLines(lunar).join('<br>')}</span></div>
+    <div class="wnl-i"><span class="k">节气</span><span class="v">${xjJieqiLines(lunar).join('<br>')}</span></div>
     <div class="wnl-i"><span class="k">时令</span><span class="v">${shilingLines.join('<span class="wnl-br"></span>')}</span></div>
     ${festRow}
     <div class="wnl-i"><span class="k tip" onclick="showYearZhanTip(${lunar.getYear()})">年占</span><span class="v">${yearZhanRow(lunar.getYear())}</span></div>
@@ -536,7 +497,7 @@ window.addEventListener('load', function () {
       const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
       const aiFp=festParts(solar,y,m,d);
       const festText=aiFp.all.length?('\n节日：'+aiFp.all.join('、')):'';
-      const jqText=jieqiLines(lunar).join('\n');
+      const jqText=xjJieqiLines(lunar).join('\n');
       const ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi(), dgz=lunar.getDayInGanZhi();
       const hTimes=lunar.getTimes(), hrNow=xjNowDate().getHours();
       const hTime=hTimes.find(t=>{const lo=+t.getMinHm().slice(0,2), hi=+t.getMaxHm().slice(0,2); return hrNow>=lo&&hrNow<=hi;})||hTimes[0];

@@ -495,3 +495,43 @@ function placeIpPrefill(o){
     if(o.onDone) o.onDone();
   }).catch(function(){});
 }
+
+/* ===== 经纬度文本解析（七政、占星两页共用） =====
+   兼容全角句点与 Unicode 减号；单段按度、两段按度分、三段按度分秒折算；
+   半球字母或南北东西汉字强制符号，超出经纬范围判无效。 */
+function xjCoordParse(s, isLat){
+  if(s == null || s.trim() === '') return {ok: null};
+  const str = s.trim().replace(/．/g, '.').replace(/[−–—]/g, '-');
+  const nums = (str.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+  const hemiW = isLat ? (/S/i.test(str) || str.includes('南')) : (/W/i.test(str) || str.includes('西'));
+  const hemiE = isLat ? (/N/i.test(str) || str.includes('北')) : (/E/i.test(str) || str.includes('东'));
+  if(!nums.length){ return {ok: false, bad: s}; }
+  let v = 0;
+  const abs = nums.map(n => Math.abs(n));
+  if(nums.length === 1){
+    v = nums[0] < 0 ? -abs[0] : abs[0];
+  } else {
+    v = abs[0] + (abs[1] || 0) / 60 + (abs[2] || 0) / 3600;
+    if(nums[0] < 0) v = -v;
+  }
+  if(hemiW) v = -Math.abs(v);
+  else if(hemiE) v = Math.abs(v);
+  const lim = isLat ? 90 : 180;
+  if(!Number.isFinite(v) || Math.abs(v) > lim){ return {ok: false, bad: s}; }
+  return {ok: true, v: Math.round(v * 10000) / 10000};
+}
+window.xjCoordParse = xjCoordParse;
+
+/* ===== 本地经度（全站共用） =====
+   手动经度优先，其次省市区取数；省市停在未知地返回空，不回退默认经度。
+   元素 id 由页给。 */
+function xjLocalLng(lngId, provId, cityId, distId){
+  const lng = parseFloat(document.getElementById(lngId).value);
+  if(!isNaN(lng)) return lng;
+  const p = document.getElementById(provId).value;
+  const c = document.getElementById(cityId).value;
+  const d = document.getElementById(distId).value;
+  try{ const v = findLng(p, c, d || undefined); if(v != null) return v; }catch(e){}
+  return null;
+}
+window.xjLocalLng = xjLocalLng;

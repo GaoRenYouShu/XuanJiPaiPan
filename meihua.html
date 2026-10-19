@@ -376,13 +376,7 @@ function mhMethodChange(){
 /* 当地经度：手动经度优先，其次省市区经 findLng 取数（城市级坐标为空者已由它回退省级中心）；
    省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
    按别人的经度折出来的时刻不著来历，与未校正是两回事。 */
-function mhLocalLng(){
-  const lng=parseFloat(document.getElementById('mhLng').value);
-  if(!isNaN(lng)) return lng;
-  const p=document.getElementById('mhProv').value, c=document.getElementById('mhCity').value, d=document.getElementById('mhDist').value;
-  try{ const v=findLng(p,c,d||undefined); if(v!=null) return v; }catch(e){}
-  return null;
-}
+function mhLocalLng(){ return xjLocalLng('mhLng','mhProv','mhCity','mhDist'); }
 /* 三级下拉默认停在未知地：起首若是某地，未动过表单的卦便按该地折过一道，
    校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
 function initMhRegion(){
@@ -566,7 +560,7 @@ function qigua(){
   </div>
   <div class="notice">${methodLine}</div>
   ${renderMeihuaPro2({tiName:tiName,yongName:yongName,benBits:benBits,huBits:huBits,bianBits:bianBits,cuoBits:cuoBits,zongBits:zongBits,monthZhi:lunar?lunar.getMonthZhi():'寅',sysNote:sysNote,methodLine:methodLine,relObj:_relObj,cat:_cat,dang:_dang,dangTxt:_dangTxt,guaMean:guaMeanTxt,wangPair:wangPair,yingDetail:yingDetail,catName:document.getElementById('mhCat').value,dong:dong,sex:document.getElementById('mhSex').value,lunar:lunar||null})}`;
-  mhApplyFold();
+  xjApplyFold('mhFoldState','details[id]');
   __mh=`起卦${method==='time'?'时间：'+y+'-'+pad2(m)+'-'+pad2(d)+' '+pad2(h)+':'+pad2(mi)+'（农历'+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()+lunar.getTimeZhi()+'时）':method==='num'?'（报数'+unum+'/'+lnum+'/'+dnum+'）':'（字占“'+document.getElementById(method==='char'?'mhChar':'mhName').value+'”）'}\n上卦：${upName}(${up})　下卦：${lowName}(${low})　动爻：第${dong}爻\n本卦：《${benInfo.name}》\n互卦：《${hexInfo(huBits).name}》\n变卦：《${bianInfo.name}》\n错卦：《${hexInfo(cuoBits).name}》\n综卦：《${hexInfo(zongBits).name}》\n体卦：${tiName}　用卦：${yongName}（动爻所在为用，另一为体）\n${methodLine}\n体用五行生克：${tiName}（${_tiWx}） ${_relObj.rel} ${yongName}（${_yongWx}）：${_relObj.judge}\n${_dangTxt}\n${wangPair}\n${yingDetail}\n卦象总断：${guaMeanTxt||'见综合判断'}
 分类占断（${document.getElementById('mhCat').value}）：${Object.keys(_cat).map(k=>k+'【'+_cat[k]+'】').join('、')}
 流派：${document.getElementById('mhSchool').value}：${MEIHUA_SCHOOLS[document.getElementById('mhSchool').value].note}`;
@@ -584,29 +578,6 @@ function qigua(){
   }
 }
 /* 折叠态属交互态：结果区与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function mhReadFold(){
-  try{
-    let raw=localStorage.getItem('mhFoldState');
-    if(!raw) raw=sessionStorage.getItem('mhFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function mhSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=mhReadFold();
-    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('mhFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('mhFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function mhApplyFold(){
-  const o=mhReadFold();
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 /* 心中默念仅作占问记录，不参与排盘取数；确保其为空、非日期输入 */
 var _mq=document.getElementById('mhQ'); if(_mq){ _mq.value=''; _mq.type='text'; }
 
@@ -616,7 +587,7 @@ window.addEventListener('load', function () {
     renderChrome('meihua.html');
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) mhSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('mhFoldState','details[id]');
     },true);
     fillMhSchool();
     fillMhCat();
@@ -642,7 +613,7 @@ window.addEventListener('load', function () {
       recast:function(){ try{ qigua(); }catch(e){} }
     } });
     if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
-    mhApplyFold();;
+    xjApplyFold('mhFoldState','details[id]');;
   }, 0);
 });
 </script>

@@ -199,12 +199,8 @@ function lyNajia(benBits){
   return {zhi,gan,lower,upper};
 }
 function lyQin(gongWx, zhiWx){
-  if(gongWx===zhiWx) return '兄弟';
-  if(LY_WX_KE[gongWx]===zhiWx) return '妻财';
-  if(LY_WX_KE[zhiWx]===gongWx) return '官鬼';
-  if(LY_SHENG[gongWx]===zhiWx) return '子孙';
-  if(LY_SHENG[zhiWx]===gongWx) return '父母';
-  return '?';
+  const r=xjWxRelCode(gongWx, zhiWx, LY_WX_KE, LY_SHENG);
+  return r==='same'?'兄弟':r==='ke'?'妻财':r==='beike'?'官鬼':r==='sheng'?'子孙':r==='beisheng'?'父母':'?';
 }
 const CAT_YONG={'自身':'世','婚姻':'妻财','求财':'妻财','官非功名':'官鬼','疾病':'官鬼','出行':'世','失物':'妻财','考试文书':'父母','子孙':'子孙','兄弟朋友':'兄弟','求谋':'世','行人':'世','家宅':'父母','田产':'妻财','胎产':'子孙','天时':'父母','讨债':'妻财','寻人':'世','问事':'世','求职':'官鬼','工作调动':'官鬼','合伙':'兄弟','诉讼':'官鬼','借贷':'妻财','购车':'父母','购房':'父母','租房':'父母','搬家':'父母','投资':'妻财','经营':'妻财','开店':'妻财','升职':'官鬼','学业':'父母','比赛':'世','怀孕':'子孙','生产':'子孙','签证':'父母','出国':'世','移民':'父母','官司输赢':'官鬼','签约':'父母','投标':'妻财','拆迁':'父母','借物':'妻财'};
 const CAT_PRINC={
@@ -668,19 +664,7 @@ function clearStep(){
   const b=document.querySelector('#lyStepField button[onclick^="recordStep"]');
   if(b) b.disabled=false;
 }
-function lyLocalLng(){
-  /* 手动经度优先，其次省市区经 findLng 取数（城市级坐标为空者已由它回退省级中心）；
-     省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
-     按别人的经度折出来的时刻不著来历，与未校正是两回事。 */
-  const lng=parseFloat(document.getElementById('lyLng').value);
-  if(!isNaN(lng)) return lng;
-  const p=document.getElementById('lyProv').value, c=document.getElementById('lyCity').value, d=document.getElementById('lyDist').value;
-  try{
-    const v=findLng(p,c,d||undefined);
-    if(v!=null) return v;
-  }catch(e){}
-  return null;
-}
+function lyLocalLng(){ return xjLocalLng('lyLng','lyProv','lyCity','lyDist'); }
 function lyMethodChange(){
   const v=document.getElementById('lyMethod').value;
   document.getElementById('lyNumField').style.display=v==='num'?'':'none';

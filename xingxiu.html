@@ -147,39 +147,16 @@
 <script defer src="assets/xingxiu.js"></script>
 <script>
 /* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function xxReadFold(){
-  try{
-    let raw=localStorage.getItem('xxFoldState');
-    if(!raw) raw=sessionStorage.getItem('xxFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function xxSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=xxReadFold();
-    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('xxFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('xxFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function xxApplyFold(){
-  const o=xxReadFold();
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 
 
 window.addEventListener('load', function () {
   setTimeout(function () {
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xxSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('xxFoldState','details[id]');
     },true);
     renderChrome('xingxiu.html');
-    xxApplyFold();
+    xjApplyFold('xxFoldState','details[id]');
   }, 0);
 });
 </script>

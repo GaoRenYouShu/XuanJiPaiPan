@@ -2704,12 +2704,8 @@ function renderShiShenPos(BZ){
 
   /* ---------- 某五行相对日主的关系（短关系词，供 marry 模块组句）---------- */
   function relShort(dwx, X){
-    if(X === dwx) return '比和';
-    if(WX_KE[X] === dwx) return '克日主';
-    if(WX_SHENG[X] === dwx) return '生日主';
-    if(WX_KE[dwx] === X) return '日主所克';
-    if(WX_SHENG[dwx] === X) return '日主所生';
-    return '比和';
+    const r=xjWxRelCode(dwx, X, WX_KE, WX_SHENG);
+    return r==='same'?'比和':r==='beike'?'克日主':r==='beisheng'?'生日主':r==='ke'?'日主所克':r==='sheng'?'日主所生':'比和';
   }
 
   window.relShort = relShort;

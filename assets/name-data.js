@@ -266,13 +266,9 @@ window.NAME_DATA = (function(){
   var WX_LIST = ['木','火','土','金','水'];
   var SHENG = {木:'火', 火:'土', 土:'金', 金:'水', 水:'木'}; /* 我生 */
   var KE    = {木:'土', 火:'金', 土:'水', 金:'木', 水:'火'}; /* 我克 */
-  function relOf(a, b){ /* a→b：同我、我生、生我、我克、克我 */
-    if(a===b) return '同我';
-    if(SHENG[a]===b) return '我生';
-    if(SHENG[b]===a) return '生我';
-    if(KE[a]===b) return '我克';
-    if(KE[b]===a) return '克我';
-    return '';
+  function relOf(a, b){
+    const r=xjWxRelCode(a, b, KE, SHENG);
+    return r==='same'?'同我':r==='sheng'?'我生':r==='beisheng'?'生我':r==='ke'?'我克':r==='beike'?'克我':'';
   }
   function axisJudge(a, b, axis){
     var r = relOf(a, b);

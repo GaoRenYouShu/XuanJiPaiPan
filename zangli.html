@@ -129,20 +129,9 @@ function zlTip(label, key){
 }
 /* 弹窗：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
    点遮罩或右上角关闭，ESC 亦可关（与老黄历、佛历、道历弹窗同制式，各页自成一份、不跨页共用） */
-function _zlMask(){
-  let mask = document.getElementById('zlMask');
-  if(!mask){
-    mask = document.createElement('div'); mask.id = 'zlMask'; mask.className = 'modal-mask';
-    mask.setAttribute('role', 'dialog');
-    mask.innerHTML = '<div class="modal"><span class="close" onclick="closeZlTip()" aria-label="关闭">×</span><div id="zlTipBody"></div></div>';
-    mask.addEventListener('click', function(e){ if(e.target === mask) closeZlTip(); });
-    document.body.appendChild(mask);
-  }
-  return mask;
-}
 function closeZlTip(){ const m = document.getElementById('zlMask'); if(m) m.classList.remove('show'); }
 function _zlShow(title, body){
-  _zlMask();
+  xjTipMask('zlMask','zlTipBody','closeZlTip');
   document.getElementById('zlTipBody').innerHTML = '<h3 class="tip-title">' + title + '</h3><div class="tip-body">' + body + '</div>';
   document.getElementById('zlMask').classList.add('show');
 }
@@ -200,18 +189,7 @@ function zlSelSlot(){
   return byDay < 0 ? 0 : byDay;
 }
 /* 加粗弧、指针、圆点三件随选中走的公共改写（与他页 wheelSpot 同法，各页自成一份，不跨页共用） */
-function zwSpot(ids,dg,a0,a1){
-  const arc = document.getElementById(ids.arc);
-  if(arc) arc.setAttribute('d', WHEEL.arc(ZW_ARC, a0, a1));
-  const q0 = WHEEL.px(ZW_P0, dg), q1 = WHEEL.px(ZW_P1, dg);
-  const ln = document.getElementById(ids.needle);
-  if(ln){
-    ln.setAttribute('x1', WHEEL.n(q0[0])); ln.setAttribute('y1', WHEEL.n(q0[1]));
-    ln.setAttribute('x2', WHEEL.n(q1[0])); ln.setAttribute('y2', WHEEL.n(q1[1]));
-  }
-  const dt = document.getElementById(ids.dot);
-  if(dt){ dt.setAttribute('cx', WHEEL.n(q1[0])); dt.setAttribute('cy', WHEEL.n(q1[1])); }
-}
+function zwSpot(ids,dg,a0,a1){ return xjWheelSpot(ids,dg,a0,a1,{arc:ZW_ARC,p0:ZW_P0,p1:ZW_P1}); }
 function zlSsC3(x){
   if(!x.ss) return x.greg || '该日序无对应太阳日';
   return (x.ss.mult && x.ss.mult !== '无') ? '功德' + x.ss.mult : '诸本未列倍数';

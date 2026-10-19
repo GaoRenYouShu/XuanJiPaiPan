@@ -100,18 +100,6 @@ function qz_gongDeg(lon, qiHeng, jd){
 }
 
 /* ===== 上升点、中天（Meeus 解析公式，同星占页已验证实现） ===== */
-function qz_ascCalc(jd, lon, lat){
-  const T = (jd - 2451545.0) / 36525;
-  const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000;
-  const lst = qz_norm360(gmst + lon);              /* RAMC */
-  const eps = 23.439291111 - 0.013004167 * T - 0.0000001639 * T * T + 0.0000005036 * T * T * T;
-  const er = eps * QZ_DEG, fr = lat * QZ_DEG, lstR = lst * QZ_DEG;
-  const y = Math.cos(lstR);
-  const x = -(Math.sin(lstR) * Math.cos(er) + Math.tan(fr) * Math.sin(er));
-  const ascLon = qz_norm360(Math.atan2(y, x) * QZ_RAD);
-  const mcLon = qz_norm360(Math.atan2(Math.sin(lstR), Math.cos(lstR) * Math.cos(er)) * QZ_RAD);
-  return {lon: ascLon, mc: mcLon, ramc: lst, eps};
-}
 
 /* ===== 昼夜：太阳地平高度（>0 昼） ===== */
 function qz_sunAlt(jd, sunLon, lon, lat){
@@ -358,7 +346,7 @@ function qz_compute(o){
   /* 昼夜、ASC/MC */
   const alt = qz_sunAlt(jd, lons.sun, o.lon, o.lat);
   const dayNight = alt > 0 ? '昼' : '夜';
-  const asc = qz_ascCalc(jd, o.lon, o.lat);
+  const asc = xjAscCalc(jd, o.lon, o.lat);
 
   /* 安命安身 */
   const sunGIdx = pl.sun.gIdx;

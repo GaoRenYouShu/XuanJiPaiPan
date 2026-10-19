@@ -261,29 +261,6 @@ function resolveA(){
 }
 /* ============ 渲染 ============ */
 /* 折叠态属交互态：结果区与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function hjReadFold(){
-  try{
-    let raw=localStorage.getItem('hjFoldState');
-    if(!raw) raw=sessionStorage.getItem('hjFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function hjSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=hjReadFold();
-    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('hjFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('hjFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function hjApplyFold(){
-  const o=hjReadFold();
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 function query(){
  try{
   const r=(directA!=null)?{A:directA, note:directA<1?'公元前年份按公历口径推演':''}:resolveA();
@@ -594,7 +571,7 @@ document.getElementById('out').innerHTML=
     var sel=document.getElementById(id); if(!sel) return;
     sel.innerHTML=HJ_YJH_ZHI.map(function(z){return '<option value="'+z+'">'+z+'</option>';}).join('');
   });
-  hjApplyFold();
+  xjApplyFold('hjFoldState','details[id]');
 LAST={A:L.A, L:L, guaqi:HJ.GUAQI_READY(), note:r.note};
  }catch(e){
   document.getElementById('out').innerHTML='<p class="notice">推演出错：'+(e.message||e)+'</p>';
@@ -1202,10 +1179,10 @@ window.addEventListener('load', function () {
         })();
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) hjSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('hjFoldState','details[id]');
     },true);
     goToday();
-    hjApplyFold();
+    xjApplyFold('hjFoldState','details[id]');
     mountAI(function(){
       if(!LAST) return '';
       const L=LAST.L;

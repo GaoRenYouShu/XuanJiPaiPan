@@ -226,33 +226,10 @@ function show(r){
     head + chaiBox + duanBox + shuliBox + guaBox + waiBox + sfBox + casesBox + jwBox +
     `<div class="xz-note cz-tail-note">※ 健康之问请遵医嘱，切勿以此断病。</div>`;
   czRenderJw();
-  czApplyFold();
+  xjApplyFold('czFoldState','#out details[id]');
   LAST=r;
 }
 /* 折叠态属交互态：结果区折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function czReadFold(){
-  try{
-    let raw=localStorage.getItem('czFoldState');
-    if(!raw) raw=sessionStorage.getItem('czFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function czSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=czReadFold();
-    document.querySelectorAll('#out details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('czFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('czFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function czApplyFold(){
-  const o=czReadFold();
-  document.querySelectorAll('#out details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 function czValidate(){
   const raw=(document.getElementById('czChar').value||'').trim();
   if(!raw) return {err:'请先写下一个字。'};
@@ -299,7 +276,7 @@ window.addEventListener('load', function () {
     czFillCat();
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) czSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) xjSaveFold('czFoldState','#out details[id]');
     },true);
     (function initCz(){
       let restored=false;

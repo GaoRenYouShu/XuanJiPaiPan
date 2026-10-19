@@ -681,47 +681,9 @@
   var MS_MOD_KEY = 'msModState';
   var msInitDone = false;
   function _allModIds() { try { return Array.from(document.querySelectorAll('.mod[id]')).map(function (e) { return e.id; }); } catch (e) { return FOLDS.map(function (f) { return f.id; }); } }
-  function readModState() {
-    try {
-      var raw = null;
-      try { raw = localStorage.getItem(MS_MOD_KEY); } catch (e) {}
-      if (!raw) { try { raw = sessionStorage.getItem(MS_MOD_KEY); } catch (e) {} }  /* localStorage 不可用（隐私模式、被清）时回退 sessionStorage */
-      var o = raw ? JSON.parse(raw) : null;
-      return (o && typeof o === 'object') ? o : {};
-    } catch (e) { return {}; }
-  }
-  function toggleMod(id) { var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveModState(); }
-  function saveModState() {
-    if (!msInitDone) return; /* 初始化完成前不写，避免覆盖已保存状态 */
-    try {
-      /* 以已存为底、只覆盖此刻在场的件：恢复折叠态本身会触发 toggle 回调本函数，不在场的件若整份重写就会被抹掉 */
-      var o = readModState();
-      _allModIds().forEach(function (id) { var e = document.getElementById(id); if (e) o[id] = e.classList.contains('collapsed'); });
-      /* 页内参考折叠块的 open 状态一并持久化（须带 id 方可定位） */
-      try {
-        var zr = (o._zr && typeof o._zr === 'object') ? o._zr : {};
-        document.querySelectorAll('details[id]').forEach(function (d) { zr[d.id] = d.open; });
-        if (Object.keys(zr).length) o._zr = zr;
-      } catch (e) {}
-      var v = JSON.stringify(o);
-      try { localStorage.setItem(MS_MOD_KEY, v); } catch (e) {}   /* 普通模式持久化 */
-      try { sessionStorage.setItem(MS_MOD_KEY, v); } catch (e) {} /* 隐私、无痕模式兜底：同一会话 F5 刷新时 sessionStorage 一定保留 */
-    } catch (e) {}
-  }
-  function applyModState() {
-    var o = readModState();
-    try {
-      _allModIds().forEach(function (id) {
-        var e = document.getElementById(id); if (!e) return;
-        if (o[id] === true) e.classList.add('collapsed');
-        else if (o[id] === false) e.classList.remove('collapsed');
-      });
-      /* 恢复内部折叠块 open 状态（须在模块展开后执行，DOM 已就绪） */
-      if (o._zr && typeof o._zr === 'object') {
-        try { document.querySelectorAll('details[id]').forEach(function (d) { if (d.id in o._zr) d.open = !!o._zr[d.id]; }); } catch (e) {}
-      }
-    } catch (e) {}
-  }
+    function toggleMod(id) { var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveModState(); }
+  function saveModState(){ xjSaveEngineModState(MS_MOD_KEY, function(){ return msInitDone; }, _allModIds); }
+  function applyModState(){ xjApplyEngineModState(MS_MOD_KEY, _allModIds); }
   /* 页内参考折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
   try { document.addEventListener('toggle', function (e) { if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveModState(); }, true); } catch (e) {}
 

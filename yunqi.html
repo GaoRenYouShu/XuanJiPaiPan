@@ -597,19 +597,10 @@ window.addEventListener('load', function () {
     var yqModNavReady = false;
     function _yqAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return ['yqmod-yun']; } }
     function toggleMod(id){ var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveYqModState(); }
-    function readYqModState(){
-      try{
-        var raw = null;
-        try{ raw = localStorage.getItem(YQ_MOD_KEY); }catch(e){}
-        if (!raw){ try{ raw = sessionStorage.getItem(YQ_MOD_KEY); }catch(e){} }
-        var o = raw ? JSON.parse(raw) : null;
-        return (o && typeof o === 'object') ? o : {};
-      }catch(e){ return {}; }
-    }
-    function saveYqModState(){
+        function saveYqModState(){
       if (!yqModNavReady) return;
       try{
-        var o = readYqModState();
+        var o = xjReadFold(YQ_MOD_KEY);
         _yqAllModIds().forEach(function(id){ var e = document.getElementById(id); if (e) o[id] = e.classList.contains('collapsed'); });
         var v = JSON.stringify(o);
         try{ localStorage.setItem(YQ_MOD_KEY, v); }catch(e){}
@@ -617,7 +608,7 @@ window.addEventListener('load', function () {
       }catch(e){}
     }
     function applyYqModState(){
-      var o = readYqModState();
+      var o = xjReadFold(YQ_MOD_KEY);
       try{
         _yqAllModIds().forEach(function(id){
           var e = document.getElementById(id); if (!e) return;

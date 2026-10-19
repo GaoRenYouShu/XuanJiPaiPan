@@ -255,36 +255,10 @@ const DOOR_JJ={'大吉':'jj3','小吉':'jj2','小凶':'xj2','大凶':'xj3'};
 function setToday(){ xjNavToday(); }
 let LAST=null;
 /* 折叠态属交互态：结果区模块与全页折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function tyReadModState(){
-  try{
-    let raw = localStorage.getItem('tyModState');
-    if(!raw) raw = sessionStorage.getItem('tyModState');
-    const s = JSON.parse(raw || '{}');
-    return (s && typeof s === 'object') ? s : {};
-  }catch(e){ return {}; }
-}
-function tySaveModState(){
-  if(!window.__tyInitDone) return;   /* 初始化完成前不写，避免覆盖已存状态 */
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o = tyReadModState();
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { o[m.id] = !m.classList.contains('collapsed'); });
-    document.querySelectorAll('details[id]').forEach(d => { o[d.id] = d.open; });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem('tyModState', v); }catch(e){}
-    try{ sessionStorage.setItem('tyModState', v); }catch(e){}
-  }catch(e){}
-}
 function tyToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  tySaveModState();
-}
-function tyApplyModState(){
-  const s = tyReadModState();
-  document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  document.querySelectorAll('details[id]').forEach(d => { if(d.id in s) d.open = !!s[d.id]; });
+  xjSaveModState('tyModState','details[id]','__tyInitDone');
 }
 function query(){
  try{
@@ -459,7 +433,7 @@ function boardHTML(s){
       </tbody></table>
       </div></section>
     ${genPlainReading(R,Rshi)}`;
-  tyApplyModState();
+  xjApplyModState('tyModState','details[id]');
   window.__tyInitDone = true;
   LAST={ly, R, Rshi, taishui:lunar.getYearInGanZhi()[1], tahun};
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起局出错：'+(e.message||e)+'</p>'; }
@@ -477,7 +451,7 @@ window.addEventListener('load', function () {
     renderTermGloss();
     document.addEventListener('toggle', function(e){
       const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id) tySaveModState();
+      if(t && t.tagName === 'DETAILS' && t.id) xjSaveModState('tyModState','details[id]','__tyInitDone');
     }, true);
     setToday();
     mountAI(function(){

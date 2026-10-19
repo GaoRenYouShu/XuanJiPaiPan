@@ -107,49 +107,11 @@ function qzTzTouch(){ window.__qzTzTouched=true; }
    缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
 const QZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。七政四余的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
 /* 手动经纬度宽容解析（同星占页逻辑） */
-function qzCoordParse(s, isLat){
-  if(s == null || s.trim() === '') return {ok: null};
-  const str = s.trim().replace(/．/g, '.').replace(/[−–—]/g, '-');
-  const nums = (str.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
-  const hemiW = isLat ? (/S/i.test(str) || str.includes('南')) : (/W/i.test(str) || str.includes('西'));
-  const hemiE = isLat ? (/N/i.test(str) || str.includes('北')) : (/E/i.test(str) || str.includes('东'));
-  if(!nums.length){ return {ok: false, bad: s}; }
-  let v = 0;
-  const abs = nums.map(n => Math.abs(n));
-  if(nums.length === 1){ v = nums[0] < 0 ? -abs[0] : abs[0]; }
-  else {
-    v = abs[0] + (abs[1] || 0) / 60 + (abs[2] || 0) / 3600;
-    if(nums[0] < 0) v = -v;
-  }
-  if(hemiW) v = -Math.abs(v);
-  else if(hemiE) v = Math.abs(v);
-  const lim = isLat ? 90 : 180;
-  if(!Number.isFinite(v) || Math.abs(v) > lim){ return {ok: false, bad: s}; }
-  return {ok: true, v: Math.round(v * 10000) / 10000};
-}
 /* ===== 大模块折叠（localStorage 键 qzModState） ===== */
-function qzSaveModState(){
-  if(!window.__qzInitDone) return;   /* 初始化完成前不写，避免覆盖已存状态 */
-  try{
-    const o = {};
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { o[m.id] = !m.classList.contains('collapsed'); });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem('qzModState', v); }catch(e){}
-    try{ sessionStorage.setItem('qzModState', v); }catch(e){}   /* 隐私模式兜底 */
-  }catch(e){}
-}
 function qzToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  qzSaveModState();
-}
-function qzApplyModState(){
-  try{
-    let raw = localStorage.getItem('qzModState');
-    if(!raw) raw = sessionStorage.getItem('qzModState');   /* 隐私模式兜底 */
-    const s = JSON.parse(raw || '{}');
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  }catch(e){}
+  xjSaveModSections('qzModState','__qzInitDone');
 }
 /* ===== 小工具 ===== */
 function qzEsc(s){ return ('' + (s == null ? '' : s)).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -310,7 +272,7 @@ function qzPai(){
   const tz = parseFloat(document.getElementById('qzTz').value) || 8;
   const lonV = document.getElementById('qzLon').value, latV = document.getElementById('qzLat').value;
   const prov = document.getElementById('qzProv').value;
-  const lonP = qzCoordParse(lonV, false), latP = qzCoordParse(latV, true);
+  const lonP = xjCoordParse(lonV, false), latP = xjCoordParse(latV, true);
   let lon = lonP.ok ? lonP.v : null, lat = latP.ok ? latP.v : null;
   /* 境外国家（OVERSEAS 库）与境内同走 coordOf：境外取库载经纬度并随城市带出标准时区 */
   if((lon === null || lat === null) && prov && (PROV[prov] || isOverseasProv(prov))){
@@ -348,8 +310,8 @@ function qzPai(){
     const bdv = document.getElementById('qzBDate').value, btv = document.getElementById('qzBTime').value;
     if(!bdv || !btv){ alert('请填写第二人出生日期与时间'); return; }
     const bp = bdv.split('-').map(Number), bt = btv.split(':').map(Number);
-    const bLonP = qzCoordParse(document.getElementById('qzBLon').value, false);
-    const bLatP = qzCoordParse(document.getElementById('qzBLat').value, true);
+    const bLonP = xjCoordParse(document.getElementById('qzBLon').value, false);
+    const bLatP = xjCoordParse(document.getElementById('qzBLat').value, true);
     let blon = bLonP.ok ? bLonP.v : null, blat = bLatP.ok ? bLatP.v : null;
     const bprov = document.getElementById('qzBProv').value;
     if((blon === null || blat === null) && bprov && (PROV[bprov] || isOverseasProv(bprov))){
@@ -367,7 +329,7 @@ function qzPai(){
       qiHeng, mingFa, trueSolar});
   }
   document.getElementById('out').innerHTML = qzRenderAll(c, placeLabel, lon, lat, chartB);
-  qzApplyModState();
+  xjApplyModSections('qzModState');
   window.__qzInitDone = true;
   if(window.initPickers) initPickers();
   __qz = qzBuildAiText(c, chartB);

@@ -113,13 +113,9 @@ const GONG_NUM={'大安':'1、5、7','留连':'2、8、10','速喜':'3、6、9',
 /* 五行生克（小六壬页局部表，供合参合断的三宫五行关系分析） */
 const WX_SH={'木':'火','火':'土','土':'金','金':'水','水':'木'};
 const WX_KE={'木':'土','火':'金','土':'水','金':'木','水':'火'};
-function wxShengKe(a,b){ /* 五行关系：比和、相生、被生、相克、被克 */
-  if(a===b) return '比和';
-  if(WX_SH[a]===b) return '相生';
-  if(WX_SH[b]===a) return '被生';
-  if(WX_KE[a]===b) return '相克';
-  if(WX_KE[b]===a) return '被克';
-  return '';
+function wxShengKe(a,b){
+  const r=xjWxRelCode(a,b,WX_KE,WX_SH);
+  return r==='same'?'比和':r==='sheng'?'相生':r==='beisheng'?'被生':r==='ke'?'相克':r==='beike'?'被克':'';
 }
 function wxRelDesc(a,b,role){
   const r=wxShengKe(a,b);
@@ -185,29 +181,6 @@ function setNow(){
 }
 let LAST=null;
 /* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function xlrReadFold(){
-  try{
-    let raw=localStorage.getItem('xlrFoldState');
-    if(!raw) raw=sessionStorage.getItem('xlrFoldState');
-    const o=JSON.parse(raw||'{}');
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function xlrSaveFold(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=xlrReadFold();
-    document.querySelectorAll('details[id]').forEach(d=>{ o[d.id]=d.open; });
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem('xlrFoldState', v); }catch(e){}
-    try{ sessionStorage.setItem('xlrFoldState', v); }catch(e){}
-  }catch(e){}
-}
-function xlrApplyFold(){
-  const o=xlrReadFold();
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o) d.open=!!o[d.id]; });
-}
 function renderRef(){
   // 掌诀指图：三指（食、中、无名）六节，指尖排上、指根排下；每节一张白卡，复用大六壬四课、三传同款样式（lr-ke）
   const COLS=[
@@ -369,11 +342,11 @@ window.addEventListener('load', function () {
     fillSchool();
     fillShichen();
     renderRef();
-    xlrApplyFold();
+    xjApplyFold('xlrFoldState','details[id]');
     switchQiMode();
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xlrSaveFold();
+      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('xlrFoldState','details[id]');
     },true);
     setNow();
     mountAI(function(){

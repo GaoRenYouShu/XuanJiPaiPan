@@ -180,34 +180,9 @@ function zwRelToggle(){
 }
 /* ============ 三大折叠模块 ============ */
 const ZW_MOD_KEY='zwModState';
-function zwReadModState(){
-  try{
-    let raw=localStorage.getItem(ZW_MOD_KEY);
-    if(!raw) raw=sessionStorage.getItem(ZW_MOD_KEY);
-    const s=JSON.parse(raw||'{}');
-    return (s&&typeof s==='object')?s:{};
-  }catch(e){ return {}; }
-}
-function zwSaveModState(){
-  if(!window.__zwInitDone) return;   /* 初始化完成前不写，避免覆盖已存偏好 */
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o=zwReadModState();
-    document.querySelectorAll('#out section.mod[id]').forEach(m=>{ o[m.id]=!m.classList.contains('collapsed'); });
-    document.querySelectorAll('#out details[id]').forEach(d=>{ o[d.id]=d.open; });
-    try{ localStorage.setItem(ZW_MOD_KEY, JSON.stringify(o)); }catch(e){}
-    try{ sessionStorage.setItem(ZW_MOD_KEY, JSON.stringify(o)); }catch(e){}
-  }catch(e){}
-}
 function zwToggleMod(id){
   const el=document.getElementById(id); if(!el) return;
-  el.classList.toggle('collapsed'); zwSaveModState();
-}
-function zwApplyModState(){
-  const s=zwReadModState();
-  document.querySelectorAll('#out section.mod[id]').forEach(m=>{ if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  document.querySelectorAll('#out details[id]').forEach(d=>{ if(d.id in s) d.open=!!s[d.id]; });
+  el.classList.toggle('collapsed'); xjSaveModState(ZW_MOD_KEY,'#out details[id]','__zwInitDone');
 }
 const POS={巳:[1,1],午:[2,1],未:[3,1],申:[4,1],辰:[1,2],酉:[4,2],卯:[1,3],戌:[4,3],寅:[1,4],丑:[2,4],子:[3,4],亥:[4,4]};
 const SANHE=['命宫','财帛','官禄','迁移']; /* 三方四正（命宫一组） */
@@ -2191,7 +2166,7 @@ function paipan(){
     </tbody></table>
   </details>`;
   zwRenderTiming(astro);
-  zwApplyModState();
+  xjApplyModState(ZW_MOD_KEY,'#out details[id]');
   window.__zwInitDone=true;
   // AI 上下文、复制排盘数据（按流派区分）
   const palLines=astro.palaces.map(p=>{
@@ -2356,7 +2331,7 @@ window.addEventListener('load', function () {
     renderChrome('ziwei.html');
     document.addEventListener('toggle',function(e){
       const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) zwSaveModState();
+      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) xjSaveModState(ZW_MOD_KEY,'#out details[id]','__zwInitDone');
     },true);
     /* 出生地默认停在未知地：起首若是某地，未动过表单的盘便按该地折过一道，校正量的来历盘上不著一字。
        主盘与第二人两组下拉各自独立，共 fillPlaceTrio 同一份填充与取值。 */

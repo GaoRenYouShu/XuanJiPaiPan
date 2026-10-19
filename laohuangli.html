@@ -76,12 +76,7 @@ const GAN_TAISHEN={甲:'门',己:'门',乙:'碓磨',庚:'碓磨',丙:'厨灶',�
 const ZHI_TAISHEN={子:'碓磨',丑:'厕',寅:'户',卯:'门',辰:'厨',巳:'灶',午:'厕',未:'井',申:'仓',酉:'户',戌:'房',亥:'床'};
 function taiShen(gan,zhi){return '占'+GAN_TAISHEN[gan]+'、'+ZHI_TAISHEN[zhi];}
 /* 太岁神君与犯太岁（值、冲、刑、害、破）：TAISUI_STAR / XING_TAI / HAI_TAI / PO_TAI / ZHI_SHENG 由 assets/taisui-data.js 提供 */
-function taiSuiText(ygz,yZhi,suiPo){
-  const star=TAISUI_STAR[ygz]||'未载';
-  const xing=(XING_TAI[yZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
-  const hai=ZHI_SHENG[HAI_TAI[yZhi]]||'无', po=ZHI_SHENG[PO_TAI[yZhi]]||'无';
-  return `太岁神君：${star}大将军<span class="lhl-br"></span>犯太岁：值${ZHI_SHENG[yZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}`;
-}
+function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo,'lhl-br'); }
 /* ---------- 双圆盘（几何走 assets/wheel.js，样式走 style.css 圆盘通用件段） ----------
    制式逐项照抄万年历经络圆盘，不另创一格。经络圆盘的环带自外向内是：
      外圈字 210 ｜ 弧带 192 ｜ 外圈线 182 ｜ 刻度 168 至 176 ｜ 内圈字 148 ｜ 内界线 120 ｜ 盘心 78
@@ -122,13 +117,7 @@ function tipSpan(name){
 }
 /* 年占十六项：依农历正月初一的日干支起例，一整年只此一份，故按农历年取数，不随所查日期逐日重算。
    取数走 lunar.js 的 LunarYear，页内不另抄一套口诀。 */
-function yearZhanRow(y){
-  const L=(typeof LunarYear!=='undefined')?LunarYear.fromYear(y):null;
-  if(!L) return '';
-  return [L.getCaoZi(),L.getDeJin(),L.getFenBing(),L.getGengTian(),L.getGongZhu(),L.getHuaShou(),
-    L.getJiaTian(),L.getKanCan(),L.getQiangMi(),L.getRenBing(),L.getRenChu(),L.getTouLiang(),
-    L.getTuoGu(),L.getZhiShui(),L.getYuan(),L.getYun()].join('　');
-}
+function yearZhanRow(y){ return xjYearZhanRow(y); }
 /* 年占弹窗：十六项逐条给算法口径，项名照库出、不复述一遍行内已有之数 */
 const YZ_RULE={
   getCaoZi:'正月内第一个子日在初几，草子便收几分，草子是荒年杂粮的收成占',
@@ -148,41 +137,12 @@ const YZ_RULE={
   getYuan:'三元九运：上元、中元、下元各六十年，一百八十年一循环，此年所属之元',
   getYun:'三元九运：每元分三运、每运二十年，此年所属之运'
 };
-function showYearZhanTip(y){
-  const L=(typeof LunarYear!=='undefined')?LunarYear.fromYear(y):null;
-  if(!L) return;
-  const lines=Object.keys(YZ_RULE).map(function(k){
-    const v=(typeof L[k]==='function')?L[k]():'';
-    return v?('<b>'+v+'</b>　'+YZ_RULE[k]):'';
-  }).filter(Boolean);
-  _lhlShow(y+'年（'+L.getGanZhi()+'）年占', lines.join('<br>'));
-}
-/* 节气行：节与气分列两行，取 getPrevJie/getNextJie 与 getPrevQi/getNextQi 各给前后一气，
-   本日正逢交节者由 getCurrentJie/getCurrentQi 判出、在该气后标“本日”。行内只给日期，
-   交节时刻不在此处重出。 */
-function jieqiLines(lunar){
-  const md=function(x){ return x.getName()+' '+x.getSolar().toYmd(); };
-  const j=lunar.getCurrentJie(), q=lunar.getCurrentQi();
-  const pj=lunar.getPrevJie(), nj=lunar.getNextJie(), pq=lunar.getPrevQi(), nq=lunar.getNextQi();
-  const tag=function(x,cur){ return md(x)+(cur&&cur.getName()===x.getName()?'（本日）':''); };
-  return ['节：上 '+md(pj)+'　下 '+tag(nj,j), '气：上 '+md(pq)+'　下 '+tag(nq,q)];
-}
+function showYearZhanTip(y){ return xjShowYearZhanTip(y,_lhlShow); }
 /* 弹窗（术语释义、物候、时令、宿诗共用）：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
    点遮罩或右上角关闭，ESC 亦可关 */
-function _lhlMask(){
-  let mask=document.getElementById('lhlMask');
-  if(!mask){
-    mask=document.createElement('div'); mask.id='lhlMask'; mask.className='modal-mask';
-    mask.setAttribute('role','dialog');
-    mask.innerHTML='<div class="modal"><span class="close" onclick="closeLhlTip()" aria-label="关闭">×</span><div id="lhlTipBody"></div></div>';
-    mask.addEventListener('click',function(e){ if(e.target===mask) closeLhlTip(); });
-    document.body.appendChild(mask);
-  }
-  return mask;
-}
 function closeLhlTip(){ const m=document.getElementById('lhlMask'); if(m) m.classList.remove('show'); }
 function _lhlShow(title, body){
-  _lhlMask();
+  xjTipMask('lhlMask','lhlTipBody','closeLhlTip');
   document.getElementById('lhlTipBody').innerHTML='<h3 class="tip-title">'+title+'</h3><div class="tip-body">'+body+'</div>';
   document.getElementById('lhlMask').classList.add('show');
 }
@@ -206,11 +166,7 @@ function showShilingTip(item){
 }
 /* 经络当令弹窗：当令经的全名、时段与宜做（取 shiling.js SHILING_JINGLUO 单一真源）；
    按传入时支取数，与行内所示同一时辰，不按点击时刻重推 */
-function showDangLingTip(zhi){
-  const j=(typeof SHILING_JINGLUO!=='undefined')?SHILING_JINGLUO.find(function(x){return x.zhi===zhi;}):null;
-  if(!j) return;
-  _lhlShow(j.zhi+'时 '+j.jing, j.full+'，当令时段 '+j.range+'。宜 '+j.yi+'。');
-}
+function showDangLingTip(zhi){ return xjShowDangLingTip(zhi,_lhlShow); }
 /* 当日值宿弹窗：宿曜全名＋第几宿、四象、吉凶与宿诗。按宿名直取（不依赖盘内选中态），
    详情条与基础信息表二十八宿条两处共用；宿诗只在此弹窗出一份，详情条不再重复。
    两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名；两段以 <p> 分段，
@@ -228,33 +184,14 @@ function showXiuTipByName(nm){
   }catch(e){}
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLhlTip(); });
-function lhlScData(t,i,last){
-  const luck=(t.getTianShenLuck&&t.getTianShenLuck())||'';
-  const h=+t.getMaxHm().slice(0,2)+1;
-  return {name:i===0?'子时':(last?'夜子时':t.getGanZhi().substring(1)+'时'),
-    gz:t.getGanZhi(), luck:luck, good:luck==='吉',
-    shen:t.getTianShen?(''+t.getTianShen()):'',
-    range:t.getMinHm()+'-'+(h<24?String(h).padStart(2,'0')+':00':'24:00'),
-    yi:lhlYiText(t.getYi&&t.getYi().slice(0,3))};
-}
+function lhlScData(t,i,last){ return xjScData(t,i,last,lhlYiText); }
 /* 第 i 段的起止钟点：0 号为早子时（1 小时），12 号为夜子时（1 小时），其余 1 至 11 号各 2 小时。
    全盘按真实时长分角（1 小时 15 度），合计正好 360 度，与十三格阵一一对应。 */
 function lhlScHour(i){const h0=(i===0)?0:((i===12)?23:2*i-1);return [h0,h0+((i===0||i===12)?1:2)];}
 function scSpan(i){const h=lhlScHour(i);return [h[0]*15,h[1]*15];}
 function scMid(i){const sp=scSpan(i);return (sp[0]+sp[1])/2;}
 /* 加粗弧、指针、圆点三件随选中走的公共改写，两盘共用 */
-function wheelSpot(ids,dg,a0,a1){
-  const arc=document.getElementById(ids.arc);
-  if(arc) arc.setAttribute('d',WHEEL.arc(W_ARC,a0,a1));
-  const q0=WHEEL.px(W_P0,dg), q1=WHEEL.px(W_P1,dg);
-  const ln=document.getElementById(ids.needle);
-  if(ln){
-    ln.setAttribute('x1',WHEEL.n(q0[0])); ln.setAttribute('y1',WHEEL.n(q0[1]));
-    ln.setAttribute('x2',WHEEL.n(q1[0])); ln.setAttribute('y2',WHEEL.n(q1[1]));
-  }
-  const dt=document.getElementById(ids.dot);
-  if(dt){ dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1])); }
-}
+function wheelSpot(ids,dg,a0,a1){ return xjWheelSpot(ids,dg,a0,a1,{arc:W_ARC,p0:W_P0,p1:W_P1}); }
 const SC_IDS={arc:'lhlScArc',needle:'lhlScNeedle',dot:'lhlScDot'};
 function shichenWheel(lunar){
   const times=lunar.getTimes();
@@ -313,19 +250,19 @@ function lhlScDetailHTML(x){
   return `${x.gz}时，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>，值神 ${x.shen||'未载'}`
     +`<span class="wd-br"></span>宜 ${x.yi}`;
 }
-function lhlPickShichen(i){
-  if(!LHL_SC||!LHL_SC[i]) return;
-  LHL_SC_SEL=i;
-  const x=LHL_SC[i], sp=scSpan(i);
-  WHEEL.pick('lhlScWheel',i);
-  /* 早子时与夜子时共用一个“子”字，夜子（序号 12）要落到 0 号字上，否则无字可高亮 */
-  WHEEL.lab('lhlScWheel',i===12?0:i);
-  wheelSpot(SC_IDS,scMid(i),sp[0],sp[1]);
-  WHEEL.text('lhlScC1',x.name);
-  WHEEL.text('lhlScC2',x.luck,x.good?'var(--wheel-good)':'var(--wheel-bad)');
-  WHEEL.text('lhlScC3',x.gz+' '+x.range);
-  const d=document.getElementById('lhlScDetail'); if(d) d.innerHTML=lhlScDetailHTML(x);
-}
+const LHL_PICK_SC = {arr:function(){return LHL_SC;}, setSel:function(v){LHL_SC_SEL=v;}, wheel:'lhlScWheel', lab:function(i){return i===12?0:i;}, span:scSpan,
+  spot:function(x,sp,i){ wheelSpot(SC_IDS,scMid(i),sp[0],sp[1]); },
+  c1:['lhlScC1',function(x){return x.name;}],
+  c2:['lhlScC2',function(x){return x.luck;},function(x){return x.good?'var(--wheel-good)':'var(--wheel-bad)';}],
+  c3:['lhlScC3',function(x){return x.gz+' '+x.range;}],
+  detailId:'lhlScDetail', detail:function(x){return lhlScDetailHTML(x);}};
+const LHL_PICK_XIU = {arr:function(){return LHL_XIU;}, setSel:function(v){LHL_XIU_SEL=v;}, wheel:'lhlXiuWheel', span:xiuSpan,
+  spot:function(x,sp,i){ wheelSpot(XIU_IDS,xiuMid(i),sp[0],sp[1]); },
+  c1:['lhlXiuC1',function(x){return x.full;}],
+  c2:['lhlXiuC2',function(x){return x.luck;},function(x){return x.good?'var(--wheel-good)':'var(--wheel-bad)';}],
+  c3:['lhlXiuC3',function(x){return x.xiang;}],
+  detailId:'lhlXiuDetail', detail:function(x,i){return lhlXiuDetailHTML(i,x);}};
+function lhlPickShichen(i){ xjPickCommon(i, LHL_PICK_SC); }
 /* 二十八宿盘：二十八宿排成圆环，四象各七宿。
    🔴 环向为逆时针，角宿起于 135 度：二十八宿的象序是东、北、西、南，
    顺此序绕行正合逆时针，于是东方青龙落正右（东）、北方玄武落正上（北）、
@@ -406,40 +343,13 @@ function xiuWheel(lunar){
 function lhlXiuDetailHTML(i,x){
   return `第 ${i+1} 宿，<span class="tip" onclick="showXiuTipByName('${x.nm}')">${x.full}</span>，${x.xiang}，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>`;
 }
-function lhlPickXiu(i){
-  if(!LHL_XIU||!LHL_XIU[i]) return;
-  LHL_XIU_SEL=i;
-  const x=LHL_XIU[i], sp=xiuSpan(i);
-  WHEEL.pick('lhlXiuWheel',i);
-  WHEEL.lab('lhlXiuWheel',i);
-  wheelSpot(XIU_IDS,xiuMid(i),sp[0],sp[1]);
-  WHEEL.text('lhlXiuC1',x.full);
-  WHEEL.text('lhlXiuC2',x.luck,x.good?'var(--wheel-good)':'var(--wheel-bad)');
-  WHEEL.text('lhlXiuC3',x.xiang);
-  const d=document.getElementById('lhlXiuDetail');
-  if(d) d.innerHTML=lhlXiuDetailHTML(i,x);
-}
+function lhlPickXiu(i){ xjPickCommon(i, LHL_PICK_XIU); }
 /* 九宫飞星：洛书顺飞，年家、月家、日家、时家紫白共用一图 */
-function feiXingGrid(center){
-  /* 洛书顺飞轨迹：中(5)→乾(6)→兑(7)→艮(8)→离(9)→坎(1)→坤(2)→震(3)→巽(4) */
-  const order=[5,6,7,8,9,1,2,3,4];
-  const pmap={1:[3,2],2:[1,3],3:[2,1],4:[1,1],5:[2,2],6:[3,3],7:[2,3],8:[3,1],9:[1,2]};
-  const grid={};
-  order.forEach((p,i)=>{ const star=((center-1+i)%9)+1; const pos=pmap[p]; grid[pos[0]+','+pos[1]]=star; });
-  return grid;
-}
+function feiXingGrid(center){ return xjFeiXingGrid(center); }
 /* 年飞星入中宫：三元九运 180 年一循环，年紫白入中诀上元甲子一白求、中元甲子四绿游、下元甲子七赤起，九星逆行顺年头；锚点：上元起 1864（甲子年一白入中） */
-function yearStar(y){
-  const C=180; const idx=(((y-1864)%C)+C)%C; const base=idx<60?1:(idx<120?4:7); /* 上、中、下元甲子入中星 */
-  const off=(((y-1864)%60)+60)%60; let s=(base-off)%9; if(s<=0)s+=9; return s;
-}
+function yearStar(y){ return xjYearStar(y); }
 /* 月飞星入中宫：月家紫白，正月起星按年支三组定（子午卯酉八白、辰戌丑未五黄、寅申巳亥二黑），按节气月序逐月逆减 */
-function monthStar(y,zhi,monthZhi){
-  const base={子:8,午:8,卯:8,酉:8,辰:5,戌:5,丑:5,未:5,寅:2,申:2,巳:2,亥:2}[zhi];
-  const MZ=['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'];  /* 节气月序：寅=正月 … 丑=十二月 */
-  const mi=MZ.indexOf(monthZhi); /* 0 基 */
-  let s=(base-mi)%9; if(s<=0)s+=9; return s;
-}
+function monthStar(y,zhi,monthZhi){ return xjMonthStar(y,zhi,monthZhi); }
 const FEI_WX={1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
 const FEI_NAME={1:'一白',2:'二黑',3:'三碧',4:'四绿',5:'五黄',6:'六白',7:'七赤',8:'八白',9:'九紫'};
 function gzIndex(gz){return JIAZI60.indexOf(gz)+1;}
@@ -453,25 +363,13 @@ function baiSegment(y,m,d){
   return {base:v[0],dir:v[1]};
 }
 /* 三伏、出伏、数九、入梅出梅 时令取自 assets/shiling.js（与万年历共用真源） */
-function dayStar(y,m,d){
-  const n=gzIndex(Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi()); /* 1..60 */
-  const off=(n-1+60)%60;                    /* 距最近甲子日（符头）天数 */
-  const seg=baiSegment(y,m,d);              /* 按查询日所在节气定元 */
-  let s=((seg.base-1+seg.dir*off)%9+9)%9+1; return s;
-}
+function dayStar(y,m,d){ return xjDayStar(y,m,d); }
 function curShichen(){const hr=xjNowDate().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
 /* 时飞星入中宫（时家紫白，《协纪辨方书》《选择纪要》通行例）：
    以日支分三组定子时起星：子午卯酉日为仲（冬至后一白、夏至后九紫）、辰戌丑未日为季（冬至后四绿、夏至后六白）、
    寅申巳亥日为孟（冬至后七赤、夏至后三碧）；冬至后顺行、夏至后逆行，一时一星。
    锚点：子日子时冬至后一白；辰日辰时（第四时辰）夏至后三碧。 */
-function hourStar(y,m,d){
-  const dz=Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi()[1];
-  const g={子:0,午:0,卯:0,酉:0,辰:1,戌:1,丑:1,未:1,寅:2,申:2,巳:2,亥:2}[dz]||0;
-  const si=(Math.floor((xjNowDate().getHours()+1)/2))%12;
-  const asc=baiSegment(y,m,d).dir===1;
-  const start=asc?[1,4,7][g]:[9,6,3][g];
-  let s=asc?((start-1+si)%9)+1:((start-1-si)%9+9)%9+1; return s;
-}
+function hourStar(y,m,d){ return xjHourStar(y,m,d); }
 /* 九星取数走 lunar.js 的 NineStar（fromIndex 以 0 起，故星数减一），页内不另抄一份名表；
    库不在时退回只列名与五行，格子照旧三行。 */
 function feiStar(n){
@@ -482,30 +380,9 @@ function feiLoc(s){ const p=s.getPosition(), d=s.getPositionDesc(); return d.ind
 /* 格内三行：宫位数、数色五行（七赤金）、卦方北斗名（兑正西摇光）。后两行只是把旧的两行各加长，
    行数与行高不变，格子几何不动（格宽取盘面三分之一再减边框与内距，约 71px，五行最长五个字仍在格内）；
    玄空、奇门、太乙三套名与三路吉凶收进弹窗，不占格。 */
-function feiGridHTML(center){
-  const g=feiXingGrid(center); let h='<div class="fei-grid">';
-  for(let r=1;r<=3;r++)for(let c=1;c<=3;c++){
-    const n=g[r+','+c]||'';
-    const s=feiStar(n);
-    const t=s?(FEI_NAME[n]+s.getWuXing()):FEI_NAME[n];
-    const w=s?('<span class="tip" onclick="showFeiTip('+n+')">'+feiLoc(s)+s.getNameInBeiDou()+'</span>'):FEI_WX[n];
-    h+=`<div class="fei-cell fei-${n}"><span class="fei-n">${n}</span><span class="fei-t">${t}</span><span class="fei-w">${w}</span></div>`;
-  }
-  h+='</div>'; return h;
-}
+function feiGridHTML(center){ return xjFeiGridHTML(center); }
 /* 九星弹窗：一星四套名与三路吉凶同源出一份。五黄无奇门八门（库中其门为空），故门名只在有时才出。 */
-function showFeiTip(n){
-  const s=feiStar(n); if(!s) return;
-  const men=s.getBaMenInQiMen(), song=s.getSongInTaiYi();
-  const lines=[
-    feiLoc(s)+s.getNameInBeiDou(),
-    `玄空 ${s.getNameInXuanKong()}（${s.getLuckInXuanKong()}）`,
-    `奇门 ${s.getNameInQiMen()}（${s.getLuckInQiMen()}${men?'　'+men+'门':''}　${s.getYinYangInQiMen()}）`,
-    `太乙 ${s.getNameInTaiYi()}（${s.getTypeInTaiYi()}）`
-  ];
-  if(song) lines.push('太乙歌：'+song);
-  _lhlShow(FEI_NAME[n]+s.getWuXing()+s.getPosition(), lines.join('<br>'));
-}
+function showFeiTip(n){ return xjShowFeiTip(n,_lhlShow); }
 /* 日期导航三件（今天、翻月翻年、点格带入）走 assets/xuanji-lib.js 的 xjCalNav 共享件：
    本页只装查询钩子（算出目标日期后由本页 query() 刷新各区），页内取数与平移同走共享一套。
    钩子挂在 load 段装（defer 库先落，此处内联脚本先于 defer 执行，顶层装会撞 xjCalNav 未定义）。 */
@@ -614,7 +491,7 @@ function query(){
     <div class="lhl-i"><span class="k">凶煞宜忌</span><span class="v ji">${xsTxt}</span></div>
     <div class="lhl-i"><span class="k">纳音</span><span class="v">${ngwRow('年',lunar.getYearNaYin(),ygz,GAN_WX[ygz[0]],lunar.getYearShengXiao())}<span class="lhl-br"></span>${ngwRow('月',lunar.getMonthNaYin(),mgz,GAN_WX[mgz[0]],lunar.getMonthShengXiao())}<span class="lhl-br"></span>${ngwRow('日',lunar.getDayNaYin(),dgz,GAN_WX[dgz[0]],lunar.getDayShengXiao())}<span class="lhl-br"></span>${ngwRow('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())}</span></div>
     <div class="lhl-i"><span class="k tip" onclick="showTongshuTip('六曜')">六曜</span><span class="v">${tipSpan(lunar.getLiuYao())}</span></div>
-    <div class="lhl-i"><span class="k">节气</span><span class="v">${jieqiLines(lunar).join('<br>')}</span></div>
+    <div class="lhl-i"><span class="k">节气</span><span class="v">${xjJieqiLines(lunar).join('<br>')}</span></div>
     <div class="lhl-i"><span class="k">时令</span><span class="v">${shilingParts.join('<span class="lhl-br"></span>')}</span></div>
     ${festRow}
     <div class="lhl-i"><span class="k tip" onclick="showYearZhanTip(${lunar.getYear()})">年占</span><span class="v">${yearZhanRow(lunar.getYear())}</span></div>
@@ -642,24 +519,12 @@ function query(){
     <div class="fei-block"><div class="fei-cap">时飞星（当前${shName}时 ${FEI_NAME[hStar]}入中）</div>${feiGridHTML(hStar)}</div>
   </div></details>`;
   document.getElementById('out').innerHTML=html;
-  lhApplyFold();
+  xjApplyOneFold('lhlFoldState','#out details.fold-block');
  }catch(e){
   document.getElementById('out').innerHTML='<p class="notice">排盘出错：'+((e&&e.message)?e.message:e)+'</p>';
  }
 }
 /* 九宫飞星折叠框随查询重建，重建后应用记忆态；键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function lhSaveFold(){
-  const dv=document.querySelector('#out details.fold-block'); if(!dv) return;
-  const v=JSON.stringify({fei:dv.open});
-  try{ localStorage.setItem('lhlFoldState', v); }catch(e){}
-  try{ sessionStorage.setItem('lhlFoldState', v); }catch(e){}
-}
-function lhApplyFold(){
-  let s=null;
-  try{ s=JSON.parse(localStorage.getItem('lhlFoldState')||sessionStorage.getItem('lhlFoldState')||'null'); }catch(e){}
-  const dv=document.querySelector('#out details.fold-block');
-  if(dv && s && typeof s.fei==='boolean') dv.open=s.fei;
-}
 </script>
 <script>
 
@@ -674,7 +539,7 @@ window.addEventListener('load', function () {
       window.JIAZI60 = JIAZI60;
     })();
     document.addEventListener('toggle',function(e){
-      if(e.target && e.target.matches && e.target.matches('#out details.fold-block')) lhSaveFold();
+      if(e.target && e.target.matches && e.target.matches('#out details.fold-block')) xjSaveOneFold('lhlFoldState','#out details.fold-block');
     },true);
     setToday();
     mountAI(function(){
@@ -695,9 +560,8 @@ window.addEventListener('load', function () {
       let chong3=''; const gzs=[yGZ,mGZ,dGZ];
       for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){ if(isChong(gzs[i][1],gzs[j][1])) chong3+=(i===0?'年':i===1?'月':'日')+(j===0?'年':j===1?'月':'日')+'柱相冲('+gzs[i][1]+gzs[j][1]+')；'; }
       const shName=curShichen();
-      const jqText=jieqiLines(lunar).join('\n');
+      const jqText=xjJieqiLines(lunar).join('\n');
       /* 导出用名与格内同式：数色五行加卦方北斗名，库不在时退回只列名与五行 */
-      function feiText(center){ const g=feiXingGrid(center); const out=[]; for(let r=1;r<=3;r++){ const row=[]; for(let c=1;c<=3;c++){ const n=g[r+','+c], s=feiStar(n); row.push(FEI_NAME[n]+(s?(s.getWuXing()+feiLoc(s)+s.getNameInBeiDou()):'('+FEI_WX[n]+')')); } out.push('  '+row.join(' ')); } return out.join('\n'); }
       let hh='';
       try{
         const times=lunar.getTimes();
@@ -750,13 +614,13 @@ window.addEventListener('load', function () {
     周次：${weekLine(y,m,d)}（本月共${monthWeekCount(y,m)}周）
     九宫飞星：
     年飞星（${FEI_NAME[yearStar(y)]}入中）：
-    ${feiText(yearStar(y))}
+    ${xjFeiText(yearStar(y))}
     月飞星（${FEI_NAME[mStar]}入中）：
-    ${feiText(mStar)}
+    ${xjFeiText(mStar)}
     日飞星（${FEI_NAME[dayStar(y,m,d)]}入中）：
-    ${feiText(dayStar(y,m,d))}
+    ${xjFeiText(dayStar(y,m,d))}
     时飞星（当前${shName}时 ${FEI_NAME[hourStar(y,m,d)]}入中）：
-    ${feiText(hourStar(y,m,d))}
+    ${xjFeiText(hourStar(y,m,d))}
     时辰吉凶（24小时）：
     ${hh}`;
     }, '老黄历', { share:{ page:"laohuangli", title:"老黄历每日宜忌查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ const _d=document.getElementById('dInput'); if(!_d||!_d.value) setToday(); }); } } });

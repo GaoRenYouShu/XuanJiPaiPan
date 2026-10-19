@@ -339,36 +339,10 @@ function plainTalk(pan, purpose){
 }
 /* 起局模式切换：常规 vs 山向奇门 */
 /* 折叠态属交互态：结果区模块与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function qmReadModState(){
-  try{
-    let raw = localStorage.getItem('qmModState');
-    if(!raw) raw = sessionStorage.getItem('qmModState');
-    const s = JSON.parse(raw || '{}');
-    return (s && typeof s === 'object') ? s : {};
-  }catch(e){ return {}; }
-}
-function qmSaveModState(){
-  if(!window.__qmInitDone) return;   /* 初始化完成前不写，避免覆盖已存状态 */
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const o = qmReadModState();
-    document.querySelectorAll('#out section.mod[id]').forEach(m => { o[m.id] = !m.classList.contains('collapsed'); });
-    document.querySelectorAll('details[id]').forEach(d => { o[d.id] = d.open; });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem('qmModState', v); }catch(e){}
-    try{ sessionStorage.setItem('qmModState', v); }catch(e){}
-  }catch(e){}
-}
 function qmToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  qmSaveModState();
-}
-function qmApplyModState(){
-  const s = qmReadModState();
-  document.querySelectorAll('#out section.mod[id]').forEach(m => { if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  document.querySelectorAll('details[id]').forEach(d => { if(d.id in s) d.open = !!s[d.id]; });
+  xjSaveModState('qmModState','details[id]','__qmInitDone');
 }
 function qModeChange(){
   const mode=document.getElementById('qMode').value;
@@ -426,7 +400,7 @@ function paiju(){
   ];
   renderQiOutput(pan, cells, baseInfo, purpose);
   document.getElementById('out').innerHTML = qiHtml;
-  qmApplyModState();
+  xjApplyModState('qmModState','details[id]');
   window.__qmInitDone = true;
   try{ renderBaziLink(pan, qiHtml); }catch(e){}
   const sysLabel = family==='日家'
@@ -460,7 +434,7 @@ function paijuShanXiang(){
   ];
   renderQiOutput(pan, cells, baseInfo, purpose);
   document.getElementById('out').innerHTML = qiHtml;
-  qmApplyModState();
+  xjApplyModState('qmModState','details[id]');
   window.__qmInitDone = true;
   __qm=buildQmText(pan, purpose, '山向', '转盘', '阴盘', `山向奇门：${shan}山${xiang}向\n用事年：${yearGZ}  局数：${pan.juShu.fullName}\n`);
   window.__qmPan = pan;
@@ -599,7 +573,7 @@ window.addEventListener('load', function () {
     renderChrome('qimen.html');
     document.addEventListener('toggle', function(e){
       const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id) qmSaveModState();
+      if(t && t.tagName === 'DETAILS' && t.id) xjSaveModState('qmModState','details[id]','__qmInitDone');
     }, true);
     document.addEventListener('click',function(e){
       const cell=e.target.closest?e.target.closest('.qi-cell'):null;

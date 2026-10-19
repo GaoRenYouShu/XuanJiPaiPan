@@ -8,6 +8,23 @@
 const XZ_DEG = Math.PI / 180, XZ_RAD = 180 / Math.PI;
 function xz_norm360(x){ return ((x % 360) + 360) % 360; }
 
+/* 上升点与中天（七政、占星两页共用）：由儒略日、经度、纬度解析求 ASC 与 MC。
+   标准公式（Meeus）：ASC = atan2( cos(RAMC), -( sin(RAMC)cosε + tanφsinε ) )，
+   MC = atan2( sin(RAMC), cos(RAMC)cosε )，结果皆归一到 0..360。 */
+function xjAscCalc(jd, lon, lat){
+  const T = (jd - 2451545.0) / 36525;
+  const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000;
+  const lst = xz_norm360(gmst + lon);
+  const eps = 23.439291111 - 0.013004167 * T - 0.0000001639 * T * T + 0.0000005036 * T * T * T;
+  const er = eps * XZ_DEG, fr = lat * XZ_DEG, lstR = lst * XZ_DEG;
+  const y = Math.cos(lstR);
+  const x = -(Math.sin(lstR) * Math.cos(er) + Math.tan(fr) * Math.sin(er));
+  const ascLon = xz_norm360(Math.atan2(y, x) * XZ_RAD);
+  const mcLon = xz_norm360(Math.atan2(Math.sin(lstR), Math.cos(lstR) * Math.cos(er)) * XZ_RAD);
+  return {lon: ascLon, mc: mcLon, ramc: lst, eps};
+}
+window.xjAscCalc = xjAscCalc;
+
 /* 儒略日 → Date（UT）。astronomy-engine 的 MakeTime 接受 Date 对象（UTC 语义）。 */
 function xz_jdToDate(jd){
   const ms = (jd - 2440587.5) * 86400000;

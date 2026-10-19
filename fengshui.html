@@ -353,6 +353,8 @@
 <script defer src="assets/bazhai.js"></script>
 <script defer src="assets/fengshui-engine.js"></script>
 <script defer src="assets/fs-mag.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/fengshui-common.js"></script>
 <script defer src="assets/wheel.js"></script>
 <script defer src="assets/ai.js"></script>
 <script>
@@ -382,87 +384,22 @@ function fwDetail(id,html){ const e=document.getElementById(id); if(e) e.innerHT
 /* 取所在地经纬度：手填两项齐全即优先，否则按省市区经 latlng.js 取数。
    所在地未定即无坐标可取，返回空而磁偏角留空不折算（磁偏角框空即古法直读磁北），
    不回退任一城市坐标：按别人的所在地折出来的磁偏角不著来历。 */
-function fsGeoCoord(){
-  const lo=parseFloat((document.getElementById('fsLng')||{}).value);
-  const la=parseFloat((document.getElementById('fsLat')||{}).value);
-  if(isFinite(lo)&&isFinite(la)) return {lng:lo, lat:la};
-  const sp=document.getElementById('fsProv'); if(!sp||!sp.value) return null;
-  const sc=document.getElementById('fsCity'), sd=document.getElementById('fsDist');
-  const lng=findLng(sp.value, sc&&sc.value, sd&&sd.value);
-  const lat=findLat(sp.value, sc&&sc.value, sd&&sd.value);
-  if(lng==null||lat==null) return null;
-  return {lng, lat};
-}
 function fsDeclTouch(){
   FS_DECL_TOUCH=document.getElementById('baseDecl').value!=='';
   fsMagNote();
 }
-function fsGeoPick(){
-  const el=document.getElementById('baseDecl');
-  if(el && !FS_DECL_TOUCH){
-    const c=fsGeoCoord();
-    el.value=c?FS_MAG.decl(c.lat, c.lng, xjNowDate()).toFixed(2):'';
-  }
-  fsMagNote();
-}
+function fsDeclNow(){ return xjNowDate(); }
 /* 罗盘实测读数为磁北，按当地磁偏角折真北：东偏为正、西偏为负，真方位＝磁方位＋磁偏角。
    磁偏角留空即不折算（古法直读磁北）。 */
-function fsMagTrue(deg){
-  if(deg==null || !isFinite(deg)) return undefined;
-  const d=parseFloat((document.getElementById('baseDecl')||{}).value);
-  if(!isFinite(d)) return deg;
-  return ((deg+d)%360+360)%360;
-}
 /* 实测坐度已填时，坐山随折算后坐度所属之山：坐度是罗盘实测读数，坐山是它的归类，两者不得各行其是。
    磁偏角折算把真北坐度推入邻山时，坐山若不跟随即误报骑缝空亡：实测坐度 100 度、磁偏角 -7.56 度，
    真北坐度 92.44 度落卯山（82.5 至 97.5 度），坐山若仍留乙则与乙山中线（105 度）差 12.56 度，
    越过 7.25 度即判骑缝空亡；坐山随坐度落卯，与卯山中线（90 度）只差 2.44 度，判正向。
    坐度留空则不动，坐山仍可自由选。取地盘正针定山，与立向口径一致。 */
-function fsSitFromDeg(){
-  const dv=document.getElementById('baseDeg').value;
-  const deg=fsMagTrue(dv===''?null:parseFloat(dv));
-  if(deg===undefined) return;
-  const z=FS.zhenShan(deg, 'zheng');
-  if(!z) return;
-  const sitEl=document.getElementById('baseSit'), faceEl=document.getElementById('baseFace');
-  if(!sitEl) return;
-  sitEl.value=z.shan;
-  if(faceEl) faceEl.selectedIndex=(FS.SHAN_LIST.indexOf(z.shan)+12)%24;
-}
 /* 提示行只出专业结果：未填坐度不出；已填坐度时给折算与否与折算后坐度，
    不写取数来源、模型名、经纬度与两源差值 */
-function fsMagNote(){
-  const el=document.getElementById('fsMagNote'); if(!el) return;
-  const t=fsMagTrue(parseFloat(document.getElementById('baseDeg').value));
-  if(t===undefined){ el.textContent=''; return; }
-  const d=parseFloat(document.getElementById('baseDecl').value);
-  el.textContent=isFinite(d)
-    ? `已按当地磁偏角折算真北，折算后坐度 ${t.toFixed(1)}°`
-    : '所填坐度按真北论，未作折算';
-}
 /* 重新取当地磁偏角：按所在地取数填入磁偏角框，并据新值重算全页；取不到则保持现值不动，
    不向页面报取数过程 */
-function fsMagOnline(){
-  const btn=document.getElementById('fsMagBtn');
-  const c=fsGeoCoord(); if(!c) return;
-  if(btn){ btn.disabled=true; btn.textContent='取数中'; }
-  let got=false;
-  FS_MAG.online(c.lat, c.lng, xjNowDate()).then(v=>{
-    if(v==null) return;
-    document.getElementById('baseDecl').value=v.toFixed(2);
-    FS_DECL_TOUCH=true;
-    got=true;
-  }).catch(()=>{}).then(()=>{
-    if(btn){ btn.disabled=false; btn.textContent='重新取当地磁偏角'; }
-    if(got) fsApplyBase(); else fsMagNote();
-  });
-}
-function fsGeoInit(){
-  const sp=document.getElementById('fsProv'); if(!sp) return;
-  const trio=fillPlaceTrio(sp, document.getElementById('fsCity'), document.getElementById('fsDist'), fsGeoPick);
-  fsGeoPick();
-  placeIpPrefill({manualKey:'fs_geo_manual', group:document.getElementById('fsGeoGroup'), trio:trio, onDone:fsGeoPick});
-}
 /* 全局基础设定读取 */
 function getBase(){
   const bd=(document.getElementById('baseDate').value||'').split('-').map(Number);
@@ -487,17 +424,7 @@ function FS_ZB_CTX(y,m,d){
   const lunar=solar.getLunar();
   const gzIdx=gz=>{ for(let k=0;k<60;k++){ if(FS.GAN[k%10]+FS.ZHI[k%12]===gz) return k; } return 0; };
   /* 跨年检索节气公历日：after=false 取最近且<=ref者，after=true 取>ref最近者（遍历近三年节气表保证跨年可得） */
-  const pickJQ=(name,ref,after)=>{
-    const cand=[];
-    for(const ly of [y-1,y,y+1]){
-      const s=Solar.fromYmd(ly,1,1).getLunar().getJieQiTable()[name];
-      if(s) cand.push(s.getYear()*10000+s.getMonth()*100+s.getDay());
-    }
-    cand.sort((a,b)=>a-b);
-    if(!after){ let ch=null; for(const c of cand) if(c<=ref) ch=c; return ch||cand[0]; }
-    for(const c of cand) if(c>ref) return c;
-    return cand[cand.length-1];
-  };
+  const pickJQ=(name,ref,after)=>xjPickJQ(name,ref,after,y);
   const q=y*10000+m*100+d;
   const DZ=pickJQ('冬至',q,false), YS=pickJQ('雨水',DZ,true), GY=pickJQ('谷雨',DZ,true),
         XZ=pickJQ('夏至',DZ,true), CZ=pickJQ('处暑',DZ,true), SJ=pickJQ('霜降',DZ,true);
@@ -548,15 +475,6 @@ function fillBase(){
 /* 各层坐向控件：全页真值只一份（基础设定那一组），层内控件只是同一真值的另一个入口。
    改任一层即写回真值再整页重排，重排末尾由 syncLocalBase 把真值刷回所有层，
    故不存在多份状态互不同步；程序赋值不触发 change 事件，也不会回环。 */
-function fsSetLocalBase(which,el){
-  if(which==='sit'){
-    document.getElementById('baseSit').value=el.value;
-    document.getElementById('baseFace').selectedIndex=(FS.SHAN_LIST.indexOf(el.value)+12)%24;
-  }else if(which==='face') document.getElementById('baseFace').value=el.value;
-  else if(which==='deg') document.getElementById('baseDeg').value=el.value;
-  else document.getElementById('baseYear2').value=el.value;
-  fsApplyBase();
-}
 /* 各层门位控件：门位全页真值只一份（基础设定那一栏），三要、穿宫、六事三处的门位
    只是同一真值的另一个入口，机制与坐向块同（改任一处即写回真值再整页重排） */
 function fsSetLocalDoor(el){
@@ -573,12 +491,9 @@ function fillLocalBase(){
   syncLocalBase();
 }
 function syncLocalBase(){
-  const v=id=>{ const e=document.getElementById(id); return e?e.value:''; };
-  document.querySelectorAll('.fs-lb-sit').forEach(el=>{ el.value=v('baseSit'); });
-  document.querySelectorAll('.fs-lb-face').forEach(el=>{ el.value=v('baseFace'); });
-  document.querySelectorAll('.fs-lb-door').forEach(el=>{ el.value=v('baseDoor'); });
-  document.querySelectorAll('.fs-lb-deg').forEach(el=>{ el.value=v('baseDeg'); });
-  document.querySelectorAll('.fs-lb-year').forEach(el=>{ el.value=v('baseYear2'); });
+  fsSyncLocalBase([
+    {sel:'.fs-lb-sit',src:'baseSit'},{sel:'.fs-lb-face',src:'baseFace'},{sel:'.fs-lb-door',src:'baseDoor'},{sel:'.fs-lb-deg',src:'baseDeg'},{sel:'.fs-lb-year',src:'baseYear2'}
+  ]);
 }
 /* 紫白飞星：年月日时四盘分开，盘式参考大六壬天地盘 */
 function drawZiBai(){
@@ -617,20 +532,24 @@ function drawZiBai(){
 }
 function fsZbTab(i){ FS_ZB_SEL=i; FS_ZB_PICK=0; drawZiBai(); }
 /* 点选只改弧、指针与盘心三行，不整盘重绘：改哪一处就看哪一处，盘面不跳 */
-function fsPickZb(i){
-  FS_ZB_PICK=i;
-  WHEEL.pick('fsZbWheel',i);
-  WHEEL.lab('fsZbWheel',i);
-  const root=document.getElementById('fsZbWheel');
-  const cur=document.getElementById('fsZbCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsZbNeedle(i);
-  fsZbCore(i);
-  fsZbDetail();
-}
+const FS_PICK_CONF = {
+  zb:{state:function(v){FS_ZB_PICK=v;},wheel:'fsZbWheel',cur:'fsZbCur',needle:fsZbNeedle,core:fsZbCore,detail:fsZbDetail},
+  ba:{state:function(v){FS_BA_SEL=v;},wheel:'fsBaWheel',cur:'fsBaCur',needle:fsBaNeedle,core:fsBaCore,detail:fsBaDetail},
+  ns:{state:function(v){FS_NS_SEL=v;},wheel:'fsNsWheel',cur:'fsNsCur',needle:fsNsNeedle,core:fsNsCore,detail:fsNsDetail},
+  shan:{state:function(v){FS_SHAN_SEL=v;},wheel:'fsShanWheel',cur:'fsShanCur',needle:fsShanNeedle,core:fsShanCore,detail:fsShanDetail},
+  xk:{state:function(v){FS_XK_SEL=v;},wheel:'fsXkWheel',cur:'fsXkCur',needle:fsXkNeedle,core:fsXkCore,detail:fsXkDetail},
+  sh:{state:function(v){FS_SH_SEL=v;},wheel:'fsShWheel',cur:'fsShCur',needle:fsShNeedle,core:fsShCore,detail:fsShDetail},
+  yz:{state:function(v){FS_YZ_SEL=v;},wheel:'fsYzWheel',cur:'fsYzCur',needle:fsYzNeedle,core:fsYzCore,detail:fsYzDetail},
+  sd:{state:function(v){FS_SD_SEL=v;},wheel:'fsSdWheel',cur:'fsSdCur',needle:fsSdNeedle,core:fsSdCore,detail:fsSdDetail},
+  zj:{state:function(v){FS_ZJ_SEL=v;},wheel:'fsZjWheel',cur:'fsZjCur',needle:fsZjNeedle,core:fsZjCore,detail:fsZjDetail,beforeCore:function(i){
+    const root=document.getElementById('fsZjWheel');
+    if(!root) return;
+    const gi=FS_ZB_ORDER.indexOf(FS_GUA_NUM[FS.SHAN_BAGUA[FS.SHAN_LIST[i]]]);
+    const ins=root.querySelectorAll('[data-g]');
+    for(let k=0;k<ins.length;k++) ins[k].classList.toggle('w-lab-cur', +ins[k].getAttribute('data-g')===gi);
+  }},
+};
+function fsPickZb(i){ fsPickCommon(i, FS_PICK_CONF.zb); }
 function fsZbNeedle(i){
   const ln=document.getElementById('fsZbNeedle'), dt=document.getElementById('fsZbDot');
   const a=WHEEL.px(FW_P0,i*45), b=WHEEL.px(FW_P1,i*45);
@@ -742,19 +661,7 @@ function drawBazhai(){
   fsBaDetail();
 }
 function fsBaGua(i){ return FS.NINE_BAGUA[FS_ZB_ORDER[i]]; }
-function fsPickBa(i){
-  FS_BA_SEL=i;
-  WHEEL.pick('fsBaWheel',i);
-  WHEEL.lab('fsBaWheel',i);
-  const root=document.getElementById('fsBaWheel'), cur=document.getElementById('fsBaCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsBaNeedle(i);
-  fsBaCore(i);
-  fsBaDetail();
-}
+function fsPickBa(i){ fsPickCommon(i, FS_PICK_CONF.ba); }
 function fsBaNeedle(i){
   const ln=document.getElementById('fsBaNeedle'), dt=document.getElementById('fsBaDot');
   const a=WHEEL.px(FW_P0,i*45), b=WHEEL.px(FW_P1,i*45);
@@ -846,25 +753,8 @@ function drawNianSha(){
   fsNsDetail();
 }
 function fsNsZhiDir(z){ return FS.GUA_DIR[FS.SHAN_BAGUA[z]]||''; }
-function fsPickNs(j){
-  FS_NS_SEL=j;
-  WHEEL.pick('fsNsWheel',j);
-  WHEEL.lab('fsNsWheel',j);
-  const root=document.getElementById('fsNsWheel'), cur=document.getElementById('fsNsCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[j]) cur.setAttribute('d',arcs[j].getAttribute('d'));
-  }
-  fsNsNeedle(j);
-  fsNsCore(j);
-  fsNsDetail();
-}
-function fsNsNeedle(j){
-  const ln=document.getElementById('fsNsNeedle'), dt=document.getElementById('fsNsDot');
-  const a=WHEEL.px(FW_P0,fwZhiDeg(j)), b=WHEEL.px(FW_P1,fwZhiDeg(j));
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(b[0])); ln.setAttribute('y2',WHEEL.n(b[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(b[0])); dt.setAttribute('cy',WHEEL.n(b[1])); }
-}
+function fsPickNs(i){ fsPickCommon(i, FS_PICK_CONF.ns); }
+function fsNsNeedle(j){ fsNeedleCommon('fsNsNeedle','fsNsDot',fwZhiDeg(j),false); }
 /* 盘心三行：第一行常驻流年干支，第二行给该方所犯之煞（判定，带吉凶色），第三行给该方方位与并临煞数 */
 function fsNsCoreTxt(j){
   const z=FS_ZHI[j], hs=FS_NS_HIT[z]||[];
@@ -979,25 +869,8 @@ function fsShanInfoHtml(i){
     +wuTxt
     +srLine(FS.scoreLixiang(shan, fsShanDegOf(i)));
 }
-function fsPickShan(i){
-  FS_SHAN_SEL=i;
-  WHEEL.pick('fsShanWheel',i);
-  WHEEL.lab('fsShanWheel',i);
-  const root=document.getElementById('fsShanWheel'), cur=document.getElementById('fsShanCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsShanNeedle(i);
-  fsShanCore(i);
-  fsShanDetail();
-}
-function fsShanNeedle(i){
-  const ln=document.getElementById('fsShanNeedle'), dt=document.getElementById('fsShanDot');
-  const a=WHEEL.px(FW_P0,fwShanDeg(i)), b=WHEEL.px(FW_P1,fwShanDeg(i));
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(b[0])); ln.setAttribute('y2',WHEEL.n(b[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(b[0])); dt.setAttribute('cy',WHEEL.n(b[1])); }
-}
+function fsPickShan(i){ fsPickCommon(i, FS_PICK_CONF.shan); }
+function fsShanNeedle(i){ fsNeedleCommon('fsShanNeedle','fsShanDot',fwShanDeg(i),false); }
 /* 盘心三行：第一行常驻本宅坐向，第二行随点选给该山周天中线，第三行给卦行与配支 */
 function fsShanCoreTxt(i){
   const b=getBase();
@@ -1129,21 +1002,9 @@ function drawXuanKong(){
     </div>`;
   fsXkDetail();
 }
-function fsXkRow(i){
-  const d=FS_XK_DATA, n=FS_ZB_ORDER[i];
-  return {palace:n,
-    yun:d.yunBoard.find(x=>x.palace===n).star,
-    sit:d.sitBoard.find(x=>x.palace===n).star,
-    face:d.faceBoard.find(x=>x.palace===n).star};
-}
+function fsXkRow(i){ return fsXkRowCommon(i); }
 /* 盘心三行：第一行常驻当运星，第二行给该宫宫名方位与运星，第三行给山向相会与吉凶（判定，带吉凶色） */
-function fsXkCoreTxt(i){
-  const d=FS_XK_DATA, r=fsXkRow(i), cj=FS.comboJx(r.sit, r.face);
-  return [STAR_NAMES[d.yun.yun],
-    FS.NINE_BAGUA[r.palace]+FS.NINE_DIR[r.palace]+' 运'+r.yun,
-    '山'+r.sit+'向'+r.face+' '+cj.jx,
-    fwJxFill(cj.jx)||'var(--wheel-ink2)'];
-}
+function fsXkCoreTxt(i){ return fsXkCoreTxtCommon(i); }
 function fsXkCore(i){
   const t=fsXkCoreTxt(i);
   WHEEL.text('fsXkC1',t[0]);
@@ -1159,85 +1020,9 @@ function fsXkNeedle(i){
   nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1]));
   dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
 }
-function fsXkWheelSvg(){
-  const d=FS_XK_DATA; if(!d) return '';
-  const yun=d.yun.yun;
-  let s='';
-  for(let i=0;i<8;i++) s+=`<path d="${WHEEL.arc(FW_ARC,i*45-22.5,i*45+22.5)}" class="w-arc"/>`;
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_TICK0,i*45), c=WHEEL.px(FW_TICK1,i*45);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const bd=WHEEL.band(SD_IN,SD_HIT1,i*45-22.5,i*45+22.5);
-    s+=`<path d="${bd}" class="w-hit${i===FS_XK_SEL?' is-on':''}" data-i="${i}" onclick="fsPickXk(${i})"/>`
-      +`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsXkCur" d="${WHEEL.arc(FW_ARC,FS_XK_SEL*45-22.5,FS_XK_SEL*45+22.5)}" class="w-arc w-arc-cur"/>`;
-  /* 外签宫名与方位 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const a=WHEEL.px(FW_LAB_OUT,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_XK_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.NINE_BAGUA[n]}${FS.NINE_DIR[n]}</text>`;
-  });
-  /* 内签一：运星名，色取该星本身的吉凶 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const r=fsXkRow(i), a=WHEEL.px(SD_ZW,i*45), f=fwJxFill(FS.STAR_JX[r.yun]);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_XK_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.radial(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${STAR_NAMES[r.yun]}</text>`;
-  });
-  /* 内签二：山星与向星同格左右并排，各按自己那一档旺衰着色 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const r=fsXkRow(i);
-    [[-12,'山'+r.sit,FS.starWangShuai(r.sit,yun)],[12,'向'+r.face,FS.starWangShuai(r.face,yun)]].forEach(pr=>{
-      const ang=i*45+pr[0], a=WHEEL.px(SD_SX,ang);
-      s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_XK_SEL?' w-lab-cur':''}" data-i="${i}"`
-        +` style="fill:${fwWangFill(pr[2])}"`
-        +` transform="rotate(${WHEEL.radial(ang)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${pr[1]}</text>`;
-    });
-  });
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${SD_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(SD_P0,FS_XK_SEL*45), q1=WHEEL.px(SD_P1,FS_XK_SEL*45);
-  s+=`<line id="fsXkNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsXkDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  const ct=fsXkCoreTxt(FS_XK_SEL);
-  s+=`<text id="fsXkC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsXkC2" x="${FW_C}" y="${FW_C+14}" class="w-c2">${ct[1]}</text>`
-    +`<text id="fsXkC3" x="${FW_C}" y="${FW_C+34}" class="w-c3" style="fill:${ct[3]}">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsXkWheel" viewBox="0 0 440 440" role="img" aria-label="玄空飞星山向盘：外圈八宫方位，内两圈为运星与山向星，点选一宫看该宫山向旺衰与断事">${s}</svg>`;
-}
-function fsXkDetail(){
-  const d=FS_XK_DATA; if(!d) return;
-  const b=getBase(), r=fsXkRow(FS_XK_SEL), yun=d.yun.yun;
-  const sw=FS.starWangShuai(r.sit,yun), fw=FS.starWangShuai(r.face,yun);
-  const dc=FS.gongDingCai(r.sit,r.face,yun), cj=FS.comboJx(r.sit,r.face);
-  const jxCls=jx=>jx.indexOf('凶')>=0?'wd-x':(jx.indexOf('吉')>=0?'wd-g':'');
-  const tag=(r.palace===FS_GUA_NUM[b.faceShan]?'向首宫 ':'')+(r.palace===FS_GUA_NUM[b.sitShan]?'坐山宫 ':'');
-  fwDetail('fsXkDetail',
-    `${FS.NINE_BAGUA[r.palace]}宫（${FS.NINE_DIR[r.palace]}方） ${tag}运星${r.yun} 山星${r.sit}（${sw}） 向星${r.face}（${fw}）`
-    +`<span class="wd-br"></span>`
-    +`丁财断 <span class="${jxCls(dc.jx)}">${dc.jx}</span> ${dc.mean}`
-    +`<span class="wd-br"></span>`
-    +`山向相会 <span class="${jxCls(cj.jx)}">${cj.jx}</span> ${cj.mean||'比和，随当令断'}`
-    +`<span class="wd-br"></span>`
-    +`中宫入中：运星${d.yun.yun}、山星${d.sitIn}、向星${d.faceIn} 旺山旺向为阳宅之上格，双星到向须向首有水、双星到山须坐后有山。`);
-}
-function fsPickXk(i){
-  FS_XK_SEL=i;
-  WHEEL.pick('fsXkWheel',i);
-  WHEEL.lab('fsXkWheel',i);
-  fsXkNeedle(i);
-  const root=document.getElementById('fsXkWheel'), cur=document.getElementById('fsXkCur');
-  if(root){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsXkCore(i);
-  fsXkDetail();
-}
+function fsXkWheelSvg(){ return xjFsXkWheelSvg({axis:function(){return {sit:null,face:null};},geo:{in:window.SD_IN||104,hit1:window.SD_HIT1||198,zw:window.SD_ZW||152,sx:window.SD_SX||120,p0:window.SD_P0||82,p1:window.SD_P1||100,out:window.FW_OUT||182,core:window.FW_CORE||78,c:window.FW_C||220}}); }
+function fsXkDetail(){ return xjFsXkDetail(); }
+function fsPickXk(i){ fsPickCommon(i, FS_PICK_CONF.xk); }
 /* 九星组合断事（继承玄空盘结果） */
 function drawComboFromXk(xk){
   const b=getBase(), sit=b.sitShan, face=b.faceShan, y=b.flowYear;
@@ -1274,85 +1059,10 @@ function fsShCore(i){
   WHEEL.text('fsShC2',t[1],fwJxFill(FS_SH_DATA.gongJx[i])||'var(--wheel-ink2)');
   WHEEL.text('fsShC3',t[2]);
 }
-function fsShNeedle(i){
-  const root=document.getElementById('fsShWheel'); if(!root) return;
-  const nd=root.querySelector('#fsShNeedle'), dt=root.querySelector('#fsShDot');
-  if(!nd||!dt) return;
-  const a=fsShDeg(i), q0=WHEEL.px(FW_P0,a), q1=WHEEL.px(FW_P1,a);
-  nd.setAttribute('x1',WHEEL.n(q0[0])); nd.setAttribute('y1',WHEEL.n(q0[1]));
-  nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1]));
-  dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
-}
-function fsShWheelSvg(){
-  const d=FS_SH_DATA; if(!d) return '';
-  let s='';
-  for(let i=0;i<12;i++){
-    const a=fsShDeg(i);
-    s+=`<path d="${WHEEL.arc(FW_ARC,a-15,a+15)}" class="w-arc"/>`;
-  }
-  for(let i=0;i<12;i++){
-    const a=fsShDeg(i), c=WHEEL.px(FW_TICK0,a), e=WHEEL.px(FW_TICK1,a);
-    s+=`<line x1="${WHEEL.n(c[0])}" y1="${WHEEL.n(c[1])}" x2="${WHEEL.n(e[0])}" y2="${WHEEL.n(e[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<12;i++){
-    const a=fsShDeg(i), bd=WHEEL.band(FW_IN,FW_HIT1,a-15,a+15);
-    s+=`<path d="${bd}" class="w-hit${i===FS_SH_SEL?' is-on':''}" data-i="${i}" onclick="fsPickSh(${i})"/>`
-      +`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsShCur" d="${WHEEL.arc(FW_ARC,fsShDeg(FS_SH_SEL)-15,fsShDeg(FS_SH_SEL)+15)}" class="w-arc w-arc-cur"/>`;
-  /* 外签十二宫名：宫名二字与单字并存（衰病死墓绝胎养皆单字），一律沿圆周环布 */
-  for(let i=0;i<12;i++){
-    const a=WHEEL.px(FW_LAB_OUT,fsShDeg(i)), f=fwJxFill(d.gongJx[i]);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_SH_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.ring(fsShDeg(i))} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${d.gong[i].gong}</text>`;
-  }
-  /* 内签地支：单字走取字角，四正放正 */
-  for(let i=0;i<12;i++){
-    const a=WHEEL.px(FW_LAB_IN,fsShDeg(i));
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SH_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.dir(fsShDeg(i))} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${d.gong[i].zhi}</text>`;
-  }
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,fsShDeg(FS_SH_SEL)), q1=WHEEL.px(FW_P1,fsShDeg(FS_SH_SEL));
-  s+=`<line id="fsShNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsShDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  const ct=fsShCoreTxt(FS_SH_SEL);
-  s+=`<text id="fsShC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsShC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="fill:${fwJxFill(d.gongJx[FS_SH_SEL])||'var(--wheel-ink2)'}">${ct[1]}</text>`
-    +`<text id="fsShC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsShWheel" viewBox="0 0 440 440" role="img" aria-label="三合水法长生十二宫盘：外圈十二宫名，内圈地支方位，点选一宫看该宫断水">${s}</svg>`;
-}
-function fsShDetail(){
-  const d=FS_SH_DATA; if(!d) return;
-  const i=FS_SH_SEL, g=d.gong[i], jx=d.gongJx[i];
-  const bad=jx.indexOf('凶')>=0;
-  fwDetail('fsShDetail',
-    `${g.gong}宫 ${g.zhi}方 <span class="${bad?'wd-x':'wd-g'}">${jx}</span>`
-    +`<span class="wd-br"></span>`
-    +`${d.gongNote[i]}`
-    +`<span class="wd-br"></span>`
-    +`${d.ju}：${d.zs}起长生、帝旺在${d.miao}、墓库在${d.mu} 收山出煞：${d.shou}`
-    +`<span class="wd-br"></span>`
-    +`来水宜长生、冠带、临官、帝旺四宫，去水宜衰、墓、绝、胎四宫；沐浴来水不吉而宜去。`
-    +`<span class="wd-br"></span>`
-    +FS.SH_QUJIAO);
-}
-function fsPickSh(i){
-  FS_SH_SEL=i;
-  WHEEL.pick('fsShWheel',i);
-  WHEEL.lab('fsShWheel',i);
-  fsShNeedle(i);
-  const root=document.getElementById('fsShWheel'), cur=document.getElementById('fsShCur');
-  if(root){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsShCore(i);
-  fsShDetail();
-}
+function fsShNeedle(i){ fsNeedleCommon('fsShNeedle','fsShDot',fsShDeg(i),true,'fsShWheel'); }
+function fsShWheelSvg(){ return xjFsShWheelSvg(); }
+function fsShDetail(){ return fsShDetailCommon(); }
+function fsPickSh(i){ fsPickCommon(i, FS_PICK_CONF.sh); }
 function drawSanHe(){
   const out=document.getElementById('shOut'); if(!out) return;
   const b=getBase(), shan=b.sitShan;
@@ -1619,19 +1329,7 @@ function drawLayout(){
   fsYzDetail();
 }
 function fsYzFill(jx){ return jx==='大吉'||jx==='吉'?'var(--wheel-good)':(jx==='大凶'||jx==='凶'?'var(--wheel-bad)':''); }
-function fsPickYz(i){
-  FS_YZ_SEL=i;
-  WHEEL.pick('fsYzWheel',i);
-  WHEEL.lab('fsYzWheel',i);
-  const root=document.getElementById('fsYzWheel'), cur=document.getElementById('fsYzCur');
-  if(root&&cur){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsYzNeedle(i);
-  fsYzCore(i);
-  fsYzDetail();
-}
+function fsPickYz(i){ fsPickCommon(i, FS_PICK_CONF.yz); }
 function fsYzNeedle(i){
   const ln=document.getElementById('fsYzNeedle'), dt=document.getElementById('fsYzDot');
   const a=WHEEL.px(FW_P0,i*45), b=WHEEL.px(FW_P1,i*45);
@@ -2075,19 +1773,7 @@ function fsSdDetail(){
     +`<span class="wd-br"></span>`
     +`流年吉星（一白、四绿、六白、八白、九紫）飞临宅盘当运之星所在之宫者，其年动而用之最验。`);
 }
-function fsPickSd(i){
-  FS_SD_SEL=i;
-  WHEEL.pick('fsSdWheel',i);
-  WHEEL.lab('fsSdWheel',i);
-  fsSdNeedle(i);
-  const root=document.getElementById('fsSdWheel'), cur=document.getElementById('fsSdCur');
-  if(root){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-  }
-  fsSdCore(i);
-  fsSdDetail();
-}
+function fsPickSd(i){ fsPickCommon(i, FS_PICK_CONF.sd); }
 function drawSuiYun(){
   const b=getBase();
   const xk=FS.xuanKong(b.sitShan, b.faceShan, b.flowYear, b.deg, b.faceDeg, b.yunOv);
@@ -2402,34 +2088,9 @@ function fsZjData(){
 function fsZjPalOf(shan){
   return FS_ZJ_DATA.pal[FS_ZB_ORDER.indexOf(FS_GUA_NUM[FS.SHAN_BAGUA[shan]])];
 }
-function fsPickZj(i){
-  FS_ZJ_SEL=i;
-  WHEEL.pick('fsZjWheel',i);
-  WHEEL.lab('fsZjWheel',i);
-  fsZjNeedle(i);
-  const root=document.getElementById('fsZjWheel'), cur=document.getElementById('fsZjCur');
-  if(root){
-    const arcs=root.querySelectorAll('.w-arc:not(.w-arc-cur)');
-    if(cur&&arcs[i]) cur.setAttribute('d',arcs[i].getAttribute('d'));
-    /* 内两圈随选中山所属之宫高亮：年紫白与八卦宫皆按宫出，一宫辖三山，三山共用该宫之星。
-       这两圈的字不带 data-i，故 WHEEL.lab 不认它们，宫号另走 data-g */
-    const gi=FS_ZB_ORDER.indexOf(FS_GUA_NUM[FS.SHAN_BAGUA[FS.SHAN_LIST[i]]]);
-    const ins=root.querySelectorAll('[data-g]');
-    for(let k=0;k<ins.length;k++) ins[k].classList.toggle('w-lab-cur', +ins[k].getAttribute('data-g')===gi);
-  }
-  fsZjCore(i);
-  fsZjDetail();
-}
+function fsPickZj(i){ fsPickCommon(i, FS_PICK_CONF.zj); }
 /* 指针与端点随选中山转，只走盘心圆与内界圈之间，不穿过盘心文字 */
-function fsZjNeedle(i){
-  const root=document.getElementById('fsZjWheel'); if(!root) return;
-  const nd=root.querySelector('#fsZjNeedle'), dt=root.querySelector('#fsZjDot');
-  if(!nd||!dt) return;
-  const a=fwShanDeg(i), q0=WHEEL.px(FC_P0,a), q1=WHEEL.px(FC_P1,a);
-  nd.setAttribute('x1',WHEEL.n(q0[0])); nd.setAttribute('y1',WHEEL.n(q0[1]));
-  nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1]));
-  dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
-}
+function fsZjNeedle(i){ fsNeedleCommon('fsZjNeedle','fsZjDot',fwShanDeg(i),true,'fsZjWheel',{p0:FC_P0,p1:FC_P1}); }
 function fsZjCoreTxt(i){
   const d=FS_ZJ_DATA, shan=FS.SHAN_LIST[i], p=fsZjPalOf(shan);
   return ['坐'+d.b.sitShan+'向'+d.b.faceShan,
@@ -2438,13 +2099,7 @@ function fsZjCoreTxt(i){
     '年紫白'+STAR_NAMES[p.star],
     fwJxFill(p.jx)||'var(--wheel-ink2)'];
 }
-function fsZjCore(i){
-  const t=fsZjCoreTxt(i);
-  WHEEL.text('fsZjC0',t[0]);
-  WHEEL.text('fsZjC1',t[1]);
-  WHEEL.text('fsZjC2',t[2]);
-  WHEEL.text('fsZjC3',t[3],t[4]);
-}
+function fsZjCore(i){ fsCoreCommon(['fsZjC0','fsZjC1','fsZjC2','fsZjC3'],function(){ return fsZjCoreTxt(i); }); }
 function fsZjWheelSvg(){
   const d=FS_ZJ_DATA; if(!d) return '';
   let s='';
@@ -3095,7 +2750,7 @@ window.addEventListener('load', function () {
       window.FS_ZJ_SEL = FS_ZJ_SEL; window.FS_ZJ_DATA = FS_ZJ_DATA;
     })();
     fillBase();
-    fsGeoInit();
+    fsGeoInit('fs_geo_manual');
     fillXiaoWang();
     drawXiaoWang();
     fillLiuShi();

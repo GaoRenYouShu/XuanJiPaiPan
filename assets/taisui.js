@@ -688,46 +688,8 @@ var TS_MOD_KEY = 'tsModState';
 var tsModNavReady = false;
 function _tsAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return ['tsmod-check','tsmod-year','tsmod-ritual']; } }
 function toggleMod(id){ var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveTsModState(); }
-function readTsModState(){
-  try{
-    var raw = null;
-    try{ raw = localStorage.getItem(TS_MOD_KEY); }catch(e){}
-    if (!raw){ try{ raw = sessionStorage.getItem(TS_MOD_KEY); }catch(e){} }
-    var o = raw ? JSON.parse(raw) : null;
-    return (o && typeof o === 'object') ? o : {};
-  }catch(e){ return {}; }
-}
-function saveTsModState(){
-  if (!tsModNavReady) return; /* 初始化完成前不写，避免覆盖已保存状态 */
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    var o = readTsModState();
-    _tsAllModIds().forEach(function(id){ var e = document.getElementById(id); if (e) o[id] = e.classList.contains('collapsed'); });
-    /* 页内折叠块的 open 状态一并持久化（须带 id 方可定位） */
-    try{
-      var zr = (o._zr && typeof o._zr === 'object') ? o._zr : {};
-      document.querySelectorAll('details[id]').forEach(function(d){ zr[d.id] = d.open; });
-      if (Object.keys(zr).length) o._zr = zr;
-    }catch(e){}
-    var v = JSON.stringify(o);
-    try{ localStorage.setItem(TS_MOD_KEY, v); }catch(e){}
-    try{ sessionStorage.setItem(TS_MOD_KEY, v); }catch(e){}
-  }catch(e){}
-}
-function applyTsModState(){
-  var o = readTsModState();
-  try{
-    _tsAllModIds().forEach(function(id){
-      var e = document.getElementById(id); if (!e) return;
-      if (o[id] === true) e.classList.add('collapsed');
-      else if (o[id] === false) e.classList.remove('collapsed');
-    });
-    if (o._zr && typeof o._zr === 'object'){
-      try{ document.querySelectorAll('details[id]').forEach(function(d){ if (d.id in o._zr) d.open = !!o._zr[d.id]; }); }catch(e){}
-    }
-  }catch(e){}
-}
+function saveTsModState(){ xjSaveEngineModState(TS_MOD_KEY, function(){ return tsModNavReady; }, _tsAllModIds); }
+function applyTsModState(){ xjApplyEngineModState(TS_MOD_KEY, _tsAllModIds); }
 /* 页内折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
 try{ document.addEventListener('toggle', function(e){ if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveTsModState(); }, true); }catch(e){}
 /* ===== 14. 初始化 ===== */
