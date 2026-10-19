@@ -6159,6 +6159,23 @@
     var _getXiu=function(m,d){
       return FotoUtil.XIU_27[(XIU_OFFSET[Math.abs(m)-1] + d - 1) % FotoUtil.XIU_27.length];
     };
+    /* 闰月承接本月末宿，闰月之后各月顺延闰月天数，二十七宿逐日不断序。 */
+    var _getXiuByLunar=function(lunar){
+      var y=lunar.getYear(), m=lunar.getMonth(), d=lunar.getDay();
+      var idx;
+      if(m<0){
+        var rm=LunarMonth.fromYm(y,-m);
+        idx=(XIU_OFFSET[-m-1]+(rm?rm.getDayCount():30))%FotoUtil.XIU_27.length;
+      }else{
+        idx=XIU_OFFSET[m-1];
+        var months=LunarYear.fromYear(y).getMonths();
+        for(var i=0;i<months.length;i++){
+          var mm=months[i].getMonth();
+          if(mm<0 && -mm<m) idx=(idx+months[i].getDayCount())%FotoUtil.XIU_27.length;
+        }
+      }
+      return FotoUtil.XIU_27[(idx+d-1)%FotoUtil.XIU_27.length];
+    };
     var dj='犯者夺纪';
     var js='犯者减寿';
     var ss='犯者损寿';
@@ -6459,12 +6476,13 @@
         '12-23': ['监斋菩萨圣诞'],
         '12-29': ['华严菩萨圣诞']
       },
-      getXiu:function(m,d){return _getXiu(m,d);}
+      getXiu:function(m,d){return _getXiu(m,d);},
+      getXiuByLunar:function(lunar){return _getXiuByLunar(lunar);}
     }
   })();
   var Foto = (function(){
     var _fromYmdHms=function(y,m,d,hour,minute,second){
-      return _fromLunar(Lunar.fromYmdHms(y+Foto.DEAD_YEAR-1,m,d,hour,minute,second));
+      return _fromLunar(Lunar.fromYmdHms(y+Foto.DEAD_YEAR,m,d,hour,minute,second));
     };
     var _fromLunar=function(lunar){
       return {
@@ -6472,13 +6490,9 @@
           lunar: lunar
         },
         getLunar:function(){return this._p.lunar;},
+        /* 佛历年随农历年界：佛历年＝农历年减 DEAD_YEAR（佛灭公元前543年，记 -543）。 */
         getYear:function(){
-          var sy = this._p.lunar.getSolar().getYear();
-          var y = sy-Foto.DEAD_YEAR;
-          if(sy===this._p.lunar.getYear()){
-            y++;
-          }
-          return y;
+          return this._p.lunar.getYear()-Foto.DEAD_YEAR;
         },
         getMonth:function(){return this._p.lunar.getMonth();},
         getDay:function(){return this._p.lunar.getDay();},
@@ -6548,7 +6562,7 @@
           return false;
         },
         getXiu:function(){
-          return FotoUtil.getXiu(this.getMonth(), this.getDay());
+          return FotoUtil.getXiuByLunar(this._p.lunar);
         },
         getXiuLuck:function(){
           return LunarUtil.XIU_LUCK[this.getXiu()];
@@ -6582,7 +6596,7 @@
       };
     };
     return {
-      DEAD_YEAR:-543,
+      DEAD_YEAR:-543,   /* 佛灭公元前543年；佛历年＝农历年减此值 */
       fromYmdHms:function(y,m,d,hour,minute,second){return _fromYmdHms(y,m,d,hour,minute,second);},
       fromYmd:function(y,m,d){return _fromYmdHms(y,m,d,0,0,0);},
       fromLunar:function(lunar){return _fromLunar(lunar);}
