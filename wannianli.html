@@ -38,18 +38,18 @@
     <div class="lead">公历、农历对照，含节气、节日、纪念日、每日干支。</div>
     <div class="form-row">
       <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" onchange="jumpToDate(this.value)"></div>
-      <button class="btn gold" onclick="goToday()">今天</button>
+      <button class="btn gold" onclick="setToday()">今天</button>
     </div>
     <div data-export-target>
     <div class="exp-title" data-export-title>万年历 玄机排盘</div>
     <div class="cal-nav">
       <div class="cal-nav-grp">
         <button type="button" class="nav-btn" data-export-hide onclick="moveYear(-1)" title="上一年">«</button>
-        <button type="button" class="nav-btn" data-export-hide onclick="move(-1)" title="上一月">‹</button>
+        <button type="button" class="nav-btn" data-export-hide onclick="moveMonth(-1)" title="上一月">‹</button>
       </div>
       <div id="calTitle" class="cal-title"></div>
       <div class="cal-nav-grp">
-        <button type="button" class="nav-btn" data-export-hide onclick="move(1)" title="下一月">›</button>
+        <button type="button" class="nav-btn" data-export-hide onclick="moveMonth(1)" title="下一月">›</button>
         <button type="button" class="nav-btn" data-export-hide onclick="moveYear(1)" title="下一年">»</button>
       </div>
     </div>
@@ -72,25 +72,12 @@ let cur = new Date();
 let lastSel = '';
 /* 三伏、出伏、数九、入梅出梅 时令计算取自公共模块 assets/shiling.js（万年历与老黄历共用单一真源） */
 function render(){
-  const y=cur.getFullYear(), m=cur.getMonth();
-  const ct=document.getElementById('calTitle'); if(ct) ct.textContent = y+'年'+(m+1)+'月';
-  const first = safeDate(y,m+1,1);
-  const daysInMonth = safeDate(y,m+2,0).getDate();
-  const todayStr = xjNowDate().toDateString();
-  let cells = ['一','二','三','四','五','六','日'].map(w=>`<div class="wd">${w}</div>`);
-  const lead = (first.getDay()+6)%7;              /* 周一起始：周一=0 … 周日=6 */
-  for(let i=0;i<lead;i++){
-    const d=safeDate(y,m+1,1-(lead-i));
-    cells.push(cell(d,true,todayStr));
-  }
-  for(let d=1;d<=daysInMonth;d++){
-    cells.push(cell(safeDate(y,m+1,d),false,todayStr));
-  }
-  const total = lead+daysInMonth;
-  const tail = (7-total%7)%7;
-  for(let i=1;i<=tail;i++) cells.push(cell(safeDate(y,m+2,i),true,todayStr));
-  document.getElementById('calGrid').innerHTML = cells.join('');
-  paintRestMarks();
+  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件，本页只给一格一貌的 cell 与格后重画的休班标 */
+  xjCalGrid.render(cur.getFullYear(), cur.getMonth()+1, {
+    today: xjNowDate(),
+    cell: cell,
+    after: paintRestMarks
+  });
 }
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar();
@@ -110,7 +97,7 @@ function cell(d,other,todayStr){
   /* 日历格 class：other 非本月、today 今日、weekend 周末、jq 节气日 */
   const cls = [other?'other':'', isToday?'today':'', (wd===0||wd===6)?'weekend':'', jq?'jq':''].filter(Boolean).join(' ');
   const jqMark = jq ? `<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>` : '';
-  const click = other ? `jumpToDate('${key}')` : `showDay('${key}', this)`;
+  const click = `pickDate('${key}')`;
   return `<div class="cal-cell ${cls}" data-date="${key}"
     onclick="${click}">
     <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
@@ -525,19 +512,13 @@ function showDay(str, el){
     <div class="wheel-block"><h4>经络圆盘</h4>${jingluoWheel()}<div class="wheel-detail" id="wnlJlDetail">${WNL_JL?wnlJlDetailHTML(WNL_JL_SEL):''}</div></div>
   </div>`;
 }
-function move(n){
-  cur=safeDate(cur.getFullYear(),cur.getMonth()+n+1,1);
-  render();
-  /* 翻月后选中日不在新月份时：详情保持最后查看日，仅清除高亮 */
-  if(lastSel){
-    const[Y,M]=lastSel.split('-').map(Number);
-    if(Y===cur.getFullYear()&&M===cur.getMonth()+1) showDay(lastSel);
-    else document.querySelectorAll('.cal-cell.selected').forEach(c=>c.classList.remove('selected'));
-  }
-}
-function moveYear(n){cur=safeDate(cur.getFullYear()+n,cur.getMonth()+1,1);render(); if(lastSel) showDay(lastSel);}
+/* 日期导航三件（今天、翻月翻年、点格带入）走 assets/xuanji-lib.js 的 xjCalNav 共享件：
+   共享件算出目标日期串，本页在 onQuery 钩子里经 jumpToDate 刷新月历与详情。 */
+function setToday(){ xjNavToday(); }
+function moveMonth(n){ xjNavMonth(n); }
+function moveYear(n){ xjNavYear(n); }
+function pickDate(key){ xjNavPick(key); }
 function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
-function goToday(){cur=new Date();document.getElementById('dInput').value=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;render();showDay(`${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`);}
 </script>
 <script>
 
@@ -545,8 +526,10 @@ function goToday(){cur=new Date();document.getElementById('dInput').value=`${cur
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('wannianli.html');
+    /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */
+    xjCalNav.onQuery = function(v){ jumpToDate(v); };
     render();
-    goToday();
+    setToday();
     mountAI(function(){
       const str = lastSel || `${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`;
       const [y,m,d]=str.split('-').map(Number);
@@ -570,7 +553,7 @@ window.addEventListener('load', function () {
 六曜：${lunar.getLiuYao()}
 周次：${weekLine(y,m,d)}（本月共${monthWeekCount(y,m)}周）
 冲煞：日冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}；时冲${hTime.getChongDesc()} 煞${hTime.getSha()}\n宜：${lunar.getDayYi().join('、')||'诸事不宜'}\n忌：${lunar.getDayJi().join('、')||'无'}`;
-    }, '万年历', { share:{ page:"wannianli", title:"万年历在线查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ if(!lastSel) goToday(); }); } } });
+    }, '万年历', { share:{ page:"wannianli", title:"万年历在线查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ if(!lastSel) setToday(); }); } } });
   }, 0);
 });
 </script>

@@ -38,18 +38,18 @@
     <div class="lead">佛历纪年、佛菩萨圣诞、斋日与宿曜二十七宿吉凶。</div>
     <div class="form-row">
       <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" onchange="jumpToDate(this.value)"></div>
-      <button class="btn gold" onclick="goToday()">今天</button>
+      <button class="btn gold" onclick="setToday()">今天</button>
     </div>
     <div data-export-target>
       <div class="exp-title" data-export-title>佛历 玄机排盘</div>
       <div class="cal-nav">
         <div class="cal-nav-grp">
           <button type="button" class="nav-btn" data-export-hide onclick="moveYear(-1)" title="上一年">«</button>
-          <button type="button" class="nav-btn" data-export-hide onclick="move(-1)" title="上一月">‹</button>
+          <button type="button" class="nav-btn" data-export-hide onclick="moveMonth(-1)" title="上一月">‹</button>
         </div>
         <div id="calTitle" class="cal-title"></div>
         <div class="cal-nav-grp">
-          <button type="button" class="nav-btn" data-export-hide onclick="move(1)" title="下一月">›</button>
+          <button type="button" class="nav-btn" data-export-hide onclick="moveMonth(1)" title="下一月">›</button>
           <button type="button" class="nav-btn" data-export-hide onclick="moveYear(1)" title="下一年">»</button>
         </div>
       </div>
@@ -63,23 +63,17 @@
 <script defer src="assets/wheel.js"></script>
 <script defer src="assets/foli-terms.js"></script>
 <script defer src="assets/app.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
 <script defer src="assets/ai.js"></script>
 <script>
 let cur = new Date();
 let lastKey = '';
 function render(){
-  const y=cur.getFullYear(), m=cur.getMonth();
-  const ct=document.getElementById('calTitle'); if(ct) ct.textContent = y+'年'+(m+1)+'月';
-  const first = safeDate(y,m+1,1);
-  const daysInMonth = safeDate(y,m+2,0).getDate();
-  const todayStr = new Date().toDateString();
-  let cells = ['一','二','三','四','五','六','日'].map(w=>`<div class="wd">${w}</div>`);
-  const lead = (first.getDay()+6)%7;              /* 周一起始：周一=0 … 周日=6 */
-  for(let i=0;i<lead;i++){ cells.push(cell(safeDate(y,m+1,1-(lead-i)),true,todayStr)); }
-  for(let d=1;d<=daysInMonth;d++){ cells.push(cell(safeDate(y,m+1,d),false,todayStr)); }
-  const total=lead+daysInMonth, tail=(7-total%7)%7;
-  for(let i=1;i<=tail;i++) cells.push(cell(safeDate(y,m+2,i),true,todayStr));
-  document.getElementById('calGrid').innerHTML = cells.join('');
+  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件，本页只给一格一貌的 cell */
+  xjCalGrid.render(cur.getFullYear(), cur.getMonth()+1, {
+    today: new Date(),
+    cell: cell
+  });
 }
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), foto=lunar.getFoto();
@@ -100,7 +94,7 @@ function cell(d,other,todayStr){
   const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   const wk=(wd===0||wd===6)?'weekend':'';
   return `<div class="cal-cell ${other?'other':''} ${isToday?'today':''} ${zhaiDay?'zhai':''} ${wk}" data-date="${key}"
-    onclick="showDay('${key}', this)">
+    onclick="pickDate('${key}')">
     <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
     ${zhaiDay?'<span class="mk mk-z">斋</span>':''}
     ${danDay?'<span class="mk mk-d">诞</span>':''}
@@ -543,10 +537,13 @@ function showDay(str, el){
   document.getElementById('dayDetail').innerHTML='<p class="notice">排盘出错：'+((e&&e.message)?e.message:e)+'</p>';
  }
 }
-function move(n){cur=safeDate(cur.getFullYear(),cur.getMonth()+n+1,1);render(); if(lastKey){const[Y,M]=lastKey.split('-').map(Number); if(Y===cur.getFullYear()&&M===cur.getMonth()+1)showDay(lastKey);} }
-function moveYear(n){cur=safeDate(cur.getFullYear()+n,cur.getMonth()+1,1);render(); if(lastKey) showDay(lastKey);}
+/* 日期导航三件（今天、翻月翻年、点格带入）走 assets/xuanji-lib.js 的 xjCalNav 共享件：
+   共享件算出目标日期串，本页在 onQuery 钩子里经 jumpToDate 刷新月历与详情。 */
+function setToday(){ xjNavToday(); }
+function moveMonth(n){ xjNavMonth(n); }
+function moveYear(n){ xjNavYear(n); }
+function pickDate(key){ xjNavPick(key); }
 function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
-function goToday(){cur=new Date();document.getElementById('dInput').value=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;render();showDay(`${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`);}
 </script>
 <script>
 
@@ -554,8 +551,10 @@ function goToday(){cur=new Date();document.getElementById('dInput').value=`${cur
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('foli.html');
+    /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */
+    xjCalNav.onQuery = function(v){ jumpToDate(v); };
     render();
-    goToday();
+    setToday();
     mountAI(function(){
       if(!lastKey) return '';
       const [y,m,d]=lastKey.split('-').map(Number);
@@ -570,7 +569,7 @@ window.addEventListener('load', function () {
       const foText=foliDateText(foto);
       const busha = FOLI_BOSAT.indexOf(lunar.getDay())>=0 ? ('今日为南传布萨日：'+FOLI_BOSAT_NAME[lunar.getDay()]+'，宜持八戒、净心') : '今日非南传布萨日；南传上座部半月布萨为朔、上弦、望、下弦四相';
       return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n佛历：${foto.getYearInChinese()}年${foto.getMonthInChinese()}月${foto.getDayInChinese()}\n农历：${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}、${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日\n生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座、月建 ${lunar.getMonthInGanZhi().slice(-1)}月、月相${lunar.getYueXiang()}\n${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}\n佛历文书：${foText}\n宿曜二十七宿：${foto.getXiu()}${foto.getZheng()}${foto.getAnimal()}（${foto.getXiuLuck()}）\n佛菩萨圣诞、节庆：${fests}\n佛吉祥日即南传卫塞节，与汉传四月初八佛诞分列\n本日斋期综合判定：${zhai}\n宿曜吉凶歌：${foto.getXiuSong()}\n南传布萨：${busha}\n当月佛菩萨圣诞一览：\n${mfText}\n当月斋日一览：\n${zhText}`;
-    }, '佛历', { share:{ page:"foli", title:"佛历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } } });
+    }, '佛历', { share:{ page:"foli", title:"佛历在线查询", recast:function(){ try{ if(!lastKey) setToday(); }catch(e){} } } });
   }, 0);
 });
 </script>

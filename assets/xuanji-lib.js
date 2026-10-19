@@ -387,3 +387,98 @@ function monthWeekCount(y, m){
 }
 window.weekLine = weekLine;
 window.monthWeekCount = monthWeekCount;
+
+/* ===== 日历页日期导航（今天、翻月翻年、点格带入；万年历系与老黄历系两形并存） =====
+   历法分类多页共有的三样动作收此一件：填输入框、按月年平移、点日历格带入。
+   平移走字符串改值再触发查询，日界由原生 Date 溢出归位（13 月归次年 1 月、31 日归下月 1 日），
+   选中日超当月天数时收当月月尾，与输入型各页 shiftDate 同律。
+   钩子：xjCalNav.onQuery 由页自装（页内有 query() 者装 query、有 jumpToDate 者装 jumpToDate），
+   本件只管算出目标日期串，不替页决定刷新走哪条路。 */
+const xjNav = (function(){
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function inputOf(){
+    const el = document.getElementById('dInput');
+    if (!el) return null;
+    el.removeAttribute('readonly');
+    return el;
+  }
+  function ymd(y, m, d){ return y + '-' + pad(m) + '-' + pad(d); }
+  function fire(v){
+    if (typeof xjNav.onQuery === 'function') xjNav.onQuery(v);
+  }
+  function today(){
+    const el = inputOf(); if (!el) return;
+    const n = new Date();
+    const v = ymd(n.getFullYear(), n.getMonth() + 1, n.getDate());
+    el.value = v;
+    /* 时辰类页（太乙、铁板）另有 hInput/kInput：today 后由页内 xjNavAfter 回填当辰，
+       本件只认 dInput 这一公共面，不越页去认各页私有输入。 */
+    if (typeof xjNav.onToday === 'function') xjNav.onToday(v);
+    fire(v);
+  }
+  function shift(dm, dy){
+    const el = inputOf(); if (!el) return;
+    const v = el.value; if (!v) return;
+    let [y, m, d] = v.split('-').map(Number);
+    y += dy; m += dm;
+    while (m > 12) { m -= 12; y++; }
+    while (m < 1) { m += 12; y--; }
+    const dim = new Date(y, m, 0).getDate();
+    if (d > dim) d = dim;
+    const nv = ymd(y, m, d);
+    el.value = nv;
+    fire(nv);
+  }
+  function pick(key){
+    const el = inputOf(); if (!el) return;
+    el.value = key;
+    fire(key);
+  }
+  return { onQuery: null, onToday: null, today: today, shift: shift, pick: pick };
+})();
+window.xjCalNav = xjNav;
+window.xjNavToday = function(){ xjNav.today(); };
+window.xjNavShift = function(dm, dy){ xjNav.shift(dm, dy); };
+window.xjNavMonth = function(n){ xjNav.shift(n, 0); };
+window.xjNavYear = function(n){ xjNav.shift(0, n); };
+window.xjNavPick = function(key){ xjNav.pick(key); };
+
+/* ===== 月历格骨架（五历页共用：题头、星期行、上下月补位、今日与周末两态） =====
+   历法五页的月骨架收此一件：calTitle 题头、周一起始的星期行、上月头与下月尾补位，
+   今日与周末的判据都由此出，页内只留一格一貌的取数与角标。
+   cell 回调收 (日期, 是否补位格, 今日串, 前一格日期)，返回一整格 HTML；
+   补位格画空壳还是画可点整格由各页自定，骨架不替页决定。
+   slots 依真日期补位并逐格带出前一格日期，藏历重日与缺日须与前格比对即由此取。
+   年月取公历 1 至 12；日期构造走 safeDate，公元 0 至 99 年不撞引擎偏移。 */
+const xjGrid = (function(){
+  function sd(y, m, d){
+    return (typeof safeDate === 'function') ? safeDate(y, m, d) : new Date(y, m - 1, d);
+  }
+  function slots(y, m){
+    const first = sd(y, m, 1);
+    const dim = sd(y, m + 1, 0).getDate();
+    const startWd = (first.getDay() + 6) % 7;   /* 周一起始：周一=0 … 周日=6 */
+    const list = [];
+    let i;
+    for(i = 0; i < startWd; i++) list.push({ d: sd(y, m, 1 - (startWd - i)), other: true });
+    for(i = 1; i <= dim; i++) list.push({ d: sd(y, m, i), other: false });
+    const tail = (7 - (startWd + dim) % 7) % 7;
+    for(i = 1; i <= tail; i++) list.push({ d: sd(y, m + 1, i), other: true });
+    return list;
+  }
+  function render(y, m, opts){
+    const ct = document.getElementById('calTitle');
+    if (ct) ct.textContent = y + '年' + m + '月';
+    const todayStr = (opts.today || new Date()).toDateString();
+    const cells = ['一','二','三','四','五','六','日'].map(function(w){ return '<div class="wd">' + w + '</div>'; });
+    let prev = null;
+    slots(y, m).forEach(function(it){
+      cells.push(opts.cell(it.d, it.other, todayStr, prev));
+      prev = it.d;
+    });
+    document.getElementById('calGrid').innerHTML = cells.join('');
+    if (typeof opts.after === 'function') opts.after();
+  }
+  return { slots: slots, render: render };
+})();
+window.xjCalGrid = xjGrid;

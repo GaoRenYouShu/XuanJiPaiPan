@@ -45,18 +45,18 @@
         <option value="bhutan">不丹</option>
         <option value="jungtsi">迥孜（岁首虎月）</option>
       </select></div>
-      <button class="btn gold" onclick="goToday()">今天</button>
+      <button class="btn gold" onclick="setToday()">今天</button>
     </div>
     <div data-export-target>
       <div class="exp-title" data-export-title>藏历 玄机排盘</div>
       <div class="cal-nav">
         <div class="cal-nav-grp">
           <button type="button" class="nav-btn" data-export-hide onclick="moveYear(-1)" title="上一年">«</button>
-          <button type="button" class="nav-btn" data-export-hide onclick="move(-1)" title="上一月">‹</button>
+          <button type="button" class="nav-btn" data-export-hide onclick="moveMonth(-1)" title="上一月">‹</button>
         </div>
         <div id="calTitle" class="cal-title"></div>
         <div class="cal-nav-grp">
-          <button type="button" class="nav-btn" data-export-hide onclick="move(1)" title="下一月">›</button>
+          <button type="button" class="nav-btn" data-export-hide onclick="moveMonth(1)" title="下一月">›</button>
           <button type="button" class="nav-btn" data-export-hide onclick="moveYear(1)" title="下一年">»</button>
         </div>
       </div>
@@ -73,6 +73,7 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js"></script>
 <script defer src="assets/app.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
 <script defer src="assets/ai.js"></script>
 <script defer src="assets/wheel.js"></script>
 <script defer src="assets/zangli-core.js"></script>
@@ -377,27 +378,19 @@ function zlPickSk(i){
   const d = document.getElementById('zlSkipDetail'); if(d) d.innerHTML = zlSkipDetailHTML(i);
 }
 function render(){
-  const y = cur.getFullYear(), m = cur.getMonth();
-  const ct = document.getElementById('calTitle');
-  if(ct) ct.textContent = y + '年' + (m + 1) + '月';
-  const first = safeDate(y, m + 1, 1);
-  const daysInMonth = safeDate(y, m + 2, 0).getDate();
-  const todayStr = new Date().toDateString();
-  let cells = ['一','二','三','四','五','六','日'].map(function(w){ return '<div class="wd">' + w + '</div>'; });
-  const lead = (first.getDay() + 6) % 7;
-  const list = [];
-  for(let i = 0; i < lead; i++) list.push([safeDate(y, m + 1, 1 - (lead - i)), true]);
-  for(let d = 1; d <= daysInMonth; d++) list.push([safeDate(y, m + 1, d), false]);
-  const total = lead + daysInMonth, tail = (7 - total % 7) % 7;
-  for(let i = 1; i <= tail; i++) list.push([safeDate(y, m + 2, i), true]);
-  /* 逐格带出前一格的藏历日期：重日与缺日须与前一格比对才能判出 */
+  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件；藏历日逐格带出前一格，
+     重日与缺日须与前一格比对才能判出，故在此包一层取数再交给一格一貌的 cell */
   let prev = null;
-  list.forEach(function(it){
-    const t = zlFromGregorian(school, it[0].getFullYear(), it[0].getMonth() + 1, it[0].getDate());
-    cells.push(cell(it[0], it[1], todayStr, t, prev));
-    prev = t;
+  xjCalGrid.render(cur.getFullYear(), cur.getMonth() + 1, {
+    today: new Date(),
+    cell: function(d, other, todayStr){
+      const t = zlFromGregorian(school, d.getFullYear(), d.getMonth() + 1, d.getDate());
+      const prevT = prev ? zlFromGregorian(school, prev.getFullYear(), prev.getMonth() + 1, prev.getDate()) : null;
+      const html = cell(d, other, todayStr, t, prevT);
+      prev = d;
+      return html;
+    }
   });
-  document.getElementById('calGrid').innerHTML = cells.join('');
   const lb = document.getElementById('zlLosarBody');
   if(lb) lb.innerHTML = zlLosarRows();
 }
@@ -422,8 +415,8 @@ function cell(d, other, todayStr, t, prevT){
     + (cm.d ? '<span class="mk mk-' + (cm.d === '重' ? 'c' : 'q') + '">' + cm.d + '</span>' : '')
     + (cm.l ? '<span class="mk mk-r">' + cm.l + '</span>' : '');
   const tag = fs.length ? fs[0].name : (ss ? ss.short : '');
-  return '<div class="cal-cell ' + other + ' ' + (isToday ? 'today' : '') + ' ' + wk + '" data-date="' + key + '"'
-    + ' onclick="showDay(\'' + key + '\', this)">'
+  return '<div class="cal-cell ' + (other ? 'other' : '') + ' ' + (isToday ? 'today' : '') + ' ' + wk + '" data-date="' + key + '"'
+    + ' onclick="pickDate(\'' + key + '\')">'
     + mk
     + '<div class="sd"><span class="sd-num">' + d.getDate() + '</span></div>'
     + (tag ? '<div class="festival">' + tag + '</div>' : '')
@@ -560,18 +553,13 @@ function renderDoc(){
 function changeSchool(v){ school = v; render(); if(lastKey) showDay(lastKey); }
 /* 日期钳到范围下限：低于 1027 年者归到该年元月一日 */
 function zlFloorDate(y, m, d){ return y < ZL_YMIN ? [ZL_YMIN, 1, 1] : [y, m, d]; }
-function move(n){
-  cur = safeDate(cur.getFullYear(), cur.getMonth() + n + 1, 1);
-  if(cur.getFullYear() < ZL_YMIN) cur = safeDate(ZL_YMIN, 1, 1);
-  render();
-  if(lastKey){ const p = lastKey.split('-').map(Number); if(p[0] === cur.getFullYear() && p[1] === cur.getMonth() + 1) showDay(lastKey); }
-}
-function moveYear(n){
-  const y = cur.getFullYear() + n;
-  cur = safeDate(y < ZL_YMIN ? ZL_YMIN : y, cur.getMonth() + 1, 1);
-  render();
-  if(lastKey) showDay(lastKey);
-}
+/* 日期导航三件（今天、翻月翻年、点格带入）走 assets/xuanji-lib.js 的 xjCalNav 共享件：
+   共享件算出目标日期串，本页在 onQuery 钩子里经 jumpToDate 刷新月历与详情；
+   日期下限由 jumpToDate 的 zlFloorDate 钳住，翻到 1027 年之前即归该年元月一日。 */
+function setToday(){ xjNavToday(); }
+function moveMonth(n){ xjNavMonth(n); }
+function moveYear(n){ xjNavYear(n); }
+function pickDate(key){ xjNavPick(key); }
 function jumpToDate(v){
   if(!v) return;
   const p = v.split('-').map(Number);
@@ -579,12 +567,6 @@ function jumpToDate(v){
   const c = zlFloorDate(p[0], p[1], p[2] || 1);
   document.getElementById('dInput').value = c[0] + '-' + String(c[1]).padStart(2, '0') + '-' + String(c[2]).padStart(2, '0');
   cur = safeDate(c[0], c[1], c[2]); render(); showDay(c[0] + '-' + c[1] + '-' + c[2]);
-}
-function goToday(){
-  cur = new Date();
-  document.getElementById('dInput').value = cur.getFullYear() + '-' + String(cur.getMonth() + 1).padStart(2, '0') + '-' + String(cur.getDate()).padStart(2, '0');
-  render();
-  showDay(cur.getFullYear() + '-' + (cur.getMonth() + 1) + '-' + cur.getDate());
 }
 </script>
 <script>
@@ -596,8 +578,10 @@ window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('zangli.html');
     renderDoc();
+    /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */
+    xjCalNav.onQuery = function(v){ jumpToDate(v); };
     render();
-    goToday();
+    setToday();
     mountAI(function(){
       if(!lastKey) return '';
       const p = lastKey.split('-').map(Number);
@@ -624,7 +608,7 @@ window.addEventListener('load', function () {
         + '本月重日：' + (st.leap.length ? st.leap.join('、') : '无') + '\n'
         + '本月缺日：' + (st.skip.length ? st.skip.join('、') : '无') + '\n'
         + '当月殊胜日一览：\n' + (mf.length ? mf.map(function(g){ return g.items.join('\n'); }).join('\n') : '本月无');
-    }, '藏历', { share:{ page:"zangli", title:"藏历在线查询", recast:function(){ try{ if(!lastKey) goToday(); }catch(e){} } } });
+    }, '藏历', { share:{ page:"zangli", title:"藏历在线查询", recast:function(){ try{ if(!lastKey) setToday(); }catch(e){} } } });
     (function(){
       const box=document.getElementById('zlDocFold'); if(!box) return;
       function save(){ const v=JSON.stringify({doc:box.open});

@@ -506,64 +506,44 @@ function showFeiTip(n){
   if(song) lines.push('太乙歌：'+song);
   _lhlShow(FEI_NAME[n]+s.getWuXing()+s.getPosition(), lines.join('<br>'));
 }
-function setToday(){
-  const n=new Date();
-  document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
-  query();
-}
-function shiftDate(dm,dy){
-  const v=document.getElementById('dInput').value; if(!v) return;
-  let [y,m,d]=v.split('-').map(Number);
-  y+=dy; m+=dm;
-  while(m>12){m-=12;y++;}
-  while(m<1){m+=12;y--;}
-  const dim=new Date(y,m,0).getDate();
-  if(d>dim) d=dim;
-  document.getElementById('dInput').value=`${y}-${pad2(m)}-${pad2(d)}`;
-  query();
-}
-function moveMonth(n){shiftDate(n,0);}
-function moveYear(n){shiftDate(0,n);}
-function pickDate(key){
-  document.getElementById('dInput').value=key;
-  query();
-}
+/* 日期导航三件（今天、翻月翻年、点格带入）走 assets/xuanji-lib.js 的 xjCalNav 共享件：
+   本页只装查询钩子（算出目标日期后由本页 query() 刷新各区），页内取数与平移同走共享一套。
+   钩子挂在 load 段装（defer 库先落，此处内联脚本先于 defer 执行，顶层装会撞 xjCalNav 未定义）。 */
+function setToday(){ xjNavToday(); }
+function moveMonth(n){ xjNavMonth(n); }
+function moveYear(n){ xjNavYear(n); }
+function pickDate(key){ xjNavPick(key); }
 function renderGrid(){
   const v=document.getElementById('dInput').value; if(!v) return;
   const [Y,M]=v.split('-').map(Number);
-  const ct=document.getElementById('calTitle'); if(ct) ct.textContent=Y+'年'+M+'月';
-  const first=new Date(Y,M-1,1);
-  const dim=new Date(Y,M,0).getDate();
-  const todayStr=xjNowDate().toDateString();
   const selKey=v.split('-').map(Number).join('-');
-  let cells=['一','二','三','四','五','六','日'].map(w=>`<div class="wd">${w}</div>`);
-  const startWd=(first.getDay()+6)%7;   /* 周一起始：周一=0 … 周日=6 */
-  const prevDim=new Date(Y,M-1,0).getDate();
-  for(let i=0;i<startWd;i++){ const dd=prevDim-startWd+1+i; cells.push(`<div class="cal-cell other"><div class="sd">${dd}</div></div>`); }
-  for(let d=1;d<=dim;d++){
-    const solar=Solar.fromYmd(Y,M,d), lunar=solar.getLunar();
-    const jq=lunar.getJieQi();
-    /* 节日取数走 xuanji-lib 的 festParts，与万年历同一份：格上只出一名，余下的留到下面节日行 */
-    const fp=festParts(solar,Y,M,d);
-    const mem=fp.mem;
-    /* 槽位分层（对齐万年历）：节气与节日各占一槽，互不顶掉。窄屏两槽一律隐去，
-       节日与纪念日改由左上红色节字、右下墨色纪字两枚角标点出；
-       节字角标只认四族真节（hasAny），只余初一月份名的日子留白不亮红，mem 管纪字角标 */
-    const hasFest=fp.hasAny;
-    const fest=fp.pick;
-    const jqMark=jq?`<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>`:'';
-    const ld=lunar.getDayInChinese();
-    const isToday=new Date(Y,M-1,d).toDateString()===todayStr;
-    const wd=new Date(Y,M-1,d).getDay();
-    const key=`${Y}-${M}-${d}`;
-    const sel=key===selKey?' selected':'';
-    const wk=(wd===0||wd===6)?' weekend':'';
-    cells.push(`<div class="cal-cell${isToday?' today':''}${wk}${sel}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd"><span class="sd-num">${d}</span></div>${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+fp.all.join('、')+'">节</span>':''}${jq?`<div class="slot slot-jq">${jq}</div>`:''}${fest?`<div class="slot slot-fest" title="${fp.all.join('、')}">${fest}</div>`:''}<div class="ld">${ld}</div></div>`);
-  }
-  const total=startWd+dim; const tail=(7-total%7)%7;
-  for(let i=1;i<=tail;i++) cells.push(`<div class="cal-cell other"><div class="sd">${i}</div></div>`);
-  document.getElementById('calGrid').innerHTML=cells.join('');
-  paintRestMarks();   /* 休班标：格网重建后重画，翻月与查询都跟随 */
+  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件；补位格只出日数空壳，
+     本月格一格一貌，休班标在格网重建后重画 */
+  xjCalGrid.render(Y, M, {
+    today: xjNowDate(),
+    cell: function(d, other, todayStr){
+      const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+      const wk=(d.getDay()===0||d.getDay()===6)?' weekend':'';
+      /* 补位格照万年历样板可点：点了带入该日并翻到其所在月，格内仍只出日数 */
+      if(other) return `<div class="cal-cell other${wk}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd">${d.getDate()}</div></div>`;
+      const solar=Solar.fromYmd(Y,M,d.getDate()), lunar=solar.getLunar();
+      const jq=lunar.getJieQi();
+      /* 节日取数走 xuanji-lib 的 festParts，与万年历同一份：格上只出一名，余下的留到下面节日行 */
+      const fp=festParts(solar,Y,M,d.getDate());
+      const mem=fp.mem;
+      /* 槽位分层（对齐万年历）：节气与节日各占一槽，互不顶掉。窄屏两槽一律隐去，
+         节日与纪念日改由左上红色节字、右下墨色纪字两枚角标点出；
+         节字角标只认四族真节（hasAny），只余初一月份名的日子留白不亮红，mem 管纪字角标 */
+      const hasFest=fp.hasAny;
+      const fest=fp.pick;
+      const jqMark=jq?`<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>`:'';
+      const ld=lunar.getDayInChinese();
+      const isToday=d.toDateString()===todayStr;
+      const sel=key===selKey?' selected':'';
+      return `<div class="cal-cell${isToday?' today':''}${wk}${sel}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd"><span class="sd-num">${d.getDate()}</span></div>${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+fp.all.join('、')+'">节</span>':''}${jq?`<div class="slot slot-jq">${jq}</div>`:''}${fest?`<div class="slot slot-fest" title="${fp.all.join('、')}">${fest}</div>`:''}<div class="ld">${ld}</div></div>`;
+    },
+    after: paintRestMarks
+  });
 }
 function query(){
  try{
@@ -687,6 +667,8 @@ function lhApplyFold(){
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('laohuangli.html');
+    /* xjCalNav 查询钩子：共享件算出目标日期后由本页 query() 刷新各区 */
+    xjCalNav.onQuery = function(){ query(); };
     (function(){
       const JIAZI60=(function(){const G=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],Z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const a=[];for(let i=0;i<60;i++)a.push(G[i%10]+Z[i%12]);return a;})();
       window.JIAZI60 = JIAZI60;
@@ -699,7 +681,6 @@ window.addEventListener('load', function () {
       const v=document.getElementById('dInput').value; if(!v) return '';
       const [y,m,d]=v.split('-').map(Number);
       const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
-      const LU={甲:'寅',乙:'卯',丙:'巳',丁:'午',戊:'巳',己:'午',庚:'申',辛:'酉',壬:'亥',癸:'子'};
       const OPP={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
       const CHONG=[['子','午'],['丑','未'],['寅','申'],['卯','酉'],['辰','戌'],['巳','亥']];
       const isChong=(a,b)=>CHONG.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
