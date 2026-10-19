@@ -25,6 +25,12 @@
   var W = {};
   /* 盘心坐标：与万年历两盘同制式，viewBox 恒为 440 见方，故圆心在 220 */
   W.C = 220;
+  /* 标准 440 盘半径组（全站唯一真源）：历法五页七盘与皇极盘的共用量纲。
+     ARC 弧带外沿、OUT 外圈环线、IN 内界圈、CORE 盘心圈、LAB_OUT 与 LAB_IN 内外签半径、
+     TICK0 与 TICK1 刻度两沿、P0 与 P1 指针两端、HIT1 热区外沿（弧带外沿再外扩 6）。
+     各页 const 块一律自此处解构取值，不另写数字。 */
+  W.GEO440 = { C:220, ARC:192, OUT:182, IN:120, CORE:78, LAB_OUT:206, LAB_IN:148,
+    HIT1:198, TICK0:168, TICK1:176, P0:82, P1:116 };
   W.px = function (r, deg) {
     var a = (deg - 90) * Math.PI / 180;
     return [W.C + r * Math.cos(a), W.C + r * Math.sin(a)];

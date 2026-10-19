@@ -942,9 +942,7 @@ function hjWheels(L,anchors){
    内签不铺六十四名，改由指针指出本运所值之卦、盘心三行载卦名宫位与值运位次，点选另格则随之改写。
    取字角同全站：最外圈环名沿圆周环布 WHEEL.ring，内签两字走 WHEEL.radial 径向散射。
    几何走 assets/wheel.js 的 WHEEL，颜色只绑 --wheel-* 令牌，本函数不写死任何颜色。 */
-const XT_C=220, XT_ARC=192, XT_OUT=182, XT_IN=120, XT_CORE=78,
-  XT_LAB_IN=148, XT_LAB_OUT=206, XT_TICK0=168, XT_TICK1=176, XT_P0=82, XT_P1=116,
-  XT_HIT1=XT_ARC+6;
+var XT_C,XT_ARC,XT_OUT,XT_IN,XT_CORE,XT_LAB_OUT,XT_LAB_IN,XT_HIT1,XT_TICK0,XT_TICK1,XT_P0,XT_P1;
 const XT_GONG=['乾','兑','离','震','巽','坎','艮','坤'];
 function hjXiantuWheel(L){
   const n=WHEEL.n, px=WHEEL.px, arc=WHEEL.arc, band=WHEEL.band;
@@ -1162,6 +1160,7 @@ function hjYjhYunAll(){
 
 
 window.addEventListener('load', function () {
+  ({C:XT_C,ARC:XT_ARC,OUT:XT_OUT,IN:XT_IN,CORE:XT_CORE,LAB_OUT:XT_LAB_OUT,LAB_IN:XT_LAB_IN,HIT1:XT_HIT1,TICK0:XT_TICK0,TICK1:XT_TICK1,P0:XT_P0,P1:XT_P1}=WHEEL.GEO440);
   setTimeout(function () {
     renderChrome('huangji.html');
     renderTermGloss();

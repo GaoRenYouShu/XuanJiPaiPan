@@ -94,11 +94,7 @@ function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo,'lhl-br'
    🔴 全盘只有一套标记：加粗弧、指针、圆点、内侧字高亮、盘心、下方详情，统统指向同一个“当前查看”
    的格。首屏那一格就是当令，故首屏与万年历两盘同貌；此后点哪一格，整套标记跟到哪一格。
    盘内不铺选中色块：经络圆盘靠加粗弧与加粗字示选中，铺色块会盖住刻度与弧带，也显脏。 */
-const W_C=220, W_ARC=192, W_OUT=182, W_IN=120, W_CORE=78,
-  W_LAB_IN=148, W_LAB_OUT=206, W_TICK0=168, W_TICK1=176, W_P0=82, W_P1=116,
-  /* 🔴 热区外沿（198，即弧带外沿再外扩 6）只此一处定义，命中区与悬停着色同取此值，
-     与万年历两盘的“悬停覆盖与命中区同沿”一致。 */
-  W_HIT1=W_ARC+6;
+var W_C,W_ARC,W_OUT,W_IN,W_CORE,W_LAB_OUT,W_LAB_IN,W_HIT1,W_TICK0,W_TICK1,W_P0,W_P1;
 let LHL_SC=null, LHL_SC_CUR=0, LHL_SC_SEL=0;
 /* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为“诸事不宜”，与当日宜同口径 */
 function lhlYiText(a){const s=(a||[]).join('、');return(!s||s==='无')?'诸事不宜':s;}
@@ -530,6 +526,7 @@ function query(){
 
 
 window.addEventListener('load', function () {
+  ({C:W_C,ARC:W_ARC,OUT:W_OUT,IN:W_IN,CORE:W_CORE,LAB_OUT:W_LAB_OUT,LAB_IN:W_LAB_IN,HIT1:W_HIT1,TICK0:W_TICK0,TICK1:W_TICK1,P0:W_P0,P1:W_P1}=WHEEL.GEO440);
   setTimeout(function () {
     renderChrome('laohuangli.html');
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 query() 刷新各区 */

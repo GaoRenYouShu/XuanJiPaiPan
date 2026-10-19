@@ -230,11 +230,7 @@ const FOLI_XIU=['角','亢','氐','房','心','尾','箕','斗','女','虚','危
   '奎','娄','胃','昴','毕','觜','参','井','鬼','柳','星','张','翼','轸'];
 const FOLI_GONG_DIR={东:90,北:0,西:270,南:180};   /* 四方在罗盘上的固定角度 */
 const FOLI_XIU_W=360/27, FOLI_XIU_A0=135;         /* 角宿起点角 */
-const FW_C=220, FW_ARC=192, FW_OUT=182, FW_IN=120, FW_CORE=78,
-  FW_LAB_IN=148, FW_LAB_OUT=206, FW_TICK0=168, FW_TICK1=176, FW_P0=82, FW_P1=116,
-  /* 🔴 热区外沿（198，弧带外沿再外扩 6）只此一处定义，命中区与悬停着色同取此值，
-     与老黄历、万年历四盘同沿；单写外圈线（182）会让悬停色缺最外那段环带。 */
-  FW_HIT1=FW_ARC+6;
+var FW_C,FW_ARC,FW_OUT,FW_IN,FW_CORE,FW_LAB_OUT,FW_LAB_IN,FW_HIT1,FW_TICK0,FW_TICK1,FW_P0,FW_P1;
 const FOLI_XIU_IDS={arc:'foliXiuArc',needle:'foliXiuNeedle',dot:'foliXiuDot'};
 let FOLI_XIU_ITEMS=null, FOLI_XIU_CUR=0, FOLI_XIU_SEL=0;
 /* 第 i 宿在环上的角度区间：自 a0 顺时针到 a1（a0 小于 a1） */
@@ -335,9 +331,7 @@ function foliPickXiu(i){ xjPickCommon(i, FOLI_PICK_XIU); }
    空槽在整圈弧上就是一段缺口，看去像画坏了。代价是十五在小月略偏约 6 度，可接受。
    🔴 外圈只放单字（多字沿半径排开会顶出画布，见老黄历盘首注），故一日兼逢数斋时
    外圈只标优先级最高的那一个（朔望 > 六斋 > 十斋 > 观音），全部斋期在盘下详情条里列全。 */
-const FZ_C=220, FZ_ARC=192, FZ_OUT=182, FZ_IN=120, FZ_CORE=78,
-  FZ_LAB_IN=148, FZ_LAB_OUT=206, FZ_TICK0=168, FZ_TICK1=176, FZ_P0=82, FZ_P1=116,
-  FZ_HIT1=FZ_ARC+6;
+var FZ_C,FZ_ARC,FZ_OUT,FZ_IN,FZ_CORE,FZ_LAB_OUT,FZ_LAB_IN,FZ_HIT1,FZ_TICK0,FZ_TICK1,FZ_P0,FZ_P1;
 const FZ_IDS={arc:'foliZhaiArc',needle:'foliZhaiNeedle',dot:'foliZhaiDot'};
 /* 斋期判定说明表：与 assets/lunar.js 里 FotoUtil 的五个判定函数一一对应
    （isDayZhaiShuoWang / isDayZhaiSix / isDayZhaiTen / isDayZhaiGuanYin / isMonthZhai），
@@ -522,6 +516,7 @@ function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y
 
 
 window.addEventListener('load', function () {
+  ({C:FW_C,ARC:FW_ARC,OUT:FW_OUT,IN:FW_IN,CORE:FW_CORE,LAB_OUT:FW_LAB_OUT,LAB_IN:FW_LAB_IN,HIT1:FW_HIT1,TICK0:FW_TICK0,TICK1:FW_TICK1,P0:FW_P0,P1:FW_P1}=WHEEL.GEO440);({C:FZ_C,ARC:FZ_ARC,OUT:FZ_OUT,IN:FZ_IN,CORE:FZ_CORE,LAB_OUT:FZ_LAB_OUT,LAB_IN:FZ_LAB_IN,HIT1:FZ_HIT1,TICK0:FZ_TICK0,TICK1:FZ_TICK1,P0:FZ_P0,P1:FZ_P1}=WHEEL.GEO440);
   setTimeout(function () {
     renderChrome('foli.html');
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */

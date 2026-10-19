@@ -230,9 +230,7 @@ function showFeiTip(n){ return xjShowFeiTip(n,_daoShow); }
    **本页两盘都只有“选中那一段”是实色，其余一律淡线**，时辰盘与圣诞斋日盘都不预标实色。
    🔴 盘内只有热区接事件（.wheel{pointer-events:none} ＋ .w-hit{pointer-events:all}），
    否则文字包围盒会吞掉落在字上的点击。 */
-const DL_C=220, DL_ARC=192, DL_OUT=182, DL_IN=120, DL_CORE=78,
-  DL_LAB_IN=148, DL_LAB_OUT=206, DL_TICK0=168, DL_TICK1=176, DL_P0=82, DL_P1=116,
-  DL_HIT1=DL_ARC+6;
+var DL_C,DL_ARC,DL_OUT,DL_IN,DL_CORE,DL_LAB_OUT,DL_LAB_IN,DL_HIT1,DL_TICK0,DL_TICK1,DL_P0,DL_P1;
 let DL_SC=null, DL_SC_CUR=0, DL_SC_SEL=0;
 /* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为“诸事不宜”，与当日宜同口径 */
 function dlYiText(a){const s=(a||[]).join('、');return(!s||s==='无')?'诸事不宜':s;}
@@ -734,6 +732,7 @@ function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y
 
 
 window.addEventListener('load', function () {
+  ({C:DL_C,ARC:DL_ARC,OUT:DL_OUT,IN:DL_IN,CORE:DL_CORE,LAB_OUT:DL_LAB_OUT,LAB_IN:DL_LAB_IN,HIT1:DL_HIT1,TICK0:DL_TICK0,TICK1:DL_TICK1,P0:DL_P0,P1:DL_P1}=WHEEL.GEO440);
   setTimeout(function () {
     renderChrome('daoli.html');
     (function(){

@@ -147,10 +147,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeZl
    盘面分工在语义层：殊胜日盘标宗教内容（外圈“殊”、内圈藏历日名），
    重日缺日盘标历法机制（外圈“闰”“重”“缺”、内圈公历日期）。
    🔴 两盘都是选中态盘，弧带一律不预标实色，主体色只给随选中走的加粗弧。 */
-const ZW_C=220, ZW_ARC=192, ZW_OUT=182, ZW_IN=120, ZW_CORE=78,
-  ZW_LAB_IN=148, ZW_LAB_OUT=206, ZW_TICK0=168, ZW_TICK1=176, ZW_P0=82, ZW_P1=116,
-  /* 热区外沿（198，弧带外沿再外扩 6）只此一处定义，命中区与悬停着色同取此值，与他页四盘同沿 */
-  ZW_HIT1=ZW_ARC+6;
+var ZW_C,ZW_ARC,ZW_OUT,ZW_IN,ZW_CORE,ZW_LAB_OUT,ZW_LAB_IN,ZW_HIT1,ZW_TICK0,ZW_TICK1,ZW_P0,ZW_P1;
 const ZW_SS_IDS={arc:'zlSsArc',needle:'zlSsNeedle',dot:'zlSsDot'};
 const ZW_SK_IDS={arc:'zlSkArc',needle:'zlSkNeedle',dot:'zlSkDot'};
 let ZL_SLOTS=[], ZL_MONTH_LABEL='', ZL_SS_SEL=0, ZL_SK_SEL=0;
@@ -553,6 +550,7 @@ function jumpToDate(v){
 
 
 window.addEventListener('load', function () {
+  ({C:ZW_C,ARC:ZW_ARC,OUT:ZW_OUT,IN:ZW_IN,CORE:ZW_CORE,LAB_OUT:ZW_LAB_OUT,LAB_IN:ZW_LAB_IN,HIT1:ZW_HIT1,TICK0:ZW_TICK0,TICK1:ZW_TICK1,P0:ZW_P0,P1:ZW_P1}=WHEEL.GEO440);
   setTimeout(function () {
     renderChrome('zangli.html');
     renderDoc();
