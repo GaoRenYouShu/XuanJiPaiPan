@@ -123,6 +123,7 @@
 <footer id="footer"></footer>
 <script defer src="assets/lunar.js"></script>
 <script defer src="assets/app.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
 <script defer src="assets/ai.js"></script>
 <script defer src="assets/taiyi-engine.js"></script>
 <script>
@@ -249,7 +250,9 @@ function genPlainReading(R,Rshi){
   return `<details class="mh-ref ty-ref" id="tyBaihuaRef"><summary>白话解读（按年、月、日、时四尺度）</summary><table class="ty-np ty-np-scale"><thead><tr><th>尺度</th><th>白话解读</th></tr></thead><tbody>${rows}</tbody></table></details>`;
 }
 const DOOR_JJ={'大吉':'jj3','小吉':'jj2','小凶':'xj2','大凶':'xj3'};
-function setToday(){const n=new Date();document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;const h=n.getHours();document.getElementById('hInput').value=String((h===0||h===23)?23:(h%2?h:h-1));query();}
+/* 今天钮走 assets/xuanji-lib.js 的 xjCalNav 共享件：dInput 由共享件填当日，
+   时辰输入 hInput 属本页私有面，经 xjNavAfter 按当下钟点回填当辰后一并 query。 */
+function setToday(){ xjNavToday(); }
 let LAST=null;
 /* 折叠态属交互态：结果区模块与全页折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
 function tyReadModState(){
@@ -468,6 +471,9 @@ function boardHTML(s){
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('taiyi.html');
+    /* xjCalNav 两钩子：onToday 回填本页时辰输入，onQuery 触发本页查询 */
+    xjCalNav.onToday = function(){ const h=new Date().getHours(); document.getElementById('hInput').value=String((h===0||h===23)?23:(h%2?h:h-1)); };
+    xjCalNav.onQuery = function(){ query(); };
     renderTermGloss();
     document.addEventListener('toggle', function(e){
       const t = e.target;
