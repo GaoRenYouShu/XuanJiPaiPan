@@ -3,6 +3,42 @@
    引用在本页 HTML 内，紧随 assets/style.css 之后；版本串由内容派生，不必手改。
    本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
 
+/* ===== zeri 页专属：单页私有规则 ===== */
+
+.zr-list{display:grid;gap:var(--sp-2)}
+
+.zr-card{display:grid;grid-template-columns:18px auto 1fr auto;align-items:center;gap:var(--sp-2) var(--sp-3);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-2) 0;background:transparent}
+
+.zr-card > .jz-verdict,.zr-card > .jz-detail{grid-column:1/-1}
+
+.jz-verdict{grid-column:1/-1;font-size:12px;margin-top:var(--sp-1);font-weight:400;line-height:1.5}
+
+.zr-card.zr-hd{border-top-color:var(--gold)}
+
+.zr-rank{grid-column:1;grid-row:1;color:var(--gold);font-size:16px}
+
+.zr-date{grid-column:2;grid-row:1;min-width:0}
+
+.zr-sol{font-size:15px;font-weight:400;line-height:1.3}
+
+.zr-sol span{font-size:12px;color:var(--ink2);font-weight:400}
+
+.zr-lun{font-size:12px;color:var(--ink2);line-height:1.3}
+
+.zr-tags{grid-column:3;grid-row:1;min-width:0;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--sp-1) var(--sp-3);align-items:baseline;padding-right:var(--sp-2)}
+
+.zr-score{grid-column:4;grid-row:1;display:flex;align-items:baseline;justify-content:flex-end;gap:var(--sp-2);text-align:right;font-family:var(--font-serif);font-size:22px;font-weight:400;line-height:1.2;white-space:nowrap;min-width:34px}
+
+.zr-grade{font-size:11px;line-height:1.1;font-weight:400;color:var(--ink2)}
+
+.zr-score.score-high{color:var(--gold2)}
+
+.jz-h{margin:0 0 var(--sp-3);font-size:var(--tier4);color:var(--gold2);font-weight:400}
+
+.zr-mod-n{flex:0 0 auto;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--gold);color:#fff;font-size:12px}
+
+.jz-detail{margin-top:var(--sp-1);width:100%;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:var(--sp-2) 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--sp-1) var(--sp-3)}
+
 .page-zeri .zr-mod[hidden],.page-zeri .zm-parent[hidden],.page-zeri .zm-block[hidden]{display:none !important}
 
 .page-zeri .zr-mode-switch{display:flex;justify-content:center;gap:var(--sp-4);margin:var(--sp-3) 0 var(--sp-2)}
@@ -302,3 +338,54 @@
     --zr-ink2:#ab9f9c;
   }
 }
+
+/*
+   与万年历等五页同用"纸本目录"语言：整页零圆角、零投影、零渐变，只留细线与实色块。
+   主体色只有朱批红一支，页内一切色都从它派生：
+     主色 #a8402e（色相 8°）
+     深档 #8a3322、墨档 #4d2318 ＝ 同色相压暗两档，供 hover、大标题、表头字取用
+     浅线、纸淡底 ＝ 同色相提到 86% 与 95% 明度（与样板页同档，见各页 --*-line / --*-tint）
+     正文与次级字 ＝ 同族暖墨灰，只降饱和不加色相
+   宜绿忌红等语义色保留 */
+
+.page-zeri{
+  --zr:#a8402e;          /* 朱批红主色 */
+  --zr2:#8a3322;         /* 深朱批：hover 与强调 */
+  --zr-deep:#4d2318;     /* 朱墨：大标题与表头字色 */
+  --zr-ink:#463a30;      /* 朱墨灰：正文字色 */
+  --zr-line:#e8d2ce;     /* 朱批浅线：主色同色相，明度 86% */
+  --zr-tint:#faedeb;     /* 朱批纸淡底：主色同色相，明度 95% */
+
+  /* 全站强调令牌在本页一律落到朱批红族：表格加粗、年月导航钮、折叠框标题、.zr-* 卡面等共享规则
+     由此一次对齐，不必逐条覆写，也不会漏出全站鎏金 */
+  --gold:var(--zr);
+  --gold2:var(--zr2);
+  --gold-brown:var(--zr2);
+  --gold-bg:var(--zr-tint);
+  --zr-ink2:#705751;     /* 朱批同族暖灰次级字：卷首说明、副注、AI 状态字 */
+  --ink2:var(--zr-ink2);   /* 全站次级字令牌在本页一并落到本页次级字档 */
+  --zr-serif:var(--font-serif);   /* 卷首宋体：随全站主字体 */
+  --foot-ink:var(--zr2);--line:var(--zr-line);--ink:var(--zr-ink)}
+
+.dtm-zeri{--tk:#a8402e;--tk2:#8a3322;--tk-ink:#463a30;--tk-line:#e8d2ce;--tk-tint:#faedeb}
+
+@media(max-width:640px){
+  .zr-list{gap:var(--sp-1)}
+  .zr-card{grid-template-columns:14px 1fr 38px;padding:var(--sp-2) var(--sp-2);gap:var(--sp-1) var(--sp-2)}
+  .zr-rank{grid-column:1;grid-row:1;font-size:14px}
+  .zr-date{grid-column:2;grid-row:1;display:flex;flex-wrap:wrap;gap:var(--sp-1) var(--sp-2);align-items:baseline}
+  .zr-sol{font-size:13.5px;line-height:1.25}
+  .zr-sol span{font-size:11px;margin-left:var(--sp-1)}
+  .zr-lun{font-size:11px;line-height:1.25;flex:0 0 auto}
+  .zr-tags{grid-column:1/-1;grid-row:2;justify-content:flex-start;padding-right:0;gap:var(--sp-1);margin-top:0}
+  .zr-score{grid-column:3;grid-row:1;display:flex;align-items:center;justify-content:flex-end;gap:var(--sp-1);font-size:20px;line-height:1.1}
+  .zr-score .zr-grade{font-size:10.5px;margin-top:var(--sp-1)}
+  .jz-verdict{grid-column:1/-1;grid-row:4;font-size:11.5px;margin-top:var(--sp-1);line-height:1.4}
+  .jz-detail{grid-column:1/-1;grid-row:3;margin-top:var(--sp-1);padding:var(--sp-1) var(--sp-2)}
+  .jz-h{font-size:var(--tier4);margin:0 0 var(--sp-2)}
+}
+
+/* page-font:begin */
+@font-face{font-family:"Noto Serif SC";font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/pages/zeri-0.woff2) format("woff2");unicode-range:U+4e01, U+4e0a, U+4e11, U+4e14, U+4e19-4e1c, U+4e24, U+4e2a, U+4e2d, U+4e39, U+4e3e, U+4e4c, U+4e5d, U+4e5f, U+4e66, U+4e70, U+4e7e, U+4e86, U+4e8b, U+4e8e, U+4e91-4e92, U+4e9a, U+4ea1, U+4ea4-4ea5, U+4ea7, U+4eab-4eac, U+4eae, U+4eb2, U+4eba, U+4ecd-4ece, U+4ed6, U+4ed9, U+4ef6, U+4efd, U+4f0a, U+4f10, U+4f18, U+4f20, U+4f26, U+4f2f, U+4f4d, U+4f55, U+4f5c, U+4f9d, U+4fc4, U+4fdd, U+4fee, U+5019, U+503c, U+504f, U+505c, U+50cf, U+513f, U+5143, U+514b, U+514d, U+5154, U+5168, U+5170, U+5173, U+5176, U+5179, U+5185, U+518c-518d, U+5199, U+519c, U+51a0, U+51ac, U+51b0, U+51b2-51b3, U+51c6, U+51cf, U+51e0, U+51f6, U+51fb, U+51fd, U+5207, U+5211, U+5217, U+5219, U+521d, U+5224, U+5229, U+522b, U+5236-5238, U+5256, U+5269, U+529b, U+529e-52a1, U+52a8, U+52aa, U+52b3, U+52fe, U+5308, U+5317, U+532e, U+533a-533b, U+5348, U+534a, U+5357, U+535a, U+5361-5362, U+5366, U+536f, U+5371, U+5373, U+5377, U+5384, U+539f, U+53bf, U+53ca, U+53cd, U+53d1, U+53d8-53d9, U+53e0, U+53e3-53e6, U+53ea, U+53ef-53f0, U+53f2-53f3, U+53f8, U+5404, U+5409, U+5411, U+5426, U+542b, U+542f, U+543e, U+548c, U+54c8, U+54cd, U+54e5, U+54ea, U+5580, U+559c, U+56e0, U+56f4, U+56fd-56fe, U+571f, U+572d, U+5730, U+5747, U+5750, U+5757, U+5761, U+5764, U+5766, U+578b, U+57c3, U+57ce, U+57d4, U+57fa, U+5802, U+5821, U+585e, U+586b, U+58a8, U+58eb, U+58ee, U+5904, U+590d, U+590f, U+5916, U+591a, U+5929, U+5957, U+5965, U+5973, U+597d, U+5982, U+59cb, U+59d4, U+5a01, U+5a29, U+5a36, U+5ac1, U+5ae9, U+5b50, U+5b58, U+5b5f, U+5b81, U+5b83, U+5b89, U+5b8c, U+5b9b, U+5b9d-5b9e, U+5bab, U+5bb6, U+5bbe, U+5bc5-5bc6, U+5be8, U+5c11, U+5c14, U+5c1a, U+5c31, U+5c3c, U+5c40, U+5c42, U+5c55, U+5c5e, U+5c71, U+5c9b, U+5ddd-5dde, U+5de5, U+5dee, U+5df1-5df4, U+5dfd, U+5e02-5e03, U+5e0c, U+5e15, U+5e1d, U+5e26, U+5e72-5e73, U+5e76, U+5e7f, U+5e86, U+5e8a, U+5e8f, U+5e94, U+5e9a, U+5ea6, U+5ef7, U+5efa, U+5eff, U+5f15, U+5f52-5f53, U+5f6d, U+5f71, U+5f81, U+5f84, U+5f8b, U+5f97, U+5f99, U+5fb7, U+5fbd, U+5fc6, U+5fcc, U+5feb, U+6001, U+6027, U+6062, U+606f, U+610f, U+611f, U+620a, U+620c, U+6237, U+6240, U+624d, U+6253, U+6267, U+6269, U+6276, U+6279, U+628a, U+6291, U+6298, U+62c9, U+62ff, U+6302, U+6307, U+631d, U+632a, U+6362, U+6377, U+63a7, U+642c, U+6469, U+64ce, U+652f, U+6536, U+6539, U+653e, U+6545, U+6574, U+6590, U+659f, U+65a5, U+65ad, U+65af-65b0, U+65b9, U+65c1, U+65cf, U+65e0, U+65e6-65e7, U+65e9, U+662f, U+663e, U+665a, U+667a, U+6682, U+66dc, U+66f4, U+66ff-6700, U+6708, U+670d, U+6717, U+671d, U+671f, U+672c, U+6731, U+6743, U+675f, U+6761, U+6765, U+6768, U+6784, U+6797, U+679a, U+67d3, U+67e5, U+67ec, U+67f1, U+6807, U+6821, U+6838-6839, U+683c, U+6846, U+6851, U+6881, U+68ee, U+6b21, U+6b62-6b66, U+6bb5, U+6bcd, U+6bcf, U+6bd4, U+6bdb, U+6c38, U+6c42, U+6c47, U+6c5f, U+6c64, U+6c76, U+6c99, U+6cbb, U+6cca, U+6ce2, U+6ce8, U+6cf0, U+6d25, U+6d2a, U+6d3e, U+6d41, U+6d4e, U+6d59, U+6d66, U+6d77, U+6e05, U+6e2f, U+6e32, U+6e56, U+6e7e, U+6f0f, U+6fb3, U+706b, U+715e, U+7167, U+7231, U+7236, U+7259, U+7262, U+7279, U+72d7, U+72ec, U+7334, U+7389, U+73bb, U+73ed, U+7459, U+745e, U+74dc, U+74e6, U+7518, U+7533, U+7537-7538, U+7559, U+7586, U+7597, U+75c5, U+7678, U+767d-767e, U+7684, U+76ee, U+76f4, U+7701, U+771f, U+7740, U+77e5, U+7834, U+793a, U+7940, U+7948, U+7956, U+796d, U+798f, U+79d1, U+79d8, U+79fb, U+7a0b, U+7a0d, U+7a33, U+7a81, U+7a97, U+7acb, U+7ad6, U+7ad9, U+7b04, U+7b2c, U+7b49, U+7c73, U+7c7b, U+7cbe, U+7ea6-7ea7, U+7eb3, U+7ebf, U+7ec4, U+7ec6, U+7ecd, U+7ed1, U+7edf, U+7ef4, U+7efc, U+7eff, U+7f05, U+7f18, U+7f29, U+7f8a, U+7f8e, U+7fa4, U+8005, U+800c, U+8033, U+8054, U+805a, U+8083, U+80af, U+80fd, U+8131, U+814a, U+8179, U+81f3-81f4, U+826e, U+8272, U+82ac, U+82cf, U+82e5, U+82f1, U+8303, U+8328, U+836f, U+8377, U+83ab, U+83b1, U+83f2, U+8404, U+8428, U+843d}
+@font-face{font-family:"Noto Serif SC";font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/pages/zeri-1.woff2) format("woff2");unicode-range:U+8457, U+8461, U+8463, U+846c, U+8499, U+864e, U+8863, U+8865, U+8868, U+88ab, U+88c1, U+88c5, U+897f, U+8981, U+89c1-89c2, U+8ba1-8ba2, U+8ba4, U+8bae, U+8bb0, U+8bb8, U+8bba, U+8bbe, U+8bc1, U+8bc4, U+8bd5, U+8bdd, U+8be2, U+8be5, U+8bf8, U+8bfb, U+8bfe, U+8c03, U+8d22, U+8d28, U+8d35, U+8d4b, U+8d56, U+8d5e, U+8d77, U+8d85, U+8d8a, U+8ddd, U+8def, U+8eab, U+8f7d, U+8f83, U+8f91, U+8f93, U+8f9b, U+8fa8, U+8fb0, U+8fb9, U+8fbd-8fbe, U+8fc7, U+8fd4, U+8fd8-8fd9, U+8fdb-8fdc, U+8fea, U+9000, U+9002, U+9006, U+9009, U+9010, U+901a, U+9020, U+903b, U+907f, U+90a3, U+90fd, U+9149, U+914b-914c, U+91c7, U+91cc-91cd, U+91cf, U+91d1, U+949f, U+94a9, U+94ae, U+94fa, U+94fe, U+9519, U+955c, U+957f, U+95ed, U+95f4, U+963f, U+9648, U+9650, U+9655, U+9662, U+9664, U+9676, U+9686, U+968f-9690, U+9694, U+96be, U+96c0, U+96c6, U+9700, U+9752, U+975e, U+97e6, U+97e9, U+97f3, U+9879, U+987b, U+987f, U+9884, U+9898, U+98de, U+9999, U+9a6c, U+9a71, U+9a7f, U+9ad8, U+9c81, U+9c9c, U+9e21, U+9ea6, U+9ece, U+9ed1, U+9ed8, U+9f20, U+9f99}
+/* page-font:end */

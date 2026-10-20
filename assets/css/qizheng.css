@@ -246,3 +246,51 @@
     --qz-ink2:#a09cab;
   }
 }
+
+/*
+   对齐其余主题页，配色独立换为 曜石黑紫（古星图夜幕）主色 + 鎏金（七政化曜金线）点缀；
+   旺蓝、陷红、乐绿、闲褐等庙旺语义色与命红线、身线蓝保留；按钮无彩色晕染 */
+
+.page-qz{
+  --qz:#3b3054;
+  --qz2:#2d2440;
+  --qz-deep:#1d1730;
+  --qz-ink:#3a3547;
+  --qz-line:#d8d2e2;
+  --qz-tint:#f3f1f8;
+  --qz-hl:#f9f8fc;  /* 提示淡底：表内当前行与指向行，比纸淡底更浅一档 */
+  --qz-ink2:#584f6d;  /* 次级字色：卷首说明、副注、标注 */
+  --qz-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  /* 圆盘令牌：星盘线弧取主色，宫号与星曜按墨色三档分深浅，当令取重档 */
+  --wheel-line:var(--qz-line);
+  --wheel-arc:var(--qz);
+  --wheel-cur:var(--qz);
+  --wheel-ink:var(--qz-ink);
+  --wheel-ink2:var(--qz-ink2);
+  --wheel-deep:var(--qz-deep);
+  --wheel-core:var(--qz-tint);
+  --wheel-h4:var(--qz2);
+  --wheel-serif:var(--qz-serif);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);
+  /* 十一曜庙旺六档：星曜字色即庙旺，色值只在此处（盘内 class 取用，不写在行内） */
+  --qz-庙:var(--green);
+  --qz-旺:#1b6fa8;
+  --qz-乐:#2e7d32;
+  --qz-平:#5a4632;
+  --qz-闲:#8a6d2f;
+  --qz-陷:#b3261e;
+  --gold2:var(--qz2);
+  --gold:var(--qz);
+  --gold-brown:var(--qz2);
+  --gold-bg:var(--qz-tint);
+  --line:var(--qz-line);--ink:var(--qz-ink)
+}
+
+/* 日期弹框主题（字面量，弹框在 body 下不依赖页内变量） */
+.dtm-qz{--tk:#3b3054;--tk2:#2d2440;--tk-ink:#3a3547;--tk-line:#d8d2e2;--tk-tint:#f3f1f8}
+
+/* page-font:begin */
+@font-face{font-family:"Noto Serif SC";font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/pages/qizheng-0.woff2) format("woff2");unicode-range:U+4e0a, U+4e13-4e14, U+4e1c, U+4e24-4e25, U+4e2a, U+4e2d, U+4e34, U+4e39, U+4e49, U+4e4c, U+4e5f, U+4e70, U+4e8b, U+4e8e, U+4e91-4e92, U+4e9a, U+4ea4, U+4ea6, U+4eab-4eac, U+4eb2, U+4eba, U+4eca, U+4ecd-4ece, U+4ed6, U+4ee3-4ee4, U+4ef6, U+4efd, U+4f0a, U+4f10, U+4f18, U+4f20, U+4f26, U+4f2f, U+4f4d, U+4f55, U+4f9d, U+4fa7, U+4fc4, U+4fdd, U+5019, U+501f, U+503c, U+505c, U+50cf, U+5149, U+514b, U+5168, U+5170, U+5173, U+5176-5177, U+5179, U+517b-517c, U+5185, U+518d, U+5199, U+519c, U+51b0, U+51c6, U+51cf, U+51e0, U+51f6, U+51fb, U+5207, U+5217, U+5219, U+5220, U+5224, U+5229, U+522b, U+5236-5237, U+523b, U+529f-52a1, U+52a8-52aa, U+52b1, U+52b3, U+52bf, U+52fe, U+5305, U+5308, U+5317, U+533a, U+5347-5348, U+534a, U+534e, U+5357, U+535a, U+5361-5362, U+536f, U+5371, U+5373, U+5384, U+538b, U+53bf, U+53c1, U+53ca, U+53cc-53cd, U+53d1, U+53d7-53d9, U+53e0, U+53e3-53e4, U+53e6, U+53ea, U+53ef-53f0, U+53f2-53f3, U+53f7, U+5404, U+5409, U+5411, U+5426, U+542b, U+542f, U+543e, U+548c, U+54c8, U+54e5, U+5546, U+5580, U+5668, U+56fd-56fe, U+5706, U+5708, U+571f, U+572d, U+5730, U+5740, U+5747, U+5750, U+5757, U+5761, U+5766, U+578b, U+57c3, U+57ce, U+57d4, U+57df, U+57fa, U+5821, U+585e, U+586b, U+5883, U+58a8, U+58eb, U+58ee, U+58f9, U+5904, U+5907, U+590d, U+590f, U+5916, U+591a, U+591c, U+5929, U+5931, U+5957, U+5965, U+5973, U+5982, U+59bb, U+59be, U+59cb, U+59d4, U+5a01, U+5ae9, U+5b50, U+5b58, U+5b5b, U+5b5f, U+5b81, U+5b83, U+5b89, U+5b98, U+5b9b, U+5b9e, U+5bab, U+5bb6, U+5bb9, U+5bbd-5bbe, U+5bc6, U+5be8, U+5c04, U+5c11, U+5c14, U+5c1a, U+5c3c, U+5c3e, U+5c40, U+5c42, U+5c4f, U+5c71, U+5c9b, U+5ddd-5dde, U+5de5-5de6, U+5dee, U+5df2, U+5df4, U+5e02-5e03, U+5e0c, U+5e15, U+5e1b, U+5e1d, U+5e26, U+5e38, U+5e55, U+5e72-5e73, U+5e76, U+5e7f, U+5e86, U+5e8f, U+5e94, U+5e99, U+5ea6-5ea7, U+5ef7, U+5efa, U+5f02, U+5f27, U+5f31, U+5f3a, U+5f53, U+5f84, U+5f8b, U+5f97, U+5fb7, U+5fbd, U+5fc3, U+5fcc, U+5fd7, U+5feb, U+6027, U+603b, U+6052, U+6062, U+60ac, U+60c5, U+610f, U+6237, U+6240, U+6247, U+6253, U+626b-626c, U+628a, U+6298, U+62c9, U+62e6, U+62ff, U+6301, U+6307, U+631d, U+632a, U+635f, U+6362, U+6377, U+63a8, U+63cf, U+6469, U+652f, U+6539, U+6545, U+6563, U+6574, U+6590, U+6599, U+65ad, U+65af-65b0, U+65b9, U+65cf, U+65e0, U+65e6, U+65fa, U+6625, U+662f, U+6635, U+663c, U+6666, U+667a, U+66dc, U+66f4, U+6700, U+6708, U+670d, U+6717, U+671d, U+671f, U+6728, U+672c, U+675f, U+6761, U+6765, U+6797, U+67b6, U+67d3, U+67e5, U+67ec, U+6807, U+6821, U+6838-6839, U+683c, U+6846, U+6851, U+68d5, U+68ee, U+6b21, U+6b62-6b65, U+6bb5, U+6bcd, U+6bcf, U+6bd4, U+6bdb, U+6c42, U+6c5f, U+6c64, U+6c76, U+6c99, U+6cbb, U+6cbf, U+6cca, U+6ce2, U+6ce8, U+6cf0, U+6d1e, U+6d25, U+6d2a, U+6d41, U+6d4e-6d4f, U+6d59, U+6d66, U+6d77, U+6de1, U+6df1, U+6e05, U+6e2f, U+6e32, U+6e38, U+6e56, U+6e7e, U+6fb3, U+7081, U+70ed, U+715e, U+7167, U+7231, U+7236, U+7259, U+7279, U+72af, U+73af-73b0, U+73bb, U+73ed, U+7459, U+745e, U+74dc, U+74e6, U+7518, U+7537-7538, U+753b, U+754c, U+7559, U+7586, U+767d-767e, U+7684, U+7686, U+76ee, U+7701, U+770b, U+771f, U+77e5, U+77ed, U+7801, U+783a, U+78e8, U+793a, U+7981, U+7984, U+798f, U+79d1-79d2, U+79d8, U+79f0, U+79fb, U+7a0d, U+7a33, U+7a7f, U+7a81, U+7a84, U+7acb, U+7ad9, U+7aef, U+7b26, U+7b2c, U+7b80, U+7ba1, U+7c73, U+7c7b, U+7c97, U+7cfb, U+7d20, U+7ea2, U+7ea6-7ea7, U+7eac, U+7eb3, U+7ebf, U+7ec4, U+7ecd, U+7ed1, U+7ed9, U+7edf, U+7ef4, U+7efc, U+7eff, U+7f05, U+7f16, U+7f3a, U+7f72, U+7f8e, U+7fa4, U+8005, U+8033, U+8054, U+8083, U+8086, U+80af, U+80fd, U+8131, U+814a, U+81f3, U+8272, U+8282, U+82ac, U+82cf, U+82f1, U+8328, U+8377, U+83ab, U+83b1, U+83b7, U+83f2, U+8404, U+8428, U+843d, U+8461, U+8499, U+84dd, U+865a, U+8680, U+8865, U+8868, U+88c5, U+897f, U+8981, U+89c1, U+89c6, U+89c8, U+89d2, U+89dc, U+8ba1, U+8ba4, U+8ba9, U+8bb8, U+8bbe-8bbf, U+8bc4, U+8bd5}
+@font-face{font-family:"Noto Serif SC";font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/pages/qizheng-1.woff2) format("woff2");unicode-range:U+8bdd, U+8be5-8be6, U+8bed, U+8bf8, U+8bfb, U+8c03, U+8c61, U+8d1f, U+8d22, U+8d25, U+8d2f-8d30, U+8d35, U+8d44, U+8d5e, U+8d70, U+8d77, U+8d8a, U+8ddd, U+8de8, U+8def, U+8e94, U+8eab, U+8f6c, U+8f74, U+8f7d, U+8f85, U+8f91, U+8f93, U+8fb0, U+8fb9, U+8fbd-8fbe, U+8fc7, U+8fd9, U+8fdb, U+8fde, U+8fea, U+8ffd, U+9000, U+9009, U+9010, U+901a, U+901f, U+903b, U+9047, U+90a3, U+90fd, U+9149, U+914b, U+91ca, U+91cc-91cd, U+91cf, U+91d1, U+9488, U+949f, U+94a5, U+94a9, U+94fa, U+94fe, U+952e, U+957f, U+95ed-95ee, U+95f2, U+95f4, U+963f, U+9650, U+9655, U+9664, U+9676-9677, U+9686, U+968f, U+9700, U+9752, U+975e, U+97e6, U+97e9, U+97ec, U+9879-987b, U+987f, U+9999, U+9a6c, U+9aa8, U+9ad8, U+9c81, U+9c9c, U+9ea6, U+9ece, U+9ed1, U+9ed8, U+9f84, U+9f99}
+/* page-font:end */

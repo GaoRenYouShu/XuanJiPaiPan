@@ -1,0 +1,119 @@
+/* 日期时间选择器组件（自建弹层，响应式模式也可弹出）
+   引用：仅用得上本组件的页挂载，插在 assets/style.css 之后、页分片之前。
+   日期与时间弹层的结构、令牌与窄屏适配。 */
+
+.form-row .field input[type="text"].dt-input{width:96px}
+
+.cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
+
+.ty-derive .dr dt,.ty-derive .dr dd{font-weight:400}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+.dt-ic{flex:0 0 auto;cursor:pointer;font-size:16px;user-select:none;height:100%;box-sizing:border-box;
+  background:var(--tk-tint,var(--gold-bg));border:1px solid var(--tk-line,var(--line));border-radius:0;
+  padding:var(--sp-1) var(--sp-1);display:flex;align-items:center;justify-content:center;transition:.15s}
+
+.dt-ic:hover{border-color:var(--tk,var(--gold));background:var(--tk,var(--gold));color:#fff}
+
+.dt-ic:active{border-color:var(--tk2,var(--gold2));background:var(--tk2,var(--gold2));color:#fff}
+
+.dt-modal{max-width:340px;padding-top:32px;border-radius:0;border-width:1px;border-color:var(--line);box-shadow:none}
+
+.dt-modal > .close{top:6px;right:var(--sp-3);width:22px;height:22px;font-size:19px;line-height:22px;text-align:center}
+
+.dt-modal > .close:hover{background:var(--tk-tint,var(--gold-bg));color:var(--tk-ink,var(--ink))}
+
+.dt-head{display:flex;align-items:center;justify-content:center;gap:var(--sp-1);margin-bottom:var(--sp-2);flex-wrap:nowrap}
+
+.dt-head button{position:relative;background:none;border:0;border-radius:0;width:26px;height:26px;padding:0;font-size:16px;line-height:1;cursor:pointer;font-family:inherit;flex:0 0 auto;color:var(--ink2);transition:background .15s,color .15s}
+
+.dt-head button:hover{background:var(--tk-tint,var(--gold-bg));color:var(--tk,var(--gold))}
+
+.dt-head button[data-act="y-"]{margin-right:auto}
+
+.dt-head button[data-act="y+"]{margin-left:auto;margin-right:var(--sp-4)}
+
+.dt-year{width:66px;height:26px;text-align:center;padding:0 var(--sp-1);line-height:1.1;border:1px solid var(--line);border-radius:0;font-size:13px;font-weight:400;font-family:inherit;background:var(--card);color:var(--ink);flex:0 0 auto;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield}
+
+.dt-year::-webkit-outer-spin-button,.dt-year::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+.dt-year:focus,.dt-month:focus{outline:none;box-shadow:none;border-color:var(--tk,var(--gold))}
+
+.dt-head button:hover::after{content:attr(data-tip);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:var(--sp-1);padding:var(--sp-1) var(--sp-2);background:var(--tk,var(--gold));color:#fff;font-size:12px;font-weight:400;line-height:1.5;white-space:nowrap;z-index:5;pointer-events:none;border-radius:0}
+
+.dt-month{width:auto;min-width:64px;height:26px;padding:0 var(--sp-1);border:1px solid var(--line);border-radius:0;font-size:13px;font-weight:400;font-family:inherit;background:var(--card);color:var(--ink);flex:0 0 auto;cursor:pointer;text-align:center}
+
+.dt-title{font-size:13px;font-weight:400}
+
+.dt-week{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-1);margin-bottom:var(--sp-1)}
+
+.dt-week span{text-align:center;font-size:13px;color:var(--ink2);font-weight:400}
+
+.dt-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-1)}
+
+.dt-cell{background:none;border:0;border-radius:0;min-height:36px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer}
+
+.dt-cell:hover{background:var(--tk-tint,var(--gold-bg))}
+
+.dt-cell.empty,.dt-cell.empty:hover{background:none;border:0;cursor:default}
+
+.dt-cell.today{background:var(--red);color:#fff}
+
+.dt-cell.today:hover{background:var(--red2);color:#fff}
+
+.dt-time{display:flex;gap:var(--sp-2);max-height:300px}
+
+.dt-col{flex:1;overflow:auto;max-height:300px;border:1px solid var(--line);border-radius:0;background:var(--tk-tint,var(--gold-bg))}
+
+.dt-col::-webkit-scrollbar{width:6px}
+
+.dt-col::-webkit-scrollbar-thumb{background:var(--line);border-radius:0}
+
+.dt-opt{text-align:center;padding:var(--sp-2) 0;font-size:13px;cursor:pointer;border-bottom:1px solid var(--line)}
+
+.dt-opt:hover{background:var(--gold);color:var(--nav)}
+
+.dt-opt.on{background:var(--red);color:#fff}
+
+.dt-modal[class*="dtm-"]{border:1px solid var(--tk-line);color:var(--tk-ink)}
+
+[class*="dtm-"] .dt-head button{color:var(--tk)}
+
+[class*="dtm-"] .dt-year,[class*="dtm-"] .dt-month{background:var(--card);border:1px solid var(--tk-line);color:var(--tk-ink)}
+
+[class*="dtm-"] .dt-week span{color:var(--tk)}
+
+[class*="dtm-"] .dt-cell{color:var(--tk-ink)}
+
+[class*="dtm-"] .dt-cell.today{background:var(--tk);color:#fff}
+
+[class*="dtm-"] .dt-cell.today:hover{background:var(--tk2);color:#fff}
+
+[class*="dtm-"] .dt-col{border:1px solid var(--tk-line)}
+
+[class*="dtm-"] .dt-opt{color:var(--tk-ink);border-bottom:1px solid var(--tk-line)}
+
+[class*="dtm-"] .dt-opt:hover{background:var(--tk);color:#fff}
+
+[class*="dtm-"] .dt-opt.on{background:var(--tk);color:#fff}
+
+@media(max-width:640px){
+  .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
+}

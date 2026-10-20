@@ -1,0 +1,152 @@
+/* 本页样式：只含本页用到的规则，次序与共享源一致。 */
+
+:root{
+  color-scheme:light;
+/* ── 间距档位（4px 栅格，全站唯一间距真源） */
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:24px;
+  --paper:#ffffff;
+  --paper2:#faf9f6;
+  --ink:#1a1a1a;
+  --ink2:#52525a;
+  --line:#ddd8cf;
+  --gold:#c9952a;
+  --gold2:#a67c28;
+  --red:#b84a3a;
+  --red2:#9e3d2f;
+  --card:#ffffff;
+  --shadow:0 1px 6px rgba(0,0,0,.08);
+  --gold-bg:#fbf7f0;
+/* 视觉层级规范：标题四级递减字号，色统一 gold2，不另立字体体系。 */
+  --tier1:17px; --tier2:16px; --tier3:14px; --tier4:13px;
+  --title:var(--gold2);
+  --nav:#1e1e1e;
+  --nav-text:#f0ece0;
+  --cal-hover:#ecebe5;
+  --cal-selected:#e2e0d8;
+  --cal-zhai:var(--cal-selected);
+  --green:#2e7d32;          /* 宜、吉、幸运 */
+  --brown:#a0522d;          /* 五黄土星等深棕 */
+  --gold-brown:#8a6d1f;     /* 飞星2/8、太乙标注 */
+  --special-bg:#f3e7d3;     /* sd-special背景 */
+  --special-text:#8a5a00;   /* sd-special文字 */
+  --special-border:#d8b46a; /* sd-special边框 */
+  --font:'Noto Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 全站主字体：思源宋体自托管分片＋符号补全子集，见 assets/fonts/，随站交付不依赖访客系统 */
+  --font-serif:'Noto Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 经典衬线真源，与主字体同族 */
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+html,body{height:100%}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+a{color:inherit;text-decoration:none}
+
+select{font-family:inherit}
+
+select option{font-family:inherit}
+
+.nav-menu{display:none;position:absolute;top:100%;right:0;margin-top:var(--sp-2);min-width:150px;
+  background:#25221e;border:1px solid rgba(255,255,255,.12);border-radius:0;padding:var(--sp-1);z-index:50;
+  box-shadow:0 14px 32px rgba(0,0,0,.45);flex-direction:column;gap:var(--sp-1)}
+
+.menu-btn{display:none;align-items:center;justify-content:center;height:30px;padding:0 12px;background:none;
+  color:#c6c0b2;border:0;border-radius:0;font-size:14px;line-height:1;
+  cursor:pointer;transition:all .15s}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.yili-tbl td:nth-child(2) br{display:none}
+
+.xlr-ref-d>summary::-webkit-details-marker{display:none}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+#out + *{margin-top:var(--sp-4)}
+
+@keyframes skShimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+footer{text-align:center;color:var(--ink2);font-size:12px;padding:var(--sp-4) 0 var(--sp-5)}
+
+input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
+
+[hidden]{display:none !important}
+
+#yunHit{touch-action:pan-x pan-y}
+
+.yun-mobile-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;margin:var(--sp-1) 0}
+
+.yun-tip{display:none;position:absolute;z-index:30;background:var(--paper2);color:var(--ink);font-size:12px;line-height:1.55;padding:var(--sp-2) var(--sp-2);border-radius:0;border:1px solid var(--line);box-shadow:0 4px 16px rgba(60,45,15,.18);white-space:normal;min-width:160px;max-width:300px;box-sizing:border-box}
+
+#yunChartWrap{position:relative}
+
+.sk-block .rel-sep{display:none}
+
+table.yun-tbl.pairrel td .rel-sep,table.yun-tbl.rel-matrix td .rel-sep{display:none}
+
+.modal-mask{position:fixed;inset:0;background:rgba(30,20,10,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:var(--sp-4)}
+
+.cal-cell.selected:not(.today){background:#d5c5ae;border-color:transparent}.cal-cell .festival+.ld{display:none}
+
+.cal-cell .rest-mark{top:auto;bottom:var(--sp-1);left:var(--sp-1);display:none}
+
+.ai-head::-webkit-details-marker{display:none}
+
+footer .geo-foot{display:none;align-items:center;justify-content:center;gap:var(--sp-1);margin-top:var(--sp-2);font-size:12px;color:var(--foot-ink,var(--gold2));max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.ai-pane{display:none}.ai-pane.active{display:block}
+
+.ai-help summary::-webkit-details-marker{display:none}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+.zr-mod>summary::-webkit-details-marker{display:none}
+
+.mod.collapsed .mod-body{display:none}
+
+@page{margin:14mm 12mm}
+
+.jw-detail{display:none;margin-top:var(--sp-1);padding-top:var(--sp-1);border-top:1px dashed var(--line)}
+
+@keyframes lqshake{0%,100%{transform:translateX(-4px)}50%{transform:translateX(4px)}}
+
+@keyframes lyCoinToss{from{transform:translateY(0) rotateY(0deg)}
+to{transform:translateY(-30px) rotateY(180deg)}}
+
+@keyframes qiFade{from{opacity:0;transform:translateY(4px)}
+to{opacity:1;transform:none}}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+body.p404-page{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#faf9f6;font-family:var(--font);color:#1a1a1a}
+
+  .nf{position:relative;width:min(640px,88vw);border:3px solid #1a1a1a;padding:3.75rem 2.5rem 3.375rem;text-align:center}
+
+  .nf::after{content:"";position:absolute;inset:6px;border:1px solid rgba(26,26,26,.5);pointer-events:none}
+
+  .nf-seal{width:88px;height:88px}
+
+  .nf-code{margin:1.625rem 0 0;font-size:92px;font-weight:700;letter-spacing:.12em;line-height:1.1}
+
+  .nf-rule{width:64px;height:4px;background:#b84a3a;margin:1.75rem auto}
+
+  .nf-text{margin:0;font-size:19px;color:#52525a;letter-spacing:.1em}
+
+  .nf-home{display:inline-block;margin-top:2rem;padding:0.625rem 2.25rem;border:1.5px solid #1a1a1a;color:#1a1a1a;text-decoration:none;font-size:18px;letter-spacing:.28em;transition:border-color .2s,color .2s}
+
+  .nf-home:hover{border-color:#b84a3a;color:#b84a3a}
+
+  @media (max-width:480px){.nf-code{font-size:72px}.nf-text{font-size:17px}}

@@ -6,7 +6,9 @@
    - 跨域请求（节假日、IP 归属、地磁、AI 接口等外部数据源）一律不拦截，直连网络；
    - 预缓存逐项 cache.add 并容忍单项失败，避免任一资源波动导致安装整体失败。
    版本升级：CACHE 名尾号递增，activate 时清除旧仓。 */
-const CACHE = 'xj-shell-v22';
+const CACHE = 'xj-shell-v24';
+/* 壳只预缓存"打开就能看"的最小集：页面、清单、框架脚本、界面字体与当年农历表。
+   历法整包与各页术语数据按 visit 时进运行时缓存，不在这里抢首访带宽。 */
 const SHELL = [
   './',
   './index.html',
@@ -14,15 +16,10 @@ const SHELL = [
   './manifest.webmanifest',
   './assets/meta.js',
   './assets/app.js',
-  './assets/style.css',
-  './assets/lunar.js',
-  './assets/foli-terms.js',
-  './assets/daoli-terms.js',
   './assets/fonts/noto-serif-sc.css',
   './assets/fonts/nssc-chrome.woff2',
   './assets/fonts/site-sym.css',
-  './assets/zangli-terms.js',
-  './assets/zangli-eclipse.js'
+  './assets/lunar-today-2026.js'
 ];
 
 self.addEventListener('install', function (e) {
