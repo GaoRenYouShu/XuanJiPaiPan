@@ -40,9 +40,15 @@
     <h1>道历</h1>
     <div class="lead">黄帝纪元道历，含神仙圣诞、三会三元等道教节日与每日吉凶。</div>
     <div class="form-row">
-      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" onchange="jumpToDate(this.value)"></div>
+      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
       <button class="btn gold" onclick="setToday()">今天</button>
     </div>
+    <div class="form-row dao-query-row">
+      <div class="field"><label for="dSearch">节日检索</label><input type="text" id="dSearch" class="dao-search-input" placeholder="神名或节日名" autocomplete="off" oninput="daoSearchSoon()"></div>
+      <button class="btn soft" type="button" onclick="daoSearchNow()">检索</button>
+    </div>
+    <div class="dao-filter-row" id="daoFilterRow"></div>
+    <div class="dao-search-out" id="daoSearchOut"></div>
     <div data-export-target>
       <div class="exp-title" data-export-title>道历 玄机排盘</div>
       <div class="cal-nav">
@@ -124,11 +130,12 @@ function showHouTip(wu){
    本页不另抄一份（抄了就要与库同改，两处真源必有一处先烂）。
    两段制：上段第几宿、四象、吉凶，下段宿诗另起一段并冠名；两段以 <p> 分段，
    弹窗不在 .wheel-detail 作用域内，.wd-br 在其中无规则，不可用作折行。 */
-const DAO_XIU_28=['角','亢','氐','房','心','尾','箕','斗','牛','女','虚','危','室','壁',
-  '奎','娄','胃','昴','毕','觜','参','井','鬼','柳','星','张','翼','轸'];
+/* 二十八宿名序取引擎 XIU_LUCK 的中文键，首次弹窗时自引擎现取；宿名、七曜、禽兽、宿诗皆照 lunar.js 内置表合成 */
+let DAO_XIU_28=null;
 function showXiuTipByName(nm){
   try{
     if(typeof LunarUtil==='undefined') return;
+    if(!DAO_XIU_28) DAO_XIU_28=Object.keys(LunarUtil.XIU_LUCK).filter(function(k){return k.charAt(0)!=='{';});
     const i=DAO_XIU_28.indexOf(_daoTxt(nm)); if(i<0) return;
     const x=DAO_XIU_28[i];
     const luck=(LunarUtil.XIU_LUCK&&LunarUtil.XIU_LUCK[x])||'';
@@ -146,9 +153,7 @@ let cur = new Date();
 let lastKey = '';
 /* 本地计算辅助：DIZHI_CHONG/pairChong 与地支方位 ZHI_FANG 由 assets/xuanji-lib.js 共享提供，太岁常量由 assets/taisui-data.js 提供 */
 function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo,'dao-br'); }
-const GAN_TAISHEN={甲:'门',己:'门',乙:'碓磨',庚:'碓磨',丙:'厨灶',辛:'厨灶',丁:'仓库',壬:'仓库',戊:'房',癸:'房'};
-const ZHI_TAISHEN={子:'碓磨',丑:'厕',寅:'户',卯:'门',辰:'厨',巳:'灶',午:'厕',未:'井',申:'仓',酉:'户',戌:'房',亥:'床'};
-function taiShen(gan,zhi){return '占'+GAN_TAISHEN[gan]+'、'+ZHI_TAISHEN[zhi];}
+/* 胎神取引擎终值：月胎神与日胎神各一条，闰月沿用同月表；两页共用同一对函数，胎神判定只此一处 */
 function curShichen(){const hr=xjNowDate().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
 function gzIndex(gz){return JIAZI60.indexOf(gz)+1;}
 /* 当日卦象：京房纳甲重卦（上卦取日天干纳甲，下卦取日地支纳甲）；卦名取 assets/gua.js，卦辞取 assets/jingwen.js */
@@ -184,15 +189,7 @@ function dayGuaPalace(name){
    映射直接给六十四卦全名（前字上卦、后字下卦），卦名不再二次拼装。 */
 const XIAOXI_MONTH={'寅':'地天泰','卯':'雷天大壮','辰':'泽天夬','巳':'乾为天','午':'天风姤','未':'天山遁','申':'天地否','酉':'风地观','戌':'山地剥','亥':'坤为地','子':'地雷复','丑':'地泽临'};
 function dayXiaoxi(monthZhi){ return XIAOXI_MONTH[monthZhi]||''; }
-/* 日白三元：阳遁三段（冬至→雨水一白、雨水→谷雨七赤、谷雨→夏至四绿顺）与阴遁三段（夏至→处暑九紫、处暑→霜降三碧、霜降→冬至六白逆）。
-   当令之气取 getPrevQi：十二气自冬至起两两成元，故只凭上一气的名即可定元，不必翻整张节气表逐段比对 */
-const BAI_YUAN={冬至:[1,1],大寒:[1,1],雨水:[7,1],春分:[7,1],谷雨:[4,1],小满:[4,1],
-  夏至:[9,-1],大暑:[9,-1],处暑:[3,-1],秋分:[3,-1],霜降:[6,-1],小雪:[6,-1]};
-function baiSegment(y,m,d){
-  const q=Solar.fromYmd(y,m,d).getLunar().getPrevQi(true);
-  const v=BAI_YUAN[q.getName()]||BAI_YUAN.冬至;
-  return {base:v[0],dir:v[1]};
-}
+/* 日白三元与飞星四层同走 assets/xuanji-lib.js 的共享件；本页只留同名包装 */
 /* 年飞星入中宫：三元九运 180 年一循环，年紫白入中诀上元甲子一白求、中元甲子四绿游、下元甲子七赤起，九星逆行顺年头；锚点：上元起 1864（甲子年一白入中） */
 function yearStar(y){ return xjYearStar(y); }
 /* 月飞星入中宫：月家紫白，正月起星按年支三组定（子午卯酉八白、辰戌丑未五黄、寅申巳亥二黑），按节气月序逐月逆减 */
@@ -287,6 +284,15 @@ function daoShichenWheel(lunar){
       +` data-i="${i}" style="fill:${col}"`
       +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${nm}</text>`;
   });
+  /* 夜子段占 345 至 360 度，十二地支字里没有它的位置，单出一枚小字标记：
+     早子段的子字留在 0 度，夜子段的夜子二字落在该段中点，点选时各自高亮 */
+  (function(){
+    const dg=dlScMid(12), tp=WHEEL.px(DL_LAB_OUT,dg), seg=DL_SC[12];
+    const col=(seg&&seg.good)?'var(--wheel-good)':'var(--wheel-bad)';
+    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xs${12===DL_SC_SEL?' w-lab-cur':''}"`
+      +` data-i="12" style="fill:${col}"`
+      +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">夜子</text>`;
+  })();
   /* 内圈：该宫干支，两字、**一律径向散射**（聚焦向盘心）。四正只约束外圈的方位标记，
      内圈全圈同一种放射排法才整齐；给内圈也套四正，正上与正下的字会突然转成横排。 */
   for(let i=0;i<12;i++){
@@ -311,7 +317,7 @@ function daoScDetailHTML(x){
   return `${x.gz}时，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>，值神 ${x.shen||'未载'}`
     +`<span class="wd-br"></span>宜 ${x.yi}`;
 }
-const DL_PICK_SC = {arr:function(){return DL_SC;}, setSel:function(v){DL_SC_SEL=v;}, wheel:'daoScWheel', lab:function(i){return i===12?0:i;}, span:dlScSpan,
+const DL_PICK_SC = {arr:function(){return DL_SC;}, setSel:function(v){DL_SC_SEL=v;}, wheel:'daoScWheel', lab:function(i){return i;}, span:dlScSpan,
   spot:function(x,sp,i){ dlWheelSpot(DL_SC_IDS,dlScMid(i),sp[0],sp[1]); },
   c1:['daoScC1',function(x){return x.name;}],
   c2:['daoScC2',function(x){return x.luck;},function(x){return x.good?'var(--wheel-good)':'var(--wheel-bad)';}],
@@ -348,14 +354,14 @@ const DL_DAN_C=220, DL_DAN_ARC=192, DL_DAN_OUT=182, DL_DAN_IN=120, DL_DAN_CORE=7
 const DL_DAN_IDS={arc:'daoDanArc',needle:'daoDanNeedle',dot:'daoDanDot'};
 const DL_ZHAI_ORDER=['十直日','三会朝真','三元斋','八节斋','五腊','八会','天赦斋','庚申甲子守夜'];
 const DL_ZHAI_SHORT={'十直日':'直','三会朝真':'会','三元斋':'元','八节斋':'节','五腊':'腊','八会':'会','天赦斋':'赦','庚申甲子守夜':'夜'};
-/* 十直日固定农历日（小月无三十则止于廿九） */
-const SHI_ZHI=[1,8,14,15,18,23,24,28,29,30];
+const DL_ZHAI_LABEL={'十直日':'十直','三会朝真':'三会','三元斋':'三元','八节斋':'八节','五腊':'五腊','八会':'八会','天赦斋':'天赦','庚申甲子守夜':'守夜'};
+/* 十直日固定农历日，列表在 assets/daoli-terms.js 的 DAO_SHI_ZHI，判定与释义同取一份 */
 /* 斋期八类判定**唯一真源**：日历格左角标“斋”、圣诞斋日盘 zhai 列、基础信息斋期条三处共用。
    🔴 节日不等于斋期：圣诞、下降、成道、会名都属道教节日，都不持斋，不得计入。
    🔴 三处一律调本函数取数，不得另写一份判定，免两套口径并存。 */
 function dlZhaiTypes(lunar,tao){
   const t=tao||lunar.getTao(), z=[];
-  if(SHI_ZHI.indexOf(lunar.getDay())>=0) z.push('十直日');
+  if(DAO_SHI_ZHI.indexOf(lunar.getDay())>=0) z.push('十直日');
   if(t.isDaySanHui()) z.push('三会朝真');
   if(t.isDaySanYuan()) z.push('三元斋');
   if(t.isDayBaJie()) z.push('八节斋');
@@ -512,7 +518,7 @@ function dlDanDetailHTML(i){
   /* 圣诞高亮由盘心第二行（w-c2 取 --wheel-cur）承担，详情条内一律不加粗不染色（见通用件段注） */
   return parts.length?head+'逢'+parts.join('；'):head+'非节庆'
     +(function(){
-      const nx=DL_DAN.slice(i+1).filter(function(y){return y.isDan||dlDanMark(y);})[0];
+      const nx=DL_DAN.slice(i+1).filter(function(y){return y.isDan;})[0];
       const nz=DL_DAN.slice(i+1).filter(function(y){return y.zhai.length;})[0];
       const nxz=nx&&nz&&DL_DAN.indexOf(nx)<DL_DAN.indexOf(nz);
       if(nx&&(nxz||!nz)) return '<span class="wd-br"></span>下一个圣诞：农历'+nx.name;
@@ -527,33 +533,15 @@ function render(){
     today: new Date(),
     cell: cell
   });
+  daoApplyFilter();
 }
-/* 日期格：角标与色块照佛历（foli.html）同一套设计。
-   🔴 两个单字角标，落左上与右上，与圣诞斋日盘外圈标记同判据：
-   左上“斋”＝道教斋期（十直日、三会朝真、三元斋、八节斋、五腊、八会、天赦斋、庚申甲子守夜），
-   右上“诞”＝神仙圣诞（判据＝节日名含“诞”，照佛历 .mk-d）。
-   🔴 “诞”的判据照佛历 .mk-d：**节日名含“诞”者**，不是“节日表非空”。
-   本库 getFestivals() 是“道教节日”总表，里面既有真圣诞（太上老君圣诞、九天司命灶君诞…），
-   也有三会日的会名（天会、地会、人会）、神仙下降与成道日（…下降、…成道）、巡天祭灶等，
-   凡名不含“诞”者标“诞”即是假语义。会名那一类同日还属斋期，本来就有左角标“斋”，不必再补右角标。
-   🔴 斋期判定与圣诞斋日盘 dlDanBuild 同口径：十直按农历日、节令斋依 Tao 判定、守夜按日干支。
-   🔴 格不铺底色（.cal-cell.zhai 归零，见 style.css 道历段）：节庆日不靠面积抢眼，
-   改由角标逐日点出，与“去框改线”的线、字优先一致。
-   底色只留给三种态：今日（主体色实色）、选中（主体色淡染 + 细描）、悬停。 */
-/* 日期格：角标与色块照佛历（foli.html）同一套设计。
-   🔴 两个单字角标，落左上与右上，与佛历“斋”与“诞”同构：佛历左标持戒之日，本页左标亦持戒之日
-   （道教斋期），右标“诞”＝神仙圣诞。
-   左上“斋”＝道教斋期（十直日、三会朝真、三元斋、八节斋、五腊、八会、天赦斋、庚申甲子守夜），
-   判定与圣诞斋日盘 dlDanBuild 同口径：十直按农历日、节令斋依 Tao 判定、守夜按日干支。
-   原“吉”角标（三会、三元、八节、八会、五腊、天赦）已并入“斋”：此六类本全属斋期，
-   补齐斋期体系后“斋”覆盖“吉”，吉日名目仍由圣诞斋日盘、盘下详情条与 AI 导出列全，不丢信息。
-   🔴 “诞”的判据照佛历 .mk-d：**节日名含“诞”者**，不是“节日表非空”。
-   本库 getFestivals() 是“道教节日”总表，里面既有真圣诞（太上老君圣诞、九天司命灶君诞…），
-   也有三会日的会名（天会、地会、人会）、神仙下降与成道日（…下降、…成道）、巡天祭灶等，
-   凡名不含“诞”者标“诞”即是假语义。会名那一类同日还属斋期，本来就有左角标“斋”，不必再补右角标。
-   🔴 格不铺底色（.cal-cell.zhai 归零，见 style.css 道历段）：节庆日不靠面积抢眼，
-   改由角标逐日点出，与“去框改线”的线、字优先一致。
-   底色只留给三种态：今日（主体色实色）、选中（主体色淡染 + 细描）、悬停。 */
+/* 日期格：角标与色块照佛历 foli.html 同一套设计。
+   🔴 两个单字角标，落左上与右上：左上“斋”＝道教斋期（十直日、三会朝真、三元斋、八节斋、五腊、八会、天赦斋、庚申甲子守夜），
+   右上“诞”＝神仙圣诞，判据＝节日名含“诞”，照佛历 .mk-d。
+   斋期判定与圣诞斋日盘 dlDanBuild 同口径：十直按农历日、节令斋依 Tao 判定、守夜按日干支。
+   吉日名目由圣诞斋日盘、盘下详情条与 AI 导出列全。
+   🔴 格不铺底色：节庆日由角标逐日点出，与去框改线的线、字优先一致。
+   底色只留给三种态：今日（主体色实色）、选中（主体色淡染加细描）、悬停。 */
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), tao=lunar.getTao();
   const fest=tao.getFestivals();
@@ -596,6 +584,71 @@ function collectSpecial(tao){
   if(tao.isDayWuLa()) sp.push('五腊日');
   if(tao.isDayTianShe()) sp.push('天赦日');
   return sp;
+}
+/* 节日检索：当前年份前后三年逐日取 Tao 表与六类吉日，按神名或节日名匹配，点结果直达该日。
+   斋期筛选：八类斋期并集，命中格保留，未命中格隐藏，清空恢复全月；两处同取 dlZhaiTypes 与 collectSpecial。 */
+let DAO_SEARCH_TIMER=null;
+function daoSearchSoon(){
+  clearTimeout(DAO_SEARCH_TIMER);
+  DAO_SEARCH_TIMER=setTimeout(daoSearchNow,200);
+}
+function daoSearchNow(){
+  const box=document.getElementById('dSearch'), out=document.getElementById('daoSearchOut');
+  if(!box||!out) return;
+  const q=(box.value||'').trim();
+  if(!q){ out.innerHTML=''; return; }
+  const y=cur.getFullYear(), hits=[];
+  for(let yy=y-3; yy<=y+3 && hits.length<80; yy++){
+    for(let m=1;m<=12;m++){
+      const dim=new Date(yy,m,0).getDate();
+      for(let d=1;d<=dim;d++){
+        const solar=Solar.fromYmd(yy,m,d), lunar=solar.getLunar(), tao=lunar.getTao();
+        const names=collectFests(tao).concat(collectSpecial(tao));
+        const hit=names.filter(function(n){ return n.indexOf(q)>=0; });
+        if(hit.length) hits.push({ date:solar.toYmd(), text:hit.join('、') });
+      }
+    }
+  }
+  const cap='检索范围 '+y+' 年前后三年，命中 '+hits.length+' 日';
+  out.innerHTML='<div class="dao-search-cap">'+cap+'</div>'
+    +(hits.length?hits.map(function(h){
+      return '<a href="#" class="dao-search-item" onclick="jumpToDate(\''+h.date+'\');return false">'+h.date+'　'+h.text+'</a>';
+    }).join(''):'<div class="dao-search-empty">无命中</div>');
+}
+function daoBuildFilter(){
+  const row=document.getElementById('daoFilterRow'); if(!row) return;
+  let h='<span class="dao-filter-cap">斋期筛选</span>';
+  DL_ZHAI_ORDER.forEach(function(k){
+    h+='<label class="dao-chk"><input type="checkbox" value="'+k+'" onchange="daoApplyFilter()">'+DL_ZHAI_LABEL[k]+'</label>';
+  });
+  h+='<button type="button" class="btn soft dao-filter-clear" onclick="daoClearFilter()">清空</button><span class="dao-filter-info" id="daoFilterInfo"></span>';
+  row.innerHTML=h;
+}
+function daoFilterSet(){
+  const row=document.getElementById('daoFilterRow'); if(!row) return null;
+  const set=[];
+  row.querySelectorAll('input[type=checkbox]:checked').forEach(function(c){ set.push(c.value); });
+  return set.length?set:null;
+}
+function daoApplyFilter(){
+  const set=daoFilterSet();
+  let n=0;
+  document.querySelectorAll('#calGrid .cal-cell').forEach(function(c){
+    const key=c.getAttribute('data-date'); if(!key) return;
+    const p=key.split('-').map(Number);
+    const lunar=Solar.fromYmd(p[0],p[1],p[2]).getLunar(), tao=lunar.getTao();
+    const types=dlZhaiTypes(lunar,tao);
+    const hit=!set||types.some(function(t){ return set.indexOf(t)>=0; });
+    c.classList.toggle('filtered',!hit);
+    if(hit) n++;
+  });
+  const info=document.getElementById('daoFilterInfo');
+  if(info) info.textContent=set?('命中 '+n+' 日'):'';
+}
+function daoClearFilter(){
+  const row=document.getElementById('daoFilterRow'); if(!row) return;
+  row.querySelectorAll('input[type=checkbox]').forEach(function(c){ c.checked=false; });
+  daoApplyFilter();
 }
 function daoFullText(tao,lunar){
   const sh=curShichen();
@@ -696,7 +749,7 @@ function showDay(str, el){
     <div class="dao-i"><span class="k tip" onclick="showDaoTip('六曜')">六曜</span><span class="v">${tipSpan(lunar.getLiuYao())}</span></div>
     <div class="dao-i"><span class="k">节气</span><span class="v">${lqHtml}</span></div>
     <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('旬空')">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}<span class="dao-br"></span>月：${lunar.getMonthXunKong()}<span class="dao-br"></span>日：${lunar.getDayXunKong()}</span></div>
-    <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('胎神')">胎神</span><span class="v"><span class="dao-s">本月：${taiShen(mgz[0],mZhi)}</span><span class="dao-br"></span><span class="dao-s">今日：${taiShen(dyGan,dyZhi)}</span></span></div>
+    <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('胎神')">胎神</span><span class="v"><span class="dao-s">本月：${xjTaiShenMonth(lunar)}</span><span class="dao-br"></span><span class="dao-s">今日：${xjTaiShenDay(lunar)}</span></span></div>
     <div class="dao-i"><span class="k">吉神方位</span><span class="v">${tipSpan('喜神')}${lunar.getDayPositionXiDesc()}、${tipSpan('福神')}${lunar.getDayPositionFuDesc()}、${tipSpan('财神')}${lunar.getDayPositionCaiDesc()}<span class="dao-br"></span>${tipSpan('阳贵')}${lunar.getDayPositionYangGuiDesc()}、${tipSpan('阴贵')}${lunar.getDayPositionYinGuiDesc()}<span class="dao-br"></span>${tipSpan('日禄')}：${lunar.getDayLu()}</span></div>
     <div class="dao-i"><span class="k tip" onclick="showDaoTip('二十八宿')">二十八宿</span><span class="v"><span class="tip" onclick="showXiuTipByName('${lunar.getXiu()}')">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></span></div>
     <div class="dao-i"><span class="k">物候</span><span class="v">${wuHouHtml}</span></div>
@@ -729,7 +782,7 @@ function setToday(){ xjNavToday(); }
 function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
-function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
+function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);const inp=document.getElementById('dInput');if(inp)inp.value=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;render();showDay(`${y}-${m}-${d}`);}
 </script>
 <script>
 
@@ -747,6 +800,7 @@ window.addEventListener('load', function () {
     },true);
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */
     xjCalNav.onQuery = function(v){ jumpToDate(v); };
+    daoBuildFilter();
     render();
     setToday();
     mountAI(function(){
@@ -788,7 +842,7 @@ window.addEventListener('load', function () {
       }catch(e){ shichenCopy='（时辰数据暂不可用）'; }
       return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}
     道历：${tao.getYearInChinese()}年${tao.getMonthInChinese()}月${tao.getDayInChinese()}
-    道历纪年说明：黄帝纪元，道历年份等于公元年数加 2697，随农历置闰；黄帝纪元另有加 2698 之算法，本站采加 2697。
+    道历纪年说明：黄帝纪元，道历年份以农历年计，等于农历年数加 2697，年界随农历正月初一；公历年初至正月初一之前仍属上一道历年。黄帝纪元另有加 2698 之算法，本站采加 2697。
     农历：${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}、${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日
     生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座、月建 ${lunar.getMonthInGanZhi().slice(-1)}月、月相${lunar.getYueXiang()}
     宜：${lunar.getDayYi().join('、')||'诸事不宜'}
@@ -819,8 +873,8 @@ window.addEventListener('load', function () {
     月：${lunar.getMonthXunKong()}
     日：${lunar.getDayXunKong()}
     胎神：
-    本月：${taiShen(mgz[0],mZhi)}
-    今日：${taiShen(dyGan,dyZhi)}
+    本月：${xjTaiShenMonth(lunar)}
+    今日：${xjTaiShenDay(lunar)}
     吉神方位：喜神${lunar.getDayPositionXiDesc()}、福神${lunar.getDayPositionFuDesc()}、财神${lunar.getDayPositionCaiDesc()}
     阳贵${lunar.getDayPositionYangGuiDesc()}、阴贵${lunar.getDayPositionYinGuiDesc()}
     日禄：${lunar.getDayLu()}

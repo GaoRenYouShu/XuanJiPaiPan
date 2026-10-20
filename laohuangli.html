@@ -40,7 +40,7 @@
     <h1>老黄历</h1>
     <div class="lead">每日宜忌、生肖、节气、吉神方位、九宫飞星与时辰吉凶。</div>
     <div class="form-row">
-      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" onchange="query()"></div>
+      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="query()"></div>
       <button class="btn gold" onclick="setToday()">今天</button>
     </div>
     <div data-export-target>
@@ -74,10 +74,7 @@
 <script>
 /* ---------- 本地计算辅助 ---------- */
 /* 地支方位：DIZHI_CHONG / pairChong / 太岁常量由 assets/xuanji-lib.js、assets/taisui-data.js 共享提供 */
-/* 胎神（日、月干支占处，据《玉匣记》歌诀：甲己占门、乙庚碓磨、丙辛厨灶、丁壬仓库、戊癸占房） */
-const GAN_TAISHEN={甲:'门',己:'门',乙:'碓磨',庚:'碓磨',丙:'厨灶',辛:'厨灶',丁:'仓库',壬:'仓库',戊:'房',癸:'房'};
-const ZHI_TAISHEN={子:'碓磨',丑:'厕',寅:'户',卯:'门',辰:'厨',巳:'灶',午:'厕',未:'井',申:'仓',酉:'户',戌:'房',亥:'床'};
-function taiShen(gan,zhi){return '占'+GAN_TAISHEN[gan]+'、'+ZHI_TAISHEN[zhi];}
+/* 胎神取 assets/xuanji-lib.js 的 xjTaiShenMonth 与 xjTaiShenDay，月胎神与日胎神各一条引擎终值 */
 /* 太岁神君与犯太岁（值、冲、刑、害、破）：TAISUI_STAR / XING_TAI / HAI_TAI / PO_TAI / ZHI_SHENG 由 assets/taisui-data.js 提供 */
 function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo,'lhl-br'); }
 /* ---------- 双圆盘（几何走 assets/wheel.js，样式走 style.css 圆盘通用件段） ----------
@@ -352,15 +349,7 @@ function monthStar(y,zhi,monthZhi){ return xjMonthStar(y,zhi,monthZhi); }
 const FEI_WX={1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
 const FEI_NAME={1:'一白',2:'二黑',3:'三碧',4:'四绿',5:'五黄',6:'六白',7:'七赤',8:'八白',9:'九紫'};
 function gzIndex(gz){return JIAZI60.indexOf(gz)+1;}
-/* 返回 {base:甲子入中星, dir:+1顺/-1逆}：查询日所在日白三元。
-   当令之气取 getPrevQi：十二气自冬至起两两成元，故只凭上一气的名即可定元，不必翻整张节气表逐段比对 */
-const BAI_YUAN={冬至:[1,1],大寒:[1,1],雨水:[7,1],春分:[7,1],谷雨:[4,1],小满:[4,1],
-  夏至:[9,-1],大暑:[9,-1],处暑:[3,-1],秋分:[3,-1],霜降:[6,-1],小雪:[6,-1]};
-function baiSegment(y,m,d){
-  const q=Solar.fromYmd(y,m,d).getLunar().getPrevQi(true);
-  const v=BAI_YUAN[q.getName()]||BAI_YUAN.冬至;
-  return {base:v[0],dir:v[1]};
-}
+/* 日白三元与飞星四层同走 assets/xuanji-lib.js 的共享件；本页只留同名包装 */
 /* 三伏、出伏、数九、入梅出梅 时令取自 assets/shiling.js（与万年历共用真源） */
 function dayStar(y,m,d){ return xjDayStar(y,m,d); }
 function curShichen(){const hr=xjNowDate().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
@@ -495,7 +484,7 @@ function query(){
     ${festRow}
     <div class="lhl-i"><span class="k tip" onclick="showYearZhanTip(${lunar.getYear()})">年占</span><span class="v">${yearZhanRow(lunar.getYear())}</span></div>
     <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('旬空')">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}<span class="lhl-br"></span>月：${lunar.getMonthXunKong()}<span class="lhl-br"></span>日：${lunar.getDayXunKong()}</span></div>
-    <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('胎神')">胎神</span><span class="v"><span class="lhl-s">本月：${taiShen(mgz[0],mZhi)}</span><span class="lhl-br"></span><span class="lhl-s">今日：${taiShen(dyGan,dyZhi)}</span></span></div>
+    <div class="lhl-i lhl-oneline"><span class="k tip" onclick="showTongshuTip('胎神')">胎神</span><span class="v"><span class="lhl-s">本月：${xjTaiShenMonth(lunar)}</span><span class="lhl-br"></span><span class="lhl-s">今日：${xjTaiShenDay(lunar)}</span></span></div>
     <div class="lhl-i"><span class="k">吉神方位</span><span class="v">${tipSpan('喜神')}${lunar.getDayPositionXiDesc()}、${tipSpan('福神')}${lunar.getDayPositionFuDesc()}、${tipSpan('财神')}${lunar.getDayPositionCaiDesc()}<span class="lhl-br"></span>${tipSpan('阳贵')}${lunar.getDayPositionYangGuiDesc()}、${tipSpan('阴贵')}${lunar.getDayPositionYinGuiDesc()}<span class="lhl-br"></span>${tipSpan('日禄')}：${lunar.getDayLu()}</span></div>
     <div class="lhl-i"><span class="k tip" onclick="showTongshuTip('二十八宿')">二十八宿</span><span class="v"><span class="tip" onclick="showXiuTipByName('${lunar.getXiu()}')">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></span></div>
     <div class="lhl-i"><span class="k tip" onclick="showTongshuTip('季')">季</span><span class="v">${lunar.getSeason()}</span></div>
@@ -602,8 +591,8 @@ window.addEventListener('load', function () {
     月：${lunar.getMonthXunKong()}
     日：${lunar.getDayXunKong()}
     胎神：
-    本月：${taiShen(mGZ[0],monthZhi)}
-    今日：${taiShen(dayGan,dayZhi)}
+    本月：${xjTaiShenMonth(lunar)}
+    今日：${xjTaiShenDay(lunar)}
     吉神方位：喜神${lunar.getDayPositionXiDesc()}、福神${lunar.getDayPositionFuDesc()}、财神${lunar.getDayPositionCaiDesc()}
     阳贵${lunar.getDayPositionYangGuiDesc()}、阴贵${lunar.getDayPositionYinGuiDesc()}
     日禄：${lunar.getDayLu()}

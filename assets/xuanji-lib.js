@@ -529,10 +529,19 @@ function xjMonthStar(y,zhi,monthZhi){
   let s=(base-mi)%9; if(s<=0)s+=9; return s;
 }
 
+/* 日白三元：阳遁三段与阴遁三段，当令之气取 getPrevQi；历法页共用此一件，页内只留同名包装 */
+const XJ_BAI_YUAN={冬至:[1,1],大寒:[1,1],雨水:[7,1],春分:[7,1],谷雨:[4,1],小满:[4,1],
+  夏至:[9,-1],大暑:[9,-1],处暑:[3,-1],秋分:[3,-1],霜降:[6,-1],小雪:[6,-1]};
+function xjBaiSegment(y,m,d){
+  const q=Solar.fromYmd(y,m,d).getLunar().getPrevQi(true);
+  const v=XJ_BAI_YUAN[q.getName()]||XJ_BAI_YUAN.冬至;
+  return {base:v[0],dir:v[1]};
+}
+
 function xjDayStar(y,m,d){
-  const n=gzIndex(Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi());
+  const n=LunarUtil.getJiaZiIndex(Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi())+1;
   const off=(n-1+60)%60;
-  const seg=baiSegment(y,m,d);
+  const seg=xjBaiSegment(y,m,d);
   let s=((seg.base-1+seg.dir*off)%9+9)%9+1; return s;
 }
 
@@ -540,10 +549,24 @@ function xjHourStar(y,m,d){
   const dz=Solar.fromYmd(y,m,d).getLunar().getDayInGanZhi()[1];
   const g={子:0,午:0,卯:0,酉:0,辰:1,戌:1,丑:1,未:1,寅:2,申:2,巳:2,亥:2}[dz]||0;
   const si=(Math.floor((xjNowDate().getHours()+1)/2))%12;
-  const asc=baiSegment(y,m,d).dir===1;
+  const asc=xjBaiSegment(y,m,d).dir===1;
   const start=asc?[1,4,7][g]:[9,6,3][g];
   let s=asc?((start-1+si)%9)+1:((start-1-si)%9+9)%9+1; return s;
 }
+
+/* 胎神：月胎神与日胎神各取引擎终值，闰月沿用同月表；历法页共用，页内只调本对函数 */
+function xjTaiShenMonth(lunar){
+  const s=lunar.getMonthPositionTai();
+  if(s) return s;
+  const m=lunar.getMonth();
+  if(m<0 && typeof LunarUtil!=='undefined' && LunarUtil.POSITION_TAI_MONTH){
+    return LunarUtil.POSITION_TAI_MONTH[Math.abs(m)-1]||'未载';
+  }
+  return '未载';
+}
+function xjTaiShenDay(lunar){ return lunar.getDayPositionTai()||'未载'; }
+window.xjTaiShenMonth=xjTaiShenMonth;
+window.xjTaiShenDay=xjTaiShenDay;
 
 function xjFeiXingGrid(center){
   const order=[5,6,7,8,9,1,2,3,4];
