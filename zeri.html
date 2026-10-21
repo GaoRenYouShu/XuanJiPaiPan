@@ -282,8 +282,6 @@ window.xjRefreshHook=function(){
 const EVENTS=['嫁娶','订婚','纳采','安床','裁衣','冠笄','祭祀','祈福','求医','出行','入宅','移徙','安香','出火','开市','开业','交易','纳财','求财','立券','签约','置产','动土','安门','上梁','竖柱','安葬','破土','装修','开工','搬家'];
 const EVENT_ALIAS={'订婚':['纳采','嫁娶'],'装修':['修造','动土'],'开工':['开市','动土'],'签约':['立券','交易'],'搬家':['入宅','移徙'],'开业':['开市'],'置产':['纳财','交易'],'安床':['安床']};
 const HUANGDAO=['青龙','明堂','金匮','天德','玉堂','司命']; /* 六黄道吉神 */
-const JIAN12_GOOD=['除','危','定','执','成','开'];
-const ZHI_HOUR_LIST=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const SHI_SPAN=['23-01','01-03','03-05','05-07','07-09','09-11','11-13','13-15','15-17','17-19','19-21','21-23'];
 /* 择日各流派：不同流派对黄道、建除、天神的权重不同，切换会真实影响吉度排序 */
 const ZERI_SCHOOLS={
   '建除派':    {w:{huang:8,jian:22,ts:8}},
@@ -315,6 +313,7 @@ function query(){
   const diffDays=Math.round((end-cur)/86400000);
   if(diffDays>365){ document.getElementById('out').innerHTML=`<p class="notice">起止间隔为 ${diffDays} 天，超过上限 365 天（最多约一年）。请缩小查询范围后再试。</p>`; LAST=null; return; }
   const results=[];
+  const excluded=[];
   let guard=0;
   while(cur<=end && guard<400){
     guard++;
@@ -323,14 +322,15 @@ function query(){
     const yi=lunar.getDayYi(), ji=lunar.getDayJi();
     const zhiXing=lunar.getZhiXing();
     const tsLuck=lunar.getDayTianShenLuck(), tShen=lunar.getDayTianShen();
-    const hit = keys.some(k=>yi.includes(k));
-    const banned = keys.some(k=>ji.includes(k));
-    if(hit && !banned){
-      const huangdao = HUANGDAO.includes(tShen);
+    const hitKeys=keys.filter(k=>yi.includes(k));
+    const banKeys=keys.filter(k=>ji.includes(k));
+    const banned=banKeys.length>0;
+    const huangdao=HUANGDAO.includes(tShen);
+    if(hitKeys.length && !banned){
       const w=ZERI_SCHOOLS[document.getElementById('zrSchool').value].w;
       let score=60;
       if(huangdao) score+=w.huang;
-      if(JIAN12_GOOD.includes(zhiXing)) score+=w.jian;
+      if(ZERI.jianchuGood().includes(zhiXing)) score+=w.jian;
       if(tsLuck==='吉') score+=w.ts;
       score=Math.min(100,score);
       const dayGZ=lunar.getDayInGanZhi();
@@ -340,6 +340,13 @@ function query(){
         chong:lunar.getDayChongDesc(), sha:lunar.getDaySha(),
         yi:yi.slice(0,8).join('、'),
         dayGZ, dayGan:dayGZ[0], dayZhi:dayGZ[1]
+      });
+    } else if(hitKeys.length || huangdao){
+      /* 落选候选留档：合宜项被忌项否决，或黄道而宜项未列本事项，两者都值得回查 */
+      const dayGZ=lunar.getDayInGanZhi();
+      excluded.push({
+        solar, dayGZ, tShen, huangdao, zhiXing, ban: hitKeys.length>0,
+        why: hitKeys.length ? '合宜项犯忌：'+banKeys.join('、') : '黄道日，宜项未列'+ev
       });
     }
     cur=new Date(cur.getTime()+86400000);
@@ -354,16 +361,21 @@ function query(){
       <div class="zr-lun">农历${r.lunar.getMonthInChinese()}月${r.lunar.getDayInChinese()} ${r.dayGZ}日</div>
     </div>
     <div class="zr-tags">
-      <span class="zr-tag ${r.huangdao?'gold':''}">${r.tShen}${r.huangdao?'(黄道)':'(黑道)'}</span>
+      <span class="zr-tag ${r.huangdao?'gold':''}">${r.tShen}${r.huangdao?'（黄道）':'（黑道）'}</span>
       <span class="zr-tag">${r.zhiXing}日</span>
       <span class="zr-tag">冲${r.chong} 煞${r.sha}</span>
     </div>
-    <div class="zr-score ${r.score>=88?'score-high':''}">${r.score}<span class="zr-grade">${jzGrade(r.score).t}</span></div>
+    <div class="zr-score ${r.score>=88?'score-high':''}">${r.score}<span class="zr-grade">${xjJzGrade(r.score,ZR_GRADE).t}</span></div>
   </div>`).join('');
+  const school=document.getElementById('zrSchool').value;
+  const cut=results.length>top.length ? `<p class="sub-note">范围内共 ${results.length} 天合宜，按吉度列出前 ${top.length} 天；如需更多可缩小日期范围分段查看。</p>` : '';
+  const schoolNote = school==='玄空紫白派' ? '<p class="sub-note">初筛按黄道、建除、太岁三项权重排序；玄空紫白的飞星与联珠在精择第④步计入。</p>' : '';
   document.getElementById('out').innerHTML=`
-    <h4 class="jz-h">“${ev}”黄道吉日（${document.getElementById('zrSchool').value} ${top.length} 天，按吉度排序）</h4>
+    <h4 class="jz-h">“${ev}”黄道吉日（${school} ${results.length} 天合宜${results.length>top.length?'，列前 '+top.length+' 天':''}，按吉度排序）</h4>
+    ${schoolNote}${cut}
     <div class="zr-list">${cards}</div>`;
-  LAST={ev,top};
+  excluded.sort((a,b)=>(b.ban?1:0)-(a.ban?1:0));
+  LAST={ev,top,excluded:excluded.slice(0,20),exTotal:excluded.length};
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">查询出错：'+(e.message||e)+'</p>'; }
 }
 /* ============ 模块② 命主喜用神 ============ */
@@ -428,32 +440,31 @@ function calcTaisui(){
   const raw=(document.getElementById('tsYear').value||'').trim();
   let yr=parseInt(raw,10);
   const nowY=xjNowDate().getFullYear();
+  if(mode==='zhen' && (!yr||isNaN(yr))){
+    TS_RES=null;
+    document.getElementById('tsOut').innerHTML='<p class="notice">本命真太岁须填写出生年份；年份留空时不取当年，以免与流年论法混同。</p>';
+    return;
+  }
   if(mode==='liu'||!yr||isNaN(yr)) yr=nowY;
   const gz=Solar.fromYmd(yr,2,10).getLunar().getYearInGanZhiByLiChun();
   const zhi=gz[1], cp=ZERI.CHONG[zhi], ss=ZERI.SANSHA[zhi];
   const label=mode==='liu'?'流年太岁（当年）':'本命真太岁（出生年）';
   TS_RES={zhi, mode, cp, ss:[ss[0],ss[1],ss[2]]};
-  const bg=ZERI.ZHI_BAGUA;
+  const fz=ZERI.ZHI_FANG, gua=z=>ZERI.shanGuaOf(z)||'';
   document.getElementById('tsOut').innerHTML=
-   `<div class="ts-title">${yr} ${gz}年 ${label} 太岁在${zhi}（${bg[zhi]}）</div>
+   `<div class="ts-title">${yr} ${gz}年 ${label} 太岁在${zhi}（${fz[zhi]}）</div>
     <table class="ts-tbl">
-      <thead><tr><th>项目</th><th>地支</th><th>二十四山</th><th>八卦</th></tr></thead>
+      <thead><tr><th>项目</th><th>地支</th><th>方位</th><th>卦宫</th></tr></thead>
       <tbody>
-        <tr><td>太岁方</td><td>${zhi}</td><td>${zhi}</td><td>${bg[zhi]}</td></tr>
-        <tr><td>岁破方（对冲）</td><td>${cp}</td><td>${cp}</td><td>${bg[cp]}</td></tr>
-        <tr><td>三煞方</td><td>${ss[0]} ${ss[1]} ${ss[2]}</td><td>${ss[0]} ${ss[1]} ${ss[2]}</td><td>${(ZERI.SANSHA[zhi])[3]}</td></tr>
+        <tr><td>太岁方</td><td>${zhi}</td><td>${fz[zhi]}</td><td>${gua(zhi)}</td></tr>
+        <tr><td>岁破方（对冲）</td><td>${cp}</td><td>${fz[cp]}</td><td>${gua(cp)}</td></tr>
+        <tr><td>三煞方</td><td>${ss[0]} ${ss[1]} ${ss[2]}</td><td>${fz[ss[1]]}</td><td>${[ss[0],ss[1],ss[2]].map(gua).join(' ')}</td></tr>
       </tbody>
     </table>
    `;
 }
 /* ============ 模块④ 精择吉日 ============ */
-function jzGrade(s){
-  if(s>=88) return {t:'大吉', k:'v-daji', d:'诸吉汇聚，百事可为'};
-  if(s>=76) return {t:'中吉', k:'v-zhongji', d:'吉神得力，可择'};
-  if(s>=60) return {t:'平', k:'v-ping', d:'吉凶参半，斟酌而行'};
-  if(s>=40) return {t:'凶', k:'v-xiong', d:'凶煞较多，宜避'};
-  return {t:'大凶', k:'v-daxiong', d:'凶煞叠见，切勿用'};
-}
+const ZR_GRADE={da:'大吉',daK:'v-daji',daD:'诸吉汇聚，百事可为',zhong:'中吉',zhongK:'v-zhongji',zhongD:'吉神得力，可择',ping:'平',pingK:'v-ping',pingD:'吉凶参半，斟酌而行',xiong:'凶',xiongK:'v-xiong',xiongD:'凶煞较多，宜避',daXiong:'大凶',daXiongK:'v-daxiong',daXiongD:'凶煞叠见，切勿用'};
 function jingze(){
   const out=document.getElementById('jingzeOut');
   if(!LAST || !LAST.top.length){ out.innerHTML='<p class="notice">请先在第①步查吉日，得到候选日期后再精择。</p>'; return; }
@@ -465,7 +476,7 @@ function jingze(){
   if(USER_READY) notes.push(`已纳入日课生扶命主（日主${USER_DWX}；喜：${USER_XI.join('、')}；忌：${USER_JI.join('、')}；年命纳音：${USER_NAYIN_WX||'无'}）`);
   else notes.push('未填写八字喜用神，暂不按命主喜忌修正');
   if(tsRes) notes.push(`已纳入真太岁方位（${tsRes.mode==='liu'?'流年':'本命'}太岁在 ${tsRes.zhi}）`);
-  else notes.push('已关闭真太岁方位校正');
+  else notes.push(document.getElementById('noTs').checked ? '已关闭真太岁方位校正' : '未取得真太岁方位，本次不校验：请回第③步查方位，本命论法须先填出生年');
   const shanZhi=document.getElementById('shan').value||null;
   let fenJin=null, XIANMING_GZ=null;
   if(window.FENGSHUI && shanZhi){
@@ -511,8 +522,8 @@ function jingze(){
     avg:list.length?Math.round(list.reduce((a,x)=>a+x.jscore,0)/list.length*10)/10:null, n:list.length};
   const cards=list.map((r,i)=>{
     const d=r.res;
-    const g = jzGrade(r.jscore);
-    const detail=(d.geju.length||d.shensha.ji.length||d.shensha.xiong.length||d.zr.ji.length||d.zr.xiong.length||d.zhoutang||d.zhiNote||(d.kongwang&&d.kongwang.length)||d.xiu||d.jiuyao||d.najia||d.tsJi||d.tsXiong||d.pz||d.fzXi||d.fzCai||d.fzFu)?
+    const g = xjJzGrade(r.jscore, ZR_GRADE);
+    const detail=(d.geju.length||d.shensha.ji.length||d.shensha.xiong.length||d.zr.ji.length||d.zr.xiong.length||d.zhoutang||d.zhiNote||(d.kongwang&&d.kongwang.length)||d.xiu||d.jiuyao||d.najia||(d.tongshu&&(d.tongshu.ji.length||d.tongshu.xiong.length))||d.pz||d.fzXi||d.fzCai||d.fzFu)?
       `<div class="jz-detail">
         ${d.geju.length?`<p class="ly-zh-p"><span class="zr-k">日课格局</span>：${d.geju.join('、')}</p>`:''}
         ${d.shensha.ji.length?`<p class="ly-zh-p"><span class="zr-good">日柱神煞（吉）</span>：${d.shensha.ji.join('、')}</p>`:''}
@@ -525,8 +536,10 @@ function jingze(){
         ${d.xiu?`<p class="ly-zh-p"><span class="zr-k">二十八宿</span>：${d.xiu}${d.xiuZhu?`<span class="sub-note">　${d.xiuZhu}</span>`:""}</p>`:''}
         ${d.jiuyao?`<p class="ly-zh-p"><span class="zr-k">九曜</span>：${d.jiuyao}</p>`:''}
         ${d.najia?`<p class="ly-zh-p"><span class="zr-k">纳甲</span>：${d.najia}</p>`:''}
-        ${(d.tsJi||d.tsXiong)?`<p class="ly-zh-p"><span class="zr-k">通书全录</span>（展示参考，不计分）：${d.tsJi?`<span class="zr-good">吉神</span>：${d.tsJi}`:''}${(d.tsJi&&d.tsXiong)?'；':''}${d.tsXiong?`<span class="zr-bad">凶神</span>：${d.tsXiong}`:''}</p>`:''}
-        ${(d.pz||d.fzXi||d.fzCai||d.fzFu)?`<p class="ly-zh-p"><span class="zr-k">民俗参考</span>（不计分）：${d.pz?`彭祖百忌：${d.pz}`:''}${d.pz&&(d.fzXi||d.fzCai||d.fzFu)?'；':''}${(d.fzXi||d.fzCai||d.fzFu)?`喜神${d.fzXi||'-'}、财神${d.fzCai||'-'}、福神${d.fzFu||'-'}`:''}</p>`:''}
+        ${d.tongshu&&d.tongshu.ji.length?`<p class="ly-zh-p"><span class="zr-k">通书吉神</span>：${d.tongshu.ji.join('、')}</p>`:''}
+        ${d.tongshu&&d.tongshu.xiong.length?`<p class="ly-zh-p"><span class="zr-k">通书凶神</span>：${d.tongshu.xiong.join('、')}</p>`:''}
+        ${d.pz?`<p class="ly-zh-p"><span class="zr-k">彭祖百忌</span>：${d.pz}</p>`:''}
+        ${(d.fzXi||d.fzCai||d.fzFu)?`<p class="ly-zh-p"><span class="zr-k">喜神</span>：${d.fzXi||'-'}　<span class="zr-k">财神</span>：${d.fzCai||'-'}　<span class="zr-k">福神</span>：${d.fzFu||'-'}</p>`:''}
       </div>`:'';
     const verdict = (d.zr.ji.concat(d.shensha.ji)).slice(0,3).join('、');
     const bad = (d.zr.xiong.concat(d.shensha.xiong)).slice(0,3).join('、');
@@ -537,13 +550,13 @@ function jingze(){
         <div class="zr-lun">农历${r.lunar.getMonthInChinese()}月${r.lunar.getDayInChinese()} ${r.dayGZ}日</div>
       </div>
       <div class="zr-tags">
-        <span class="zr-tag ${r.huangdao?'gold':''}">${r.tShen}${r.huangdao?'(黄道)':'(黑道)'}</span>
+        <span class="zr-tag ${r.huangdao?'gold':''}">${r.tShen}${r.huangdao?'（黄道）':'（黑道）'}</span>
         <span class="zr-tag">${r.zhiXing}日</span>
         <span class="zr-tag">冲${r.chong} 煞${r.sha}</span>
         ${d.reasons.map(x=>{
-          const m=x.match(/([+-]?\d+)/); const v=m?Math.abs(+m[1]):0;
-          const cls = v>=5 ? 'jz-strong' : (x.indexOf('-')>=0?'jz-bad':'jz-good');
-          return `<span class="zr-tag ${cls}">${x}</span>`;
+          const v=Math.abs(x.delta||0);
+          const cls = v>=5 ? 'jz-strong' : ((x.delta||0)<0 ? 'jz-bad' : 'jz-good');
+          return `<span class="zr-tag ${cls}">${x.text}</span>`;
         }).join('')}
       </div>
       ${detail}
@@ -551,19 +564,22 @@ function jingze(){
       <div class="zr-score ${r.jscore>=88?'score-high':''}">${r.jscore}</div>
     </div>`;
   }).join('');
-  out.innerHTML=`<h4 class="jz-h">精择结果 “${ev}” 综合判定（${list.length} 天 事类：${fam.name}${school?(' 流派：'+school):''}）</h4>
+  const lose=(LAST.excluded||[]);
+  const loseHtml = lose.length ? `<h4 class="jz-h">未入选的候选（前 ${lose.length} 天，共 ${LAST.exTotal} 天）</h4>
+    <p class="sub-note">只列合宜项被忌项否决、或黄道而宜项未列本事项的日期；建除与黄黑道并列，便于回查为何落选。</p>
+    <table class="ts-tbl">
+      <thead><tr><th>日期</th><th>日柱</th><th>黄黑道与建除</th><th>未入选原因</th></tr></thead>
+      <tbody>${lose.map(x=>`<tr><td>${x.solar.getMonth()}月${x.solar.getDay()}日</td><td>${x.dayGZ}</td><td>${x.tShen}${x.huangdao?'（黄道）':'（黑道）'} ${x.zhiXing}日</td><td>${x.why}</td></tr>`).join('')}</tbody>
+    </table>` : '';
+  out.innerHTML=`<h4 class="jz-h">精择结果 “${ev}” 综合判定（${list.length} 天　事类：${fam.name}${school?('　流派：'+school):''}）</h4>
     <p class="sub-note">${notes.join('；')}。</p>
-    <div class="zr-list">${cards}</div>`;
+    <div class="zr-list">${cards}</div>${loseHtml}`;
   const mod=document.getElementById('dzMod'); if(mod) mod.open=true;
 }
 /* ============ 造命模式（剖腹产择日）============
    与择事模式判据不同：枚举窗口内全部"日期 × 时辰"，逐个排盘后按四层评分排序。
    四层权重（本站归纳）：八字质量 55 ＋ 大运 20 ＋ 家长缘分 15 ＋ 避凶底线 10。 */
 var ZM_INIT=false, ZM_RES=null, ZM_CTX=null, ZM_VIEW='rank';
-var ZM_HOURS=[
-  {i:0,z:'子',s:'23-01'},{i:1,z:'丑',s:'01-03'},{i:2,z:'寅',s:'03-05'},{i:3,z:'卯',s:'05-07'},
-  {i:4,z:'辰',s:'07-09'},{i:5,z:'巳',s:'09-11'},{i:6,z:'午',s:'11-13'},{i:7,z:'未',s:'13-15'},
-  {i:8,z:'申',s:'15-17'},{i:9,z:'酉',s:'17-19'},{i:10,z:'戌',s:'19-21'},{i:11,z:'亥',s:'21-23'}];
 function zmFmtD(dt){ return dt.getFullYear()+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate()); }
 /* 出生地三级联动绑定：宝宝（pfx=''）、父（'F'）、母（'M'）三处共用同一套省市县逻辑，
    避免复制三份 fillCity/fillDist。经度由 findLng 取；手动经度优先，见 zmReadParent 与 zmRun。 */
@@ -579,7 +595,7 @@ function initZaomingUI(){
   ZM_INIT=true;
   /* 十二时辰框须带稳定 id：全站顶层刷新机制按 input[id] 采集快照，无 id 的控件不入快照。
      勾选态只有 checked 一个真源，高亮由 CSS 派生，不另存类。 */
-  wrap.innerHTML=ZM_HOURS.map(function(o){
+  wrap.innerHTML=ZERI.HOURS.map(function(o){
     return '<label class="zm-hr" data-h="'+o.i+'"><input type="checkbox" id="zmH'+o.i+'" value="'+o.i+'" checked><span>'+o.z+'（'+o.s+'）</span></label>';
   }).join('');
   var n=new Date();
@@ -677,19 +693,14 @@ function zmRun(quiet){
   var useTrue=document.getElementById('zmTrue').checked;
   var parent1=zmReadParent('P1');
   var parent2=zmReadParent('P2');
-  var TS=null;
-  if(document.getElementById('zmTs').checked){
-    var yr=xjNowDate().getFullYear();
-    var gz=Solar.fromYmd(yr,2,10).getLunar().getYearInGanZhiByLiChun();
-    TS={zhi:gz[1], ss:ZERI.SANSHA[gz[1]]};
-  }
+  var useTS=document.getElementById('zmTs').checked;
   out.innerHTML='<p class="notice">正在枚举 '+total+' 个候选（'+span+' 天 × '+hours.length+' 时辰）并逐个排盘评分，请稍候…</p>';
   setTimeout(function(){
     var res;
-    try{ res=ZAOMING.enumerate({from:from,to:to,hours:hours,sex:sex,lng:lng,useTrue:useTrue,parent1:parent1,parent2:parent2,TS:TS,lateZi:lateZi}); }
+    try{ res=ZAOMING.enumerate({from:from,to:to,hours:hours,sex:sex,lng:lng,useTrue:useTrue,parent1:parent1,parent2:parent2,useTS:useTS,lateZi:lateZi}); }
     catch(e){ out.innerHTML='<p class="notice">排盘出错：'+(e.message||e)+'</p>'; return; }
     ZM_RES=res;
-    ZM_CTX={from:from,to:to,hours:hours,sex:sex,parent1:parent1,parent2:parent2,TS:TS,lng:lng,useTrue:useTrue};
+    ZM_CTX={from:from,to:to,hours:hours,sex:sex,parent1:parent1,parent2:parent2,useTS:useTS,lng:lng,useTrue:useTrue};
     ZM_VIEW='rank';
     renderZm();
     if(!quiet){ var mod=document.getElementById('zmMod3'); if(mod) mod.open=true; }
@@ -721,7 +732,7 @@ function renderZm(){
   Object.keys(byDay).forEach(function(k){
     var arr=byDay[k]; if(arr.length<2) return;
     var hi=arr[0], lo=arr[arr.length-1];
-    var hiH=ZM_HOURS[hi.hourIdx].z, loH=ZM_HOURS[lo.hourIdx].z;
+    var hiH=ZERI.HOURS[hi.hourIdx].z, loH=ZERI.HOURS[lo.hourIdx].z;
     var dr=(hi.res.total-lo.res.total).toFixed(1);
     diffNotes[k]=hiH+'时优于'+loH+'时（差 '+dr+' 分），主因：'+((hi.res.Q.score!==lo.res.Q.score)?'八字质量不同':'同八字而家长缘分或避凶底线有别');
   });
@@ -729,7 +740,7 @@ function renderZm(){
   var degradeNote=hasTop?'':(list.length?('窗口内未出上吉之选（无 88 分以上），可扩大日期范围；若工期所限，取排序最前者并重点核对避凶底线明细。'):'');
   var top=list.slice(0,30);
   var hasParent = !!(ctx.parent1||ctx.parent2);
-  var degradeHtml = degradeNote ? ('<div class="zm-degrade"><span class="zr-k">择配说明</span>：'+degradeNote+'</div>') : '';
+  var degradeHtml = degradeNote ? ('<div class="zm-degrade"><span class="zr-k">择时说明</span>：'+degradeNote+'</div>') : '';
   var pInfo = hasParent
     ? degradeHtml+'已纳入家长缘分（'+[(ctx.parent1?ctx.parent1.label:''),(ctx.parent2?ctx.parent2.label:'')].filter(Boolean).join('、')+'完整八字）'
     : '未填家长信息，家长缘分层不参与（其余三层按剩余权重等比放大）';
@@ -765,7 +776,7 @@ function renderZm(){
     return '<div class="zr-card '+(r.total>=88?'zr-hd':'')+'">'
       +'<div class="zr-rank">'+(i<3?'★':'')+'</div>'
       +'<div class="zr-date">'
-      +'<div class="zr-sol">'+it.y+'年'+it.m+'月'+it.d+'日 '+ZM_HOURS[it.hourIdx].z+'时（'+it.clockTime+'）'+(it.trueNote?(' <span>真太阳时 '+it.trueTime+'</span>'):'')+'</div>'
+      +'<div class="zr-sol">'+it.y+'年'+it.m+'月'+it.d+'日 '+ZERI.HOURS[it.hourIdx].z+'时（'+it.clockTime+'）'+(it.trueNote?(' <span>真太阳时 '+it.trueTime+'</span>'):'')+'</div>'
       +'<div class="zr-lun">农历'+it.lunarText+'　'+it.pillars.join(' ')+'</div>'
       +(diffHtml?'<div class="zr-diff">'+diffHtml+'</div>':'')
       +'</div>'
@@ -784,7 +795,7 @@ function renderZm(){
       +'</div>';
   }).join('');
   out.innerHTML='<h4 class="jz-h">造命排盘：综合判定（共 '+res.count+' 个候选：'+res.days+' 天 × '+ctx.hours.length+' 时辰）</h4>'
-    +'<p class="sub-note">'+pInfo+'；'+(ctx.TS?('已纳入流年太岁（'+ctx.TS.zhi+'）岁破三煞避凶'):'未纳入太岁避凶')+'。'+noPlaceNote+'</p>'
+    +'<p class="sub-note">'+pInfo+'；'+(ctx.useTS?'已纳入各候选出生年的流年太岁（岁破、三煞）':'未纳入太岁避凶')+'。'+noPlaceNote+'</p>'
     +'<p class="sub-note zm-dis">择时为医生许可窗口内的优选参考，非逆天改命；早产与医学指征优先。本结果不构成医疗建议，分娩时机请以产科医生判断为准。</p>'
     +'<div class="zm-tabs">'
     +'<button type="button" class="zm-tab '+(ZM_VIEW==='rank'?'active':'')+'" onclick="zmSetView(\'rank\')">整体排名（前 30）</button>'
@@ -831,7 +842,7 @@ window.addEventListener('load', function () {
     document.getElementById('shan').innerHTML='<option value="">不按坐山</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
     document.getElementById('laiLong').innerHTML='<option value="">不按来龙</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
     document.getElementById('xiangShan').innerHTML='<option value="">不按向方</option>'+ZERI.SHAN_LIST.map(s=>`<option value="${s}">${s}</option>`).join('');
-    document.getElementById('zhongShi').innerHTML='<option value="">不选则只论日柱</option>'+ZHI_HOUR_LIST.map((s,i)=>`<option value="${s}">${s}（${SHI_SPAN[i]}）</option>`).join('');
+    document.getElementById('zhongShi').innerHTML='<option value="">不选则只论日柱</option>'+ZERI.HOURS.map(o=>`<option value="${o.z}">${o.z}（${o.s}）</option>`).join('');
     document.getElementById('zrSchool').addEventListener('change', query);
     initDates();
     query();
@@ -840,6 +851,14 @@ window.addEventListener('load', function () {
       if(!sp) return;
       ZR_USER_PLACE=fillPlaceTrio(sp, sc, sd, ()=>{
         CITY_LNG=findLng(sp.value, sc.value, sd.value);
+      });
+      /* 出生信息改即重算，免精择沿用上一份喜用神 */
+      ['bDate','bTime','bSex','bZi','bProv','bCity','bDist','bLng','bTrue'].forEach(function(id){
+        const el=document.getElementById(id); if(!el) return;
+        el.addEventListener('change', function(){
+          if(!document.getElementById('bDate').value){ USER_READY=false; return; }
+          if(USER_READY) calcUserXi();
+        });
       });
     })();
     document.getElementById('tsMode').addEventListener('change',function(){
@@ -870,7 +889,7 @@ window.addEventListener('load', function () {
         s+=`权重：八字质量 55% ＋ 前三步大运 20% ＋ 家长缘分 15% ＋ 避凶底线 10%\n`;
         ZM_RES.list.slice(0,10).forEach(function(it,i){
           const r=it.res;
-          s+=`${i+1}. ${it.y}-${it.m}-${it.d} ${ZM_HOURS[it.hourIdx].z}时(${it.clockTime}) ${it.pillars.join(' ')} 日主${it.dayGan}（${it.dayWx}） ${it.strength} ${it.geName||''} 综合${r.total}【${r.grade.t}】\n`;
+          s+=`${i+1}. ${it.y}-${it.m}-${it.d} ${ZERI.HOURS[it.hourIdx].z}时(${it.clockTime}) ${it.pillars.join(' ')} 日主${it.dayGan}（${it.dayWx}） ${it.strength} ${it.geName||''} 综合${r.total}【${r.grade.t}】\n`;
         });
         return s;
       }

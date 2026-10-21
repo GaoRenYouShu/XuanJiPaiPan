@@ -851,9 +851,10 @@ function ganRelations(gans, ctx, labels){
     const lab = labels? `${la}${lb}` : '';
     const he=tianGanHe(a,b);
     if(he){
+      const changed = !ctx || heHuaOK(he, ctx.gans||gans, ctx.zhis||[], ctx.monthZ||'', [a,b], ctx.siLing);
       let txt = labels ? `${lab}${a}${b}合化${he}` : `${a}${b}合化${he}`;
-      if(ctx && !heHuaOK(he, ctx.gans||gans, ctx.zhis||[], ctx.monthZ||'', [a,b], ctx.siLing)) txt = labels ? `${lab}${a}${b}合而不化（绊）` : `${a}${b}合而不化（绊）`;
-      rel.push({cls:'he', text:txt});
+      if(!changed) txt = labels ? `${lab}${a}${b}合而不化（绊）` : `${a}${b}合而不化（绊）`;
+      rel.push({cls:'he', text:txt, hua:he, changed:changed});
       heParts.push({g:a,i}); heParts.push({g:b,j});
       hePairs.push({ga:a,ia:i,gb:b,ib:j});
     }

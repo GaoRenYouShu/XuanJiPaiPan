@@ -152,7 +152,7 @@ let cur = new Date();
 let xjq = null;
 let lastKey = '';
 /* 本地计算辅助：DIZHI_CHONG/pairChong 与地支方位 ZHI_FANG 由 assets/xuanji-lib.js 共享提供，太岁常量由 assets/taisui-data.js 提供 */
-function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo,'dao-br'); }
+function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo); }
 /* 胎神取引擎终值：月胎神与日胎神各一条，闰月沿用同月表；两页共用同一对函数，胎神判定只此一处 */
 function curShichen(){const hr=xjNowDate().getHours();return ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][(Math.floor((hr+1)/2))%12];}
 function gzIndex(gz){return JIAZI60.indexOf(gz)+1;}
@@ -595,8 +595,8 @@ function showDay(str, el){
     <div class="dao-i"><span class="k">纳音</span><span class="v">${ngwRow('年',lunar.getYearNaYin(),ygz,GAN_WX[ygz[0]],lunar.getYearShengXiao())}<span class="dao-br"></span>${ngwRow('月',lunar.getMonthNaYin(),mgz,GAN_WX[mgz[0]],lunar.getMonthShengXiao())}<span class="dao-br"></span>${ngwRow('日',lunar.getDayNaYin(),dyGZ,GAN_WX[dyGZ[0]],lunar.getDayShengXiao())}<span class="dao-br"></span>${ngwRow('时',hTime.getNaYin(),hTime.getGanZhi(),GAN_WX[hTime.getGanZhi()[0]],hTime.getShengXiao())}</span></div>
     <div class="dao-i"><span class="k tip" onclick="showDaoTip('六曜')">六曜</span><span class="v">${tipSpan(lunar.getLiuYao())}</span></div>
     <div class="dao-i"><span class="k">节气</span><span class="v">${lqHtml}</span></div>
-    <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('旬空')">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}<span class="dao-br"></span>月：${lunar.getMonthXunKong()}<span class="dao-br"></span>日：${lunar.getDayXunKong()}</span></div>
-    <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('胎神')">胎神</span><span class="v"><span class="dao-s">本月：${xjTaiShenMonth(lunar)}</span><span class="dao-br"></span><span class="dao-s">今日：${xjTaiShenDay(lunar)}</span></span></div>
+    <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('旬空')">空亡所值</span><span class="v">年：${lunar.getYearXunKong()}　月：${lunar.getMonthXunKong()}　日：${lunar.getDayXunKong()}</span></div>
+    <div class="dao-i dao-oneline"><span class="k tip" onclick="showDaoTip('胎神')">胎神</span><span class="v"><span class="dao-s">本月：${xjTaiShenMonth(lunar)}</span>　<span class="dao-s">今日：${xjTaiShenDay(lunar)}</span></span></div>
     <div class="dao-i"><span class="k">吉神方位</span><span class="v">${tipSpan('喜神')}${lunar.getDayPositionXiDesc()}、${tipSpan('福神')}${lunar.getDayPositionFuDesc()}、${tipSpan('财神')}${lunar.getDayPositionCaiDesc()}<span class="dao-br"></span>${tipSpan('阳贵')}${lunar.getDayPositionYangGuiDesc()}、${tipSpan('阴贵')}${lunar.getDayPositionYinGuiDesc()}<span class="dao-br"></span>${tipSpan('日禄')}：${lunar.getDayLu()}</span></div>
     <div class="dao-i"><span class="k tip" onclick="showDaoTip('二十八宿')">二十八宿</span><span class="v"><span class="tip" onclick="showXiuTipByName('${lunar.getXiu()}')">${lunar.getXiu()}${lunar.getZheng()}${lunar.getAnimal()}（${lunar.getXiuLuck()}）</span></span></div>
     <div class="dao-i"><span class="k">物候</span><span class="v">${wuHouHtml}</span></div>
@@ -722,9 +722,8 @@ window.addEventListener('load', function () {
     太岁 ${yZhi}（${window.ZHI_FANG[yZhi]}）　岁破 ${suiPo}（${window.ZHI_FANG[suiPo]}）
     冲${lunar.getDayChongDesc()} 煞${lunar.getDaySha()}
     时冲${hTime.getChongDesc()} 煞${hTime.getSha()}
-    太岁：
-    太岁神君：${TAISUI_STAR[ygz]||'未载'}大将军
-    犯太岁：值${ZHI_SHENG[yZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}
+    太岁
+    太岁神君：${TAISUI_STAR[ygz]||'未载'}大将军；犯太岁：值${ZHI_SHENG[yZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}
     值神（黄道黑道）：
     值神 ${lunar.getDayTianShen()}（${lunar.getDayTianShenType()}）
     建除（建除派黄黑）：

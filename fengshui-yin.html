@@ -164,7 +164,7 @@
     <tr><td class="lbl-1">独山</td><td>孤露无护从之山</td><td>气以龙会，独山无从则气散</td></tr>
     <tr><td class="lbl-1">十不葬歌</td><td>粗顽块石、急水滩头、沟源绝境、孤独山头、神前庙后、左右休囚、山冈缭乱、风水悲愁、坐下低小、龙虎尖头</td><td>民间通书常引，与《葬书》五不葬相表里</td></tr>
     </tbody></table></div>
-    <div class="sub-note">《葬书》：“山之不可葬者五：气以生和而童山不可葬也，气因势来而断山不可葬也，气因土行而石山不可葬也，气以势止而过山不可葬也，气以龙会而独山不可葬也。童断石过独，生新凶而消已福。”掘金井验土：土细坚油润、五色俱备者贵；砂砾枯燥、黑湿臭秽者非地。龙穴砂水之哲理总纲别见蔡元定《发微论》（生死衡量：论龙穴生气之体）；天星理气赖布衣《催官篇》以二十八宿天星度数论催官贵向，属天星派立向，本页立向取玄空与三合两法，天星法另立小节作佐参，其贵向义理亦暗合于禄马贵人方推算（见第 5 步、第 7 步）。</div>
+    <div class="sub-note">《葬书》 “山之不可葬者五：气以生和而童山不可葬也，气因势来而断山不可葬也，气因土行而石山不可葬也，气以势止而过山不可葬也，气以龙会而独山不可葬也。童断石过独，生新凶而消已福。”掘金井验土：土细坚油润、五色俱备者贵；砂砾枯燥、黑湿臭秽者非地。龙穴砂水之哲理总纲别见蔡元定《发微论》（生死衡量：论龙穴生气之体）；天星理气赖布衣《催官篇》以二十八宿天星度数论催官贵向，属天星派立向，本页立向取玄空与三合两法，天星法另立小节作佐参，其贵向义理亦暗合于禄马贵人方推算（见第 5 步、第 7 步）。</div>
 <h3 class="rel-title">穴场自检（判定这块地能不能用）</h3>
     <div class="sub-note">五不葬为实地硬凶，不在自检表内勾选：登山先核童、断、石、过、独五项（见上表），犯任一即弃地另寻，其凶非分数所能权衡。</div>
     <div id="xlXueIn"></div>
@@ -579,7 +579,7 @@ function drawXuanKong(){
   document.getElementById('xkOut').innerHTML=`
     <div class="sub-note">${y}年 ${xk.yun.yuan}${xk.yun.yun}运（${xk.yun.name}，${xk.yun.start}-${xk.yun.end}）　坐${sit}山向${face}　入中：山${xk.sitIn}、向${xk.faceIn}　${xk.sitShun?'山顺':'山逆'}、${xk.faceShun?'向顺':'向逆'}${xk.tiGua?'（替卦）':'（下卦）'}</div>
     <div class="sub-note fs-t-gold">格局：${xk.geju}　到坐山之星 ${xk.toSit}、到向首之星 ${xk.toFace}</div>
-    <div class="sub-note">格局断（阴宅）：<span class="fs-t-gold">${gejuYinNote(xk.geju)}</span></div>
+    <div class="sub-note">格局断（阴宅）　<span class="fs-t-gold">${gejuYinNote(xk.geju)}</span></div>
     ${jianWarn}
     <div class="wheel-block fs-mt-3"><h4>玄空飞星山向盘（${y}年 ${xk.yun.yuan}${xk.yun.yun}运 坐${sit}山向${face}）</h4>
       <div id="fsXkWheelHost">${fsXkWheelSvg()}</div>
@@ -1638,7 +1638,7 @@ function drawKeCe(){
     const g=ckGrade(res.s);
     const gang='补龙'+res.bl.zong+'、扶山'+res.fs.zong+'、相主'+res.xz.zong;
     const ges=res.ges.length?'<span class="fs-t-gold">'+res.ges.map(x=>x.name).join('、')+'</span>':'无';
-    const bad=res.zj.reasons.filter(x=>x.indexOf('-')===0).slice(0,4).join('、')||'无大凶';
+    const bad=res.zj.reasons.filter(x=>x.delta<0).map(x=>x.text).slice(0,4).join('、')||'无大凶';
     const yb=res.yearBad?'<span class="fs-badge-r">该年不利此山此命（'+(res.yearDetail&&res.yearDetail.length?res.yearDetail.join('、'):'年冲')+'），宜另择年</span>':'无';
     return `<tr><td class="lbl-1">${res.solar.getFullYear()}-${String(res.solar.getMonth()+1).padStart(2,'0')}-${String(res.solar.getDate()).padStart(2,'0')}</td>
       <td>${res.dayGZ}日</td><td class="${g.cls}"><b>${res.s}</b> ${g.t}</td>
@@ -1648,7 +1648,7 @@ function drawKeCe(){
   const bestYb=best.yearBad?'<span class="fs-badge-r">注意：该年年支冲此山此命（年家之忌），年内无完美之课；本表所列为期限内最可取之日，如可改期至来年更稳。</span>':'';
   out.innerHTML=`
     <div class="sub-note">期限内黄历宜安葬之日评得 <b>${list.length}</b> 课，按综合分排序取前 ${top.length} 课。设定：坐${sitShan}山向${document.getElementById('ckFace').value}、入首${longShan}（${document.getElementById('ckLong').value?'罗盘格定':'按坐山代论'}）、仙命${xmGz}${jzGz?'、祭主'+jzGz:''}${hourIdx>=0?'、用事时辰'+('子丑寅卯辰巳午未申酉戌亥'[hourIdx])+'时':'、只论日柱'}；上排任一变量改动即重扫本表并同步全页。</div>
-    <div class="sub-note">期限内首推：<b class="fs-badge-g">${best.solar.getFullYear()}-${String(best.solar.getMonth()+1).padStart(2,'0')}-${String(best.solar.getDate()).padStart(2,'0')} ${best.dayGZ}日</b>，综合 ${best.s} 分${best.ges.length?'，成'+best.ges[0].name:''}；三纲 ${'补龙'+best.bl.zong+'、扶山'+best.fs.zong+'、相主'+best.xz.zong}。${bestYb}日课明细：${best.zj.reasons.join('、')}。</div>
+    <div class="sub-note">期限内首推：<b class="fs-badge-g">${best.solar.getFullYear()}-${String(best.solar.getMonth()+1).padStart(2,'0')}-${String(best.solar.getDate()).padStart(2,'0')} ${best.dayGZ}日</b>，综合 ${best.s} 分${best.ges.length?'，成'+best.ges[0].name:''}；三纲 ${'补龙'+best.bl.zong+'、扶山'+best.fs.zong+'、相主'+best.xz.zong}。${bestYb}日课明细：${best.zj.reasons.map(x=>x.text).join('、')}。</div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>日期</th><th>日柱</th><th>综合分</th><th>三纲</th><th>课格</th><th>主要扣分</th><th>年家提示</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function drawSanHe(){
@@ -2297,7 +2297,7 @@ function drawFinal(){
       note:'前七步均未评：先填仙命、坐山向首与实测坐度，并登山勾选形法自检（觅龙、察砂、观水、点穴）。', act:''};
   }
   const zeL=byKey['8 择日'];
-  const ze=zeL.veto?{score:0, grade:'不可用', veto:true, note:'择日硬伤：'+zeL.key1+'（择日分归零，不损位置分，改日即可）'}
+  const ze=zeL.veto?{score:0, grade:'不可用', veto:true, note:'择日硬伤　'+zeL.key1+'（择日分归零，不损位置分，改日即可）'}
     :(zeL.score==null?{score:null, grade:'待填', veto:false, note:'未填用事日期，本分不评'}
     :{score:zeL.score, grade:zeGradeName(zeL.score), veto:false, note:zeL.key1});
   let zong;

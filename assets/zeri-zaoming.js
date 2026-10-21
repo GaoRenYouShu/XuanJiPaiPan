@@ -277,9 +277,8 @@
     else { s-=5; push('旺衰过偏（'+A.strength+'，三因子 '+sc.toFixed(1)+'）', -5, 'xiong'); }
 
     /* ② 格局成破（±15）＋ 变格、外格奇格加权（+2~+8）
-       分支顺序必须"先具体、后笼统"：'半成格（用神半透）'、'待成格（用神未透）' 皆含 '成格' 二字，
-       若先判 '成格' 则二者被截胡（半成格拿成格的 +11、待成格也拿 +11），旧码正是此序，
-       半成格与待成格两档形同虚设，现予改正。
+       分支顺序为破格、奇格、杂格、清纯、半成格、待成格、成格：判 '成格' 放在最后，
+       '半成格（用神半透）'与'待成格（用神未透）'先被识别，各得本档分值。
        变格（专旺、从、两气、化气）与外格奇格（井栏叉、玄武当权、飞天禄马…）另立一途：
        其成格条件是自足的（井栏叉＝庚日＋申子辰三合水局全＋无丙丁巳午破格，见《三命通会》），
        而 bazi-data 的 geLevel 对杂格沿用正格"用神透干得根"口径，会把已成立之奇格再降为"半成格"
@@ -339,7 +338,7 @@
 
     /* ④ 五行流通（±10）：忌严重偏枯，喜齐全流通。
        豁免：缺格局所忌之行，于格无损，井栏叉忌火、专旺忌官杀，此类格局正以"忌神不现"为成格要件
-       （井栏叉"喜水局纯、忌火破格"，局中无火反为宜）。旧码一律按偏枯扣分，等于惩罚成格要件。 */
+       （井栏叉"喜水局纯、忌火破格"，局中无火反为宜）。一律按偏枯扣分等于惩罚成格要件。 */
     var cnt = A.cnt||{};
     var jiGeWx = (A.geUse && A.geUse.jiWx) || [];
     var missing = WX5.filter(function(w){ return !(cnt[w]>0); });
@@ -445,9 +444,8 @@
     try{ if(typeof ganRelations==='function') grel = ganRelations(BZ.gans, BZ, null); }catch(e){}
     grel.forEach(function(r){
       if(r.cls==='he'){
-        var mh = String(r.text).match(/合化([金木水火土])/);
-        if(mh){
-          var hw = mh[1];
+        if(r.changed){
+          var hw = r.hua;
           if((A.xiWx||[]).indexOf(hw)>=0){ s+=4; push('天干合化'+hw+'（喜用）：'+r.text, 4, 'ji'); }
           else if((A.jiWx||[]).indexOf(hw)>=0){ s-=4; push('天干合化'+hw+'（忌神）：'+r.text, -4, 'xiong'); }
           else push('天干合化'+hw+'（中性）：'+r.text, 0, 'neutral');
@@ -530,11 +528,11 @@
   }
 
   /* 格局用神口径的 A 视图：大运层判"是否悖格"须依格局所喜所忌，不能只依扶抑、调候之综合口径。
-     注意：evalGZ（bazi-data:2155）读的是 A.synthesis.xiWxEff、jiWxEff，不是 A.xiWx、A.jiWx，
+     注意：evalGZ 读的是 A.synthesis.xiWxEff、jiWxEff，不是 A.xiWx、A.jiWx，
      故本函数必须一并改写 synthesis，否则等于没改。
      做法：喜＝（有效喜 ∪ 格局所喜）\ 格局所忌；忌＝（有效忌 ∪ 格局所忌）\ 喜。
      即格局所忌优先级最高（破格之神恒列忌），扶抑调候口径只在其不与格局冲突处保留。
-     对杂格、变格，bazi-data 已令 synthesis.xiWxEff 直接等于格局用神（bazi-data:1937），
+     对杂格、变格，bazi-data 的 synthesis.xiWxEff 已直接等于格局用神，
      本函数对其无变化则原样返回 A，不重复叠加。 */
   function geLensA(A){
     if(!A || !A.geUse) return A;
@@ -733,9 +731,11 @@
     var dz = BZ.zhis[2], mz = BZ.zhis[1];
 
     if(CHONG[mz]===dz){ s-=10; push('月破日（日支冲月建）', -10); }
-    if(ctx.TS){
-      if(CHONG[ctx.TS.zhi]===dz){ s-=10; push('岁破日（日支冲太岁）', -10); }
-      else if((ctx.TS.ss||[]).indexOf(dz)>=0){ s-=6; push('三煞日（日支落三煞方）', -6); }
+    if(ctx.useTS){
+      var yz0 = BZ.yearGZ ? BZ.yearGZ[1] : '';
+      var ss0 = (window.SANSHA && window.SANSHA[yz0]) ? window.SANSHA[yz0].slice(0,3) : null;
+      if(yz0 && CHONG[yz0]===dz){ s-=10; push('岁破日（日支冲太岁）', -10); }
+      else if(ss0 && ss0.indexOf(dz)>=0){ s-=6; push('三煞日（日支落三煞方）', -6); }
     }
     var ld = ctx.lunarDay||0;
     if(ld===5||ld===14||ld===23){ s-=4; push('月忌日（初五、十四、廿三）', -4); }
@@ -762,7 +762,7 @@
     /* 五不遇时（时干克日干，即子平七杀攻身之于时柱）：《烟波钓叟歌》所列，百事不宜。 */
     try{
       var tg0=BZ.gans[3], dg0=BZ.dayGan;
-      if(tg0 && dg0 && WX_KE[GAN_WX[tg0]]===GAN_WX[dg0]){
+      if(tg0 && dg0 && WX_KE[GAN_WX[tg0]]===GAN_WX[dg0] && ((GAN10.indexOf(tg0)%2)===(GAN10.indexOf(dg0)%2))){
         s-=6; push('五不遇时（时干'+tg0+'克日干'+dg0+'）', -6, 'xiong');
       }
     }catch(e){}
@@ -786,12 +786,13 @@
      ============================================================ */
   var WEIGHTS = {bazi:55, dayun:20, parents:15, avoid:10};
 
-  /* 等级阈值：全站同尺（88/76/60/40 五档），与择日页精择分、风水页宅评地评的档位语义一致。
-     大运层（20%）只取前三步（童限与青年运），同一月令窗口内各候选月柱相同、大运序列基本一致，
-     该层差异天然小且以 60 为基线，会小幅压低综合分；此处不另设特例上吉线，改由权重如实承担
-     （见 WEIGHTS 说明），故"上吉"唯命局结构、大运、家长缘、避凶四项俱优者可得，符"诸项俱优"之义。 */
+  /* 等级阈值：全站同尺（88/76/60/40 五档，判名大吉、中吉、平、凶、大凶），与择日页精择分、
+     风水页宅评地评的档位语义一致。大运层（20%）只取前三步（童限与青年运），同一月令窗口内
+     各候选月柱相同、大运序列基本一致，该层差异天然小且以 60 为基线，会小幅压低综合分；
+     此处不另设特例上吉线，改由权重如实承担（见 WEIGHTS 说明），故"大吉"唯命局结构、大运、
+     家长缘、避凶四项俱优者可得，符"诸项俱优"之义。 */
   function gradeOf(t){
-    return xjJzGrade(t,{da:'上吉',daK:'v-daji',daD:'命局结构佳、大运不悖、家长缘合，诸项俱优',zhong:'中吉',zhongK:'v-zhongji',zhongD:'命局可用、无明显破败，可择',ping:'平',pingK:'v-ping',pingD:'吉凶参半，须权衡短板',xiong:'可备',xiongK:'v-ping',xiongD:'有明显短板，仅作备选；伤损较重者宜避',daXiong:'不宜',daXiongK:'v-daxiong',daXiongD:'结构破败或关煞叠见，切勿用'});
+    return xjJzGrade(t,{da:'大吉',daK:'v-daji',daD:'命局结构佳、大运不悖、家长缘合，诸项俱优',zhong:'中吉',zhongK:'v-zhongji',zhongD:'命局可用、无明显破败，可择',ping:'平',pingK:'v-ping',pingD:'吉凶参半，须权衡短板',xiong:'凶',xiongK:'v-xiong',xiongD:'有明显短板，宜避，仅作备选',daXiong:'大凶',daXiongK:'v-daxiong',daXiongD:'结构破败或关煞叠见，切勿用'});
   }
 
   function scoreOne(BZ, A, ctx){
@@ -832,7 +833,7 @@
         var BZ0={sex:opts.sex, dayGan:nxTian[0], gans:[yGZ[0],mGZ[0],nxTian[0],ec0.getTime()[0]], zhis:[yGZ[1],mGZ[1],nxTian[1],ec0.getTime()[1]], monthZ:mGZ[1], yearGZ:yGZ, ec:ec0, lunar:lunar0, birthYear:ty, solar:solar};
         return {BZ:BZ0, lunar:lunar0, solar:solar, trueNote:trueNote, y:ty, m:tm, d:td, h:th, mi:tmi};
       }catch(e){}
-    }    var solar = Solar.fromYmdHms(ty,tm,td,th,tmi,0);
+    }
     var lunar = solar.getLunar();
     var ec = lunar.getEightChar();
     var yearGZ=ec.getYear(), monthGZ=ec.getMonth(), dayGZ=ec.getDay(), timeGZ=ec.getTime();
@@ -856,9 +857,9 @@
      不由称谓推断，故支持男男、女女等组合。
      lng/useTrue 与宝宝同一口径：家长亦按出生地经度作真太阳时校正（页面可勾选关闭），
      避免"宝宝校正、家长不校正"两套时制，致使家长时柱与六亲星判定失真。 */
-  function buildParent(y,m,d,h,mi,label,sex,lng,useTrue){
+  function buildParent(y,m,d,h,mi,label,sex,lng,useTrue,lateZi){
     if(!y) return null;
-    var r = paiPan(y,m,d,h||12,mi||0,{sex:sex, lng:(lng==null?null:lng), useTrue:!!useTrue});
+    var r = paiPan(y,m,d,h||12,mi||0,{sex:sex, lng:(lng==null?null:lng), useTrue:!!useTrue, lateZi:!!lateZi});
     var A = baziAnalysis(r.BZ);
     var nayin = nayinOf(r.BZ.gans[0]+r.BZ.zhis[0]);
     return {BZ:r.BZ, A:A, label:label, sex:sex, nayinWx:(NAYIN_INFO[nayin]||{}).wx||''};
@@ -868,10 +869,9 @@
      opts: {
        from:{y,m,d}, to:{y,m,d},
        hours:[0..11]（0=子、1=丑 … 11=亥），
-       sex:1|0, lng, useTrue, lunarMonthMode:true,
+       sex:1|0, lng, useTrue, lateZi, useTS:true|false,
        parent1:{y,m,d,h,mi,lng,useTrue,sex:'男'|'女',label},   // 旧名 father 仍兼容
        parent2:{...同上},                                      // 旧名 mother 仍兼容
-       TS:{zhi, ss}
      }
      返回 {list, count, days, elapsed} */
   function enumerate(opts){
@@ -879,8 +879,8 @@
     /* 两位家长各自选性别（页面下拉），不预设父母。sex 只决定六亲星取用（男取偏财、女取正印），
        与生肖、日课相主、喜用补益、年命纳音诸项无关 */
     var p1 = opts.parent1 || opts.father || {}, p2 = opts.parent2 || opts.mother || {};
-    var parent1 = buildParent(p1.y, p1.m, p1.d, p1.h, p1.mi, p1.label||'家长一', (p1.sex==='女'?0:1), p1.lng, p1.useTrue);
-    var parent2 = buildParent(p2.y, p2.m, p2.d, p2.h, p2.mi, p2.label||'家长二', (p2.sex==='女'?0:1), p2.lng, p2.useTrue);
+    var parent1 = buildParent(p1.y, p1.m, p1.d, p1.h, p1.mi, p1.label||'家长一', (p1.sex==='女'?0:1), p1.lng, p1.useTrue, opts.lateZi);
+    var parent2 = buildParent(p2.y, p2.m, p2.d, p2.h, p2.mi, p2.label||'家长二', (p2.sex==='女'?0:1), p2.lng, p2.useTrue, opts.lateZi);
     var parents = [parent1, parent2].filter(Boolean);
 
     var list = [], days = 0;
@@ -907,7 +907,7 @@
           lunarMonth: Math.abs(r.lunar.getMonth()),
           lunarDay: r.lunar.getDay(),
           sex: opts.sex,
-          TS: opts.TS,
+          useTS: !!opts.useTS,
           parents: ctxParents
         };
         var res = scoreOne(r.BZ, A, ctx);

@@ -336,9 +336,18 @@ function applyDstCorrection(y, m, d, h, mi, mode){
 
 /* ===== 十二支方位（周公解梦、太岁、择日、风水等跨模块共用） =====
    口径：十二支归并八方位（子北、卯东、午南、酉西；丑寅东北、辰巳东南、未申西南、戌亥西北），
-   与老黄历页岁煞行 ZHI_FANG、择日引擎 ZHI_BAGUA、风水页 taiSuiFang 口径一致；
+   与老黄历页岁煞行 ZHI_FANG、风水页 taiSuiFang 口径一致；
    bazi-data.js 另有同名 const（八字域内部使用），加载顺序在 xuanji-lib 之前或之后的页面均以本表为跨模块消费真源 */
 window.ZHI_FANG = window.ZHI_FANG || {子:'正北',丑:'东北',寅:'东北',卯:'正东',辰:'东南',巳:'东南',午:'正南',未:'西南',申:'西南',酉:'正西',戌:'西北',亥:'西北'};
+
+/* ===== 年家三煞（择日与风水共用）：申子辰煞南巳午未、寅午戌煞北亥子丑、
+   巳酉丑煞东寅卯辰、亥卯未煞西申酉戌；第四位为方，前三支为劫煞灾煞岁煞 ===== */
+window.SANSHA = window.SANSHA || {
+  申:['巳','午','未','南'],子:['巳','午','未','南'],辰:['巳','午','未','南'],
+  寅:['亥','子','丑','北'],午:['亥','子','丑','北'],戌:['亥','子','丑','北'],
+  亥:['申','酉','戌','西'],卯:['申','酉','戌','西'],未:['申','酉','戌','西'],
+  巳:['寅','卯','辰','东'],酉:['寅','卯','辰','东'],丑:['寅','卯','辰','东']
+};
 
 /* ===== 二十四气节与气之分（万年历、老黄历共用） =====
    十二节为节气月之始：立春、惊蛰、清明、立夏、芒种、小暑、立秋、白露、寒露、立冬、大雪、小寒；
@@ -714,11 +723,11 @@ function xjYearZhanRow(y){
     L.getTuoGu(),L.getZhiShui(),L.getYuan(),L.getYun()].join('　');
 }
 
-function xjTaiSuiText(ygz,yZhi,suiPo,br){
+function xjTaiSuiText(ygz,yZhi,suiPo){
   const star=TAISUI_STAR[ygz]||'未载';
   const xing=(XING_TAI[yZhi]||[]).map(x=>ZHI_SHENG[x]).join('')||'无';
   const hai=ZHI_SHENG[HAI_TAI[yZhi]]||'无', po=ZHI_SHENG[PO_TAI[yZhi]]||'无';
-  return `太岁神君：${star}大将军<span class="${br}"></span>犯太岁：值${ZHI_SHENG[yZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}`;
+  return `太岁神君：${star}大将军；犯太岁：值${ZHI_SHENG[yZhi]}冲${ZHI_SHENG[suiPo]}刑${xing}害${hai}破${po}`;
 }
 
 function xjShowFeiTip(n, showFn){

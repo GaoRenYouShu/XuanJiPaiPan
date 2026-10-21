@@ -1199,7 +1199,7 @@
           return '';
         },
         getDayChongDesc:function(){
-          return '('+this.getDayChongGan()+this.getDayChong()+')'+this.getDayChongShengXiao();
+          return '（'+this.getDayChongGan()+this.getDayChong()+'）'+this.getDayChongShengXiao();
         },
         getDaySha:function(){
           return LunarUtil.SHA[this.getDayZhi()];
@@ -1223,7 +1223,7 @@
           return '';
         },
         getTimeChongDesc:function(){
-          return '('+this.getTimeChongGan()+this.getTimeChong()+')'+this.getTimeChongShengXiao();
+          return '（'+this.getTimeChongGan()+this.getTimeChong()+'）'+this.getTimeChongShengXiao();
         },
         getTimeSha:function(){
           return LunarUtil.SHA[this.getTimeZhi()];

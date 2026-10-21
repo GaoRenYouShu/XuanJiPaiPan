@@ -19,6 +19,15 @@
     '申': '申','庚': '申','酉': '酉','辛': '酉','戌': '戌','乾': '戌','亥': '亥','壬': '亥'
   };
   const SHAN_LIST = ['子','癸','丑','艮','寅','甲','卯','乙','辰','巽','巳','丙','午','丁','未','坤','申','庚','酉','辛','戌','乾','亥','壬'];
+  /* 双山配支（壬子同子、癸丑同丑、艮寅同寅一类）：支山取本支，八干四维取二十四山序中
+     下一位之支。与风水页 SHAN_SHUANGZHI 同一条规则；两件同载时直取风水页真源，
+     单载本件时按序推出，免另抄一表。 */
+  function shuangZhi(shan){
+    if(typeof FENGSHUI!=='undefined' && FENGSHUI.SHAN_SHUANGZHI && FENGSHUI.SHAN_SHUANGZHI[shan]) return FENGSHUI.SHAN_SHUANGZHI[shan];
+    const i = SHAN_LIST.indexOf(shan);
+    if(i<0) return shan;
+    return i%2===0 ? SHAN_LIST[i] : SHAN_LIST[(i+1)%24];
+  }
 
   /* ===== 顾山三法：洪范山运、年克山家、阴府太岁、巡山罗睺 =====
      皆坐山专有，必以二十四山坐山为凭；与三煞、岁破、太岁到山同属顾山一系而另有其例。
@@ -627,7 +636,7 @@
   /* 【定源】来龙三煞（龙神三煞）。日课年支三合局之绝胎养三支（即三煞方）到入首龙位。
      来龙三煞永远是真煞，无真假之分，负能应较迟而重。城市阳宅难定来龙者免参。 */
   function laiLongSha(yearZhi, laiLongShan){
-    const san = SANSHA[yearZhi], lz = SHAN_ZHI[laiLongShan];
+    const san = SANSHA[yearZhi], lz = shuangZhi(laiLongShan);
     if(!san || !lz) return null;
     return {hit:san.indexOf(lz)>=0, sha:san, laiLong:laiLongShan};
   }
@@ -669,20 +678,16 @@
     return {wx:wx, muZhi:muZhi, yunGZ:yunGZ, yunNayin:nm, yunWx:wxOfNayin};
   }
 
-  // ---- 地支→八卦方位（太岁方位提示用，与 zeri.html 同源）----
-  const ZHI_BAGUA = {'子':'北','丑':'东北','寅':'东北','卯':'东','辰':'东南','巳':'东南','午':'南','未':'西南','申':'西南','酉':'西','戌':'西北','亥':'西北'};
+  // ---- 地支方位取共享真源 window.ZHI_FANG（xuanji-lib.js 定义，八字系与历法系同一写法）----
   const CHONG = {'子':'午','丑':'未','寅':'申','卯':'酉','辰':'戌','巳':'亥','午':'子','未':'丑','申':'寅','酉':'卯','戌':'辰','亥':'巳'};
   /* 【定源】三煞（劫煞灾煞岁煞，《协纪辨方书》义例）：申子辰年煞在南方（巳午未）、
      寅午戌年煞在北方（亥子丑）、巳酉丑年煞在东方（寅卯辰）、亥卯未年煞在西方（申酉戌），
      阳年顺布取三支占方；到山到向忌动土修造，安葬尤忌。
      锚点：子年三煞巳午未、午年三煞亥子丑。 */
-  const SANSHA = {
-    '申':['巳','午','未','南'],'子':['巳','午','未','南'],'辰':['巳','午','未','南'],
-    '寅':['亥','子','丑','北'],'午':['亥','子','丑','北'],'戌':['亥','子','丑','北'],
-    '亥':['申','酉','戌','西'],'卯':['申','酉','戌','西'],'未':['申','酉','戌','西'],
-    '巳':['寅','卯','辰','东'],'酉':['寅','卯','辰','东'],'丑':['寅','卯','辰','东']
-  };
+  const SANSHA = window.SANSHA;
   const ZHI_HOUR = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const SHI_SPAN = ['23-01','01-03','03-05','05-07','07-09','09-11','11-13','13-15','15-17','17-19','19-21','21-23'];
+  const HOURS = ZHI_HOUR.map((z,i)=>({i:i, z:z, s:SHI_SPAN[i]}));
   /* 【定源】天德合（《协纪辨方书》义例篇天德表之合干）：正月丁合壬、二月坤合巽以支代……
      六合取化气，与天德同例解凶。 */
   const TIANDE_HE = {'丁':'壬','壬':'丁','辛':'丙','丙':'辛','癸':'戊','戊':'癸','甲':'己','己':'甲','乙':'庚','庚':'乙'};
@@ -984,7 +989,9 @@
   // 三丧(凶，安葬重忌)：子月丑日，干取乙丁己
   const ZR_SANSANG = {'子':['乙丑','丁丑','己丑']};
   // 建除十二神本体吉凶（独立加减分层；平、收、建已由附神或中性处理，不重复计）
-  const ZR_JIANCHU = {'建':0,'除':2,'满':2,'平':0,'定':2,'执':-2,'破':-4,'危':2,'成':2,'收':0,'开':3,'闭':-2};
+  /* 建除十二值吉凶（通行歌诀：建满平收黑，除危定执黄，成开皆可用，闭破不相当）：
+     正为吉、负为凶，数值只定分层，加减量值在 ZERI_W 的建除条目。 */
+  const ZR_JIANCHU = {'建':-2,'除':2,'满':-2,'平':-2,'定':2,'执':2,'破':-4,'危':2,'成':2,'收':-1,'开':3,'闭':-2};
 
   // 择日丛辰权重（加分、减分基础值）
   const ZERI_W = {
@@ -1006,7 +1013,7 @@
     '地囊':4,'四耗':4,'阴错':5,'三丧':8,'土旺':6,
     '阴阳俱错':6,'岁薄':6,'逐阵':5,'绝阳':5,'绝阴':5,'三阴':5,'单阴':5,'纯阳':5,'孤阳':5,'纯阴':5,'阳错':6,
     '四离':7,'四绝':7,'杨公忌':8,
-    '建除除':2,'建除满':2,'建除平':2,'建除定':2,'建除执':2,'建除破':3,'建除危':2,'建除成':2,'建除收':1,'建除开':3,'建除闭':2
+    '建除建':2,'建除除':2,'建除满':2,'建除平':2,'建除定':2,'建除执':2,'建除破':3,'建除危':2,'建除成':2,'建除收':1,'建除开':3,'建除闭':2
   };
   // 择日凶神按事类的强调倍率
   const ZERI_XIONG_MUL = {
@@ -1236,32 +1243,43 @@
 
   // ---- 周堂（嫁娶、安床、移徙）----
   // 通用法则：大月顺排、小月逆排（小月从该堂“对宫字”逆推）。
-  // 嫁娶周堂：大月从“夫”顺，小月从“妇”逆；吉位 第、堂、厨、灶，凶位 夫、姑、翁、妇（须避开）。
+  /* 【定源】嫁娶周堂（《钦定协纪辨方书》嫁娶周堂条）：大月从夫顺数，小月从妇逆数，
+     遇第、堂、厨、灶日用之；图以乾为翁、坎为第、艮为灶、震为妇、巽为厨、离为夫、
+     坤为姑、兑为堂。按后天方位自离（南）顺时针一周即 夫、姑、堂、翁、第、灶、妇、厨，
+     小月自妇逆数得 妇、灶、第、翁、堂、姑、夫、厨。
+     安床、移徙两盘典籍无明文，依同一顺逆法则自持，待续考。 */
+  // 嫁娶周堂：吉位 第、堂、厨、灶，凶位 夫、姑、翁、妇（须避开）。
   // 安床周堂：大月从“床”顺，小月从“妇”逆；吉位 第、床、堂、蟾，凶位 姑、翁、妇、夫。
   // 移徙周堂：大月从“徙”顺，小月从“徙”逆；吉位 入、归、安、宁、吉，凶位 徙、出、凶。
   const ZHOUTANG = {
     jia: {
-      big:  ['夫','姑','翁','第','灶','妇','堂','厨'],
-      small:['妇','堂','厨','第','灶','翁','姑','夫'],
+      big:  ['夫','姑','堂','翁','第','灶','妇','厨'],
+      smallFrom:'妇',
       good: new Set(['第','堂','厨','灶']),
       title:'嫁娶周堂'
     },
     an: {
       big:  ['床','姑','蟾','堂','翁','第','妇','夫'],
-      small:['妇','夫','第','翁','堂','蟾','姑','床'],
+      smallFrom:'妇',
       good: new Set(['第','床','堂','蟾']),
       title:'安床周堂'
     },
     yi: {
       big:  ['徙','入','出','归','安','宁','吉','凶'],
-      small:['徙','凶','吉','宁','安','归','出','入'],
+      smallFrom:'徙',
       good: new Set(['入','归','安','宁','吉']),
       title:'移徙周堂'
     }
   };
   function zhouTang(kind, lunarDay, isBigMonth){
     const t = ZHOUTANG[kind]; if(!t) return null;
-    const order = t.big ? (isBigMonth ? t.big : t.small) : t.order;
+    let order = t.big;
+    if(!isBigMonth){
+      /* 小月从 smallFrom 起沿大月序列逆排，与自述法则同构 */
+      const k = t.big.indexOf(t.smallFrom);
+      order = [];
+      for(let i=0;i<8;i++) order.push(t.big[((k-i)%8+8)%8]);
+    }
     const pos = order[((lunarDay-1)%8+8)%8];
     return {pos, good:t.good.has(pos), title:t.title};
   }
@@ -1423,8 +1441,10 @@
     const ztKind = ZT_OF[ev]||null;
     let s = (typeof r.score==='number' && isFinite(r.score)) ? r.score : 0;
     const reasons = [];
-  let zhiNote = '';
-    const dayGan = r.dayGan, dayZhi = r.dayZhi;
+    const note = (text, delta) => reasons.push({text, delta: delta||0});
+    let zhiNote = '';
+    let shiNote = '';
+    const dayGan = r.dayGan, dayZhi = r.dayZhi, dayGZ = dayGan+dayZhi;
     const monthGZ = r.lunar.getMonthInGanZhi();
     const monthGan = monthGZ[0], monthZhi = monthGZ[1];
     const yearGZ = r.lunar.getYearInGanZhiByLiChun();
@@ -1464,33 +1484,33 @@
         });
         net = Math.max(-12, Math.min(12, Math.round(net)));
         net = Math.round(net*sm.zhu);
-        if(net>0){ s+=net; reasons.push('生扶命主+'+net); }
-        else if(net<0){ s+=net; reasons.push('泄耗命主'+net); }
+        if(net>0){ s+=net; note('生扶命主+'+net, net); }
+        else if(net<0){ s+=net; note('泄耗命主'+net, net); }
       } else {
         // 回退口径：仅看日柱干支是否属喜用神
         const ws = [GAN_WX[dayGan], ZHI_WX[dayZhi]].filter(Boolean);
         let xi=false, ji=false;
         ws.forEach(w=>{ if(opts.USER_XI.indexOf(w)>=0) xi=true; if(opts.USER_JI.indexOf(w)>=0) ji=true; });
-        if(xi){ s+=6; reasons.push('喜用神+6'); }
-        if(ji){ s-=8; reasons.push('犯忌神-8'); }
+        if(xi){ s+=6; note('喜用神+6', 6); }
+        if(ji){ s-=8; note('犯忌神-8', -8); }
       }
     }
 
     // ② 真太岁方位（方位煞仅造葬动土族重扣，其他轻扣；神煞派加重）
     if(opts.TS_RES){
       const ts = opts.TS_RES;
-      if(dayZhi===CHONG[ts.zhi]){ const w = Math.round((fam.fangSha?-15:-12)*sm.fang); s+=w; reasons.push('岁破日'+w); }
-      else if(ts.ss.indexOf(dayZhi)>=0){ const w = Math.round((fam.fangSha?-12:-4)*sm.fang); s+=w; reasons.push('三煞日'+w); }
-      else if(dayZhi===ts.zhi){ const w = Math.round((fam.fangSha?-6:-3)*sm.fang); s+=w; reasons.push('伏吟太岁'+w); }
+      if(dayZhi===CHONG[ts.zhi]){ const w = Math.round((fam.fangSha?-15:-12)*sm.fang); s+=w; note('岁破日'+w, w); }
+      else if(ts.ss.indexOf(dayZhi)>=0){ const w = Math.round((fam.fangSha?-12:-4)*sm.fang); s+=w; note('三煞日'+w, w); }
+      else if(dayZhi===ts.zhi){ const w = Math.round((fam.fangSha?-6:-3)*sm.fang); s+=w; note('伏吟太岁'+w, w); }
     }
 
     // ③ 日课神煞（八字神煞，复用 pillarSha，与择日丛辰严格隔离；神煞派加重）
     const sha = dayShensha(dayGan, dayZhi, monthGan, monthZhi, yearGan, yearZhi, timeGan, timeZhi);
-    sha.ji.forEach(n=>{ const w=Math.round((SHA_W[n]||3)*sm.sha); s += w; reasons.push('+'+w+' '+n); });
+    sha.ji.forEach(n=>{ const w=Math.round((SHA_W[n]||3)*sm.sha); s += w; note('+'+w+' '+n, w); });
     const mul = XIONG_MUL[FAMILY_OF[ev]||'tongyong']||{};
     sha.xiong.forEach(n=>{
       let w = Math.round((SHA_W[n]||5)*sm.sha); const m = mul[n]; if(m) w = Math.round(w*m);
-      s -= w; reasons.push('-'+w+' '+n);
+      s -= w; note('-'+w+' '+n, -w);
     });
 
     // ③-b 择日专属丛辰（协纪辨方书：月令丛辰 + 建除、黄道附神 + 农历日凶神）
@@ -1502,7 +1522,7 @@
     zr.ji.forEach(n=>{
       let w=ZERI_W[n]||3; const m=zrJiMul[n]; if(m) w=Math.round(w*m);
       w = Math.round(w*(isJianName(n)?sm.jian:sm.cong));
-      s += w; reasons.push('+'+w+' '+n);
+      s += w; note('+'+w+' '+n, w);
     });
     const zrMul = ZERI_XIONG_MUL[famKey]||{};
     const JI_SHI_FAM = ['jiahun','jisi','kaishi']; // 重日：利吉事、忌凶事
@@ -1516,34 +1536,34 @@
         w = Math.round(w*(isJianName(n)?sm.jian:sm.cong));
         delta = -w;
       }
-      s += delta; reasons.push((delta>=0?'+':'')+delta+' '+n);
+      s += delta; note((delta>=0?'+':'')+delta+' '+n, delta);
     });
 
     // ③-c 日柱空亡（日支落旬空，诸吉减力）
     const xk = xunkong(dayGan+dayZhi);
-    if(xk.indexOf(dayZhi)>=0){ s -= 1; reasons.push('日空亡-1'); }
+    if(xk.indexOf(dayZhi)>=0){ s -= 1; note('日空亡-1', -1); }
 
     // ③-d 二十八宿（值日）：吉宿 +2、凶宿 −3，按事类权重区分（嫁娶、祭祀重、造葬次、商贸、出行轻）
     const xiuMul = XIU_MUL[famKey]||{ji:1,xiong:1};
     const xiu = dayXiu(r.dayGZ);
     if(xiu){
-      if(xiu.good){ const w=Math.round(2*xiuMul.ji); s+=w; reasons.push('二十八宿+'+(w>=0?w:0)); }
-      else { const w=Math.round(3*xiuMul.xiong); s-=w; reasons.push('二十八宿-'+w); }
+      if(xiu.good){ const w=Math.round(2*xiuMul.ji); s+=w; note('二十八宿+'+(w>=0?w:0), w); }
+      else { const w=Math.round(3*xiuMul.xiong); s-=w; note('二十八宿-'+w, -w); }
       /* 金神七煞（角亢奎娄牛鬼星值日）：起造婚姻尤忌，出兵行船居官并凶。 */
       if('角亢奎娄牛鬼星'.indexOf(xiu.name[0])>=0){
-        const w=Math.round(4*xiuMul.xiong); s-=w; reasons.push('金神七煞-'+w);
+        const w=Math.round(4*xiuMul.xiong); s-=w; note('金神七煞-'+w, -w);
         zhiNote=(zhiNote?zhiNote+'；':'')+'金神七煞（'+xiu.name+'值日，起造婚姻切忌）';
       }
       /* 宿建相合（建除十二值与二十八宿交叉）：诸书口诀文字有异，待定本后接计分。 */
       /* 四季宜忌：春木吉土忌、夏火吉金忌、秋金吉木忌、冬水吉火忌（宿五行从季节）。 */
       const sx={寅:'春',卯:'春',辰:'春',巳:'夏',午:'夏',未:'夏',申:'秋',酉:'秋',戌:'秋',亥:'冬',子:'冬',丑:'冬'}[monthZhi];
       const yi={春:'木',夏:'火',秋:'金',冬:'水'}[sx], ji2={春:'土',夏:'金',秋:'木',冬:'火'}[sx];
-      if(xiu.yao===yi){ const w=Math.round(2*xiuMul.ji); s+=w; reasons.push('宿得季+'+w); }
-      else if(xiu.yao===ji2){ const w=Math.round(2*xiuMul.xiong); s-=w; reasons.push('宿失季-'+w); }
+      if(xiu.yao===yi){ const w=Math.round(2*xiuMul.ji); s+=w; note('宿得季+'+w, w); }
+      else if(xiu.yao===ji2){ const w=Math.round(2*xiuMul.xiong); s-=w; note('宿失季-'+w, -w); }
       /* 宿日生克（演禽法）：宿生节、节生宿以吉论，宿克节、节克宿减等。 */
       const dyWx = GAN_WX[dayGan];
-      if(dyWx && WX_KE[dyWx]===xiu.yao){ const w=Math.round(1*xiuMul.ji); s+=w; reasons.push('节生宿+'+w); }
-      else if(dyWx && WX_KE[xiu.yao]===dyWx){ const w=Math.round(1*xiuMul.xiong); s-=w; reasons.push('宿克节-'+w); }
+      if(dyWx && WX_KE[dyWx]===xiu.yao){ const w=Math.round(1*xiuMul.ji); s+=w; note('节生宿+'+w, w); }
+      else if(dyWx && WX_KE[xiu.yao]===dyWx){ const w=Math.round(1*xiuMul.xiong); s-=w; note('宿克节-'+w, -w); }
       if(xiu.zhu) zhiNote=(zhiNote?zhiNote+'；':'')+'二十八宿详注（'+xiu.name+'，宜：'+(xiu.yi||'无')+'；忌：'+(xiu.ji||'无')+'）';
     }
 
@@ -1551,9 +1571,9 @@
     try{
       const dts=r.lunar.getDayTianShen?r.lunar.getDayTianShen():null;
       const dtType=r.lunar.getDayTianShenType?r.lunar.getDayTianShenType():null;
-      if(dts && dtType==='黄道'){ const w=Math.round(2*sm.zhu); s+=w; reasons.push('黄道值神+'+w);
+      if(dts && dtType==='黄道'){ const w=Math.round(2*sm.zhu); s+=w; note('黄道值神+'+w, w);
         zhiNote=(zhiNote?zhiNote+'；':'')+'黄道值神（'+dts+'临日）'; }
-      else if(dts && dtType==='黑道'){ const w=Math.round(2*sm.zhu); s-=w; reasons.push('黑道值神-'+w);
+      else if(dts && dtType==='黑道'){ const w=Math.round(2*sm.zhu); s-=w; note('黑道值神-'+w, -w);
         zhiNote=(zhiNote?zhiNote+'；':'')+'黑道值神（'+dts+'临日）'; }
     }catch(e){}
 
@@ -1562,8 +1582,8 @@
       const ld=r.lunar.getDay(), ltj=LTJ_DAY[ld];
       if(ltj){
         const gj=SHAN_BAGUA[({申:'坤',亥:'乾',子:'坎',卯:'震',未:'坤',辰:'巽',戌:'乾',丑:'艮',巳:'巽',寅:'艮',午:'离',酉:'兑'})[ltj]];
-        if(famKey==='kaishi'){ const w=Math.round(4*sm.zhu); s+=w; reasons.push('罗天大进日+'+w); }
-        reasons.push('罗天大进日（'+ld+'日'+(gj||'')+'方' +'，催财于'+ltj+'方）');
+        if(famKey==='kaishi'){ const w=Math.round(4*sm.zhu); s+=w; note('罗天大进日+'+w, w); }
+        note('罗天大进日（'+ld+'日'+(gj||'')+'方' +'，催财于'+ltj+'方）', 0);
       }
     }catch(e){}
 
@@ -1591,7 +1611,7 @@
           if(wt.sun.indexOf(dayIdxWt+1)>=0){
             const day2='卯辰巳午未申'.indexOf(timeZhi||'')>=0;
             const w=day2?Math.round(6*sm.zhu):0;
-            if(w){ s+=w; reasons.push('乌兔太阳日+'+w); }
+            if(w){ s+=w; note('乌兔太阳日+'+w, w); }
             zhiNote=(zhiNote?zhiNote+'；':'')+'乌兔太阳日（本月初'+(dayIdxWt+1)+'日值太阳，盖诸煞除五黄会力士劫煞）'+(day2?'，昼时用事力显':'，须昼时用事方显');
           }
           else if(wt.moon.indexOf(dayIdxWt+1)>=0){
@@ -1604,13 +1624,13 @@
     try{
       const ltr=luoTianDaTuiRi(r.lunar.getDay());
       if(ltr && ltr===dayZhi){
-        const w=Math.round(8*sm.zhu); s-=w; reasons.push('罗天大退日-'+w);
+        const w=Math.round(8*sm.zhu); s-=w; note('罗天大退日-'+w, -w);
         zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大退日（农历'+r.lunar.getDay()+'日逢'+ltr+'日，日退最难当）'; }
     }catch(e){}
 
     // ③-e 九曜（值日）：依农历日顺布（初一太阳…初九计都），吉曜加、凶曜减
     const jy = dayJiuYao(r);
-    if(jy){ s += jy.w; reasons.push('九曜'+(jy.w>=0?'+':'')+jy.w); }
+    if(jy){ s += jy.w; note('九曜'+(jy.w>=0?'+':'')+jy.w, jy.w); }
 
     // ③-f 纳甲相主（京房纳甲：日干纳八卦五行，生扶命主为吉、泄耗克命主为凶）
     const nj = NAJIA[dayGan];
@@ -1624,48 +1644,51 @@
       else if(WX_KE[dwx]===nj.wx) nv=-1;
       if(opts.USER_XI.indexOf(nj.wx)>=0) nv+=1;
       if(opts.USER_JI.indexOf(nj.wx)>=0) nv-=1;
-      if(nv>0){ s+=nv; reasons.push('纳甲相主+'+nv); }
-      else if(nv<0){ s+=nv; reasons.push('纳甲泄命主'+nv); }
+      if(nv>0){ s+=nv; note('纳甲相主+'+nv, nv); }
+      else if(nv<0){ s+=nv; note('纳甲泄命主'+nv, nv); }
     }
 
     // ④ 日课格局（董公通书派加重）
     const gj = rikeGeju(dayGan, dayZhi, timeGan, timeZhi);
-    gj.forEach(g=>{ const w=Math.round(g.w*sm.geju); if(g.good){ s+=w; reasons.push(g.name+'+'+w); } else { s-=w; reasons.push(g.name+'-'+w); } });
+    gj.forEach(g=>{ const w=Math.round(g.w*sm.geju); if(g.good){ s+=w; note(g.name+'+'+w, +w); } else { s-=w; note(g.name+'-'+w, -w); } });
 
     // ⑤ 本命年命纳音相主（造葬、嫁娶；杨公造命派加重）
     if(opts.USER_NAYIN_WX && fam.nayin){
       const dNayin = nayinOf(dayGan+dayZhi);
       const dWx = (NAYIN_INFO[dNayin]||{}).wx || '';
       if(dWx){
-        if(WX_SHENG[dWx]===opts.USER_NAYIN_WX){ const w=Math.round(6*sm.zhu); s+=w; reasons.push('课生年命+'+w); }
-        else if(dWx===opts.USER_NAYIN_WX){ const w=Math.round(4*sm.zhu); s+=w; reasons.push('课比年命+'+w); }
-        else if(WX_KE[dWx]===opts.USER_NAYIN_WX){ const w=Math.round(4*sm.zhu); s-=w; reasons.push('课克年命-'+w); }
-        else if(WX_KE[opts.USER_NAYIN_WX]===dWx){ const w=Math.round(2*sm.zhu); s+=w; reasons.push('年命克课+'+w); }
+        if(WX_SHENG[dWx]===opts.USER_NAYIN_WX){ const w=Math.round(6*sm.zhu); s+=w; note('课生年命+'+w, w); }
+        else if(dWx===opts.USER_NAYIN_WX){ const w=Math.round(4*sm.zhu); s+=w; note('课比年命+'+w, w); }
+        else if(WX_KE[dWx]===opts.USER_NAYIN_WX){ const w=Math.round(4*sm.zhu); s-=w; note('课克年命-'+w, -w); }
+        else if(WX_KE[opts.USER_NAYIN_WX]===dWx){ const w=Math.round(2*sm.zhu); s+=w; note('年命克课+'+w, w); }
       }
     }
 
     // ⑥ 坐山补龙扶山 + 制化（仅造葬动土族；杨公造命派加重）
     if(opts.shanZhi && fam.fangSha){
       const shan = opts.shanZhi;
+      /* 八干四维按双山配支判方位煞与三合六合（壬子同子、癸丑同丑、艮寅同寅一类），
+         与风水页坐山煞到山同一口径；支山即其本支。 */
+      const shanZ = shuangZhi(shan);
       let hitBad=false, badName='', shanW=0;
       if(opts.TS_RES){
-        if(opts.TS_RES.ss.indexOf(shan)>=0){ hitBad=true; badName='三煞到山'; shanW=-Math.round(18*sm.zhu); }
-        else if(CHONG[opts.TS_RES.zhi]===shan){ hitBad=true; badName='岁破到山'; shanW=-Math.round(18*sm.zhu); }
-        else if(opts.TS_RES.zhi===shan){ hitBad=true; badName='坐太岁（太岁到山）'; shanW=-Math.round(18*sm.zhu); }
+        if(opts.TS_RES.ss.indexOf(shanZ)>=0){ hitBad=true; badName='三煞到山'; shanW=-Math.round(18*sm.zhu); }
+        else if(CHONG[opts.TS_RES.zhi]===shanZ){ hitBad=true; badName='岁破到山'; shanW=-Math.round(18*sm.zhu); }
+        else if(opts.TS_RES.zhi===shanZ){ hitBad=true; badName='坐太岁（太岁到山）'; shanW=-Math.round(18*sm.zhu); }
       }
       let canZhi=false, zhiBy='';
-      if(JU_OF[shan] && JU_OF[shan]===JU_OF[monthZhi]){ canZhi=true; zhiBy='月支三合'; }
-      if(LIUHE[monthZhi]===shan){ canZhi=true; zhiBy=(zhiBy?'、':'')+'六合'; }
-      if((TIANYI[dayGan]||[]).indexOf(shan)>=0){ canZhi=true; zhiBy=(zhiBy?'、':'')+'天乙贵人'; }
+      if(JU_OF[shanZ] && JU_OF[shanZ]===JU_OF[monthZhi]){ canZhi=true; zhiBy='月支三合'; }
+      if(LIUHE[monthZhi]===shanZ){ canZhi=true; zhiBy=(zhiBy?'、':'')+'六合'; }
+      if((TIANYI[dayGan]||[]).indexOf(shanZ)>=0){ canZhi=true; zhiBy=(zhiBy?'、':'')+'天乙贵人'; }
       if(hitBad){
-        if(canZhi){ const w=Math.round(9*sm.zhu); s=Math.min(100, s+w); zhiNote=''+badName+'（有制：'+zhiBy+'，可化）'; reasons.push(badName+'有制+'+w); }
-        else { s+=shanW; zhiNote=''+badName+'（无制，大凶）'; reasons.push(badName+''+shanW); }
-      } else { const w=Math.round(4*sm.zhu); s+=w; zhiNote='坐山得地+'+w; reasons.push('坐山得地+'+w); }
+        if(canZhi){ const w=Math.round(9*sm.zhu); s=Math.min(100, s+w); zhiNote=''+badName+'（有制：'+zhiBy+'，可化）'; note(badName+'有制+'+w, w); }
+        else { s+=shanW; zhiNote=''+badName+'（无制，大凶）'; note(badName+''+shanW, shanW); }
+      } else { const w=Math.round(4*sm.zhu); s+=w; zhiNote='坐山得地+'+w; note('坐山得地+'+w, w); }
       // 纳甲到山（杨公造命：日干纳甲卦与坐山本卦同宫，扶山大吉）
       const nj2 = NAJIA[dayGan];
       if(nj2){
         const sg = najiaGuaOf(shan);
-        if(sg && sg===nj2.gua){ const w=Math.round(6*sm.zhu); s+=w; reasons.push('纳甲到山+'+w); zhiNote=(zhiNote?zhiNote+'；':'')+'纳甲归干到山(+'+w+')'; }
+        if(sg && sg===nj2.gua){ const w=Math.round(6*sm.zhu); s+=w; note('纳甲到山+'+w, w); zhiNote=(zhiNote?zhiNote+'；':'')+'纳甲归干到山(+'+w+')'; }
       }
       /* 年克山家（洪范山运，葬课可用月日纳音制之）：犯而无制为修造最凶，
          有制减等，不犯不论。安葬动土族方参。 */
@@ -1680,10 +1703,10 @@
         const nk = nianKeShan(shan, yearGZ, monthGZ2, dayGZ2, afterDZ);
         if(nk && nk.hit){
           if(nk.controlled){
-            const w=Math.round(5*sm.zhu); s-=w; reasons.push('年克山家有制-'+w);
+            const w=Math.round(5*sm.zhu); s-=w; note('年克山家有制-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'年克山家（'+nk.ctrlBy+'）';
           } else {
-            const w=Math.round(16*sm.zhu); s-=w; reasons.push('年克山家无制-'+w);
+            const w=Math.round(16*sm.zhu); s-=w; note('年克山家无制-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'年克山家（'+nk.yearWx+'克山运'+nk.yunNayin+'，无制大凶）';
           }
         } else if(nk){
@@ -1709,12 +1732,12 @@
           const w = shuang.length ? Math.round(18*sm.zhu) : Math.round(9*sm.zhu);
           s -= w;
           const nm = shuang.length ? '正阴府双干' : '正阴府单干';
-          reasons.push(nm+'-'+w);
+          note(nm+'-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+nm+'（'+zhengHit.map(o=>o.g).join('、')+'化气克山）';
         } else if(bangHit.length){
           const shuang = bangHit.filter(o=>o.n>=2);
           if(shuang.length){
-            const w=Math.round(7*sm.zhu); s-=w; reasons.push('傍阴府双干-'+w);
+            const w=Math.round(7*sm.zhu); s-=w; note('傍阴府双干-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'傍阴府双干（'+shuang.map(o=>o.g).join('、')+'）';
           }
         }
@@ -1724,7 +1747,7 @@
       try{
         const zx = zuoXiangSha(yearZhi);
         if(zx && zx.zuo.indexOf(shan)>=0){
-          const w=Math.round(14*sm.zhu); s-=w; reasons.push('坐煞-'+w);
+          const w=Math.round(14*sm.zhu); s-=w; note('坐煞-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'坐煞（灾煞在'+zx.zai+'）';
         }
       }catch(e){}
@@ -1733,7 +1756,7 @@
       try{
         const ft = futianKongwang(yearGan);
         if(ft && ft.shan.indexOf(shan)>=0){
-          const w=Math.round(15*sm.zhu); s-=w; reasons.push('浮天空亡-'+w);
+          const w=Math.round(15*sm.zhu); s-=w; note('浮天空亡-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'浮天空亡（'+ft.poGua+'卦）';
         }
       }catch(e){}
@@ -1748,14 +1771,14 @@
           if(dayZhi===cz) fjHit=(dayGan===fg)?'天比地冲':((WX_KE[dayGan]===fg)?'天克地冲':null); }
         if(fjHit){
           const w=Math.round((fjHit==='天比地冲'?16:13)*sm.zhu); s-=w;
-          reasons.push('冲丁煞（精）-'+w);
+          note('冲丁煞（精）-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'冲丁煞（分金'+opts.FENJIN+'，'+dayGZ+fjHit+'，忌'+opts.FENJIN[0]+CHONG[opts.FENJIN[1]]+'日）';
         } else if(cd && cd.chong===dayZhi){
           const ty = _taiyangZhi(r, shan, timeZhi);
           if(ty.on){
             zhiNote=(zhiNote?zhiNote+'；':'')+'冲丁煞（'+shan+'山'+cd.zhi+'气分金，'+dayGZ+'天比地冲），'+ty.name+'照临制之';
           } else {
-            const w=Math.round(13*sm.zhu); s-=w; reasons.push('冲丁煞-'+w);
+            const w=Math.round(13*sm.zhu); s-=w; note('冲丁煞-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'冲丁煞（'+shan+'山'+cd.zhi+'气，'+dayGZ+'天比地冲，忌'+cd.chong+'日）';
           }
         }
@@ -1769,7 +1792,7 @@
           const tHit = !dHit && timeGZ && sf.days.indexOf(timeGZ)>=0;
           if(dHit || tHit){
             const w=Math.round((dHit?12:4)*sm.zhu); s-=w;
-            reasons.push('山方煞-'+w);
+            note('山方煞-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'山方煞（'+sf.gua+'卦官鬼爻，忌'+sf.days.join('、')+(dHit?'日':'时')+'）';
           }
         }
@@ -1783,7 +1806,7 @@
           const tHit = !dHit && timeGZ && ty2.days.indexOf(timeGZ)>=0;
           if(dHit || tHit){
             const w=Math.round((dHit?14:5)*sm.zhu); s-=w;
-            reasons.push('天星地曜-'+w);
+            note('天星地曜-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'天星地曜煞（'+ty2.wx+'山，'+(dHit?'日':'时')+'柱'+(dHit?dayGZ:timeGZ)+'干支同气克山）';
           }
         }
@@ -1798,7 +1821,7 @@
           const bu = SAN_JU[ztf] ? SAN_JU[ztf].every(p=>ju.indexOf(p)>=0) : false;
           const lh = LIUHE && LIUHE[ztf] && ju.indexOf(LIUHE[ztf])>=0;
           const w=Math.round((bu||lh?5:10)*sm.zhu); s-=w;
-          reasons.push('马前炙退-'+w);
+          note('马前炙退-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'马前炙退（'+yearZhi+'年死方在'+ztf+(bu||lh?'，得三合六合补扶减等':'，须补扶不须克制')+'）';
         }
       }catch(e){}
@@ -1814,10 +1837,28 @@
         const nGZ = GAN[(GAN.indexOf(yearGan)+1)%10]+ZHI_ORDER[(ZHI_ORDER.indexOf(yearZhi)+1)%12];
         const wh = wuHuangDaoShan(shan, yearGZ, nGZ, inW);
         if(wh && wh.hit){
-          const w=Math.round(20*sm.zhu); s-=w; reasons.push('五黄到山-'+w);
+          const w=Math.round(20*sm.zhu); s-=w; note('五黄到山-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'流年五黄到'+wh.palaces.join('、')+'宫'
             +(wh.palaces.indexOf('中')>=0?'（五黄入中八方皆犯）':'')
             +(wh.inWindow?'（冬至至立春窗内，两派任一犯之即忌）':'（立春派）');
+        }
+      }catch(e){}
+
+      /* 月家三煞与月五黄到山（月建级方位煞）：月三煞按月建三合局取绝胎养三方，
+         月五黄取月家紫白五黄落宫；与年家同属方位煞，修造动土安葬并忌。 */
+      try{
+        const mss = (window.SANSHA && window.SANSHA[monthZhi]) ? window.SANSHA[monthZhi].slice(0,3) : null;
+        if(mss && mss.indexOf(shanZ)>=0){
+          const w=Math.round(14*sm.zhu); s-=w; note('月三煞到山-'+w, -w);
+          zhiNote=(zhiNote?zhiNote+'；':'')+'月三煞到山（'+monthZhi+'月煞在'+mss.join('、')+'）';
+        }
+        if(typeof FENGSHUI!=='undefined' && FENGSHUI.monthZiBai){
+          const mb=FENGSHUI.monthZiBai(yearZhi, monthZhi);
+          const cell=(mb.board||[]).find(x=>x.star===5);
+          if(cell && cell.gua!=='中' && (SHAN_BAGUA[cell.gua]||[]).indexOf(shan)>=0){
+            const w=Math.round(10*sm.zhu); s-=w; note('月五黄到山-'+w, -w);
+            zhiNote=(zhiNote?zhiNote+'；':'')+'月五黄到'+cell.gua+'宫（'+cell.dir+'方）';
+          }
         }
       }catch(e){}
 
@@ -1828,7 +1869,7 @@
           const zi = [dayZhi, monthZhi, yearZhi, timeZhi].filter(Boolean);
           const all = gj2.pair.every(p=>zi.indexOf(p)>=0);
           if(all){
-            const w=Math.round(12*sm.zhu); s-=w; reasons.push('弓箭煞-'+w);
+            const w=Math.round(12*sm.zhu); s-=w; note('弓箭煞-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'弓箭煞（'+gj2.pair.join('、')+'俱全）';
           }
         }
@@ -1838,7 +1879,7 @@
       try{
         const lym=luoTianDaJinYueGong(yearZhi, monthZhi);
         if(lym && (SHAN_BAGUA[lym]||[]).indexOf(shan)>=0){
-          const w=Math.round(8*sm.zhu); s+=w; reasons.push('罗天大进月+'+w);
+          const w=Math.round(8*sm.zhu); s+=w; note('罗天大进月+'+w, w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大进月到山（'+yearZhi+'年'+monthZhi+'月大进泊'+lym+'宫）'; }
       }catch(e){}
 
@@ -1851,7 +1892,7 @@
           if(LU[mg] && cols.some(c=>c[1]===LU[mg])) hits2.push('禄');
           if(TIANYI[mg] && TIANYI[mg].some(z=>cols.some(c=>c[1]===z))) hits2.push('贵人');
           if(hits2.length){ const w=Math.round(4*hits2.length*sm.zhu); s+=w;
-            reasons.push('禄贵到课+'+w);
+            note('禄贵到课+'+w, w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'事主'+hits2.join('、')+'到课（年干'+mg+'临日课柱），相主吉'; }
         }
       }catch(e){}
@@ -1860,7 +1901,7 @@
       try{
         const lty=luoTianDaTuiYueGong(yearZhi, monthZhi);
         if(lty && (SHAN_BAGUA[lty]||[]).indexOf(shan)>=0){
-          const w=Math.round(10*sm.zhu); s-=w; reasons.push('罗天大退月-'+w);
+          const w=Math.round(10*sm.zhu); s-=w; note('罗天大退月-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大退月到山（'+yearZhi+'年'+monthZhi+'月大退泊'+lty+'宫）'; }
       }catch(e){}
 
@@ -1868,7 +1909,7 @@
       try{
         const lj=luoTianDaJinNian(yearGZ);
         if(lj && (SHAN_BAGUA[lj]||[]).indexOf(shan)>=0){
-          const w=Math.round(6*sm.zhu); s+=w; reasons.push('罗天大进+'+w);
+          const w=Math.round(6*sm.zhu); s+=w; note('罗天大进+'+w, w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大进年宫到山（'+yearGZ+'年大进在'+lj+'宫，发福催吉）'; }
       }catch(e){}
 
@@ -1881,7 +1922,7 @@
           if(YIMA[mg]===sz) hits.push('驿马');
           if(TIANYI[mg] && TIANYI[mg].indexOf(sz)>=0) hits.push('贵人');
           if(hits.length){ const w=Math.round(6*hits.length*sm.zhu); s+=w;
-            reasons.push('禄马贵人到山+'+w);
+            note('禄马贵人到山+'+w, w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'事主'+hits.join('、')+'到山（年干'+mg+'），相主吉'; }
         }
       }catch(e){}
@@ -1891,68 +1932,7 @@
       try{
         const lf=luoTianDaTuiFang(yearGan);
         if(lf && (SHAN_BAGUA[lf]||[]).indexOf(shan)>=0){
-          const w=Math.round(12*sm.zhu); s-=w; reasons.push('罗天大退-'+w);
-          zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大退（'+yearGan+'年退'+lf+'宫，忌修方造葬）';
-        }
-      }catch(e){}
-
-      /* 罗天大进月到山（问四寻风顺数详，乾停三月）：月建泊大进宫到山，催吉。 */
-      try{
-        const lym=luoTianDaJinYueGong(yearZhi, monthZhi);
-        if(lym && (SHAN_BAGUA[lym]||[]).indexOf(shan)>=0){
-          const w=Math.round(8*sm.zhu); s+=w; reasons.push('罗天大进月+'+w);
-          zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大进月到山（'+yearZhi+'年'+monthZhi+'月大进泊'+lym+'宫）'; }
-      }catch(e){}
-
-      /* 事主禄贵到课（相主层）：事主年干之禄、天乙贵人临日课年月日时柱地支，每项加四。 */
-      try{
-        if(opts.USER_MING_GZ && typeof LU!=='undefined'){
-          const mg=opts.USER_MING_GZ[0];
-          const cols=[yearGZ, monthGZ2, dayGZ2, timeGZ].filter(Boolean);
-          const hits2=[];
-          if(LU[mg] && cols.some(c=>c[1]===LU[mg])) hits2.push('禄');
-          if(TIANYI[mg] && TIANYI[mg].some(z=>cols.some(c=>c[1]===z))) hits2.push('贵人');
-          if(hits2.length){ const w=Math.round(4*hits2.length*sm.zhu); s+=w;
-            reasons.push('禄贵到课+'+w);
-            zhiNote=(zhiNote?zhiNote+'；':'')+'事主'+hits2.join('、')+'到课（年干'+mg+'临日课柱），相主吉'; }
-        }
-      }catch(e){}
-
-      /* 罗天大退月（问五寻风逆数推）：月建泊大退宫，诸事不宜。 */
-      try{
-        const lty=luoTianDaTuiYueGong(yearZhi, monthZhi);
-        if(lty && (SHAN_BAGUA[lty]||[]).indexOf(shan)>=0){
-          const w=Math.round(10*sm.zhu); s-=w; reasons.push('罗天大退月-'+w);
-          zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大退月到山（'+yearZhi+'年'+monthZhi+'月大退泊'+lty+'宫）'; }
-      }catch(e){}
-
-      /* 罗天大进年宫到山（大退制神，催吉）。 */
-      try{
-        const lj=luoTianDaJinNian(yearGZ);
-        if(lj && (SHAN_BAGUA[lj]||[]).indexOf(shan)>=0){
-          const w=Math.round(6*sm.zhu); s+=w; reasons.push('罗天大进+'+w);
-          zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大进年宫到山（'+yearGZ+'年大进在'+lj+'宫，发福催吉）'; }
-      }catch(e){}
-
-      /* 事主禄马贵人到山（相主层）：事主年干之禄、驿马、贵人临坐山本气支，到山皆吉。 */
-      try{
-        if(opts.USER_MING_GZ && typeof LU!=='undefined'){
-          const mg=opts.USER_MING_GZ[0], sz=SHAN_ZHI[shan];
-          const hits=[];
-          if(LU[mg]===sz) hits.push('禄');
-          if(YIMA[mg]===sz) hits.push('驿马');
-          if(TIANYI[mg] && TIANYI[mg].indexOf(sz)>=0) hits.push('贵人');
-          if(hits.length){ const w=Math.round(6*hits.length*sm.zhu); s+=w;
-            reasons.push('禄马贵人到山+'+w);
-            zhiNote=(zhiNote?zhiNote+'；':'')+'事主'+hits.join('、')+'到山（年干'+mg+'），相主吉'; }
-        }
-      }catch(e){}
-
-      /* 罗天大退（年家方位）：年干取宫，宫内三山皆忌，修方造葬大凶。 */
-      try{
-        const lf=luoTianDaTuiFang(yearGan);
-        if(lf && (SHAN_BAGUA[lf]||[]).indexOf(shan)>=0){
-          const w=Math.round(12*sm.zhu); s-=w; reasons.push('罗天大退-'+w);
+          const w=Math.round(12*sm.zhu); s-=w; note('罗天大退-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'罗天大退（'+yearGan+'年退'+lf+'宫，忌修方造葬）';
         }
       }catch(e){}
@@ -1962,7 +1942,7 @@
         const df = deFang(shan, monthZhi, yearGan);
         if(df.daoShan.length || df.daoXiang.length){
           const w=Math.round((df.daoShan.length*8 + df.daoXiang.length*5)*sm.zhu); s+=w;
-          reasons.push('德神到山'+w);
+          note('德神到山'+w, w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'德神到'+(df.daoShan.length?'山（'+df.daoShan.join('、')+'）':'')
             +(df.daoShan.length&&df.daoXiang.length?'、':'')+(df.daoXiang.length?'向（'+df.daoXiang.join('、')+'）':'')+'，吉';
         }
@@ -1976,13 +1956,13 @@
           const it=(FENGSHUI.fenJin(shan)||[]).filter(x=>x.gz===opts.FENJIN)[0];
           if(it){
             const ben=it.wang==='空'||it.wang==='龟甲'?-12:(it.wang==='孤'||it.wang==='虚')?-6:0;
-            if(ben){ s+=ben; reasons.push('分金本体'+ben);
+            if(ben){ s+=ben; note('分金本体'+ben, ben);
               zhiNote=(zhiNote?zhiNote+'；':'')+'分金本体（'+it.gz+'分金，'+it.wang+'，孤虚空亡龟甲不可用）'; }
             if(opts.XIANMING_GZ && ev==='安葬'){
               const xmNy=(NAYIN_INFO[nayinOf(opts.XIANMING_GZ)||'']||{}).wx||'';
               const zt=FENGSHUI.fenJinZong(it,{nayin:{wx:xmNy}},null,'仙命');
               const w=zt==='大吉'?8:zt==='吉'?5:zt==='大凶'?-10:zt==='凶'?-6:0;
-              if(w){ s+=w; reasons.push('分金合仙命'+(w>0?'+':'')+w); }
+              if(w){ s+=w; note('分金合仙命'+(w>0?'+':'')+w, w); }
               zhiNote=(zhiNote?zhiNote+'；':'')+'分金合仙命（'+it.gz+'分金，仙命'+opts.XIANMING_GZ+'，'+zt+'）';
             }
           }
@@ -1993,7 +1973,7 @@
       try{
         const dh = taisuiDuiHuang(yearGan, yearZhi);
         if(dh && dh.shan && dh.shan===shan && ev!=='安葬'){
-          const w=Math.round(8*sm.zhu); s-=w; reasons.push('太岁堆黄-'+w);
+          const w=Math.round(8*sm.zhu); s-=w; note('太岁堆黄-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'太岁堆黄（'+yearGZ+'年遁得太岁在'+dh.gan+'，'+dh.gan+'山犯之，忌修宅修坟）';
         }
       }catch(e){}
@@ -2006,7 +1986,7 @@
           if(ty3.on){
             zhiNote=(zhiNote?zhiNote+'；':'')+'剑锋煞（'+shan+'山在'+jf+'月），'+ty3.name+'照临破解';
           } else {
-            const w=Math.round(8*sm.zhu); s-=w; reasons.push('剑锋煞-'+w);
+            const w=Math.round(8*sm.zhu); s-=w; note('剑锋煞-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'剑锋煞（'+shan+'山剑锋在'+jf+'月，与重丧同推）';
           }
         }
@@ -2016,7 +1996,7 @@
       try{
         const xm2 = XIAOMIE[shan];
         if(xm2 && xm2.indexOf(dayGZ)>=0){
-          const w=Math.round(12*sm.zhu); s-=w; reasons.push('消灭煞-'+w);
+          const w=Math.round(12*sm.zhu); s-=w; note('消灭煞-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'消灭煞（'+dayGZ+'日犯，日犯消者穷、犯灭者绝）';
         }
       }catch(e){}
@@ -2047,13 +2027,13 @@
             const base = inJia ? 17 : 14;
             const w = Math.round((zhi ? base*0.4 : base)*sm.zhu);
             s -= w;
-            reasons.push((inJia?'夹都天':'戊己都天')+(zhi?'有制':'')+'-'+w);
+            note((inJia?'夹都天':'戊己都天')+(zhi?'有制':'')+'-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+(inJia?'夹都天':'戊己都天')
               +'（'+(inJia?'戊己之间':'戊己所落')+'，'+(zhi?'有制：':'')
               +(zhi?((muJu?'亥卯未木局':'')+(huiJu?(muJu?'、':'')+'寅卯辰木局':'')+(muCang?(muJu||huiJu?'、':'')+'母仓日':'')+((naYinZhi||tyDto.on)&&(muJu||huiJu||muCang)?'、':'')+(naYinZhi?'年纳音克土':'')+((tyDto.on&&naYinZhi)?'、':'')+(tyDto.on?tyDto.name:'')+'制之'):'阴宅大忌不可犯')+'）';
             if(wuJiDay){
               const w2 = Math.round(5*sm.zhu); s -= w2;
-              reasons.push('都天犯戊己日-'+w2);
+              note('都天犯戊己日-'+w2, -w2);
               zhiNote=(zhiNote?zhiNote+'；':'')+dayGan+'日，犯都天者动土忌戊己日';
             }
           }
@@ -2068,7 +2048,7 @@
           const hitY = qj.fangYear && (qj.fangYear===shan || zi.indexOf(qj.fangYear)>=0);
           const hitS = qj.fangSeason && (SHAN_BAGUA[qj.fangSeason]||[]).indexOf(shan)>=0;
           if(hitY || hitS){
-            const tx3=touXiuRi(dayGZ); const w=Math.round((tx3?3:6)*sm.zhu); s-=w; reasons.push('千斤杀-'+w);
+            const tx3=touXiuRi(dayGZ); const w=Math.round((tx3?3:6)*sm.zhu); s-=w; note('千斤杀-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'千斤杀（'+(hitY?'岁系在'+qj.fangYear:'')+(hitY&&hitS?'、':'')+(hitS?'季系在'+qj.fangSeason+'宫':'')+'）';
           }
         }
@@ -2079,7 +2059,7 @@
       try{
         const ll = opts.laiLong ? laiLongSha(yearZhi, opts.laiLong) : null;
         if(ll && ll.hit){
-          const w=Math.round(18*sm.zhu); s-=w; reasons.push('来龙三煞-'+w);
+          const w=Math.round(18*sm.zhu); s-=w; note('来龙三煞-'+w, -w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'来龙三煞（'+yearZhi+'年煞在'+ll.sha.join('、')+'，入首龙'+opts.laiLong+'犯之）';
         }
       }catch(e){}
@@ -2090,10 +2070,10 @@
         if(opts.laiLong && fam.fangSha){
           const bl = buLong(opts.laiLong, [yearZhi, monthZhi, dayZhi, timeZhi]);
           if(bl && bl.full){
-            const w=Math.round(10*sm.zhu); s+=w; reasons.push('补龙得力+'+w);
+            const w=Math.round(10*sm.zhu); s+=w; note('补龙得力+'+w, w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'补龙得力（入首龙'+opts.laiLong+'属'+bl.ju+'局，课得'+bl.zhi.join('')+'三合全）';
           } else if(bl && bl.wang){
-            const w=Math.round(4*sm.zhu); s+=w; reasons.push('补龙小补+'+w);
+            const w=Math.round(4*sm.zhu); s+=w; note('补龙小补+'+w, w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'补龙小补（得本局旺支'+bl.zhi[1]+'，三支未全）';
           }
         }
@@ -2104,14 +2084,14 @@
         const rz = opts.USER_MING_GZ ? renZhenSha(opts.USER_MING_GZ, dayGan+dayZhi, timeGZ) : null;
         if(rz){
           if(rz.isShuang){
-            const w=Math.round(18*sm.zhu); s-=w; reasons.push('本命双真三煞-'+w);
+            const w=Math.round(18*sm.zhu); s-=w; note('本命双真三煞-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'本命双真三煞（'+rz.shuang+'，'+(rz.hitDay?'日':'时')+'柱犯之，不可化解）';
           } else {
             const ty4 = TIANYI && TIANYI[opts.USER_MING_GZ[0]] ? TIANYI[opts.USER_MING_GZ[0]] : [];
             const gz = [dayGan+dayZhi, timeGZ].filter(Boolean);
             const hasTy = ty4.some(z=>gz.some(g2=>g2.indexOf(z)>=0));
             const w=Math.round((hasTy?4:8)*sm.zhu); s-=w;
-            reasons.push('本命单真三煞-'+w);
+            note('本命单真三煞-'+w, -w);
             zhiNote=(zhiNote?zhiNote+'；':'')+'本命单真三煞（'+(rz.hitDay?dayGan+dayZhi:timeGZ)
               +'，真煞在'+rz.sha+'）'+(hasTy?'，本命天乙贵人到课权用':'，无贵人化解仍忌');
           }
@@ -2121,29 +2101,29 @@
 
 
     /* 大月建（月家第一凶煞）：按年支起宫逆布九宫，每月一位，每宫占三山。
-       修造动土忌，修方切忌，安葬可不忌；太阳照临为制（帝星起例未列）。
-       try{
-         const dyj = daYuejianGong(yearZhi, Math.abs(r.lunar.getMonth()));
-         if(dyj){
-           const dyShan = SHAN_BAGUA[dyj]||[];
-           if(!opts.shanZhi || dyShan.indexOf(opts.shanZhi)>=0){
-             const ty5 = opts.shanZhi ? _taiyangZhi(r, opts.shanZhi, timeZhi) : {on:false,name:''};
-             if(ty5.on){
-               if(opts.shanZhi) zhiNote=(zhiNote?zhiNote+'；':'')+'大月建在'+dyj+'宫，'+ty5.name+'照临制之';
-             } else {
-               const tx1=touXiuRi(dayGZ); const w=Math.round((tx1?6:12)*sm.zhu); s-=w; reasons.push('大月建-'+w);
-               zhiNote=(zhiNote?zhiNote+'；':'')+'大月建（月家第一凶煞，在'+dyj+'宫：'+dyShan.join('')+'，忌修方动土）';
-             }
-           }
-         }
-       }catch(e){}
+       修造动土忌，修方切忌，安葬可不忌；太阳照临为制，大偷修日减等。 */
+    try{
+      if(opts.shanZhi && ev!=='安葬'){
+        const dyj = daYuejianGong(yearZhi, Math.abs(r.lunar.getMonth()));
+        const dyShan = dyj ? (SHAN_BAGUA[dyj]||[]) : [];
+        if(dyShan.indexOf(opts.shanZhi)>=0){
+          const ty5 = _taiyangZhi(r, opts.shanZhi, timeZhi);
+          if(ty5.on){
+            zhiNote=(zhiNote?zhiNote+'；':'')+'大月建在'+dyj+'宫，'+ty5.name+'照临制之';
+          } else {
+            const tx1=touXiuRi(dayGZ); const w=Math.round((tx1?6:12)*sm.zhu); s-=w; note('大月建-'+w, -w);
+            zhiNote=(zhiNote?zhiNote+'；':'')+'大月建（月家第一凶煞，在'+dyj+'宫：'+dyShan.join('')+'，忌修方动土）'+(tx1?'，大偷修日减等':'');
+          }
+        }
+      }
+    }catch(e){}
 
     /* 小儿煞（小月建、飞天大煞，月家凶煞）：按月飞宫，每宫占三山，忌修方动土。 */
     try{
       const lm = r.lunar.getMonth();
       const xe = xiaoerSha(yearGan, Math.abs(lm));
       if(xe && (!opts.shanZhi || xe.shan.indexOf(opts.shanZhi)>=0)){
-        const tx2=touXiuRi(dayGZ); const w=Math.round((tx2?5:10)*sm.zhu); s-=w; reasons.push('小儿煞-'+w);
+        const tx2=touXiuRi(dayGZ); const w=Math.round((tx2?5:10)*sm.zhu); s-=w; note('小儿煞-'+w, -w);
         zhiNote=(zhiNote?zhiNote+'；':'')+'小儿煞在'+xe.gong+'宫（'+xe.shan.join('')+'）';
       }
     }catch(e){}
@@ -2162,8 +2142,8 @@
       let isBig = true;
       try{ const ly = LunarYear.fromYear(r.lunar.getYear()); const lm = ly.getMonth(r.lunar.getMonth()); if(lm) isBig = lm.getDayCount()>=30; }catch(e){}
       zt = zhouTang(ztKind, lt, isBig);
-      if(zt.good){ s+=6; reasons.push(zt.title+zt.pos+'+6'); }
-      else { s-=8; reasons.push(zt.title+zt.pos+'-8'); }
+      if(zt.good){ s+=6; note(zt.title+zt.pos+'+6', 6); }
+      else { s-=8; note(zt.title+zt.pos+'-8', -8); }
     }
 
     /* 截路空亡时（歌：甲己申酉最为愁，乙庚午未不须求，丙辛辰巳何劳问，
@@ -2174,7 +2154,7 @@
       const jl=[];
       for(let h=0;h<12;h++){ const gz=wuShuDun(dayGan,h); if(gz[0]==='壬'||gz[0]==='癸') jl.push(gz[1]); }
       if(timeZhi && jl.indexOf(timeZhi)>=0){
-        const w=Math.round(6*sm.zhu); s-=w; reasons.push('截路空亡-'+w);
+        const w=Math.round(6*sm.zhu); s-=w; note('截路空亡-'+w, -w);
         shiNote=(shiNote?shiNote+'；':'')+'截路空亡时（'+dayGan+'日'+jl.join('、')+'时，百事不宜）';
       }
     }catch(e){}
@@ -2191,7 +2171,7 @@
                     辰:['四月','十月'],戌:['四月','十月'],巳:['三月','九月'],亥:['三月','九月']}[mz];
         const cm={寅:'正月',卯:'二月',辰:'三月',巳:'四月',午:'五月',未:'六月',申:'七月',酉:'八月',戌:'九月',亥:'十月',子:'十一月',丑:'十二月'}[monthZhi];
         if(dali && dali.indexOf(cm)>=0){
-          const w=Math.round(6*sm.zhu); s+=w; reasons.push('大利月+'+w);
+          const w=Math.round(6*sm.zhu); s+=w; note('大利月+'+w, w);
           zhiNote=(zhiNote?zhiNote+'；':'')+'女命'+mz+'大利月（'+cm+'），嫁娶首取'; }
       }
     }catch(e){}
@@ -2200,7 +2180,7 @@
     try{
       const ls2=LTDT_SHI2[dayGan]||LTDT_SHI2[dayZhi];
       if(ls2 && timeZhi===ls2){
-        const w=Math.round(5*sm.zhu); s-=w; reasons.push('罗天大退时(例)-'+w);
+        const w=Math.round(5*sm.zhu); s-=w; note('罗天大退时(例)-'+w, -w);
         shiNote=(shiNote?shiNote+'；':'')+'罗天大退时（'+(LTDT_SHI2[dayGan]?dayGan+'日':dayZhi+'日')+'忌'+ls2+'时）'; }
     }catch(e){}
 
@@ -2208,7 +2188,7 @@
     try{
       const lj2=LTJ_SHI[dayGan];
       if(lj2 && timeZhi===lj2){
-        const w=Math.round(4*sm.zhu); s+=w; reasons.push('罗天大进时+'+w);
+        const w=Math.round(4*sm.zhu); s+=w; note('罗天大进时+'+w, w);
         shiNote=(shiNote?shiNote+'；':'')+'罗天大进时（'+dayGan+'日'+lj2+'时，催财吉时）';
       }
     }catch(e){}
@@ -2233,19 +2213,18 @@
         }
         if(p===8||p===2){
           const w=Math.round(4*sm.zhu); s+=w;
-          reasons.push((p===8?'乌兔太阳时':'乌兔太阴时')+'+'+w);
+          note((p===8?'乌兔太阳时':'乌兔太阴时')+'+'+w, +w);
           shiNote=(shiNote?shiNote+'；':'')+(p===8?'乌兔太阳时（太阳盖诸煞）':'乌兔太阴时（母仪化凶）')+toNote;
         }
       }
     }catch(e){}
 
     // ⑦-b 时家神煞（仅当选定用事时辰）：五不遇时、时辰黄黑道、贵人登天时
-    let shiNote = '';
     /* 罗天大退时：甲己戊癸忌巳、乙庚忌申、丙辛亥、丁壬丑，忌开业搬家等。 */
     try{
       const ls=LTDT_SHI[dayGan];
       if(ls && timeZhi===ls){
-        const w=Math.round(6*sm.zhu); s-=w; reasons.push('罗天大退时-'+w);
+        const w=Math.round(6*sm.zhu); s-=w; note('罗天大退时-'+w, -w);
         shiNote=(shiNote?shiNote+'；':'')+'罗天大退时（'+dayGan+'日忌'+ls+'时）';
       }
     }catch(e){}
@@ -2255,8 +2234,8 @@
          辛丁酉，壬戊申癸己未。不必死记表：由五鼠遁得时干，再验时干克日干且同性即成。
          锚点：甲日庚午时、癸日己未时。 */
       if(GAN_WX[timeGan] && WX_KE[GAN_WX[timeGan]]===GAN_WX[dayGan] && ((GAN.indexOf(timeGan)%2)===(GAN.indexOf(dayGan)%2))){
-        const w = -6; s += w; reasons.push('五不遇时'+w);
-        shiNote = '五不遇时（'+timeGZ+'，时干'+timeGan+'克日干'+dayGan+'，百事不宜）';
+        const w = -6; s += w; note('五不遇时'+w, w);
+        shiNote = (shiNote?shiNote+'；':'')+'五不遇时（'+timeGZ+'，时干'+timeGan+'克日干'+dayGan+'，百事不宜）';
       }
       /* 【定源】时辰黄黑道（《诸日起吉时歌》，传统嫁娶择日通行例，与《奇门遁甲秘笈大全》
          黄黑道日时同源）：寅申须加子，卯酉却居寅，辰戌龙位上，巳亥午上存，子午临申地，
@@ -2272,7 +2251,7 @@
           const tShen = TS12[off];
           const HUANG = ['青龙','明堂','金匮','天德','玉堂','司命'];
           if(HUANG.indexOf(tShen)>=0){
-            const w = 3; s += w; reasons.push('黄道时'+tShen+'+'+w);
+            const w = 3; s += w; note('黄道时'+tShen+'+'+w, +w);
             shiNote = (shiNote?shiNote+'；':'')+'黄道吉时（'+tShen+'）';
           } else {
             shiNote = (shiNote?shiNote+'；':'')+'黑道时（'+tShen+'）';
@@ -2329,7 +2308,7 @@
           for(const c of cands){
             if(!c.g) continue;
             if(dengOf(c.g)===timeZhi){
-              const w = 5; s += w; reasons.push('贵人登天时+'+w);
+              const w = 5; s += w; note('贵人登天时+'+w, w);
               shiNote = (shiNote?shiNote+'；':'')+'贵人登天时（'+c.tag+c.g+'、'+jiang+'将）';
               break; // 一时只记一次
             }
@@ -2340,15 +2319,16 @@
 
     // ⑧ 玄空紫白（仅玄空紫白派）：日家紫白飞星，中宫 + 坐山宫 星曜吉凶
     if(opts.school==='玄空紫白派'){
+      const zb = dayZiBai(r);
       /* 联珠三般卦择日（仅玄空紫白派且填元运向方）：日飞星到坐向宫与宅盘山向星
          成三连数为联珠、成一四七二五八三六九为父母三般卦；进宅引向宫、动土引坐宫。 */
       try{
         if(opts.LIANZHU && opts.school==='玄空紫白派' && zb){
-          const tGong=(ev==='入宅')?najiaGuaOf(opts.LIANZHU.xiang):najiaGuaOf(shan);
+          const tGong=(ev==='入宅')?najiaGuaOf(opts.LIANZHU.xiang):najiaGuaOf(opts.shanZhi);
           const gi=ZB_FLIGHT.indexOf(tGong);
           const tStar=((zb.k-1+gi)%9+9)%9+1;
-          const lz=lianZhuPan(opts.LIANZHU.yun, shan, opts.LIANZHU.xiang, tStar, tGong);
-          if(lz){ const w=Math.round(12*sm.zhu); s+=w; reasons.push(lz.type+'+'+w);
+          const lz=lianZhuPan(opts.LIANZHU.yun, opts.shanZhi, opts.LIANZHU.xiang, tStar, tGong);
+          if(lz){ const w=Math.round(12*sm.zhu); s+=w; note(lz.type+'+'+w, +w);
             zhiNote=(zhiNote?zhiNote+'；':'')+lz.type+'成（'+tGong+'宫山向星加日飞星得'+lz.nums+'，'+(ev==='入宅'?'引向动财':'引山动丁')+'）'; }
         }
       }catch(e){}
@@ -2359,60 +2339,52 @@
         if(yK && opts.shanZhi){ const pg=najiaGuaOf(opts.shanZhi);
           if(pg){ const gi=ZB_FLIGHT.indexOf(pg);
             const ys=((yK-1+gi)%9+9)%9+1; const yw=ZB_STAR_W[ys]||0;
-            s+=yw; reasons.push('年紫白坐山'+ys+(yw>=0?'+':'')+yw); } }
+            s+=yw; note('年紫白坐山'+ys+(yw>=0?'+':'')+yw, yw); } }
       }catch(e){}
-      const zb = dayZiBai(r);
       if(zb){
         const cw = ZB_STAR_W[zb.centerStar]||0;
-        s += cw; reasons.push('紫白中宫'+zb.centerStar+(cw>=0?'+':'')+cw);
+        s += cw; note('紫白中宫'+zb.centerStar+(cw>=0?'+':'')+cw, cw);
         if(opts.shanZhi && ZB_ZHI_FLY[opts.shanZhi]!=null){
           const ss = _zbStar(zb.k, ZB_ZHI_FLY[opts.shanZhi], zb.yin);
           const sw = ZB_STAR_W[ss]||0;
-          s += sw; reasons.push('紫白坐山'+ss+(sw>=0?'+':'')+sw);
-        } else {
-          reasons.push('紫白中宫'+zb.centerStar);
+          s += sw; note('紫白坐山'+ss+(sw>=0?'+':'')+sw, sw);
         }
       }
     }
 
     const floor = fam.fangSha ? 0 : 30; // 造葬动土不保底，以暴露大凶日
     s = Math.max(floor, Math.min(100, Math.round(s)));
-    // 通书每日吉凶神全录（lunar.js 官方《协纪辨方书》表），纯展示参考，不参与计分
-    let tsJi = '', tsXiong = '';
+    /* 通书每日吉凶神全录（lunar.js 官方《协纪辨方书》表）：凶神侧同实异名者归并到本页已计名，
+       真未计名目以低权重入分；吉神侧只列名，不另计分。 */
+    let tongshu = null;
     try{
       const _js = r.lunar.getDayJiShen ? r.lunar.getDayJiShen() : null;
       const _xs = r.lunar.getDayXiongSha ? r.lunar.getDayXiongSha() : null;
-      /* 协纪全录互斥归一计分层：官方凶煞表与吉神表逐名对照本页已计 reason，
-         同实异名者（白虎天牢勾陈玄武即黑道值神、月建即建除之建、致死即天吏）按已计者归并不再计，
-         真未计名目以低权重入分（凶一至二、吉加一），定位拾遗不与自算八十七名并列。 */
       /* 同实异名映射：官方表名 → 本页已计名（命中则归并不再计） */
-      const YS_MAP={'白虎':'黑道值神','天牢':'黑道值神','勾陈':'黑道值神','玄武':'黑道值神','月建':'建除','致死':'天吏'};
-      if(_xs){ const miss=[]; ['月破','劫煞','灾煞','月煞','天吏','五虚','往亡','四废','天贼','游祸',
-        '血支','白虎','月建','小时','土府','天牢','大煞','死神','致死','勾陈','死气','咸池'].forEach(nm=>{
-        if(_xs.indexOf(nm)<0) return;
+      const YS_MAP={'白虎':'黑道值神','天牢':'黑道值神','勾陈':'黑道值神','玄武':'黑道值神','月建':'建除','致死':'天吏',
+                    '大煞':'飞廉','天火':'灾煞','地火':'月厌'};
+      const counted=(nm)=>{
         const alt=YS_MAP[nm];
-        if(alt && (reasons.some(rr=>rr.indexOf(alt)>=0) || ZHI_XIONG.some(z=>reasons.some(rr=>rr.indexOf(z)>=0)&&ZHI_XIONG.indexOf(nm)>=0))) return;
-        if(reasons.some(rr=>rr.indexOf(nm)>=0)) return;
-        miss.push(nm); });
-        if(miss.length){
-          const LOWX={'血支':1,'小时':1,'土府':1,'大煞':2,'死神':2,'死气':1,'咸池':2,'白虎':0,'天牢':0,'勾陈':0,'玄武':0,'月建':0,'致死':0};
-          const df=[]; let dw=0;
-          miss.forEach(nm=>{ const w=LOWX[nm]!=null?LOWX[nm]:1; df.push(nm); dw+=w; });
-          if(dw>0){ s-=dw; reasons.push('协纪拾遗-'+dw); }
-          zhiNote=(zhiNote?zhiNote+'；':'')+'协纪全录拾遗（'+df.join('、')+'，低权重'+(dw?'':'归并')+'）';
-        }
-      const _js2 = r.lunar.getDayJiShen ? r.lunar.getDayJiShen() : null;
+        return !!((alt && reasons.some(rr=>rr.text.indexOf(alt)>=0)) || reasons.some(rr=>rr.text.indexOf(nm)>=0));
+      };
+      const scan=['月破','劫煞','灾煞','月煞','天吏','五虚','往亡','四废','天贼','游祸',
+        '血支','白虎','月建','小时','土府','天牢','大煞','死神','致死','勾陈','死气','咸池'];
+      const picked=scan.filter(nm=>_xs && _xs.indexOf(nm)>=0 && !counted(nm));
+      if(picked.length){
+        const LOWX={'血支':1,'小时':1,'土府':1,'大煞':2,'死神':2,'死气':1,'咸池':2,'白虎':0,'天牢':0,'勾陈':0,'玄武':0,'月建':0,'致死':0};
+        let dw=0;
+        picked.forEach(nm=>{ dw+=LOWX[nm]!=null?LOWX[nm]:1; });
+        if(dw>0){ s-=dw; note('协纪拾遗-'+dw, -dw); }
       }
-      if(_js2){ const missJ=[]; ['天德','月德','天德合','月德合','天赦','天愿','月恩','四相','时德','三合','六合','五富','天喜','天医','母仓'].forEach(nm=>{
-        if(_js2.indexOf(nm)>=0 && !reasons.some(rr=>rr.indexOf(nm)>=0)) missJ.push(nm); });
-        if(missJ.length) reasons.push('协纪吉神表另有：'+missJ.join('、')+'（校验提示，未计分）'); }
-      if(_js && _js.length) tsJi = _js.join('、');
-      if(_xs && _xs.length) tsXiong = _xs.join('、');
+      tongshu = { ji:_js||[], xiong:_xs||[] };
     }catch(e){}
     // 彭祖百忌 + 喜神、财神、福神方位（民俗展示层，不参与计分）
     let pz = '', fzXi = '', fzCai = '', fzFu = '';
     try{
-      if(r.lunar.getPengZuGan) pz = (r.lunar.getPengZuGan()||'') + (r.lunar.getPengZuZhi ? r.lunar.getPengZuZhi() : '');
+      if(r.lunar.getPengZuGan){
+        const pg=r.lunar.getPengZuGan()||'', pz2=(r.lunar.getPengZuZhi?r.lunar.getPengZuZhi():'')||'';
+        pz = pg + (pg && pz2 ? '；' : '') + pz2;
+      }
       if(r.lunar.getDayPositionXiDesc) fzXi = r.lunar.getDayPositionXiDesc();
       if(r.lunar.getDayPositionCaiDesc) fzCai = r.lunar.getDayPositionCaiDesc();
       if(r.lunar.getDayPositionFuDesc) fzFu = r.lunar.getDayPositionFuDesc();
@@ -2424,16 +2396,19 @@
       xiuZhu: xiu ? ((xiu.verse?xiu.verse+'　':'')+(xiu.zhu||'')+(xiu.books?('　书证：'+xiu.books):'')+(xiu.gong?('　功用：'+xiu.gong):'')) : '',
       jiuyao: jy ? jy.text : '',
       najia: nj ? ('纳甲'+nj.gua+'（'+nj.wx+'）') : '',
-      tsJi, tsXiong, pz, fzXi, fzCai, fzFu
+      tongshu, pz, fzXi, fzCai, fzFu
     };
   }
 
   window.ZERI = {
-    SHAN_LIST, SHAN_ZHI, ZHI_BAGUA, CHONG, SANSHA, FAMILY,
+    SHAN_LIST, SHAN_ZHI, ZHI_FANG: window.ZHI_FANG, CHONG, SANSHA, FAMILY,
+    HOURS, SHI_SPAN,
+    JIANCHU_TONE: ZR_JIANCHU,
+    jianchuGood: ()=>Object.keys(ZR_JIANCHU).filter(k=>ZR_JIANCHU[k]>0),
     familyOf: ev=>FAMILY[FAMILY_OF[ev]||'tongyong'],
     familyDesc: ev=>(FAMILY[FAMILY_OF[ev]||'tongyong']||{}).desc||'',
     eventHasZhoutang: ev=>!!ZT_OF[ev],
-    shanYunOf, nianKeParts, nianKeShan,
+    shanYunOf, nianKeParts, nianKeShan, shanGuaOf: najiaGuaOf,
     yinfuParts, xunshanLuohou, zuoshanLuohou, zuoXiangSha,
     futianKongwang, gongjianSha, xiaoerSha, qianjinSha, dujianDutian, mucangZhi,
     zuoshanLuohou, chongdingSha, taiyangDaoshan, taiyinDaoshan, taiyangZhaofang, SHAN_SANHE,

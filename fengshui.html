@@ -1489,8 +1489,8 @@ function drawCui(){
     /* 催动要点与化解要点分列短句；摆物、颜色、数量、材质、动静、忌等类目按星查下方"九星催法速查" */
     const cuiYao=[], huaYao=[];
     if(fuyin) cuiYao.push('全局伏吟反吟，宜静不宜动');
-    if(sOk){ const z=STAR_ZHU[sc.star]; cuiYao.push('催丁（'+z.name+'，'+sw+'）：山星宜静乘丁气：安床稳坐、置山形稳物，辅'+z.wx+'性摆设（详见速查）'); }
-    if(fOk){ const z=STAR_ZHU[fc.star]; cuiYao.push('催财（'+z.name+'，'+fw+'）：向星宜动引财气：动水或门路动气引之，辅'+z.wx+'性摆设（详见速查）'); }
+    if(sOk){ const z=STAR_ZHU[sc.star]; cuiYao.push('催丁（'+z.name+'，'+sw+'）：山星宜静乘丁气，安床稳坐、置山形稳物，辅'+z.wx+'性摆设（详见速查）'); }
+    if(fOk){ const z=STAR_ZHU[fc.star]; cuiYao.push('催财（'+z.name+'，'+fw+'）：向星宜动引财气，动水或门路动气引之，辅'+z.wx+'性摆设（详见速查）'); }
     if(!sOk&&!fOk&&!fuyin) cuiYao.push('山向二星俱失令，宜静待当运再论催动');
     [[sc.star,sw,'山星'],[fc.star,fw,'向星']].forEach(p=>{
       const z=STAR_ZHU[p[0]];
@@ -1986,7 +1986,7 @@ function drawZhenJue(){
   if(!r){ out.innerHTML=head+'<div class="sub-note">暂无可用断语（相应模块未排盘或未填输入）。</div>'; fsZjDetail(); return; }
   const cls=j=>j==='吉'?'fs-badge-g':(j==='凶'?'fs-badge-r':'');
   const rows=r.domains.map(d=>`<tr><td class="lbl-1">${d.name}</td><td>${d.main}</td><td class="${cls(d.jx)}">${d.jx}</td>
-    <td>${d.mean}${d.entries.length?'<i class="fs-ib-mt">参断：'+d.entries.map(e=>e.fa+'：'+e.jx+'，'+e.mean).join('；')+'</i>':''}</td></tr>`).join('');
+    <td>${d.mean}${d.entries.length?'<i class="fs-ib-mt">参断　'+d.entries.map(e=>e.fa+'：'+e.jx+'，'+e.mean).join('；')+'</i>':''}</td></tr>`).join('');
   out.innerHTML=head+`<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>问题域</th><th>主法</th><th>裁决</th><th>断要与参断</th></tr></thead><tbody>${rows}</tbody></table></div>
     ${r.conflictN?'<div class="sub-note fs-t-gold">本局有 '+r.conflictN+' 域存在跨派分歧，已在表中标明异断与附条件，宜实地核实后再行取舍。</div>':''}`;
   fsZjDetail();

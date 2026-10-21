@@ -94,16 +94,18 @@
      申子辰（年）煞在南方巳午未、寅午戌煞在北方亥子丑、巳酉丑煞在东方寅卯辰、亥卯未煞在西方申酉戌；
      年五黄按年家紫白盘落宫。
      锚点：2026丙午：太岁午、岁破子、三煞亥子丑、五黄在离（南）。 */
-  const SANSHA_ZHI={申:['巳','午','未'],子:['巳','午','未'],辰:['巳','午','未'],
-    寅:['亥','子','丑'],午:['亥','子','丑'],戌:['亥','子','丑'],
-    巳:['寅','卯','辰'],酉:['寅','卯','辰'],丑:['寅','卯','辰'],
-    亥:['申','酉','戌'],卯:['申','酉','戌'],未:['申','酉','戌']};
+  /* 三煞表取共享真源 window.SANSHA（xuanji-lib.js），此处只取前三支；
+     本件在部分页先于 xuanji-lib 装载，故调用时读取，不在模块初始化时缓存。 */
+  function sansha3(z){
+    const t = (typeof window!=='undefined' && window.SANSHA && window.SANSHA[z]) || null;
+    return t ? t.slice(0,3) : null;
+  }
   const SANSHA_NAME={0:'劫煞',1:'灾煞',2:'岁煞'};
   /* 相冲支（子午、丑未、寅申、卯酉、辰戌、巳亥） */
   const CHONG={子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
   function nianSha(year){
     const yz=yearGZ(year)[1];
-    const zhai=SANSHA_ZHI[yz]||['巳','午','未'];
+    const zhai=sansha3(yz)||['巳','午','未'];
     const ss=zhai.map((z,i)=>({name:SANSHA_NAME[i],zhi:z}));
     const cp=CHONG[yz];
     const yb=yearZiBai(year);
@@ -1201,7 +1203,7 @@
   function yueShaShan(shan, mZhi, yZhi){
     const sz=SHAN_SHUANGZHI[shan]||shan;
     const hits=[];
-    const mss=SANSHA_ZHI[mZhi]||[];
+    const mss=sansha3(mZhi)||[];
     if(mss.indexOf(sz)>=0) hits.push({name:'月三煞到山', zhi:sz, w:-14});
     if(CHONG[mZhi]===sz) hits.push({name:'月破到山', zhi:sz, w:-14});
     if(YUE_XING[mZhi]===sz) hits.push({name:'月刑到山', zhi:sz, w:-4});
