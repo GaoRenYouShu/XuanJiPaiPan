@@ -3,8 +3,9 @@
  * 样式层见 assets/css/style.css 的“圆盘通用件”段（.wheel / .w-* / --wheel-* 令牌）。
  * 分工：本文件只出几何与选中态改写，颜色字号一律交给 CSS 令牌，各页不重写。
  *
- * 接入页：老黄历（十二时辰吉凶盘、二十八宿盘）、万年历（节气圆盘、经络圆盘）、
- *         佛历（二十七宿盘、月相斋日盘）。
+ * 接入页：道历（十二时辰盘、圣诞斋日盘）、老黄历（十二时辰吉凶盘、二十八宿盘）、
+ *         万年历（节气圆盘、经络圆盘）、佛历（二十七宿盘、月相斋日盘）、
+ *         藏历（殊胜日盘、重日缺日盘）。
  * 万年历两盘的坐标与取角仍是页内内联实现（已上线且零回归，不动），只借本件的 WHEEL.ring（最外圈环布）、
  * WHEEL.radial（内圈散射）、WHEEL.band（点选热区）、WHEEL.arc（加粗弧）
  * 与 WHEEL.pick / WHEEL.lab / WHEEL.text（选中态改写）。
@@ -12,13 +13,17 @@
  * 用法：
  *   WHEEL.arc(r, a0, a1)              弧线 path（画弧带）
  *   WHEEL.band(r0, r1, a0, a1)        环形扇区 path（作点击热区，只取环带以免盖住盘心）
+ *   WHEEL.anchorArc(r, span, id)      查询锚点弧：有 CUR 状态的盘，不随点选移动
+ *   WHEEL.selArc(r, span, id)         选中弧：随点选移动
  *   WHEEL.px(r, deg)                  极坐标转直角坐标，返回 [x, y]
  *   WHEEL.ring(deg)                   位置角转“沿圆周环布”的旋转角（只给最外圈环名）
  *   WHEEL.radial(deg)                 位置角转“沿半径散射”的旋转角（内圈两字串）
  *   WHEEL.dir(deg)                    内圈单字取字角：四正正立，其余同 radial
+ *   WHEEL.shichenLabels(o)            十二时辰盘外圈：十二地支单字加夜子小字
  *   WHEEL.pick(rootId, i)             选中态切换：只在该盘内做，同页多盘互不干扰
  *   WHEEL.lab(rootId, i)              内侧字高亮切换：同样只在该盘内做
  *   WHEEL.text(id, str, color)        改写一处盘心文字，color 省略则不动字色
+ *   WHEEL.lockDetail(el, n, htmlAt)   详情条按全部段落的最大高度预留，点选不改高
  * ============================================================ */
 (function (global) {
   'use strict';
@@ -59,6 +64,37 @@
     var r = Math.round(d * 10) / 10;
     return (r % 90 === 0) ? 0 : W.radial(d);
   };
+  /* 十二时辰盘外圈：十二地支单字与夜子小字。
+     数据为十三段，前十二段对应地支字，末段夜子无地支位，单出一枚夜子小字；
+     入参 data、span、mid、labOut、sel、good、bad，返回 SVG 文本串。 */
+  W.shichenLabels = function (o) {
+    var names = '子丑寅卯辰巳午未申酉戌亥';
+    var good = o.good || 'var(--wheel-good)', bad = o.bad || 'var(--wheel-bad)';
+    var segAt = function (dg) {
+      for (var k = 0; k < o.data.length; k++) {
+        var sp = o.span(k);
+        if (dg >= sp[0] && dg < sp[1]) return o.data[k];
+      }
+      return null;
+    };
+    var s = '';
+    for (var i = 0; i < 12; i++) {
+      var dg = i * 30, tp = W.px(o.labOut, dg), seg = segAt(dg);
+      var col = (seg && seg.good) ? good : bad;
+      s += '<text x="' + W.n(tp[0]) + '" y="' + W.n(tp[1]) + '" class="w-lab w-lab-xl' + (i === o.sel ? ' w-lab-cur' : '') + '"'
+        + ' data-i="' + i + '" style="fill:' + col + '"'
+        + ' transform="rotate(' + W.ring(dg) + ' ' + W.n(tp[0]) + ' ' + W.n(tp[1]) + ')">' + names.charAt(i) + '</text>';
+    }
+    var last = o.data.length - 1;
+    if (last >= 12) {
+      var dg2 = o.mid(last), tp2 = W.px(o.labOut, dg2), seg2 = o.data[last];
+      var col2 = (seg2 && seg2.good) ? good : bad;
+      s += '<text x="' + W.n(tp2[0]) + '" y="' + W.n(tp2[1]) + '" class="w-lab w-lab-xs' + (last === o.sel ? ' w-lab-cur' : '') + '"'
+        + ' data-i="' + last + '" style="fill:' + col2 + ';font-size:10px"'
+        + ' transform="rotate(' + W.ring(dg2) + ' ' + W.n(tp2[0]) + ' ' + W.n(tp2[1]) + ')">夜子</text>';
+    }
+    return s;
+  };
   /* 盘心水位：p 为百分比（0 至 100），返回水位矩形的顶边与高度，底边恒贴盘心圆底。
      0 即无色、100 即满盘，盘心里的填色始终只有淡底那一支，水位以上透明。
      裁形交给与盘心同圆的 clipPath，涨到哪儿上沿都是满圆的一条弦。 */
@@ -77,6 +113,54 @@
     return 'M' + W.n(A[0]) + ' ' + W.n(A[1]) + 'A' + r1 + ' ' + r1 + ' 0 ' + lg + ' 1 ' + W.n(B[0]) + ' ' + W.n(B[1])
       + 'L' + W.n(D[0]) + ' ' + W.n(D[1]) + 'A' + r0 + ' ' + r0 + ' 0 ' + lg + ' 0 ' + W.n(E[0]) + ' ' + W.n(E[1]) + 'Z';
   };
+  /* 查询锚点弧与选中弧：有 CUR 状态的盘一对同出；锚点弧不随点选移动，选中弧随点选走 */
+  W.anchorArc = function (r, span, id) {
+    return '<path' + (id ? ' id="' + id + '"' : '') + ' d="' + W.arc(r, span[0], span[1]) + '" class="w-arc w-arc-solid"/>';
+  };
+  W.selArc = function (r, span, id) {
+    return '<path' + (id ? ' id="' + id + '"' : '') + ' d="' + W.arc(r, span[0], span[1]) + '" class="w-arc w-arc-cur"/>';
+  };
+  /* 详情条高度锁定：盘下详情随点选换段，段落长短不同，容器高度就会跟着变；容器一变，
+     文档高度跟着变，页面在底部时浏览器回夹滚动，盘面与上方内容会整体跳一下。
+     此件按当前布局下全部可选段落的最大高度给容器留 min-height，点选只换字不改高。
+     换月或换日重建详情后须重调一次；窗口缩放与字体换入由本件自行重算。 */
+  var detailLocks = [];
+  var relockTimer = 0;
+  function lockOne(item, growOnly) {
+    var el = item.el;
+    if (!el || !el.parentNode || !el.getClientRects().length) return;
+    var keep = el.innerHTML, old = el.style.minHeight;
+    el.style.minHeight = '';
+    var max = 0;
+    for (var i = 0; i < item.n; i++) {
+      el.innerHTML = item.htmlAt(i);
+      if (el.offsetHeight > max) max = el.offsetHeight;
+    }
+    el.innerHTML = keep;
+    if (growOnly) max = Math.max(max, parseFloat(old) || 0);
+    el.style.minHeight = max ? max + 'px' : old;
+  }
+  function relockAll(growOnly) {
+    for (var i = 0; i < detailLocks.length; i++) lockOne(detailLocks[i], growOnly);
+  }
+  W.lockDetail = function (el, n, htmlAt) {
+    if (!el || !n || typeof htmlAt !== 'function') return;
+    detailLocks = detailLocks.filter(function (x) { return x.el && x.el.parentNode; });
+    var item = null;
+    for (var i = 0; i < detailLocks.length; i++) if (detailLocks[i].el === el) item = detailLocks[i];
+    if (!item) { item = { el: el, n: n, htmlAt: htmlAt }; detailLocks.push(item); }
+    else { item.n = n; item.htmlAt = htmlAt; }
+    lockOne(item, false);
+  };
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('resize', function () {
+      clearTimeout(relockTimer);
+      relockTimer = setTimeout(function () { relockAll(false); }, 150);
+    });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { relockAll(true); });
+    }
+  }
   /* 按盘作用域：同页两盘各有自己的扇区序号，若在全页范围内切换会互相清掉对方的选中态 */
   W.pick = function (rootId, i) {
     var root = document.getElementById(rootId);

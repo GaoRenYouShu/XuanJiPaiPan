@@ -42,6 +42,7 @@
       <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
       <button class="btn gold" onclick="setToday()">今天</button>
     </div>
+    <div id="xjQuery"></div>
     <div data-export-target>
       <div class="exp-title" data-export-title>佛历 玄机排盘</div>
       <div class="cal-nav">
@@ -69,6 +70,7 @@
 <script defer src="assets/ai.js"></script>
 <script>
 let cur = new Date();
+let xjq = null;
 let lastKey = '';
 function render(){
   /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件，本页只给一格一貌的 cell */
@@ -76,6 +78,7 @@ function render(){
     today: new Date(),
     cell: cell
   });
+  if(xjq) xjq.apply();
 }
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), foto=lunar.getFoto();
@@ -287,8 +290,9 @@ function foliXiuWheel(foto){
     s+=`<path d="${WHEEL.band(FW_IN,FW_HIT1,sp[0],sp[1])}" class="w-hit${i===FOLI_XIU_SEL?' is-on':''}" data-i="${i}" onclick="foliPickXiu(${i})"/>`;
     s+=`<path d="${WHEEL.band(FW_IN,FW_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
   });
-  s+=`<path id="foliXiuArcFix" d="${WHEEL.arc(FW_ARC,fixSp[0],fixSp[1])}" class="w-arc w-arc-solid"/>`;
-  s+=`<path id="foliXiuArc" d="${WHEEL.arc(FW_ARC,curSp[0],curSp[1])}" class="w-arc w-arc-cur"/>`;
+  /* 查询锚点弧随当日值宿不动，选中弧随点选走；两弧同取 foliXiuSpan，生成走 wheel.js 共享件 */
+  s+=WHEEL.anchorArc(FW_ARC, fixSp, 'foliXiuArcFix');
+  s+=WHEEL.selArc(FW_ARC, curSp, 'foliXiuArc');
   /* 外圈：四方单字，钉四正；不带 data-i（纯方位标记，不参与选中高亮） */
   foliXiuGroups().forEach(function(g){
     const dg=FOLI_GONG_DIR[g.gong]; if(dg===undefined) return;
@@ -414,10 +418,11 @@ function foliZhaiWheel(){
     s+=`<path d="${WHEEL.band(FZ_IN,FZ_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
   });
   /* 实色弧只给两天：所查之日（本次排盘锚定，随查询走）与选中之日（随点选走）。
-     两者初排时重合，盘上只见一条；点开别日后各出一条，锚定那条不移动，故仍认得出查的是哪天。 */
+     两者初排时重合，盘上只见一条；点开别日后各出一条，锚定那条不移动，故仍认得出查的是哪天。
+     两弧同取 fzSpan，生成走 wheel.js 共享件。 */
   const fixSp=fzSpan(FZ_CUR);
-  s+=`<path id="foliZhaiArcFix" d="${WHEEL.arc(FZ_ARC,fixSp[0],fixSp[1])}" class="w-arc w-arc-solid"/>`;
-  s+=`<path id="foliZhaiArc" d="${WHEEL.arc(FZ_ARC,curSp[0],curSp[1])}" class="w-arc w-arc-cur"/>`;
+  s+=WHEEL.anchorArc(FZ_ARC, fixSp, 'foliZhaiArcFix');
+  s+=WHEEL.selArc(FZ_ARC, curSp, 'foliZhaiArc');
   /* 外圈：斋期单字，沿圆周环布（WHEEL.ring）；非斋日留空 */
   FZ_ITEMS.forEach(function(x,i){
     const mk=foliZhaiMark(x); if(!mk) return;
@@ -519,7 +524,7 @@ function setToday(){ xjNavToday(); }
 function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
-function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
+function jumpToDate(v){ xjCalJump(v, function(y,m,d){ cur=safeDate(y,m,d); }); }
 </script>
 <script>
 
@@ -532,6 +537,29 @@ window.addEventListener('load', function () {
     renderChrome('foli.html');
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */
     xjCalNav.onQuery = function(v){ jumpToDate(v); };
+    xjq = xjCalQuery.init({
+      mount:'xjQuery', grid:'calGrid', label:'圣诞斋日检索', placeholder:'圣诞或斋日', filterLabel:'筛选',
+      getYear:function(){ return cur.getFullYear(); },
+      searchDay:function(y,m,d){
+        const foto=Solar.fromYmd(y,m,d).getLunar().getFoto();
+        const arr=foto.getOtherFestivals().slice().concat(collectZhai(foto));
+        if(foto.isMonthZhai()) arr.push('三长斋月');
+        return arr;
+      },
+      filters:[
+        {value:'dan',label:'圣诞'},{value:'dao',label:'成道'},{value:'shuo',label:'朔望斋'},
+        {value:'liu',label:'六斋日'},{value:'shi',label:'十斋日'},{value:'guan',label:'观音斋'},{value:'month',label:'三长斋月'}
+      ],
+      match:function(y,m,d,sel){
+        const foto=Solar.fromYmd(y,m,d).getLunar().getFoto(), fest=foto.getOtherFestivals();
+        const map={dan:fest.some(function(n){return n.indexOf('诞')>=0;}),
+          dao:fest.some(function(n){return n.indexOf('成道')>=0||n.indexOf('涅槃')>=0;}),
+          shuo:foto.isDayZhaiShuoWang(),liu:foto.isDayZhaiSix(),shi:foto.isDayZhaiTen(),
+          guan:foto.isDayZhaiGuanYin(),month:foto.isMonthZhai()};
+        return sel.some(function(v){ return map[v]; });
+      },
+      onJump:function(date){ jumpToDate(date); }
+    });
     render();
     setToday();
     mountAI(function(){

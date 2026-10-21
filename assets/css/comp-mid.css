@@ -37,10 +37,37 @@
 
 .mod-n{flex:0 0 auto;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:var(--gold);color:#fff;font-size:12px}
 
+/* 低强调文字按钮：预设组与筛选清空共用，颜色随各页 --gold/--gold2 重指；高度仍守 30px 控件口径 */
+.btn-mini{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 var(--sp-1);
+  border:0;border-radius:0;background:transparent;color:var(--gold);font:inherit;font-size:12px;cursor:pointer;box-sizing:border-box}
+.btn-mini:hover{color:var(--gold2)}
+
+/* 日历检索与筛选（五历页共用） */
+.xj-query-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--sp-3);margin-top:var(--sp-2);margin-bottom:0;background:none;border:0;border-radius:0;padding:0;box-shadow:none}
+.xj-query-row .field{display:flex;flex:0 0 auto;width:auto;max-width:none;flex-direction:row;align-items:center;gap:var(--sp-2)}
+.xj-query-row .field label{white-space:nowrap;color:var(--gold2)}
+.cal-page .xj-query-row .field{width:auto;min-width:0}
+.cal-page .xj-query-row .field input.xj-search-input{width:120px}
+.xj-search-out{max-width:680px;margin:var(--sp-2) auto 0}
+.xj-search-cap{font-size:var(--tier4);color:var(--ink2);padding:var(--sp-1) 0}
+.xj-search-item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font-size:var(--tier3);line-height:1.7;padding:var(--sp-1) 0;text-decoration:none}
+.xj-search-item:hover{color:var(--gold2)}
+.xj-search-empty{font-size:var(--tier4);color:var(--ink2);padding:var(--sp-1) 0}
+.xj-filter-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--sp-2) var(--sp-3);margin-top:var(--sp-2);font-size:var(--tier4);color:var(--ink2)}
+.xj-filter-cap{color:var(--gold2);letter-spacing:.08em}
+.xj-chk{display:inline-flex;align-items:center;gap:var(--sp-1);cursor:pointer}
+.xj-chk input{width:14px;height:14px;accent-color:var(--gold2)}
+.xj-filter-info{color:var(--ink2)}
+.cal-cell.xj-filtered{visibility:hidden;pointer-events:none}
+
 @media(max-width:640px){
   .fei-wrap{grid-template-columns:1fr;gap:var(--sp-3);justify-items:center}
   .cal-grid{gap:var(--sp-1) var(--sp-1);width:100%;max-width:100%;box-sizing:border-box;padding:var(--sp-2)}
   .cal-nav-grp{gap:var(--sp-1)}
+  .cal-page .xj-query-row .field input.xj-search-input{width:100px}
+  .xj-query-row{gap:var(--sp-2)}
+  .xj-search-out{max-width:none}
+  .xj-filter-row{justify-content:flex-start;padding:0 var(--sp-1)}
 }
 
 @media(max-width:420px){

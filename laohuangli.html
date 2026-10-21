@@ -43,6 +43,7 @@
       <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="query()"></div>
       <button class="btn gold" onclick="setToday()">今天</button>
     </div>
+    <div id="xjQuery"></div>
     <div data-export-target>
     <div class="exp-title" data-export-title>老黄历 玄机排盘</div>
     <div class="cal-nav">
@@ -96,6 +97,7 @@ function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo,'lhl-br'
    盘内不铺选中色块：经络圆盘靠加粗弧与加粗字示选中，铺色块会盖住刻度与弧带，也显脏。 */
 var W_C,W_ARC,W_OUT,W_IN,W_CORE,W_LAB_OUT,W_LAB_IN,W_HIT1,W_TICK0,W_TICK1,W_P0,W_P1;
 let LHL_SC=null, LHL_SC_CUR=0, LHL_SC_SEL=0;
+let xjq=null;
 /* 库在无宜事时回传单元素数组 ['无']，非空故空值兜底不触发；此处归一为“诸事不宜”，与当日宜同口径 */
 function lhlYiText(a){const s=(a||[]).join('、');return(!s||s==='无')?'诸事不宜':s;}
 /* 建除十二神自有一套黄黑，口诀：建满平收黑，除危定执黄，成开皆可用，破闭不可当；与值神的黄道黑道是两派，并列同存不合并 */
@@ -213,16 +215,11 @@ function shichenWheel(lunar){
     s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-hit${i===LHL_SC_SEL?' is-on':''}" data-i="${i}" onclick="lhlPickShichen(${i})"/>`;
     s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
   });
-  s+=`<path id="lhlScArc" d="${WHEEL.arc(W_ARC,curSp[0],curSp[1])}" class="w-arc w-arc-cur"/>`;
-  /* 外圈：十二时辰名，单字、按吉凶着色，沿圆周环布（WHEEL.ring） */
-  '子丑寅卯辰巳午未申酉戌亥'.split('').forEach(function(nm,i){
-    const dg=i*30, tp=WHEEL.px(W_LAB_OUT,dg);
-    const seg=LHL_SC.filter(function(x,k){const sp=scSpan(k);return dg>=sp[0]&&dg<sp[1];})[0];
-    const col=(seg&&seg.good)?'var(--wheel-good)':'var(--wheel-bad)';
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===LHL_SC_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" style="fill:${col}"`
-      +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${nm}</text>`;
-  });
+  /* 查询锚点弧随当前时辰不动，选中弧随点选走；两弧同取 scSpan，生成走 wheel.js 共享件 */
+  s+=WHEEL.anchorArc(W_ARC, scSpan(LHL_SC_CUR), 'lhlScArcFix');
+  s+=WHEEL.selArc(W_ARC, curSp, 'lhlScArc');
+  /* 外圈：十二时辰名与夜子小字，生成走 assets/wheel.js 的 WHEEL.shichenLabels 共享件 */
+  s+=WHEEL.shichenLabels({data:LHL_SC,span:scSpan,mid:scMid,labOut:W_LAB_OUT,sel:LHL_SC_SEL});
   /* 内圈：该宫干支，两字、**一律径向散射**（聚焦向盘心）。环布只给最外圈，
      内圈全圈同一种放射排法才整齐；给内圈也套环布，整盘就失了“外圈一条环带”的层次。 */
   for(let i=0;i<12;i++){
@@ -246,7 +243,7 @@ function lhlScDetailHTML(x){
   return `${x.gz}时，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>，值神 ${x.shen||'未载'}`
     +`<span class="wd-br"></span>宜 ${x.yi}`;
 }
-const LHL_PICK_SC = {arr:function(){return LHL_SC;}, setSel:function(v){LHL_SC_SEL=v;}, wheel:'lhlScWheel', lab:function(i){return i===12?0:i;}, span:scSpan,
+const LHL_PICK_SC = {arr:function(){return LHL_SC;}, setSel:function(v){LHL_SC_SEL=v;}, wheel:'lhlScWheel', lab:function(i){return i;}, span:scSpan,
   spot:function(x,sp,i){ wheelSpot(SC_IDS,scMid(i),sp[0],sp[1]); },
   c1:['lhlScC1',function(x){return x.name;}],
   c2:['lhlScC2',function(x){return x.luck;},function(x){return x.good?'var(--wheel-good)':'var(--wheel-bad)';}],
@@ -308,7 +305,9 @@ function xiuWheel(lunar){
     s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-hit${i===LHL_XIU_SEL?' is-on':''}" data-i="${i}" onclick="lhlPickXiu(${i})"/>`;
     s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
   });
-  s+=`<path id="lhlXiuArc" d="${WHEEL.arc(W_ARC,curSp[0],curSp[1])}" class="w-arc w-arc-cur"/>`;
+  /* 查询锚点弧随当日值宿不动，选中弧随点选走；两弧同取 xiuSpan，生成走 wheel.js 共享件 */
+  s+=WHEEL.anchorArc(W_ARC, xiuSpan(LHL_XIU_CUR), 'lhlXiuArcFix');
+  s+=WHEEL.selArc(W_ARC, curSp, 'lhlXiuArc');
   /* 外圈：四象方位单字，沿圆周环布（WHEEL.ring） */
   XIU_XIANG.forEach(function(x){
     const dg=XIU_A0-(x[2]+x[3])/2*XIU_W, tp=WHEEL.px(W_LAB_OUT,dg);
@@ -409,6 +408,7 @@ function renderGrid(){
     },
     after: paintRestMarks
   });
+  if(xjq) xjq.apply();
 }
 function query(){
  try{
@@ -523,6 +523,31 @@ window.addEventListener('load', function () {
     renderChrome('laohuangli.html');
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 query() 刷新各区 */
     xjCalNav.onQuery = function(){ query(); };
+    xjq = xjCalQuery.init({
+      mount:'xjQuery', grid:'calGrid', label:'内容检索', placeholder:'节日或神煞', filterLabel:'筛选',
+      getYear:function(){ const v=document.getElementById('dInput').value; const y=+String(v).split('-')[0]; return y||xjNowDate().getFullYear(); },
+      searchDay:function(y,m,d){
+        const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), fp=festParts(solar,y,m,d);
+        const arr=fp.all.slice(), zx=lunar.getZhiXing(), jq=lunar.getJieQi();
+        arr.push(zx+'日', jian12Tag(zx), lunar.getDayTianShen(), lunar.getDayTianShenType(), lunar.getLiuYao());
+        if(jq) arr.push(jq);
+        lunar.getDayJiShen().forEach(function(n){ arr.push(n); });
+        lunar.getDayXiongSha().forEach(function(n){ arr.push(n); });
+        lunar.getDayYi().forEach(function(n){ arr.push(n); });
+        lunar.getDayJi().forEach(function(n){ arr.push(n); });
+        return arr;
+      },
+      filters:[
+        {value:'fest',label:'节日'},{value:'jq',label:'节气'},{value:'mem',label:'纪念日'},{value:'huangdao',label:'黄道'}
+      ],
+      match:function(y,m,d,sel){
+        const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), fp=festParts(solar,y,m,d);
+        const jq=lunar.getJieQi(), ts=lunar.getDayTianShenType();
+        const map={fest:fp.hasAny,jq:!!jq,mem:!!fp.mem,huangdao:ts==='黄道'};
+        return sel.some(function(v){ return map[v]; });
+      },
+      onJump:function(date){ const i=document.getElementById('dInput'); if(i)i.value=date; query(); }
+    });
     (function(){
       const JIAZI60=(function(){const G=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],Z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const a=[];for(let i=0;i<60;i++)a.push(G[i%10]+Z[i%12]);return a;})();
       window.JIAZI60 = JIAZI60;

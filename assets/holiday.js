@@ -180,6 +180,7 @@
         mark.textContent = h.off ? '休' : '班';
         if (h.name) mark.title = h.name;
       });
+      try { document.dispatchEvent(new CustomEvent('xj:restmarks')); } catch (e) {}
     });
   }
 

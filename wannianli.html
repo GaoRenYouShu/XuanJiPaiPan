@@ -42,6 +42,7 @@
       <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
       <button class="btn gold" onclick="setToday()">今天</button>
     </div>
+    <div id="xjQuery"></div>
     <div data-export-target>
     <div class="exp-title" data-export-title>万年历 玄机排盘</div>
     <div class="cal-nav">
@@ -71,6 +72,7 @@
 <script defer src="assets/ai.js"></script>
 <script>
 let cur = new Date();
+let xjq = null;
 let lastSel = '';
 /* 三伏、出伏、数九、入梅出梅 时令计算取自公共模块 assets/shiling.js（万年历与老黄历共用单一真源） */
 function render(){
@@ -80,6 +82,7 @@ function render(){
     cell: cell,
     after: paintRestMarks
   });
+  if(xjq) xjq.apply();
 }
 function cell(d,other,todayStr){
   const solar=Solar.fromDate(d), lunar=solar.getLunar();
@@ -292,8 +295,10 @@ function jieqiWheel(solar, lunar){
     s += `<path d="${WHEEL.band(116, 198, i * 15 - 7.5, i * 15 + 7.5)}" class="w-hit${i === WNL_JQ_SEL ? ' is-on' : ''}" data-i="${i}" onclick="wnlPickJq(${i})"/>`;
     s += `<path d="${WHEEL.band(116, 198, i * 15 - 7.5, i * 15 + 7.5)}" class="w-sel"/>`;
   }
-  /* 当前查看之气的加粗弧（十五度，同样以气名为中心，压在四季弧上，全盘仅此一段抢眼） */
-  s += `<path id="wnlJqArc" d="${WHEEL.arc(192, WNL_JQ_SEL * 15 - 7.5, WNL_JQ_SEL * 15 + 7.5)}" class="w-arc w-arc-cur"/>`;
+  /* 锚点弧钉本日所在之气，不随点选移动；选中弧随点选走。初排两者重合，点选后分开，
+     仍认得出本日是哪一个气。两弧同以气名为中心取 ±7.5 度，生成走 wheel.js 共享件。 */
+  s += WHEEL.anchorArc(192, [WNL_JQ_DAY * 15 - 7.5, WNL_JQ_DAY * 15 + 7.5], 'wnlJqArcFix');
+  s += WHEEL.selArc(192, [WNL_JQ_SEL * 15 - 7.5, WNL_JQ_SEL * 15 + 7.5], 'wnlJqArc');
   /* 指针只走盘心与内界圈之间的一段，不穿过盘心文字；指当前查看之气的正中，与气名、刻度同轴 */
   const q0 = px(80, WNL_JQ_SEL * 15), q1 = px(112, WNL_JQ_SEL * 15);
   s += `<circle cx="${C}" cy="${C}" r="182" class="w-ring"/>`;
@@ -372,8 +377,10 @@ function jingluoWheel(){
     s += `<path d="${WHEEL.band(120, 198, i * 30 - 15, i * 30 + 15)}" class="w-hit${i === WNL_JL_SEL ? ' is-on' : ''}" data-i="${i}" onclick="wnlPickJingluo(${i})"/>`;
     s += `<path d="${WHEEL.band(120, 198, i * 30 - 15, i * 30 + 15)}" class="w-sel"/>`;
   }
-  /* 当前查看之经的加粗弧（三十度，以地支为心，压在淡环上，全盘仅此一段抢眼） */
-  s += `<path id="wnlJlArc" d="${WHEEL.arc(192, WNL_JL_SEL * 30 - 15, WNL_JL_SEL * 30 + 15)}" class="w-arc w-arc-cur"/>`;
+  /* 锚点弧钉此刻当令之经，不随点选移动；选中弧随点选走。两弧同以地支为心取 ±15 度，
+     生成走 wheel.js 共享件。初排两者重合，点选别经后仍认得出当令是哪一经。 */
+  s += WHEEL.anchorArc(192, [WNL_JL_DANG * 30 - 15, WNL_JL_DANG * 30 + 15], 'wnlJlArcFix');
+  s += WHEEL.selArc(192, [WNL_JL_SEL * 30 - 15, WNL_JL_SEL * 30 + 15], 'wnlJlArc');
   /* 指针只走盘心与内界圈之间，不穿过盘心文字；与地支、经名、刻度同轴 */
   const curDg = WNL_JL_SEL * 30;
   const q0 = px(82, curDg), q1 = px(116, curDg);
@@ -481,7 +488,7 @@ function setToday(){ xjNavToday(); }
 function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
-function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);render();showDay(`${y}-${m}-${d}`);}
+function jumpToDate(v){ xjCalJump(v, function(y,m,d){ cur=safeDate(y,m,d); }); }
 </script>
 <script>
 
@@ -491,6 +498,31 @@ window.addEventListener('load', function () {
     renderChrome('wannianli.html');
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 jumpToDate 刷新月历与详情 */
     xjCalNav.onQuery = function(v){ jumpToDate(v); };
+    xjq = xjCalQuery.init({
+      mount:'xjQuery', grid:'calGrid', label:'节日检索', placeholder:'节日或节气', filterLabel:'筛选',
+      getYear:function(){ return cur.getFullYear(); },
+      searchDay:function(y,m,d){
+        const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), fp=festParts(solar,y,m,d);
+        const arr=fp.all.slice(), jq=lunar.getJieQi();
+        if(jq) arr.push(jq);
+        const h=holidayOf(y,m,d); if(h){ arr.push(h.off?'休':'班'); if(h.name) arr.push(h.name); }
+        return arr;
+      },
+      filters:[
+        {value:'fest',label:'节日'},{value:'jq',label:'节气'},{value:'mem',label:'纪念日'},
+        {value:'off',label:'休'},{value:'work',label:'班'}
+      ],
+      match:function(y,m,d,sel){
+        const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), fp=festParts(solar,y,m,d);
+        const jq=lunar.getJieQi();
+        const h=holidayOf(y,m,d);
+        const off=h?h.off:false;
+        const work=h?!h.off:false;
+        const map={fest:fp.hasAny,jq:!!jq,mem:!!fp.mem,off:!!off,work:!!work};
+        return sel.some(function(v){ return map[v]; });
+      },
+      onJump:function(date){ jumpToDate(date); }
+    });
     render();
     setToday();
     mountAI(function(){

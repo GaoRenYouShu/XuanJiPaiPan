@@ -434,9 +434,26 @@ const xjNav = (function(){
     el.value = key;
     fire(key);
   }
-  return { onQuery: null, onToday: null, today: today, shift: shift, pick: pick };
+  /* 直达某日：只把日期串归一为补零的分日形状并写入输入框，刷新交由页内做。
+     检索结果与外部传入的日期都走此口，免得各页各写一份补零与回填。 */
+  function jump(v){
+    if (!v) return '';
+    const p = String(v).split('-').map(Number);
+    if (!p[0] || !p[1]) return '';
+    const key = ymd(p[0], p[1], p[2] || 1);
+    const el = inputOf(); if (el) el.value = key;
+    return key;
+  }
+  return { onQuery: null, onToday: null, today: today, shift: shift, pick: pick, jump: jump };
 })();
 window.xjCalNav = xjNav;
+window.xjCalJump = function(v, setDate){
+  const key = xjNav.jump(v); if (!key) return;
+  const p = key.split('-').map(Number);
+  if (setDate) setDate(p[0], p[1], p[2]);
+  if (typeof window.render === 'function') window.render();
+  if (typeof window.showDay === 'function') window.showDay(key);
+};
 window.xjNavToday = function(){ xjNav.today(); };
 window.xjNavShift = function(dm, dy){ xjNav.shift(dm, dy); };
 window.xjNavMonth = function(n){ xjNav.shift(n, 0); };
@@ -482,6 +499,107 @@ const xjGrid = (function(){
   return { slots: slots, render: render };
 })();
 window.xjCalGrid = xjGrid;
+
+/* ===== 日历页检索与筛选（五历页共用） =====
+   页给三样：逐日检索词、筛选项、逐日筛选判据；本件只管建查询行、跑前后三年、列命中与隐藏未命中格。
+   查询结果与筛选行在日历格之外，不随分享导出；格隐藏走 xj-filtered 类，保留角标与格位。 */
+const xjCalQuery = (function(){
+  function esc(s){
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function init(o){
+    const mount = document.getElementById(o.mount || 'xjQuery');
+    if (!mount) return null;
+    const gridId = o.grid || 'calGrid';
+    const label = o.label || '内容检索';
+    const ph = o.placeholder || '神名或节日名';
+    const filterLabel = o.filterLabel || '筛选';
+    mount.innerHTML = '<div class="form-row xj-query-row">'
+      + '<div class="field"><label for="xjSearch">' + esc(label) + '</label><input type="text" id="xjSearch" class="xj-search-input" placeholder="' + esc(ph) + '" autocomplete="off"></div>'
+      + '<button class="btn soft" type="button" id="xjSearchBtn">检索</button></div>'
+      + '<div class="xj-filter-row" id="xjFilterRow"></div>'
+      + '<div class="xj-search-out" id="xjSearchOut"></div>';
+    const input = document.getElementById('xjSearch');
+    const out = document.getElementById('xjSearchOut');
+    const filterRow = document.getElementById('xjFilterRow');
+    let timer = null, sel = [];
+    function buildFilter(){
+      let h = '<span class="xj-filter-cap">' + esc(filterLabel) + '</span>';
+      (o.filters || []).forEach(function(f){
+        h += '<label class="xj-chk"><input type="checkbox" value="' + esc(f.value) + '">' + esc(f.label) + '</label>';
+      });
+      h += '<button type="button" class="btn-mini xj-filter-clear" id="xjClear">清空</button><span class="xj-filter-info" id="xjFilterInfo"></span>';
+      filterRow.innerHTML = h;
+      filterRow.querySelectorAll('input[type=checkbox]').forEach(function(c){ c.addEventListener('change', apply); });
+      document.getElementById('xjClear').addEventListener('click', clear);
+    }
+    function selected(){
+      sel = Array.prototype.map.call(filterRow.querySelectorAll('input[type=checkbox]:checked'), function(c){ return c.value; });
+      return sel;
+    }
+    function apply(){
+      selected();
+      const cells = document.querySelectorAll('#' + gridId + ' .cal-cell');
+      let n = 0;
+      cells.forEach(function(c){
+        const key = c.getAttribute('data-date'); if (!key) return;
+        const p = key.split('-').map(Number);
+        const hit = !sel.length || (o.match ? !!o.match(p[0], p[1], p[2], sel) : true);
+        c.classList.toggle('xj-filtered', !hit);
+        if (hit) n++;
+      });
+      const info = document.getElementById('xjFilterInfo');
+      if (info) info.textContent = sel.length ? ('命中 ' + n + ' 日') : '';
+    }
+    function clear(){
+      filterRow.querySelectorAll('input[type=checkbox]').forEach(function(c){ c.checked = false; });
+      apply();
+    }
+    function search(){
+      const q = (input.value || '').trim();
+      if (!q){ out.innerHTML = ''; return; }
+      const y = o.getYear ? o.getYear() : new Date().getFullYear();
+      const span = o.years || 3, limit = o.limit || 80, hits = [];
+      for (let yy = y - span; yy <= y + span && hits.length < limit; yy++){
+        for (let m = 1; m <= 12 && hits.length < limit; m++){
+          const dim = new Date(yy, m, 0).getDate();
+          for (let d = 1; d <= dim && hits.length < limit; d++){
+            const labels = (o.searchDay ? o.searchDay(yy, m, d) : []) || [];
+            const hit = labels.filter(function(n){ return String(n).indexOf(q) >= 0; });
+            if (hit.length) hits.push({ date: yy + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0'), text: hit.join('、') });
+          }
+        }
+      }
+      const cap = '检索范围 ' + y + ' 年前后三年，命中 ' + hits.length + ' 日' + (hits.length >= limit ? '（最多列 ' + limit + ' 日）' : '');
+      out.innerHTML = '<div class="xj-search-cap">' + cap + '</div>'
+        + (hits.length ? hits.map(function(h){
+          return '<a href="#" class="xj-search-item" data-date="' + esc(h.date) + '">' + esc(h.date) + '　' + esc(h.text) + '</a>';
+        }).join('') : '<div class="xj-search-empty">无命中</div>');
+      out.querySelectorAll('.xj-search-item').forEach(function(a){
+        a.addEventListener('click', function(e){
+          e.preventDefault();
+          if (o.onJump) o.onJump(a.getAttribute('data-date'));
+        });
+      });
+    }
+    function soon(){
+      clearTimeout(timer);
+      timer = setTimeout(search, 200);
+    }
+    function refresh(){
+      apply();
+      if ((input.value || '').trim()) search();
+    }
+    input.addEventListener('input', soon);
+    document.getElementById('xjSearchBtn').addEventListener('click', search);
+    document.addEventListener('xj:restmarks', refresh);
+    buildFilter();
+    apply();
+    return { apply: apply, refresh: refresh };
+  }
+  return { init: init };
+})();
+window.xjCalQuery = xjCalQuery;
 
 /* ===== 提示弹层遮罩（历法页共用） =====
    弹层遮罩的建立与复用收此一件：首次调用建壳并挂关层监听，其后按 id 复用。
