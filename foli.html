@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/foli.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/comp-mid.css">
 <link rel="stylesheet" href="assets/css/dt.css">
 <link rel="stylesheet" href="assets/css/foli.css">
@@ -38,11 +39,14 @@
   <div class="page">
     <h1>佛历</h1>
     <div class="lead">佛历纪年、佛菩萨圣诞、斋日与宿曜二十七宿吉凶。</div>
-    <div class="form-row">
-      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
-      <button class="btn gold" onclick="setToday()">今天</button>
+    <div class="cal-query-flow">
+      <div class="form-row">
+        <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
+        <button class="btn gold" onclick="setToday()">今天</button>
+      </div>
+      <div id="xjQuery"></div>
+      <div id="calReverse"></div>
     </div>
-    <div id="xjQuery"></div>
     <div data-export-target>
       <div class="exp-title" data-export-title>佛历 玄机排盘</div>
       <div class="cal-nav">
@@ -67,6 +71,7 @@
 <script defer src="assets/foli-terms.js"></script>
 <script defer src="assets/app.js"></script>
 <script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/cal-reverse.js"></script>
 <script defer src="assets/ai.js"></script>
 <script>
 let cur = new Date();
@@ -272,52 +277,38 @@ function foliXiuWheel(foto){
     return {nm:nm, full:nm+(LunarUtil.ZHENG[nm]||'')+(LunarUtil.ANIMAL[nm]||''),
       luck:luck, good:luck==='吉', gong:g, xiang:g?g+'方'+sh:''};
   });
-  const curSp=foliXiuSpan(FOLI_XIU_SEL), fixSp=foliXiuSpan(FOLI_XIU_CUR), curX=FOLI_XIU_ITEMS[FOLI_XIU_SEL];
-  let s='';
-  /* 二十七段弧：段间不留缝，整圈是一条淡环；加粗那段另出一条，随选中走 */
-  FOLI_XIU_ITEMS.forEach(function(x,i){
-    const sp=foliXiuSpan(i);
-    s+=`<path d="${WHEEL.arc(FW_ARC,sp[0],sp[1])}" class="w-arc"/>`;
+  const curX=FOLI_XIU_ITEMS[FOLI_XIU_SEL];
+  return WHEEL.render({
+    id:'foliXiuWheel', aria:'二十七宿盘', n:FOLI_XIU_ITEMS.length,
+    span:foliXiuSpan, mid:foliXiuMid,
+    arc:FW_ARC, rIn:FW_IN, hit1:FW_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:FW_P0, p1:FW_P1, out:FW_OUT, core:FW_CORE,
+    sel:FOLI_XIU_SEL, cur:FOLI_XIU_CUR,
+    selId:'foliXiuArc', anchorId:'foliXiuArcFix', needleId:'foliXiuNeedle', dotId:'foliXiuDot',
+    onclick:'foliPickXiu',
+    labelsOut:function(i){
+      if(i!==0) return '';
+      /* 外圈：四方单字，钉四正；不带 data-i（纯方位标记，不参与选中高亮） */
+      let s='';
+      foliXiuGroups().forEach(function(g){
+        const dg=FOLI_GONG_DIR[g.gong]; if(dg===undefined) return;
+        const tp=WHEEL.px(FW_LAB_OUT,dg);
+        s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl"`
+          +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${g.gong}</text>`;
+      });
+      return s;
+    },
+    labelsIn:function(i,dg){
+      const x=FOLI_XIU_ITEMS[i], tp=WHEEL.px(FW_LAB_IN,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg${i===FOLI_XIU_SEL?' w-lab-cur':''}"`
+        +` data-i="${i}" style="fill:${x.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
+        +` transform="rotate(${WHEEL.dir(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.nm}</text>`;
+    },
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'foliXiuC1', text:curX.full},
+      {y:FW_C+14, cls:'w-c2', id:'foliXiuC2', text:curX.luck, style:'font-weight:700;fill:' + (curX.good?'var(--wheel-good)':'var(--wheel-bad)')},
+      {y:FW_C+34, cls:'w-c3', id:'foliXiuC3', text:curX.xiang}
+    ]
   });
-  /* 刻度落在每宿中点，与两侧文字同轴 */
-  for(let i=0;i<FOLI_XIU_ITEMS.length;i++){
-    const dg=foliXiuMid(i), ta=WHEEL.px(FW_TICK0,dg), tb=WHEEL.px(FW_TICK1,dg);
-    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
-  }
-  /* 热区只取环带（内界圈到弧带外沿），不盖盘心 */
-  FOLI_XIU_ITEMS.forEach(function(x,i){
-    const sp=foliXiuSpan(i);
-    s+=`<path d="${WHEEL.band(FW_IN,FW_HIT1,sp[0],sp[1])}" class="w-hit${i===FOLI_XIU_SEL?' is-on':''}" data-i="${i}" onclick="foliPickXiu(${i})"/>`;
-    s+=`<path d="${WHEEL.band(FW_IN,FW_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
-  });
-  /* 查询锚点弧随当日值宿不动，选中弧随点选走；两弧同取 foliXiuSpan，生成走 wheel.js 共享件 */
-  s+=WHEEL.anchorArc(FW_ARC, fixSp, 'foliXiuArcFix');
-  s+=WHEEL.selArc(FW_ARC, curSp, 'foliXiuArc');
-  /* 外圈：四方单字，钉四正；不带 data-i（纯方位标记，不参与选中高亮） */
-  foliXiuGroups().forEach(function(g){
-    const dg=FOLI_GONG_DIR[g.gong]; if(dg===undefined) return;
-    const tp=WHEEL.px(FW_LAB_OUT,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl"`
-      +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${g.gong}</text>`;
-  });
-  /* 内圈：二十七宿名单字，按吉凶着色；选中态靠加粗字示，不铺色块 */
-  FOLI_XIU_ITEMS.forEach(function(x,i){
-    const dg=foliXiuMid(i), tp=WHEEL.px(FW_LAB_IN,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg${i===FOLI_XIU_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" style="fill:${x.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
-      +` transform="rotate(${WHEEL.dir(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.nm}</text>`;
-  });
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`;
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  /* 指针只走盘心与内界圈之间，不穿过盘心文字 */
-  const dg=foliXiuMid(FOLI_XIU_SEL), q0=WHEEL.px(FW_P0,dg), q1=WHEEL.px(FW_P1,dg);
-  s+=`<line id="foliXiuNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="foliXiuDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  s+=`<text x="${FW_C}" y="${FW_C-16}" class="w-c1" id="foliXiuC1">${curX.full}</text>`;
-  s+=`<text x="${FW_C}" y="${FW_C+14}" class="w-c2" id="foliXiuC2" style="font-weight:700;fill:${curX.good?'var(--wheel-good)':'var(--wheel-bad)'}">${curX.luck}</text>`;
-  s+=`<text x="${FW_C}" y="${FW_C+34}" class="w-c3" id="foliXiuC3">${curX.xiang}</text>`;
-  return `<svg class="wheel" id="foliXiuWheel" viewBox="0 0 440 440" role="img" aria-label="二十七宿盘">${s}</svg>`;
 }
 /* 盘下详情条：宿曜全名（可点弹逐宿释义）、方位、吉凶一行。宿曜吉凶歌只留弹窗一份，条内不再重复。 */
 function foliXiuDetailHTML(i){
@@ -398,57 +389,31 @@ function foliZhaiMark(x){
   return '';
 }
 function foliZhaiWheel(){
-  const curSp=fzSpan(FZ_SEL), curX=FZ_ITEMS[FZ_SEL];
-  let s='';
-  /* 逐格弧：全圈一律淡线。斋日不预标实色，一月的斋日六七天，未点之前先冒六七处主体色，
-     与选中态争焦点；哪几天斋由外圈单字标记与内圈日名点出，淡环本身已是完整的盘。 */
-  FZ_ITEMS.forEach(function(x,i){
-    const sp=fzSpan(i);
-    s+=`<path d="${WHEEL.arc(FZ_ARC,sp[0],sp[1])}" class="w-arc"/>`;
+  const curX=FZ_ITEMS[FZ_SEL];
+  return WHEEL.render({
+    id:'foliZhaiWheel', aria:'斋日盘', n:FZ_N,
+    span:fzSpan, mid:fzMid,
+    arc:FZ_ARC, rIn:FZ_IN, hit1:FZ_HIT1, tick0:FZ_TICK0, tick1:FZ_TICK1, p0:FZ_P0, p1:FZ_P1, out:FZ_OUT, core:FZ_CORE,
+    sel:FZ_SEL, cur:FZ_CUR,
+    selId:'foliZhaiArc', anchorId:'foliZhaiArcFix', needleId:'foliZhaiNeedle', dotId:'foliZhaiDot',
+    onclick:'foliPickZhai',
+    labelsOut:function(i,dg){
+      const mk=foliZhaiMark(FZ_ITEMS[i]); if(!mk) return '';
+      const tp=WHEEL.px(FZ_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===FZ_SEL?' w-lab-cur':''}"`
+        +` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${mk}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const x=FZ_ITEMS[i], tp=WHEEL.px(FZ_LAB_IN,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===FZ_SEL?' w-lab-cur':''}"`
+        +` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.name}</text>`;
+    },
+    center:[
+      {y:FZ_C-16, cls:'w-c1', id:'foliZhaiC1', text:FZ_LABEL + '月' + curX.name},
+      {y:FZ_C+14, cls:'w-c2', id:'foliZhaiC2', text:curX.types.length?curX.types.map(function(t){return FZ_SHORT[t]||t;}).join('、'):'非斋期', fill:curX.types.length?'var(--wheel-cur)':null},
+      {y:FZ_C+34, cls:'w-c3', id:'foliZhaiC3', text:curX.solar}
+    ]
   });
-  /* 刻度落在每格中点，与两侧文字同轴 */
-  for(let i=0;i<FZ_N;i++){
-    const dg=fzMid(i), ta=WHEEL.px(FZ_TICK0,dg), tb=WHEEL.px(FZ_TICK1,dg);
-    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
-  }
-  /* 热区只取环带（内界圈到弧带外沿），不盖盘心 */
-  FZ_ITEMS.forEach(function(x,i){
-    const sp=fzSpan(i);
-    s+=`<path d="${WHEEL.band(FZ_IN,FZ_HIT1,sp[0],sp[1])}" class="w-hit${i===FZ_SEL?' is-on':''}" data-i="${i}" onclick="foliPickZhai(${i})"/>`;
-    s+=`<path d="${WHEEL.band(FZ_IN,FZ_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
-  });
-  /* 实色弧只给两天：所查之日（本次排盘锚定，随查询走）与选中之日（随点选走）。
-     两者初排时重合，盘上只见一条；点开别日后各出一条，锚定那条不移动，故仍认得出查的是哪天。
-     两弧同取 fzSpan，生成走 wheel.js 共享件。 */
-  const fixSp=fzSpan(FZ_CUR);
-  s+=WHEEL.anchorArc(FZ_ARC, fixSp, 'foliZhaiArcFix');
-  s+=WHEEL.selArc(FZ_ARC, curSp, 'foliZhaiArc');
-  /* 外圈：斋期单字，沿圆周环布（WHEEL.ring）；非斋日留空 */
-  FZ_ITEMS.forEach(function(x,i){
-    const mk=foliZhaiMark(x); if(!mk) return;
-    const dg=fzMid(i), tp=WHEEL.px(FZ_LAB_OUT,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===FZ_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${mk}</text>`;
-  });
-  /* 内圈：农历日名两字，**一律径向散射**（与经络盘内圈排经名、时辰盘内圈排干支同制式）；
-     一圈两字若也套四正，会在初一、十六两处冒出横排，破整圈放射 */
-  FZ_ITEMS.forEach(function(x,i){
-    const dg=fzMid(i), tp=WHEEL.px(FZ_LAB_IN,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===FZ_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.name}</text>`;
-  });
-  s+=`<circle cx="${FZ_C}" cy="${FZ_C}" r="${FZ_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${FZ_C}" cy="${FZ_C}" r="${FZ_IN}" class="w-ring"/>`;
-  s+=`<circle cx="${FZ_C}" cy="${FZ_C}" r="${FZ_CORE}" class="w-core"/>`;
-  const dg=fzMid(FZ_SEL), q0=WHEEL.px(FZ_P0,dg), q1=WHEEL.px(FZ_P1,dg);
-  s+=`<line id="foliZhaiNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="foliZhaiDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  /* 盘心三行：农历月日（大）、斋期短名（中，属斋期取主体色）、该日公历（小） */
-  const c2=curX.types.length?curX.types.map(function(t){return FZ_SHORT[t]||t;}).join('、'):'非斋期';
-  s+=`<text x="${FZ_C}" y="${FZ_C-16}" class="w-c1" id="foliZhaiC1">${FZ_LABEL}月${curX.name}</text>`;
-  s+=`<text x="${FZ_C}" y="${FZ_C+14}" class="w-c2" id="foliZhaiC2"${curX.types.length?' style="fill:var(--wheel-cur)"':''}>${c2}</text>`;
-  s+=`<text x="${FZ_C}" y="${FZ_C+34}" class="w-c3" id="foliZhaiC3">${curX.solar}</text>`;
-  return `<svg class="wheel" id="foliZhaiWheel" viewBox="0 0 440 440" role="img" aria-label="斋日盘">${s}</svg>`;
 }
 /* 盘下详情条：该日斋期全列（各斋名可点弹判定与来源）+ 所查日是否属斋期。非斋日给下一个斋日，
    好顺着盘找下去。判定说明收在弹窗（foli-terms.js 单一真源），条内不重复。 */
@@ -578,6 +543,24 @@ window.addEventListener('load', function () {
       return `公历：${y}年${m}月${d}日 星期${'日一二三四五六'[solar.getWeek()]}\n佛历：${foto.getYearInChinese()}年${foto.getMonthInChinese()}月${foto.getDayInChinese()}\n农历：${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}、${lunar.getYearInGanZhi()}年 ${lunar.getMonthInGanZhi()}月 ${lunar.getDayInGanZhi()}日\n生肖、星座：${lunar.getYearShengXiao()}、${solar.getXingZuo()}座、月建 ${lunar.getMonthInGanZhi().slice(-1)}月、月相${lunar.getYueXiang()}\n${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}\n佛历文书：${foText}\n宿曜二十七宿：${foto.getXiu()}${foto.getZheng()}${foto.getAnimal()}（${foto.getXiuLuck()}）\n佛菩萨圣诞、节庆：${fests}\n佛吉祥日即南传卫塞节，与汉传四月初八佛诞分列\n本日斋期综合判定：${zhai}\n宿曜吉凶歌：${foto.getXiuSong()}\n南传布萨：${busha}\n当月佛菩萨圣诞一览：\n${mfText}\n当月斋日一览：\n${zhText}`;
     }, '佛历', { share:{ page:"foli", title:"佛历在线查询", recast:function(){ try{ if(!lastKey) setToday(); }catch(e){} } } });
   }, 0);
+});
+</script>
+<script>
+window.addEventListener("load", function(){
+  setTimeout(function(){
+    var el=document.getElementById("calReverse");
+    if(!el || !window.XJ_CAL_REVERSE) return;
+    XJ_CAL_REVERSE.mount({
+      el:el, kind:"lunar", offset:-543, yearLabel:"佛历年",
+      getCurrent:function(){
+        var v=document.getElementById("dInput").value;
+        var p=v?v.split("-").map(Number):[];
+        if(!p[0]){ var t=xjNowDate(); p=[t.getFullYear(),t.getMonth()+1,t.getDate()]; }
+        return {y:p[0],m:p[1],d:p[2]};
+      },
+      onPick:function(date){ jumpToDate(date); }
+    });
+  },0);
 });
 </script>
 </body>

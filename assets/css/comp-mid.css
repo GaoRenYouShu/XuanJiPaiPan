@@ -43,17 +43,19 @@
 .btn-mini:hover{color:var(--gold2)}
 
 /* 日历检索与筛选（五历页共用） */
-.xj-query-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--sp-3);margin-top:var(--sp-2);margin-bottom:0;background:none;border:0;border-radius:0;padding:0;box-shadow:none}
-.xj-query-row .field{display:flex;flex:0 0 auto;width:auto;max-width:none;flex-direction:row;align-items:center;gap:var(--sp-2)}
+.xj-query-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:var(--sp-3);margin:0;background:none;border:0;border-radius:0;padding:0;box-shadow:none}
+.xj-query-row .field{display:flex;flex:0 0 auto;width:auto;max-width:none;flex-direction:column;align-items:flex-start;gap:var(--sp-1)}
 .xj-query-row .field label{white-space:nowrap;color:var(--gold2)}
 .cal-page .xj-query-row .field{width:auto;min-width:0}
 .cal-page .xj-query-row .field input.xj-search-input{width:120px}
 .xj-search-out{max-width:680px;margin:var(--sp-2) auto 0}
+.xj-search-out:empty{display:none}
 .xj-search-cap{font-size:var(--tier4);color:var(--ink2);padding:var(--sp-1) 0}
 .xj-search-item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font-size:var(--tier3);line-height:1.7;padding:var(--sp-1) 0;text-decoration:none}
 .xj-search-item:hover{color:var(--gold2)}
 .xj-search-empty{font-size:var(--tier4);color:var(--ink2);padding:var(--sp-1) 0}
-.xj-filter-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--sp-2) var(--sp-3);margin-top:var(--sp-2);font-size:var(--tier4);color:var(--ink2)}
+.xj-filter-row{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:var(--sp-1);margin:0;font-size:var(--tier4);color:var(--ink2)}
+.xj-filter-opts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-2)}
 .xj-filter-cap{color:var(--gold2);letter-spacing:.08em}
 .xj-chk{display:inline-flex;align-items:center;gap:var(--sp-1);cursor:pointer}
 .xj-chk input{width:14px;height:14px;accent-color:var(--gold2)}
@@ -64,7 +66,6 @@
   .fei-wrap{grid-template-columns:1fr;gap:var(--sp-3);justify-items:center}
   .cal-grid{gap:var(--sp-1) var(--sp-1);width:100%;max-width:100%;box-sizing:border-box;padding:var(--sp-2)}
   .cal-nav-grp{gap:var(--sp-1)}
-  .cal-page .xj-query-row .field input.xj-search-input{width:100px}
   .xj-query-row{gap:var(--sp-2)}
   .xj-search-out{max-width:none}
   .xj-filter-row{justify-content:flex-start;padding:0 var(--sp-1)}
@@ -78,4 +79,34 @@
 @media print{
   .data-export-hide{display:none !important}
   .exp-title{display:block !important;font-size:20px;font-weight:700;text-align:center;margin:0 0 var(--sp-3);color:var(--ink)}
+}
+
+/* 历法反查行：字段标签一律在控件上方，字段按内容定宽，整行居中；说明另起一行。 */
+.rev-row{margin:0}
+.rev-row .rev-fields{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:var(--sp-3);margin:0}
+.rev-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none;flex-direction:column;align-items:flex-start;gap:var(--sp-1)}
+.cal-page .rev-row .field{width:auto}
+.rev-row .field label{color:var(--gold2);font-weight:400;white-space:nowrap;margin:0}
+.rev-row .field input[type="number"]{width:96px}
+.rev-row .field select{width:auto;max-width:none}
+.rev-row .rev-check-line{display:flex;align-items:center;gap:var(--sp-1);height:30px}
+.rev-row .field input[type="checkbox"]{width:auto;height:auto;padding:0;margin:0}
+.rev-row .rev-check-hint{font-size:12px;color:var(--ink2);white-space:nowrap}
+.rev-row .btn{height:30px;margin:0}
+.rev-row .rev-note{max-width:none;margin:var(--sp-1) 0 0;font-size:12px;color:var(--ink2);line-height:1.6;text-align:left}
+
+
+@media(max-width:640px){
+  .rev-row .rev-fields{gap:var(--sp-2)}
+}
+
+/* 历法查询区：日期、检索、筛选、反查同处一条左对齐流，空间不足自然换行。 */
+.cal-query-flow{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:flex-start;gap:var(--sp-3);margin-top:var(--sp-2)}
+.cal-query-flow > .form-row{margin:0;align-items:flex-end;justify-content:flex-start}
+.cal-query-flow #xjQuery{display:contents}
+.cal-query-flow .xj-query-row{margin:0;align-items:flex-end;justify-content:flex-start}
+.cal-query-flow .xj-search-out{flex:1 1 100%;max-width:none;margin:var(--sp-2) 0 0}
+
+@media(max-width:640px){
+  .cal-query-flow{gap:var(--sp-2)}
 }

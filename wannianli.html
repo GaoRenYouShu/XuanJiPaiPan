@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/wannianli.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/comp-mid.css">
 <link rel="stylesheet" href="assets/css/dt.css">
 <link rel="stylesheet" href="assets/css/wannianli.css">
@@ -38,11 +39,13 @@
   <div class="page">
     <h1>万年历</h1>
     <div class="lead">公历、农历对照，含节气、节日、纪念日、每日干支。</div>
-    <div class="form-row">
-      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
-      <button class="btn gold" onclick="setToday()">今天</button>
+    <div class="cal-query-flow">
+      <div class="form-row">
+        <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
+        <button class="btn gold" onclick="setToday()">今天</button>
+      </div>
+      <div id="xjQuery"></div>
     </div>
-    <div id="xjQuery"></div>
     <div data-export-target>
     <div class="exp-title" data-export-title>万年历 玄机排盘</div>
     <div class="cal-nav">
@@ -243,12 +246,6 @@ function wnlPickJingluo(i){
   const d=document.getElementById('wnlJlDetail'); if(d) d.innerHTML=wnlJlDetailHTML(i);
 }
 function jieqiWheel(solar, lunar){
-  const C = 220;
-  const px = (r, deg) => { const a = (deg - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
-  const n2 = v => Math.round(v * 10) / 10;
-  /* 外圈环名沿圆周环布，内圈环名沿半径散射（与全站各盘同制式） */
-  const ring = dg => WHEEL.ring(dg);
-  const radial = dg => n2(dg < 180 ? dg - 90 : dg + 90);
   /* 当令之气：交节当日取 getCurrentJieQi，余日取上一气；两途皆得气名，不必再按前后气的日距反推 */
   const cur = lunar.getCurrentJieQi() || lunar.getPrevJieQi();
   const curIdx = JIEQI_24.indexOf(cur.getName());
@@ -274,42 +271,40 @@ function jieqiWheel(solar, lunar){
   });
   WNL_JQ_SEL = curIdx;
   WNL_JQ_DAY = curIdx;
-  let s = '';
-  /* 四季：一段主体色弧（单一黛青、半透明，不抢眼）+ 一个降调五行色宋体季名 */
-  JIEQI_SEA.forEach(function (x) {
-    const a0 = px(192, x[1]), a1 = px(192, x[1] + 90), tp = px(206, x[1] + 45), dg = x[1] + 45;
-    s += `<path d="M${n2(a0[0])} ${n2(a0[1])}A192 192 0 0 1 ${n2(a1[0])} ${n2(a1[1])}" class="w-arc w-arc-b"/>`;
-    s += `<text x="${n2(tp[0])}" y="${n2(tp[1])}" class="w-tag" style="fill:${x[2]}" transform="rotate(${ring(dg)} ${n2(tp[0])} ${n2(tp[1])})">${x[0]}</text>`;
+  return WHEEL.render({
+    id:'wnlJqWheel', aria:'二十四节气圆盘', n:24,
+    span:function(i){ return [i * 15 - 7.5, i * 15 + 7.5]; },
+    mid:function(i){ return i * 15; },
+    arc:192, rIn:116, hit1:198, tick0:166, tick1:176, p0:80, p1:112, out:182, core:76,
+    sel:WNL_JQ_SEL, cur:WNL_JQ_DAY,
+    selId:'wnlJqArc', anchorId:'wnlJqArcFix', needleId:'wnlJqNeedle', dotId:'wnlJqDot',
+    onclick:'wnlPickJq',
+    before:function(){
+      let s = '';
+      /* 四季：一段主体色弧加一个降调五行色宋体季名 */
+      JIEQI_SEA.forEach(function (x) {
+        const a0 = WHEEL.px(192, x[1]), a1 = WHEEL.px(192, x[1] + 90), tp = WHEEL.px(206, x[1] + 45), dg = x[1] + 45;
+        s += `<path d="M${WHEEL.n(a0[0])} ${WHEEL.n(a0[1])}A192 192 0 0 1 ${WHEEL.n(a1[0])} ${WHEEL.n(a1[1])}" class="w-arc w-arc-b"/>`;
+        s += `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-tag" style="fill:${x[2]}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x[0]}</text>`;
+      });
+      return s;
+    },
+    tickAt:function(i){
+      const dg = i * 15, isJie = (i % 2 === 0);
+      const ta = WHEEL.px(isJie ? 166 : 170, dg), tb = WHEEL.px(176, dg);
+      return `<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick${isJie ? ' w-tick-j' : ''}"/>`;
+    },
+    labelsIn:function(i,dg){
+      const tp = WHEEL.px(146, dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i % 2 === 0 ? ' w-lab-j' : ''}${i === WNL_JQ_SEL ? ' w-lab-cur' : ''}" data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${JIEQI_24[i]}</text>`;
+    },
+    rings:[{r:182,cls:'w-ring'},{r:116,cls:'w-ring'},{r:76,cls:'w-core'}],
+    center:[
+      {y:WHEEL.C-16, cls:'w-c1', id:'wnlJqC1', text:WNL_JQ[WNL_JQ_SEL].name},
+      {y:WHEEL.C+14, cls:'w-c2', id:'wnlJqC2', text:'交节 ' + WNL_JQ[WNL_JQ_SEL].md},
+      {y:WHEEL.C+34, cls:'w-c3', id:'wnlJqC3', text:wnlJqGapText(WNL_JQ_SEL)}
+    ]
   });
-  /* 刻度：节（十二）长而重、气（十二）短而轻，与日历格“节、气”角标同一分法 */
-  for (let i = 0; i < 24; i++) {
-    const dg = i * 15, isJie = (i % 2 === 0);
-    const ta = px(isJie ? 166 : 170, dg), tb = px(176, dg), tp = px(146, dg);
-    s += `<line x1="${n2(ta[0])}" y1="${n2(ta[1])}" x2="${n2(tb[0])}" y2="${n2(tb[1])}" class="w-tick${isJie ? ' w-tick-j' : ''}"/>`;
-    s += `<text x="${n2(tp[0])}" y="${n2(tp[1])}" class="w-lab${isJie ? ' w-lab-j' : ''}${i === WNL_JQ_SEL ? ' w-lab-cur' : ''}" data-i="${i}" transform="rotate(${radial(dg)} ${n2(tp[0])} ${n2(tp[1])})">${JIEQI_24[i]}</text>`;
-  }
-  /* 点选热区：只负责命中；.w-sel 紧随其后，只负责悬停着色（紧邻兄弟选择器随悬停显隐）。
-     🔴 区段以气名为中心取 ±7.5 度（气名与刻度都在 i*15）：若从 i*15 起算，气名就压在区段边沿，
-     点气名会命中相邻的气。 */
-  for (let i = 0; i < 24; i++) {
-    s += `<path d="${WHEEL.band(116, 198, i * 15 - 7.5, i * 15 + 7.5)}" class="w-hit${i === WNL_JQ_SEL ? ' is-on' : ''}" data-i="${i}" onclick="wnlPickJq(${i})"/>`;
-    s += `<path d="${WHEEL.band(116, 198, i * 15 - 7.5, i * 15 + 7.5)}" class="w-sel"/>`;
-  }
-  /* 锚点弧钉本日所在之气，不随点选移动；选中弧随点选走。初排两者重合，点选后分开，
-     仍认得出本日是哪一个气。两弧同以气名为中心取 ±7.5 度，生成走 wheel.js 共享件。 */
-  s += WHEEL.anchorArc(192, [WNL_JQ_DAY * 15 - 7.5, WNL_JQ_DAY * 15 + 7.5], 'wnlJqArcFix');
-  s += WHEEL.selArc(192, [WNL_JQ_SEL * 15 - 7.5, WNL_JQ_SEL * 15 + 7.5], 'wnlJqArc');
-  /* 指针只走盘心与内界圈之间的一段，不穿过盘心文字；指当前查看之气的正中，与气名、刻度同轴 */
-  const q0 = px(80, WNL_JQ_SEL * 15), q1 = px(112, WNL_JQ_SEL * 15);
-  s += `<circle cx="${C}" cy="${C}" r="182" class="w-ring"/>`;
-  s += `<circle cx="${C}" cy="${C}" r="116" class="w-ring"/>`;
-  s += `<circle cx="${C}" cy="${C}" r="76" class="w-core"/>`;
-  s += `<line id="wnlJqNeedle" x1="${n2(q0[0])}" y1="${n2(q0[1])}" x2="${n2(q1[0])}" y2="${n2(q1[1])}" class="w-needle"/>`;
-  s += `<circle id="wnlJqDot" cx="${n2(q1[0])}" cy="${n2(q1[1])}" r="3.5" class="w-dot"/>`;
-  s += `<text x="${C}" y="${C - 16}" class="w-c1" id="wnlJqC1">${WNL_JQ[WNL_JQ_SEL].name}</text>`;
-  s += `<text x="${C}" y="${C + 14}" class="w-c2" id="wnlJqC2">交节 ${WNL_JQ[WNL_JQ_SEL].md}</text>`;
-  s += `<text x="${C}" y="${C + 34}" class="w-c3" id="wnlJqC3">${wnlJqGapText(WNL_JQ_SEL)}</text>`;
-  return `<svg class="wheel" id="wnlJqWheel" viewBox="0 0 440 440" role="img" aria-label="二十四节气圆盘">${s}</svg>`;
 }
 
 /* 经络圆盘：十二时辰配十二经，按时支序顺时针排布。指针示当前查看之经，首屏即此刻当令之经
@@ -325,11 +320,6 @@ function jieqiWheel(solar, lunar){
    点选热区取内界圈至弧带外沿（120 至 198），不盖盘心。 */
 function jingluoWheel(){
   if (typeof SHILING_JINGLUO === 'undefined' || typeof shilingDangLing !== 'function') return '';
-  const C = 220;
-  const n2 = v => Math.round(v * 10) / 10;
-  const px = (r, deg) => { const a = (deg - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
-  const ring = dg => WHEEL.ring(dg);
-  const radial = dg => n2(dg < 180 ? dg - 90 : dg + 90);
   /* 经→五行（十二经按阴阳脏腑表一一映射） */
   const JING_WX = { '胆经':'木','肝经':'木','肺经':'金','大肠经':'金','胃经':'土','脾经':'土','心经':'火','小肠经':'火','膀胱经':'水','肾经':'水','心包经':'火','三焦经':'火' };
   /* 五行色：取站内 .wx-*（#5DC336/#F65352/#A07040/#D4A017/#4190FA）降调，与纳音上色同源；弧不抢，只字着色 */
@@ -346,54 +336,29 @@ function jingluoWheel(){
   });
   WNL_JL_SEL = ci;
   WNL_JL_DANG = ci;
-  let s = '';
-  /* 12 段弧：整圈一条淡环（单色主体色）；当前查看那一段另出一条加粗弧，随点选走 */
-  SHILING_JINGLUO.forEach(function(j, i){
-    const a0 = px(192, i * 30 - 15), a1 = px(192, i * 30 + 15);
-    s += `<path d="M${n2(a0[0])} ${n2(a0[1])}A192 192 0 0 1 ${n2(a1[0])} ${n2(a1[1])}" class="w-arc"/>`;
+  return WHEEL.render({
+    id:'wnlJlWheel', aria:'十二经络圆盘', n:12,
+    span:function(i){ return [i * 30 - 15, i * 30 + 15]; },
+    mid:function(i){ return i * 30; },
+    arc:192, rIn:120, hit1:198, tick0:168, tick1:176, p0:82, p1:116, out:182, core:78,
+    sel:WNL_JL_SEL, cur:WNL_JL_DANG,
+    selId:'wnlJlArc', anchorId:'wnlJlArcFix', needleId:'wnlJlNeedle', dotId:'wnlJlDot',
+    onclick:'wnlPickJingluo',
+    labelsOut:function(i,dg){
+      const tp = WHEEL.px(210, dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i === WNL_JL_SEL ? ' w-lab-cur' : ''}" data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${SHILING_JINGLUO[i].zhi}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const j = SHILING_JINGLUO[i], tp = WHEEL.px(148, dg);
+      const color = WX_COLOR[JING_WX[j.jing]] || '#2b454d';
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg${i === WNL_JL_SEL ? ' w-lab-cur' : ''}" data-i="${i}" style="fill:${color}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${j.jing}</text>`;
+    },
+    center:[
+      {y:WHEEL.C-16, cls:'w-c1', id:'wnlJlC1', text:cur.zhi + '时'},
+      {y:WHEEL.C+14, cls:'w-c2', id:'wnlJlC2', text:cur.jing},
+      {y:WHEEL.C+34, cls:'w-c3', id:'wnlJlC3', text:cur.range}
+    ]
   });
-  /* 12 刻度（与地支、经名、指针同轴，连成辐条） */
-  for (let i = 0; i < 12; i++) {
-    const dg = i * 30;
-    const ta = px(168, dg), tb = px(176, dg);
-    s += `<line x1="${n2(ta[0])}" y1="${n2(ta[1])}" x2="${n2(tb[0])}" y2="${n2(tb[1])}" class="w-tick"/>`;
-  }
-  /* 12 经络名（内圈，两字，径向散射，按五行色） */
-  SHILING_JINGLUO.forEach(function(j, i){
-    const dg = i * 30;
-    const tp = px(148, dg);
-    const color = WX_COLOR[JING_WX[j.jing]] || '#2b454d';
-    s += `<text x="${n2(tp[0])}" y="${n2(tp[1])}" class="w-lab w-lab-lg${i === WNL_JL_SEL ? ' w-lab-cur' : ''}" data-i="${i}" style="fill:${color}" transform="rotate(${radial(dg)} ${n2(tp[0])} ${n2(tp[1])})">${j.jing}</text>`;
-  });
-  /* 12 地支（最外圈方位标记，单字）：沿圆周环布（WHEEL.ring），字头朝盘外、随切线转向。
-     子落正上、午落正下、卯落正右、酉落正左，与老黄历十二时辰吉凶盘同一朝向（子北午南、卯东酉西）。 */
-  SHILING_JINGLUO.forEach(function(j, i){
-    const dg = i * 30;
-    const tp = px(210, dg);
-    s += `<text x="${n2(tp[0])}" y="${n2(tp[1])}" class="w-lab w-lab-xl${i === WNL_JL_SEL ? ' w-lab-cur' : ''}" data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${n2(tp[0])} ${n2(tp[1])})">${j.zhi}</text>`;
-  });
-  /* 点选热区：只负责命中；.w-sel 紧随其后，只负责悬停着色。区段以地支为心取 ±15 度 */
-  for (let i = 0; i < 12; i++) {
-    s += `<path d="${WHEEL.band(120, 198, i * 30 - 15, i * 30 + 15)}" class="w-hit${i === WNL_JL_SEL ? ' is-on' : ''}" data-i="${i}" onclick="wnlPickJingluo(${i})"/>`;
-    s += `<path d="${WHEEL.band(120, 198, i * 30 - 15, i * 30 + 15)}" class="w-sel"/>`;
-  }
-  /* 锚点弧钉此刻当令之经，不随点选移动；选中弧随点选走。两弧同以地支为心取 ±15 度，
-     生成走 wheel.js 共享件。初排两者重合，点选别经后仍认得出当令是哪一经。 */
-  s += WHEEL.anchorArc(192, [WNL_JL_DANG * 30 - 15, WNL_JL_DANG * 30 + 15], 'wnlJlArcFix');
-  s += WHEEL.selArc(192, [WNL_JL_SEL * 30 - 15, WNL_JL_SEL * 30 + 15], 'wnlJlArc');
-  /* 指针只走盘心与内界圈之间，不穿过盘心文字；与地支、经名、刻度同轴 */
-  const curDg = WNL_JL_SEL * 30;
-  const q0 = px(82, curDg), q1 = px(116, curDg);
-  s += `<circle cx="${C}" cy="${C}" r="182" class="w-ring"/>`;
-  s += `<circle cx="${C}" cy="${C}" r="120" class="w-ring"/>`;
-  s += `<circle cx="${C}" cy="${C}" r="78" class="w-core"/>`;
-  s += `<line id="wnlJlNeedle" x1="${n2(q0[0])}" y1="${n2(q0[1])}" x2="${n2(q1[0])}" y2="${n2(q1[1])}" class="w-needle"/>`;
-  s += `<circle id="wnlJlDot" cx="${n2(q1[0])}" cy="${n2(q1[1])}" r="3.5" class="w-dot"/>`;
-  /* 盘心三行：当前查看时辰（大）/ 经络名（中）/ 时段（小） */
-  s += `<text x="${C}" y="${C - 16}" class="w-c1" id="wnlJlC1">${cur.zhi}时</text>`;
-  s += `<text x="${C}" y="${C + 14}" class="w-c2" id="wnlJlC2">${cur.jing}</text>`;
-  s += `<text x="${C}" y="${C + 34}" class="w-c3" id="wnlJlC3">${cur.range}</text>`;
-  return `<svg class="wheel" id="wnlJlWheel" viewBox="0 0 440 440" role="img" aria-label="十二经络圆盘">${s}</svg>`;
 }
 /* 年占十六项：依农历正月初一的日干支起例，一整年只此一份，故按农历年取数，不随所查日期逐日重算。
    取数走 lunar.js 的 LunarYear，页内不另抄一套口诀。 */

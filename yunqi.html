@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/yunqi.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/yunqi.css">
 
 </head>
@@ -288,47 +289,36 @@ window.addEventListener('load', function () {
     function yqQiShort(qi){ return String(qi).slice(2); }
 
     function yqKeWheel(p){
-      var n=p.ke.length, s='', i, dg, tp, ta, tb, bd, q0, q1;
-      /* 一、各段淡弧：首尾相接成整圈，整圈是一条淡环 */
-      for(i=0;i<n;i++) s+='<path d="'+WHEEL.arc(WQ_ARC,i*YQ_STEP-YQ_STEP/2,i*YQ_STEP+YQ_STEP/2)+'" class="w-arc"/>';
-      /* 二、刻度落每项中点，与两侧文字同轴连成辐条 */
-      for(i=0;i<n;i++){
-        dg=i*YQ_STEP; ta=WHEEL.px(WQ_TICK0,dg); tb=WHEEL.px(WQ_TICK1,dg);
-        s+='<line x1="'+WHEEL.n(ta[0])+'" y1="'+WHEEL.n(ta[1])+'" x2="'+WHEEL.n(tb[0])+'" y2="'+WHEEL.n(tb[1])+'" class="w-tick'+(i===YQ_KE_SEL?' w-tick-j':'')+'"/>';
-      }
-      /* 三、热区只取环带不盖盘心；.w-sel 紧随其后，只负责悬停着色 */
-      for(i=0;i<n;i++){
-        bd=WHEEL.band(WQ_IN,WQ_HIT1,i*YQ_STEP-YQ_STEP/2,i*YQ_STEP+YQ_STEP/2);
-        s+='<path d="'+bd+'" class="w-hit'+(i===YQ_KE_SEL?' is-on':'')+'" data-i="'+i+'" onclick="yqPickKe('+i+')"/>';
-        s+='<path d="'+bd+'" class="w-sel"/>';
-      }
-      /* 四、加粗弧：全盘仅此一段抢眼 */
-      s+='<path id="yqKeArc" d="'+WHEEL.arc(WQ_ARC,YQ_KE_SEL*YQ_STEP-YQ_STEP/2,YQ_KE_SEL*YQ_STEP+YQ_STEP/2)+'" class="w-arc w-arc-cur"/>';
-      /* 五、外圈字：客气六气名，沿圆周环布 */
-      for(i=0;i<n;i++){
-        dg=i*YQ_STEP; tp=WHEEL.px(WQ_LAB_OUT,dg);
-        s+='<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_KE_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-          +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(p.ke[i])+'</text>';
-      }
-      /* 六、内圈字：该步角色，两字、沿半径散射（聚焦向盘心） */
-      for(i=0;i<n;i++){
-        dg=i*YQ_STEP; tp=WHEEL.px(WQ_LAB_IN,dg);
-        s+='<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab w-lab-lg" data-i="'+i+'"'
-          +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+yqKeRole(i)+'</text>';
-      }
-      /* 七、三条圈线 */
-      s+='<circle cx="'+WHEEL.C+'" cy="'+WHEEL.C+'" r="'+WQ_OUT+'" class="w-ring"/>';
-      s+='<circle cx="'+WHEEL.C+'" cy="'+WHEEL.C+'" r="'+WQ_IN+'" class="w-ring"/>';
-      s+='<circle cx="'+WHEEL.C+'" cy="'+WHEEL.C+'" r="'+WQ_CORE+'" class="w-core"/>';
-      /* 八、指针与端点：只走盘心与内界圈之间，不穿过盘心文字 */
-      q0=WHEEL.px(WQ_P0,YQ_KE_SEL*YQ_STEP); q1=WHEEL.px(WQ_P1,YQ_KE_SEL*YQ_STEP);
-      s+='<line id="yqKeNeedle" x1="'+WHEEL.n(q0[0])+'" y1="'+WHEEL.n(q0[1])+'" x2="'+WHEEL.n(q1[0])+'" y2="'+WHEEL.n(q1[1])+'" class="w-needle"/>';
-      s+='<circle id="yqKeDot" cx="'+WHEEL.n(q1[0])+'" cy="'+WHEEL.n(q1[1])+'" r="3.5" class="w-dot"/>';
-      /* 九、盘心三行 */
-      s+='<text x="'+WHEEL.C+'" y="'+(WHEEL.C-16)+'" class="w-c1" id="yqKeC1">'+esc(p.zhu[YQ_KE_SEL].bu)+'</text>';
-      s+='<text x="'+WHEEL.C+'" y="'+(WHEEL.C+14)+'" class="w-c2" id="yqKeC2">'+esc(p.ke[YQ_KE_SEL])+'</text>';
-      s+='<text x="'+WHEEL.C+'" y="'+(WHEEL.C+34)+'" class="w-c3" id="yqKeC3">'+esc(yqKeNote(YQ_KE_SEL))+'</text>';
-      return '<svg class="wheel" id="yqKeWheel" viewBox="0 0 440 440" role="img" aria-label="客气六步定位盘：初之气至终之气六步客气环列，三之气为司天、终之气为在泉">'+s+'</svg>';
+      var n=p.ke.length;
+      return WHEEL.render({
+        id:'yqKeWheel', aria:'客气六步定位盘：初之气至终之气六步客气环列，三之气为司天、终之气为在泉',
+        n:n,
+        span:function(i){ return [i*YQ_STEP-YQ_STEP/2,i*YQ_STEP+YQ_STEP/2]; },
+        mid:function(i){ return i*YQ_STEP; },
+        arc:WQ_ARC, rIn:WQ_IN, hit1:WQ_HIT1, tick0:WQ_TICK0, tick1:WQ_TICK1, p0:WQ_P0, p1:WQ_P1, out:WQ_OUT, core:WQ_CORE,
+        sel:YQ_KE_SEL,
+        selId:'yqKeArc', needleId:'yqKeNeedle', dotId:'yqKeDot',
+        onclick:'yqPickKe',
+        tickAt:function(i){
+          var dg=i*YQ_STEP, ta=WHEEL.px(WQ_TICK0,dg), tb=WHEEL.px(WQ_TICK1,dg);
+          return '<line x1="'+WHEEL.n(ta[0])+'" y1="'+WHEEL.n(ta[1])+'" x2="'+WHEEL.n(tb[0])+'" y2="'+WHEEL.n(tb[1])+'" class="w-tick'+(i===YQ_KE_SEL?' w-tick-j':'')+'"/>';
+        },
+        labelsOut:function(i,dg){
+          var tp=WHEEL.px(WQ_LAB_OUT,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_KE_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(p.ke[i])+'</text>';
+        },
+        labelsIn:function(i,dg){
+          var tp=WHEEL.px(WQ_LAB_IN,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab w-lab-lg" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+yqKeRole(i)+'</text>';
+        },
+        center:[
+          {y:WHEEL.C-16, cls:'w-c1', id:'yqKeC1', text:esc(p.zhu[YQ_KE_SEL].bu)},
+          {y:WHEEL.C+14, cls:'w-c2', id:'yqKeC2', text:esc(p.ke[YQ_KE_SEL])},
+          {y:WHEEL.C+34, cls:'w-c3', id:'yqKeC3', text:esc(yqKeNote(YQ_KE_SEL))}
+        ]
+      });
     }
     function yqKeDetailHTML(p,i){
       return esc(p.zhu[i].bu)+'，客气 '+esc(p.ke[i])+'（'+yqKeRole(i)+'），'+esc(YQ.qiWx(p.ke[i]))+'气当令'
@@ -357,55 +347,42 @@ window.addEventListener('load', function () {
     }
 
     function yqJlWheel(p){
-      var n=p.jialin.length, s='', i, dg, tp, ta, tb, bd, q0, q1, r, ok;
-      /* 一、各段淡弧：首尾相接成整圈，整圈是一条淡环 */
-      for(i=0;i<n;i++) s+='<path d="'+WHEEL.arc(WJ_ARC,i*YQ_STEP-YQ_STEP/2,i*YQ_STEP+YQ_STEP/2)+'" class="w-arc"/>';
-      /* 二、刻度落每项中点，与三层文字同轴连成辐条 */
-      for(i=0;i<n;i++){
-        dg=i*YQ_STEP; ta=WHEEL.px(WJ_TICK0,dg); tb=WHEEL.px(WJ_TICK1,dg);
-        s+='<line x1="'+WHEEL.n(ta[0])+'" y1="'+WHEEL.n(ta[1])+'" x2="'+WHEEL.n(tb[0])+'" y2="'+WHEEL.n(tb[1])+'" class="w-tick'+(i===YQ_JL_SEL?' w-tick-j':'')+'"/>';
-      }
-      /* 三、热区按格跨三环：点该步的任意径向位置都命中同一步；.w-sel 紧随其后，只负责悬停着色 */
-      for(i=0;i<n;i++){
-        bd=WHEEL.band(WJ_IN,WJ_HIT1,i*YQ_STEP-YQ_STEP/2,i*YQ_STEP+YQ_STEP/2);
-        s+='<path d="'+bd+'" class="w-hit'+(i===YQ_JL_SEL?' is-on':'')+'" data-i="'+i+'" onclick="yqPickJl('+i+')"/>';
-        s+='<path d="'+bd+'" class="w-sel"/>';
-      }
-      /* 四、加粗弧：全盘仅此一段抢眼 */
-      s+='<path id="yqJlArc" d="'+WHEEL.arc(WJ_ARC,YQ_JL_SEL*YQ_STEP-YQ_STEP/2,YQ_JL_SEL*YQ_STEP+YQ_STEP/2)+'" class="w-arc w-arc-cur"/>';
-      /* 五、外签：六步名，沿圆周环布 */
-      for(i=0;i<n;i++){
-        dg=i*YQ_STEP; tp=WHEEL.px(WJ_LAB_OUT,dg);
-        s+='<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-          +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(p.zhu[i].bu)+'</text>';
-      }
-      /* 六、内签一客气：两字简称、沿半径散射；按相得与否取吉凶二值色，一眼可见哪几步不相得 */
-      for(i=0;i<n;i++){
-        r=p.jialin[i]; ok=(r.pan==='相得'); dg=i*YQ_STEP; tp=WHEEL.px(WJ_LAB_KE,dg);
-        s+='<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab w-lab-lg'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-          +' style="fill:'+(ok?'var(--wheel-good)':'var(--wheel-bad)')+'"'
-          +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(r.ke))+'</text>';
-      }
-      /* 七、内签二主气：两字简称、沿半径散射，主气为地气本底，墨色不参与吉凶 */
-      for(i=0;i<n;i++){
-        dg=i*YQ_STEP; tp=WHEEL.px(WJ_LAB_ZHU,dg);
-        s+='<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-          +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(p.jialin[i].zhu))+'</text>';
-      }
-      /* 八、三条圈线 */
-      s+='<circle cx="'+WHEEL.C+'" cy="'+WHEEL.C+'" r="'+WJ_OUT+'" class="w-ring"/>';
-      s+='<circle cx="'+WHEEL.C+'" cy="'+WHEEL.C+'" r="'+WJ_IN+'" class="w-ring"/>';
-      s+='<circle cx="'+WHEEL.C+'" cy="'+WHEEL.C+'" r="'+WJ_CORE+'" class="w-core"/>';
-      /* 九、指针与端点：只走盘心与内界圈之间，不穿过盘心文字 */
-      q0=WHEEL.px(WJ_P0,YQ_JL_SEL*YQ_STEP); q1=WHEEL.px(WJ_P1,YQ_JL_SEL*YQ_STEP);
-      s+='<line id="yqJlNeedle" x1="'+WHEEL.n(q0[0])+'" y1="'+WHEEL.n(q0[1])+'" x2="'+WHEEL.n(q1[0])+'" y2="'+WHEEL.n(q1[1])+'" class="w-needle"/>';
-      s+='<circle id="yqJlDot" cx="'+WHEEL.n(q1[0])+'" cy="'+WHEEL.n(q1[1])+'" r="3.5" class="w-dot"/>';
-      /* 十、盘心三行：当前步、主客对照、加临判定（判定带吉凶色） */
-      r=p.jialin[YQ_JL_SEL]; ok=(r.pan==='相得');
-      s+='<text x="'+WHEEL.C+'" y="'+(WHEEL.C-16)+'" class="w-c1" id="yqJlC1">'+esc(p.zhu[YQ_JL_SEL].bu)+'</text>';
-      s+='<text x="'+WHEEL.C+'" y="'+(WHEEL.C+14)+'" class="w-c2" id="yqJlC2">主'+esc(yqQiShort(r.zhu))+' 客'+esc(yqQiShort(r.ke))+'</text>';
-      s+='<text x="'+WHEEL.C+'" y="'+(WHEEL.C+34)+'" class="w-c3" id="yqJlC3" style="fill:'+(ok?'var(--wheel-good)':'var(--wheel-bad)')+'">'+esc(ok?'相得':r.du)+'</text>';
-      return '<svg class="wheel" id="yqJlWheel" viewBox="0 0 440 440" role="img" aria-label="客主加临盘：外环六步、中环客气、内环主气，客气色示相得与否">'+s+'</svg>';
+      var n=p.jialin.length, r=p.jialin[YQ_JL_SEL], ok=(r.pan==='相得');
+      return WHEEL.render({
+        id:'yqJlWheel', aria:'客主加临盘：外环六步、中环客气、内环主气，客气色示相得与否',
+        n:n,
+        span:function(i){ return [i*YQ_STEP-YQ_STEP/2,i*YQ_STEP+YQ_STEP/2]; },
+        mid:function(i){ return i*YQ_STEP; },
+        arc:WJ_ARC, rIn:WJ_IN, hit1:WJ_HIT1, tick0:WJ_TICK0, tick1:WJ_TICK1, p0:WJ_P0, p1:WJ_P1, out:WJ_OUT, core:WJ_CORE,
+        sel:YQ_JL_SEL,
+        selId:'yqJlArc', needleId:'yqJlNeedle', dotId:'yqJlDot',
+        onclick:'yqPickJl',
+        tickAt:function(i){
+          var dg=i*YQ_STEP, ta=WHEEL.px(WJ_TICK0,dg), tb=WHEEL.px(WJ_TICK1,dg);
+          return '<line x1="'+WHEEL.n(ta[0])+'" y1="'+WHEEL.n(ta[1])+'" x2="'+WHEEL.n(tb[0])+'" y2="'+WHEEL.n(tb[1])+'" class="w-tick'+(i===YQ_JL_SEL?' w-tick-j':'')+'"/>';
+        },
+        labelsOut:function(i,dg){
+          var tp=WHEEL.px(WJ_LAB_OUT,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(p.zhu[i].bu)+'</text>';
+        },
+        labelsMid:function(i,dg){
+          var x=p.jialin[i], yes=(x.pan==='相得'), tp=WHEEL.px(WJ_LAB_KE,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab w-lab-lg'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' style="fill:'+(yes?'var(--wheel-good)':'var(--wheel-bad)')+'"'
+            +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(x.ke))+'</text>';
+        },
+        labelsIn:function(i,dg){
+          var tp=WHEEL.px(WJ_LAB_ZHU,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(p.jialin[i].zhu))+'</text>';
+        },
+        center:[
+          {y:WHEEL.C-16, cls:'w-c1', id:'yqJlC1', text:esc(p.zhu[YQ_JL_SEL].bu)},
+          {y:WHEEL.C+14, cls:'w-c2', id:'yqJlC2', text:'主'+esc(yqQiShort(r.zhu))+' 客'+esc(yqQiShort(r.ke))},
+          {y:WHEEL.C+34, cls:'w-c3', id:'yqJlC3', text:esc(ok?'相得':r.du), style:'fill:'+(ok?'var(--wheel-good)':'var(--wheel-bad)')}
+        ]
+      });
     }
     function yqJlDetailHTML(p,i){
       var r=p.jialin[i], ok=(r.pan==='相得');

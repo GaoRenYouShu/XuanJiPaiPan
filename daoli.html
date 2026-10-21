@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/daoli.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/comp-mid.css">
 <link rel="stylesheet" href="assets/css/comp-shared.css">
 <link rel="stylesheet" href="assets/css/dt.css">
@@ -39,11 +40,14 @@
   <div class="page">
     <h1>道历</h1>
     <div class="lead">黄帝纪元道历，含神仙圣诞、三会三元等道教节日与每日吉凶。</div>
-    <div class="form-row">
-      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
-      <button class="btn gold" onclick="setToday()">今天</button>
+    <div class="cal-query-flow">
+      <div class="form-row">
+        <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="jumpToDate(this.value)"></div>
+        <button class="btn gold" onclick="setToday()">今天</button>
+      </div>
+      <div id="xjQuery"></div>
+      <div id="calReverse"></div>
     </div>
-    <div id="xjQuery"></div>
     <div data-export-target>
       <div class="exp-title" data-export-title>道历 玄机排盘</div>
       <div class="cal-nav">
@@ -70,6 +74,7 @@
 <script defer src="assets/daoli-terms.js"></script>
 <script defer src="assets/app.js"></script>
 <script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/cal-reverse.js"></script>
 <script defer src="assets/taisui-data.js"></script>
 <script defer src="assets/gua.js"></script>
 <script defer src="assets/jingwen.js"></script>
@@ -245,54 +250,8 @@ function dlScMid(i){const sp=dlScSpan(i);return (sp[0]+sp[1])/2;}
 /* 加粗弧、指针、圆点三件随选中走的公共改写，两盘共用 */
 function dlWheelSpot(ids,dg,a0,a1){ return xjWheelSpot(ids,dg,a0,a1,{arc:DL_ARC,p0:DL_P0,p1:DL_P1}); }
 const DL_SC_IDS={arc:'daoScArc',needle:'daoScNeedle',dot:'daoScDot'};
-function daoShichenWheel(lunar){
-  const times=lunar.getTimes();
-  DL_SC=times.map((t,i)=>dlScData(t,i,i===times.length-1));
-  const hr=xjNowDate();
-  DL_SC_CUR=Math.max(0,times.findIndex(t=>hr.getHours()>=+t.getMinHm().slice(0,2)&&hr.getHours()<=+t.getMaxHm().slice(0,2)));
-  DL_SC_SEL=DL_SC_CUR;
-  const cur=DL_SC[DL_SC_SEL], curSp=dlScSpan(DL_SC_SEL), curDg=dlScMid(DL_SC_SEL);
-  let s='';
-  /* 十三段弧：段间不留缝，整圈是一条淡环；加粗那段另出一条，随选中走 */
-  DL_SC.forEach(function(x,i){
-    const sp=dlScSpan(i);
-    s+=`<path d="${WHEEL.arc(DL_ARC,sp[0],sp[1])}" class="w-arc"/>`;
-  });
-  /* 刻度落在十二宫中点，与两侧文字同轴，连成辐条 */
-  for(let i=0;i<12;i++){
-    const dg=i*30, ta=WHEEL.px(DL_TICK0,dg), tb=WHEEL.px(DL_TICK1,dg);
-    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
-  }
-  /* 热区只取环带（内界圈到弧带外沿），不盖盘心 */
-  DL_SC.forEach(function(x,i){
-    const sp=dlScSpan(i);
-    s+=`<path d="${WHEEL.band(DL_IN,DL_HIT1,sp[0],sp[1])}" class="w-hit${i===DL_SC_SEL?' is-on':''}" data-i="${i}" onclick="daoPickShichen(${i})"/>`;
-    s+=`<path d="${WHEEL.band(DL_IN,DL_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
-  });
-  /* 查询锚点弧随当前时辰不动，选中弧随点选走；两弧同取 dlScSpan，生成走 wheel.js 共享件 */
-  s+=WHEEL.anchorArc(DL_ARC, dlScSpan(DL_SC_CUR), 'daoScArcFix');
-  s+=WHEEL.selArc(DL_ARC, curSp, 'daoScArc');
-  /* 外圈：十二时辰名与夜子小字，生成走 assets/wheel.js 的 WHEEL.shichenLabels 共享件 */
-  s+=WHEEL.shichenLabels({data:DL_SC,span:dlScSpan,mid:dlScMid,labOut:DL_LAB_OUT,sel:DL_SC_SEL});
-  /* 内圈：该宫干支，两字、**一律径向散射**（聚焦向盘心）。四正只约束外圈的方位标记，
-     内圈全圈同一种放射排法才整齐；给内圈也套四正，正上与正下的字会突然转成横排。 */
-  for(let i=0;i<12;i++){
-    const dg=i*30, tp=WHEEL.px(DL_LAB_IN,dg), gz=DL_SC[i]?DL_SC[i].gz:'';
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg"`
-      +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${gz}</text>`;
-  }
-  s+=`<circle cx="${DL_C}" cy="${DL_C}" r="${DL_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${DL_C}" cy="${DL_C}" r="${DL_IN}" class="w-ring"/>`;
-  s+=`<circle cx="${DL_C}" cy="${DL_C}" r="${DL_CORE}" class="w-core"/>`;
-  /* 指针只走盘心与内界圈之间，不穿过盘心文字 */
-  const q0=WHEEL.px(DL_P0,curDg), q1=WHEEL.px(DL_P1,curDg);
-  s+=`<line id="daoScNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="daoScDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  s+=`<text x="${DL_C}" y="${DL_C-16}" class="w-c1" id="daoScC1">${cur.name}</text>`;
-  s+=`<text x="${DL_C}" y="${DL_C+14}" class="w-c2" id="daoScC2" style="font-weight:700;fill:${cur.good?'var(--wheel-good)':'var(--wheel-bad)'}">${cur.luck}</text>`;
-  s+=`<text x="${DL_C}" y="${DL_C+34}" class="w-c3" id="daoScC3">${cur.gz} ${cur.range}</text>`;
-  return `<svg class="wheel" id="daoScWheel" viewBox="0 0 440 440" role="img" aria-label="十二时辰吉凶盘">${s}</svg>`;
-}
+var DL_SC_WHEEL = null;
+function daoShichenWheel(lunar){ return WHEEL.shichenWheel(DL_SC_WHEEL, lunar); }
 /* 盘下详情条：该时辰的干支、吉凶、值神与宜事。一律不加粗，强调走色（.wd-g/.wd-x）。 */
 function daoScDetailHTML(x){
   return `${x.gz}时，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>，值神 ${x.shen||'未载'}`
@@ -426,60 +385,31 @@ function dlDanCore(x){
 }
 function daoDanWheel(lunar){
   dlDanBuild(lunar);
-  const curSp=dlDanSpan(DL_DAN_SEL), curX=DL_DAN[DL_DAN_SEL];
-  let s='';
-  /* 逐格弧：全圈一律淡色（.w-arc），不预标实色，加粗弧只留给选中的那一段（.w-arc-cur，随选中走）。
-     淡环本身已是完整的盘：哪几天有内容由外圈标记、内圈日名点出，
-     盘心与加粗弧才代表当前项；预标实色会让盘在未点之前就冒出多处主体色，与选中态争焦点。 */
-  DL_DAN.forEach(function(x,i){
-    const sp=dlDanSpan(i);
-    s+=`<path d="${WHEEL.arc(DL_DAN_ARC,sp[0],sp[1])}" class="w-arc"/>`;
+  const curX=DL_DAN[DL_DAN_SEL];
+  return WHEEL.render({
+    id:'daoDanWheel', aria:'圣诞斋日盘', n:DL_DAN_N,
+    span:dlDanSpan, mid:dlDanMid,
+    arc:DL_DAN_ARC, rIn:DL_DAN_IN, hit1:DL_DAN_HIT1, tick0:DL_DAN_TICK0, tick1:DL_DAN_TICK1, p0:DL_DAN_P0, p1:DL_DAN_P1, out:DL_DAN_OUT, core:DL_DAN_CORE,
+    sel:DL_DAN_SEL, cur:DL_DAN_CUR,
+    selId:'daoDanArc', anchorId:'daoDanArcFix', needleId:'daoDanNeedle', dotId:'daoDanDot',
+    onclick:'daoPickDan',
+    labelsOut:function(i,dg){
+      const x=DL_DAN[i], mk=dlDanMark(x)||dlZhaiMark(x); if(!mk) return '';
+      const tp=WHEEL.px(DL_DAN_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===DL_DAN_SEL?' w-lab-cur':''}"`
+        +` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${mk}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const x=DL_DAN[i], tp=WHEEL.px(DL_DAN_LAB_IN,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===DL_DAN_SEL?' w-lab-cur':''}"`
+        +` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.name}</text>`;
+    },
+    center:[
+      {y:DL_DAN_C-16, cls:'w-c1', id:'daoDanC1', text:DL_DAN_LABEL + '月' + curX.name},
+      {y:DL_DAN_C+14, cls:'w-c2', id:'daoDanC2', text:dlDanCore(curX), fill:curX.isDan?'var(--wheel-cur)':null},
+      {y:DL_DAN_C+34, cls:'w-c3', id:'daoDanC3', text:curX.solar}
+    ]
   });
-  /* 刻度落在每格中点，与两侧文字同轴 */
-  for(let i=0;i<DL_DAN_N;i++){
-    const dg=dlDanMid(i), ta=WHEEL.px(DL_DAN_TICK0,dg), tb=WHEEL.px(DL_DAN_TICK1,dg);
-    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
-  }
-  /* 热区只取环带（内界圈到标记外沿），不盖盘心 */
-  DL_DAN.forEach(function(x,i){
-    const sp=dlDanSpan(i);
-    s+=`<path d="${WHEEL.band(DL_DAN_IN,DL_DAN_HIT1,sp[0],sp[1])}" class="w-hit${i===DL_DAN_SEL?' is-on':''}" data-i="${i}" onclick="daoPickDan(${i})"/>`;
-    s+=`<path d="${WHEEL.band(DL_DAN_IN,DL_DAN_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
-  });
-  /* 实色弧只给两天：所查之日（随查询走）与选中之日（随点选走），初排重合；由 wheel.js 共享件出 */
-  const fixSp=dlDanSpan(DL_DAN_CUR);
-  s+=WHEEL.anchorArc(DL_DAN_ARC, fixSp, 'daoDanArcFix');
-  s+=WHEEL.selArc(DL_DAN_ARC, curSp, 'daoDanArc');
-  /* 外圈：单环标记，沿圆周环布（WHEEL.ring），半径与佛历斋日盘同值；
-     两义同位不并排，圣诞类目字优先、斋期字让位（详情条列全） */
-  DL_DAN.forEach(function(x,i){
-    const mk=dlDanMark(x)||dlZhaiMark(x); if(!mk) return;
-    const dg=dlDanMid(i), tp=WHEEL.px(DL_DAN_LAB_OUT,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===DL_DAN_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${mk}</text>`;
-  });
-  /* 内圈：农历日名两字，**一律径向散射**（与佛历斋日盘、经络盘内圈同制式）；
-     一圈两字若也套四正，会在初一、十六两处冒出横排，破整圈放射 */
-  DL_DAN.forEach(function(x,i){
-    const dg=dlDanMid(i), tp=WHEEL.px(DL_DAN_LAB_IN,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===DL_DAN_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.name}</text>`;
-  });
-  s+=`<circle cx="${DL_DAN_C}" cy="${DL_DAN_C}" r="${DL_DAN_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${DL_DAN_C}" cy="${DL_DAN_C}" r="${DL_DAN_IN}" class="w-ring"/>`;
-  s+=`<circle cx="${DL_DAN_C}" cy="${DL_DAN_C}" r="${DL_DAN_CORE}" class="w-core"/>`;
-  const dg=dlDanMid(DL_DAN_SEL), q0=WHEEL.px(DL_DAN_P0,dg), q1=WHEEL.px(DL_DAN_P1,dg);
-  s+=`<line id="daoDanNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="daoDanDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  /* 盘心三行：农历月日（大）、类目（中，属圣诞取主体色）、该日公历（小）。三行制式不可省。
-     🔴 类目行只出**纯文本**，绝不可走 tipSpan：盘心文字由 WHEEL.text 写入，而 WHEEL.text 用
-     textContent 赋值（assets/wheel.js），喂 HTML 串会被整串当字排出，盘面上就冒出 span 标签与
-     onclick 源码。盘心是 SVG <text> 且盘面 pointer-events:none（见盘首注），本就点不动。
-     类目词要弹窗，走盘下详情条那一处（HTML 容器，tipSpan 正常生效）。 */
-  s+=`<text x="${DL_DAN_C}" y="${DL_DAN_C-16}" class="w-c1" id="daoDanC1">${DL_DAN_LABEL}月${curX.name}</text>`;
-  s+=`<text x="${DL_DAN_C}" y="${DL_DAN_C+14}" class="w-c2" id="daoDanC2"${curX.isDan?' style="fill:var(--wheel-cur)"':''}>${dlDanCore(curX)}</text>`;
-  s+=`<text x="${DL_DAN_C}" y="${DL_DAN_C+34}" class="w-c3" id="daoDanC3">${curX.solar}</text>`;
-  return `<svg class="wheel" id="daoDanWheel" viewBox="0 0 440 440" role="img" aria-label="圣诞斋日盘">${s}</svg>`;
 }
 /* 盘下详情条：与佛历斋日盘、老黄历两盘的 .wheel-detail 同一制式（单行克制、逐类并列、可点弹窗）。
    形制照 foliZhaiDetailHTML：农历月日起头、逢字连类目、类目词与斋名走 tipSpan（本条是 HTML 容器，
@@ -706,6 +636,15 @@ function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y
 
 window.addEventListener('load', function () {
   ({C:DL_C,ARC:DL_ARC,OUT:DL_OUT,IN:DL_IN,CORE:DL_CORE,LAB_OUT:DL_LAB_OUT,LAB_IN:DL_LAB_IN,HIT1:DL_HIT1,TICK0:DL_TICK0,TICK1:DL_TICK1,P0:DL_P0,P1:DL_P1}=WHEEL.GEO440);
+  DL_SC_WHEEL = {
+    id:'daoScWheel', aria:'十二时辰吉凶盘',
+    dataFn:dlScData, now:xjNowDate, span:dlScSpan, mid:dlScMid,
+    ids:{sel:'daoScArc',anchor:'daoScArcFix',needle:'daoScNeedle',dot:'daoScDot'},
+    cids:{c1:'daoScC1',c2:'daoScC2',c3:'daoScC3'},
+    onclick:'daoPickShichen',
+    geo:{arc:DL_ARC,rIn:DL_IN,hit1:DL_HIT1,tick0:DL_TICK0,tick1:DL_TICK1,p0:DL_P0,p1:DL_P1,out:DL_OUT,core:DL_CORE,labOut:DL_LAB_OUT,labIn:DL_LAB_IN,c:DL_C},
+    onState:function(data,cur){ DL_SC=data; DL_SC_CUR=cur; DL_SC_SEL=cur; }
+  };
   setTimeout(function () {
     renderChrome('daoli.html');
     DAO_XIU_28 = Object.keys(LunarUtil.XIU_LUCK).filter(function(k){return k.charAt(0)!=='{';});
@@ -836,6 +775,24 @@ window.addEventListener('load', function () {
     ${shichenCopy}`;
     }, '道历', { share:{ page:"daoli", title:"道历在线查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ if(!lastKey) setToday(); }); } } });
   }, 0);
+});
+</script>
+<script>
+window.addEventListener("load", function(){
+  setTimeout(function(){
+    var el=document.getElementById("calReverse");
+    if(!el || !window.XJ_CAL_REVERSE) return;
+    XJ_CAL_REVERSE.mount({
+      el:el, kind:"lunar", offset:-2697, yearLabel:"道历年",
+      getCurrent:function(){
+        var v=document.getElementById("dInput").value;
+        var p=v?v.split("-").map(Number):[];
+        if(!p[0]){ var t=xjNowDate(); p=[t.getFullYear(),t.getMonth()+1,t.getDate()]; }
+        return {y:p[0],m:p[1],d:p[2]};
+      },
+      onPick:function(date){ jumpToDate(date); }
+    });
+  },0);
 });
 </script>
 </body>

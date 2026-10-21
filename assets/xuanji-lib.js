@@ -524,11 +524,11 @@ const xjCalQuery = (function(){
     const filterRow = document.getElementById('xjFilterRow');
     let timer = null, sel = [];
     function buildFilter(){
-      let h = '<span class="xj-filter-cap">' + esc(filterLabel) + '</span>';
+      let h = '<span class="xj-filter-cap">' + esc(filterLabel) + '</span><div class="xj-filter-opts">';
       (o.filters || []).forEach(function(f){
         h += '<label class="xj-chk"><input type="checkbox" value="' + esc(f.value) + '">' + esc(f.label) + '</label>';
       });
-      h += '<button type="button" class="btn-mini xj-filter-clear" id="xjClear">清空</button><span class="xj-filter-info" id="xjFilterInfo"></span>';
+      h += '<button type="button" class="btn-mini xj-filter-clear" id="xjClear">清空</button><span class="xj-filter-info" id="xjFilterInfo"></span></div>';
       filterRow.innerHTML = h;
       filterRow.querySelectorAll('input[type=checkbox]').forEach(function(c){ c.addEventListener('change', apply); });
       document.getElementById('xjClear').addEventListener('click', clear);

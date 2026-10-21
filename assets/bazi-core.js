@@ -2701,44 +2701,10 @@ function bzWheelFill(html){ return html.replace(/<!--bz-wheels:(\d+)-->/g,(m,i)=
 /* 五行色（降调）：与万年历经络盘同一五值，取站内 .wx-* 降调而来；盘上只给字着此色，弧一概主体色。
    降调是为免原色在盘上抢眼：原色只用于表格底色与纳音字，盘上字小而密，原色会散掉整圈。 */
 const BZ_WX_TONE={'木':'#5a8f45','火':'#b8543f','土':'#876248','金':'#a8813a','水':'#3f6d96'};
-/* 两盘同一套骨架半径，并排时环线对齐；数额与全站五盘逐一对应。 */
-const BZ_WHEEL_R={lab0:206,arc:192,ring1:182,tick0:168,tick1:176,lab1:148,ring0:120,core:78,p0:82,p1:116,hit1:198};
-/* 两盘共用件：字、热区、刻度、三圈线。热区只负责命中，.w-sel 紧随其后只负责悬停着色；
-   热区取内界圈至弧带外沿的环带，不盖盘心。刻度与字同轴，连成辐条（与经络盘、时辰盘同法）。 */
-function bzWheelKit(R){
-  const n=WHEEL.n, px=WHEEL.px, C=WHEEL.C;
-  return { n, px, C,
-    /* rotAt 为取字角，省略即等于位置角：省略时并排的几字各按自己的位置角取，几栏成扇骨、朝盘心收；
-       传了则整组共用一个角，几栏平行、整组只朝一个方向。
-       way 为取字法：'ring' 沿圆周环布（WHEEL.ring），最外圈走这条；'flat' 恒定正立，内圈单字走这条；
-       'radial' 沿半径放射（WHEEL.radial），内圈双字走这条；'dir' 同是沿半径，但四正极改放正。 */
-    lab:(r,dg,txt,cls,i,way,fill,rotAt)=>{ const a=(rotAt===undefined?dg:rotAt), p=px(r,dg);
-      const rot=way==='flat'?0:(way==='ring'?WHEEL.ring(a):(way==='dir'?WHEEL.dir(a):WHEEL.radial(a)));
-      return `<text x="${n(p[0])}" y="${n(p[1])}" class="${cls}" data-i="${i}"${fill?` style="fill:${fill}"`:''}`
-        +` transform="rotate(${rot} ${n(p[0])} ${n(p[1])})">${txt}</text>`; },
-    hit:(a0,a1,i,sel,rootId)=>`<path d="${WHEEL.band(R.ring0,R.hit1,a0,a1)}" class="w-hit${i===sel?' is-on':''}" data-i="${i}" onclick="bzWheelPick('${rootId}',${i})"/>`
-      +`<path d="${WHEEL.band(R.ring0,R.hit1,a0,a1)}" class="w-sel"/>`,
-    tick:(dg)=>{ const a=px(R.tick0,dg), b=px(R.tick1,dg);
-      return `<line x1="${n(a[0])}" y1="${n(a[1])}" x2="${n(b[0])}" y2="${n(b[1])}" class="w-tick"/>`; },
-    spot:(id,dg)=>{ const q0=px(R.p0,dg), q1=px(R.p1,dg);
-      return `<line id="${id}-needle" x1="${n(q0[0])}" y1="${n(q0[1])}" x2="${n(q1[0])}" y2="${n(q1[1])}" class="w-needle"/>`
-        +`<circle id="${id}-dot" cx="${n(q1[0])}" cy="${n(q1[1])}" r="3.5" class="w-dot"/>`; },
-    rings:`<circle cx="${C}" cy="${C}" r="${R.ring1}" class="w-ring"/>`
-      +`<circle cx="${C}" cy="${C}" r="${R.ring0}" class="w-ring"/>`,
-    /* 盘心：不带百分比的盘铺本页淡底；带百分比的盘不留常驻底，圆内只留线框，
-       填色由一条自底往上涨的淡底水位承担，水位以上即无色，水位高度就是该扇区的百分比。
-       水位矩形由与盘心同圆的 clipPath 裁形，涨到哪儿上沿都是满圆的一条弦。 */
-    core:(fillId,pct)=>{ const f=WHEEL.coreFill(R.core,pct);
-      return fillId
-        ? `<clipPath id="${fillId}-clip"><circle cx="${C}" cy="${C}" r="${R.core}"/></clipPath>`
-          +`<rect id="${fillId}" class="w-fill" x="${C-R.core}" y="${f.y}" width="${R.core*2}" height="${f.height}" clip-path="url(#${fillId}-clip)"/>`
-          +`<circle cx="${C}" cy="${C}" r="${R.core}" class="w-core-hollow"/>`
-        : `<circle cx="${C}" cy="${C}" r="${R.core}" class="w-core"/>`; } };
-}
 /* 指针与圆点：只走盘心与内界圈之间的一段，指选中扇区正中，与字、刻度同轴。 */
 function bzWheelSpot(id, dg){
   if(typeof WHEEL==='undefined') return;
-  const q0=WHEEL.px(BZ_WHEEL_R.p0,dg), q1=WHEEL.px(BZ_WHEEL_R.p1,dg), n=WHEEL.n;
+  const q0=WHEEL.px(WHEEL.GEO440.P0,dg), q1=WHEEL.px(WHEEL.GEO440.P1,dg), n=WHEEL.n;
   const ln=document.getElementById(id+'-needle'), dt=document.getElementById(id+'-dot');
   if(ln){ ln.setAttribute('x1',n(q0[0])); ln.setAttribute('y1',n(q0[1])); ln.setAttribute('x2',n(q1[0])); ln.setAttribute('y2',n(q1[1])); }
   if(dt){ dt.setAttribute('cx',n(q1[0])); dt.setAttribute('cy',n(q1[1])); }
@@ -2753,7 +2719,7 @@ function bzWheelSpot(id, dg){
    盘心与详情条同取 window.__bzWheelData 的第 i 项，故一处改、两处同变。 */
 function bzQuantWheel(BZ, D, idSfx){
   if(typeof WHEEL==='undefined' || !BZ || !BZ.gans) return '';
-  const R=BZ_WHEEL_R, K=bzWheelKit(R), C=K.C, ID='bzQuantWheel'+(idSfx||'');
+  const G=WHEEL.GEO440, ID='bzQuantWheel'+(idSfx||'');
   const dg=BZ.dayGan, dwx=GAN_WX[dg]||'', monthZ=D.monthZ;
   /* 十神阴阳随日主：比肩、食神、偏财、七杀、偏印与日主同阴阳，劫财、伤官、正财、正官、正印反之。
      五行各辖两干、阴阳各一，故同一扇区的两十神必为一阴一阳，内圈左右两栏各站一个，位次不混。 */
@@ -2761,45 +2727,59 @@ function bzQuantWheel(BZ, D, idSfx){
   const SS_SAME={'比肩':1,'食神':1,'偏财':1,'七杀':1,'偏印':1};
   const isYangGod=g=>dgYang?!!SS_SAME[g]:!SS_SAME[g];
   const SPAN=72, SEL=Math.max(0,BZ_WX5.indexOf(ZHI_WX[monthZ]));
-  const curD=WHEEL.arc(R.arc,SEL*SPAN-SPAN/2,SEL*SPAN+SPAN/2);
-  let s='';
-  /* 外圈弧带照全站骨架：每扇区一段满弧，段间不留缝，五段首尾相接成一整圈，与长生盘、宿盘、时辰盘同一画法。
-     能量分不进弧带（弧只有淡与选中两态，量值一律落在数字与文字上），由盘心那行能量百分比与盘下详情条承担。
-     首屏那一格即当令五行，故选中弧出盘时即带本格 d，与万年历、老黄历首屏即当令同法。 */
-  for(let i=0;i<5;i++) s+=`<path d="${WHEEL.arc(R.arc,i*SPAN-SPAN/2,i*SPAN+SPAN/2)}" class="w-arc"/>`;
-  s+=`<path id="${ID}-arc" d="${curD}" class="w-arc w-arc-cur"/>`;
-  for(let i=0;i<5;i++) s+=K.tick(i*SPAN);
   const det=[];
   BZ_WX5.forEach((w,i)=>{
     const pair=BZ_SS_ORDER.filter(x=>D.ssWxOf[x]===w);
     const rel=Object.keys(D.skWxOf).find(k=>D.skWxOf[k]===w)||'', nk=D.skT[rel]||0, ssw='wx-'+BZ_WX_SFX[w];
     const godYin=pair.find(x=>!isYangGod(x))||'', godYang=pair.find(x=>isYangGod(x))||'';
-    const cur=(i===SEL?' w-lab-cur':''), tone=BZ_WX_TONE[w];
+    const tone=BZ_WX_TONE[w];
     const yin=D.yywx['阴'+w]||0, yang=D.yywx['阳'+w]||0;
     const ssTxt=pair.map(x=>{
       const c=D.ss[x]+(x==='比肩'?1:0);
       return `<span class="tip ${ssw}" onclick="showTip('${x}')">${x}</span>（${D.QIN_MAP[x]||'-'}）${c} 个，占 ${D.pct(c)}%，能量分 ${Math.round(D.SS_ENERGY[x])}(${D.ePct(D.SS_ENERGY[x])}%)`;
     }).join('<br>');
-    s+=K.lab(R.lab0,i*SPAN,w,'w-lab w-lab-xl'+(ZHI_WX[monthZ]===w?' w-lab-j':'')+cur,i,'ring',tone);
-    /* 三字分主次：两十神与五行同取五行色（与五行同属一类，可连成一句读），
-       中间的旺衰为随月令而变的季节状态，只作灰字、再降一档，不与五行色字争目。 */
-    s+=K.lab(R.lab1,i*SPAN-20,godYin,'w-lab w-lab-lg'+cur,i,'radial',tone);
-    s+=K.lab(R.lab1,i*SPAN,D.wx[w]||'','w-lab'+cur,i,'flat',0);
-    s+=K.lab(R.lab1,i*SPAN+20,godYang,'w-lab w-lab-lg'+cur,i,'radial',tone);
     det.push({ dg:i*SPAN, pct:D.ePct(D.eScore[w]), c1:`${w}${D.wx[w]||''}`, c2:`能量 ${D.ePct(D.eScore[w])}%`, c3:`不计 ${D.cnt[w]} 含藏 ${D.cnt2[w]}`,
+      w:w, wx:D.wx[w]||'', tone:tone, cur:i===SEL, j:ZHI_WX[monthZ]===w, godYin:godYin, godYang:godYang,
       detail:`<span class="${ssw}">${w}</span> ${D.wx[w]}；不计藏干 ${D.cnt[w]}(${D.pct1(D.cnt[w])}%)；计入藏干 ${D.cnt2[w]}(${D.pct(D.cnt2[w])}%)；能量分 ${Math.round(D.eScore[w])}(${D.ePct(D.eScore[w])}%)；阴 ${yin}(${D.pctN(yin,yin+yang)}%)阳 ${yang}(${D.pctN(yang,yin+yang)}%)`
         +`<br>${ssTxt}`
         +`<br>与日主 ${dg}${dwx}：<span class="tip" onclick="showTip('${rel}')">${rel}</span> ${nk} 个，占 ${D.pct(nk)}%` });
   });
   const cur=det[SEL]||det[0];
-  s+=K.rings+K.core(ID+'-fill',cur.pct)+K.spot(ID,cur.dg)
-    +`<text x="${C}" y="${C-16}" class="w-c1" id="${ID}-c1">${cur.c1}</text>`
-    +`<text x="${C}" y="${C+14}" class="w-c2" id="${ID}-c2">${cur.c2}</text>`
-    +`<text x="${C}" y="${C+34}" class="w-c3" id="${ID}-c3">${cur.c3}</text>`;
-  for(let i=0;i<5;i++) s+=K.hit(i*SPAN-SPAN/2,i*SPAN+SPAN/2,i,SEL,ID);
+  const svg=WHEEL.render({
+    id:ID, aria:'量化四柱圆盘：外圈为五行、内圈自左至右为阴十神与月令旺衰与阳十神，盘心为该扇区的旺衰与能量分与两口径计数，盘心自底往上涨的淡底水位即能量占比',
+    attrs:'data-src=".w-arc"', n:5,
+    span:function(i){ return [i*SPAN-SPAN/2,i*SPAN+SPAN/2]; },
+    mid:function(i){ return i*SPAN; },
+    arc:G.ARC, rIn:G.IN, hit1:G.HIT1, tick0:G.TICK0, tick1:G.TICK1, p0:G.P0, p1:G.P1, out:G.OUT, core:G.CORE,
+    sel:SEL,
+    selId:ID+'-arc', needleId:ID+'-needle', dotId:ID+'-dot',
+    onclickAt:function(i){ return "bzWheelPick('"+ID+"',"+i+")"; },
+    labelsOut:function(i,dg){
+      const x=det[i], p=WHEEL.px(G.LAB_OUT,dg);
+      return `<text x="${WHEEL.n(p[0])}" y="${WHEEL.n(p[1])}" class="w-lab w-lab-xl${x.j?' w-lab-j':''}${x.cur?' w-lab-cur':''}" data-i="${i}" style="fill:${x.tone}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(p[0])} ${WHEEL.n(p[1])})">${x.w}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const x=det[i], rot=WHEEL.radial(dg);
+      const a=WHEEL.px(G.LAB_IN,dg-20), b=WHEEL.px(G.LAB_IN,dg), c=WHEEL.px(G.LAB_IN,dg+20);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${x.cur?' w-lab-cur':''}" data-i="${i}" style="fill:${x.tone}" transform="rotate(${rot} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${x.godYin}</text>`
+        +`<text x="${WHEEL.n(b[0])}" y="${WHEEL.n(b[1])}" class="w-lab${x.cur?' w-lab-cur':''}" data-i="${i}" transform="rotate(0 ${WHEEL.n(b[0])} ${WHEEL.n(b[1])})">${x.wx}</text>`
+        +`<text x="${WHEEL.n(c[0])}" y="${WHEEL.n(c[1])}" class="w-lab w-lab-lg${x.cur?' w-lab-cur':''}" data-i="${i}" style="fill:${x.tone}" transform="rotate(${rot} ${WHEEL.n(c[0])} ${WHEEL.n(c[1])})">${x.godYang}</text>`;
+    },
+    rings:[{r:G.OUT,cls:'w-ring'},{r:G.IN,cls:'w-ring'}],
+    extra:function(){
+      const f=WHEEL.coreFill(G.CORE,cur.pct);
+      return `<clipPath id="${ID}-clip"><circle cx="${G.C}" cy="${G.C}" r="${G.CORE}"/></clipPath>`
+        +`<rect id="${ID}-fill" class="w-fill" x="${G.C-G.CORE}" y="${f.y}" width="${G.CORE*2}" height="${f.height}" clip-path="url(#${ID}-clip)"/>`
+        +`<circle cx="${G.C}" cy="${G.C}" r="${G.CORE}" class="w-core-hollow"/>`;
+    },
+    center:[
+      {y:G.C-16, cls:'w-c1', id:ID+'-c1', text:cur.c1},
+      {y:G.C+14, cls:'w-c2', id:ID+'-c2', text:cur.c2},
+      {y:G.C+34, cls:'w-c3', id:ID+'-c3', text:cur.c3}
+    ]
+  });
   window.__bzWheelData=window.__bzWheelData||{}; window.__bzWheelData[ID]=det;
-  return `<div class="wheel-block"><h4>${idSfx?'对比盘':''}量化四柱圆盘</h4>`
-    +`<svg class="wheel" id="${ID}" viewBox="0 0 440 440" data-src=".w-arc" role="img" aria-label="量化四柱圆盘：外圈为五行、内圈自左至右为阴十神与月令旺衰与阳十神，盘心为该扇区的旺衰与能量分与两口径计数，盘心自底往上涨的淡底水位即能量占比">${s}</svg>`
+  return `<div class="wheel-block"><h4>${idSfx?'对比盘':''}量化四柱圆盘</h4>${svg}`
     +`<div class="wheel-detail" id="${ID}-d">${cur.detail}</div></div>`;
 }
 /* 十二长生盘：十二扇区＝十二支（依支序自正上顺时针，每支占 30 度，子落正上、午落正下）。
@@ -2807,32 +2787,44 @@ function bzQuantWheel(BZ, D, idSfx){
    弧带为整圈淡环（段间不留缝），选中扇区另出加粗弧；盘心随选中给该支的长生、五行与本命所属。 */
 function bzChangShengWheel(BZ, idSfx){
   if(typeof WHEEL==='undefined' || !BZ || !BZ.gans || !BZ.zhis) return '';
-  const R=BZ_WHEEL_R, K=bzWheelKit(R), C=K.C, ID='bzCsWheel'+(idSfx||'');
+  const G=WHEEL.GEO440, ID='bzCsWheel'+(idSfx||'');
   const dg=BZ.dayGan, zhiPos={};                                 // 本命四柱地支 → 柱名
   BZ.zhis.forEach((z,i)=>{ if(z && zhiPos[z]===undefined) zhiPos[z]=BZ_PILL[i]||''; });
   const dayZhi=BZ.zhis[2]||'', SEL=Math.max(0,ZHI_ORDER.indexOf(dayZhi));
-  let s='';
-  for(let i=0;i<12;i++) s+=`<path d="${WHEEL.arc(R.arc,i*30-15,i*30+15)}" class="w-arc"/>`;
-  s+=`<path id="${ID}-arc" d="${WHEEL.arc(R.arc,SEL*30-15,SEL*30+15)}" class="w-arc w-arc-cur"/>`;
-  for(let i=0;i<12;i++) s+=K.tick(i*30);
   const det=[];
   for(let i=0;i<12;i++){
     const z=ZHI_ORDER[i], st=getChangSheng(dg,z);
-    s+=K.lab(R.lab0,i*30,z,'w-lab w-lab-xl'+(zhiPos[z]!==undefined?' w-lab-j':'')+(i===SEL?' w-lab-cur':''),i,'ring');
-    s+=K.lab(R.lab1,i*30,st,'w-lab w-lab-lg'+(i===SEL?' w-lab-cur':''),i,st.length>1?'radial':'flat');
     const mean=(typeof CS_MEAN_ALL!=='undefined'&&CS_MEAN_ALL[st])?CS_MEAN_ALL[st].base:'';
     det.push({ dg:i*30, c1:st, c2:`${z}（${ZHI_WX[z]}）`, c3:(zhiPos[z]!==undefined?('本命'+zhiPos[z]+'支'):'非命局四支'),
+      z:z, st:st, j:zhiPos[z]!==undefined, cur:i===SEL,
       detail:`<span class="${WX_CLASS[ZHI_WX[z]]}">${z}</span>（${ZHI_WX[z]}）：日主 ${dg} 处 ${st}${zhiPos[z]!==undefined?('，本命'+zhiPos[z]+'支'):''}<br>${mean}` });
   }
   const cur=det[SEL]||det[0];
-  s+=K.rings+K.core()+K.spot(ID,cur.dg)
-    +`<text x="${C}" y="${C-16}" class="w-c1" id="${ID}-c1">${cur.c1}</text>`
-    +`<text x="${C}" y="${C+14}" class="w-c2" id="${ID}-c2">${cur.c2}</text>`
-    +`<text x="${C}" y="${C+34}" class="w-c3" id="${ID}-c3">${cur.c3}</text>`;
-  for(let i=0;i<12;i++) s+=K.hit(i*30-15,i*30+15,i,SEL,ID);
+  const svg=WHEEL.render({
+    id:ID, aria:'十二长生盘：外圈为十二支、内圈为日主十二长生，盘心为该支的长生与五行',
+    attrs:'data-src=".w-arc"', n:12,
+    span:function(i){ return [i*30-15,i*30+15]; },
+    mid:function(i){ return i*30; },
+    arc:G.ARC, rIn:G.IN, hit1:G.HIT1, tick0:G.TICK0, tick1:G.TICK1, p0:G.P0, p1:G.P1, out:G.OUT, core:G.CORE,
+    sel:SEL,
+    selId:ID+'-arc', needleId:ID+'-needle', dotId:ID+'-dot',
+    onclickAt:function(i){ return "bzWheelPick('"+ID+"',"+i+")"; },
+    labelsOut:function(i,dg){
+      const x=det[i], p=WHEEL.px(G.LAB_OUT,dg);
+      return `<text x="${WHEEL.n(p[0])}" y="${WHEEL.n(p[1])}" class="w-lab w-lab-xl${x.j?' w-lab-j':''}${x.cur?' w-lab-cur':''}" data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(p[0])} ${WHEEL.n(p[1])})">${x.z}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const x=det[i], p=WHEEL.px(G.LAB_IN,dg), rot=x.st.length>1?WHEEL.radial(dg):0;
+      return `<text x="${WHEEL.n(p[0])}" y="${WHEEL.n(p[1])}" class="w-lab w-lab-lg${x.cur?' w-lab-cur':''}" data-i="${i}" transform="rotate(${rot} ${WHEEL.n(p[0])} ${WHEEL.n(p[1])})">${x.st}</text>`;
+    },
+    center:[
+      {y:G.C-16, cls:'w-c1', id:ID+'-c1', text:cur.c1},
+      {y:G.C+14, cls:'w-c2', id:ID+'-c2', text:cur.c2},
+      {y:G.C+34, cls:'w-c3', id:ID+'-c3', text:cur.c3}
+    ]
+  });
   window.__bzWheelData=window.__bzWheelData||{}; window.__bzWheelData[ID]=det;
-  return `<div class="wheel-block"><h4>${idSfx?'对比盘':''}十二长生盘</h4>`
-    +`<svg class="wheel" id="${ID}" viewBox="0 0 440 440" data-src=".w-arc" role="img" aria-label="十二长生盘：外圈为十二支、内圈为日主十二长生，盘心为该支的长生与五行">${s}</svg>`
+  return `<div class="wheel-block"><h4>${idSfx?'对比盘':''}十二长生盘</h4>${svg}`
     +`<div class="wheel-detail" id="${ID}-d">${cur.detail}</div></div>`;
 }
 /* 点盘：加粗弧、指针圆点、加重字、盘心三行与盘下详情条一并跟到选中扇区。
@@ -2853,7 +2845,7 @@ function bzWheelPick(rootId, i){
   WHEEL.text(rootId+'-c2', item.c2);
   WHEEL.text(rootId+'-c3', item.c3);
   const fill=document.getElementById(rootId+'-fill');
-  if(fill){ const f=WHEEL.coreFill(BZ_WHEEL_R.core, item.pct); fill.setAttribute('y', f.y); fill.setAttribute('height', f.height); }
+  if(fill){ const f=WHEEL.coreFill(WHEEL.GEO440.CORE, item.pct); fill.setAttribute('y', f.y); fill.setAttribute('height', f.height); }
   const el=document.getElementById(rootId+'-d');
   if(el) el.innerHTML=item.detail;
 }

@@ -1044,6 +1044,9 @@ window.xjShuffle = xjShuffle;
        而非全站写死的 --red，使各页选中项随本页主体色 */
     var tk = (window.pageThemeSuffix && window.pageThemeSuffix()) || '';
     list.className = 'sel-list' + (tk ? ' dtm-' + tk : '');
+    /* 控件底色暗时给列表挂 dark：选中项改用浅色字，页主题色在暗底上不取 */
+    var bg = getComputedStyle(sel).backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if(bg && 0.2126 * +bg[1] + 0.7152 * +bg[2] + 0.0722 * +bg[3] < 128) list.className += ' dark';
     list.setAttribute('role', 'listbox');
     /* 选项行高 = 控件行高，
        用 CSS 变量从 select 的实际高度传进来，使每行与控件同高，

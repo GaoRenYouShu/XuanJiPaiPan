@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/hehun.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/comp-mid.css">
 <link rel="stylesheet" href="assets/css/comp-shared.css">
 <link rel="stylesheet" href="assets/css/dt.css">
@@ -1358,44 +1359,39 @@ function hhMid(i,step){ return i*step+step/2; }
 function hhCoreFill(it){ return WHEEL.coreFill(HH_CORE, it[1]/it[2]*100); }
 function hhWheel(kind,list){
   const step=360/list.length;
-  let s='';
-  /* 各段弧首尾相接，整圈是一条淡环；加粗那段另出一条，随选中走 */
-  list.forEach(function(it,i){
-    s+=`<path d="${WHEEL.arc(HH_ARC,i*step,(i+1)*step)}" class="w-arc"/>`;
+  return WHEEL.render({
+    id:'hh'+kind+'Wheel',
+    aria:(kind==='items'?'六维合婚评分':'专项分析')+'：外圈为各项简称、内圈为该项得分，盘心自底往上涨的淡底水位即该项得分率',
+    n:list.length,
+    span:function(i){ return [i*step,(i+1)*step]; },
+    mid:function(i){ return hhMid(i,step); },
+    arc:HH_ARC, rIn:HH_IN, hit1:HH_HIT, tick0:HH_T0, tick1:HH_T1, p0:HH_P0, p1:HH_P1, out:HH_OUT, core:HH_CORE,
+    sel:0, hitOn:false,
+    selId:'hh'+kind+'Arc', needleId:'hh'+kind+'Needle', dotId:'hh'+kind+'Dot',
+    onclickAt:function(i){ return "hhPick('"+kind+"',"+i+")"; },
+    labelsOut:function(i,dg){
+      const a=hhMid(i,step), po=WHEEL.px(HH_LAB_OUT,a);
+      return `<text x="${WHEEL.n(po[0])}" y="${WHEEL.n(po[1])}" class="w-lab" data-i="${i}"`
+        +` transform="rotate(${WHEEL.ring(a)} ${WHEEL.n(po[0])} ${WHEEL.n(po[1])})">${hhShort(list[i][0])}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const a=hhMid(i,step), pi=WHEEL.px(HH_LAB_IN,a);
+      return `<text x="${WHEEL.n(pi[0])}" y="${WHEEL.n(pi[1])}" class="w-lab w-lab-lg"`
+        +` transform="rotate(${WHEEL.radial(a)} ${WHEEL.n(pi[0])} ${WHEEL.n(pi[1])})">${list[i][1]}</text>`;
+    },
+    rings:[{r:HH_OUT,cls:'w-ring'},{r:HH_IN,cls:'w-ring'}],
+    extra:function(){
+      const f0=hhCoreFill(list[0]);
+      return `<clipPath id="hh${kind}Clip"><circle cx="${HH_C}" cy="${HH_C}" r="${HH_CORE}"/></clipPath>`
+        +`<rect id="hh${kind}Fill" class="w-fill" x="${HH_C-HH_CORE}" y="${f0.y}" width="${HH_CORE*2}" height="${f0.height}" clip-path="url(#hh${kind}Clip)"/>`
+        +`<circle cx="${HH_C}" cy="${HH_C}" r="${HH_CORE}" class="w-core-hollow"/>`;
+    },
+    center:[
+      {y:HH_C-16, cls:'w-c1', id:'hh'+kind+'C1', text:''},
+      {y:HH_C+12, cls:'w-c2', id:'hh'+kind+'C2', text:''},
+      {y:HH_C+32, cls:'w-c3', id:'hh'+kind+'C3', text:''}
+    ]
   });
-  /* 刻度落在每项中点，与两侧文字同轴 */
-  list.forEach(function(it,i){
-    const a=hhMid(i,step), p0=WHEEL.px(HH_T0,a), p1=WHEEL.px(HH_T1,a);
-    s+=`<line x1="${WHEEL.n(p0[0])}" y1="${WHEEL.n(p0[1])}" x2="${WHEEL.n(p1[0])}" y2="${WHEEL.n(p1[1])}" class="w-tick"/>`;
-  });
-  list.forEach(function(it,i){
-    s+=`<path d="${WHEEL.band(HH_IN,HH_HIT,i*step,(i+1)*step)}" class="w-hit" data-i="${i}" onclick="hhPick('${kind}',${i})"/>`;
-    s+=`<path d="${WHEEL.band(HH_IN,HH_HIT,i*step,(i+1)*step)}" class="w-sel"/>`;
-  });
-  s+=`<path id="hh${kind}Arc" d="${WHEEL.arc(HH_ARC,0,step)}" class="w-arc w-arc-cur"/>`;
-  /* 外圈两字简称带 data-i，参与选中高亮；内圈为该项得分 */
-  list.forEach(function(it,i){
-    const a=hhMid(i,step), po=WHEEL.px(HH_LAB_OUT,a), pi=WHEEL.px(HH_LAB_IN,a);
-    s+=`<text x="${WHEEL.n(po[0])}" y="${WHEEL.n(po[1])}" class="w-lab" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(a)} ${WHEEL.n(po[0])} ${WHEEL.n(po[1])})">${hhShort(it[0])}</text>`;
-    s+=`<text x="${WHEEL.n(pi[0])}" y="${WHEEL.n(pi[1])}" class="w-lab w-lab-lg"`
-      +` transform="rotate(${WHEEL.radial(a)} ${WHEEL.n(pi[0])} ${WHEEL.n(pi[1])})">${it[1]}</text>`;
-  });
-  s+=`<circle cx="${HH_C}" cy="${HH_C}" r="${HH_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${HH_C}" cy="${HH_C}" r="${HH_IN}" class="w-ring"/>`;
-  /* 盘心不留常驻底，只留线框；填色由自底往上涨的淡底水位承担，高度即该项得分率 */
-  const f0=hhCoreFill(list[0]);
-  s+=`<clipPath id="hh${kind}Clip"><circle cx="${HH_C}" cy="${HH_C}" r="${HH_CORE}"/></clipPath>`;
-  s+=`<rect id="hh${kind}Fill" class="w-fill" x="${HH_C-HH_CORE}" y="${f0.y}" width="${HH_CORE*2}" height="${f0.height}" clip-path="url(#hh${kind}Clip)"/>`;
-  s+=`<circle cx="${HH_C}" cy="${HH_C}" r="${HH_CORE}" class="w-core-hollow"/>`;
-  const q0=WHEEL.px(HH_P0,hhMid(0,step)), q1=WHEEL.px(HH_P1,hhMid(0,step));
-  s+=`<line id="hh${kind}Needle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="hh${kind}Dot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  s+=`<text x="${HH_C}" y="${HH_C-16}" class="w-c1" id="hh${kind}C1"></text>`;
-  s+=`<text x="${HH_C}" y="${HH_C+12}" class="w-c2" id="hh${kind}C2"></text>`;
-  s+=`<text x="${HH_C}" y="${HH_C+32}" class="w-c3" id="hh${kind}C3"></text>`;
-  return `<svg class="wheel" id="hh${kind}Wheel" viewBox="0 0 440 440" role="img"`
-    +` aria-label="${kind==='items'?'六维合婚评分':'专项分析'}：外圈为各项简称、内圈为该项得分，盘心自底往上涨的淡底水位即该项得分率">${s}</svg>`;
 }
 function hhPick(kind,i){
   const h=window.__hh; if(!h) return;

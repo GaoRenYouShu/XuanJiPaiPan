@@ -3,40 +3,40 @@
          浦派 Phugpa 常数；蒙古新甘丹、不丹两派仅换历元与少数常数，同引擎承载。
    许可：移植自 MIT 项目 @hnw/date-tibetan（Copyright Yoshio HANAWA），常数与公式源自上引论文。
    单位约定：太阴日序 d 取 1 至 30；n 为自历元起的真月计数；角度以周为单位（1 = 360 度）。
-   时区约定：各派历算以当地平太阳时为准，日界为当地天明（取真日期跨日判定），
-             本引擎按 Janson 折算为 JD_OFFSET_STD_TIME + JD_OFFSET_DAY_START 两个常量偏移。
+   时区约定：公历到藏历按 JDN 正午对齐，与 @hnw/date-tibetan 的 fromGregorian 同法；
+             本引擎不暴露 fromJD 与 toDate，故不设时区偏移字段。
 */
-/* 三派参数档：M* 为太阴月与太阴日常数，S* 为平太阳黄经，A* 为月近点，P0 为历元闰余 */
+/* 各派参数档：M* 为太阴月与太阴日常数，S* 为平太阳黄经，A* 为月近点，P0 为历元闰余 */
 const ZL_SCHOOLS={
-  'phugpa':{'name':'浦派','en':'Phugpa',
+  'phugpa':{'name':'浦派',
     'M0':2015501+4783/5656,'M1':167025/5656,'M2':11135/11312,
     'S0':743/804,'S1':65/804,'S2':13/4824,
     'A0':475/3528,'A1':253/3528,'A2':1/28,
-    'P0':139/180,'epochYear':806,'tz':(6+4/60)/24,'bhutanLeap':false,'rabbyung':1027},
-  'mongolian':{'name':'蒙古新甘丹','en':'Mongolian',
+    'P0':139/180,'epochYear':806,'bhutanLeap':false},
+  'mongolian':{'name':'蒙古新甘丹',
     'M0':2359237+2603/2828,'M1':167025/5656,'M2':11135/11312,
     'S0':397/402,'S1':65/804,'S2':13/4824,
     'A0':1523/1764,'A1':253/3528,'A2':1/28,
-    'P0':209/270,'epochYear':1747,'tz':8/24,'bhutanLeap':false,'rabbyung':1027},
-  'bhutan':{'name':'不丹','en':'Bhutanese',
+    'P0':209/270,'epochYear':1747,'bhutanLeap':false},
+  'bhutan':{'name':'不丹',
     'M0':2361807+52/707,'M1':167025/5656,'M2':11135/11312,
     'S0':1+1/67,'S1':65/804,'S2':13/4824,
     'A0':17/147,'A1':253/3528,'A2':1/28,
-    'P0':31/40,'epochYear':1754,'tz':6/24,'bhutanLeap':true,'rabbyung':1027},
+    'P0':31/40,'epochYear':1754,'bhutanLeap':true},
   /* 楚尔派：Janson 附录 A.2 历元 E1732（儒略日 2353745，公历 1732 年 3 月 26 日），
      均行常数同浦派，仅历元值 m0、s0、a0 不同；闰余指数 beta* 取 59，即 beta 取 142，
      由 alpha = 12*(S0 - P0) = 19142/9045 推得（P0 = -25/108） */
-  'tsurphu':{'name':'楚尔派','en':'Tsurphu',
+  'tsurphu':{'name':'楚尔派',
     'M0':2353745+1795153/7635600,'M1':167025/5656,'M2':11135/11312,
     'S0':-5983/108540,'S1':65/804,'S2':13/4824,
     'A0':207/392,'A1':253/3528,'A2':1/28,
-    'P0':-25/108,'epochYear':1732,'tz':(6+4/60)/24,'bhutanLeap':false,'rabbyung':1027},
+    'P0':-25/108,'epochYear':1732,'bhutanLeap':false},
   /* 迥孜非算法派，乃元素占星的年界定义：岁首取虎月即藏历十一月，算例全同浦派 */
-  'jungtsi':{'name':'迥孜（岁首虎月）','en':'Jungtsi',
+  'jungtsi':{'name':'迥孜（岁首虎月）',
     'M0':2015501+4783/5656,'M1':167025/5656,'M2':11135/11312,
     'S0':743/804,'S1':65/804,'S2':13/4824,
     'A0':475/3528,'A1':253/3528,'A2':1/28,
-    'P0':139/180,'epochYear':806,'tz':(6+4/60)/24,'bhutanLeap':false,'rabbyung':1027,'newYearMonth':11}
+    'P0':139/180,'epochYear':806,'bhutanLeap':false,'newYearMonth':11}
 };
 /* 月行、日行不均等的传统线性插值表（时轮历给定的分段折线） */
 const ZL_MOON_TAB=[0,5,10,15,19,22,24,25];
@@ -148,7 +148,7 @@ function zlLosar(schoolKey,gyear){
   const y=(nym>1)?gyear-1:gyear;
   const cy=zlCycleYearOf(y);
   /* 岁首月若置闰，取在前的闰月（不丹闰月在后，仍取正月的第一个月）；
-     初一日若逢重日，取重复对中的第一日 */
+     初一日若逢重日，取重复对中的第一日；若逢缺日，岁首为紧随其后的第一日 */
   const leap=(!sch.bhutanLeap)&&zlIsLeapMonth(schoolKey,y,nym);
   return zlToGregorian(schoolKey,cy.cycle,cy.year,nym,leap,1,true);
 }
@@ -197,6 +197,10 @@ function zlFromJdnLocal(sch,jdnLocal){
   }
   if(day===0){ n--; day=30; }
   if(day>30){ n++; day-=30; }
+  /* 日序回卷后按反查同法重定闰日：相邻日序相隔两日者即重日，此日为其首日时标闰 */
+  const curJdn=Math.floor(zlTrueDate(sch,n,day));
+  const prevJdn=Math.floor(zlTrueDate(sch,n,day-1));
+  if(curJdn===prevJdn+2) leapDay=(jdn===prevJdn+1);
   const mo=zlMonthFromCount(sch,n);
   return {'cycle':mo.cycle,'year':mo.year,'gyear':mo.gyear,'jyear':zlYearOf(sch,mo),'month':mo.month,
     'leapMonth':mo.leapMonth,'day':day,'leapDay':leapDay,'count':n,'jdn':jdn};

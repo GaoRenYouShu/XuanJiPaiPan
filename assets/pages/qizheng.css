@@ -212,6 +212,8 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 #nmTwinKind{width:130px}
 
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
 .field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
 
 .field label{font-size:13px;color:var(--ink2)}
@@ -221,6 +223,10 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
   background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
   line-height:1.35;box-sizing:border-box;
 }
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
@@ -1385,6 +1391,13 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 
 .remedy-box .rem-ji{padding-left:var(--sp-2)}
 
+@media(max-width:600px){
+  .form-row.r2 .field{flex:0 0 auto;width:auto;min-width:0}
+  .form-row.r3 .field{flex:0 0 auto}
+  .form-row.r3 #bSex{min-width:40px !important;max-width:80px !important}
+  .form-row.r3 .btn{flex:0 0 auto}
+}
+
 .ai-copy-tip{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);
   background:rgba(40,28,16,.92);color:#fff;padding:var(--sp-2) var(--sp-4);border-radius:0;font-size:13px;
   box-shadow:0 6px 20px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.25s;z-index:999}
@@ -1933,6 +1946,8 @@ table.stab.stab-ds th:first-child,table.stab.stab-ds td.lbl{width:5.8em !importa
 .wheel .w-tick-j{stroke:var(--wheel-arc,#666);stroke-width:1.6}
 
 .wheel .w-arc{fill:none;stroke:var(--wheel-arc,#666);stroke-width:3;stroke-opacity:.22;stroke-linecap:butt}
+
+.wheel .w-arc-solid{stroke-opacity:1}
 
 .wheel .w-arc-cur{stroke:var(--wheel-cur,#333);stroke-width:4;stroke-opacity:1}
 

@@ -3,18 +3,18 @@
  * 样式层见 assets/css/style.css 的“圆盘通用件”段（.wheel / .w-* / --wheel-* 令牌）。
  * 分工：本文件只出几何与选中态改写，颜色字号一律交给 CSS 令牌，各页不重写。
  *
- * 接入页：道历（十二时辰盘、圣诞斋日盘）、老黄历（十二时辰吉凶盘、二十八宿盘）、
- *         万年历（节气圆盘、经络圆盘）、佛历（二十七宿盘、月相斋日盘）、
- *         藏历（殊胜日盘、重日缺日盘）。
- * 万年历两盘的坐标与取角仍是页内内联实现（已上线且零回归，不动），只借本件的 WHEEL.ring（最外圈环布）、
- * WHEEL.radial（内圈散射）、WHEEL.band（点选热区）、WHEEL.arc（加粗弧）
- * 与 WHEEL.pick / WHEEL.lab / WHEEL.text（选中态改写）。
+ * 接入页：五历页十盘（道历、老黄历、万年历、佛历、藏历），
+ *         合婚两盘、姓名评分盘、五运六气两盘、八字两盘、风水六盘。
+ * 盘面拼装统一走 WHEEL.render；十二时辰盘另走 WHEEL.shichen 与 WHEEL.shichenWheel。
+ * 多层罗经、落星、星盘与罗盘另立骨架者，只借本件的弧、热区、取字角与选中态改写。
  *
  * 用法：
  *   WHEEL.arc(r, a0, a1)              弧线 path（画弧带）
  *   WHEEL.band(r0, r1, a0, a1)        环形扇区 path（作点击热区，只取环带以免盖住盘心）
  *   WHEEL.anchorArc(r, span, id)      查询锚点弧：有 CUR 状态的盘，不随点选移动
  *   WHEEL.selArc(r, span, id)         选中弧：随点选移动
+ *   WHEEL.render(o)                   标准 440 盘骨架：逐格弧、刻度、热区、锚点与选中弧、内外圈字、环线、指针、盘心行
+ *   WHEEL.shichen(o)                  十二时辰盘配置渲染；WHEEL.shichenWheel(cfg, lunar) 连取时与选中态一次出盘
  *   WHEEL.px(r, deg)                  极坐标转直角坐标，返回 [x, y]
  *   WHEEL.ring(deg)                   位置角转“沿圆周环布”的旋转角（只给最外圈环名）
  *   WHEEL.radial(deg)                 位置角转“沿半径散射”的旋转角（内圈两字串）
@@ -119,6 +119,115 @@
   };
   W.selArc = function (r, span, id) {
     return '<path' + (id ? ' id="' + id + '"' : '') + ' d="' + W.arc(r, span[0], span[1]) + '" class="w-arc w-arc-cur"/>';
+  };
+  /* 标准 440 盘骨架：逐格弧、刻度、热区、锚点与选中弧、内外圈字、环线、指针、盘心行
+     的拼装只此一处。各页只给格数、取角、半径、标签与盘心内容，拼装统一走本件。
+     o 的键：
+       id 与 aria 必填；cls 缺省 wheel；view 缺省 440；attrs 为 svg 附加属性串。
+       n、span(i)、mid(i) 必填；arc、rIn、hit1、tick0、tick1、p0、p1、out、core 必填。
+       sel 为选中格；cur 为当前态，无当前态的盘省略或置 null。
+       selId、anchorId、needleId、dotId 为对应元素的 id；onclick 为点选函数名；
+       onclickAt(i) 返回完整 onclick 串，给出即代 onclick；hitOn 置 false 时初排不标 is-on。
+       labelsOut(i, dg, sp)、labelsMid(i, dg, sp)、labelsIn(i, dg, sp) 返回整段 text；rings 为 [{r, cls}]；
+       center 为 [{y, cls, id, text, fill, style}]；extra 返回环线之前的附加 SVG；
+       before 返回全部弧之前的附加 SVG；tickAt(i) 返回该格刻度，给出即代默认等长刻度。 */
+  W.render = function (o) {
+    var n = o.n, C = o.c || W.C, view = o.view || 440;
+    var sel = o.sel, cur = o.cur;
+    var s = '', i, sp, dg, tp, q0, q1;
+    if (typeof o.before === 'function') s += o.before();
+    for (i = 0; i < n; i++) {
+      sp = o.span(i);
+      s += '<path d="' + W.arc(o.arc, sp[0], sp[1]) + '" class="' + (o.arcCls || 'w-arc') + '"/>';
+    }
+    if (o.tick !== false) {
+      if (typeof o.tickAt === 'function') {
+        for (i = 0; i < n; i++) s += o.tickAt(i);
+      } else {
+        for (i = 0; i < n; i++) {
+          dg = o.mid(i);
+          tp = W.px(o.tick0, dg); q0 = W.px(o.tick1, dg);
+          s += '<line x1="' + W.n(tp[0]) + '" y1="' + W.n(tp[1]) + '" x2="' + W.n(q0[0]) + '" y2="' + W.n(q0[1]) + '" class="w-tick"/>';
+        }
+      }
+    }
+    for (i = 0; i < n; i++) {
+      sp = o.span(i);
+      var bd = W.band(o.rIn, o.hit1, sp[0], sp[1]);
+      var click = o.onclickAt ? o.onclickAt(i) : (o.onclick ? o.onclick + '(' + i + ')' : '');
+      s += '<path d="' + bd + '" class="w-hit' + ((o.hitOn !== false && i === sel) ? ' is-on' : '') + '" data-i="' + i + '"'
+        + (click ? ' onclick="' + click + '"' : '') + '/>';
+      s += '<path d="' + bd + '" class="w-sel"/>';
+    }
+    if (cur !== null && cur !== undefined) s += W.anchorArc(o.arc, o.span(cur), o.anchorId);
+    s += W.selArc(o.arc, o.span(sel), o.selId);
+    if (o.labelsOut) for (i = 0; i < n; i++) s += o.labelsOut(i, o.mid(i), o.span(i));
+    if (o.labelsMid) for (i = 0; i < n; i++) s += o.labelsMid(i, o.mid(i), o.span(i));
+    if (o.labelsIn) for (i = 0; i < n; i++) s += o.labelsIn(i, o.mid(i), o.span(i));
+    if (typeof o.extra === 'function') s += o.extra();
+    var rings = o.rings || [{ r: o.out, cls: 'w-ring' }, { r: o.rIn, cls: 'w-ring' }, { r: o.core, cls: 'w-core' }];
+    for (i = 0; i < rings.length; i++) s += '<circle cx="' + C + '" cy="' + C + '" r="' + rings[i].r + '" class="' + rings[i].cls + '"/>';
+    if (o.needle !== false && o.needleId) {
+      dg = o.mid(sel);
+      q0 = W.px(o.p0, dg); q1 = W.px(o.p1, dg);
+      s += '<line id="' + o.needleId + '" x1="' + W.n(q0[0]) + '" y1="' + W.n(q0[1]) + '" x2="' + W.n(q1[0]) + '" y2="' + W.n(q1[1]) + '" class="w-needle"/>';
+      s += '<circle id="' + o.dotId + '" cx="' + W.n(q1[0]) + '" cy="' + W.n(q1[1]) + '" r="3.5" class="w-dot"/>';
+    }
+    (o.center || []).forEach(function (t) {
+      var sty = t.style ? ' style="' + t.style + '"' : (t.fill ? ' style="fill:' + t.fill + '"' : '');
+      s += '<text x="' + C + '" y="' + t.y + '" class="' + t.cls + '"'
+        + (t.id ? ' id="' + t.id + '"' : '') + sty + '>' + t.text + '</text>';
+    });
+    return '<svg class="' + (o.cls || 'wheel') + '"' + (o.id ? ' id="' + o.id + '"' : '')
+      + ' viewBox="0 0 ' + view + ' ' + view + '"' + (o.attrs ? ' ' + o.attrs : '') + ' role="img"'
+      + (o.aria ? ' aria-label="' + o.aria + '"' : '') + '>' + s + '</svg>';
+  };
+  /* 十二时辰吉凶盘：十三段（十二时辰加夜子）共用一套拼装，两页只给数据、常量与 id。 */
+  W.shichen = function (o) {
+    var g = o.geo, d = o.data, sel = o.sel;
+    return W.render({
+      id: o.id, aria: o.aria, n: d.length,
+      span: o.span, mid: o.mid,
+      arc: g.arc, rIn: g.rIn, hit1: g.hit1, tick0: g.tick0, tick1: g.tick1,
+      p0: g.p0, p1: g.p1, out: g.out, core: g.core, c: g.c,
+      sel: sel, cur: o.cur,
+      selId: o.ids.sel, anchorId: o.ids.anchor, needleId: o.ids.needle, dotId: o.ids.dot,
+      onclick: o.onclick,
+      tickAt: function (i) {
+        if (i >= 12) return '';
+        var dg = i * 30, ta = W.px(g.tick0, dg), tb = W.px(g.tick1, dg);
+        return '<line x1="' + W.n(ta[0]) + '" y1="' + W.n(ta[1]) + '" x2="' + W.n(tb[0]) + '" y2="' + W.n(tb[1]) + '" class="w-tick"/>';
+      },
+      labelsOut: function (i) {
+        if (i !== 0) return '';
+        return W.shichenLabels({ data: d, span: o.span, mid: o.mid, labOut: g.labOut, sel: sel });
+      },
+      labelsIn: function (i, dg) {
+        if (i >= 12) return '';
+        var tp = W.px(g.labIn, dg), gz = d[i] ? d[i].gz : '';
+        return '<text x="' + W.n(tp[0]) + '" y="' + W.n(tp[1]) + '" class="w-lab w-lab-lg"'
+          + ' transform="rotate(' + W.radial(dg) + ' ' + W.n(tp[0]) + ' ' + W.n(tp[1]) + ')">' + gz + '</text>';
+      },
+      center: [
+        { y: g.c - 16, cls: 'w-c1', id: o.cids.c1, text: d[sel].name },
+        { y: g.c + 14, cls: 'w-c2', id: o.cids.c2, text: d[sel].luck, style: 'font-weight:700;fill:' + (d[sel].good ? 'var(--wheel-good)' : 'var(--wheel-bad)') },
+        { y: g.c + 34, cls: 'w-c3', id: o.cids.c3, text: d[sel].gz + ' ' + d[sel].range }
+      ]
+    });
+  };
+  /* 十二时辰盘流程：取时、当值时、选中态与盘面一次出齐；两页只给数据函数与配置。 */
+  W.shichenWheel = function (cfg, lunar) {
+    var times = lunar.getTimes();
+    var data = times.map(function (t, i) { return cfg.dataFn(t, i, i === times.length - 1); });
+    var hr = cfg.now();
+    var cur = Math.max(0, times.findIndex(function (t) {
+      return hr.getHours() >= +t.getMinHm().slice(0, 2) && hr.getHours() <= +t.getMaxHm().slice(0, 2);
+    }));
+    cfg.onState(data, cur);
+    return W.shichen({
+      id: cfg.id, aria: cfg.aria, data: data, span: cfg.span, mid: cfg.mid,
+      sel: cur, cur: cur, ids: cfg.ids, cids: cfg.cids, onclick: cfg.onclick, geo: cfg.geo
+    });
   };
   /* 详情条高度锁定：盘下详情随点选换段，段落长短不同，容器高度就会跟着变；容器一变，
      文档高度跟着变，页面在底部时浏览器回夹滚动，盘面与上方内容会整体跳一下。

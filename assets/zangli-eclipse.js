@@ -1,7 +1,6 @@
 /* 藏历日月食数据件 ， 唯一真源
    数据来源：NASA Five Millennium Canon（公有领域，引用须署名 Eclipse Predictions by Fred Espenak, NASA/GSFC），
-            经 github.com/stonelf/zangli（MIT 授权）转录；站内校正其类型名一处，码 8 原标月偏食，
-            按实录（如二零二四年三月二十五日为半影月食）改标半影月食。
+            经 github.com/stonelf/zangli（MIT 授权）转录；类型码 8 为半影月食。
    收录范围：1951-03-07 至 2060-11-08 共 495 次，超出此范围本件不载，页面写未载。
    时区口径：所存为食甚的 UTC 时刻，页面换算北京时间取日；同一食在别处可能落在别的日期。
    初亏复圆为北京地区数据，部分非官方，仅 77 次有载，页面只在有载时列出。

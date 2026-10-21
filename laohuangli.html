@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/laohuangli.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/comp-mid.css">
 <link rel="stylesheet" href="assets/css/comp-shared.css">
 <link rel="stylesheet" href="assets/css/dt.css">
@@ -39,11 +40,14 @@
   <div class="page">
     <h1>老黄历</h1>
     <div class="lead">每日宜忌、生肖、节气、吉神方位、九宫飞星与时辰吉凶。</div>
-    <div class="form-row">
-      <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="query()"></div>
-      <button class="btn gold" onclick="setToday()">今天</button>
+    <div class="cal-query-flow">
+      <div class="form-row">
+        <div class="field"><label for="dInput">选择日期</label><input type="text" class="dt-input" placeholder="YYYY-MM-DD" id="dInput" onchange="query()"></div>
+        <button class="btn gold" onclick="setToday()">今天</button>
+      </div>
+      <div id="xjQuery"></div>
+      <div id="calReverse"></div>
     </div>
-    <div id="xjQuery"></div>
     <div data-export-target>
     <div class="exp-title" data-export-title>老黄历 玄机排盘</div>
     <div class="cal-nav">
@@ -69,6 +73,7 @@
 <script defer src="assets/tongshu-terms.js"></script>
 <script defer src="assets/holiday.js"></script>
 <script defer src="assets/xuanji-lib.js"></script>
+<script defer src="assets/cal-reverse.js"></script>
 <script defer src="assets/taisui-data.js"></script>
 <script defer src="assets/wheel.js"></script>
 <script defer src="assets/ai.js"></script>
@@ -191,54 +196,8 @@ function scMid(i){const sp=scSpan(i);return (sp[0]+sp[1])/2;}
 /* 加粗弧、指针、圆点三件随选中走的公共改写，两盘共用 */
 function wheelSpot(ids,dg,a0,a1){ return xjWheelSpot(ids,dg,a0,a1,{arc:W_ARC,p0:W_P0,p1:W_P1}); }
 const SC_IDS={arc:'lhlScArc',needle:'lhlScNeedle',dot:'lhlScDot'};
-function shichenWheel(lunar){
-  const times=lunar.getTimes();
-  LHL_SC=times.map((t,i)=>lhlScData(t,i,i===times.length-1));
-  const hr=xjNowDate();
-  LHL_SC_CUR=Math.max(0,times.findIndex(t=>hr.getHours()>=+t.getMinHm().slice(0,2)&&hr.getHours()<=+t.getMaxHm().slice(0,2)));
-  LHL_SC_SEL=LHL_SC_CUR;
-  const cur=LHL_SC[LHL_SC_SEL], curSp=scSpan(LHL_SC_SEL), curDg=scMid(LHL_SC_SEL);
-  let s='';
-  /* 十三段弧：段间不留缝，整圈是一条淡环；加粗那段另出一条，随选中走 */
-  LHL_SC.forEach(function(x,i){
-    const sp=scSpan(i);
-    s+=`<path d="${WHEEL.arc(W_ARC,sp[0],sp[1])}" class="w-arc"/>`;
-  });
-  /* 刻度落在十二宫中点，与两侧文字同轴，连成辐条（与经络圆盘同法） */
-  for(let i=0;i<12;i++){
-    const dg=i*30, ta=WHEEL.px(W_TICK0,dg), tb=WHEEL.px(W_TICK1,dg);
-    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
-  }
-  /* 热区只取环带，不盖盘心 */
-  LHL_SC.forEach(function(x,i){
-    const sp=scSpan(i);
-    s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-hit${i===LHL_SC_SEL?' is-on':''}" data-i="${i}" onclick="lhlPickShichen(${i})"/>`;
-    s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
-  });
-  /* 查询锚点弧随当前时辰不动，选中弧随点选走；两弧同取 scSpan，生成走 wheel.js 共享件 */
-  s+=WHEEL.anchorArc(W_ARC, scSpan(LHL_SC_CUR), 'lhlScArcFix');
-  s+=WHEEL.selArc(W_ARC, curSp, 'lhlScArc');
-  /* 外圈：十二时辰名与夜子小字，生成走 assets/wheel.js 的 WHEEL.shichenLabels 共享件 */
-  s+=WHEEL.shichenLabels({data:LHL_SC,span:scSpan,mid:scMid,labOut:W_LAB_OUT,sel:LHL_SC_SEL});
-  /* 内圈：该宫干支，两字、**一律径向散射**（聚焦向盘心）。环布只给最外圈，
-     内圈全圈同一种放射排法才整齐；给内圈也套环布，整盘就失了“外圈一条环带”的层次。 */
-  for(let i=0;i<12;i++){
-    const dg=i*30, tp=WHEEL.px(W_LAB_IN,dg), gz=LHL_SC[i]?LHL_SC[i].gz:'';
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg"`
-      +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${gz}</text>`;
-  }
-  s+=`<circle cx="${W_C}" cy="${W_C}" r="${W_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${W_C}" cy="${W_C}" r="${W_IN}" class="w-ring"/>`;
-  s+=`<circle cx="${W_C}" cy="${W_C}" r="${W_CORE}" class="w-core"/>`;
-  /* 指针只走盘心与内界圈之间，不穿过盘心文字 */
-  const q0=WHEEL.px(W_P0,curDg), q1=WHEEL.px(W_P1,curDg);
-  s+=`<line id="lhlScNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="lhlScDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  s+=`<text x="${W_C}" y="${W_C-16}" class="w-c1" id="lhlScC1">${cur.name}</text>`;
-  s+=`<text x="${W_C}" y="${W_C+14}" class="w-c2" id="lhlScC2" style="font-weight:700;fill:${cur.good?'var(--wheel-good)':'var(--wheel-bad)'}">${cur.luck}</text>`;
-  s+=`<text x="${W_C}" y="${W_C+34}" class="w-c3" id="lhlScC3">${cur.gz} ${cur.range}</text>`;
-  return `<svg class="wheel" id="lhlScWheel" viewBox="0 0 440 440" role="img" aria-label="十二时辰吉凶盘">${s}</svg>`;
-}
+var LHL_SC_WHEEL = null;
+function shichenWheel(lunar){ return WHEEL.shichenWheel(LHL_SC_WHEEL, lunar); }
 function lhlScDetailHTML(x){
   return `${x.gz}时，<span class="${x.good?'wd-g':'wd-x'}">${x.luck}</span>，值神 ${x.shen||'未载'}`
     +`<span class="wd-br"></span>宜 ${x.yi}`;
@@ -288,50 +247,37 @@ function xiuWheel(lunar){
     return {nm:nm,full:nm+((LunarUtil.ZHENG&&LunarUtil.ZHENG[nm])||'')+((LunarUtil.ANIMAL&&LunarUtil.ANIMAL[nm])||''),
       luck:luck,good:luck==='吉',xiang:xg[1],xiangS:xg[0]};
   });
-  const curX=LHL_XIU[LHL_XIU_SEL], curSp=xiuSpan(LHL_XIU_SEL);
-  let s='';
-  /* 二十八段弧：段间不留缝，整圈是一条淡环；加粗那段另出一条，随选中走 */
-  LHL_XIU.forEach(function(x,i){
-    const sp=xiuSpan(i);
-    s+=`<path d="${WHEEL.arc(W_ARC,sp[0],sp[1])}" class="w-arc"/>`;
+  const curX=LHL_XIU[LHL_XIU_SEL];
+  return WHEEL.render({
+    id:'lhlXiuWheel', aria:'二十八宿盘', n:28,
+    span:xiuSpan, mid:xiuMid,
+    arc:W_ARC, rIn:W_IN, hit1:W_HIT1, tick0:W_TICK0, tick1:W_TICK1, p0:W_P0, p1:W_P1, out:W_OUT, core:W_CORE,
+    sel:LHL_XIU_SEL, cur:LHL_XIU_CUR,
+    selId:'lhlXiuArc', anchorId:'lhlXiuArcFix', needleId:'lhlXiuNeedle', dotId:'lhlXiuDot',
+    onclick:'lhlPickXiu',
+    labelsOut:function(i){
+      if(i!==0) return '';
+      /* 外圈：四象方位单字，沿圆周环布（WHEEL.ring） */
+      let s='';
+      XIU_XIANG.forEach(function(x){
+        const dg=XIU_A0-(x[2]+x[3])/2*XIU_W, tp=WHEEL.px(W_LAB_OUT,dg);
+        s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl" style="fill:${x[5]}"`
+          +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x[4]}</text>`;
+      });
+      return s;
+    },
+    labelsIn:function(i,dg){
+      const x=LHL_XIU[i], tp=WHEEL.px(W_LAB_IN,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg${i===LHL_XIU_SEL?' w-lab-cur':''}"`
+        +` data-i="${i}" style="fill:${x.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
+        +` transform="rotate(${WHEEL.dir(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.nm}</text>`;
+    },
+    center:[
+      {y:W_C-16, cls:'w-c1', id:'lhlXiuC1', text:curX.full},
+      {y:W_C+14, cls:'w-c2', id:'lhlXiuC2', text:curX.luck, style:'font-weight:700;fill:' + (curX.good?'var(--wheel-good)':'var(--wheel-bad)')},
+      {y:W_C+34, cls:'w-c3', id:'lhlXiuC3', text:curX.xiang}
+    ]
   });
-  /* 刻度落在每宿中点，与两侧文字同轴 */
-  for(let i=0;i<28;i++){
-    const dg=xiuMid(i), ta=WHEEL.px(W_TICK0,dg), tb=WHEEL.px(W_TICK1,dg);
-    s+=`<line x1="${WHEEL.n(ta[0])}" y1="${WHEEL.n(ta[1])}" x2="${WHEEL.n(tb[0])}" y2="${WHEEL.n(tb[1])}" class="w-tick"/>`;
-  }
-  LHL_XIU.forEach(function(x,i){
-    const sp=xiuSpan(i);
-    s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-hit${i===LHL_XIU_SEL?' is-on':''}" data-i="${i}" onclick="lhlPickXiu(${i})"/>`;
-    s+=`<path d="${WHEEL.band(W_IN,W_HIT1,sp[0],sp[1])}" class="w-sel"/>`;
-  });
-  /* 查询锚点弧随当日值宿不动，选中弧随点选走；两弧同取 xiuSpan，生成走 wheel.js 共享件 */
-  s+=WHEEL.anchorArc(W_ARC, xiuSpan(LHL_XIU_CUR), 'lhlXiuArcFix');
-  s+=WHEEL.selArc(W_ARC, curSp, 'lhlXiuArc');
-  /* 外圈：四象方位单字，沿圆周环布（WHEEL.ring） */
-  XIU_XIANG.forEach(function(x){
-    const dg=XIU_A0-(x[2]+x[3])/2*XIU_W, tp=WHEEL.px(W_LAB_OUT,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl" style="fill:${x[5]}"`
-      +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x[4]}</text>`;
-  });
-  /* 内圈：二十八宿名，单字，按吉凶着色，走 WHEEL.dir，四正处（房、虚、昴、星）正立，
-     其余沿半径散射。环布只给最外圈的四象方位字。 */
-  LHL_XIU.forEach(function(x,i){
-    const dg=xiuMid(i), tp=WHEEL.px(W_LAB_IN,dg);
-    s+=`<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-lg${i===LHL_XIU_SEL?' w-lab-cur':''}"`
-      +` data-i="${i}" style="fill:${x.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
-      +` transform="rotate(${WHEEL.dir(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.nm}</text>`;
-  });
-  s+=`<circle cx="${W_C}" cy="${W_C}" r="${W_OUT}" class="w-ring"/>`;
-  s+=`<circle cx="${W_C}" cy="${W_C}" r="${W_IN}" class="w-ring"/>`;
-  s+=`<circle cx="${W_C}" cy="${W_C}" r="${W_CORE}" class="w-core"/>`;
-  const dg=xiuMid(LHL_XIU_SEL), q0=WHEEL.px(W_P0,dg), q1=WHEEL.px(W_P1,dg);
-  s+=`<line id="lhlXiuNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`;
-  s+=`<circle id="lhlXiuDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
-  s+=`<text x="${W_C}" y="${W_C-16}" class="w-c1" id="lhlXiuC1">${curX.full}</text>`;
-  s+=`<text x="${W_C}" y="${W_C+14}" class="w-c2" id="lhlXiuC2" style="font-weight:700;fill:${curX.good?'var(--wheel-good)':'var(--wheel-bad)'}">${curX.luck}</text>`;
-  s+=`<text x="${W_C}" y="${W_C+34}" class="w-c3" id="lhlXiuC3">${curX.xiang}</text>`;
-  return `<svg class="wheel" id="lhlXiuWheel" viewBox="0 0 440 440" role="img" aria-label="二十八宿盘">${s}</svg>`;
 }
 /* 盘下详情条：第几宿、四象、吉凶一行；宿曜全名可点弹宿诗（避免内容堆积，歌诀只留弹窗一份）。
    一律不加粗，强调走色（.wd-g / .wd-x），与万年历、佛历圆盘详情同一口径。 */
@@ -519,6 +465,15 @@ function query(){
 
 window.addEventListener('load', function () {
   ({C:W_C,ARC:W_ARC,OUT:W_OUT,IN:W_IN,CORE:W_CORE,LAB_OUT:W_LAB_OUT,LAB_IN:W_LAB_IN,HIT1:W_HIT1,TICK0:W_TICK0,TICK1:W_TICK1,P0:W_P0,P1:W_P1}=WHEEL.GEO440);
+  LHL_SC_WHEEL = {
+    id:'lhlScWheel', aria:'十二时辰吉凶盘',
+    dataFn:lhlScData, now:xjNowDate, span:scSpan, mid:scMid,
+    ids:{sel:'lhlScArc',anchor:'lhlScArcFix',needle:'lhlScNeedle',dot:'lhlScDot'},
+    cids:{c1:'lhlScC1',c2:'lhlScC2',c3:'lhlScC3'},
+    onclick:'lhlPickShichen',
+    geo:{arc:W_ARC,rIn:W_IN,hit1:W_HIT1,tick0:W_TICK0,tick1:W_TICK1,p0:W_P0,p1:W_P1,out:W_OUT,core:W_CORE,labOut:W_LAB_OUT,labIn:W_LAB_IN,c:W_C},
+    onState:function(data,cur){ LHL_SC=data; LHL_SC_CUR=cur; LHL_SC_SEL=cur; }
+  };
   setTimeout(function () {
     renderChrome('laohuangli.html');
     /* xjCalNav 查询钩子：共享件算出目标日期后由本页 query() 刷新各区 */
@@ -639,6 +594,24 @@ window.addEventListener('load', function () {
     ${hh}`;
     }, '老黄历', { share:{ page:"laohuangli", title:"老黄历每日宜忌查询", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ const _d=document.getElementById('dInput'); if(!_d||!_d.value) setToday(); }); } } });
   }, 0);
+});
+</script>
+<script>
+window.addEventListener("load", function(){
+  setTimeout(function(){
+    var el=document.getElementById("calReverse");
+    if(!el || !window.XJ_CAL_REVERSE) return;
+    XJ_CAL_REVERSE.mount({
+      el:el, kind:"lunar", offset:0, yearLabel:"农历年",
+      getCurrent:function(){
+        var v=document.getElementById("dInput").value;
+        var p=v?v.split("-").map(Number):[];
+        if(!p[0]){ var t=xjNowDate(); p=[t.getFullYear(),t.getMonth()+1,t.getDate()]; }
+        return {y:p[0],m:p[1],d:p[2]};
+      },
+      onPick:function(date){ var i=document.getElementById("dInput"); if(i)i.value=date; query(); }
+    });
+  },0);
 });
 </script>
 </body>

@@ -1,0 +1,30 @@
+/* 暗色主题基础色：纸、卡、字、线由本件统一，各页暗色块只覆写本页强调色；
+   长文档、开源页、典籍页与罗盘页保持纸本浅色。 */
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme:dark;
+    --paper:#17171a;
+    --paper2:#1d1d20;
+    --card:#1d1d20;
+    --line:#3a3a3f;
+    --ink:#d6d2cd;
+    --ink2:#aea698;
+    --red2:#d2695e;
+    --cal-hover:#2a2a2e;
+    --cal-selected:#333338;
+  }
+  body{background:var(--paper);color:var(--ink)}
+  body:has(.page-sm),body:has(.page-os),body:has(.page-dj),body:has(.page-lp){
+    background:#faf9f6;color:#1a1a1a
+  }
+  .page-sm,.page-os,.page-dj,.page-lp{
+    color-scheme:light;
+    --paper:#ffffff;
+    --paper2:#faf9f6;
+    --card:#ffffff;
+    --line:#ddd8cf;
+    --ink:#1a1a1a;
+    --ink2:#52525a;
+  }
+}
+.sel-list.dark .sel-opt.on{color:#e6e1d6;font-weight:700}

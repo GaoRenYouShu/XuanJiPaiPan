@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/bazi.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/comp-shared.css">
 <link rel="stylesheet" href="assets/css/dt.css">
 <link rel="stylesheet" href="assets/css/bazi.css">
@@ -1068,7 +1069,7 @@ function paipanCeleb(){
 }
 /* ============ 时辰未定：十二时辰候选盘 ============
  * 年月日与性别可考而时辰无考时，按当日十二时辰各排一盘，列成对照表供点选：
- * 每行给该时辰的完整四柱与命理要点（旺衰档、格局、命宫、时干十神、时柱神煞、时柱纳音、时支宫位、首步大运），
+ * 每行给该时辰的完整四柱与命理要点（旺衰档、格局、时干十神），
  * 点选任意一行即以该候选走日期模式同一条装配链渲染完整盘，并在盘首标注候选来历。
  * 子时按当日 00:00 取（早子时）；出生在 23 时之后者日柱或归次日，表内另有说明。
  * 一期只列事实，不按已知事实自动反推打分。 */
@@ -1079,19 +1080,13 @@ const HOURS12=[
 let _hourlessPick=null;   /* 已点选的候选时辰支，未选为 null */
 let _hourlessCache=null;  /* { sig, rows }：同一输入签名下十二盘只装配一次，点选换盘不再重算 */
 /* 候选行所需事实：装配走 buildBaziState（与日期、四柱两模式同源），
-   旺衰与格局走 getAnalysis（与页内解读同源），命宫与首步大运取该候选自己的盘。 */
+   旺衰与格局走 getAnalysis（与页内解读同源），时干十神取该候选自己的盘。 */
 function hourlessRow(opt, hour){
   const pad=n=>String(n).padStart(2,'0');
   const built=buildBaziState(Object.assign({}, opt, { time: pad(hour)+':00' }));
   const An=getAnalysis(built.BZ);
   const c=built.cols[3];
-  let mg=''; try{ mg=(built.ec&&built.ec.getMingGong())||''; }catch(e){}
-  let dy=''; try{
-    const st=baziDaYunSteps(built.BZ);
-    const f=st&&st.steps&&st.steps.filter(s=>s.gz&&!s.empty)[0];
-    if(f) dy=f.gz+'，'+f.age+' 岁起';
-  }catch(e){}
-  return { built, An, c, mg, dy };
+  return { built, An, c };
 }
 /* 点选候选：候选不在输入签名内，显式失效去重守卫，令本次点选必重排 */
 function pickHourless(z){
@@ -1136,25 +1131,19 @@ function paipanHourless(){
   const pad=n=>String(n).padStart(2,'0');
   let h='<div class="hourless-box"><div class="confirm-h">时辰未定：十二时辰候选盘</div>';
   h+='<div class="sub-note">出生日期 '+esc(dv)+'，性别 '+(sex?'男':'女')+'。下表按当日十二时辰各排一盘，点选任意一行即以该时辰渲染完整命盘；子时按当日 00:00 取（早子时），出生在 23 时之后者日柱或归次日，可回公历模式另行核对。</div>';
-  h+='<table class="confirm-tb hourless-tb"><thead><tr><th>时辰</th><th>四柱</th><th>旺衰</th><th>格局</th><th>命宫</th><th>时干十神</th><th>时柱神煞</th><th>时柱纳音</th><th>首步大运</th><th></th></tr></thead><tbody>';
+  h+='<table class="confirm-tb hourless-tb"><thead><tr><th>时辰</th><th>四柱</th><th>旺衰</th><th>格局</th><th>时干十神</th><th></th></tr></thead><tbody>';
   HOURS12.forEach((c,i)=>{
     const r=rows[i];
-    const zf=(typeof ZHI_FANG!=='undefined'&&ZHI_FANG[c.z])?ZHI_FANG[c.z]:'';
-    const sha=(r.c.sha&&r.c.sha.length)?r.c.sha.join('、'):'无';
     h+='<tr'+(c.z===_hourlessPick?' class="cur"':'')+' onclick="pickHourless(\''+c.z+'\')">'
-      +'<td class="hl-hour"><b>'+c.z+'时</b>'+(zf?('<span>'+zf+'</span>'):'')+'</td>'
+      +'<td class="hl-hour"><b>'+c.z+'时</b></td>'
       +'<td>'+gzColorSpan(r.built.cols.map(x=>x.gz).join(' '))+'</td>'
       +'<td>'+esc(r.An.strength||'无')+'</td>'
       +'<td>'+esc(r.An.geName||'无')+'</td>'
-      +'<td>'+esc(r.mg||'无')+'</td>'
       +'<td>'+esc(r.c.ssg||'无')+'</td>'
-      +'<td class="hl-sha">'+esc(sha)+'</td>'
-      +'<td>'+esc(r.c.ny||'无')+'</td>'
-      +'<td>'+esc(r.dy||'无')+'</td>'
-      +'<td><button type="button" class="btn">查看此盘</button></td></tr>';
+      +'<td><button type="button" class="btn">排盘</button></td></tr>';
   });
   h+='</tbody></table>';
-  h+='<div class="sub-note">以已知事实反推：先取确知的事实缩小范围，如首步大运的干支与起运岁数、时干十神与神煞所主之事、时支宫位，与上表相符者再点选查看完整命盘核对。本表只列事实，不作自动打分。</div>';
+  h+='<div class="sub-note">以已知事实反推：先取确知的事实缩小范围，如时干十神所主之事、旺衰档与格局，与上表相符者再点选排盘核对。本表只列事实，不作自动打分。</div>';
   h+='</div>';
   let picked=-1;
   if(_hourlessPick!=null) picked=HOURS12.findIndex(c=>c.z===_hourlessPick);

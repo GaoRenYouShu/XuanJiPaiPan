@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
 <link rel="stylesheet" href="assets/fonts/site-sym.css">
 <link rel="stylesheet" href="assets/pages/fengshui.css">
+<link rel="stylesheet" href="assets/css/comp-dark.css">
 <link rel="stylesheet" href="assets/css/dt.css">
 <link rel="stylesheet" href="assets/css/fengshui.css">
 
@@ -551,12 +552,7 @@ const FS_PICK_CONF = {
   }},
 };
 function fsPickZb(i){ fsPickCommon(i, FS_PICK_CONF.zb); }
-function fsZbNeedle(i){
-  const ln=document.getElementById('fsZbNeedle'), dt=document.getElementById('fsZbDot');
-  const a=WHEEL.px(FW_P0,i*45), b=WHEEL.px(FW_P1,i*45);
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(b[0])); ln.setAttribute('y2',WHEEL.n(b[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(b[0])); dt.setAttribute('cy',WHEEL.n(b[1])); }
-}
+function fsZbNeedle(i){ fsNeedleCommon('fsZbNeedle','fsZbDot',i*45,false); }
 /* 盘心两行：第一行恒为入中之星（常驻），第二行随点选给该宫之星与吉凶（判定）。
    若把选中宫的星放大在盘心，会被读成该星入中，故选中宫的星一律退到第二行 */
 function fsZbCore(i){
@@ -570,43 +566,34 @@ function fsZbCore(i){
 /* 盘面元素按通用件骨架逐项出：淡弧成圈、刻度落中点、热区、加粗弧、外圈字、内圈字、三圈线、指针、盘心两行 */
 function fsZbWheelSvg(){
   const b=FS_ZB_BOARDS[FS_ZB_SEL];
-  let s='';
-  for(let i=0;i<8;i++){
-    s+=`<path d="${WHEEL.arc(FW_ARC,i*45-22.5,i*45+22.5)}" class="w-arc"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_TICK0,i*45), c=WHEEL.px(FW_TICK1,i*45);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const d=WHEEL.band(FW_IN,FW_HIT1,i*45-22.5,i*45+22.5);
-    s+=`<path d="${d}" class="w-hit${i===FS_ZB_PICK?' is-on':''}" data-i="${i}" onclick="fsPickZb(${i})"/>`;
-    s+=`<path d="${d}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsZbCur" d="${WHEEL.arc(FW_ARC,FS_ZB_PICK*45-22.5,FS_ZB_PICK*45+22.5)}" class="w-arc w-arc-cur"/>`;
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const a=WHEEL.px(FW_LAB_OUT,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_ZB_PICK?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.NINE_BAGUA[n]}</text>`;
-  });
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const c=b.board.find(x=>x.palace===n), a=WHEEL.px(FW_LAB_IN,i*45);
-    const f=fwJxFill(FS.STAR_JX[c.star]);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_ZB_PICK?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.radial(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${STAR_NAMES[c.star]}</text>`;
-  });
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,FS_ZB_PICK*45), q1=WHEEL.px(FW_P1,FS_ZB_PICK*45);
-  s+=`<line id="fsZbNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsZbDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
   const n0=FS_ZB_ORDER[FS_ZB_PICK], c0=b.board.find(x=>x.palace===n0), jx0=FS.STAR_JX[c0.star], icJx=FS.STAR_JX[b.ic];
-  s+=`<text id="fsZbC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${STAR_NAMES[b.ic]}</text>`
-    +`<text id="fsZbC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="font-weight:700;fill:${fwJxFill(icJx)||'var(--wheel-ink2)'}">入中 ${icJx}</text>`
-    +`<text id="fsZbC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${FS.NINE_BAGUA[n0]}宫 ${STAR_NAMES[c0.star]} ${jx0}</text>`;
-  return `<svg class="wheel" id="fsZbWheel" viewBox="0 0 440 440" role="img" aria-label="紫白飞星盘：外圈八卦宫、内圈飞星，点选一方看该方主事">${s}</svg>`;
+  return WHEEL.render({
+    id:'fsZbWheel', aria:'紫白飞星盘：外圈八卦宫、内圈飞星，点选一方看该方主事',
+    n:8,
+    span:function(i){ return [i*45-22.5,i*45+22.5]; },
+    mid:function(i){ return i*45; },
+    arc:FW_ARC, rIn:FW_IN, hit1:FW_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:FW_P0, p1:FW_P1, out:FW_OUT, core:FW_CORE, c:FW_C,
+    sel:FS_ZB_PICK,
+    selId:'fsZbCur', needleId:'fsZbNeedle', dotId:'fsZbDot',
+    onclick:'fsPickZb',
+    labelsOut:function(i,dg){
+      const a=WHEEL.px(FW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_ZB_PICK?' w-lab-cur':''}" data-i="${i}"`
+        +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.NINE_BAGUA[FS_ZB_ORDER[i]]}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const c=b.board.find(x=>x.palace===FS_ZB_ORDER[i]), a=WHEEL.px(FW_LAB_IN,dg);
+      const f=fwJxFill(FS.STAR_JX[c.star]);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_ZB_PICK?' w-lab-cur':''}" data-i="${i}"`
+        +(f?` style="fill:${f}"`:'')
+        +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${STAR_NAMES[c.star]}</text>`;
+    },
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'fsZbC1', text:STAR_NAMES[b.ic]},
+      {y:FW_C+14, cls:'w-c2', id:'fsZbC2', text:'入中 '+icJx, style:'font-weight:700;fill:'+(fwJxFill(icJx)||'var(--wheel-ink2)')},
+      {y:FW_C+34, cls:'w-c3', id:'fsZbC3', text:FS.NINE_BAGUA[n0]+'宫 '+STAR_NAMES[c0.star]+' '+jx0}
+    ]
+  });
 }
 function fsZbDetail(){
   const b=FS_ZB_BOARDS[FS_ZB_SEL], n=FS_ZB_ORDER[FS_ZB_PICK];
@@ -663,12 +650,7 @@ function drawBazhai(){
 }
 function fsBaGua(i){ return FS.NINE_BAGUA[FS_ZB_ORDER[i]]; }
 function fsPickBa(i){ fsPickCommon(i, FS_PICK_CONF.ba); }
-function fsBaNeedle(i){
-  const ln=document.getElementById('fsBaNeedle'), dt=document.getElementById('fsBaDot');
-  const a=WHEEL.px(FW_P0,i*45), b=WHEEL.px(FW_P1,i*45);
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(b[0])); ln.setAttribute('y2',WHEEL.n(b[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(b[0])); dt.setAttribute('cy',WHEEL.n(b[1])); }
-}
+function fsBaNeedle(i){ fsNeedleCommon('fsBaNeedle','fsBaDot',i*45,false); }
 /* 盘心三行：第一行常驻命卦，第二行随点选给该方游年星与吉凶（判定），第三行给该宫与方位 */
 function fsBaCoreTxt(i){
   const g=fsBaGua(i), inf=FS_BA_INFO[g]||{name:'伏位',good:true};
@@ -682,40 +664,33 @@ function fsBaCore(i){
   WHEEL.text('fsBaC3',t[2]);
 }
 function fsBaWheelSvg(){
-  let s='';
-  for(let i=0;i<8;i++) s+=`<path d="${WHEEL.arc(FW_ARC,i*45-22.5,i*45+22.5)}" class="w-arc"/>`;
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_TICK0,i*45), c=WHEEL.px(FW_TICK1,i*45);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const d=WHEEL.band(FW_IN,FW_HIT1,i*45-22.5,i*45+22.5);
-    s+=`<path d="${d}" class="w-hit${i===FS_BA_SEL?' is-on':''}" data-i="${i}" onclick="fsPickBa(${i})"/>`;
-    s+=`<path d="${d}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsBaCur" d="${WHEEL.arc(FW_ARC,FS_BA_SEL*45-22.5,FS_BA_SEL*45+22.5)}" class="w-arc w-arc-cur"/>`;
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_LAB_OUT,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_BA_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${fsBaGua(i)}</text>`;
-  }
-  for(let i=0;i<8;i++){
-    const g=fsBaGua(i), inf=FS_BA_INFO[g]||{name:'伏位',good:true}, a=WHEEL.px(FW_LAB_IN,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_BA_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` style="fill:${inf.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
-      +` transform="rotate(${WHEEL.radial(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${inf.name}</text>`;
-  }
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,FS_BA_SEL*45), q1=WHEEL.px(FW_P1,FS_BA_SEL*45);
-  s+=`<line id="fsBaNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsBaDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
   const ct=fsBaCoreTxt(FS_BA_SEL);
-  s+=`<text id="fsBaC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsBaC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="font-weight:700;fill:${ct[3]}">${ct[1]}</text>`
-    +`<text id="fsBaC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsBaWheel" viewBox="0 0 440 440" role="img" aria-label="八宅游年方位盘：外圈八卦宫、内圈游年九星，点选一方看该方吉凶与宜忌">${s}</svg>`;
+  return WHEEL.render({
+    id:'fsBaWheel', aria:'八宅游年方位盘：外圈八卦宫、内圈游年九星，点选一方看该方吉凶与宜忌',
+    n:8,
+    span:function(i){ return [i*45-22.5,i*45+22.5]; },
+    mid:function(i){ return i*45; },
+    arc:FW_ARC, rIn:FW_IN, hit1:FW_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:FW_P0, p1:FW_P1, out:FW_OUT, core:FW_CORE, c:FW_C,
+    sel:FS_BA_SEL,
+    selId:'fsBaCur', needleId:'fsBaNeedle', dotId:'fsBaDot',
+    onclick:'fsPickBa',
+    labelsOut:function(i,dg){
+      const a=WHEEL.px(FW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_BA_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${fsBaGua(i)}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const g=fsBaGua(i), inf=FS_BA_INFO[g]||{name:'伏位',good:true}, a=WHEEL.px(FW_LAB_IN,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_BA_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +` style="fill:${inf.good?'var(--wheel-good)':'var(--wheel-bad)'}"`
+        +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${inf.name}</text>`;
+    },
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'fsBaC1', text:ct[0]},
+      {y:FW_C+14, cls:'w-c2', id:'fsBaC2', text:ct[1], style:'font-weight:700;fill:'+ct[3]},
+      {y:FW_C+34, cls:'w-c3', id:'fsBaC3', text:ct[2]}
+    ]
+  });
 }
 function fsBaDetail(){
   const g=fsBaGua(FS_BA_SEL), inf=FS_BA_INFO[g]||{name:'伏位',good:true};
@@ -770,40 +745,33 @@ function fsNsCore(j){
   WHEEL.text('fsNsC3',t[2]);
 }
 function fsNsWheelSvg(){
-  let s='';
-  for(let j=0;j<12;j++) s+=`<path d="${WHEEL.arc(FW_ARC,fwZhiDeg(j)-15,fwZhiDeg(j)+15)}" class="w-arc"/>`;
-  for(let j=0;j<12;j++){
-    const a=WHEEL.px(FW_TICK0,fwZhiDeg(j)), c=WHEEL.px(FW_TICK1,fwZhiDeg(j));
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let j=0;j<12;j++){
-    const d=WHEEL.band(FW_IN,FW_HIT1,fwZhiDeg(j)-15,fwZhiDeg(j)+15);
-    s+=`<path d="${d}" class="w-hit${j===FS_NS_SEL?' is-on':''}" data-i="${j}" onclick="fsPickNs(${j})"/>`;
-    s+=`<path d="${d}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsNsCur" d="${WHEEL.arc(FW_ARC,fwZhiDeg(FS_NS_SEL)-15,fwZhiDeg(FS_NS_SEL)+15)}" class="w-arc w-arc-cur"/>`;
-  for(let j=0;j<12;j++){
-    const a=WHEEL.px(FW_LAB_OUT,fwZhiDeg(j));
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${j===FS_NS_SEL?' w-lab-cur':''}" data-i="${j}"`
-      +` transform="rotate(${WHEEL.ring(fwZhiDeg(j))} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS_ZHI[j]}</text>`;
-  }
-  for(let j=0;j<12;j++){
-    const z=FS_ZHI[j], hs=FS_NS_HIT[z]||[], a=WHEEL.px(FW_LAB_IN,fwZhiDeg(j));
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${j===FS_NS_SEL?' w-lab-cur':''}" data-i="${j}"`
-      +` style="fill:${hs.length?'var(--wheel-bad)':'var(--wheel-good)'}"`
-      +` transform="rotate(${WHEEL.radial(fwZhiDeg(j))} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${hs.length?hs[0].name:'安'}</text>`;
-  }
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,fwZhiDeg(FS_NS_SEL)), q1=WHEEL.px(FW_P1,fwZhiDeg(FS_NS_SEL));
-  s+=`<line id="fsNsNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsNsDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
   const ct=fsNsCoreTxt(FS_NS_SEL);
-  s+=`<text id="fsNsC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsNsC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="font-weight:700;fill:${ct[3]}">${ct[1]}</text>`
-    +`<text id="fsNsC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsNsWheel" viewBox="0 0 440 440" role="img" aria-label="流年方位煞盘：外圈十二支方位、内圈所犯之煞，点选一支看该方宜忌">${s}</svg>`;
+  return WHEEL.render({
+    id:'fsNsWheel', aria:'流年方位煞盘：外圈十二支方位、内圈所犯之煞，点选一支看该方宜忌',
+    n:12,
+    span:function(j){ return [fwZhiDeg(j)-15,fwZhiDeg(j)+15]; },
+    mid:function(j){ return fwZhiDeg(j); },
+    arc:FW_ARC, rIn:FW_IN, hit1:FW_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:FW_P0, p1:FW_P1, out:FW_OUT, core:FW_CORE, c:FW_C,
+    sel:FS_NS_SEL,
+    selId:'fsNsCur', needleId:'fsNsNeedle', dotId:'fsNsDot',
+    onclick:'fsPickNs',
+    labelsOut:function(j,dg){
+      const a=WHEEL.px(FW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${j===FS_NS_SEL?' w-lab-cur':''}" data-i="${j}"`
+        +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS_ZHI[j]}</text>`;
+    },
+    labelsIn:function(j,dg){
+      const z=FS_ZHI[j], hs=FS_NS_HIT[z]||[], a=WHEEL.px(FW_LAB_IN,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${j===FS_NS_SEL?' w-lab-cur':''}" data-i="${j}"`
+        +` style="fill:${hs.length?'var(--wheel-bad)':'var(--wheel-good)'}"`
+        +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${hs.length?hs[0].name:'安'}</text>`;
+    },
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'fsNsC1', text:ct[0]},
+      {y:FW_C+14, cls:'w-c2', id:'fsNsC2', text:ct[1], style:'font-weight:700;fill:'+ct[3]},
+      {y:FW_C+34, cls:'w-c3', id:'fsNsC3', text:ct[2]}
+    ]
+  });
 }
 function fsNsDetail(){
   const z=FS_ZHI[FS_NS_SEL], hs=FS_NS_HIT[z]||[];
@@ -889,43 +857,33 @@ function fsShanWheelSvg(){
   const b=getBase();
   const info=FS.SHAN_LIST.map(sh=>FS.shanInfo(sh,b.flowYear));
   const bad=i=>(info[i].atTaiSui||info[i].atSuiPo||info[i].atSanSha||info[i].atWuHuang);
-  let s='';
-  for(let i=0;i<24;i++){
-    const d=fwShanDeg(i);
-    s+=`<path d="${WHEEL.arc(FW_ARC,d-7.5,d+7.5)}" class="w-arc"/>`;
-  }
-  for(let i=0;i<24;i++){
-    const d=fwShanDeg(i), a=WHEEL.px(FW_TICK0,d), c=WHEEL.px(FW_TICK1,d);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<24;i++){
-    const d=fwShanDeg(i), bd=WHEEL.band(FW_IN,FW_HIT1,d-7.5,d+7.5);
-    s+=`<path d="${bd}" class="w-hit${i===FS_SHAN_SEL?' is-on':''}" data-i="${i}" onclick="fsPickShan(${i})"/>`;
-    s+=`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsShanCur" d="${WHEEL.arc(FW_ARC,fwShanDeg(FS_SHAN_SEL)-7.5,fwShanDeg(FS_SHAN_SEL)+7.5)}" class="w-arc w-arc-cur"/>`;
-  for(let i=0;i<24;i++){
-    const d=fwShanDeg(i), a=WHEEL.px(FW_LAB_OUT,d);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_SHAN_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(d)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.SHAN_LIST[i]}</text>`;
-  }
-  for(let i=0;i<24;i++){
-    const d=fwShanDeg(i), a=WHEEL.px(FW_LAB_IN,d);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SHAN_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(bad(i)?' style="fill:var(--wheel-bad)"':'')
-      +` transform="rotate(${WHEEL.dir(d)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${info[i].zhi}</text>`;
-  }
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,fwShanDeg(FS_SHAN_SEL)), q1=WHEEL.px(FW_P1,fwShanDeg(FS_SHAN_SEL));
-  s+=`<line id="fsShanNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsShanDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
   const ct=fsShanCoreTxt(FS_SHAN_SEL);
-  s+=`<text id="fsShanC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsShanC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="font-weight:700">${ct[1]}</text>`
-    +`<text id="fsShanC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsShanWheel" viewBox="0 0 440 440" role="img" aria-label="二十四山立极盘：外圈二十四山、内圈双山配支，点选一山看该山立极详情">${s}</svg>`;
+  return WHEEL.render({
+    id:'fsShanWheel', aria:'二十四山立极盘：外圈二十四山、内圈双山配支，点选一山看该山立极详情',
+    n:24,
+    span:function(i){ const d=fwShanDeg(i); return [d-7.5,d+7.5]; },
+    mid:function(i){ return fwShanDeg(i); },
+    arc:FW_ARC, rIn:FW_IN, hit1:FW_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:FW_P0, p1:FW_P1, out:FW_OUT, core:FW_CORE, c:FW_C,
+    sel:FS_SHAN_SEL,
+    selId:'fsShanCur', needleId:'fsShanNeedle', dotId:'fsShanDot',
+    onclick:'fsPickShan',
+    labelsOut:function(i,dg){
+      const a=WHEEL.px(FW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_SHAN_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.SHAN_LIST[i]}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const a=WHEEL.px(FW_LAB_IN,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SHAN_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +(bad(i)?' style="fill:var(--wheel-bad)"':'')
+        +` transform="rotate(${WHEEL.dir(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${info[i].zhi}</text>`;
+    },
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'fsShanC1', text:ct[0]},
+      {y:FW_C+14, cls:'w-c2', id:'fsShanC2', text:ct[1], style:'font-weight:700'},
+      {y:FW_C+34, cls:'w-c3', id:'fsShanC3', text:ct[2]}
+    ]
+  });
 }
 function fsShanDetail(){
   const b=getBase();
@@ -1331,12 +1289,7 @@ function drawLayout(){
 }
 function fsYzFill(jx){ return jx==='大吉'||jx==='吉'?'var(--wheel-good)':(jx==='大凶'||jx==='凶'?'var(--wheel-bad)':''); }
 function fsPickYz(i){ fsPickCommon(i, FS_PICK_CONF.yz); }
-function fsYzNeedle(i){
-  const ln=document.getElementById('fsYzNeedle'), dt=document.getElementById('fsYzDot');
-  const a=WHEEL.px(FW_P0,i*45), b=WHEEL.px(FW_P1,i*45);
-  if(ln){ ln.setAttribute('x1',WHEEL.n(a[0])); ln.setAttribute('y1',WHEEL.n(a[1])); ln.setAttribute('x2',WHEEL.n(b[0])); ln.setAttribute('y2',WHEEL.n(b[1])); }
-  if(dt){ dt.setAttribute('cx',WHEEL.n(b[0])); dt.setAttribute('cy',WHEEL.n(b[1])); }
-}
+function fsYzNeedle(i){ fsNeedleCommon('fsYzNeedle','fsYzDot',i*45,false); }
 /* 盘心三行：第一行常驻命卦，第二行给该宫与综合吉凶（判定，带吉凶色），第三行给宜忌取用 */
 function fsYzCoreTxt(i){
   const p=FS_YZ_PAL[i];
@@ -1349,40 +1302,33 @@ function fsYzCore(i){
   WHEEL.text('fsYzC3',t[2]);
 }
 function fsYzWheelSvg(){
-  let s='';
-  for(let i=0;i<8;i++) s+=`<path d="${WHEEL.arc(FW_ARC,i*45-22.5,i*45+22.5)}" class="w-arc"/>`;
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_TICK0,i*45), c=WHEEL.px(FW_TICK1,i*45);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const bd=WHEEL.band(FW_IN,FW_HIT1,i*45-22.5,i*45+22.5);
-    s+=`<path d="${bd}" class="w-hit${i===FS_YZ_SEL?' is-on':''}" data-i="${i}" onclick="fsPickYz(${i})"/>`;
-    s+=`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsYzCur" d="${WHEEL.arc(FW_ARC,FS_YZ_SEL*45-22.5,FS_YZ_SEL*45+22.5)}" class="w-arc w-arc-cur"/>`;
-  FS_YZ_PAL.forEach((p,i)=>{
-    const a=WHEEL.px(FW_LAB_OUT,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_YZ_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${p.gua}</text>`;
-  });
-  FS_YZ_PAL.forEach((p,i)=>{
-    const a=WHEEL.px(FW_LAB_IN,i*45), f=fsYzFill(p.zongJx);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_YZ_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.radial(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${p.zongJx}</text>`;
-  });
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(FW_P0,FS_YZ_SEL*45), q1=WHEEL.px(FW_P1,FS_YZ_SEL*45);
-  s+=`<line id="fsYzNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsYzDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
   const ct=fsYzCoreTxt(FS_YZ_SEL);
-  s+=`<text id="fsYzC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsYzC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="font-weight:700;fill:${ct[3]}">${ct[1]}</text>`
-    +`<text id="fsYzC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsYzWheel" viewBox="0 0 440 440" role="img" aria-label="阳宅布局综合方位盘：外圈八卦宫、内圈综合吉凶，点选一宫看该宫合参与宜忌">${s}</svg>`;
+  return WHEEL.render({
+    id:'fsYzWheel', aria:'阳宅布局综合方位盘：外圈八卦宫、内圈综合吉凶，点选一宫看该宫合参与宜忌',
+    n:8,
+    span:function(i){ return [i*45-22.5,i*45+22.5]; },
+    mid:function(i){ return i*45; },
+    arc:FW_ARC, rIn:FW_IN, hit1:FW_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:FW_P0, p1:FW_P1, out:FW_OUT, core:FW_CORE, c:FW_C,
+    sel:FS_YZ_SEL,
+    selId:'fsYzCur', needleId:'fsYzNeedle', dotId:'fsYzDot',
+    onclick:'fsPickYz',
+    labelsOut:function(i,dg){
+      const a=WHEEL.px(FW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_YZ_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS_YZ_PAL[i].gua}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const a=WHEEL.px(FW_LAB_IN,dg), f=fsYzFill(FS_YZ_PAL[i].zongJx);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_YZ_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +(f?` style="fill:${f}"`:'')
+        +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS_YZ_PAL[i].zongJx}</text>`;
+    },
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'fsYzC1', text:ct[0]},
+      {y:FW_C+14, cls:'w-c2', id:'fsYzC2', text:ct[1], style:'font-weight:700;fill:'+ct[3]},
+      {y:FW_C+34, cls:'w-c3', id:'fsYzC3', text:ct[2]}
+    ]
+  });
 }
 function fsYzDetail(){
   const p=FS_YZ_PAL[FS_YZ_SEL];
@@ -1708,53 +1654,45 @@ function fsSdNeedle(i){
 }
 function fsSdWheelSvg(){
   const d=FS_SD_DATA; if(!d) return '';
-  let s='';
-  for(let i=0;i<8;i++){ s+=`<path d="${WHEEL.arc(FW_ARC,i*45-22.5,i*45+22.5)}" class="w-arc"/>`; }
-  for(let i=0;i<8;i++){
-    const a=WHEEL.px(FW_TICK0,i*45), c=WHEEL.px(FW_TICK1,i*45);
-    s+=`<line x1="${WHEEL.n(a[0])}" y1="${WHEEL.n(a[1])}" x2="${WHEEL.n(c[0])}" y2="${WHEEL.n(c[1])}" class="w-tick"/>`;
-  }
-  for(let i=0;i<8;i++){
-    const bd=WHEEL.band(SD_IN,SD_HIT1,i*45-22.5,i*45+22.5);
-    s+=`<path d="${bd}" class="w-hit${i===FS_SD_SEL?' is-on':''}" data-i="${i}" onclick="fsPickSd(${i})"/>`
-      +`<path d="${bd}" class="w-sel"/>`;
-  }
-  s+=`<path id="fsSdCur" d="${WHEEL.arc(FW_ARC,FS_SD_SEL*45-22.5,FS_SD_SEL*45+22.5)}" class="w-arc w-arc-cur"/>`;
-  /* 外签宫名与方位 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const a=WHEEL.px(FW_LAB_OUT,i*45);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_SD_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +` transform="rotate(${WHEEL.ring(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.NINE_BAGUA[n]}${FS.NINE_DIR[n]}</text>`;
-  });
-  /* 内签一：流年星名，色取流年星本身的吉凶 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const r=fsSdRow(i), a=WHEEL.px(SD_ZW,i*45), f=fwJxFill(FS.STAR_JX[r.nian]);
-    s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SD_SEL?' w-lab-cur':''}" data-i="${i}"`
-      +(f?` style="fill:${f}"`:'')
-      +` transform="rotate(${WHEEL.radial(i*45)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${STAR_NAMES[r.nian]}</text>`;
-  });
-  /* 内签二：山星与向星同格左右并排，各按自己那一组的组合吉凶着色；
-     山星色即"流年×山"的裁决，向星色即"流年×向"的裁决，一眼可见哪一路被流年压坏 */
-  FS_ZB_ORDER.forEach((n,i)=>{
-    const r=fsSdRow(i);
-    [[-12,'山'+r.sit,fwJxFill(r.comboSM.jx)],[12,'向'+r.face,fwJxFill(r.comboSF.jx)]].forEach(pr=>{
-      const ang=i*45+pr[0], a=WHEEL.px(SD_SX,ang);
-      s+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SD_SEL?' w-lab-cur':''}" data-i="${i}"`
-        +(pr[2]?` style="fill:${pr[2]}"`:'')
-        +` transform="rotate(${WHEEL.radial(ang)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${pr[1]}</text>`;
-    });
-  });
-  s+=`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_OUT}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${SD_IN}" class="w-ring"/>`
-    +`<circle cx="${FW_C}" cy="${FW_C}" r="${FW_CORE}" class="w-core"/>`;
-  const q0=WHEEL.px(SD_P0,FS_SD_SEL*45), q1=WHEEL.px(SD_P1,FS_SD_SEL*45);
-  s+=`<line id="fsSdNeedle" x1="${WHEEL.n(q0[0])}" y1="${WHEEL.n(q0[1])}" x2="${WHEEL.n(q1[0])}" y2="${WHEEL.n(q1[1])}" class="w-needle"/>`
-    +`<circle id="fsSdDot" cx="${WHEEL.n(q1[0])}" cy="${WHEEL.n(q1[1])}" r="3.5" class="w-dot"/>`;
   const ct=fsSdCoreTxt(FS_SD_SEL);
-  s+=`<text id="fsSdC1" x="${FW_C}" y="${FW_C-16}" class="w-c1">${ct[0]}</text>`
-    +`<text id="fsSdC2" x="${FW_C}" y="${FW_C+14}" class="w-c2" style="font-weight:700;fill:${ct[3]}">${ct[1]}</text>`
-    +`<text id="fsSdC3" x="${FW_C}" y="${FW_C+34}" class="w-c3">${ct[2]}</text>`;
-  return `<svg class="wheel" id="fsSdWheel" viewBox="0 0 440 440" role="img" aria-label="流年飞星叠宅运盘：外圈八宫方位，内两圈为流年星与山向星，点选一宫看流年叠断">${s}</svg>`;
+  return WHEEL.render({
+    id:'fsSdWheel', aria:'流年飞星叠宅运盘：外圈八宫方位，内两圈为流年星与山向星，点选一宫看流年叠断',
+    n:8,
+    span:function(i){ return [i*45-22.5,i*45+22.5]; },
+    mid:function(i){ return i*45; },
+    arc:FW_ARC, rIn:SD_IN, hit1:SD_HIT1, tick0:FW_TICK0, tick1:FW_TICK1, p0:SD_P0, p1:SD_P1, out:FW_OUT, core:FW_CORE, c:FW_C,
+    sel:FS_SD_SEL,
+    selId:'fsSdCur', needleId:'fsSdNeedle', dotId:'fsSdDot',
+    onclick:'fsPickSd',
+    labelsOut:function(i,dg){
+      const n=FS_ZB_ORDER[i], a=WHEEL.px(FW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-xl${i===FS_SD_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +` transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${FS.NINE_BAGUA[n]}${FS.NINE_DIR[n]}</text>`;
+    },
+    labelsMid:function(i,dg){
+      const r=fsSdRow(i), a=WHEEL.px(SD_ZW,dg), f=fwJxFill(FS.STAR_JX[r.nian]);
+      return `<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SD_SEL?' w-lab-cur':''}" data-i="${i}"`
+        +(f?` style="fill:${f}"`:'')
+        +` transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${STAR_NAMES[r.nian]}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const r=fsSdRow(i);
+      let out='';
+      [[-12,'山'+r.sit,fwJxFill(r.comboSM.jx)],[12,'向'+r.face,fwJxFill(r.comboSF.jx)]].forEach(pr=>{
+        const ang=dg+pr[0], a=WHEEL.px(SD_SX,ang);
+        out+=`<text x="${WHEEL.n(a[0])}" y="${WHEEL.n(a[1])}" class="w-lab w-lab-lg${i===FS_SD_SEL?' w-lab-cur':''}" data-i="${i}"`
+          +(pr[2]?` style="fill:${pr[2]}"`:'')
+          +` transform="rotate(${WHEEL.radial(ang)} ${WHEEL.n(a[0])} ${WHEEL.n(a[1])})">${pr[1]}</text>`;
+      });
+      return out;
+    },
+    rings:[{r:FW_OUT,cls:'w-ring'},{r:SD_IN,cls:'w-ring'},{r:FW_CORE,cls:'w-core'}],
+    center:[
+      {y:FW_C-16, cls:'w-c1', id:'fsSdC1', text:ct[0]},
+      {y:FW_C+14, cls:'w-c2', id:'fsSdC2', text:ct[1], style:'font-weight:700;fill:'+ct[3]},
+      {y:FW_C+34, cls:'w-c3', id:'fsSdC3', text:ct[2]}
+    ]
+  });
 }
 function fsSdDetail(){
   const d=FS_SD_DATA; if(!d) return;
