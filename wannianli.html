@@ -109,9 +109,9 @@ function cell(d,other,todayStr){
   return `<div class="cal-cell ${cls}" data-date="${key}"
     onclick="${click}">
     <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
-    ${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+fp.all.join('、')+'">节</span>':''}
+    ${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+festLine(fp.all)+'">节</span>':''}
     ${jq?`<div class="slot slot-jq">${jq}</div>`:''}
-    ${fest?`<div class="slot slot-fest" title="${fp.all.join('、')}">${fest}</div>`:''}
+    ${fest?`<div class="slot slot-fest" title="${festLine(fp.all)}">${fest}</div>`:''}
     <div class="ld">${ld}</div></div>`;
 }
 /* 休班标绘制由 assets/holiday.js 的 paintRestMarks() 承担，与老黄历共用同一份，免两页各写一遍 */
@@ -394,8 +394,8 @@ function showDay(str, el){
   /* 节日取数与日历格同走 xuanji-lib 的 festParts：格上取一名，此处列该日全部，四族加纪念日一并收录 */
   const fp=festParts(solar,y,m,d);
   /* 节日行整行按有无节日取舍：无节日则一行不出，不留“无”占位，其后的项自动上移。
-     多节同日时逐条换行全列，日历格上只出的那一名列在最前 */
-  const festRow=fp.all.length?('<div class="wnl-i"><span class="k">节日</span><span class="v">'+fp.all.join('<br>')+'</span></div>'):'';
+     多节同日时以空格连排，随容器自然折行；日历格上只出的那一名列在最前 */
+  const festRow=fp.all.length?('<div class="wnl-i"><span class="k">节日</span><span class="v">'+festLine(fp.all)+'</span></div>'):'';
   const xz = solar.getXingZuo();
   const ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi(), dgz=lunar.getDayInGanZhi();
   const yWx=GAN_WX[ygz[0]], mWx=GAN_WX[mgz[0]], dWx=GAN_WX[dgz[0]];
@@ -495,7 +495,7 @@ window.addEventListener('load', function () {
       const [y,m,d]=str.split('-').map(Number);
       const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
       const aiFp=festParts(solar,y,m,d);
-      const festText=aiFp.all.length?('\n节日：'+aiFp.all.join('、')):'';
+      const festText=aiFp.all.length?('\n节日：'+festLine(aiFp.all)):'';
       const jqText=xjJieqiLines(lunar).join('\n');
       const ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi(), dgz=lunar.getDayInGanZhi();
       const hTimes=lunar.getTimes(), hrNow=xjNowDate().getHours();

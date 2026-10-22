@@ -165,7 +165,7 @@
     <tr><td class="lbl-1">十不葬歌</td><td>粗顽块石、急水滩头、沟源绝境、孤独山头、神前庙后、左右休囚、山冈缭乱、风水悲愁、坐下低小、龙虎尖头</td><td>民间通书常引，与《葬书》五不葬相表里</td></tr>
     </tbody></table></div>
     <div class="sub-note">《葬书》 “山之不可葬者五：气以生和而童山不可葬也，气因势来而断山不可葬也，气因土行而石山不可葬也，气以势止而过山不可葬也，气以龙会而独山不可葬也。童断石过独，生新凶而消已福。”掘金井验土：土细坚油润、五色俱备者贵；砂砾枯燥、黑湿臭秽者非地。龙穴砂水之哲理总纲别见蔡元定《发微论》（生死衡量：论龙穴生气之体）；天星理气赖布衣《催官篇》以二十八宿天星度数论催官贵向，属天星派立向，本页立向取玄空与三合两法，天星法另立小节作佐参，其贵向义理亦暗合于禄马贵人方推算（见第 5 步、第 7 步）。</div>
-<h3 class="rel-title">穴场自检（判定这块地能不能用）</h3>
+<h3 class="rel-title">穴场自检（判定这块地是否可用）</h3>
     <div class="sub-note">五不葬为实地硬凶，不在自检表内勾选：登山先核童、断、石、过、独五项（见上表），犯任一即弃地另寻，其凶非分数所能权衡。</div>
     <div id="xlXueIn"></div>
     <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawXingLuan()">断穴场</button></div>
@@ -295,7 +295,7 @@
     <div class="fs-verdict fs-mt-3" id="fvCard"></div>
 </div>
 </section>
-<div class="fs-hint">风水为传统环境选择之学，各流派结论常不一致，本页供多角度文化研究与礼俗参考。阴宅尤涉丧葬事宜，各地礼俗不同，实际择地安葬须结合实地形势与当地礼俗，理性审慎取用，切勿迷信。</div>
+<div class="fs-hint">风水为传统环境选择之学，各流派结论常不一致。阴宅涉及丧葬事宜，各地礼俗不同，实际择地安葬须结合实地形势与当地礼俗，不宜以方位吉凶代断。</div>
   </div>
   </div>
 </div>
@@ -1595,7 +1595,7 @@ function drawKeCe(){
   const [fy,fm,fd]=fv.split('-').map(Number), [ty,tm,td]=tv.split('-').map(Number);
   if(!fy||!fm||!fd||!ty||!tm||!td){ out.innerHTML='<div class="sub-note fs-t-red">日期格式应为 yyyy-mm-dd。</div>'; return; }
   let cur=new Date(fy,fm-1,fd), end=new Date(ty,tm-1,td);
-  if(cur>end){ out.innerHTML='<div class="sub-note fs-t-red">起始日期不能晚于结束日期。</div>'; return; }
+  if(cur>end){ out.innerHTML='<div class="sub-note fs-t-red">起始日期不得晚于结束日期。</div>'; return; }
   if(Math.round((end-cur)/86400000)>1900){ out.innerHTML='<div class="sub-note fs-t-red">起止间隔超过约五年，请缩小范围。</div>'; return; }
   /* 成课模块本地变量优先：直接读本模块的坐山、向首、入首龙、仙命、祭主（与页顶基础设定双向同步） */
   const bb=getBase();

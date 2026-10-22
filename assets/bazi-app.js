@@ -664,7 +664,7 @@ function paipan(){
   drawYunChart(BZ);
   const foot=document.createElement('div');
   foot.className='notice notice-bottom';
-  foot.innerHTML='以上为依格局、五行、十神、神煞及大运流年流月流日的常规推演，各派结论可能不同，仅供文化研究与参考；健康与人生重大决定请务必咨询专业人士，切勿迷信。';
+  foot.innerHTML='命理推演依格局、五行、十神、神煞与大运流年流月流日，各派结论可能不同，供文化研究参考。健康与人生重大决定，以专业意见为准，不宜以命理代断。';
   document.getElementById('out').appendChild(foot);
   if(!baziInitDone) restoreYunSel(); /* 初始化：恢复已保存的岁运选择（大运、流年、流月、流日），在 renderDyn 默认选择之后覆盖 */
   if(baziInitDone) savePillarSel(); /* 仅页面初始化完成后才持久化，避免初始渲染覆盖已保存状态 */
@@ -843,7 +843,7 @@ function renderConfirmPanel(yg,yz,mg,mz,dg,dz,tg,tz,cands,candYears,span){
   let h=`<div class="confirm-box"><div class="confirm-h">请确认出生时间</div>`;
   // 年干支对应历史年份说明（60年一循环）
   const shownYears=(candYears||[]).map(A=>fmtHistYear(astroToHist(A))).slice(0,12).join('、')+((candYears||[]).length>12?` …（共 ${(candYears||[]).length} 个）`:'');
-  h+=`<div class="sub-note">以上为精确反查结果：该年干支 ${yg}${yz} 在检索跨度 ${fmtHistYear(span.start)} 至 ${fmtHistYear(span.end)} 内对应历史年份（60年一循环）：${shownYears}。能同时满足"${yg}${yz}年${mg}${mz}月${dg}${dz}日"三柱完全一致的公历日期仅此 ${cands.length} 条。若希望查看更多候选，可放宽上方"检索跨度"。</div>`;
+  h+=`<div class="sub-note">精确反查结果：该年干支 ${yg}${yz} 在检索跨度 ${fmtHistYear(span.start)} 至 ${fmtHistYear(span.end)} 内对应历史年份（60年一循环）：${shownYears}。能同时满足"${yg}${yz}年${mg}${mz}月${dg}${dz}日"三柱完全一致的公历日期仅此 ${cands.length} 条。若希望查看更多候选，可放宽上方"检索跨度"。</div>`;
   if(!cands.length){
     // 无结果时仍显示年份说明
     h+=``;
@@ -922,7 +922,7 @@ function paipanPillar(){
   if(hasDate && !isBC){ renderDyn(BZ); drawYunChart(BZ); }
   const foot=document.createElement('div');
   foot.className='notice notice-bottom';
-  foot.innerHTML='以上为依格局、五行、十神、神煞及大运流年流月流日的常规推演，各派结论可能不同，仅供文化研究与参考；健康与人生重大决定请务必咨询专业人士，切勿迷信。';
+  foot.innerHTML='命理推演依格局、五行、十神、神煞与大运流年流月流日，各派结论可能不同，供文化研究参考。健康与人生重大决定，以专业意见为准，不宜以命理代断。';
   document.getElementById('out').appendChild(foot);
   if(!baziInitDone) restoreYunSel(); /* 四柱模式同样恢复岁运选择（无 renderDyn 时按钮不存在则安全降级） */
   applyModState(); /* 刷新重排后读回三大模块折叠状态，避免展开被复位 */
@@ -1543,11 +1543,11 @@ if (BAZI_PAGE_UI) mountAI(function(){
 }, '八字排盘', {
   temperature: 0.4,
   systemPrompt: [
-    '本任务为八字（四柱命理）专项解读，只依据给出的盘面数据作答，不要引入塔罗、占星等其他体系。',
+    '本任务为八字（四柱命理）专项解读，只依据给出的盘面数据作答，不引入塔罗、占星等其他体系。',
     '解读时必须引用盘面原词（日主天干、月令、十神、用神忌神、大运干支），不得凭空补充盘面没有的信息。',
     '论断应期必须挂靠具体大运或流年干支，不可脱离岁运空谈吉凶。',
     '旺衰结论以盘面给的“旺衰评分与档位”为准，不得自行重算推翻。',
-    '不提供医疗诊断、投资建议；涉及健康、财运时仅描述命理倾向并建议咨询专业人士。',
+    '不提供医疗诊断与投资意见；涉及健康、财运时只描述命理倾向，专业问题以专业人士意见为准。',
     '同一盘面多重结论并存时，说明各流派视角，不给唯一断语。'
   ].join('\n'),
   /* 分享与面板同一处挂载：collect 带走起测时刻，restore 置锚，recast 重排完成后解锚。

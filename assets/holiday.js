@@ -15,14 +15,15 @@
  *
  * 纪念日表（MEMORIAL）为本站策展的静态表，与上面两个节假日源无关、不发网络请求：
  *   取中国近现代史上国家与民族层面的重大纪念日，含事变与战争、烈士与公祭、革命运动与回归，
- *   以及党和国家主要领导人（毛泽东、周恩来、邓小平、朱德、孙中山）的诞辰与逝世纪念，共二十一条。
+ *   以及党和国家主要领导人（毛泽东、周恩来、邓小平、朱德、孙中山）的诞辰与逝世纪念，共二十一条键、二十二条名。
  *   日历格在无节日的日子由它补进节日槽，窄屏另以右下纪字角标点出。
  *   行业与主题日、国际日、网络商业节日、外国人物纪念日不入格，只列于万年历详情的节日行。
  *
  * 缓存：localStorage，键 xj:hol:<年>，有效七天；同一页面多次取用不重复外发请求。
  * 对外接口：holidayEnsure(years, cb)  保证给定年份数据就绪后回调（年份可为数组）；
  *           holidayOf(y, m, d)        返回 {off, name}，off 为 true 放假、false 上班、null 无数据；
- *           memorialOf(y, m, d)       返回该日纪念日名，无则返回空串；
+ *           memorialList(y, m, d)     返回该日纪念日名数组，同日多名逐条列出，无则空数组；
+ *           memorialOf(y, m, d)       返回该日纪念日名，同日多名以空格相隔，无则返回空串；
  *           paintRestMarks()          按日历格约定落休班标，万年历与老黄历共用同一份。
  */
 (function (global) {
@@ -143,20 +144,26 @@
     '7-6': '朱德逝世纪念日',
     '7-7': '七七事变纪念日',
     '8-22': '邓小平诞辰纪念日',
-    '9-3': '中国抗日战争胜利纪念日',
+    '9-3': '中国人民抗日战争胜利纪念日',
     '9-9': '毛泽东逝世纪念日',
     '9-18': '九一八事变纪念日',
-    '9-30': '中国烈士纪念日',
+    '9-30': '烈士纪念日',
     '10-10': '辛亥革命纪念日',
-    '10-25': '抗美援朝纪念日',
+    '10-25': ['台湾光复纪念日', '抗美援朝纪念日'],
     '11-12': '孙中山诞辰纪念日',
     '12-12': '西安事变纪念日',
-    '12-13': '国家公祭日',
+    '12-13': '南京大屠杀死难者国家公祭日',
     '12-26': '毛泽东诞辰纪念日'
   };
 
+  /* 同日多名：格槽取首名，详情逐条列全，调用方分别取用 */
+  function memorialList(y, m, d) {
+    const v = MEMORIAL[m + '-' + d];
+    return !v ? [] : (Array.isArray(v) ? v.slice() : [v]);
+  }
+
   function memorialOf(y, m, d) {
-    return MEMORIAL[m + '-' + d] || '';
+    return memorialList(y, m, d).join(' ');
   }
 
   /* 日历格休班标：按 .cal-cell[data-date] 与格内 .rest-mark 的约定，只标法定假日与调休补班。
@@ -186,6 +193,7 @@
 
   global.holidayEnsure = holidayEnsure;
   global.holidayOf = holidayOf;
+  global.memorialList = memorialList;
   global.memorialOf = memorialOf;
   global.paintRestMarks = paintRestMarks;
 })(typeof window !== 'undefined' ? window : globalThis);
