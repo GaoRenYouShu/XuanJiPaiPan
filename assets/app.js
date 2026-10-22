@@ -690,10 +690,27 @@ window.xjShuffle = xjShuffle;
     if(document.documentElement&&document.documentElement.dataset.xjRefresh==='off') return;
     if('scrollRestoration' in history){ try{ history.scrollRestoration='manual'; }catch(e){} }
     var page=(location.pathname.split('/').pop()||'index').replace(/\.html?$/,'')||'index';
-    var K_S='xj:scroll:'+page, K_F='xj:form:'+page;
+    var K_S='xj:scroll:'+page, K_A='xj:anchor:'+page, K_F='xj:form:'+page;
     function rd(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }
     function wr(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} }
     function pos(){ return String(Math.max(0,window.scrollY||window.pageYOffset||0)); }
+
+    /* 稳定锚点：页面若注册 window.xjRefreshAnchor，返回当前模块或区块的 id 与视口内偏移。
+       懒渲染页的段高随滚动与刷新变化，单靠像素回填会落到别段；有锚点则按锚点回填。
+       未注册的页面不写此键，旧像素口径照常。 */
+    function anchorSnap(){
+      if(typeof window.xjRefreshAnchor!=='function') return null;
+      try{
+        var a=window.xjRefreshAnchor();
+        return a&&a.id?{id:String(a.id),o:Math.round(a.o||0)}:null;
+      }catch(e){ return null; }
+    }
+    function savePos(){
+      wr(K_S,pos());
+      var a=anchorSnap();
+      if(a) wr(K_A,JSON.stringify(a));
+      else { try{ sessionStorage.removeItem(K_A); }catch(e){} }
+    }
 
     /* 刷新时 URL 里可能留着上次点击的模块 hash，浏览器会先滚到该锚点，
        与下面的位置回填抢位置。刷新且有已存位置时先摘掉 hash，只由回填定位；
@@ -708,9 +725,9 @@ window.xjShuffle = xjShuffle;
     var st=null, filling=false;
     window.addEventListener('scroll',function(){
       if(filling) return;
-      clearTimeout(st); st=setTimeout(function(){ wr(K_S,pos()); },200);
+      clearTimeout(st); st=setTimeout(savePos,200);
     },{passive:true});
-    window.addEventListener('pagehide',function(){ wr(K_S,pos()); });
+    window.addEventListener('pagehide',savePos);
 
     /* 表单快照：有 id 的输入控件，排除无稳定标识与不宜留存者 */
     function fields(){
@@ -773,13 +790,21 @@ window.xjShuffle = xjShuffle;
       }
       if(hook){ try{ hook(changed); }catch(e){} }
       var sy=parseInt(rd(K_S)||'0',10);
+      var anchor=null;
+      if(typeof window.xjRefreshAnchor==='function'){
+        try{ anchor=JSON.parse(rd(K_A)||'null'); }catch(e){ anchor=null; }
+      }
+      var anchorEl=anchor&&anchor.id?document.getElementById(anchor.id):null;
       var raf=(window.requestAnimationFrame&&window.requestAnimationFrame.bind(window))||function(f){ setTimeout(f,16); };
       /* 位置回填：刷新后结果区与折叠区是整块重建的，重建途中文档高度先塌后长，
          塌陷那一刻浏览器会把滚动位置钳到当时的文档末尾，位置就此丢失（实测阳宅页高由 41013
          塌到 11570，位置被钳到 10726，铺回 24771 后停在 10726）。
          故按帧持续回填整个重建窗口，而不是落点一到就收手；
+         有稳定锚点时按锚点逐帧回填，段高变化不影响落点。
          用户自行滚动即让位：位置与目标不符而文档高度未变，即判为用户滚动，停止回填。 */
-      if(sy>0){
+      if(sy>0||anchorEl){
+        /* 锚点可能落在懒渲染段的估值区：先让浏览器把该段渲染出来，再按帧校正偏移 */
+        if(anchorEl){ try{ anchorEl.scrollIntoView({block:'start'}); }catch(e){} }
         var until=Date.now()+2500, lastH=0;
         var stop=function(){
           filling=false;
@@ -795,15 +820,21 @@ window.xjShuffle = xjShuffle;
         (function fill(){
           if(!filling) return;
           var h=document.documentElement.scrollHeight;
-          var aim=Math.min(sy,Math.max(0,h-window.innerHeight));
-          if(h===lastH&&Math.abs(window.scrollY-aim)>8){ stop(); return; }
+          var aim;
+          if(anchorEl){
+            var top=anchorEl.getBoundingClientRect().top+(window.scrollY||window.pageYOffset||0);
+            aim=Math.max(0,top+(anchor.o||0));
+          }else{
+            aim=Math.min(sy,Math.max(0,h-window.innerHeight));
+          }
+          if(!anchorEl&&h===lastH&&Math.abs(window.scrollY-aim)>8){ stop(); return; }
           window.scrollTo(0,aim);
           lastH=h;
           if(Date.now()>until){ stop(); return; }
           raf(fill);
         })();
       }
-      if(sy<=0) filling=false;
+      if(!(sy>0||anchorEl)) filling=false;
     }
     if(document.readyState==='complete') setTimeout(restore,0);
     else window.addEventListener('load',function(){ setTimeout(restore,0); });
