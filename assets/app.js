@@ -695,6 +695,15 @@ window.xjShuffle = xjShuffle;
     function wr(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){} }
     function pos(){ return String(Math.max(0,window.scrollY||window.pageYOffset||0)); }
 
+    /* 刷新时 URL 里可能留着上次点击的模块 hash，浏览器会先滚到该锚点，
+       与下面的位置回填抢位置。刷新且有已存位置时先摘掉 hash，只由回填定位；
+       新开链接仍保留 hash，深链照常。 */
+    var navEntry=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||null;
+    var isReload=navEntry?navEntry.type==='reload':!!(performance.navigation&&performance.navigation.type===1);
+    if(isReload&&rd(K_S)&&location.hash){
+      try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    }
+
     /* 滚动位置：节流记录，离开前补记；回填期间不记，免得把回填途中的中间位置当成用户位置 */
     var st=null, filling=false;
     window.addEventListener('scroll',function(){
@@ -735,6 +744,7 @@ window.xjShuffle = xjShuffle;
       try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
     }
     function restore(){
+      filling=true;
       var changed=[],raw=rd(K_F);
       /* 结果重出：页面自注册的钩子优先，其次复用附加功能模块已注册的 recast，均无则逐项派发变更事件 */
       var hook=(typeof window.xjRefreshHook==='function')?window.xjRefreshHook
@@ -793,6 +803,7 @@ window.xjShuffle = xjShuffle;
           raf(fill);
         })();
       }
+      if(sy<=0) filling=false;
     }
     if(document.readyState==='complete') setTimeout(restore,0);
     else window.addEventListener('load',function(){ setTimeout(restore,0); });

@@ -1542,7 +1542,7 @@ function hhWeightAudit(){
 function liveHTML(live,liveScore,liveW){
   const rows=(live||[]).map(it=>{
     const on=it[4]!==false;
-    return `<div class="hh-live-row"><div class="hh-live-h"><span class="hh-live-name">${it[0]}</span><span class="hh-live-score">${on?it[1]+' / '+it[2]:'无判据'}</span></div><p class="hh-live-txt">${it[3]}</p></div>`;
+    return `<div class="hh-live-row"><div class="hh-live-h"><span class="hh-live-name">${it[0]}</span><span class="hh-live-score">${on?it[1]+' 分（满分 '+it[2]+'）':'无判据'}</span></div><p class="hh-live-txt">${it[3]}</p></div>`;
   }).join('');
   const tail=liveScore==null?'现居地未另填或同处，综合分按先天计。':'现居参看分 '+Math.round(liveScore)+'，占综合分 '+pct(liveW)+'。';
   return `<div class="hh-live"><div class="hh-live-cap">现居盘（参看，占综合分 ${pct(liveW)}）</div>${rows}<div class="sub-note">现居层只作参看：以两造现居地互指与八宅城市方位为据，不改四柱与真太阳时；真正布局须以现居住宅坐向定。${tail}</div></div>`;
