@@ -315,7 +315,7 @@ function query(){
   const biTxt='、闭物于戌会之中（'+fmtYearShort(biA)+'）';
   const kaiState=(L.A<kaiA)?'所推年在开物之前（天地未开物之段）':((L.A>biA)?'所推年在闭物之后':'今在开物之后、闭物之前，天地开物期内');
   const ruler=
-    rulerRow('元（129600年）',12,L.hui.idx,'本元已过'+yuanIn+'年，余'+(HJ.CONST.YUAN-yuanIn)+'年；'+kaiTxt+biTxt+'，'+kaiState)+
+    rulerRow('元（129600年）',12,L.hui.idx,'本元已过'+yuanIn+'年，余'+(HJ.CONST.YUAN-yuanIn)+'年')+
     rulerRow(L.hui.zhi+'会（10800年）',30,yunInHui,L.hui.zhi+'会已过'+L.hui.inYear+'年，余'+(HJ.CONST.HUI-L.hui.inYear)+'年')+
     rulerRow('运（360年）',12,shiInYun,'本运已过'+L.yun.inYear+'年，余'+(HJ.CONST.YUN-L.yun.inYear)+'年')+
     rulerRow('世（30年）',30,L.shi.inYear-1,'本世已过'+L.shi.inYear+'年，余'+(HJ.CONST.SHI-L.shi.inYear)+'年');
@@ -525,6 +525,7 @@ document.getElementById('out').innerHTML=
     +ovInfo
     +'<h3 class="rel-title">皇极尺</h3>'
     +'<div class="hj-ruler">'+ruler+'</div>'
+    +'<div class="sub-note">'+kaiTxt+biTxt+'，'+kaiState+'。</div>'
     +'<h3 class="rel-title">卦气盘</h3>'+guaHtml
     +'<h3 class="rel-title">先天六十四卦方图</h3>'
     +'<div class="hj-np-wrap">'+hjFangtu(yg.name)+'</div>'
