@@ -1397,7 +1397,7 @@ function bzPalaceTip(){
   const PD=(typeof PALACE_DEF!=='undefined')?PALACE_DEF:{};
   const rows=[['命宫',M.mingGong],['胎元',M.taiYuan],['身宫',M.shenGong]].filter(p=>p[1]);
   if(!rows.length) return '<h3 class="tip-title">三垣</h3><div class="tip-body">（暂无说明）</div>';
-  const lines=['三垣为命宫、胎元、身宫之合称，出于四柱之外而补四柱之未备：命宫言其志，胎元言其根，身宫言其行。'];
+  const lines=['三垣为命宫、胎元、身宫之合称，又称三宫，出于四柱之外而补四柱之未备：命宫言其志，胎元言其根，身宫言其行；与星官三垣紫微垣、太微垣、天市垣同名异指。'];
   rows.forEach(p=>{ lines.push(`<b>${p[0]} ${p[1]}</b>：${PD[p[0]]||''}`); });
   return `<h3 class="tip-title">三垣</h3><div class="tip-body">${lines.join('<br>')}</div>`;
 }

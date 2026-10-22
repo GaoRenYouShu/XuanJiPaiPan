@@ -5,13 +5,13 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>八字排盘 玄机排盘</title>
-<meta name="description" content="八字排盘：公历、农历、四柱、名人、存盘五种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运，含大运、喜用神、十神经典断语与命局断事，纯前端打开即用。">
+<meta name="description" content="八字排盘：公历、农历、四柱、时辰未定、名人、已存六种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运，含大运、喜用神、十神经典断语与命局断事，纯前端打开即用。">
 <meta name="keywords" content="八字排盘,四柱八字,十神,大运,喜用神,五行旺衰,命局,免费排盘">
 <link rel="canonical" href="https://gaoren.org/bazi.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="玄机排盘">
 <meta property="og:title" content="八字排盘 玄机排盘">
-<meta property="og:description" content="八字排盘：公历、农历、四柱、名人、存盘五种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运，含大运、喜用神、十神经典断语与命局断事，纯前端打开即用。">
+<meta property="og:description" content="八字排盘：公历、农历、四柱、时辰未定、名人、已存六种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运，含大运、喜用神、十神经典断语与命局断事，纯前端打开即用。">
 <meta property="og:url" content="https://gaoren.org/bazi.html">
 <meta property="og:image" content="https://gaoren.org/assets/logo/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -39,7 +39,7 @@
 <div class="wrap page-bazi">
   <div class="page">
     <h1 id="pageTitle">八字排盘</h1>
-    <div class="lead">公历、农历、四柱、名人、存盘五种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运。</div>
+    <div class="lead">公历、农历、四柱、时辰未定、名人、已存六种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运。</div>
     <!-- bazi-flow：顶部输入行与四柱行的共同包裹层。四柱模式（桌面）把两层转 display:contents，
          全部字段汇入同一流式行（年柱紧跟姓名、放不下自然换行）；公历、农历模式本层为普通块级，两层行为不变。 -->
     <div class="bazi-flow">
@@ -275,26 +275,6 @@
 <script defer src="assets/bazi-core.js"></script>
 <script defer src="assets/bazi-app.js"></script>
 <script>
-/* ================= 岁运清洗：剔除含大运、流年、流月、流日 的应期句 ================= */
-const YUN_JI=/大运|流年|流月|流日/;
-/* ================= 四卡文本提取 ================= */
-function segCard(t,a,b){ const i=t.indexOf(a); if(i<0) return ''; const j=b?t.indexOf(b,i+a.length):t.length; return t.slice(i+a.length,j>i?j:t.length); }
-function cleanH(s){ return s.trim().replace(/^[0-9]+、\s*/,'').replace(/^(婚姻感情|事业财运|性格健康|家庭子女)\s*/,'').replace(/^[①-⑩]+\s*/,'').replace(/^[（(]?[0-9一二三四五]+[）)]?\s*/,'').replace(/^(宫位落脏|宫位|配偶星关系|旺衰分野|脏腑生克|五行脏腑旺衰|纳音|十二长生|能量|正偏|生克|地支关系|流通)[:：]?/,'').trim(); }
-const EX=/(《|综合判定|可期|所赖|五者齐备|相同八字|风险提示|特征提示|可证伪|命局\d+个、|^[①-⑩]|[（(]?[金木水火土][）)]?[:：]|行业对照|宜：|可：|不宜：|（宜）|（可）|（高契合）|短板|潜力|层级|属相|调和度|原局自发|本命基调|夫妻宫主象|配偶星与夫妻宫|十神总览|十神流转|神煞助益|综合：|主象|相生|相克|夺食|坏印|生财|克财|泄秀|配印|流通|阻断|生财主链|定家宅基盘|家宅平稳|环中缺|稍滞|晚年子女星|祖上年命|弱项补益|触发条件|择偶方向|婚配宜忌|旺运|去病之运|应期)/;
-function extract(card, gs, maxLen, max){
-  maxLen=maxLen||46; max=max||1;
-  const picks=[];
-  card.split('。').map(s=>s.trim()).filter(Boolean).forEach(s=>{
-    if(YUN_JI.test(s)) return;
-    if(!gs.some(g=>s.includes(g))) return;
-    const c=cleanH(s);
-    if(EX.test(c)) return;
-    if(/[金木水火土][生克][金木水火土]/.test(c)) return;
-    if(c.length>maxLen) return;
-    picks.push(c);
-  });
-  return picks.slice(0,max);
-}
 /* ============ 事业财运：按章节1-7，纯文本表格化 + 文字层兜底 ============
  * 1 本命基调 | 2 十神关系 | 3 神煞纳音十二长生 | 4 六亲与命局特征
  * 5 风险预警 | 6 职业机遇 | 7 名利层级
@@ -1233,13 +1213,8 @@ function go(){
   let err=null;
   try{ paipan(); }catch(e){ err=(e&&e.message)?e.message:String(e); }
   const BZ=window.BZ;
-  // 原型页有 #proto → 全量渲染到 #proto；站点页无 #proto（#zr-core 为 paipan 渲染结果）→ 就地替换核心解读四模块
-  if(document.getElementById('proto')){
-    const txt=document.getElementById('out').textContent||'';
-    render(BZ, txt, err);
-  } else {
-    tableizeCore(BZ, err);
-  }
+  /* 核心解读四模块就地表格化。 */
+  tableizeCore(BZ, err);
 }
 /* ---- 人生议题应期窗口（四卡共用）----
  * 议题卡其余各表讲命局里"有没有、长什么样"，本表答"什么时候应"。
@@ -1474,28 +1449,6 @@ function _scheduleYitiAlign(el){
     const _orig=window.toggleMod; window.toggleMod=function(id){ const r=_orig.apply(this,arguments); const el=document.getElementById(id); if(el && !el.classList.contains('collapsed')) _scheduleYitiAlign(el); return r; }; window._toggleModWrapped=true;
   }
 })();
-function render(BZ, txt, err){
-  const el=document.getElementById('proto');
-  if(!BZ){ el.innerHTML='<div class="subnote">'+(err||'未排盘')+'</div>'; return; }
-  const A=getAnalysis(BZ), eS=wxElementScore(BZ);
-  const isMale=(BZ.sex===1||BZ.sex==='男');
-  const cards={
-    career:segCard(txt,'事业财运','婚姻感情'),
-    marry:segCard(txt,'婚姻感情','性格健康'),
-    health:segCard(txt,'性格健康','家庭子女'),
-    family:segCard(txt,'家庭子女','宜忌选择')
-  };
-  let h='';
-  if(err) h+='<div class="subnote err">排盘提示：'+esc(err)+'</div>';
-  const dw=GAN_WX[BZ.dayGan];
-  /* ---- 一、事业财运：7 张表（对应7章节） ---- */
-  h+='<h3 class="m-h">一、事业财运</h3>'+renderCareer7(cards.career,BZ,A,eS,isMale);
-    /* ---- 二、婚姻感情、三、性格健康、四、家庭子女：按事业逻辑（章节.子表 + sub-note 补充） ---- */
-  h+='<h3 class="m-h">二、婚姻感情</h3>'+renderMarry7(cards.marry,BZ,A,eS,isMale);
-  h+='<h3 class="m-h">三、性格健康</h3>'+renderHealth7(cards.health,BZ,A,eS,isMale);
-  h+='<h3 class="m-h">四、家庭子女</h3>'+renderFamily7(cards.family,BZ,A,eS,isMale);
-el.innerHTML=h;
-}
 </script>
 <script>
 

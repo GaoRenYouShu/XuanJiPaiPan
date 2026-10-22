@@ -38,6 +38,12 @@
     if (!tenE) return 0;
     return (CAT_GODS[cat] || [cat]).reduce((s, g) => s + (tenE[g] || 0), 0);
   }
+  // 取十神类能量占比（0 至 100），供 REL.TH 百分比阈值比较
+  function _catPct(tenE, cat) {
+    if (!tenE) return 0;
+    const tot = Object.keys(tenE).reduce((s, k) => s + (tenE[k] || 0), 0);
+    return tot > 0 ? _catEnergy(tenE, cat) * 100 / tot : 0;
+  }
 
   // 十神名 → 所属十神门
   const GOD_CLASS = {};
@@ -230,7 +236,7 @@
         return s + '：' + b + '不现，无受克之实；岁运引出则视其喜忌而定。';
       }
       // 双方皆现：先明示喜忌与能量，再判顺生、反生，最后综合损益（含缺失方含义）
-      const ea = _catEnergy(tenE, a), eb = _catEnergy(tenE, b);
+      const ea = _catPct(tenE, a), eb = _catPct(tenE, b);
       const eaL = lvl(ea), ebL = lvl(eb);
       const inv = REL.wx.reverseType(kind, ea, eb);
       let en, ji;
@@ -259,11 +265,11 @@
   /* ============================ 2.5 十神断语资产（表二，顶层一处定义）============================ */
   // 用途：事业、婚姻、健康、家庭 与"十神相互关系"表统一调用。只做判定（满足关系+含义），不含古籍出处。
   // 判定三要素（声明式）：cn(十神类计数) × xj(五行喜忌) × en(能量档，可省)；strong 判身强、弱。
-  // ctx 契约：{ BZ, A, fuXi, fuJi, tenCnt, gCnt, xjWx, tenE, strength, isMale,
+  // ctx 契约：{ BZ, A, fuXi, fuJi, tenCnt, gCnt, gAll, xjWx, tenE, strength, isMale,
   //             posCells, godPos, relPos, chongPairs, hePairs, xingPairs, haiPairs,
   //             yangRen, shaMap, csMap, tenChong, tenSha, csTen, tiao, heHua, heBan }
-  //   tenCnt: {官杀:n,印星:n,食伤:n,财星:n,比劫:n}; gCnt: {十神:n} 单神计数；
-  //   xjWx: {官杀:'喜'|'忌'|'中'...}; tenE: 十神能量(0-100); strength: '强'|'中'|'弱'
+  //   tenCnt: {官杀:n,印星:n,食伤:n,财星:n,比劫:n}; gCnt: {十神:n} 天干与地支本气计数；gAll: {十神:n} 含全部藏干计数；
+  //   xjWx: {官杀:'喜'|'忌'|'中'...}; tenE: 十神能量原始分，比较前经 _catPct 归一为占比；strength: '强'|'中'|'弱'
   //   tiao: 调候归集 {wx, grade, bias, ruling, powerTier, powerShort, powerWhy, cat, xj, xi, ji}
   //   heHua/heBan: 合化归集 {十神门:[化神五行]}，化与不化（绊）分置
   // need 字段（均满足才输出）：
@@ -288,7 +294,7 @@
   REL.tenCombo = {
     DATAS: [],
     _evalCmp(rules, ctx) {
-      const R = ctx.tenCnt || {}, G = ctx.gCnt || {}, W = ctx.xjWx || {}, E = ctx.tenE || {};
+      const R = ctx.tenCnt || {}, G = ctx.gCnt || {}, GA = ctx.gAll || {}, W = ctx.xjWx || {}, E = ctx.tenE || {};
       // 性别门控：need.sex 设为 '男'/'女' 时，须与实际性别一致才输出（无性别差异的断语不设此字段）
       if (rules.sex) { const actualMale = ctx.isMale; const wantMale = (rules.sex === '男'); if (wantMale !== !!actualMale) return false; }
       const cmpOne = (d, cond) => { const m = String(cond).match(/^(>=|<=|==|=|>|<)?\s*(\d+)/); if (!m) return false; const n = +m[2], op = m[1] || '>='; return op==='>='? d>=n : op==='<='? d<=n : op==='>'? d>n : op==='<'? d<n : d===n; };
@@ -316,6 +322,7 @@
       };
       for (const k in rules.cn || {}) { if (!cmpOne(R[k]||0, rules.cn[k])) return false; }
       for (const k in rules.g || {}) { if (!cmpOne(G[k]||0, rules.g[k])) return false; }
+      for (const k in rules.gAll || {}) { if (!cmpOne(GA[k]||0, rules.gAll[k])) return false; }
       for (const k in rules.xj || {}) { const tag = W[k]; if (tag !== rules.xj[k]) return false; }
       for (const k in rules.none || {}) { if ((R[k]||0) > 0) return false; }
       for (const k in rules.pos || {}) { if (!_posHit(k, rules.pos[k])) return false; }
@@ -334,7 +341,7 @@
       for (const k in rules.nofzhi || {}) { if (_zhiHit(k, rules.nofzhi[k])) return false; }
       if (rules.strong && !rules.strong.includes(ctx.strength)) return false;
       for (const k in rules.en || {}) {
-        const e = _catEnergy(E, k); const want = rules.en[k];
+        const e = _catPct(E, k); const want = rules.en[k];
         const ok = (want==='旺' ? e >= REL.TH.PCT_VSTRONG : want==='有力' ? e >= REL.TH.PCT_POWER : want==='虚' ? e < REL.TH.PCT_WEAK : e >= REL.TH.PCT_WEAK);
         if (!ok) return false;
       }
@@ -556,7 +563,7 @@
       L.push('喜忌：' + ringXj + '。');
       // 段4 环节完整度（不重列相接；只给缺失、断点、短板、壅塞）
       if (missingLink.length) L.push('环节缺失：缺' + missingLink.length + '环（' + missingLink.map(([a,b])=>short(a)+'生'+short(b)).join('、') + '）。');
-      else L.push('环节：十神俱全。');
+      else L.push('环节：印比食财官五类俱全。');
       if (deadRing.length) L.push('断点：' + deadRing.map(short).join('、') + '近乎无，流通中断。');
       if (weakRing.length) L.push('力度短板：' + weakRing.map(short).join('、') + '偏弱，为流通瓶颈。');
       if (jamPair.length) L.push('力度壅塞：' + jamPair.map(([a,b])=>short(a)+'旺而'+short(b)+'弱').join('、') + '。');
@@ -596,7 +603,8 @@
         if(!dg) return null;
         const A=_ga?_ga(BZ):null;
         const xi=new Set(_ex&&A?_ex(A):[]), ji=new Set(_ej&&A?_ej(A):[]);
-        const lq=(_lq&&_ssCnt)?_lq(_ssCnt(BZ.gans,BZ.zhis,dg)):{};
+        const _ssAll=(_lq&&_ssCnt)?_ssCnt(BZ.gans,BZ.zhis,dg):null;
+        const lq=_ssAll?_lq(_ssAll):{};
         const tenCnt={'官杀':lq['官杀']||0,'印星':lq['印星']||0,'食伤':lq['食伤']||0,'财星':lq['财星']||0,'比劫':lq['比劫']||0};
         const gCnt={}; (BZ.gans||[]).forEach(g=>{const t=_tenGod?_tenGod(dg,g):null; if(t)gCnt[t]=(gCnt[t]||0)+1;}); (BZ.zhis||[]).forEach(z=>{const t=(_tenGod&&_zhiMain)?_tenGod(dg,_zhiMain(z)):null; if(t)gCnt[t]=(gCnt[t]||0)+1;});
         const killWx=_WX_KE?Object.keys(_WX_KE).find(k=>_WX_KE[k]===dwx):'', yinWx=_WX_SHENG?Object.keys(_WX_SHENG).find(k=>_WX_SHENG[k]===dwx):'', shangWx=_WX_SHENG?_WX_SHENG[dwx]:'', wealthWx=_WX_KE?_WX_KE[dwx]:'';
@@ -707,7 +715,7 @@
         // ── 调候归集与合化归集：供 tiao/heHua/heBan 判定键取用 ──
         const he=_heHuaOf(BZ);
         const tiao=_tiaoOf({BZ, A, fuXi:[...xi], fuJi:[...ji]});
-        return { BZ, A, fuXi:[...xi], fuJi:[...ji], tenCnt, gCnt, xjWx, tenE, strength, isMale, posCells, godPos, relPos, chongPairs, hePairs, xingPairs, haiPairs, yangRen, shaMap, csMap, tenChong, tenSha, csTen, tiao, he };
+        return { BZ, A, fuXi:[...xi], fuJi:[...ji], tenCnt, gCnt, gAll:_ssAll||{}, xjWx, tenE, strength, isMale, posCells, godPos, relPos, chongPairs, hePairs, xingPairs, haiPairs, yangRen, shaMap, csMap, tenChong, tenSha, csTen, tiao, he };
       }catch(e){ return null; }
     }
   };
@@ -719,7 +727,7 @@
   (function(){ const t=REL.tenCombo.DATAS, P=(name,say,need,themes)=>t.push({name,say,need,...(themes||{})});
     // 判定条件按命理打磨：官印须有力方成"相生"；杀印须杀旺印化；官星遇劫须比劫有力方达得夺；财旺生官须身非弱方任。
     P('官印相生','官星生印、印再生身，身弱中和而官印皆喜，压力化荫庇、主文贵清显。',
-      {cn:{'官杀':1,'印星':1},en:{'官杀':'有气','印星':'有气'},xj:{'官杀':'喜','印星':'喜'},strong:['弱','中']},
+      {cn:{'官杀':1,'印星':1},gAll:{'正官':1},en:{'正官':'有气','印星':'有气'},xj:{'官杀':'喜','印星':'喜'},strong:['弱','中']},
       {career:'官星为喜用、身弱中和则压力化荫庇，职场循正途升阶、得背书与贵人提携，主文贵。',
        describe(ctx){
          const GP=ctx.godPos||function(){return{gan:[],zhi:[],full:[]};};
@@ -735,16 +743,16 @@
          parts.push('最忌财旺破印、伤官克官、官杀混杂，犯之则贵气陡降。');
          return parts.join('');
        }});
-    P('官印相生','官生印而印为忌，吉气被忌神转化、掌权之力减，宜借岁运直用官杀。',{cn:{'官杀':1,'印星':1},en:{'官杀':'有气','印星':'有气'},xj:{'官杀':'喜','印星':'忌'}},{career:'官生印而印为忌，职场得机却借力滞重、晋升权名减损，宜化依托为实绩、直用官杀之位。',
+    P('官印相生','官生印而印为忌，吉气被忌神转化、掌权之力减，宜借岁运直用官杀。',{cn:{'官杀':1,'印星':1},gAll:{'正官':1},en:{'正官':'有气','印星':'有气'},xj:{'官杀':'喜','印星':'忌'}},{career:'官生印而印为忌，职场得机却借力滞重、晋升权名减损，宜化依托为实绩、直用官杀之位。',
        describe(ctx){
          return '官生印而印为忌，吉气被忌神转化、掌权之力减，宜借岁运直用官杀、化依托为实绩，勿靠印荫坐享其成。';
        }});
-    P('官印相生','官为忌而印相之，压力与荫庇并见、名实难副，宜以实力立身。',{cn:{'官杀':1,'印星':1},en:{'官杀':'有气','印星':'有气'},xj:{'官杀':'忌'}},{career:'官为忌则职场压力过实而名位虚悬，靠印庇护仍名实难副，宜沉潜实力、不争虚衔。',
+    P('官印相生','官为忌而印相之，压力与荫庇并见、名实难副，宜以实力立身。',{cn:{'官杀':1,'印星':1},gAll:{'正官':1},en:{'正官':'有气','印星':'有气'},xj:{'官杀':'忌'}},{career:'官为忌则职场压力过实而名位虚悬，靠印庇护仍名实难副，宜沉潜实力、不争虚衔。',
        describe(ctx){
          return '官为忌则权威压力过实而名位虚悬，印虽庇护而名实难副，宜沉潜实力、不逐虚衔，以实绩立身。';
        }});
     P('杀印相生','七杀生印而印化杀生身，化敌为友、危机转权柄，主武贵、权大类过官印。',
-  {cn:{'官杀':1,'印星':1},en:{'官杀':'有力','印星':'有气'},xj:{'印星':'喜'}},
+  {cn:{'官杀':1,'印星':1},gAll:{'七杀':1},en:{'七杀':'有力','印星':'有气'},xj:{'印星':'喜'}},
   {career:'危机转权柄、谋略驭强敌，事业在高压竞争中以智化解得权，主攻坚型权贵、锋芒强于常规官印，宜决断型领域。',
    describe(ctx){
      const GP=ctx.godPos||function(){return{gan:[],zhi:[],full:[]};};
@@ -2481,8 +2489,7 @@ function renderShiShenPos(BZ){
   const killWxR=Object.keys(WX_KE).find(k=>WX_KE[k]===dwxR);
   const WXOF_R={'印星':yinWxR,'比劫':dwxR,'食伤':shangWxR,'财星':wealthWxR,'官杀':killWxR};
   const _gods=[]; BZ.gans.forEach(g=>_gods.push(tenGod(dg,g))); BZ.zhis.forEach(z=>_gods.push(tenGod(dg,zhiMain(z))));
-  const _cnt=c=>_gods.filter(x=>x===c).length;
-  const LQ_R={'印星':_cnt('正印')+_cnt('偏印'),'比劫':_cnt('比肩')+_cnt('劫财'),'食伤':_cnt('食神')+_cnt('伤官'),'财星':_cnt('正财')+_cnt('偏财'),'官杀':_cnt('正官')+_cnt('七杀')};
+  const LQ_R=ssLiuqin(ssCount(BZ.gans, BZ.zhis, dg));
   const XI_R=new Set(effXi(A)), JI_R=new Set(effJi(A));
   const _eScore=(typeof window!=='undefined'&&window.wxElementScore)?window.wxElementScore(BZ):null;
   const tenE_R=_eScore?ssTenGodEnergy(BZ,_eScore):null;
@@ -2642,7 +2649,7 @@ function renderShiShenPos(BZ){
   const _gCntD={}; _gods.forEach(g=>{_gCntD[g]=(_gCntD[g]||0)+1;});
   const _xjWxD={}; for(const k in WXOF_R){ _xjWxD[k]=xiWxSet.has(WXOF_R[k])?'喜':(jiWxSet.has(WXOF_R[k])?'忌':'中'); }
   const _strD = (A && A.strength) ? (A.strength.includes('强')?'强':A.strength.includes('弱')?'弱':'中') : '中';
-  const _duanCtx={ BZ, A, fuXi:[...xiWxSet], fuJi:[...jiWxSet], tenCnt:LQ_R, gCnt:_gCntD, xjWx:_xjWxD, tenE:tenE_R, strength:_strD, isMale };
+  const _duanCtx={ BZ, A, fuXi:[...xiWxSet], fuJi:[...jiWxSet], tenCnt:LQ_R, gCnt:_gCntD, gAll:ssCount(BZ.gans,BZ.zhis,dg), xjWx:_xjWxD, tenE:tenE_R, strength:_strD, isMale };
   const _duanHits=REL.tenCombo.matchAll(_duanCtx);
   // 按关系名合并（同名多条=同一关系的不同喜忌、身弱分支，判定列并列、关系名只显示一次）
   const _duanMerged={};
