@@ -295,7 +295,7 @@
 /* 末卡下距归零：区块边界由模块间距一处承担，末卡再留一条即与之叠成 28px */
 .page-zw .palace-detail .info-box:last-child{margin-bottom:0}
 
-/* 卡内题头紧接表框：分界归表框一处承担，题头不再画下线（两条相距不足 12px 即读作重线），
+/* 卡内题头紧接表框：分界归表框一处承担，题头不画下线（两条相距不足 12px 即读作重线），
    上下距只留 margin 一处，题头底到表顶 8px。 */
 .page-zw .palace-detail .info-box h4{color:var(--zw2);font-weight:400;border-bottom:0;padding-bottom:0}
 
@@ -309,7 +309,7 @@
    select{font-family:inherit} 承担，此处并列同写以免两条路径分叉。 */
 .page-zw .yf-picker input,.page-zw .yf-picker select{height:30px;font-family:var(--font);font-size:13px;padding:0 var(--sp-3);border:1px solid var(--zw-line);border-radius:0;background:var(--card);color:var(--zw-ink);box-sizing:border-box}
 
-/* 运程五层格栅：表入格栅后其自身上下距与格栅 gap 会叠加（实测上下各多出 4px 与 12px），
+/* 运程五层格栅：表入格栅后其自身上下距与格栅 gap 会叠加（上下各多出 4px 与 12px），
    故格内各表上下距一律归零，间距只由 gap 一处提供。 */
 .page-zw .zp-yun-grid > .zp-yun-tbl{margin-top:0;margin-bottom:0}
 
@@ -363,8 +363,8 @@
 
 /* 流曜表：宫位与本命宫两列是短标签（四字以内），须按整词取宽。
    通用件 .zp-yun-tbl td.lbl 带 overflow-wrap:anywhere，其最小内容宽退化为一字，
-   浏览器遂把这两列压到不足四字宽而折行（实测 52.89px 容不下 52px 的四字）；
-   此处把折行机会收回，最小内容宽即整词宽，列宽不再被挤，富余宽只归流曜一列。 */
+   浏览器遂把这两列压到不足四字宽而折行（52.89px 容不下 52px 的四字）；
+   此处把折行机会收回，最小内容宽即整词宽，列宽不被挤，富余宽只归流曜一列。 */
 .page-zw .zw-yao-tbl td.lbl{white-space:normal;word-break:keep-all;overflow-wrap:normal}
 
 .page-zw .zw-note{color:var(--zw-ink2);font-size:12px}
@@ -389,6 +389,8 @@
 
 .page-zw .zw-ref summary{color:var(--zw-deep);font-family:var(--zw-serif);
   font-size:var(--tier3);font-weight:400;letter-spacing:.1em}
+
+.page-zw .det-h{color:var(--zw-deep)}
 
 .page-zw .zw-legend{color:var(--zw-ink2)}
 
@@ -447,7 +449,7 @@
   /* 双人合盘勾选行：整行说明文字长，窄屏独占一行随文字折行，复选框不被挤到文字中间 */
   .page-zw .dual-rel-chk{display:flex}
   .page-zw .zp-yun-tbl th,.page-zw .zp-yun-tbl td{padding:var(--sp-1) var(--sp-2)}
-  /* 正文与大运表的值按标点整段换行，末字不再独占一行 */
+  /* 正文与大运表的值按标点整段换行，末字不独占一行 */
   .page-zw .ly-zh-p,.page-zw .zp-yun-tbl td{word-break:keep-all}
   .page-zw .zw-hp-tbl td{white-space:normal}
   .page-zw .zw-hp-max{display:block;margin-left:0;margin-top:var(--sp-1)}

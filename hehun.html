@@ -313,7 +313,7 @@ function taoHuaHit(C){
   return C.zhis.some(z=>{ const t=taoHuaZhi(z); return t&&C.zhis.includes(t); });
 }
 /* 神煞命中判定：直接读四柱表已算出的神煞清单（pillarShaMerged 全口径，与八字页同一真源），
- * 不再本页另查一遍，故表里报什么、专项就判什么。清单去查法后缀（纳音）后按名归一。 */
+ * 本页不另查一遍，故表里报什么、专项就判什么。清单去查法后缀（纳音）后按名归一。 */
 function shenshaOf(C){
   const all=[...new Set(C.cols.flatMap(col=>col.sha.map(s=>s.replace(/（[^）]+）$/,''))))];
   const has=n=>all.indexOf(n)>=0;
@@ -517,7 +517,7 @@ const specWeight=n=>(n===LA+'配偶星'||n===LB+'配偶星')?HH_W.spouse:(HH_W.s
 const HH_NO_PLACE_MSG='太阳时校正已开，但出生地未定：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
 /* 一造之盘：四柱装配一律委托 buildBaziState（bazi-app.js 的共用装配入口，八字页与姓名学页同用此件），
  * 故夏令时折算、太阳时三档、子时日界、年界三口径、空亡两基准、神煞全口径俱与八字页同源，
- * 本页不再自走一条折算链。五行统计与命卦另算，均取引擎单源。 */
+ * 本页不自走折算链。五行统计与命卦另算，均取引擎单源。 */
 function chart(dateId,timeId,lngId,distId,provId,cityId,sexId){
   const dv=document.getElementById(dateId).value, tv=document.getElementById(timeId).value||'12:00';
   const sexEl=document.getElementById(sexId); const sex=(sexEl&&sexEl.value==='女')?'女':'男';
@@ -597,32 +597,26 @@ const HH_REMEDY={
   gb:'用神被合之解在"借岁运"：合绊之干逢流年冲开则用神复起，重大事宜择用神得引之年；平日以喜用方位、颜色、行业自补，勿在合绊之年强求大事。',
   gbJi:'忌神被合去之利在"守正"：病处得药更须心正行端，勿因合去忌神而恃无恐，原局之弊仍以自律固本。'
 };
-/* 六档等级单源：等级名、色值、总结判语（综合分框与综合建议表共用）。
+/* 六档等级：等级名与阈值取 xuanji-lib 共享件，色值与总结判语本页自持。
  * 色取本页单一色轴的明度梯度：低分档淡而沉、高分档浓而亮，与全页藕荷色相不另立色相。
  * 🔴 不用绿色：绿在婚配语境被读作"被绿"，故优等关系一律避绿；也不用五行色（木绿水蓝土褐金黄火红），
  *   那套色是五行语义，与合婚等级无关，混用会让读者按五行去解等级。 */
 const HH_LV_META=[
-  {lv:'冲克偏重、下等之配',color:'#a99aa8',
+  {color:'#a99aa8',
    sum:'下等之配：冲克重、吉合少，缘分维系须以情补命、大度包容；命理只是一面镜子，合与不合，终究看人怎么走。'},
-  {lv:'磨合偏重、中下之配',color:'#9a7f98',
+  {color:'#9a7f98',
    sum:'中下之配：冲克多于吉合，相处磨耗偏重，须以真诚沟通与固定规矩化解，不宜过分乐观，也并非无缘。'},
-  {lv:'需要磨合、中等之配',color:'#8d3488',
+  {color:'#8d3488',
    sum:'中等之配：吉凶相抵、平稳中性，无大合亦无大冲，感情温度全靠后天经营，多沟通多退让可趋于和谐。'},
-  {lv:'和中有益、中上之配',color:'#a8419f',
+  {color:'#a8419f',
    sum:'中上之配：吉多于冲而未成大合，相处舒适、互有补益，用心经营可更上一层。'},
-  {lv:'良缘相济、上等之配',color:'#c253b8',
+  {color:'#c253b8',
    sum:'上等之配：合多于冲，根基与情分俱佳，个别环节有小摩擦，彼此包容则婚姻美满可期。'},
-  {lv:'天作之合、上上之配',color:'#d9629a',
+  {color:'#d9629a',
    sum:'天作之合：多处真合有化、夫妻宫稳固，冲克鲜少，是难得的良配；愈是良配愈宜珍惜经营，勿恃合而纵。'}
 ];
-function hhLvIndex(composite){
-  if(composite>=86) return 5;
-  if(composite>=75) return 4;
-  if(composite>=68) return 3;
-  if(composite>=56) return 2;
-  if(composite>=45) return 1;
-  return 0;
-}
+function hhLvMeta(i){ const x=HH_LV_META[i]||{}; return {lv:(typeof XJ_HH_LV_NAMES!=='undefined'?XJ_HH_LV_NAMES[i]:''),color:x.color,sum:x.sum}; }
+function hhLvIndex(composite){ return xjHhLvIndex(composite); }
 /* 综合建议：结论级聚合，只读两盘条目与综合分，故只收这两样 */
 /* 综合建议的亮点与短板分界：得分率不低于 hi 归亮点，低于 lo 归短板，其间为中性 */
 const HH_ADV={hi:0.7,lo:0.45};
@@ -719,7 +713,7 @@ function buildAdvice(items,spec,composite){
   if(/桃花/.test(sxTxt)&&/命带/.test(sxTxt)) tips.push({tag:'桃花', text:'有一方命带桃花：并非必生外缘，而是异性缘好，边界感须自己立，主动避嫌即是护缘。'});
   const lv=hhLvIndex(composite);
   return {
-    composite: composite, level: HH_LV_META[lv].sum,
+    composite: composite, level: hhLvMeta(lv).sum,
     highlights: highlights, weaknesses: weaknesses, tips: tips,
     lv: lv
   };
@@ -1394,7 +1388,7 @@ function hehun(){
   /* 专项聚合：按项权重加权，且只纳"本盘真能判"之项。
    * 权重按该项在合婚中的分量定（日柱与配偶星为本、方位与神煞为末），见 HH_W.spec。
    * active=false 者指本盘缺判据（如两造同址则相对方位无从比对、方位表法亦无差可判），
-   * 此类项只列出参看、不进聚合：否则一项恒为中值的死项会稀释全盘区分度（实测方位两项标准差为 0）。 */
+   * 此类项只列出参看、不进聚合：否则一项恒为中值的死项会稀释全盘区分度；方位两项即此类。 */
   let specTotal=0, specMax=0, specWSum=0;
   spec.forEach(it=>{ const w=specWeight(it[0]);
     if(it[4]===false) return;
@@ -1415,7 +1409,7 @@ function sexIco(sex){ return sex==='女'?'♀':'♂'; }
 /* 综合建议（行式结论表：总体判断、亮点、短板、相处之道；数据由 buildAdvice 生成） */
 function hhAdviceHTML(adv){
   const lvCut=adv.level.indexOf('：');
-  const LVC=HH_LV_META[adv.lv].color;
+  const LVC=hhLvMeta(adv.lv).color;
   const lvName=lvCut>0?adv.level.slice(0,lvCut):'';
   const lvText=lvCut>0?adv.level.slice(lvCut+1):adv.level;
   const rows=[`<tr><th>总体判断</th><td>${lvName?`<b class="hh-adv-lv" style="color:${LVC}">${lvName}</b>。`:''}${lvText}</td></tr>`];
@@ -1551,7 +1545,7 @@ function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv,live,
   // 等级锚定（须与评分模型对齐）：六维全中性盘≈63-66 分（生肖13/20＋年柱6/10＋纳音≈11/15＋日干18/25＋日支12/20＋互补6/10），
   // 故中性盘必须落“中等”，上等门槛 75 显著高于中性、中上 68 为有吉无凶、下等 45 起为真有冲克、45 以下方论缘薄。
   // 档位判定统一由 hhLvIndex(composite) 给出，等级名与色值取 HH_LV_META 单源。
-  const L=HH_LV_META[adv.lv]; const level=L.lv;
+  const L=hhLvMeta(adv.lv); const level=L.lv;
   const color=L.color;
   /* 折算口径提示：夏令时折回、子时归日、年界三口径任一生效时明示所取之值，
      免得盘面与用户自算的钟面结果对不上而无从分辨（与八字页同报法） */
@@ -1654,7 +1648,7 @@ window.addEventListener('load', function () {
       if(te&&tm) te.value=tm;
       /* 出生地（省市区、经度）：同步级联，禁止 setTimeout。
          八字页传来的 bTrue 参数随真太阳时勾选一并作废：本页太阳时口径已由上方选项行统管，
-         该参数不再有对应控件，读入即弃。 */
+         该参数无对应控件，读入即弃。 */
       const prov=p.get('bProv'), city=p.get('bCity'), dist=p.get('bDist'), lng=p.get('bLng');
       const provEl=document.getElementById(side+'Prov'), cityEl=document.getElementById(side+'City'), distEl=document.getElementById(side+'Dist');
       const lngEl=document.getElementById(side+'Lng');
