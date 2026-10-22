@@ -368,7 +368,7 @@ function specialItems(M,F,allGans,allZhis){
     const gZ=cnt(C.gans,guan.zheng), sN=cnt(C.gans,shang.shang);
     let sc; const D=[`${label}伤官${shang.shang}（现${sN}）`];
     /* 基准 6.5 为中性：伤官不显为无此忌（+2.5）、有官制衡居中（0）、伤官旺而无制为真忌（−3.5），
-       三档拉开，免得此维恒居高档而失去分辨力（原档 9/6/3 均值 8.1，实测近三成样本落在最高档）。 */
+       三档拉开，免得此维恒居高档而失去分辨力。 */
     if(sN===0){sc=9;D.push('伤官不显，性情温和，利婚姻');}
     else if(sN===1&&gZ>=1){sc=6.5;D.push('伤官有正官制衡，尚平');}
     else if(sN===1){sc=5;D.push('伤官一位而官星不显，言辞须留三分');}
@@ -488,18 +488,30 @@ function specialItems(M,F,allGans,allZhis){
 }
 /* 喜用神比较辅助：喜用集合相等判定（判双方喜用相近） */
 function setEq(a,b){ if(a.size!==b.size) return false; for(const x of a) if(!b.has(x)) return false; return true; }
-/* 专项各项聚合权重（按该项在合婚中的分量定，非按项数平分）：
+/* 合婚权重单一真源：层权重、项权重与配偶星权重都从此表取，盘面百分比一律由本表现算。
+ * 专项项权重按该项在合婚中的分量定，非按项数平分：
  * 本：配偶星、伤官见官、女命格局（夫妻星与女命格局，古法合婚的正面主断）
  * 中：喜忌法、冲解互济、干合绊用、合化成格、大运同步、婚动应期、子息缘（盘面结构与动态层的实质判据）
  * 末：桃花、神煞、八宅命卦、宫位法、方向表法（缘分之助与方位之术，参看为多）
  * 权重只改"该项在总分里占几份"，不改各项满分，故盘下详情条所报的得分与满分仍照原值。 */
-const HH_SPEC_W={
-  '伤官见官':1.2,'女命格局':1.2,
-  '喜忌法':1.2,'冲解互济':1.1,'干合绊用':1.0,'合化成格':1.0,'大运同步':1.1,'婚动应期':0.9,'子息缘':0.9,
-  '桃花':0.7,'神煞':0.8,'八宅命卦':0.7,'宫位法':0.6,'方向表法':0.6
+const HH_W={
+  natal:{six:0.7,spec:0.3},
+  live:0.1,
+  spec:{
+    '伤官见官':1.2,'女命格局':1.2,
+    '喜忌法':1.2,'冲解互济':1.1,'干合绊用':1.0,'合化成格':1.0,'大运同步':1.1,'婚动应期':0.9,'子息缘':0.9,
+    '桃花':0.7,'神煞':0.8,'八宅命卦':0.7,'宫位法':0.6,'方向表法':0.6
+  },
+  liveItem:{'现居互证':1,'现居方向表':1,'现居八宅':0.6},
+  spouse:1.4
 };
+const SPEC_W=HH_W.natal.spec;
+const LIVE_W=HH_W.live;
+const NATAL_SIX_W=HH_W.natal.six;
+const pct=x=>Math.round(x*100)+'%';
+if(Math.abs(HH_W.natal.six+HH_W.natal.spec-1)>1e-9) console.error('HH_W.natal 六维与专项权重之和须为 1');
 /* 配偶星两项的名称随姓名变，权重按项名后缀认；其余诸项仍走固定键 */
-const specWeight=n=>(n===LA+'配偶星'||n===LB+'配偶星')?1.4:(HH_SPEC_W[n]||1);
+const specWeight=n=>(n===LA+'配偶星'||n===LB+'配偶星')?HH_W.spouse:(HH_W.spec[n]||1);
 /* 太阳时已开而某一造未定出生地：校正是按经度算的，没有经度就无从校正。
    提示语同八字页 SUN_NO_PLACE_MSG 口径，惟本页两造并列，故点名是哪一造缺。 */
 const HH_NO_PLACE_MSG='太阳时校正已开，但出生地未定：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
@@ -612,12 +624,14 @@ function hhLvIndex(composite){
   return 0;
 }
 /* 综合建议：结论级聚合，只读两盘条目与综合分，故只收这两样 */
+/* 综合建议的亮点与短板分界：得分率不低于 hi 归亮点，低于 lo 归短板，其间为中性 */
+const HH_ADV={hi:0.7,lo:0.45};
 function buildAdvice(items,spec,composite){
   const byName={}; items.concat(spec).forEach(it=>{ if(!byName[it[0]]) byName[it[0]]=it; });
   const itSx=byName['生肖相配'],
         itGan=byName['日干（夫妻主星）'], itZhi=byName['日支（夫妻宫）'], itComp=byName['五行互补'];
-  /* 档位：j=得分率≥70% 归亮点、d=<45% 归短板，其间为中性（不进结论，防噪音） */
-  const clsOf=n=>{ const it=byName[n]; if(!it) return ''; const r=it[2]?it[1]/it[2]:0; return r>=0.7?'j':(r<0.45?'d':''); };
+  /* 档位：j=得分率不低于 HH_ADV.hi 归亮点、d=低于 HH_ADV.lo 归短板，其间为中性（不进结论，防噪音） */
+  const clsOf=n=>{ const it=byName[n]; if(!it) return ''; const r=it[2]?it[1]/it[2]:0; return r>=HH_ADV.hi?'j':(r<HH_ADV.lo?'d':''); };
   const cls={sx:clsOf('生肖相配'), yz:clsOf('年柱生克合化'), ny:clsOf('年命纳音'),
     gan:clsOf('日干（夫妻主星）'), zhi:clsOf('日支（夫妻宫）'), comp:clsOf('五行互补'),
     xi:clsOf('喜忌法'), gw:clsOf('宫位法'), mg:clsOf('八宅命卦'), shen:clsOf('神煞'), sg:clsOf('伤官见官'),
@@ -1108,7 +1122,7 @@ function hehun(){
     hhDesc=`跨盘合化成立共${hhPairs.length}处${riCount?`，其中${riCount}处为日干或日支之合、已在六维计分不重计`:''}，计入本项者${scored}处。`+notes.join('；')+'。口径：化神显以 heHuaOK 单源判（透干、得月令、得局），两盘月令任一得气即认；跨盘合化为合婚推衍用法，成格以同盘为正，仅作深缘参看。';
   }
   spec.push(['合化成格',hhScore,10,hhDesc]);
-  // 择偶方向判定分两层：先天层按出生地互指计分，现居层只作参看并占综合分一成。
+  // 择偶方向判定分两层：先天层按出生地互指计分，现居层只作参看并占综合分 LIVE_W。
   // 先天层：第一人宜娶方位须指向第二人出生地方向、第二人宜嫁方位须指向第一人出生地方向；偏差越小越合。
   // 现居层：同一比对改用两造现居地，只出参看分与提示，不改四柱与真太阳时。
   const gwM=gongWeiFa(M,M1), gwF=gongWeiFa(F,F1);
@@ -1226,7 +1240,7 @@ function hehun(){
   mgD.push('先天层方位互证以出生地计；真正布局须以现居住宅坐向定。');
   if(!mPlaceDir&&!fPlaceDir) mgD.push('双方出生地未择定或同处一地，方位与命卦无从互证，以大游年婚配星为准。');
   spec.push(['八宅命卦',mgScore,10,mgD.join('')]);
-  /* 现居参看层：只出参看分与提示，占综合分一成；无判据项不进聚合，全层无判据时综合分按先天计。 */
+  /* 现居参看层：只出参看分与提示，占综合分 LIVE_W；无判据项不进聚合，全层无判据时综合分按先天计。 */
   const live=[];
   let mErrRes=null, fErrRes=null;
   if(gwM&&mToFRes) mErrRes=fangErr(gwM.fang,mToFRes.fang);
@@ -1260,9 +1274,8 @@ function hehun(){
       +(fPlaceRes?(LA+'现居'+((resM.placeName)||'现居地')+'居'+LB+'现居'+((resF.placeName)||'现居地')+'之'+fangPair(fToMRes)+'方，落'+LB+'命卦'+fPlaceRes.star+'方（'+(fPlaceRes.ji?'吉方':'凶方')+'）。'):'');
   }
   live.push(['现居八宅',liveScore3,10,liveDesc3,liveActive3]);
-  const HH_LIVE_W={'现居互证':1,'现居方向表':1,'现居八宅':0.6};
   let liveTotal=0, liveMax=0;
-  live.forEach(it=>{ if(it[4]===false) return; const w=HH_LIVE_W[it[0]]||1; liveTotal+=it[1]*w; liveMax+=it[2]*w; });
+  live.forEach(it=>{ if(it[4]===false) return; const w=HH_W.liveItem[it[0]]||1; liveTotal+=it[1]*w; liveMax+=it[2]*w; });
   const liveScore100=liveMax?liveTotal/liveMax*100:null;
   // 大运同步（动态层）：引 baziDaYunSteps 唯一真源排双方大运（阳男阴女顺、阴男阳女逆，3日折1年），
   // 按十年年龄带对齐，逐带比双方运干支五行走向：同气相并为同频（境遇同步、同甘共苦），相生为相扶，相克为异向。
@@ -1379,7 +1392,7 @@ function hehun(){
     +`双方时柱（子女宫）${M.zhis[3]}${F.zhis[3]}：${szS.he6?'六合相谐，子女宫安稳':szS.sanhe!==null?szS.sanhe+'，子女宫相谐':szS.chong?'相冲，子女宫动荡，生育教养事宜须格外用心':(szS.xing||szS.hai||szS.po)?'带'+(szS.xingName||'刑害破')+'，子女宫小有磕绊':'平顺，无合无冲'}。子息之事一半在人，命理只述其势，不作定论。`;
   spec.push(['子息缘',ziScore,10,ziDesc]);
   /* 专项聚合：按项权重加权，且只纳"本盘真能判"之项。
-   * 权重按该项在合婚中的分量定（日柱与配偶星为本、方位与神煞为末），见 HH_SPEC_W。
+   * 权重按该项在合婚中的分量定（日柱与配偶星为本、方位与神煞为末），见 HH_W.spec。
    * active=false 者指本盘缺判据（如两造同址则相对方位无从比对、方位表法亦无差可判），
    * 此类项只列出参看、不进聚合：否则一项恒为中值的死项会稀释全盘区分度（实测方位两项标准差为 0）。 */
   let specTotal=0, specMax=0, specWSum=0;
@@ -1387,15 +1400,14 @@ function hehun(){
     if(it[4]===false) return;
     specTotal+=it[1]*w; specMax+=it[2]*w; specWSum+=w; });
   const specScore100 = specMax? specTotal/specMax*100 : 0;
-  const SPEC_W=0.3;                                   // 先天层内专项分析的权重
-  const natalScore = Math.round((1-SPEC_W)*total + SPEC_W*specScore100);   // 先天分 = 六维×0.7 + 专项×0.3
-  const LIVE_W=0.1;                                   // 现居参看层占综合分的权重
-  const composite = liveScore100==null ? natalScore : Math.round((1-LIVE_W)*natalScore + LIVE_W*liveScore100);
+  const natalScore = Math.round(NATAL_SIX_W*total + SPEC_W*specScore100);   // 先天分按 HH_W.natal 的六维与专项之比
+  const composite = liveScore100==null ? natalScore : Math.round((1-LIVE_W)*natalScore + LIVE_W*liveScore100);   // 现居层按 HH_W.live 计权
   const specShown = Math.round(specTotal/specWSum*10)/10;                 // 盘面展示取有效项加权均值（口径与聚合一致）
   const specShownMax = Math.round(specMax/specWSum*10)/10;
   const adv=buildAdvice(items,spec,composite);
   window.__hh={M,F,items,total,spec,composite,natalScore,live,liveScore:liveScore100,liveW:LIVE_W,specTotal:specShown,specMax:specShownMax,specW:SPEC_W,AM:A_M,AF:A_F,xiScore:xiScore,mgM,mgF,adv:adv};
   render(M,F,items,total,spec,composite,specShown,specShownMax,SPEC_W,adv,live,liveScore100,LIVE_W,natalScore);
+  hhWeightAudit();
  }catch(e){ if(e&&e.hehunInput){ document.getElementById('out').innerHTML='<p class="notice">'+e.msg+'</p>'; } else { document.getElementById('out').innerHTML='<p class="notice">合婚出错：'+(e.message||e)+'</p>'; } }
 }
 function wxStr(wx){return Object.keys(wx).map(k=>`${k}${wx[k]}`).join(' ');}
@@ -1520,13 +1532,20 @@ function hhDetailHTML(it){
   return `<span class="wd-t">${it[0]}</span>　${it[1]} 分（满分 ${it[2]}）　得 ${Math.round(it[1]/it[2]*100)}%`
     +`<span class="wd-br"></span>${body}`;
 }
+/* 盘面权重文案自检：所有权重百分比必须由 HH_W 现算，缺项即报 */
+function hhWeightAudit(){
+  const t=document.getElementById('out').textContent;
+  const need=[pct(1-HH_W.live),pct(HH_W.live),pct(HH_W.natal.six),pct(HH_W.natal.spec)];
+  const miss=need.filter(s=>t.indexOf(s)<0);
+  if(miss.length) console.error('合婚权重文案缺项：'+miss.join('、'));
+}
 function liveHTML(live,liveScore,liveW){
   const rows=(live||[]).map(it=>{
     const on=it[4]!==false;
     return `<div class="hh-live-row"><div class="hh-live-h"><span class="hh-live-name">${it[0]}</span><span class="hh-live-score">${on?it[1]+' / '+it[2]:'无判据'}</span></div><p class="hh-live-txt">${it[3]}</p></div>`;
   }).join('');
-  const tail=liveScore==null?'现居地未另填或同处，综合分按先天计。':'现居参看分 '+Math.round(liveScore)+'，只占综合分一成。';
-  return `<div class="hh-live"><div class="hh-live-cap">现居盘（参看，占综合分 ${Math.round(liveW*100)}%）</div>${rows}<div class="sub-note">现居层只作参看：以两造现居地互指与八宅城市方位为据，不改四柱与真太阳时；真正布局须以现居住宅坐向定。${tail}</div></div>`;
+  const tail=liveScore==null?'现居地未另填或同处，综合分按先天计。':'现居参看分 '+Math.round(liveScore)+'，占综合分 '+pct(liveW)+'。';
+  return `<div class="hh-live"><div class="hh-live-cap">现居盘（参看，占综合分 ${pct(liveW)}）</div>${rows}<div class="sub-note">现居层只作参看：以两造现居地互指与八宅城市方位为据，不改四柱与真太阳时；真正布局须以现居住宅坐向定。${tail}</div></div>`;
 }
 function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv,live,liveScore,liveW,natalScore){
   // 等级锚定（须与评分模型对齐）：六维全中性盘≈63-66 分（生肖13/20＋年柱6/10＋纳音≈11/15＋日干18/25＋日支12/20＋互补6/10），
@@ -1546,14 +1565,14 @@ function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv,live,
     <div class="hh-charts">${pillarTbl(M,LA+' '+sexIco(M.sex))}${pillarTbl(F,LB+' '+sexIco(F.sex))}</div>
     ${noteHTML}
     <div class="hh-total" style="--hhc:${color}">
-      <div class="hh-total-cap">综合分（先天${Math.round((1-liveW)*100)}%＋现居参看${Math.round(liveW*100)}%${liveScore==null?'，现居未填按先天计':''}）</div>
+      <div class="hh-total-cap">综合分（先天${pct(1-liveW)}＋现居参看${pct(liveW)}${liveScore==null?'，现居未填按先天计':''}）</div>
       <div class="hh-total-score" style="color:${color}">得分<b>${composite}</b></div>
       <div class="hh-total-lv" style="color:${color}">${level}</div>
       <div class="hh-total-sub">先天分 ${natalScore}${liveScore==null?'':'　现居参看 '+Math.round(liveScore)}</div>
     </div>
     <div class="wheel-wheels">
-      <div class="wheel-block"><h4>六维合婚盘（${total} 分，先天层内权重 ${Math.round((1-specW)*100)}%）</h4>${hhWheel('items',items)}<div class="wheel-detail" id="hhitemsDetail">${hhDetailHTML(items[0])}</div></div>
-      <div class="wheel-block"><h4>专项分析盘（${specTotal} 分，先天层内权重 ${Math.round(specW*100)}%）</h4>${hhWheel('spec',spec)}<div class="wheel-detail" id="hhspecDetail">${hhDetailHTML(spec[0])}</div></div>
+      <div class="wheel-block"><h4>六维合婚盘（${total} 分，先天层内权重 ${pct(1-specW)}）</h4>${hhWheel('items',items)}<div class="wheel-detail" id="hhitemsDetail">${hhDetailHTML(items[0])}</div></div>
+      <div class="wheel-block"><h4>专项分析盘（${specTotal} 分，先天层内权重 ${pct(specW)}）</h4>${hhWheel('spec',spec)}<div class="wheel-detail" id="hhspecDetail">${hhDetailHTML(spec[0])}</div></div>
     </div>
     ${liveHTML(live,liveScore,liveW)}
     ${hhAdviceHTML(adv)}
@@ -1660,13 +1679,13 @@ window.addEventListener('load', function () {
         s+=`五行统计：${wxStr(C.wx)}　生肖${C.sx}　年命纳音${C.yearNaYin}\n`;
         return s;
       }
-      let s=`${LA}（${M.sex}）八字：${M.pillars.join(' ')}（属${M.sx}，日主${M.dayGan}）\n${LB}（${F.sex}）八字：${F.pillars.join(' ')}（属${F.sx}，日主${F.dayGan}）\n合婚综合分（先天${Math.round((1-h.liveW)*100)}%＋现居参看${Math.round(h.liveW*100)}%${h.liveScore==null?'，现居未填按先天计':''}）：得分${h.composite}，先天分${h.natalScore}${h.liveScore==null?'':'，现居参看'+Math.round(h.liveScore)}\n六维核心分：满分100，核心${h.total}；专项参考：满分${h.specMax}，小计${h.specTotal}\n各维度评分：\n`;
+      let s=`${LA}（${M.sex}）八字：${M.pillars.join(' ')}（属${M.sx}，日主${M.dayGan}）\n${LB}（${F.sex}）八字：${F.pillars.join(' ')}（属${F.sx}，日主${F.dayGan}）\n合婚综合分（先天${pct(1-h.liveW)}＋现居参看${pct(h.liveW)}${h.liveScore==null?'，现居未填按先天计':''}）：得分${h.composite}，先天分${h.natalScore}${h.liveScore==null?'':'，现居参看'+Math.round(h.liveScore)}\n六维核心分：满分100，核心${h.total}；专项参考：满分${h.specMax}，小计${h.specTotal}\n各维度评分：\n`;
       h.items.forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
       s+=dump(M,LA)+dump(F,LB);
       // 专项分析完整输出：六项全部经由 h.spec 逐一列出（含宫位法、方向表法、八宅命卦、喜忌、神煞、财官桃花），保证复制数据与页面模块完整一致
       s+='专项分析：\n';
       (h.spec||[]).forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
-      s+='现居参看（占综合分'+Math.round(h.liveW*100)+'%）：\n';
+      s+='现居参看（占综合分'+pct(h.liveW)+'）：\n';
       (h.live||[]).forEach(it=>{ s+=`${it[0]}：${it[4]===false?'无判据':it[1]+'/'+it[2]} ： ${it[3]}\n`; });
       // 综合建议完整输出：等级总结、亮点、短板、相处之道，与页面模块一致（命理依据已并入各维度评分行，不重复输出）
       if(h.adv){

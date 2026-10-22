@@ -886,7 +886,7 @@ window.addEventListener('load', function () {
       if(ZR_MODE==='zaoming'){
         if(!ZM_RES || !ZM_CTX) return '';
         let s=`造命择日（剖腹产择日）：窗口 ${ZM_CTX.from.y}-${ZM_CTX.from.m}-${ZM_CTX.from.d} 至 ${ZM_CTX.to.y}-${ZM_CTX.to.m}-${ZM_CTX.to.d}，共 ${ZM_RES.count} 个候选（${ZM_RES.days} 天 × ${ZM_CTX.hours.length} 时辰）\n`;
-        s+=`权重：八字质量 55% ＋ 前三步大运 20% ＋ 家长缘分 15% ＋ 避凶底线 10%\n`;
+        s+=`权重：八字质量为主，前三步大运、家长缘分次之，避凶底线为底\n`;
         ZM_RES.list.slice(0,10).forEach(function(it,i){
           const r=it.res;
           s+=`${i+1}. ${it.y}-${it.m}-${it.d} ${ZERI.HOURS[it.hourIdx].z}时(${it.clockTime}) ${it.pillars.join(' ')} 日主${it.dayGan}（${it.dayWx}） ${it.strength} ${it.geName||''} 综合${r.total}【${r.grade.t}】\n`;
