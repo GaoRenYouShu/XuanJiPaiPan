@@ -5,8 +5,8 @@
  *   1 元 = 12 会 = 360 运 = 4320 世 = 129600 年
  *   1 会 = 30 运 = 10800 年；1 运 = 12 世 = 360 年；1 世 = 30 年
  * 锚点：元 1 年 = 公元前 67017 年（天文年编号 A = -67016）。
- *   检验：唐尧即位（前 2357，甲辰）落 巳会 第 180 运（癸亥）第 2156 世（己未）；
- *         午会起点 = 公元前 2217 年；公元 2026 年在 午会 第 192 运（乙亥）第 2302 世（乙酉）。
+ *   检验：唐尧即位（前 2357，甲辰）落 巳会 第 180 运（癸）第 2156 世（未）；
+ *         午会起点 = 公元前 2217 年；公元 2026 年在 午会 第 192 运（乙）第 2302 世（酉）。
  * 纪年：内部一律天文年编号 A（公元 m 年 = m；公元前 n 年 = 1 - n，0 年 = 公元前 1 年）。
  * 干支：自算，干支 = 甲子起 (A-4) mod 60（floor mod，对公元前同样成立）。
  * 元循环：超出 129600 年按 元序号 顺延、逆推（第 N 元），本元为第 1 元。
@@ -63,7 +63,8 @@ const HJ = (function () {
     });
     return m;
   })();
-  /* 先天六十四卦圆图次序（乾一起，八方各八卦，至坤终；同 daoli 页所用序） */
+  /* 通行值年卦六十卦序的来源：方图逐行序，乾至复、姤至坤；去乾坤坎离四正即 GUA60。
+     值年卦与画圆图用序是两名目，不可互推。 */
   var XT_ROUND = ['乾为天', '泽天夬', '火天大有', '雷天大壮', '风天小畜', '水天需', '山天大畜', '地天泰',
     '天泽履', '兑为泽', '火泽睽', '雷泽归妹', '风泽中孚', '水泽节', '山泽损', '地泽临',
     '天火同人', '泽火革', '离为火', '雷火丰', '风火家人', '水火既济', '山火贲', '地火明夷',
@@ -72,9 +73,22 @@ const HJ = (function () {
     '天水讼', '泽水困', '火水未济', '雷水解', '风水涣', '坎为水', '山水蒙', '地水师',
     '天山遁', '泽山咸', '火山旅', '雷山小过', '风山渐', '水山蹇', '艮为山', '地山谦',
     '天地否', '泽地萃', '火地晋', '雷地豫', '风地观', '水地比', '山地剥', '坤为地'];
+  /* 先天六十四卦圆图序：乾至复为阳半，坤居中，剥至姤为阴半；坤在子中、姤在午中。
+     圆盘只读卦位，用本序；值年卦仍用上序，两者不可互推。 */
+  var XT_CIRCLE = ['乾为天', '泽天夬', '火天大有', '雷天大壮', '风天小畜', '水天需', '山天大畜', '地天泰',
+    '天泽履', '兑为泽', '火泽睽', '雷泽归妹', '风泽中孚', '水泽节', '山泽损', '地泽临',
+    '天火同人', '泽火革', '离为火', '雷火丰', '风火家人', '水火既济', '山火贲', '地火明夷',
+    '天雷无妄', '泽雷随', '火雷噬嗑', '震为雷', '风雷益', '水雷屯', '山雷颐', '地雷复',
+    '坤为地', '山地剥', '水地比', '风地观', '雷地豫', '火地晋', '泽地萃', '天地否',
+    '地山谦', '艮为山', '水山蹇', '风山渐', '雷山小过', '火山旅', '泽山咸', '天山遁',
+    '地水师', '山水蒙', '坎为水', '风水涣', '雷水解', '火水未济', '泽水困', '天水讼',
+    '地风升', '山风蛊', '水风井', '巽为风', '雷风恒', '火风鼎', '泽风大过', '天风姤'];
+  /* 圆图八宫：按圆图次序八分，宫名即各段下卦，次序与方图行序不同 */
+  var XT_CIRCLE_GONG = ['乾', '兑', '离', '震', '坤', '艮', '坎', '巽'];
   /* 先天六十四卦方图（方圆二图之方）：圆图象天、方图象地。八八六十四格，
      横八行自乾起、纵八列自乾起，行主下卦（内卦）、列主上卦（外卦）；
-     逐行自左而右读之即圆图之序，对角八格为八纯卦，乾坤坎离四正即居对角之四位。 */
+     上半逐行自左而右、下半逐行自右而左读之即圆图之序，对角八格为八纯卦，
+     乾坤坎离四正即居对角之四位。 */
   var GUA_SQUARE = (function () {
     var a = [];
     for (var r = 0; r < 8; r++) {
@@ -208,7 +222,7 @@ const HJ = (function () {
      午会姤大过鼎恒巽、未会井蛊升讼困、申会未济解涣蒙师、酉会遁咸旅小过渐、
      戌会蹇艮谦否萃、亥会晋豫观比剥），每卦主六运；中卦当会之中；
      闰卦为乾坤坎离四正卦（离闰子丑寅，乾闰卯辰巳，坎闰午未申，坤闰酉戌亥）。
-     由此得六十卦序（先天圆图去乾坤坎离）：运卦 = 六十卦序[ floor((运全元序-1)/6) ]，
+     由此得通行值年卦六十卦序（方图逐行序去乾坤坎离）：运卦 = 六十卦序[ floor((运全元序-1)/6) ]，
      校验：运1=复（子会起）、运13至18=屯（屯当子会之中）、运181=姤（午会起）、
            运193至198=鼎（鼎当午会之中）、运355至360=剥（亥会末）。 */
   var GUA60 = ['地雷复', '山雷颐', '水雷屯', '风雷益', '震为雷',
@@ -223,8 +237,28 @@ const HJ = (function () {
     '天山遁', '泽山咸', '火山旅', '雷山小过', '风山渐',
     '水山蹇', '艮为山', '地山谦', '天地否', '泽地萃',
     '火地晋', '雷地豫', '风地观', '水地比', '山地剥'];
+  /* 孟喜卦气图六十卦全序：去坎离震兑四正，自冬至初中孚用事，每卦直六日七分。
+     每五月一组，序为公、辟、侯、卿、卿，十二组共六十卦。 */
+  var MENGXI_60 = ['风泽中孚', '地雷复', '水雷屯', '地山谦', '火泽睽',
+    '地风升', '地泽临', '雷山小过', '山水蒙', '风雷益',
+    '风山渐', '地天泰', '水天需', '泽雷随', '火地晋',
+    '雷水解', '雷天大壮', '雷地豫', '天水讼', '山风蛊',
+    '泽火革', '泽天夬', '火山旅', '地水师', '水地比',
+    '风天小畜', '乾为天', '火天大有', '风火家人', '水风井',
+    '泽山咸', '天风姤', '火风鼎', '雷火丰', '风水涣',
+    '天泽履', '天山遁', '雷风恒', '水泽节', '天火同人',
+    '山泽损', '天地否', '巽为风', '泽地萃', '山天大畜',
+    '山火贲', '风地观', '雷泽归妹', '天雷无妄', '地火明夷',
+    '泽水困', '山地剥', '艮为山', '水火既济', '火雷噬嗑',
+    '泽风大过', '坤为地', '火水未济', '水山蹇', '山雷颐'];
+  var MENGXI_GROUPS = (function () {
+    var a = [];
+    for (var i = 0; i < 12; i++) a.push('公', '辟', '侯', '卿', '卿');
+    return a;
+  })();
   /* 每会闰卦（四正卦各闰三会） */
   var LEAP_GUA = ['离', '离', '离', '乾', '乾', '乾', '坎', '坎', '坎', '坤', '坤', '坤'];
+  var LEAP_HUI = { '离': '子丑寅', '乾': '卯辰巳', '坎': '午未申', '坤': '酉戌亥' };
   /* 值年卦：六十卦一年一卦、自复起剥终（60年一周）；锚点取公元2012年（壬辰）值复卦，
      与通行值年表相合（2020年明夷、2025年泽火革、2026年天火同人）。 */
   var ZHINIAN_ANCHOR = 2012;
@@ -435,8 +469,8 @@ const HJ = (function () {
     { A: 755, label: '安史之乱', note: '乙未，唐由盛转衰', src: 'hx' },
     { A: 960, label: '赵匡胤建宋', note: '庚申，陈桥兵变', src: 'hx' },
     { A: 1012, label: '邵雍诞生', note: '壬子，字尧夫，谥康节', src: 'hx' },
-    { A: 1127, label: '靖康之变、宋室南渡', note: '丁未', src: 'hx' },
     { A: 1077, label: '邵雍卒', note: '丁巳，《皇极经世》成书于此前', src: 'hx' },
+    { A: 1127, label: '靖康之变、宋室南渡', note: '丁未', src: 'hx' },
     { A: 1271, label: '元朝建立', note: '辛未，忽必烈定国号', src: 'hx' },
     { A: 1368, label: '明朝建立', note: '戊申，朱元璋称帝', src: 'hx' },
     { A: 1405, label: '郑和首下西洋', note: '乙酉', src: 'hx' },
@@ -471,11 +505,11 @@ const HJ = (function () {
     { A: 1949, label: '中华人民共和国成立', note: '己丑', src: 'hx' },
     { A: 1978, label: '改革开放', note: '戊午', src: 'hx' }
   ];
-  /* 每条锚点附其元会运世定位（惰性缓存） */
+  /* 每条锚点附其元会运世定位（惰性缓存）；按年序排，供总表与前后最近锚点取用 */
   var _anchorLoc = null;
   function anchors() {
     if (_anchorLoc) return _anchorLoc;
-    _anchorLoc = ANCHORS.map(function (a) {
+    _anchorLoc = ANCHORS.slice().sort(function (a, b) { return a.A - b.A; }).map(function (a) {
       var l = locate(a.A);
       return {
         A: a.A, label: a.label, note: a.note, src: a.src,
@@ -547,7 +581,7 @@ const HJ = (function () {
 
   /* ---------------- 六日七分法（孟喜卦气，与邵雍体系并行参照） ----------------
      去坎离震兑四正，余六十卦各主六日七分（365.25/60 ≈ 6.0875 日）。
-     以冬至为历元，复卦当值，逐卦顺先天圆图次序推日。
+     以冬至为历元，自冬至初中孚用事，依孟喜卦气图公辟侯卿全序推日。
      此系汉易卦气说，与邵雍以元经会的值卦分属两系，并列参照。 */
   var QI_FEN_DAYS = 365.25 / 60;
   /* 冬至约在 12 月 22 日（年积日 356，平年近似） */
@@ -562,7 +596,7 @@ const HJ = (function () {
     var daysSince = doy - doyWS;
     if (daysSince < 0) daysSince += 365;
     var idx = Math.floor(daysSince / QI_FEN_DAYS) % 60;
-    return { gua: GUA60[idx], seq: idx + 1, daysSinceWS: daysSince };
+    return { gua: MENGXI_60[idx], seq: idx + 1, group: MENGXI_GROUPS[idx], daysSinceWS: daysSince };
   }
 
   /* ---------------- 观物篇六十十六位数时序配属与皇帝王伯 ----------------
@@ -597,15 +631,15 @@ const HJ = (function () {
     yunGuaBian: yunGuaBian, shiGuaBian: shiGuaBian, xunGuaJia: xunGuaJia, xunGuaYi: xunGuaYi,
     huiGua5: huiGua5, zhongGua: zhongGua, leapGua: leapGua, yunGuaOf: yunGuaOf,
     chronYun: chronYun, chronAll: chronAll, chronSpan: chronSpan, chronHas: chronHas, setChronicle: setChronicle,
-    liuRiQiFen: liuRiQiFen, QI_FEN_DAYS: QI_FEN_DAYS,
+    liuRiQiFen: liuRiQiFen, QI_FEN_DAYS: QI_FEN_DAYS, MENGXI_60: MENGXI_60, MENGXI_GROUPS: MENGXI_GROUPS,
     SHIXU16: SHIXU16, SHIXU_SEASONS: SHIXU_SEASONS, SHIXU_EMPERORS: SHIXU_EMPERORS, SHIXU_ACTIONS: SHIXU_ACTIONS, SHIXU_VERBS: SHIXU_VERBS,
     kaiwuA: kaiwuA, biwuA: biwuA,
     guaInfo: guaInfo, guaCi: GUACI, fullGuaName: fullGuaName, shortGuaName: shortGuaName, BIGUA_FULL: BIGUA_FULL,
     huGua: huGua, cuoZong: cuoZong, yearGuaCalc: yearGuaCalc,
     GUA_SQUARE: GUA_SQUARE, yunTableAll: yunTableAll,
     jiNianDuiZhao: jiNianDuiZhao,
-    GUA60: GUA60, LEAP_GUA: LEAP_GUA, ZHINIAN_ANCHOR: ZHINIAN_ANCHOR,
-    XT_ROUND: XT_ROUND, BITS_BY_NAME: BITS_BY_NAME,
+    GUA60: GUA60, LEAP_GUA: LEAP_GUA, LEAP_HUI: LEAP_HUI, ZHINIAN_ANCHOR: ZHINIAN_ANCHOR,
+    XT_ROUND: XT_ROUND, XT_CIRCLE: XT_CIRCLE, XT_CIRCLE_GONG: XT_CIRCLE_GONG, BITS_BY_NAME: BITS_BY_NAME,
     anchors: anchors, GUAQI_READY: function () { return true; }
   };
   /* 浏览器挂 window（同 taiyi-engine 惯例）；CommonJS 环境挂 module.exports */
