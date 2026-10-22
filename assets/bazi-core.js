@@ -8953,7 +8953,7 @@ function renderYiliModule(BZ){
 
 /* ===== 八字与合婚两页共用：宫位法与择偶表 =====
    两页同文，所用方位与月建表由页传入，本件不另存一份。 */
-function xjGongWeiFa(BZ, isMale){
+function xjGongWeiFa(BZ, isMale, zhiFang, ganFang){
   const want=isMale?['正财','偏财']:['正官','七杀'];
   for(let i=0;i<4;i++){
     if(i===2) continue;
@@ -8980,7 +8980,7 @@ function xjGongWeiFa(BZ, isMale){
   return null;
 }
 
-function xjZeOuBiaoFa(BZ){
+function xjZeOuBiaoFa(BZ, monthJian, fangChong, zhiFang){
   const L=BZ.lunar;
   if(!L) return null;
   const m=Math.abs(L.getMonth()||0), d=L.getDay()||0;

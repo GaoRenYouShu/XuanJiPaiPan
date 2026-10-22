@@ -43,32 +43,44 @@
     <div class="hehun-forms">
       <div class="hh-card male" id="hhCard1">
         <h3><span id="hhT1">第一人</span> <span id="hhIco1">♂</span></h3>
+        <div class="field hh-name"><label for="mHhName">姓名</label><input type="text" id="mHhName" maxlength="12" placeholder="可选"></div>
         <div class="field hh-sex"><label for="mSex">性别</label><select id="mSex" onchange="hhSexChanged(1)"><option selected>男</option><option>女</option></select></div>
         <div class="form-row">
           <div class="field"><label for="mDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="mDate"></div>
           <div class="field"><label for="mTime">出生时间</label><input type="time" id="mTime"></div>
         </div>
         <div class="birth-group compact" id="mBirthGroup">
-          <div class="group-label">出生地（用于经度校正，内置行政区划经度）</div>
+          <div class="group-label">出生地（用于经度校正，内置行政区划经度）<label class="hh-res-same"><input type="checkbox" id="mResSame" checked onchange="hhResToggle(1)">现居地与出生地相同</label></div>
           <div class="field"><label for="mProv">省份</label><select id="mProv" aria-label="第一人选择省份"></select></div>
           <div class="field"><label for="mCity">城市</label><select id="mCity" aria-label="第一人选择城市"></select></div>
           <div class="field"><label for="mDist">区县</label><select id="mDist" aria-label="第一人选择区县"></select></div>
           <div class="field hh-lng"><label for="mLng">经度（可选）</label><input type="number" id="mLng" aria-label="第一人手动输入经度" step="0.01" placeholder="出生地"></div>
+          <div class="group-label hh-res-only" hidden>现居地（用于方位互证，不参与真太阳时校正）</div>
+          <div class="field hh-res-only" hidden><label for="mResProv">现居省份</label><select id="mResProv" aria-label="第一人选择现居省份"></select></div>
+          <div class="field hh-res-only" hidden><label for="mResCity">现居城市</label><select id="mResCity" aria-label="第一人选择现居城市"></select></div>
+          <div class="field hh-res-only" hidden><label for="mResDist">现居区县</label><select id="mResDist" aria-label="第一人选择现居区县"></select></div>
+          <div class="field hh-lng hh-res-only" hidden><label for="mResLng">经度（可选）</label><input type="number" id="mResLng" aria-label="第一人手动输入现居经度" step="0.01" placeholder="现居地"></div>
         </div>
       </div>
       <div class="hh-card female" id="hhCard2">
         <h3><span id="hhT2">第二人</span> <span id="hhIco2">♀</span></h3>
+        <div class="field hh-name"><label for="fHhName">姓名</label><input type="text" id="fHhName" maxlength="12" placeholder="可选"></div>
         <div class="field hh-sex"><label for="fSex">性别</label><select id="fSex" onchange="hhSexChanged(2)"><option>男</option><option selected>女</option></select></div>
         <div class="form-row">
           <div class="field"><label for="fDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="fDate"></div>
           <div class="field"><label for="fTime">出生时间</label><input type="time" id="fTime" value="09:30"></div>
         </div>
         <div class="birth-group compact" id="fBirthGroup">
-          <div class="group-label">出生地（用于经度校正，内置行政区划经度）</div>
+          <div class="group-label">出生地（用于经度校正，内置行政区划经度）<label class="hh-res-same"><input type="checkbox" id="fResSame" checked onchange="hhResToggle(2)">现居地与出生地相同</label></div>
           <div class="field"><label for="fProv">省份</label><select id="fProv" aria-label="第二人选择省份"></select></div>
           <div class="field"><label for="fCity">城市</label><select id="fCity" aria-label="第二人选择城市"></select></div>
           <div class="field"><label for="fDist">区县</label><select id="fDist" aria-label="第二人选择区县"></select></div>
           <div class="field hh-lng"><label for="fLng">经度（可选）</label><input type="number" id="fLng" aria-label="第二人手动输入经度" step="0.01" placeholder="出生地"></div>
+          <div class="group-label hh-res-only" hidden>现居地（用于方位互证，不参与真太阳时校正）</div>
+          <div class="field hh-res-only" hidden><label for="fResProv">现居省份</label><select id="fResProv" aria-label="第二人选择现居省份"></select></div>
+          <div class="field hh-res-only" hidden><label for="fResCity">现居城市</label><select id="fResCity" aria-label="第二人选择现居城市"></select></div>
+          <div class="field hh-res-only" hidden><label for="fResDist">现居区县</label><select id="fResDist" aria-label="第二人选择现居区县"></select></div>
+          <div class="field hh-lng hh-res-only" hidden><label for="fResLng">经度（可选）</label><input type="number" id="fResLng" aria-label="第二人手动输入现居经度" step="0.01" placeholder="现居地"></div>
         </div>
       </div>
     </div>
@@ -140,6 +152,13 @@ function hhSexChanged(n){
   card.classList.toggle('male',isM); card.classList.toggle('female',!isM);
   const ico=document.getElementById(n===1?'hhIco1':'hhIco2'); if(ico) ico.textContent=isM?'♂':'♀';
 }
+/* 现居地显隐（全局，onchange 与恢复共用）：与出生地相同时收起四项，取消勾选才展开 */
+function hhResToggle(n){
+  const same=document.getElementById(n===1?'mResSame':'fResSame');
+  const group=document.getElementById(n===1?'mBirthGroup':'fBirthGroup');
+  if(!same||!group) return;
+  group.querySelectorAll('.hh-res-only').forEach(el=>{ el.hidden=same.checked; });
+}
 /* 经度获取：手动经度优先，其次区县经 findLng 统一取数，再次城市值；
    省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
    按别人的经度折出来的校正量不著来历，与未校正是两回事。 */
@@ -150,8 +169,36 @@ function hehunLng(lngId,distId,provId,cityId){
   if(d!==''){ const f=findLng(document.getElementById(provId).value, document.getElementById(cityId).value, d); if(f!=null) return f; }
   return findLng(document.getElementById(provId).value, document.getElementById(cityId).value, '');
 }
-/* 称谓对齐占星、紫微双人合盘：卡位定人称、性别各自选（m卡=第一人、f卡=第二人，支持男男、女女等组合） */
-const LA='第一人', LB='第二人';
+/* 下拉项显示名：取选项文本，无选项文本时回落控件值 */
+function optTextOf(id){ const e=document.getElementById(id); if(!e) return ''; const s=e.selectedOptions&&e.selectedOptions[0]; return s?(s.textContent||'').trim():String(e.value||'').trim(); }
+/* 三级地名去重拼接：直辖市省市区同名只留一个；未知地占位不入户名 */
+function placeNameOf(provId,cityId,distId){
+  const parts=[optTextOf(provId),optTextOf(cityId),optTextOf(distId)].filter(pd=>pd&&pd!==UNKNOWN_PLACE);
+  let out='', prev='';
+  parts.forEach(pd=>{ if(pd!==prev) out+=pd; prev=pd; });
+  return out;
+}
+/* 现居地：与出生地相同即返回 null，下游按出生地计；不同则取三级地名与经度。
+   现居经度只作地名补全与展示，真太阳时校正始终用出生地经度。 */
+function residenceOf(t){
+  const same=document.getElementById(t+'ResSame');
+  if(!same||same.checked) return null;
+  const provName=optTextOf(t+'ResProv');
+  if(!provName||provName===UNKNOWN_PLACE) return null;
+  return {province:provName, city:optTextOf(t+'ResCity'), dist:optTextOf(t+'ResDist'),
+    lng:hehunLng(t+'ResLng',t+'ResDist',t+'ResProv',t+'ResCity'),
+    placeName:placeNameOf(t+'ResProv',t+'ResCity',t+'ResDist')};
+}
+/* 称谓：填了姓名即用姓名，未填仍用第一人、第二人；输入区卡题固定不随姓名改 */
+let LA='第一人', LB='第二人';
+function hhCleanName(v){
+  const s=String(v||'').replace(/[<>&"']/g,'').replace(/\s+/g,' ').trim().slice(0,12);
+  return /^\d{4}-\d{1,2}-\d{1,2}$/.test(s) ? '' : s;
+}
+function hhApplyNames(){
+  LA=hhCleanName((document.getElementById('mHhName')||{}).value)||'第一人';
+  LB=hhCleanName((document.getElementById('fHhName')||{}).value)||'第二人';
+}
 // 省级代表点经纬度由 latlng.js 的顶层 PROV_CENTER 统一提供（经纬度统一表，禁止本页自维护）
 /* 两地大圆初始方位角（度，0=正北 顺时针） */
 function geoBearing(lat1,lng1,lat2,lng2){
@@ -232,16 +279,16 @@ function zhiRelSnap(a, b, gans, zhis, monthZ){
   return R;
 }
 /* 由引擎 ganRelations 取"这一对天干"的关系快照（五合含化神、四冲、生克方向、比和）；
- * labels=[LA,LB]（第一人、第二人）使文本标出行动方（生者、克者在前），据此判方向；heText 去前缀后即净文案 */
+ * labels=[LA,LB] 使文本标出行动方（生者、克者在前），据此判方向；heText 去前缀后即净文案 */
 function ganRelSnap(a, b, gans, zhis, monthZ){
-  const pre=LA.length+LB.length;   // 引擎文本前缀长度（"第一人第二人"=6）
+  const pre=LA.length+LB.length;   // 引擎文本前缀长度按当前称谓计
   const list=ganRelations([a,b], {gans:gans, zhis:zhis, monthZ:monthZ}, [LA,LB]);
   const R={he:false, heText:'', heHua:false, chong:false, sheng:null, ke:null, bihe:false};
   (list||[]).forEach(r=>{
     const t=String(r.text||'');
     if(r.cls==='he'){ R.he=true; R.heText=t.slice(pre); R.heHua=/合化/.test(t); }
     else if(r.cls==='gchong') R.chong=true;
-    else if(r.cls==='sheng') R.sheng=t.charAt(pre)===b?'f':'m';   // 引擎文本行动方在前：'第一人第二人甲丁相生'=甲生丁；比对第2参判方向
+    else if(r.cls==='sheng') R.sheng=t.charAt(pre)===b?'f':'m';   // 引擎文本行动方在前：前缀之后首字为生方，比对第2参判方向
     else if(r.cls==='ke'){ if(!R.he) R.ke=t.charAt(pre)===b?'f':'m'; }   // 贪合忘克：五合之干不计克
     else if(r.cls==='bihe') R.bihe=true;
   });
@@ -397,7 +444,7 @@ function specialItems(M,F,allGans,allZhis){
      两造桃花支之关系按六合、三合、相冲、相同分档，均走引擎关系件判，本页只赋分。 */
   const tm=taoHuaZhi(M.yearZhi)||taoHuaZhi(M.dayZhi), tf=taoHuaZhi(F.yearZhi)||taoHuaZhi(F.dayZhi);
   const tmHit=taoHuaHit(M), tfHit=taoHuaHit(F);
-  let tScore, tD=[`${LA}桃花${tm||'无'}${tmHit?'(命带)':''}；${LB}桃花${tf||'无'}${tfHit?'(命带)':''}`];
+  let tScore, tD=[`${LA}桃花${tm||'无'}${tmHit?'（命带）':''}；${LB}桃花${tf||'无'}${tfHit?'（命带）':''}`];
   const thRel=(tm&&tf)?zhiRelSnap(tm,tf,allGans,allZhis,M.CTX.monthZ):null;
   if(tm&&tf&&tm===tf){tScore=9;tD.push('双方桃花同支，情趣相投');}
   else if(thRel&&thRel.he6){tScore=8;tD.push('两造桃花六合，互相吸引');}
@@ -447,10 +494,12 @@ function setEq(a,b){ if(a.size!==b.size) return false; for(const x of a) if(!b.h
  * 末：桃花、神煞、八宅命卦、宫位法、方向表法（缘分之助与方位之术，参看为多）
  * 权重只改"该项在总分里占几份"，不改各项满分，故盘下详情条所报的得分与满分仍照原值。 */
 const HH_SPEC_W={
-  '第一人配偶星':1.4,'第二人配偶星':1.4,'伤官见官':1.2,'女命格局':1.2,
+  '伤官见官':1.2,'女命格局':1.2,
   '喜忌法':1.2,'冲解互济':1.1,'干合绊用':1.0,'合化成格':1.0,'大运同步':1.1,'婚动应期':0.9,'子息缘':0.9,
   '桃花':0.7,'神煞':0.8,'八宅命卦':0.7,'宫位法':0.6,'方向表法':0.6
 };
+/* 配偶星两项的名称随姓名变，权重按项名后缀认；其余诸项仍走固定键 */
+const specWeight=n=>(n===LA+'配偶星'||n===LB+'配偶星')?1.4:(HH_SPEC_W[n]||1);
 /* 太阳时已开而某一造未定出生地：校正是按经度算的，没有经度就无从校正。
    提示语同八字页 SUN_NO_PLACE_MSG 口径，惟本页两造并列，故点名是哪一造缺。 */
 const HH_NO_PLACE_MSG='太阳时校正已开，但出生地未定：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
@@ -461,12 +510,8 @@ function chart(dateId,timeId,lngId,distId,provId,cityId,sexId){
   const dv=document.getElementById(dateId).value, tv=document.getElementById(timeId).value||'12:00';
   const sexEl=document.getElementById(sexId); const sex=(sexEl&&sexEl.value==='女')?'女':'男';
   const lng=hehunLng(lngId,distId,provId,cityId);
-  function optText(id){ const e=document.getElementById(id); if(!e) return ''; const s=e.selectedOptions&&e.selectedOptions[0]; return s?(s.textContent||'').trim():String(e.value||'').trim(); }
-  const provName=optText(provId), cityName=optText(cityId), distName=optText(distId);
-  const parts=[provName,cityName,distName].filter(Boolean);
-  // 出生地三级连续同名去重（直辖市、省直辖县 省=市=区 名相同只留一个，如"北京市北京市北京市"→"北京市"）
-  let birthPlace='', prev='';
-  parts.forEach(pd=>{ if(pd!==prev) birthPlace+=pd; prev=pd; });
+  const provName=optTextOf(provId), cityName=optTextOf(cityId), distName=optTextOf(distId);
+  const birthPlace=placeNameOf(provId,cityId,distId);
   /* 生辰完备性由 buildBaziState 前置拦断（年月日俱全方准出盘），残缺与越界日期一律不出盘。
      出生地未定而太阳时又开者同样拦在出盘之前：没有经度就无从校正，
      两造任一造如此即整盘不出，免得一造按钟面一造按校正而结论无从对齐。 */
@@ -497,6 +542,7 @@ function chart(dateId,timeId,lngId,distId,provId,cityId,sexId){
     yearGan:BZ.yearGan,yearGZ:BZ.yearGan+BZ.yearZ,
     sx:sxOf(BZ.yearZ),yearNaYin:st.cols[0].ny,wx,sex,
     tsInfo:st.tsInfo,lng,birthPlace,province:provName,city:cityName,dist:distName,
+    residence:residenceOf(sexId.charAt(0)),
     notes:[st.dstNote,st.ziNote,axisNote].filter(Boolean)};
 }
 /* 时间折算与流派五项（两造共用）：与八字页同五项、同取值域，一律由本页选项行读入；
@@ -666,6 +712,7 @@ function buildAdvice(items,spec,composite){
 }
 function hehun(){
  try{
+  hhApplyNames();
   const M=chart('mDate','mTime','mLng','mDist','mProv','mCity','mSex'), F=chart('fDate','fTime','fLng','fDist','fProv','fCity','fSex');
   const M1=M.sex==='男', F1=F.sex==='男';   // 性别开关（男=true），命卦、大运顺逆、配偶星、子女星全部由此驱动
   let total=0; const items=[];
@@ -699,8 +746,8 @@ function hehun(){
   if(yg.he){ gD=yg.heHua?2:1; gzNotes.push(yg.heText); }                     // 五合（含化神，真化力全、合绊力半）
   else if(yg.chong){ gD=-2; gzNotes.push('年干'+M.yearGan+F.yearGan+'相冲（四冲），门户相战，两家长辈易不和'); }
   else if(ygm===ygf){ gD=0; gzNotes.push('年干同气（'+M.yearGan+F.yearGan+'）'); }
-  else if(yg.sheng==='m'){ gD=2; gzNotes.push(LA+'年干生'+LB+'年干，第一人体恤第二人，家道顺成'); }
-  else if(yg.sheng==='f'){ gD=2; gzNotes.push(LB+'年干生'+LA+'年干，第二人扶持第一人，相扶有力'); }
+  else if(yg.sheng==='m'){ gD=2; gzNotes.push(LA+'年干生'+LB+'年干，'+LA+'体恤'+LB+'，家道顺成'); }
+  else if(yg.sheng==='f'){ gD=2; gzNotes.push(LB+'年干生'+LA+'年干，'+LB+'扶持'+LA+'，相扶有力'); }
   else if(yg.ke==='m'){ gD=-2; gzNotes.push(LA+'年干克'+LB+'年干，强弱势成，长辈管束意重'); }
   else if(yg.ke==='f'){ gD=-2; gzNotes.push(LB+'年干克'+LA+'年干，两家长辈易生龃龉，须互敬'); }
   else { gD=0; gzNotes.push('年干相制'); }
@@ -732,8 +779,8 @@ function hehun(){
   const mIsMale=M.sex==='男', fIsMale=F.sex==='男';
   if(wM&&wF){
     if(wM===wF){nyScore=11;nyDesc.push('纳音同气，古称争命：两强并立、各不相下，须有意识分主从、留余地，非必凶，然不可恃同而纵');}
-    else if(WX_SHENG[wM]===wF){nyScore=15;nyDesc.push(LA+'命生'+LB+'命，第一人滋养第二人，家和福泽绵长');}
-    else if(WX_SHENG[wF]===wM){nyScore=13;nyDesc.push(LB+'命生'+LA+'命，第二人扶持第一人，相扶得力');}
+    else if(WX_SHENG[wM]===wF){nyScore=15;nyDesc.push(LA+'命生'+LB+'命，'+LA+'滋养'+LB+'，家和福泽绵长');}
+    else if(WX_SHENG[wF]===wM){nyScore=13;nyDesc.push(LB+'命生'+LA+'命，'+LB+'扶持'+LA+'，相扶得力');}
     else if(WX_KE[wM]===wF){
       const shun=mIsMale&&!fIsMale;   // 男克女为顺克（正克），余者为逆
       nyScore=shun?8:6;
@@ -774,8 +821,8 @@ function hehun(){
   }
   else if(dgS.chong){ganScore=9;ganDesc.push(`日干${M.dayGan}${F.dayGan}相冲（四冲），性刚相对、针尖麦芒，须各自抑其锋`);}
   else if(wxM===wxF){ganScore=18;ganDesc.push('日干同五行，志趣相投、性情相近'+(M.dayGan===F.dayGan?'，且为比肩，如友如侣':'，一阴一阳，刚柔互补'));}
-  else if(dgS.sheng==='m'){ganScore=22;ganDesc.push(LA+'日干生'+LB+'日干，第一人疼惜第二人，甘愿付出');}
-  else if(dgS.sheng==='f'){ganScore=21;ganDesc.push(LB+'日干生'+LA+'日干，第二人扶持第一人，甘为后盾之象');}
+  else if(dgS.sheng==='m'){ganScore=22;ganDesc.push(LA+'日干生'+LB+'日干，'+LA+'疼惜'+LB+'，甘愿付出');}
+  else if(dgS.sheng==='f'){ganScore=21;ganDesc.push(LB+'日干生'+LA+'日干，'+LB+'扶持'+LA+'，甘为后盾之象');}
   else if(dgS.ke==='m'){ganScore=12;ganDesc.push(LA+'日干克'+LB+'日干，克者主导、受者随行，久处防强势生怨');}
   else if(dgS.ke==='f'){ganScore=10;ganDesc.push(LB+'日干克'+LA+'日干，克者掌家权，今俗可谐，须受者能容');}
   else {ganScore=13;ganDesc.push('日干无生克，淡而能久');}
@@ -1061,9 +1108,9 @@ function hehun(){
     hhDesc=`跨盘合化成立共${hhPairs.length}处${riCount?`，其中${riCount}处为日干或日支之合、已在六维计分不重计`:''}，计入本项者${scored}处。`+notes.join('；')+'。口径：化神显以 heHuaOK 单源判（透干、得月令、得局），两盘月令任一得气即认；跨盘合化为合婚推衍用法，成格以同盘为正，仅作深缘参看。';
   }
   spec.push(['合化成格',hhScore,10,hhDesc]);
-  // 择偶方向判定（宫位法、方向表法、八宅命卦），核心逻辑：以双方出生地相对方位为"对方实际所在方向"，
-  // 与各自配偶期望方位比对：第一人要找的方向若正指第二人出生地方向、第二人要找的方向若正指第一人，则方向一致、缘深；
-  // 方位偏差(0-180°)越大分数越低。这弥补了宫位法、方向表法只能算"配偶方向"、无法得知"对方来自何方"的盲区。
+  // 择偶方向判定分两层：先天层按出生地互指计分，现居层只作参看并占综合分一成。
+  // 先天层：第一人宜娶方位须指向第二人出生地方向、第二人宜嫁方位须指向第一人出生地方向；偏差越小越合。
+  // 现居层：同一比对改用两造现居地，只出参看分与提示，不改四柱与真太阳时。
   const gwM=gongWeiFa(M,M1), gwF=gongWeiFa(F,F1);
   const zbM=zeOuBiaoFa(M), zbF=zeOuBiaoFa(F);
   const mgM=mingGua(M.mgYear,M1), mgF=mingGua(F.mgYear,F1);
@@ -1090,45 +1137,51 @@ function hehun(){
     if(gw.pos==='夫妻宫') return who+'：本命夫妻星均不现，取夫妻宫'+gw.zhi+'（'+gw.fang+'），主'+place+'的'+gw.fang;
     return who+'：本命'+gw.star+'透于'+gw.pos+'天干，坐支'+gw.zhi+'（'+gw.fang+'）'+((gw.ganFang&&gw.ganFang!=='中央')?'，天干所主'+gw.ganFang+'方为辅':'')+'，主'+place+'的'+gw.fang;
   }
-  /* 出生地相对方位：以双方出生地经纬度（市、县级）测算，男看女、女看男。
-     省已定而市未定者无坐标可取，按未择定处理，不替双方各挑一处省城充数。 */
+  /* 出生地相对方位：先天层判据；省已定而市未定者无坐标可取，按未择定处理。 */
   const _hasBirth = !!(M.province&&F.province);
   const _samePlace = !!(M.province===F.province && M.city===F.city && (M.dist||'')===(F.dist||''));
   const mToF = (_hasBirth&&!_samePlace) ? bearDir(coordOfPerson(M),coordOfPerson(F)) : null;
   const fToM = (_hasBirth&&!_samePlace) ? bearDir(coordOfPerson(F),coordOfPerson(M)) : null;
-  // 宫位法契合度：第一人宜娶方位须指向第二人实居方向、第二人宜嫁方位须指向第一人实居方向；偏差越小越合（纯宫位法，不与方向表法混算）
+  /* 现居地相对方位：只供现居参看层；未另填或同处即无判据。 */
+  const resM=M.residence||{province:M.province,city:M.city,dist:M.dist,placeName:M.birthPlace};
+  const resF=F.residence||{province:F.province,city:F.city,dist:F.dist,placeName:F.birthPlace};
+  const _hasRes=!!(resM.province&&resF.province);
+  const _sameRes=_hasRes&&resM.province===resF.province&&resM.city===resF.city&&(resM.dist||'')===(resF.dist||'');
+  const useRes=!!(M.residence||F.residence);
+  const mToFRes=(useRes&&_hasRes&&!_sameRes)?bearDir(coordOfPerson(resM),coordOfPerson(resF)):null;
+  const fToMRes=(useRes&&_hasRes&&!_sameRes)?bearDir(coordOfPerson(resF),coordOfPerson(resM)):null;
+  const liveSrc=(M.residence&&F.residence)?'双方现居地均另填。':(M.residence?LA+'另填现居地、'+LB+'按其出生地计。':(F.residence?LB+'另填现居地、'+LA+'按其出生地计。':''));
+  // 宫位法（先天层）：第一人宜娶方位须指向第二人出生地方向、第二人宜嫁方位须指向第一人出生地方向；偏差越小越合（纯宫位法，不与方向表法混算）
   let mErr=null, fErr=null, mErrTxt='', fErrTxt='';
   if(gwM&&mToF){ mErr=fangErr(gwM.fang,mToF.fang); mErrTxt=fitTxt(mErr); }
   if(gwF&&fToM){ fErr=fangErr(gwF.fang,fToM.fang); fErrTxt=fitTxt(fErr); }
-  // 宫位法：男女各配偶方位 + 以出生地相对方位判是否"男指女、女指男"
   let gwDesc=gwBody(gwM,LA)+'；'+gwBody(gwF,LB)+'。';
   if(gwM&&gwF&&mToF&&fToM){
-  let jud='';
-  jud+=LA+'宜娶方向'+gwM.fang+'，'+LB+'实居'+LA+'出生地'+(M.birthPlace||'')+'之'+mToF.fang16+'（依两地经纬度测算），偏差'+(mErr==null?'无法比对':mErr+'°')+'，'+mErrTxt+'。';
-  jud+=LB+'宜嫁方向'+gwF.fang+'，'+LA+'实居'+LB+'出生地'+(F.birthPlace||'')+'之'+fToM.fang16+'（依两地经纬度测算），偏差'+(fErr==null?'无法比对':fErr+'°')+'，'+fErrTxt+'。';
-  gwDesc+='方位判定：'+jud+(mErr!=null&&fErr!=null?'（两向平均偏差 '+Math.round((mErr+fErr)/2)+'°，0° 正合、180° 相背）':'');
+    let jud='';
+    jud+=LA+'宜娶方向'+gwM.fang+'，'+LB+'实居'+LA+'出生地'+(M.birthPlace||'')+'之'+mToF.fang16+'（依两地经纬度测算），偏差'+(mErr==null?'无法比对':mErr+'°')+'，'+mErrTxt+'。';
+    jud+=LB+'宜嫁方向'+gwF.fang+'，'+LA+'实居'+LB+'出生地'+(F.birthPlace||'')+'之'+fToM.fang16+'（依两地经纬度测算），偏差'+(fErr==null?'无法比对':fErr+'°')+'，'+fErrTxt+'。';
+    gwDesc+='方位判定：'+jud+(mErr!=null&&fErr!=null?'（两向平均偏差 '+Math.round((mErr+fErr)/2)+'°，0° 正合、180° 相背）':'');
   } else if(gwM&&gwF&&_hasBirth&&_samePlace){
     gwDesc+='双方出生地同处'+(M.birthPlace||'')+'，两盘同址、相对方位恒为零偏差（0° 正合），宫位法无偏差信息量，仅录各自配偶方位作参考。';
   } else if(gwM&&gwF){
     gwDesc+='双方出生地未择定，无法以相对方位判契合，仅录各自配偶方位作参考。';
   }
-  // 方向表法：依农历月日定落宫及对冲方向，再与出生地相对方位互验
+  // 方向表法（先天层）：依农历月日定落宫及对冲方向，再与对方出生地方位互验
   let zbDesc=(zbM?(LA+'：农历'+zbM.month+'月'+zbM.day+'日，配偶可能来自'+zbM.fang+'或'+zbM.chongFang+'（落宫'+zbM.fang+'、对冲'+zbM.chongFang+'）。'):LA+'：农历月日缺失，无法定方位。')
     +(zbF?(LB+'：农历'+zbF.month+'月'+zbF.day+'日，配偶可能来自'+zbF.fang+'或'+zbF.chongFang+'（落宫'+zbF.fang+'、对冲'+zbF.chongFang+'）。'):LB+'：农历月日缺失，无法定方位。');
   if(zbM&&zbF&&mToF&&fToM){
-    const mHit=(zbM.fang===mToF.fang||zbM.chongFang===mToF.fang);   // 第一人方向表是否含第二人实居方向
-    const fHit=(zbF.fang===fToM.fang||zbF.chongFang===fToM.fang);   // 第二人方向表是否含第一人实居方向
-    let verdict = (mHit&&fHit)?'双方方向表皆含对方实居方向，方向契合、互为所寻'
-      : mHit?LA+'方向表含'+LB+'实居方向、'+LB+'表未含'+LA+'，方向半合、宜调和'
-      : fHit?LB+'方向表含'+LA+'实居方向、'+LA+'表未含'+LB+'，方向半合、宜调和'
-      : '双方方向表皆未含对方实居方向，方向未契、须倚命卦调和';
+    const mHit=(zbM.fang===mToF.fang||zbM.chongFang===mToF.fang);   // 第一人方向表是否含第二人出生地方向
+    const fHit=(zbF.fang===fToM.fang||zbF.chongFang===fToM.fang);   // 第二人方向表是否含第一人出生地方向
+    let verdict = (mHit&&fHit)?'双方方向表皆含对方出生地方向，方向契合、互为所寻'
+      : mHit?LA+'方向表含'+LB+'出生地方向、'+LB+'表未含'+LA+'，方向半合、宜调和'
+      : fHit?LB+'方向表含'+LA+'出生地方向、'+LA+'表未含'+LB+'，方向半合、宜调和'
+      : '双方方向表皆未含对方出生地方向，方向未契、须倚命卦调和';
     zbDesc+='互验：'+LB+'实居'+LA+'之'+mToF.fang+'，'+(mHit?'入':'未入')+LA+'方向表（'+zbM.fang+'/'+zbM.chongFang+'）；'+LA+'实居'+LB+'之'+fToM.fang+'，'+(fHit?'入':'未入')+LB+'方向表（'+zbF.fang+'/'+zbF.chongFang+'）。'+verdict+'。';
   } else if(zbM&&zbF&&_hasBirth&&_samePlace){
     zbDesc+='双方出生地同处'+(M.birthPlace||'')+'，方向表相对方位无差，仅录各自落宫方位作参考。';
   }
-  // 打分：男女反指方位偏差越小分越高（10分制）
-  // 无判据者（出生地未择定或同址，相对方位无差可比）只列出参看，标记 active=false 不进聚合，
-  // 免一项恒为中值的死项摊薄全盘区分度；此时盘下详情条仍如实说明"无偏差信息量"。
+  // 先天层打分：出生地方位偏差越小分越高（10分制）
+  // 无判据者（出生地未择定或同址）只列出参看，标记 active=false 不进聚合。
   let gwScore=5, zbScore=5;
   const gwActive=!!(mErr!=null&&fErr!=null);
   if(gwActive){
@@ -1146,7 +1199,7 @@ function hehun(){
   spec.push(['宫位法',gwScore,10,gwDesc,gwActive]);
   spec.push(['方向表法',zbScore,10,zbDesc,zbActive]);
   // 八宅命卦（专业法）：① 命卦年按立春为界（chart 已折算 mgYear）；② 两命卦相配以大游年八星定婚配吉凶（延年生气天医伏位吉，祸害六煞五鬼绝命凶），
-  // 星表引 bazhai.js 的 BAZHAI 唯一真源；③ 命卦只由出生年定、与出生地无关，出生地用于“对方所在方位是否落我命卦吉方”的互证（延年生气天医伏位为吉方）
+  // 星表引 bazhai.js 的 BAZHAI 唯一真源；③ 命卦只由出生年定、与出生地无关，先天层互证按出生地计。
   let mgD=[];
   const YX_SCORE={'延年':10,'生气':9,'天医':9,'伏位':8,'祸害':6,'六煞':5,'五鬼':4,'绝命':3};
   const YX_MEAN={'延年':'主夫妻和合、白头偕老，八宅婚配第一吉星','生气':'主生机旺盛、子孙昌盛，婚姻充满活力','天医':'主健康平安、相互扶持，先婚后爱亦能和睦','伏位':'主平稳相守、细水长流，平淡中见真','祸害':'主口舌是非、琐碎争执，须戒斗嘴、多包容','六煞':'主情波暗损、家宅不宁，须防外缘搅扰','五鬼':'主口角反复、互不信任、脾气相激，须大修相处之道','绝命':'主互损健康运势，纵相吸亦须格外审慎经营'};
@@ -1165,12 +1218,52 @@ function hehun(){
     for(const k in b.xiong){ if(FENGSHUI.GUA_DIR[b.xiong[k]]===g) return {star:k,ji:false}; }
     return null;
   };
+  const fangPair=r=>r.fang16===r.fang?r.fang:r.fang16+'（'+r.fang+'）';
   const mPlaceDir=mToF?baZhaiDirOf(mgM.gua,mToF.fang):null;
   const fPlaceDir=fToM?baZhaiDirOf(mgF.gua,fToM.fang):null;
-  if(mPlaceDir) mgD.push('互证：'+LB+'出生地'+(F.birthPlace||'')+'居'+LA+'出生地之'+mToF.fang16+'（'+mToF.fang+'）方，落'+LA+'命卦'+mPlaceDir.star+'方（'+(mPlaceDir.ji?'吉方':'凶方')+'），'+(mPlaceDir.ji?'对方方位与我命卦相谐，缘上加吉':'对方方位犯我命卦凶方，宜以门主灶布局化解')+'。');
-  if(fPlaceDir) mgD.push(LA+'出生地'+(M.birthPlace||'')+'居'+LB+'出生地之'+fToM.fang16+'（'+fToM.fang+'）方，落'+LB+'命卦'+fPlaceDir.star+'方（'+(fPlaceDir.ji?'吉方':'凶方')+'），'+(fPlaceDir.ji?'命卦与实居互证':'方位与命卦相违，宜以布局化解')+'。');
+  if(mPlaceDir) mgD.push('互证：'+LB+'出生地'+(F.birthPlace||'')+'居'+LA+'出生地'+(M.birthPlace||'')+'之'+fangPair(mToF)+'方，落'+LA+'命卦'+mPlaceDir.star+'方（'+(mPlaceDir.ji?'吉方':'凶方')+'），'+(mPlaceDir.ji?'对方方位与我命卦相谐，缘上加吉':'对方方位犯我命卦凶方，宜以门主灶布局化解')+'。');
+  if(fPlaceDir) mgD.push(LA+'出生地'+(M.birthPlace||'')+'居'+LB+'出生地'+(F.birthPlace||'')+'之'+fangPair(fToM)+'方，落'+LB+'命卦'+fPlaceDir.star+'方（'+(fPlaceDir.ji?'吉方':'凶方')+'），'+(fPlaceDir.ji?'命卦与实居互证':'方位与命卦相违，宜以布局化解')+'。');
+  mgD.push('先天层方位互证以出生地计；真正布局须以现居住宅坐向定。');
   if(!mPlaceDir&&!fPlaceDir) mgD.push('双方出生地未择定或同处一地，方位与命卦无从互证，以大游年婚配星为准。');
   spec.push(['八宅命卦',mgScore,10,mgD.join('')]);
+  /* 现居参看层：只出参看分与提示，占综合分一成；无判据项不进聚合，全层无判据时综合分按先天计。 */
+  const live=[];
+  let mErrRes=null, fErrRes=null;
+  if(gwM&&mToFRes) mErrRes=fangErr(gwM.fang,mToFRes.fang);
+  if(gwF&&fToMRes) fErrRes=fangErr(gwF.fang,fToMRes.fang);
+  const liveActive1=!!(mErrRes!=null&&fErrRes!=null);
+  const liveScore1=liveActive1?Math.max(1,Math.min(10,Math.round(10*(2-(mErrRes+fErrRes)/180)/2))):0;
+  let liveDesc1='双方现居地未另填或同处，现居互指无偏差信息量。';
+  if(liveActive1){
+    liveDesc1=liveSrc+'以现居地互指：'+LA+'宜娶方向'+gwM.fang+'，'+LB+'现居'+((resF.placeName)||'现居地')+'之'+mToFRes.fang16+'，偏差'+mErrRes+'°，'+fitTxt(mErrRes)+'；'
+      +LB+'宜嫁方向'+gwF.fang+'，'+LA+'现居'+((resM.placeName)||'现居地')+'之'+fToMRes.fang16+'，偏差'+fErrRes+'°，'+fitTxt(fErrRes)+'。';
+  }
+  live.push(['现居互证',liveScore1,10,liveDesc1,liveActive1]);
+  let liveActive2=!!(zbM&&zbF&&mToFRes&&fToMRes), liveScore2=0;
+  let liveDesc2='双方现居地未另填或同处，现居方向表无相对方位可比。';
+  if(liveActive2){
+    const mHit=(zbM.fang===mToFRes.fang||zbM.chongFang===mToFRes.fang);
+    const fHit=(zbF.fang===fToMRes.fang||zbF.chongFang===fToMRes.fang);
+    liveScore2=(mHit&&fHit)?9:(mHit||fHit)?7:4;
+    liveDesc2=liveSrc+'以现居地互验：'+LB+'现居'+LA+'之'+mToFRes.fang+'，'+(mHit?'入':'未入')+LA+'方向表；'+LA+'现居'+LB+'之'+fToMRes.fang+'，'+(fHit?'入':'未入')+LB+'方向表。'+((mHit&&fHit)?'双方方向表皆含对方现居方向。':((mHit||fHit)?'一方方向表含对方现居方向。':'双方方向表皆未含对方现居方向。'));
+  }
+  live.push(['现居方向表',liveScore2,10,liveDesc2,liveActive2]);
+  const mPlaceRes=mToFRes?baZhaiDirOf(mgM.gua,mToFRes.fang):null;
+  const fPlaceRes=fToMRes?baZhaiDirOf(mgF.gua,fToMRes.fang):null;
+  const liveActive3=!!(mPlaceRes||fPlaceRes);
+  let liveScore3=0, liveDesc3='双方现居地未另填或同处，八宅方位无从互证。';
+  if(liveActive3){
+    const jiN=(mPlaceRes&&mPlaceRes.ji?1:0)+(fPlaceRes&&fPlaceRes.ji?1:0);
+    liveScore3=jiN===2?9:jiN===1?7:5;
+    liveDesc3=liveSrc
+      +(mPlaceRes?(LB+'现居'+((resF.placeName)||'现居地')+'居'+LA+'现居'+((resM.placeName)||'现居地')+'之'+fangPair(mToFRes)+'方，落'+LA+'命卦'+mPlaceRes.star+'方（'+(mPlaceRes.ji?'吉方':'凶方')+'）。'):'')
+      +(fPlaceRes?(LA+'现居'+((resM.placeName)||'现居地')+'居'+LB+'现居'+((resF.placeName)||'现居地')+'之'+fangPair(fToMRes)+'方，落'+LB+'命卦'+fPlaceRes.star+'方（'+(fPlaceRes.ji?'吉方':'凶方')+'）。'):'');
+  }
+  live.push(['现居八宅',liveScore3,10,liveDesc3,liveActive3]);
+  const HH_LIVE_W={'现居互证':1,'现居方向表':1,'现居八宅':0.6};
+  let liveTotal=0, liveMax=0;
+  live.forEach(it=>{ if(it[4]===false) return; const w=HH_LIVE_W[it[0]]||1; liveTotal+=it[1]*w; liveMax+=it[2]*w; });
+  const liveScore100=liveMax?liveTotal/liveMax*100:null;
   // 大运同步（动态层）：引 baziDaYunSteps 唯一真源排双方大运（阳男阴女顺、阴男阳女逆，3日折1年），
   // 按十年年龄带对齐，逐带比双方运干支五行走向：同气相并为同频（境遇同步、同甘共苦），相生为相扶，相克为异向。
   const curYear=xjNowDate().getFullYear();
@@ -1290,17 +1383,19 @@ function hehun(){
    * active=false 者指本盘缺判据（如两造同址则相对方位无从比对、方位表法亦无差可判），
    * 此类项只列出参看、不进聚合：否则一项恒为中值的死项会稀释全盘区分度（实测方位两项标准差为 0）。 */
   let specTotal=0, specMax=0, specWSum=0;
-  spec.forEach(it=>{ const w=(HH_SPEC_W[it[0]]||1);
+  spec.forEach(it=>{ const w=specWeight(it[0]);
     if(it[4]===false) return;
     specTotal+=it[1]*w; specMax+=it[2]*w; specWSum+=w; });
   const specScore100 = specMax? specTotal/specMax*100 : 0;
-  const SPEC_W=0.3;                                   // 专项分析计入综合分的权重
-  const composite = Math.round((1-SPEC_W)*total + SPEC_W*specScore100);   // 综合分 = 六维归一×0.7 + 专项归一×0.3（均先归一到、100再加权）
+  const SPEC_W=0.3;                                   // 先天层内专项分析的权重
+  const natalScore = Math.round((1-SPEC_W)*total + SPEC_W*specScore100);   // 先天分 = 六维×0.7 + 专项×0.3
+  const LIVE_W=0.1;                                   // 现居参看层占综合分的权重
+  const composite = liveScore100==null ? natalScore : Math.round((1-LIVE_W)*natalScore + LIVE_W*liveScore100);
   const specShown = Math.round(specTotal/specWSum*10)/10;                 // 盘面展示取有效项加权均值（口径与聚合一致）
   const specShownMax = Math.round(specMax/specWSum*10)/10;
   const adv=buildAdvice(items,spec,composite);
-  render(M,F,items,total,spec,composite,specShown,specShownMax,SPEC_W,adv);
-  window.__hh={M,F,items,total,spec,composite,specTotal:specShown,specMax:specShownMax,specW:SPEC_W,AM:A_M,AF:A_F,xiScore:xiScore,mgM,mgF,adv:adv};
+  window.__hh={M,F,items,total,spec,composite,natalScore,live,liveScore:liveScore100,liveW:LIVE_W,specTotal:specShown,specMax:specShownMax,specW:SPEC_W,AM:A_M,AF:A_F,xiScore:xiScore,mgM,mgF,adv:adv};
+  render(M,F,items,total,spec,composite,specShown,specShownMax,SPEC_W,adv,live,liveScore100,LIVE_W,natalScore);
  }catch(e){ if(e&&e.hehunInput){ document.getElementById('out').innerHTML='<p class="notice">'+e.msg+'</p>'; } else { document.getElementById('out').innerHTML='<p class="notice">合婚出错：'+(e.message||e)+'</p>'; } }
 }
 function wxStr(wx){return Object.keys(wx).map(k=>`${k}${wx[k]}`).join(' ');}
@@ -1353,7 +1448,11 @@ function renderTable(cols){
    两态，量值由内圈数字、盘心与盘下详情承担，不塞进弧的墨色里。 */
 const HH_C=220, HH_OUT=179, HH_IN=120, HH_CORE=78, HH_ARC=188, HH_HIT=194,
       HH_LAB_OUT=206, HH_LAB_IN=148, HH_T0=171, HH_T1=177, HH_P0=82, HH_P1=116;
-function hhShort(name){ return name.replace(/（[^）]*）/g,'').slice(0,2); }
+function hhShort(name){
+  const s=name.replace(/（[^）]*）/g,'');
+  if(/配偶星$/.test(s)){ const who=s.slice(0,-3); return who.length<=2?who:who.slice(0,2); }
+  return s.slice(0,2);
+}
 function hhMid(i,step){ return i*step+step/2; }
 /* 盘心水位取该项得分率：得 0 分即无色，满分即满盘，与盘心第三行的得分率同源 */
 function hhCoreFill(it){ return WHEEL.coreFill(HH_CORE, it[1]/it[2]*100); }
@@ -1421,7 +1520,15 @@ function hhDetailHTML(it){
   return `<span class="wd-t">${it[0]}</span>　${it[1]} 分（满分 ${it[2]}）　得 ${Math.round(it[1]/it[2]*100)}%`
     +`<span class="wd-br"></span>${body}`;
 }
-function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv){
+function liveHTML(live,liveScore,liveW){
+  const rows=(live||[]).map(it=>{
+    const on=it[4]!==false;
+    return `<div class="hh-live-row"><div class="hh-live-h"><span class="hh-live-name">${it[0]}</span><span class="hh-live-score">${on?it[1]+' / '+it[2]:'无判据'}</span></div><p class="hh-live-txt">${it[3]}</p></div>`;
+  }).join('');
+  const tail=liveScore==null?'现居地未另填或同处，综合分按先天计。':'现居参看分 '+Math.round(liveScore)+'，只占综合分一成。';
+  return `<div class="hh-live"><div class="hh-live-cap">现居盘（参看，占综合分 ${Math.round(liveW*100)}%）</div>${rows}<div class="sub-note">现居层只作参看：以两造现居地互指与八宅城市方位为据，不改四柱与真太阳时；真正布局须以现居住宅坐向定。${tail}</div></div>`;
+}
+function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv,live,liveScore,liveW,natalScore){
   // 等级锚定（须与评分模型对齐）：六维全中性盘≈63-66 分（生肖13/20＋年柱6/10＋纳音≈11/15＋日干18/25＋日支12/20＋互补6/10），
   // 故中性盘必须落“中等”，上等门槛 75 显著高于中性、中上 68 为有吉无凶、下等 45 起为真有冲克、45 以下方论缘薄。
   // 档位判定统一由 hhLvIndex(composite) 给出，等级名与色值取 HH_LV_META 单源。
@@ -1439,14 +1546,16 @@ function render(M,F,items,total,spec,composite,specTotal,specMax,specW,adv){
     <div class="hh-charts">${pillarTbl(M,LA+' '+sexIco(M.sex))}${pillarTbl(F,LB+' '+sexIco(F.sex))}</div>
     ${noteHTML}
     <div class="hh-total" style="--hhc:${color}">
-      <div class="hh-total-cap">综合分（六维70%+专项加权${Math.round(specW*100)}%=100）</div>
+      <div class="hh-total-cap">综合分（先天${Math.round((1-liveW)*100)}%＋现居参看${Math.round(liveW*100)}%${liveScore==null?'，现居未填按先天计':''}）</div>
       <div class="hh-total-score" style="color:${color}">得分<b>${composite}</b></div>
       <div class="hh-total-lv" style="color:${color}">${level}</div>
+      <div class="hh-total-sub">先天分 ${natalScore}${liveScore==null?'':'　现居参看 '+Math.round(liveScore)}</div>
     </div>
     <div class="wheel-wheels">
-      <div class="wheel-block"><h4>六维合婚盘（${total} 分，权重 ${Math.round((1-specW)*100)}%）</h4>${hhWheel('items',items)}<div class="wheel-detail" id="hhitemsDetail">${hhDetailHTML(items[0])}</div></div>
-      <div class="wheel-block"><h4>专项分析盘（${specTotal} 分，权重 ${Math.round(specW*100)}%）</h4>${hhWheel('spec',spec)}<div class="wheel-detail" id="hhspecDetail">${hhDetailHTML(spec[0])}</div></div>
+      <div class="wheel-block"><h4>六维合婚盘（${total} 分，先天层内权重 ${Math.round((1-specW)*100)}%）</h4>${hhWheel('items',items)}<div class="wheel-detail" id="hhitemsDetail">${hhDetailHTML(items[0])}</div></div>
+      <div class="wheel-block"><h4>专项分析盘（${specTotal} 分，先天层内权重 ${Math.round(specW*100)}%）</h4>${hhWheel('spec',spec)}<div class="wheel-detail" id="hhspecDetail">${hhDetailHTML(spec[0])}</div></div>
     </div>
+    ${liveHTML(live,liveScore,liveW)}
     ${hhAdviceHTML(adv)}
   </div>`;
   /* 两盘默认落在第一项：盘心、加粗弧与盘下详情须与详情条的初始文本同指一处 */
@@ -1474,8 +1583,8 @@ window.addEventListener('load', function () {
     (function initHehunBirth(){
       const SAVE='hehunForm';
       let saved={}; try{ saved=JSON.parse(localStorage.getItem(SAVE))||{}; }catch(e){ saved={}; }
-      function persist(){ try{ const s={}, g=t=>document.getElementById(t); ['m','f'].forEach(x=>{ s[x+'Date']=g(x+'Date').value; s[x+'Time']=g(x+'Time').value; s[x+'Sex']=g(x+'Sex')?g(x+'Sex').value:''; s[x+'Prov']=g(x+'Prov').value; s[x+'City']=g(x+'City').value; s[x+'Dist']=g(x+'Dist').value; s[x+'Lng']=g(x+'Lng').value; }); localStorage.setItem(SAVE,JSON.stringify(s)); }catch(e){} }
-      function bindPersist(t){ ['Date','Time','Lng'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener(k==='Lng'?'input':'change', persist); }); const sxE=document.getElementById(t+'Sex'); if(sxE) sxE.addEventListener('change', persist); }
+      function persist(){ try{ const s={}, g=t=>document.getElementById(t); ['m','f'].forEach(x=>{ s[x+'HhName']=g(x+'HhName').value; s[x+'Date']=g(x+'Date').value; s[x+'Time']=g(x+'Time').value; s[x+'Sex']=g(x+'Sex')?g(x+'Sex').value:''; s[x+'Prov']=g(x+'Prov').value; s[x+'City']=g(x+'City').value; s[x+'Dist']=g(x+'Dist').value; s[x+'Lng']=g(x+'Lng').value; s[x+'ResSame']=g(x+'ResSame').checked; s[x+'ResProv']=g(x+'ResProv').value; s[x+'ResCity']=g(x+'ResCity').value; s[x+'ResDist']=g(x+'ResDist').value; s[x+'ResLng']=g(x+'ResLng').value; }); localStorage.setItem(SAVE,JSON.stringify(s)); }catch(e){} }
+      function bindPersist(t){ ['Date','Time','Lng','ResLng'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener(k.endsWith('Lng')?'input':'change', persist); }); ['Sex','ResSame'].forEach(k=>{ const el=document.getElementById(t+k); if(el) el.addEventListener('change', persist); }); const nm=document.getElementById(t+'HhName'); if(nm){ nm.addEventListener('input',()=>{ hhApplyNames(); persist(); }); nm.addEventListener('change',()=>{ if(window.__hh) hehun(); }); } }
       function buildCity(dId,pId,cId,t){
         const sp=document.getElementById(pId),sc=document.getElementById(cId),sd=document.getElementById(dId);
         if(!sp||!sc||!sd) return;
@@ -1489,8 +1598,9 @@ window.addEventListener('load', function () {
         if(sv&&PROV[sv]) trio.set(sv, cv, dv);
         ready=true;
       }
-      function restoreOther(t){           // 日期、时间、经度、性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）
-        const g=id=>document.getElementById(id), dt=g(t+'Date'), tm=g(t+'Time'), lg=g(t+'Lng'), sx=g(t+'Sex');
+      function restoreOther(t){           // 姓名、日期、时间、经度、性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）
+        const g=id=>document.getElementById(id), dt=g(t+'Date'), tm=g(t+'Time'), lg=g(t+'Lng'), sx=g(t+'Sex'), nm=g(t+'HhName');
+        if(saved[t+'HhName']) nm.value=saved[t+'HhName'];
         if(saved[t+'Date']) dt.value=saved[t+'Date'];
         if(saved[t+'Time']) tm.value=saved[t+'Time'];
         if(saved[t+'Lng']) lg.value=saved[t+'Lng'];
@@ -1499,8 +1609,18 @@ window.addEventListener('load', function () {
       }
       buildCity('mDist','mProv','mCity','m');
       buildCity('fDist','fProv','fCity','f');
+      buildCity('mResDist','mResProv','mResCity','mRes');
+      buildCity('fResDist','fResProv','fResCity','fRes');
       restoreOther('m');
       restoreOther('f');
+      function restoreRes(t){
+        const same=document.getElementById(t+'ResSame');
+        if(same&&saved[t+'ResSame']===false) same.checked=false;
+        hhResToggle(t==='m'?1:2);
+      }
+      restoreRes('m');
+      restoreRes('f');
+      hhApplyNames();
     })();
     (function(){
       const p=new URLSearchParams(window.location.search);
@@ -1525,7 +1645,7 @@ window.addEventListener('load', function () {
       if(lngEl&&lng) lngEl.value=lng;
       const note=document.createElement('div');
       note.className='sub-note hh-frombazi';
-      note.textContent='已从八字命盘自动填入'+(sx==='女'||sx==='0'?LB:LA)+'出生信息（含出生地、经度、真太阳时）；请填写另一人资料后点击"开始合婚"。';
+      note.textContent='已从八字命盘自动填入'+(sx==='女'||sx==='0'?LB:LA)+'出生信息（含出生地、经度）；请填写另一人资料后点击"开始合婚"。';
       const host=document.querySelector('.hehun-forms')||document.querySelector('.page');
       if(host) host.parentNode.insertBefore(note, host.nextSibling);
     })();
@@ -1540,12 +1660,14 @@ window.addEventListener('load', function () {
         s+=`五行统计：${wxStr(C.wx)}　生肖${C.sx}　年命纳音${C.yearNaYin}\n`;
         return s;
       }
-      let s=`${LA}（${M.sex}）八字：${M.pillars.join(' ')}（属${M.sx}，日主${M.dayGan}）\n${LB}（${F.sex}）八字：${F.pillars.join(' ')}（属${F.sx}，日主${F.dayGan}）\n合婚综合分（六维70%+专项加权${Math.round(h.specW*100)}%=100）：得分${h.composite}\n六维核心分：满分100，核心${h.total}；专项参考：满分${h.specMax}，小计${h.specTotal}\n各维度评分：\n`;
+      let s=`${LA}（${M.sex}）八字：${M.pillars.join(' ')}（属${M.sx}，日主${M.dayGan}）\n${LB}（${F.sex}）八字：${F.pillars.join(' ')}（属${F.sx}，日主${F.dayGan}）\n合婚综合分（先天${Math.round((1-h.liveW)*100)}%＋现居参看${Math.round(h.liveW*100)}%${h.liveScore==null?'，现居未填按先天计':''}）：得分${h.composite}，先天分${h.natalScore}${h.liveScore==null?'':'，现居参看'+Math.round(h.liveScore)}\n六维核心分：满分100，核心${h.total}；专项参考：满分${h.specMax}，小计${h.specTotal}\n各维度评分：\n`;
       h.items.forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
       s+=dump(M,LA)+dump(F,LB);
       // 专项分析完整输出：六项全部经由 h.spec 逐一列出（含宫位法、方向表法、八宅命卦、喜忌、神煞、财官桃花），保证复制数据与页面模块完整一致
       s+='专项分析：\n';
       (h.spec||[]).forEach(it=>{ s+=`${it[0]}：${it[1]}/${it[2]} ： ${it[3]}\n`; });
+      s+='现居参看（占综合分'+Math.round(h.liveW*100)+'%）：\n';
+      (h.live||[]).forEach(it=>{ s+=`${it[0]}：${it[4]===false?'无判据':it[1]+'/'+it[2]} ： ${it[3]}\n`; });
       // 综合建议完整输出：等级总结、亮点、短板、相处之道，与页面模块一致（命理依据已并入各维度评分行，不重复输出）
       if(h.adv){
         s+=`综合建议（等级总结：${h.adv.level}）\n`;
