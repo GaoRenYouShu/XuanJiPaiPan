@@ -1,4 +1,4 @@
-/* 周易经文速查共享组件（六爻、梅花、测字、铁板四处共用）
+/* 六十四卦经文检索共享组件（六爻、梅花、测字、铁板四处共用）
    依赖：assets/gua.js（TRIGRAMS、_ORDER、_TBL、palaceInfo）、
         assets/jingwen.js（GUA_CI、GUA_TUAN、GUA_DAXIANG、YAO_CI、YAO_XIAOXIANG）
    对外接口：window.jwRenderInto(宿主) 渲染六十四卦经文卡并绑定检索与展开；
@@ -86,7 +86,7 @@
     var d = document.createElement('details');
     d.className = (opt.cls || 'mh-ref') + ' jw-ref';
     d.id = opt.id || 'jwRef';
-    d.innerHTML = '<summary>' + (opt.summary || '周易经文速查（卦辞 彖传 大象 爻辞）') + '</summary>' +
+    d.innerHTML = '<summary>' + (opt.summary || '六十四卦经文检索') + '</summary>' +
       '<div class="jw-host"></div>';
     var ai = document.getElementById('aiMount');
     if (ai && ai.parentNode === page) page.insertBefore(d, ai); else page.appendChild(d);

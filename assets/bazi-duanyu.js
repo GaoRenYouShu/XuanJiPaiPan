@@ -1062,7 +1062,7 @@
     for (const e of list) {
       if (!_matchWhen(e.when, BZ, A, CTX)) continue;
       let say = e.say.replace(/\{dayGan\}/g, BZ.dayGan).replace(/\{yong\}/g, yong).replace(/\{ws\}/g, ws);
-      out.push({ say, src: e.src, key: e.key, w: e.w || 1 });
+      out.push({ say, src: e.src, key: e.key, w: e.w || 1, when: e.when });
     }
     return out;
   }
@@ -1189,7 +1189,7 @@
       say = say.replace(/\{heZhu\}/g, (stepCtx && stepCtx.tianHeDiHeZhu) || '某柱'); // 天合地合柱名落字
       say = say.replace(/流年/g, LVL); // 层级词随步替换：大运、流年、流月、流日 各自称号，不串层
       say = say.replace(/\{cs\}/g, (stepCtx && stepCtx.cs) || '病'); // 十二长生占位：按本步真实长生（病、死）落字，杜绝"病地"写死而实系死地
-      out.push({ say, src: e.src, key: e.key, w: e.w || 1 });
+      out.push({ say, src: e.src, key: e.key, w: e.w || 1, when: e.when });
     }
     return out;
   }

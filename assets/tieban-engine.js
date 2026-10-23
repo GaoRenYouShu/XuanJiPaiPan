@@ -30,7 +30,7 @@ var KE_MIN = 15;
 var FENG_PER_KE = 15;
 var KE_TOTAL = 120;
 var KE_NAMES = ['初刻','一刻','二刻','三刻','四刻','五刻','六刻','七刻'];
-var FUMU_LABEL = {'both':'父母双全','father':'先亡父','mother':'先亡母','none':'父母俱违'};
+var FUMU_LABEL = {'both':'父母双全','father':'先亡父','mother':'先亡母','none':'父母俱逝'};
 var MARRY_LABEL = {'unmarried':'未婚','married':'已婚','divorced':'离异','widowed':'丧偶'};
 var CHILD_LABEL = {0:'无或迟得',1:'1 个',2:'2 个',3:'3 个',4:'4 个',5:'5 个及以上'};
 /* 五鼠遁：日上起时（早子时 23 点时柱按当日日干遁子；与 bazi-data.js wuShuDun 同式，回落用） */
@@ -204,8 +204,9 @@ function compute(y, m, d, zhiH, ke, sex, opt){
   /* 早子时 23 点：时柱按当日日干五鼠遁子 */
   var earlyOverride = (ziMode === 'early' && ph === 23);
 
-  /* 第五步 盘面时辰刻分：取校正后时刻所归；考刻采用某刻时按 panKe 覆盖刻、按 panFeng 覆盖分金 */
-  var zk = zhiKeOfAbsMin(ph*60 + pmi);
+  /* 第五步 盘面时辰刻分：取校正后、子时归一前的时刻所归，刻位不因归日而前移；
+     考刻采用某刻时按 panKe 覆盖刻、按 panFeng 覆盖分金 */
+  var zk = zhiKeOfAbsMin(th*60 + tmi);
   var keOut = (opt.panKe != null && !isNaN(opt.panKe) && opt.panKe >= 0 && opt.panKe <= 7) ? Math.floor(opt.panKe) : zk.ke;
   var fengOut = (opt.panFeng != null && !isNaN(opt.panFeng) && opt.panFeng >= 0 && opt.panFeng <= FENG_PER_KE-1) ? Math.floor(opt.panFeng) : (pmi % KE_MIN);
 
@@ -316,15 +317,28 @@ function pickText(catKey, H, key, nth){
   return {t:it.t, b:it.b, no:it.no || (idx+1), catName:cat.name, idx:idx, poolLen:pool.length};
 }
 
-/* 大运、流年条文：以干支太玄数与岁次作种子 */
-function pickStepText(catKey, gz, seedNum, nth){
+/* 大运、流年条文：以干支太玄数与岁次作种子。
+ * ctx 可带 age 与 birthGZ：条文带 age 者只在岁段内取，带 benming 者只在流年干支与命主年柱相同时取；
+ * 过滤后无条即回落全库，免岁段过窄时取不出条。 */
+function pickStepText(catKey, gz, seedNum, nth, ctx){
   var T = window.TIEBAN_TIAOWEN;
   var cat = T && T.cats && T.cats[catKey];
   if(!cat || !cat.items || !cat.items.length) return null;
+  var pool = cat.items;
+  if(ctx && (ctx.age != null || ctx.birthGZ)){
+    var f = [];
+    for(var i=0;i<pool.length;i++){
+      var row = pool[i];
+      if(row.benming && ctx.birthGZ && gz !== ctx.birthGZ) continue;
+      if(row.age && ctx.age != null && (ctx.age < row.age[0] || ctx.age > row.age[1])) continue;
+      f.push(row);
+    }
+    if(f.length) pool = f;
+  }
   var base = txOf(gz) * 131 + (seedNum % 97) * 17;
   var seed = ((base % 100003) * 7919 + nth * 104729 + 20011) % 100003;
-  var idx = seed % cat.items.length;
-  var it = cat.items[idx];
+  var idx = seed % pool.length;
+  var it = pool[idx];
   return {t:it.t, b:it.b, no:it.no || (idx+1), catName:cat.name};
 }
 

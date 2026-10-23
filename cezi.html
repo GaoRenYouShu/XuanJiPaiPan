@@ -68,7 +68,7 @@ function czFillCat(){
   sel.innerHTML=Object.keys(CEZI_DATA.CATS).map(k=>`<option value="${k}">${CEZI_DATA.CATS[k].name}</option>`).join('');
 }
 let LAST=null;
-/* 周易经文速查：首次展开才渲染；重排按上一次折叠态重建 */
+/* 六十四卦经文检索：首次展开才渲染；重排按上一次折叠态重建 */
 function czRenderJw(){
   const d=document.getElementById('czJwRef');
   if(d&&d.open&&window.jwRenderInto) jwRenderInto(d.querySelector('.jw-host'));
@@ -220,7 +220,7 @@ function show(r){
   </details>`;
   const jwBox=`
   <details class="cz-fold cz-jwref" id="czJwRef" ontoggle="czRenderJw()">
-    <summary>周易经文速查（卦辞 彖传 大象 爻辞）</summary>
+    <summary>六十四卦经文检索</summary>
     <div class="info-box"><div class="jw-host"></div></div>
   </details>`;
   document.getElementById('out').innerHTML =
