@@ -46,7 +46,8 @@
         <div class="field f-date"><label for="xzDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzDate"></div>
         <div class="field f-time"><label for="xzTime">出生时间</label><input type="time" id="xzTime" value="12:00"></div>
         <div class="field f-sex"><label for="xzSex">性别</label><select id="xzSex"><option>男</option><option>女</option></select></div>
-        <div class="field f-tz"><label for="xzTz">时区</label><input type="number" id="xzTz" value="8" step="0.5" oninput="xzTzTouch()"></div>
+        <div class="field f-tz" id="xzTzField"><label for="xzTz">时区</label><input type="number" id="xzTz" value="8" step="0.5"></div>
+        <div class="field chk" id="xzLocalDstField" hidden><input type="checkbox" id="xzLocalDst"><label for="xzLocalDst">当地夏令时（钟面减1小时）</label></div>
         <div class="field f-house"><label for="xzHouse">宫位制</label><select id="xzHouse"><option value="whole">整宫制</option><option value="placidus">Placidus 分宫制</option></select></div>
         <div class="xz-btns">
           <button class="btn" onclick="xzPai()">排盘</button>
@@ -60,13 +61,15 @@
         <div class="field"><label for="xzLon">手动经度</label><input type="text" id="xzLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
         <div class="field"><label for="xzLat">手动纬度</label><input type="text" id="xzLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
       </div>
+      <div class="sub-note" id="xzOverseasNote" hidden></div>
       <label class="xz-rel-chk"><input type="checkbox" id="xzRel" onchange="document.getElementById('xzRel2').style.display=this.checked?'':'none'"> 双人合盘（勾选后填第二人出生资料，追加 Synastry 比较盘、Composite 组合盘、Davison 时空中点盘）</label>
       <div class="xz-rel2" id="xzRel2" style="display:none">
         <div class="xz-row-inputs">
           <div class="field f-date"><label for="xzBDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="xzBDate"></div>
           <div class="field f-time"><label for="xzBTime">出生时间</label><input type="time" id="xzBTime" value="12:00"></div>
           <div class="field f-sex"><label for="xzBSex">性别</label><select id="xzBSex"><option>男</option><option>女</option></select></div>
-          <div class="field f-tz"><label for="xzBTz">时区</label><input type="number" id="xzBTz" value="8" step="0.5" oninput="xzTzTouch()"></div>
+          <div class="field f-tz" id="xzBTzField" hidden><label for="xzBTz">时区</label><input type="number" id="xzBTz" value="8" step="0.5"></div>
+          <div class="field chk" id="xzBLocalDstField" hidden><input type="checkbox" id="xzBLocalDst"><label for="xzBLocalDst">当地夏令时（钟面减1小时）</label></div>
         </div>
         <div class="birth-group compact">
           <div class="group-label">出生地（用于经纬度与上升星座，手填经纬度优先）</div>
@@ -76,9 +79,10 @@
           <div class="field"><label for="xzBLon">手动经度</label><input type="text" id="xzBLon" inputmode="decimal" placeholder="正负东西经" title="东经填正数、西经填负数；支持十进制与度分：-74、-74°30′、W74、西经74 均可；留空按出生地取数"></div>
           <div class="field"><label for="xzBLat">手动纬度</label><input type="text" id="xzBLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
         </div>
+        <div class="sub-note" id="xzBOverseasNote" hidden></div>
       </div>
     </div>
-    <div class="sub-note">提示：上升星座对出生时间与地点极敏感。境内出生请选择出生地（自动填经纬度）；境外出生请在右侧手动填写经纬度（经纬两项都填）：<b>东经、北纬填正数，西经、南纬填负数</b>（如西经18°填 -18、南纬28°填 -28），也支持度分与 W、S 字母写法（如 -74°30′、W74、南纬28），并同步把时区改为出生地当地时间；手动经纬度优先于出生地取数。</div>
+    <div class="sub-note">提示：上升星座对出生时间与地点极敏感。境内出生请选择出生地（自动填经纬度）；境外出生请在右侧手动填写经纬度（经纬两项都填）：<b>东经、北纬填正数，西经、南纬填负数</b>（如西经18°填 -18、南纬28°填 -28），也支持度分与 W、S 字母写法（如 -74°30′、W74、南纬28）；择境外城市即自动带出当地时区，手动经纬度仍优先于出生地取数。</div>
     <div id="out"></div>
   </div>
 </div>
@@ -86,6 +90,7 @@
 <script defer src="assets/lunar.js"></script>
 <script defer src="assets/app.js"></script>
 <script defer src="assets/wheel.js"></script>
+<script defer src="assets/xuanji-lib.js"></script>
 <script defer src="assets/ai.js"></script>
 <script defer src="assets/latlng.js"></script>
 <script defer src="assets/astronomy-engine.min.js"></script>
@@ -99,10 +104,16 @@ let __xz = '';
 function xzBindPlace(pre){
   const sp=document.getElementById(pre+'Prov'),sc=document.getElementById(pre+'City'),sd=document.getElementById(pre+'Dist');
   if(!sp||!sc||!sd) return null;
-  return fillPlaceTrio(sp, sc, sd, null);
+  return fillPlaceTrio(sp, sc, sd, xzSyncOverseas);
 }
-/* 时区框手改即置位 __xzTzTouched：此后境外城市不再自动回填时区，以用户值为准 */
-function xzTzTouch(){ window.__xzTzTouched=true; }
+/* 境外时区与当地夏令时：主盘与第二人各一组，随所选城市显隐并回填时区；
+   境内收起，说明行由共享件按城市写出。 */
+function xzSyncOverseas(){
+  syncOverseasFields({ prov:'xzProv', city:'xzCity', lng:'xzLon', tz:'xzTz', dst:'xzLocalDst',
+    tzField:'xzTzField', dstField:'xzLocalDstField', note:'xzOverseasNote' });
+  syncOverseasFields({ prov:'xzBProv', city:'xzBCity', lng:'xzBLon', tz:'xzBTz', dst:'xzBLocalDst',
+    tzField:'xzBTzField', dstField:'xzBLocalDstField', note:'xzBOverseasNote' });
+}
 /* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
    缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
 const XZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。星盘的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
@@ -112,7 +123,7 @@ const XZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市
    度分混合写法（如 -74°30′ 折算 -74.5）按“最后一段是分、再有第三段是秒”的顺序折算。 */
 /* 境外手填经纬度的健壮性提示与核对回显：
    半填（另一项回退出生地成混合坐标）、无效输入（非数字或超出经度±180、纬度±90，已忽略并回退）、
-   疑似境外经度（中国范围约东经73°–135°之外）而时区仍为默认 UTC+8 时提醒核对；
+   疑似境外经度（中国范围约东经73°–135°之外）而时区未定（仍按东八区）时提醒核对；
    手动经纬完整生效时回显半球标注（东经、西经、北纬、南纬），供用户核对正负号是否填反 */
 function xzCoordWarn(lonV, latV, lon, lat, tz, place, bads){
   const parts = [];
@@ -122,7 +133,7 @@ function xzCoordWarn(lonV, latV, lon, lat, tz, place, bads){
     parts.push(`手动经纬度仅填写了${lonV !== '' ? '经度' : '纬度'}，另一项按出生地${place ? '（' + place + '）' : ''}取数，坐标为混合来源，上升与宫位将因此偏移，请补全或清空重填`);
   }
   if(tz === 8 && (lon < 73 || lon > 135)){
-    parts.push('手动经度在中国范围（约东经73°–135°）之外，疑似境外出生而时区仍为UTC+8，请把时区改为出生地当地时间，否则行星落座与上升将整体偏移');
+    parts.push('手动经度在中国范围（约东经73°–135°）之外，疑似境外出生而时区未定，请在出生地组选择境外城市以带出当地时区，否则行星落座与上升将整体偏移');
   }
   let hint = '';
   if(lonV !== '' && latV !== '' && !bads2.length){
@@ -414,14 +425,18 @@ function xzPai(){
   const dv = document.getElementById('xzDate').value;
   const tv = document.getElementById('xzTime').value;
   if(!dv || !tv){ alert('请选择出生日期与时间'); return; }
-  const [y,m,d] = dv.split('-').map(Number);
-  const [hh,mm] = tv.split(':').map(Number);
+  let [y,m,d] = dv.split('-').map(Number);
+  let [hh,mm] = tv.split(':').map(Number);
   const sex = document.getElementById('xzSex').value;
   const system = document.getElementById('xzHouse').value === 'placidus' ? 'placidus' : 'whole';
-  /* 时区取值口径：__xzTzTouched 置位以用户手改值为准，未手改且择定境外城市取城市标准时区 */
-  const tzEl0 = document.getElementById('xzTz');
-  const xzTzTouched = !!window.__xzTzTouched;
-  const tz = parseFloat(tzEl0.value) || 8;
+  /* 境外时刻口径：时区即星历的时间基准，由共享件按出生地取数，境内固定东八区；
+     当地夏令时先把钟面折回标准时，再入星历。 */
+  const _pto = placeTimeOptsOf({ prov:'xzProv', city:'xzCity', tz:'xzTz', dst:'xzLocalDst' });
+  const tzUse = _pto.overseas ? _pto.tz : 8;
+  if(_pto.localDst){
+    const ld = shiftClockDay(y, m, d, hh, mm, -60);
+    y = ld.y; m = ld.m; d = ld.d; hh = ld.h; mm = ld.mi;
+  }
   /* 经纬度：手动输入优先（境外出生），留空按出生地省市区联动取数（区县级经度、缺则省级中心）。
      宽容解析（十进制、度分、度分秒/W E S N/中文半球前缀），无效值忽略回退出生地并警示 */
   const lonV = document.getElementById('xzLon').value, latV = document.getElementById('xzLat').value;
@@ -435,11 +450,7 @@ function xzPai(){
     const c = coordOf(prov, document.getElementById('xzCity').value, document.getElementById('xzDist').value);
     if(lon === null) lon = c.lng;
     if(lat === null) lat = c.lat;
-    /* 择定境外城市而时区框未手改时，时区随城市带出，本盘即用带出值 */
-    const ovt = tzOffsetOf(prov, document.getElementById('xzCity').value);
-    if(ovt != null && !xzTzTouched) document.getElementById('xzTz').value = String(ovt);
   }
-  const tzUse = parseFloat(document.getElementById('xzTz').value) || 8;
   if(lon === null || lat === null){
     document.getElementById('out').innerHTML = '<p class="notice">' + XZ_NO_PLACE_MSG + '</p>';
     return;
@@ -465,9 +476,15 @@ function xzPai(){
     const bdv = document.getElementById('xzBDate').value;
     const btv = document.getElementById('xzBTime').value;
     if(!bdv || !btv){ alert('请填写第二人出生日期与时间'); return; }
-    const [by,bm,bd] = bdv.split('-').map(Number);
-    const [bhh,bmm] = btv.split(':').map(Number);
-    const bTz = parseFloat(document.getElementById('xzBTz').value) || 8;
+    let [by,bm,bd] = bdv.split('-').map(Number);
+    let [bhh,bmm] = btv.split(':').map(Number);
+    /* 第二人同一口径：时区与当地夏令时按第二人出生地取数 */
+    const _ptoB = placeTimeOptsOf({ prov:'xzBProv', city:'xzBCity', tz:'xzBTz', dst:'xzBLocalDst' });
+    const tzUseB = _ptoB.overseas ? _ptoB.tz : 8;
+    if(_ptoB.localDst){
+      const ld = shiftClockDay(by, bm, bd, bhh, bmm, -60);
+      by = ld.y; bm = ld.m; bd = ld.d; bhh = ld.h; bmm = ld.mi;
+    }
     const blonV = document.getElementById('xzBLon').value, blatV = document.getElementById('xzBLat').value;
     const bprov = document.getElementById('xzBProv').value;
     const blonP = xjCoordParse(blonV, false), blatP = xjCoordParse(blatV, true);
@@ -478,8 +495,6 @@ function xzPai(){
       const c = coordOf(bprov, document.getElementById('xzBCity').value, document.getElementById('xzBDist').value);
       if(blon === null) blon = c.lng;
       if(blat === null) blat = c.lat;
-      const bovt = tzOffsetOf(bprov, document.getElementById('xzBCity').value);
-      if(bovt != null) document.getElementById('xzBTz').value = String(bovt);
     }
     if(blon === null || blat === null){
       document.getElementById('out').innerHTML = '<p class="notice">第二人' + XZ_NO_PLACE_MSG + '</p>';
@@ -489,9 +504,9 @@ function xzPai(){
       const bc = document.getElementById('xzBCity').value, bd2 = document.getElementById('xzBDist').value;
       placeB = bd2 ? `${bprov} ${bc} ${bd2}` : `${bprov} ${bc}`;
     }
-    bWarn = xzCoordWarn(blonV, blatV, blon, blat, bTz, placeB, bBads);
+    bWarn = xzCoordWarn(blonV, blatV, blon, blat, tzUseB, placeB, bBads);
     try{
-      chartB = xz_compute(by, bm, bd, bhh, bmm, document.getElementById('xzBSex').value, bTz, blon, blat, system);
+      chartB = xz_compute(by, bm, bd, bhh, bmm, document.getElementById('xzBSex').value, tzUseB, blon, blat, system);
     }catch(e){
       console.error('[第二盘]', e); document.getElementById('out').innerHTML = '<p class="notice">第二人排盘失败，请核对输入后重试。</p>';
       return;
@@ -1689,8 +1704,9 @@ window.addEventListener('load', function () {
     renderChrome('xingzhan.html');
     xzBindPlace('xz');
     xzBindPlace('xzB');
+    xzSyncOverseas();
     xzPai();
-    mountAI(function(){ return __xz || ''; }, '占星术', { share:{ page:"xingzhan", title:"在线占星排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ xzPai(); }); } } });
+    mountAI(function(){ return __xz || ''; }, '占星术', { share:{ page:"xingzhan", title:"在线占星排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ xzSyncOverseas(); xzPai(); }); } } });
   }, 0);
 });
 </script>

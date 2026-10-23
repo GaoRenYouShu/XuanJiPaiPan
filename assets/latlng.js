@@ -282,8 +282,10 @@ function overseasInfo(ids){
   const tzEl = g('tz');
   let tz = ov.tz;
   if(tzEl){
-    /* 换城市即回填该城自带偏移；同一城市重复进入不回填，保留用户手改值 */
-    if(window.__ovLastCity !== ov.c){ window.__ovLastCity = ov.c; tzEl.value = String(ov.tz); }
+    /* 换城市即回填该城自带偏移；同一城市重复进入不回填，保留用户手改值。
+       上一城记在时区框自身，不用全局变量：一页两造或主副盘各有各的时区框，
+       全局变量会让两处互相认作同一城市而漏回填。 */
+    if(tzEl.dataset.lastCity !== ov.c){ tzEl.dataset.lastCity = ov.c; tzEl.value = String(ov.tz); }
     if(tzEl.value !== '') tz = parseFloat(tzEl.value);
   }
   const ml = (g('lng')||{}).value;
@@ -304,6 +306,41 @@ function overseasNoteText(info){
     + '，真太阳时基准经线取' + baseTxt + '（出生地经度 ' + lngTxt
     + '，可在经度框改填）；当地当日若行夏令时，请勾选当地夏令时。中国夏令时只 1986 至 1991 年，境外不自动折算。'
     + '未收城市可择邻近城市，再按实际出生地改填经度。';
+}
+/* 境外时刻口径总口：全站各页出生地组共用这一份，基准经线与当地夏令时只此一处。
+   ids 给 prov、city、lng、tz、dst 五框；返回 { overseas, baseLng, localDst, lng, tz, city }。
+   境外 baseLng 取城市时区乘 15 度，localDst 取当地夏令时勾选；境内返回东经 120 度与不折。 */
+function placeTimeOptsOf(ids){
+  const info = overseasInfo(ids || {});
+  if(!info) return { overseas:false, baseLng:120, localDst:false, lng:null, tz:null, city:'' };
+  return { overseas:true, baseLng:info.tz*15, localDst:!!info.localDst, lng:info.lng, tz:info.tz, city:info.city };
+}
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时两项、写说明行并收起中国夏令时；
+   境内还原。ids 除五框外给 tzField、dstField、note、chinaDstField 四个容器编号。
+   opts.enabled 为假（非日期模式）时全收起，opts.chinaDst 为假时不还原中国夏令时。 */
+function syncOverseasFields(ids, opts){
+  opts = opts || {};
+  ids = ids || {};
+  const info = opts.enabled === false ? null : overseasInfo(ids);
+  const on = !!info;
+  const show = function(k, v){
+    const id = ids[k]; if(!id) return;
+    const el = document.getElementById(id); if(el) el.hidden = !v;
+  };
+  show('tzField', on); show('dstField', on);
+  if(ids.chinaDstField) show('chinaDstField', !on && opts.chinaDst !== false);
+  const box = ids.note ? document.getElementById(ids.note) : null;
+  if(box){ box.hidden = !on; if(on) box.textContent = overseasNoteText(info); }
+  return info;
+}
+/* 境外时区下拉选项：全站一份。半时区与四分之一时区一并列出，值取小时数，负值为西时区。 */
+function overseasTzOptions(){
+  const out=[];
+  for(let q=-48;q<=56;q++){
+    const t=q/4;
+    out.push('<option value="'+t+'">UTC'+(t>=0?'+':'')+t+'</option>');
+  }
+  return out.join('');
 }
 /* 出生地三级下拉的填充与取值，全站各页共用这一份。
    三级一律以"未知地"起首，且默认停在该档：定地是出盘的前提而非可略的修饰，

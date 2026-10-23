@@ -55,6 +55,13 @@
           <div class="field"><label for="mCity">城市</label><select id="mCity" aria-label="第一人选择城市"></select></div>
           <div class="field"><label for="mDist">区县</label><select id="mDist" aria-label="第一人选择区县"></select></div>
           <div class="field hh-lng"><label for="mLng">经度（可选）</label><input type="number" id="mLng" aria-label="第一人手动输入经度" step="0.01" placeholder="出生地"></div>
+          <!-- 境外出生两项：第一人出生地选到境外城市时由 hhSyncOverseas 挂出。
+               时区偏移按所选城市回填、可手改，当地夏令时按出生地当年实况自判 -->
+          <div class="field" id="mTzField" hidden><label for="mTz">时区偏移</label>
+            <select id="mTz" aria-label="第一人选择境外出生地标准时区偏移" onchange="hhSyncOverseas()"></select></div>
+          <div class="field chk" id="mLocalDstField" hidden><input type="checkbox" id="mLocalDst"><label for="mLocalDst">当地夏令时（钟面减1小时）</label></div>
+          <!-- 境外出生地口径说明：按所选城市写出时区与基准经线，境内收起 -->
+          <div class="sub-note" id="mOverseasNote" hidden></div>
           <div class="group-label hh-res-only" hidden>现居地（用于方位互证，不参与真太阳时校正）</div>
           <div class="field hh-res-only" hidden><label for="mResProv">现居省份</label><select id="mResProv" aria-label="第一人选择现居省份"></select></div>
           <div class="field hh-res-only" hidden><label for="mResCity">现居城市</label><select id="mResCity" aria-label="第一人选择现居城市"></select></div>
@@ -76,6 +83,13 @@
           <div class="field"><label for="fCity">城市</label><select id="fCity" aria-label="第二人选择城市"></select></div>
           <div class="field"><label for="fDist">区县</label><select id="fDist" aria-label="第二人选择区县"></select></div>
           <div class="field hh-lng"><label for="fLng">经度（可选）</label><input type="number" id="fLng" aria-label="第二人手动输入经度" step="0.01" placeholder="出生地"></div>
+          <!-- 境外出生两项：第二人出生地选到境外城市时由 hhSyncOverseas 挂出。
+               时区偏移按所选城市回填、可手改，当地夏令时按出生地当年实况自判 -->
+          <div class="field" id="fTzField" hidden><label for="fTz">时区偏移</label>
+            <select id="fTz" aria-label="第二人选择境外出生地标准时区偏移" onchange="hhSyncOverseas()"></select></div>
+          <div class="field chk" id="fLocalDstField" hidden><input type="checkbox" id="fLocalDst"><label for="fLocalDst">当地夏令时（钟面减1小时）</label></div>
+          <!-- 境外出生地口径说明：按所选城市写出时区与基准经线，境内收起 -->
+          <div class="sub-note" id="fOverseasNote" hidden></div>
           <div class="group-label hh-res-only" hidden>现居地（用于方位互证，不参与真太阳时校正）</div>
           <div class="field hh-res-only" hidden><label for="fResProv">现居省份</label><select id="fResProv" aria-label="第二人选择现居省份"></select></div>
           <div class="field hh-res-only" hidden><label for="fResCity">现居城市</label><select id="fResCity" aria-label="第二人选择现居城市"></select></div>
@@ -515,6 +529,15 @@ const specWeight=n=>(n===LA+'配偶星'||n===LB+'配偶星')?HH_W.spouse:(HH_W.s
 /* 太阳时已开而某一造未定出生地：校正是按经度算的，没有经度就无从校正。
    提示语同八字页 SUN_NO_PLACE_MSG 口径，惟本页两造并列，故点名是哪一造缺。 */
 const HH_NO_PLACE_MSG='太阳时校正已开，但出生地未定：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
+/* 境外出生地界面同步：两造各一套时区与当地夏令时，各按本造所选城市显隐并写说明行。
+   中国夏令时 hhDst 两造共用，一造境外另一造境内时仍要留着给境内那造选，
+   故此处不传 chinaDstField，两造混合婚配不收起该行。 */
+function hhSyncOverseas(){
+  syncOverseasFields({prov:'mProv', city:'mCity', lng:'mLng', tz:'mTz', dst:'mLocalDst',
+    tzField:'mTzField', dstField:'mLocalDstField', note:'mOverseasNote'});
+  syncOverseasFields({prov:'fProv', city:'fCity', lng:'fLng', tz:'fTz', dst:'fLocalDst',
+    tzField:'fTzField', dstField:'fLocalDstField', note:'fOverseasNote'});
+}
 /* 一造之盘：四柱装配一律委托 buildBaziState（bazi-app.js 的共用装配入口，八字页与姓名学页同用此件），
  * 故夏令时折算、太阳时三档、子时日界、年界三口径、空亡两基准、神煞全口径俱与八字页同源，
  * 本页不自走折算链。五行统计与命卦另算，均取引擎单源。 */
@@ -531,7 +554,11 @@ function chart(dateId,timeId,lngId,distId,provId,cityId,sexId){
   if(lng==null && opts.sunMode!=='off'){
     const err=new Error(HH_NO_PLACE_MSG); err.hehunInput=true; err.msg=HH_NO_PLACE_MSG; throw err;
   }
-  const st=buildBaziState({date:dv, time:tv, sex:sex==='女'?0:1, lng, ...opts});
+  /* 境外时刻口径按本造自身的出生地取：时区框以造前缀拼出，两造各取一套不互染。
+     境外盘不走中国夏令时，dst 传 off，基准经线与当地夏令时取共享件的值 */
+  const _pto=placeTimeOptsOf({prov:provId, city:cityId, lng:lngId, tz:sexId.charAt(0)+'Tz', dst:sexId.charAt(0)+'LocalDst'});
+  const st=buildBaziState({date:dv, time:tv, sex:sex==='女'?0:1, lng, ...opts,
+    dst:_pto.overseas?'off':opts.dst, baseLng:_pto.baseLng, localDst:_pto.localDst});
   const BZ=st.BZ;
   const pillars=BZ.gans.map((g,i)=>g+BZ.zhis[i]);
   const year=st.lunar.getSolar().getYear(), mm=st.lunar.getSolar().getMonth(), dd=st.lunar.getSolar().getDay();
@@ -1605,10 +1632,12 @@ window.addEventListener('load', function () {
            校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
            回填期间不落存档：初始填充与恢复本身不是用户改动，写进去会把上次存的出生地抹成未知地。 */
         let ready=false;
-        const trio=fillPlaceTrio(sp, sc, sd, ()=>{ if(ready) persist(); });
+        const tzSel=document.getElementById(t+'Tz');
+        if(tzSel) tzSel.innerHTML=overseasTzOptions();
+        const trio=fillPlaceTrio(sp, sc, sd, ()=>{ if(ready) persist(); hhSyncOverseas(); });
         sd.onchange=()=>{ if(ready) persist(); };
         const sv=saved[t+'Prov'], cv=saved[t+'City'], dv=saved[t+'Dist'];
-        if(sv&&PROV[sv]) trio.set(sv, cv, dv);
+        if(sv&&(PROV[sv]||isOverseasProv(sv))) trio.set(sv, cv, dv);
         ready=true;
       }
       function restoreOther(t){           // 姓名、日期、时间、经度、性别：有历史恢复已填，无历史不动（保留 defaultToday 填的今天）

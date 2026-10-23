@@ -82,7 +82,10 @@
           <div class="field"><label for="bDist">区县</label><select id="bDist"></select></div>
           <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" step="0.01" placeholder="出生地"></div>
           <div class="field chk hh-true"><input type="checkbox" id="bTrue"><label for="bTrue">真太阳时校正</label></div>
+          <div class="field" id="bTzOffField" hidden><label for="bTzOff">时区偏移</label><select id="bTzOff" aria-label="选择境外出生地标准时区偏移" onchange="zmOverseasChange()"></select></div>
+          <div class="field chk" id="bLocalDstField" hidden><input type="checkbox" id="bLocalDst" onchange="zmOverseasChange()"><label for="bLocalDst">当地夏令时（钟面减1小时）</label></div>
         </div>
+        <p class="sub-note" id="bOverseasNote" hidden></p>
         <div id="xiOut"></div>
       </div>
     </details>
@@ -398,8 +401,18 @@ function buildUserBZ(){
   if(lng!=null && isNaN(lng)) lng=null;
   /* 出生地未定即无经度可校：此时按钟面标准时排盘，并在结论旁注明未校，
      不回退东经 120 度，那是替用户坐到别人家的经度上折一道，折了多少盘面一字不著。 */
-  let adj={y,m,d,h,mi};
-  if(useTrue && lng!=null){ const ts=trueSolarTime(y,m,d,h,mi,lng); adj={y:ts.y,m:ts.m,d:ts.d,h:ts.h,mi:ts.mi}; }
+  const _pto=placeTimeOptsOf({prov:'bProv',city:'bCity',lng:'bLng',tz:'bTzOff',dst:'bLocalDst'});
+  let cy=y,cm=m,cd=d,ch=h,cmi=mi;
+  if(!_pto.overseas && typeof applyDstCorrection==='function'){
+    const ds=applyDstCorrection(cy,cm,cd,ch,cmi,'auto');
+    if(ds.applied){ cy=ds.y; cm=ds.m; cd=ds.d; ch=ds.h; cmi=ds.mi; }
+  }
+  if(_pto.localDst && typeof shiftClockDay==='function'){
+    const ld=shiftClockDay(cy,cm,cd,ch,cmi,-60);
+    cy=ld.y; cm=ld.m; cd=ld.d; ch=ld.h; cmi=ld.mi;
+  }
+  let adj={y:cy,m:cm,d:cd,h:ch,mi:cmi};
+  if(useTrue && lng!=null){ const ts=trueSolarTime(cy,cm,cd,ch,cmi,lng,'true',_pto.overseas?_pto.baseLng:120); adj={y:ts.y,m:ts.m,d:ts.d,h:ts.h,mi:ts.mi}; }
   const zadj=adjustZiShi(adj.y,adj.m,adj.d,adj.h,adj.mi,ziMode); adj=zadj;
   const solar=Solar.fromYmdHms(adj.y,adj.m,adj.d,adj.h,adj.mi,0);
   const lunar=solar.getLunar();
@@ -413,6 +426,17 @@ function buildUserBZ(){
     timeStem=tg[0]; timeZ='子';
   }
   return {sex, dayGan, gans:[yearGZ[0],monthGZ[0],dayGZ[0],timeStem], zhis:[yearZ,monthZ,dayZ,timeZ], monthZ, yearGZ:yearGZ[0]+yearZ, sunOff:useTrue&&lng==null};
+}
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时并写说明行；
+   境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
+function zmSyncOverseas(){
+  syncOverseasFields({prov:'bProv',city:'bCity',lng:'bLng',tz:'bTzOff',dst:'bLocalDst',
+    tzField:'bTzOffField',dstField:'bLocalDstField',note:'bOverseasNote'});
+}
+/* 境外时区或当地夏令时改动后按新口径重算喜用神 */
+function zmOverseasChange(){
+  zmSyncOverseas();
+  if(document.getElementById('bDate').value && USER_READY) calcUserXi();
 }
 function calcUserXi(){
   const out=document.getElementById('xiOut');
@@ -849,11 +873,15 @@ window.addEventListener('load', function () {
     (function initUserBirth(){
       const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
       if(!sp) return;
+      const tzSel=document.getElementById('bTzOff');
+      if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
       ZR_USER_PLACE=fillPlaceTrio(sp, sc, sd, ()=>{
         CITY_LNG=findLng(sp.value, sc.value, sd.value);
+        zmSyncOverseas();
       });
+      zmSyncOverseas();
       /* 出生信息改即重算，免精择沿用上一份喜用神 */
-      ['bDate','bTime','bSex','bZi','bProv','bCity','bDist','bLng','bTrue'].forEach(function(id){
+      ['bDate','bTime','bSex','bZi','bProv','bCity','bDist','bLng','bTrue','bTzOff','bLocalDst'].forEach(function(id){
         const el=document.getElementById(id); if(!el) return;
         el.addEventListener('change', function(){
           if(!document.getElementById('bDate').value){ USER_READY=false; return; }

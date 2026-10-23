@@ -166,9 +166,6 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .page-bazi .page{margin:0;padding:var(--sp-4)}
   .page-bazi .opts-row{padding:0;gap:var(--sp-2)}
   .page-bazi .form-row{padding:0;gap:var(--sp-2);margin-bottom:var(--sp-2)}
-  /* 本页窄屏的表单行行内间距取 --sp-2，出生地组内的行内间距随之同档，
-     同一页之内不再并存 8 与 12 两值；组内三等分的扣除量在 ≤640 段随档走。 */
-  .page-bazi .birth-group,.page-bazi .birth-group.compact{gap:var(--sp-2)}
   .page-bazi .yun-tbl th,.page-bazi .yun-tbl td{padding:3px 4px}
   /* 岁运引动表在移动端列宽契约内（按内容定宽、长列撞上限换行）：用忌列忌喜语句一行较长，
      内容层设上限迫其折行，列随内容收窄到表格自有方案的 5em 档，免挤占关键引动列的首屏宽。 */
@@ -369,19 +366,14 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 .page-bazi .ai-block .btn{border-radius:0}
 
-.page-bazi .birth-group,.page-bazi .birth-group.compact{background:transparent;border:0;border-top:1px solid var(--bz-line);padding:var(--sp-3) 0 0}
+.page-bazi .birth-group,.page-bazi .birth-group.compact{padding-bottom:0}
 
-/* 双盘对照虚线框内例外：第二盘出生地组补框内底部呼吸（主规则底缘 0 是为贴区块顶用的，虚线框内须对称） */
-/* 双盘对照虚线框内例外：第二盘出生地组补框内底部呼吸，取占星实测值 --sp-3（占星 birth-group 底 padding 12px） */
+/* 双盘对照虚线框内例外：第二盘出生地组补底呼吸，取 --sp-3 */
 .page-bazi .dual-rel2 .birth-group,.page-bazi .dual-rel2 .birth-group.compact{padding-bottom:var(--sp-3)}
 
 /* 双盘对照整块：对照无源的模式（四柱、名人、已存）由 dualRelSync 挂 is-off 整块撤下。
    这三个模式勾选也不出第二盘，勾选行文字又长，留下只把该行挤成窄高条。 */
 .page-bazi .dual-wrap.is-off{display:none}
-
-@media(max-width:640px){.page-bazi .birth-group,.page-bazi .birth-group.compact{padding-top:var(--sp-2)}}
-
-.page-bazi .birth-group .group-label{color:var(--bz2)}
 
 /* 断语余条折叠：首屏之外的古籍断语收在此件内，点开全数展开，不删不截。
    开合由原生 checkbox 与 label 承担（无脚本），盒子移出文档流以免占位，正文留连前后文自然接续。 */

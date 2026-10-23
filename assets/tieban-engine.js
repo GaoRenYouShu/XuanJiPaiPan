@@ -154,26 +154,36 @@ function compute(y, m, d, zhiH, ke, sex, opt){
   var fengIn = (opt.feng == null || isNaN(opt.feng) || opt.feng < 0 || opt.feng > FENG_PER_KE-1) ? 0 : Math.floor(opt.feng);
   var keIn = (ke == null || isNaN(ke) || ke < 0 || ke > 7) ? 0 : Math.floor(ke);
   var lng = (opt.lng == null || !isFinite(opt.lng)) ? null : Number(opt.lng);
+  /* 境外出生：baseLng 为当地标准时区基准子午线，localDst 为当地夏令时；
+     两项由共享件 placeTimeOptsOf 给出，境内缺省东经 120 度与不折 */
+  var baseLng = (opt.baseLng == null || !isFinite(opt.baseLng)) ? null : Number(opt.baseLng);
+  var localDst = !!opt.localDst;
   var zhiIdxIn = zhiIdxOf(zhiH);
   var clockRange = absMinLabel(zhiH*60 + keIn*KE_MIN);
 
   /* 第一步 钟面时刻（刻分合成绝对分钟，子时后半刻顺推至次日） */
   var ck = clockOf(y, m, d, zhiH, keIn, fengIn);
 
-  /* 第二步 夏令时折算（1986 年至 1991 年夏令时段钟面较标准时快一小时） */
+  /* 第二步 夏令时折算（1986 年至 1991 年夏令时段钟面较标准时快一小时；境外不适用） */
   var sy = ck.y, sm = ck.m, sd = ck.d, sh = ck.h, smi = ck.mi;
   var dstApplied = false, dstAmbiguous = false, dstNote = '';
-  if(typeof applyDstCorrection === 'function'){
+  if(baseLng == null && typeof applyDstCorrection === 'function'){
     var ds = applyDstCorrection(sy, sm, sd, sh, smi, dstMode);
     dstApplied = !!ds.applied; dstAmbiguous = !!ds.ambiguous; dstNote = ds.note || '';
     if(ds.applied){ sy = ds.y; sm = ds.m; sd = ds.d; sh = ds.h; smi = ds.mi; }
+  }
+  if(localDst && typeof shiftClockDay === 'function'){
+    var ld = shiftClockDay(sy, sm, sd, sh, smi, -60);
+    var p2 = function(n){ return ('0'+n).slice(-2); };
+    dstNote = (dstNote ? dstNote + '；' : '') + '当地夏令时：钟面 ' + p2(sh) + ':' + p2(smi) + ' 折为标准时 ' + p2(ld.h) + ':' + p2(ld.mi);
+    sy = ld.y; sm = ld.m; sd = ld.d; sh = ld.h; smi = ld.mi; dstApplied = true;
   }
 
   /* 第三步 真太阳时校正（对出生时刻的物理修正，先于子时日界） */
   var ty = sy, tm = sm, td = sd, th = sh, tmi = smi;
   var usedTrue = false, adj = 0, adjE = 0, adjLng = 0;
   if(sunMode !== 'off' && lng != null && typeof trueSolarTime === 'function' && isFinite(lng)){
-    var ts = trueSolarTime(sy, sm, sd, sh, smi, lng, sunMode === 'mean' ? 'mean' : 'true');
+    var ts = trueSolarTime(sy, sm, sd, sh, smi, lng, sunMode === 'mean' ? 'mean' : 'true', baseLng == null ? 120 : baseLng);
     usedTrue = true; adj = ts.totalAdj; adjE = ts.E; adjLng = ts.lngAdj;
     ty = ts.y; tm = ts.m; td = ts.d; th = ts.h; tmi = ts.mi;
   }

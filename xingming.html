@@ -126,6 +126,13 @@
         <div class="field"><label for="nmBCity">城市</label><select id="nmBCity"></select></div>
         <div class="field"><label for="nmBDist">区县</label><select id="nmBDist"></select></div>
         <div class="field hh-lng"><label for="nmBLng">经度（可选）</label><input type="number" id="nmBLng" step="0.01" placeholder="出生地"></div>
+        <!-- 境外出生两项：出生地选到境外城市时由 nmSyncOverseas 挂出。
+             时区偏移按所选城市回填、可手改，当地夏令时按出生地当年实况自判 -->
+        <div class="field" id="nmBTzField" hidden><label for="nmBTz">时区偏移</label>
+          <select id="nmBTz" aria-label="选择境外出生地标准时区偏移"></select></div>
+        <div class="field chk" id="nmBLocalDstField" hidden><input type="checkbox" id="nmBLocalDst"><label for="nmBLocalDst">当地夏令时（钟面减1小时）</label></div>
+        <!-- 境外出生地口径说明：按所选城市写出时区与基准经线，境内收起 -->
+        <div class="sub-note" id="nmBOverseasNote" hidden></div>
         <div class="field chk hh-true"><input type="checkbox" id="nmBTrue"><label for="nmBTrue">真太阳时校正</label></div>
       </div>
       <!-- 提交行：“开始分析”独占一行，排在所有出生信息之后（第二名时辰已并入上方字段流） -->
@@ -232,9 +239,26 @@ var NM_XI_NOTE='';
 var NM_PLACE=null;
 /* 出生地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地折过一道，
    校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时两项并写说明行，境内还原。
+   显隐与文案由共享件 syncOverseasFields 一处判 */
+function nmSyncOverseas(){
+  syncOverseasFields({prov:'nmBProv', city:'nmBCity', lng:'nmBLng', tz:'nmBTz', dst:'nmBLocalDst',
+    tzField:'nmBTzField', dstField:'nmBLocalDstField', note:'nmBOverseasNote'});
+}
+/* 境外时刻参数：时区、基准子午线与当地夏令时一律取共享件 placeTimeOptsOf 的结果；
+   境内返回东经 120 度与不折 */
+function nmPlaceTimeOpts(){
+  return placeTimeOptsOf({prov:'nmBProv', city:'nmBCity', lng:'nmBLng', tz:'nmBTz', dst:'nmBLocalDst'});
+}
 function nmBirthInit(){
   var sp=document.getElementById('nmBProv'), sc=document.getElementById('nmBCity'), sd=document.getElementById('nmBDist');
-  NM_PLACE=fillPlaceTrio(sp, sc, sd, null);
+  var tz=document.getElementById('nmBTz');
+  if(tz) tz.innerHTML=overseasTzOptions();
+  NM_PLACE=fillPlaceTrio(sp, sc, sd, nmSyncOverseas);
+  sp.addEventListener('change', nmSyncOverseas);
+  sc.addEventListener('change', nmSyncOverseas);
+  if(tz) tz.addEventListener('change', nmSyncOverseas);
+  nmSyncOverseas();
 }
 function nmBirthLng(){
   var manual=document.getElementById('nmBLng').value.trim();
@@ -256,8 +280,10 @@ function nmXiCalc(){
   var lng=nmBirthLng(), lngNote='';
   var sunMode=nmSunModeOf(lng, useTrue);
   if(useTrue && sunMode==='off') lngNote=NM_NO_PLACE_NOTE;
+  var _pto=nmPlaceTimeOpts();
   var built=buildBaziState({date:d, time:t, sex:document.getElementById('nmSex').value==='女'?0:1,
-    ziMode:document.getElementById('nmBZi').value, sunMode:sunMode, lng:lng, kongAxis:'day'});
+    ziMode:document.getElementById('nmBZi').value, sunMode:sunMode, lng:lng, kongAxis:'day',
+    dst:_pto.overseas?'off':'auto', baseLng:_pto.baseLng, localDst:_pto.localDst});
   var An=getAnalysis(built.BZ);
   var s=An.synthesis||{};
   LINK_XI=(s.xiWxEff&&s.xiWxEff.length)?s.xiWxEff.slice():[];
@@ -275,9 +301,11 @@ function nmXiCalc2(){
   if(!d||!t){ LINK_XI2=[]; LINK_JI2=[]; NM_XI_NOTE2=''; return; }
   var useTrue=document.getElementById('nmBTrue').checked;
   var lng=nmBirthLng();
+  var _pto=nmPlaceTimeOpts();
   try{
     var built=buildBaziState({date:d, time:t, sex:document.getElementById('nmSex').value==='女'?0:1,
-      ziMode:document.getElementById('nmBZi').value, sunMode:nmSunModeOf(lng, useTrue), lng:lng, kongAxis:'day'});
+      ziMode:document.getElementById('nmBZi').value, sunMode:nmSunModeOf(lng, useTrue), lng:lng, kongAxis:'day',
+      dst:_pto.overseas?'off':'auto', baseLng:_pto.baseLng, localDst:_pto.localDst});
     var An=getAnalysis(built.BZ);
     var s=An.synthesis||{};
     LINK_XI2=(s.xiWxEff&&s.xiWxEff.length)?s.xiWxEff.slice():[];
@@ -319,6 +347,7 @@ function nmBirthFromUrl(){
   var sx=p.get('sex'); if(sx) document.getElementById('nmSex').value=sx;
   var pr=p.get('bProv'), ci=p.get('bCity'), di=p.get('bDist');
   if(NM_PLACE) NM_PLACE.set(pr, ci, di);
+  nmSyncOverseas();
   var bl=p.get('bLng'); if(bl) document.getElementById('nmBLng').value=bl;
   document.getElementById('nmBTrue').checked=(p.get('bTrue')==='1');
   return true;
@@ -739,11 +768,13 @@ function query(){
       var bd=document.getElementById('nmBDate').value;
       if(!bd) return '';
       var bzLng=nmBirthLng();
+      var _pto=nmPlaceTimeOpts();
       var bz=buildBaziState({date:bd, time:document.getElementById('nmBTime').value||'12:00',
         sex:document.getElementById('nmSex').value==='女'?0:1,
         ziMode:document.getElementById('nmBZi').value,
         sunMode:nmSunModeOf(bzLng, document.getElementById('nmBTrue').checked),
-        lng:bzLng, kongAxis:'day'}).BZ;
+        lng:bzLng, kongAxis:'day',
+        dst:_pto.overseas?'off':'auto', baseLng:_pto.baseLng, localDst:_pto.localDst}).BZ;
       var zk=window.NAME_ZODIAC.zodiacFromBranch(bz.zhis[0]);
       if(!zk) return '';
       var a=window.NAME_ZODIAC.analyzeName((LAST.xs||[]).concat(LAST.ms||[]).join(''), zk);
@@ -2100,7 +2131,7 @@ function nmApplyModState(){
    与逐项变更同结果。初始化标记随演示盘一同置起，使折叠态自此刻起才允许写入，
    免得首屏默认态盖掉已存偏好 */
 function nmBoot(){
-  ['nmBDate','nmBTime','nmBZi','nmBTrue','nmBLng','nmSex','nmBProv','nmBCity','nmBDist'].forEach(function(id){
+  ['nmBDate','nmBTime','nmBZi','nmBTrue','nmBLng','nmBTz','nmBLocalDst','nmSex','nmBProv','nmBCity','nmBDist'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.addEventListener('change', nmXiCalc);
   });
   if(document.getElementById('nmBDate').value&&document.getElementById('nmBTime').value) nmXiCalc();

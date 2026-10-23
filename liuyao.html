@@ -113,7 +113,10 @@
         </div>
         <div class="field hh-lng"><label for="lyLng">经度（可选）</label><input type="number" id="lyLng" aria-label="手动输入东经经度" step="0.01" placeholder="当地"></div>
         <div class="field chk hh-true"><input type="checkbox" id="lyTrue" aria-label="是否启用真太阳时校正"><label for="lyTrue">真太阳时校正</label></div>
+        <div class="field" id="lyTzField" hidden><label for="lyTz">时区偏移</label><select id="lyTz" aria-label="选择境外出生地标准时区偏移" onchange="lySyncOverseas()"></select></div>
+        <div class="field chk" id="lyLocalDstField" hidden><input type="checkbox" id="lyLocalDst" onchange="lySyncOverseas()"><label for="lyLocalDst">当地夏令时（钟面减1小时）</label></div>
       </div>
+      <p class="sub-note" id="lyOverseasNote" hidden></p>
       <div class="ly-time-row">
         <div class="field"><label for="lyDate">起卦日期</label>
           <input type="text" class="dt-input" id="lyDate" aria-label="起卦日期" placeholder="2026-09-30" value="">
@@ -667,6 +670,12 @@ function clearStep(){
   if(b) b.disabled=false;
 }
 function lyLocalLng(){ return xjLocalLng('lyLng','lyProv','lyCity','lyDist'); }
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时并写说明行；
+   境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
+function lySyncOverseas(){
+  syncOverseasFields({prov:'lyProv',city:'lyCity',lng:'lyLng',tz:'lyTz',dst:'lyLocalDst',
+    tzField:'lyTzField',dstField:'lyLocalDstField',note:'lyOverseasNote'});
+}
 function lyMethodChange(){
   const v=document.getElementById('lyMethod').value;
   document.getElementById('lyNumField').style.display=v==='num'?'':'none';
@@ -739,8 +748,14 @@ function lyInitMethod(){
      起首若是某地，未动过表单的盘便按该地折过一道，校正量的来历盘上不著一字。 */
   if(typeof PROV!=='undefined'){
     const sp=document.getElementById('lyProv'), sc=document.getElementById('lyCity'), sd=document.getElementById('lyDist');
+    const tzSel=document.getElementById('lyTz');
+    if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
     window.__lyPlaceTrio=fillPlaceTrio(sp, sc, sd, null);
-    placeIpPrefill({manualKey:'ly_geo_manual', group:document.getElementById('lyGeoGroup'), trio:window.__lyPlaceTrio, onDone:null});
+    /* 省或市一改即同步境外两项与说明行 */
+    sp.addEventListener('change', lySyncOverseas);
+    sc.addEventListener('change', lySyncOverseas);
+    placeIpPrefill({manualKey:'ly_geo_manual', group:document.getElementById('lyGeoGroup'), trio:window.__lyPlaceTrio, onDone:lySyncOverseas});
+    lySyncOverseas();
   }
   lyMethodChange();
 }
@@ -770,7 +785,14 @@ function cast(){
   const useTrue=(document.getElementById('lyTrue')||{}).checked===true;
   const SEX=(document.getElementById('lySex')||{}).value||'m';
   const rawNow=lyCastNow();
+  /* 境外口径：时区基准与当地夏令时由共享件 placeTimeOptsOf 一处取 */
+  const _pto=placeTimeOptsOf({prov:'lyProv',city:'lyCity',lng:'lyLng',tz:'lyTz',dst:'lyLocalDst'});
   let now=rawNow;
+  /* 当地夏令时是钟面口径，先折回标准时；折算后的时刻供各起卦法共用 */
+  if(_pto.localDst&&typeof shiftClockDay==='function'){
+    const ld=shiftClockDay(now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes(),-60);
+    now=new Date(ld.y,ld.m-1,ld.d,ld.h,ld.mi);
+  }
   /* 真太阳时：按当地（省市区、手动经度）校正起卦时刻，跨日自动调整；
      先于起卦取数完成，保证"时间起卦"亦用校正后时刻。
      当地未定即无经度可校，此时不折一道按钟面出盘，并在起卦时间行注明未校。 */
@@ -781,7 +803,7 @@ function cast(){
         const lng=lyLocalLng();
         if(lng==null){ lyNoPlace='（当地未定，未作真太阳时校正，按钟面时刻）'; }
         else{
-          const ts=trueSolarTime(now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes(),lng);
+          const ts=trueSolarTime(now.getFullYear(),now.getMonth()+1,now.getDate(),now.getHours(),now.getMinutes(),lng,'true',_pto.baseLng);
           now=new Date(ts.y,ts.m-1,ts.d,ts.h,ts.mi);
         }
       }
@@ -1590,7 +1612,7 @@ function cast(){
   /* 保存历史：存储完整快照（含爻象lines，支持"重开"还原） */
   try{
     const his=JSON.parse(localStorage.getItem('lyHistory')||'[]');
-    const entry={t:rawNow.toLocaleString(), tt:(useTrue?now.toLocaleString():''), rt:rawNow.toISOString(), q:(document.getElementById('q').value||'').trim()||cat, cat, ben:ben.name, bian:nMoving>0?bianP.name:'', method, school:document.getElementById('lySchool').value, sex:SEX, zi:ziMode, useTrue:useTrue?'1':'0', prov:document.getElementById('lyProv').value, city:document.getElementById('lyCity').value, dist:document.getElementById('lyDist').value, lng:document.getElementById('lyLng').value, date:document.getElementById('lyDate').value, time:document.getElementById('lyTime').value, lines:lines.map(function(l){return {bit:l.bit,moving:l.moving,val:l.val};})};
+    const entry={t:rawNow.toLocaleString(), tt:(useTrue?now.toLocaleString():''), rt:rawNow.toISOString(), q:(document.getElementById('q').value||'').trim()||cat, cat, ben:ben.name, bian:nMoving>0?bianP.name:'', method, school:document.getElementById('lySchool').value, sex:SEX, zi:ziMode, useTrue:useTrue?'1':'0', prov:document.getElementById('lyProv').value, city:document.getElementById('lyCity').value, dist:document.getElementById('lyDist').value, lng:document.getElementById('lyLng').value, tz:document.getElementById('lyTz').value, dst:document.getElementById('lyLocalDst').checked?'1':'0', date:document.getElementById('lyDate').value, time:document.getElementById('lyTime').value, lines:lines.map(function(l){return {bit:l.bit,moving:l.moving,val:l.val};})};
     /* 去重：相同爻象+起卦时间不重复插入（如"重开"后再排），已存在则移到顶部 */
     const lk=JSON.stringify(entry.lines);
     const dup=his.findIndex(function(h){ return h.date===entry.date && h.time===entry.time && h.lines && JSON.stringify(h.lines)===lk; });
@@ -1667,6 +1689,13 @@ function loadLyHistory(i){
     if(h.time) document.getElementById('lyTime').value=h.time;
     if(h.prov && window.__lyPlaceTrio) window.__lyPlaceTrio.set(h.prov, h.city, h.dist);
     if(h.lng) document.getElementById('lyLng').value=h.lng;
+    /* 时区与当地夏令时在出生地整组落位之后恢复：落位会按城市回填时区，先恢复即被覆盖。
+       存档未载时区者清掉 city 标记，按所载城市自带偏移重填。 */
+    const tzEl=document.getElementById('lyTz');
+    if(h.tz){ tzEl.value=h.tz; tzEl.dataset.lastCity=h.city||''; }
+    else{ tzEl.dataset.lastCity=''; tzEl.value=''; }
+    document.getElementById('lyLocalDst').checked=h.dst==='1';
+    lySyncOverseas();
     if(h.q) document.getElementById('q').value=h.q;
     window.__lyRestoreLines=h.lines;
     closeLyHist();
@@ -1790,9 +1819,9 @@ window.addEventListener('load', function () {
     mountAI(function(){ return __ly||''; }, '六爻排盘', { share:{ page:'liuyao', title:'六爻排盘',
       collect:function(){
         const d={};
-        ['lyCat','lySex','lySchool','lyMethod','lyName','lyZi','q','lyDate','lyTime','lyProv','lyCity','lyDist','lyLng',
+        ['lyCat','lySex','lySchool','lyMethod','lyName','lyZi','q','lyDate','lyTime','lyProv','lyCity','lyDist','lyLng','lyTz',
          'n1','n2','n3','n4','n5','n6','bs1','bs2','bs3','sp1','sp2','sp3','sp4','sp5','sp6'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
-        ['lyTrue','lyBianSY','lyBianQinGong','lyMulti'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.checked?'1':'0'; });
+        ['lyTrue','lyLocalDst','lyBianSY','lyBianQinGong','lyMulti'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.checked?'1':'0'; });
         if(window.__lyLastLines) d.__lines=window.__lyLastLines;
         d.xjAnchor = window.__xjAnchor || xjNowStr();
         return d;
@@ -1804,8 +1833,14 @@ window.addEventListener('load', function () {
           const el=document.getElementById(k); if(!el) return;
           if(el.type==='checkbox') el.checked=d[k]==='1'; else el.value=d[k];
         });
-        /* 三级下拉的级联不随逐项赋值重建（省变则市表变），所载之地经共用件整组落位 */
+        /* 三级下拉的级联不随逐项赋值重建（省变则市表变），所载之地经共用件整组落位；
+           时区与当地夏令时在落位之后重放，免被所载城市的自带偏移覆盖 */
         if(window.__lyPlaceTrio) window.__lyPlaceTrio.set(d.lyProv, d.lyCity, d.lyDist);
+        const tzEl=document.getElementById('lyTz');
+        if(d.lyTz){ tzEl.value=d.lyTz; tzEl.dataset.lastCity=d.lyCity||''; }
+        else{ tzEl.dataset.lastCity=''; tzEl.value=''; }
+        document.getElementById('lyLocalDst').checked=d.lyLocalDst==='1';
+        lySyncOverseas();
         if(d.__lines){ try{ lyMethodChange(); }catch(e){} window.__lyRestoreLines=d.__lines; }
       },
       recast:function(){ xjShareRecast(function(){ try{ cast(); }catch(e){} }); }

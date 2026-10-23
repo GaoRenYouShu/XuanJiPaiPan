@@ -466,41 +466,19 @@ if (BAZI_PAGE_UI) (function initBirth(){
     });
   }
 })();
-/* 境外出生地取数：省级下拉停在境外国家、市级择定境外城市时返回
-   { city 城市名, lng 库载经度, tz 标准时区偏移 }；手动经度框非空时经度取手填值，
-   时区取时区下拉当前值（未动过即城市自带值），二者都让用户可按实际出生地改。
-   境内或境外未择定城市时返回 null。 */
-function overseasPlaceInfo(){
-  return overseasInfo({ prov:'bProv', city:'bCity', lng:'bLng', tz:'bTzOff', dst:'bLocalDst' });
-}
-/* 时间折算参数：境外出生返回基准子午线（15° 乘时区偏移）与当地夏令时勾选；
-   境内返回缺省（基准东经 120 度、不折当地夏令时）。 */
+/* 境外时刻参数：时区、基准子午线与当地夏令时一律取共享件 placeTimeOptsOf 的结果；
+   境内返回东经 120 度与不折。 */
 function placeTimeOpts(){
-  const info=overseasPlaceInfo();
-  if(!info) return { overseas:false, baseLng:120, localDst:false };
-  const lds=document.getElementById('bLocalDst');
-  return { overseas:true, baseLng:info.tz*15, localDst:!!(lds && lds.checked) };
+  return placeTimeOptsOf({ prov:'bProv', city:'bCity', lng:'bLng', tz:'bTzOff', dst:'bLocalDst' });
 }
-/* 境外出生地界面同步：出生地选到境外城市时挂出当地夏令时与时区两项，
-   并在说明行写出钟面时区与基准经线口径；境内或非日期模式收起两项与说明行。
-   时区下拉的回填（换城市回填该城自带偏移、手改后不回填）在 overseasPlaceInfo 一处完成。 */
+/* 境外出生地界面同步：选到境外城市时挂出当地夏令时与时区两项并写说明行，
+   收起中国夏令时；境内或非日期模式还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
 function syncOverseasUi(){
   const mode=(document.getElementById('bMode')||{}).value||'';
   const dateable=(mode==='date'||mode==='lunar'||mode==='hourless');
-  const info=overseasPlaceInfo();
-  const on=dateable && !!info;
-  gs('bLocalDstField', on);
-  gs('bTzOffField', on);
-  /* 中国夏令时下拉只关 1986 至 1991 年内地夏令时段，境外出生时收起，由当地夏令时勾选接管；
-     境内外两种状态各自的显隐与 toggleBaziMode 的日期模式条件一致 */
-  gs('bDstField', !on && mode!=='saved' && mode!=='pillar');
-  const box=document.getElementById('overseasNote');
-  if(box) box.hidden=!on;
-  if(!on) return;
-  if(box){
-    /* 文案出自 latlng.js overseasNoteText 全站一份：时区、基准经线、经度改填与邻近城市兜底各页同词 */
-    box.textContent=overseasNoteText(info);
-  }
+  syncOverseasFields({ prov:'bProv', city:'bCity', lng:'bLng', tz:'bTzOff', dst:'bLocalDst',
+    tzField:'bTzOffField', dstField:'bLocalDstField', note:'overseasNote', chinaDstField:'bDstField' },
+    { enabled:dateable, chinaDst: mode!=='saved' && mode!=='pillar' });
 }
 /* 当地夏令时与时区两项不入输入签名，勾选或改值后显式失效去重守卫并重排 */
 function localDstChange(){

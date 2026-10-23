@@ -1584,46 +1584,27 @@ function zwHePan(astroM, astroF, school, sexM, sexF){
    夏令时折算、真（平）太阳时、子时归属三件一律调共享库：applyDstCorrection、trueSolarTime 在
    xuanji-lib.js，adjustZiShi 在 bazi-data.js，与八字页同一真源，页内不另立算法。
    返回定盘用的年月日与 iztro 时辰 index（0 早子、1 丑、11 亥、12 晚子）及折算说明。 */
-/* 境外出生地取数：主盘选到境外城市时返回共享件 overseasInfo 的结果，
+/* 境外出生地取数：主盘与第二人同一套，按元素编号取共享件 overseasInfo 的结果；
    时区、当地夏令时与经度皆按用户手改优先，未改即取城市自带值。 */
 function zwOvInfo(){
   return overseasInfo({prov:'zProv', city:'zCity', lng:'zLng', tz:'zTz', dst:'zOvDst'});
 }
-/* 境外出生地界面同步：主盘选到境外城市时挂出时区偏移与当地夏令时两项并写说明行，
-   收起中国夏令时下拉（只 1986 至 1991 年内地时段，境外不适用）；境内全部还原。 */
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时两项并写说明行，
+   收起中国夏令时；境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
 function zwSyncOverseas(){
-  const info=zwOvInfo();
-  const on=!!info;
-  const show=(id,v)=>{ const el=document.getElementById(id); if(el) el.hidden=!v; };
-  show('zTzField', on);
-  show('zOvDstField', on);
-  show('zDstField', !on);
-  const box=document.getElementById('zOverseasNote');
-  if(box){ box.hidden=!on; if(on) box.textContent=overseasNoteText(info); }
+  syncOverseasFields({prov:'zProv', city:'zCity', lng:'zLng', tz:'zTz', dst:'zOvDst',
+    tzField:'zTzField', dstField:'zOvDstField', note:'zOverseasNote', chinaDstField:'zDstField'});
 }
 function zwOvChange(){ try{ paipan(); }catch(e){} }
 /* 闰月口径：作下月走引擎默认，作本月另出一盘。 */
 function zwFixLeap(){ return ((document.getElementById('zLeap')||{}).value||'next')!=='same'; }
 /* 第二人境外出生地：与主盘同一套时区、经度与当地夏令时取数。 */
 function zwOvFInfo(){
-  const pv=(document.getElementById('zFProv')||{}).value||'', ct=(document.getElementById('zFCity')||{}).value||'';
-  const ov=overseasCity(pv,ct); if(!ov) return null;
-  const tzEl=document.getElementById('zFTz'), lngEl=document.getElementById('zFLng'), dstEl=document.getElementById('zFOvDst');
-  const tz=tzEl&&tzEl.value!==''?parseFloat(tzEl.value):ov.tz;
-  const ml=lngEl?lngEl.value:'';
-  const lng=(ml!==''&&ml!=null&&!isNaN(parseFloat(ml)))?parseFloat(ml):ov.lng;
-  return {city:ov.c,lng,lat:ov.lat,tz,baseLng:tz*15,localDst:!!(dstEl&&dstEl.checked)};
+  return overseasInfo({prov:'zFProv', city:'zFCity', lng:'zFLng', tz:'zFTz', dst:'zFOvDst'});
 }
 function zwSyncFOverseas(){
-  const pv=(document.getElementById('zFProv')||{}).value||'', ct=(document.getElementById('zFCity')||{}).value||'';
-  const tzEl=document.getElementById('zFTz');
-  if(tzEl&&ct&&ct!==window.__zwFLastCity){ const tz=tzOffsetOf(pv,ct); if(tz!=null){ window.__zwFLastCity=ct; tzEl.value=String(tz); } }
-  const info=zwOvFInfo();
-  const on=!!info;
-  const show=(id,v)=>{ const el=document.getElementById(id); if(el) el.hidden=!v; };
-  show('zFTzField',on); show('zFOvDstField',on);
-  const box=document.getElementById('zFOverseasNote');
-  if(box){ box.hidden=!on; if(on) box.textContent=overseasNoteText(info); }
+  syncOverseasFields({prov:'zFProv', city:'zFCity', lng:'zFLng', tz:'zFTz', dst:'zFOvDst',
+    tzField:'zFTzField', dstField:'zFOvDstField', note:'zFOverseasNote', chinaDstField:'zFDstField'});
 }
 function zwOvFChange(){ try{ paipan(); }catch(e){} }
 function zwClockToPalace(y,m,d,h,mi,lng,dstMode,sunMode,ziMode,baseLng){

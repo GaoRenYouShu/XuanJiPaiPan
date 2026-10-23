@@ -599,14 +599,14 @@ input:where([type=checkbox],[type=radio]){accent-color:var(--gold)}
 .info-box .cal-month-list{color:var(--ink2);font-size:12.5px;line-height:1.7}
 
 .birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
-  flex:1 1 100%;padding:var(--sp-3) var(--sp-4);background:var(--paper2);
-  border:1px solid var(--line);border-radius:0}
+  flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
+  border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
 
 .birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2)}
 
 .birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
 
-.birth-group .field:has(#bLng){max-width:200px}
+.birth-group .field.hh-lng{max-width:200px}
 
 .opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
 
@@ -1531,7 +1531,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
   .modal.ai-cfg .ai-actions{margin:var(--sp-3) var(--sp-4) 0}
 }
 
-.birth-group.compact{gap:var(--sp-2) var(--sp-3);padding:var(--sp-2) var(--sp-4)}
+.birth-group.compact{gap:var(--sp-2) var(--sp-3);padding:var(--sp-3) 0}
 
 .birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
 
@@ -1551,7 +1551,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
 
 @media(max-width:640px){
 /* 出生地窄屏：三级下拉与经度恒守上方全档定宽（省 137、市 96、区县 137、经度 96）， */
-  .birth-group.compact{gap:var(--sp-2)}
+  .birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
   .birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
 }
 

@@ -57,7 +57,10 @@
       <div class="field"><label for="mhDist">区县</label><select id="mhDist"></select></div>
       <div class="field hh-lng"><label for="mhLng">经度（可选）</label><input type="number" id="mhLng" step="0.01" placeholder="当地"></div>
       <div class="field chk hh-true"><input type="checkbox" id="mhTrue"><label for="mhTrue">真太阳时校正</label></div>
+      <div class="field" id="mhTzField" hidden><label for="mhTz">时区偏移</label><select id="mhTz" aria-label="选择境外出生地标准时区偏移" onchange="mhSyncOverseas()"></select></div>
+      <div class="field chk" id="mhLocalDstField" hidden><input type="checkbox" id="mhLocalDst" onchange="mhSyncOverseas()"><label for="mhLocalDst">当地夏令时（钟面减1小时）</label></div>
     </div>
+    <p class="sub-note" id="mhOverseasNote" hidden></p>
     <div class="ly-time-row mh-group-gap">
       <div class="field"><label for="mDate">起卦日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="mDate"></div>
       <div class="field"><label for="mTime">起卦时刻</label><input type="time" id="mTime"></div>
@@ -379,13 +382,26 @@ function mhMethodChange(){
    省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
    按别人的经度折出来的时刻不著来历，与未校正是两回事。 */
 function mhLocalLng(){ return xjLocalLng('mhLng','mhProv','mhCity','mhDist'); }
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时并写说明行；
+   境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
+function mhSyncOverseas(){
+  syncOverseasFields({prov:'mhProv',city:'mhCity',lng:'mhLng',tz:'mhTz',dst:'mhLocalDst',
+    tzField:'mhTzField',dstField:'mhLocalDstField',note:'mhOverseasNote'});
+}
 /* 三级下拉默认停在未知地：起首若是某地，未动过表单的卦便按该地折过一道，
    校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
 function initMhRegion(){
   const pp=document.getElementById('mhProv');
   if(!pp) return;
-  window.__mhPlaceTrio=fillPlaceTrio(pp, document.getElementById('mhCity'), document.getElementById('mhDist'), null);
-  placeIpPrefill({manualKey:'mh_geo_manual', group:document.getElementById('mhGeoGroup'), trio:window.__mhPlaceTrio, onDone:null});
+  const cp=document.getElementById('mhCity'), dp=document.getElementById('mhDist');
+  const tzSel=document.getElementById('mhTz');
+  if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
+  window.__mhPlaceTrio=fillPlaceTrio(pp, cp, dp, null);
+  /* 省或市一改即同步境外两项与说明行 */
+  pp.addEventListener('change', mhSyncOverseas);
+  cp.addEventListener('change', mhSyncOverseas);
+  placeIpPrefill({manualKey:'mh_geo_manual', group:document.getElementById('mhGeoGroup'), trio:window.__mhPlaceTrio, onDone:mhSyncOverseas});
+  mhSyncOverseas();
 }
 function qigua(){
   const method=document.getElementById('mhMethod').value;
@@ -393,6 +409,13 @@ function qigua(){
   let [y,m,d]=dv?dv.split('-').map(Number):[0,0,0];
   let [h,mi]=tv?tv.split(':').map(Number):[0,0];
   let useTrueTxt='';
+  /* 境外口径：时区基准与当地夏令时由共享件 placeTimeOptsOf 一处取。
+     当地夏令时是钟面口径，先折回标准时；折算后的时刻凡起卦法皆用。 */
+  const _pto=placeTimeOptsOf({prov:'mhProv',city:'mhCity',lng:'mhLng',tz:'mhTz',dst:'mhLocalDst'});
+  if(dv&&tv&&_pto.localDst&&typeof shiftClockDay==='function'){
+    const ld=shiftClockDay(y,m,d,h,mi,-60);
+    y=ld.y; m=ld.m; d=ld.d; h=ld.h; mi=ld.mi;
+  }
   /* 真太阳时：勾选时按当地经度校正起卦时刻（仅时间起卦生效，跨日自动调整）；
      当地未定即无经度可校，此时不折一道按钟面出盘，并在起卦时间行注明未校 */
   let mhNoPlace='';
@@ -402,7 +425,7 @@ function qigua(){
         const lng=mhLocalLng();
         if(lng==null){ mhNoPlace='（当地未定，未作真太阳时校正，按钟面时刻）'; }
         else{
-          const ts=trueSolarTime(y,m,d,h,mi,lng);
+          const ts=trueSolarTime(y,m,d,h,mi,lng,'true',_pto.baseLng);
           useTrueTxt=' 当地真太阳时 '+ts.y+'-'+pad2(ts.m)+'-'+pad2(ts.d)+' '+pad2(ts.h)+':'+pad2(ts.mi);
           y=ts.y; m=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
           dv=y+'-'+pad2(m)+'-'+pad2(d); tv=pad2(h)+':'+pad2(mi);
@@ -600,8 +623,8 @@ window.addEventListener('load', function () {
     mountAI(function(){ return __mh||''; }, '梅花易数', { share:{ page:'meihua', title:'梅花易数',
       collect:function(){
         const d={};
-        ['mhCat','mhSex','mhSchool','mhMethod','mhNum1','mhNum2','mhNum3','mhChar','mhName','mhYingVal','mhQ','mDate','mTime','mhProv','mhCity','mhDist','mhLng','mhZi'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
-        ['mhTrue','mhMulti'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.checked?'1':'0'; });
+        ['mhCat','mhSex','mhSchool','mhMethod','mhNum1','mhNum2','mhNum3','mhChar','mhName','mhYingVal','mhQ','mDate','mTime','mhProv','mhCity','mhDist','mhLng','mhTz','mhZi'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
+        ['mhTrue','mhLocalDst','mhMulti'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.checked?'1':'0'; });
         return d;
       },
       restore:function(d){
@@ -610,7 +633,14 @@ window.addEventListener('load', function () {
           if(el.type==='checkbox') el.checked=d[k]==='1'; else el.value=d[k];
         });
         try{ mhMethodChange(); }catch(e){}
+        /* 三级下拉的级联不随逐项赋值重建（省变则市表变），所载之地经共用件整组落位；
+           时区与当地夏令时在落位之后重放，免被所载城市的自带偏移覆盖 */
         if(window.__mhPlaceTrio) window.__mhPlaceTrio.set(d.mhProv, d.mhCity, d.mhDist);
+        const tzEl=document.getElementById('mhTz');
+        if(d.mhTz){ tzEl.value=d.mhTz; tzEl.dataset.lastCity=d.mhCity||''; }
+        else{ tzEl.dataset.lastCity=''; tzEl.value=''; }
+        document.getElementById('mhLocalDst').checked=d.mhLocalDst==='1';
+        mhSyncOverseas();
       },
       recast:function(){ try{ qigua(); }catch(e){} }
     } });

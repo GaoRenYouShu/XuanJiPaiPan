@@ -62,7 +62,7 @@
     <!-- 时间折算与流派五项成组：题头独占一行，与上方出生地组题头对仗；五项皆不随省市区取值，故与出生地分列 -->
     <div class="opts-row" id="optsRow">
       <div class="group-label">时间折算与流派</div>
-      <div class="field"><label for="dstInput">夏令时</label><select id="dstInput" aria-label="选择夏令时折算口径">
+      <div class="field" id="bDstField"><label for="dstInput">夏令时</label><select id="dstInput" aria-label="选择夏令时折算口径">
         <option value="auto">自动折算（1986至1991）</option>
         <option value="on">按夏令时（钟面减1小时）</option>
         <option value="off">不折算（钟面即标准时）</option>
@@ -85,7 +85,10 @@
         <option value="1">时辰折算（整日加时辰档）</option>
         <option value="2">分钟折算（4320 分折年）</option>
       </select></div>
+      <div class="field" id="bTzOffField" hidden><label for="bTzOff">时区偏移</label><select id="bTzOff" aria-label="选择境外出生地标准时区偏移" onchange="tbOverseasChange()"></select></div>
+      <div class="field chk" id="bLocalDstField" hidden><input type="checkbox" id="bLocalDst" onchange="tbOverseasChange()"><label for="bLocalDst">当地夏令时（钟面减1小时）</label></div>
     </div>
+    <p class="sub-note" id="tbOverseasNote" hidden></p>
     <div id="out"></div>
     <details class="mh-ref mh-ref-first" id="tbKeFold"><summary>考时定刻流程详解</summary>
       <table class="tb-tb"><tbody>
@@ -215,12 +218,25 @@ function readQiYunSect(){ const v=(document.getElementById('qyInput')||{}).value
 /* 起盘口径一次性取齐，供八刻表与主盘共用，免各调用点各拼一份 */
 function readOpts(){
   const sunMode = readSunMode();
+  const _pto = placeTimeOptsOf({prov:'bProv',city:'bCity',lng:'bLng',tz:'bTzOff',dst:'bLocalDst'});
   return {
     sunMode: sunMode,
     lng: sunMode === 'off' ? null : resolveLng(),
     ziMode: readZiMode(), feng: readFeng(),
-    dst: readDstMode(), yearAxis: readYearAxis(), qiYunSect: readQiYunSect()
+    dst: _pto.overseas ? 'off' : readDstMode(), yearAxis: readYearAxis(), qiYunSect: readQiYunSect(),
+    baseLng: _pto.overseas ? _pto.baseLng : null, localDst: _pto.localDst
   };
+}
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时、收起中国夏令时并写说明行；
+   境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
+function tbSyncOverseas(){
+  syncOverseasFields({prov:'bProv',city:'bCity',lng:'bLng',tz:'bTzOff',dst:'bLocalDst',
+    tzField:'bTzOffField',dstField:'bLocalDstField',note:'tbOverseasNote',chinaDstField:'bDstField'});
+}
+/* 境外时区或当地夏令时改动后重排，已出盘则按新口径重查 */
+function tbOverseasChange(){
+  tbSyncOverseas();
+  if(LAST) query();
 }
 /* 太阳时已开而未定出生地：校正是按经度算的，没有经度就无从校正，拦在起盘之前；
    提示语同八字页 SUN_NO_PLACE_MSG 口径。 */
@@ -651,8 +667,11 @@ function query(){
 /* ============ 出生地三级联动（经纬真源 latlng.js，模式与八字页一致） ============ */
 function buildPlace(){
   const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
-  TB_PLACE = fillPlaceTrio(sp, sc, sd, ()=>{ if(LAST) query(); });
+  const tzSel=document.getElementById('bTzOff');
+  if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
+  TB_PLACE = fillPlaceTrio(sp, sc, sd, ()=>{ tbSyncOverseas(); if(LAST) query(); });
   sd.addEventListener('change', ()=>{ if(LAST) query(); });
+  tbSyncOverseas();
 }
 /* 经度取数：手动优先，其次出生地三级；两地皆未定则无经度可校，返回空。
    不回退任一默认经度：按别人的经度折出来的校正量不著来历，与未校正是两回事。 */
