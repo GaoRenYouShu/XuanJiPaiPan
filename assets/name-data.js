@@ -135,7 +135,7 @@ window.NAME_DATA = (function(){
     '木火金':'上提携而基础受克，成功易、守成难；扬名于外、隐忧于内。固本培元、慎处环境，防水深火熄。',
     '木火水':'上提携、下生扶，两重滋养，热忱与滋养并存；境遇顺遂。防顺境生惰，持志自持则大成可期。',
     '土木火':'上压成功多阻，下得生扶略有缓冲；压而不垮，苦中有恃。务实隐忍，深耕自处，徐图伸展。',
-    '金土木':'天金生人土，敬上得助而自奉薄；下受木克根基受蚀。劳而少功，宜固本省身、另辟蹊径。',
+    '金土木':'人土生天金，下奉其上而自奉薄；地木克人土，根基受蚀。劳而少功，宜固本省身、另辟蹊径。',
     '水土木':'人水克天土，逆上争胜；下受木克根基受蚀，两处受制。定志破局、速正根本，勿困守一隅。',
     '木金木':'人金克天木，逆上争胜；人金克地木，制下操劳。两代相制，成败皆烈。以德服人、慎守根基，防刚极生变。',
     '木金火':'人克天上争，地克人根基受蚀，两处交攻；成败起伏皆烈。反躬自省、以柔济刚，方免两败。',
@@ -270,12 +270,11 @@ window.NAME_DATA = (function(){
     const r=xjWxRelCode(a, b, KE, SHENG);
     return r==='same'?'同我':r==='sheng'?'我生':r==='beisheng'?'生我':r==='ke'?'我克':r==='beike'?'克我':'';
   }
+  /* 一轴以天为视角，二轴以人为视角；两轴折到我这一侧后同用全站一判，档位不在本件另立 */
+  var REL_FLIP = {same:'same', sheng:'beisheng', beisheng:'sheng', ke:'beike', beike:'ke'};
   function axisJudge(a, b, axis){
     var r = relOf(a, b);
-    var luck;
-    if(r==='同我' || r==='我生' || r==='生我'){ luck='ji'; }
-    else if(r==='我克'){ luck = (axis===1) ? 'xiong' : 'xj'; }   /* 天克人、人克地 */
-    else { luck = (axis===1) ? 'xj' : 'xiong'; }                 /* 人克天、地克人 */
+    var luck = xjWxLuckSelf(axis === 1 ? REL_FLIP[r] : r);
     return {rel:r, luck:luck, text:SANCAI_TEXT['axis'+axis][r]};
   }
   var SANCAI = {};

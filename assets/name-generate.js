@@ -15,20 +15,12 @@ window.NAME_GENERATE = (function () {
   var __CACHE_KEYS = [];
 
   /* ---- 拼音声调：字库内字段为准（含补录字），NAME_PHON 兜底 ----
-   * NAME_PHON 末位数字是结构索引，非声调，故兜底分支须从带调符号反查 */
-  var TONE_CH = { 'ā': 1, 'á': 2, 'ǎ': 3, 'à': 4, 'ē': 1, 'é': 2, 'ě': 3, 'è': 4,
-    'ī': 1, 'í': 2, 'ǐ': 3, 'ì': 4, 'ō': 1, 'ó': 2, 'ǒ': 3, 'ò': 4,
-    'ū': 1, 'ú': 2, 'ǔ': 3, 'ù': 4, 'ü': 1, 'ǖ': 1, 'ǘ': 2, 'ǚ': 3, 'ǜ': 4 };
+   * NAME_PHON 尾位数字是结构索引，非声调，故兜底分支取调号判调 */
   function pyOf(ch) {
     if (C[ch]) return { py: C[ch][0], tone: C[ch][1] };
     var raw = window.NAME_PHON && window.NAME_PHON[ch];
     if (!raw) return null;
-    var py = raw.replace(/[0-9]$/, '');
-    var tone = 0;
-    for (var i = 0; i < py.length; i++) {
-      if (TONE_CH[py[i]] !== undefined) { tone = TONE_CH[py[i]]; break; }
-    }
-    return { py: py, tone: tone };
+    return { py: raw.replace(/[0-9]$/, ''), tone: xjPyTone(raw) };
   }
   /* 韵母近似切分：去掉声母（含 zh、ch、sh 与 y、w），余部作韵母 */
   var INITIALS = ['zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h',
@@ -156,7 +148,7 @@ window.NAME_GENERATE = (function () {
     if (Object.keys(uniq).length === 1) { v -= 3; notes.push('全名声调雷同，欠起伏'); }
     else {
       v += 2;
-      var pingze = tones.map(function (t) { return t === 3 || t === 4 ? '仄' : '平'; });
+      var pingze = tones.map(xjPyPingZe);
       if (pingze[0] !== pingze[pingze.length - 1]) { v += 1; notes.push('首尾平仄相间，读来上口'); }
     }
     var SONORANT=/^(l|m|n|r)$/;
@@ -171,17 +163,12 @@ window.NAME_GENERATE = (function () {
   /* ---- 谐音避忌：与页面 NM_TABOO 同源同规 ----
    * 读音无调比对，来源与页面 nmSyll 一致（字库拼音优先、拼音表兜底）
    * 硬忌（2）直接淘汰；软忌（1）记档，排序时扣 40 分沉底，不淘汰 */
-  var TONE_MARK = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g;
-  var TONE_MAP = { 'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a', 'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e',
-    'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i', 'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o',
-    'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u', 'ǖ': 'v', 'ǘ': 'v', 'ǚ': 'v', 'ǜ': 'v' };
-  function plainPy(py) { return String(py).replace(TONE_MARK, function (m) { return TONE_MAP[m]; }); }
   /* 音节与结构逐字缓存：候选量以十万计，避免每候选重复做正则与切片 */
   var SYL_CACHE = {}, STRUCT_CACHE = {};
   function sylOf(ch) {
     if (SYL_CACHE[ch] === undefined) {
       var p = pyOf(ch);
-      SYL_CACHE[ch] = p ? plainPy(p.py) : null;
+      SYL_CACHE[ch] = p ? xjPyPlain(p.py) : null;
     }
     return SYL_CACHE[ch];
   }

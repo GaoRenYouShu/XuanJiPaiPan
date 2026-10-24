@@ -83,16 +83,10 @@ window.NAME_ENGINE = (function(){
   function sancaiWx(w){ return window.NAME_DATA.WX_OF_NUM[w%10]; }
 
   /* ---- 三运关系 ---- */
-  function relName(a, b){
-    if(a===b) return '同我';
-    var SHENG={木:'火',火:'土',土:'金',金:'水',水:'木'};
-    var KE={木:'土',火:'金',土:'水',金:'木',水:'火'};
-    if(SHENG[a]===b) return '我生';
-    if(SHENG[b]===a) return '生我';
-    if(KE[a]===b) return '我克';
-    if(KE[b]===a) return '克我';
-    return '';
-  }
+  var WX_SHENG={木:'火',火:'土',土:'金',金:'水',水:'木'};
+  var WX_KE={木:'土',火:'金',土:'水',金:'木',水:'火'};
+  var REL_LABEL={same:'同我', sheng:'我生', beisheng:'生我', ke:'我克', beike:'克我'};
+  function relName(a, b){ return REL_LABEL[xjWxRelCode(a, b, WX_KE, WX_SHENG)]||''; }
 
 /* ---- 汉字五行双轨 ----
  * 数理五行：按康熙笔画个位取（1~2 木 3~4 火 5~6 土 7~8 金 9~0 水），为五格剖象派内生口径，
@@ -136,9 +130,9 @@ function analyze(xing, ming, linkXi, linkJi){
 
   /* 三运关系 */
   function yun(a,b){
-    var r=relName(a, b), t=D.SANYUN_TEXT[r]||{def:''};
-    var luck = r==='克我' ? 'xiong' : (r==='我克' ? 'xj' : 'ji');
-    return {rel:r, luck:luck, text:t.ji||t.def||''};
+    var code=xjWxRelCode(a, b, WX_KE, WX_SHENG), r=REL_LABEL[code]||'';
+    var t=D.SANYUN_TEXT[r]||{def:''};
+    return {rel:r, luck:xjWxLuckSelf(code), text:t.ji||t.def||''};
   }
   var syc=yun(ren.wx,tian.wx), jic=yun(ren.wx,di.wx), shj=yun(ren.wx,wai.wx);
 
@@ -227,9 +221,7 @@ function score(r){
   var yinlv=0, yinlvNote='';
   (function(){
     function toneOf(ch){
-      var v0=P[ch]; if(!v0) return 0;
-      var t=(v0.match(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/)||[null])[0];
-      return t?({'ā':1,'á':2,'ǎ':3,'à':4,'ē':1,'é':2,'ě':3,'è':4,'ī':1,'í':2,'ǐ':3,'ì':4,'ō':1,'ó':2,'ǒ':3,'ò':4,'ū':1,'ú':2,'ǔ':3,'ù':4,'ǖ':1,'ǘ':2,'ǚ':3,'ǜ':4})[t]:0;
+      var v0=P[ch]; return v0?xjPyTone(v0):0;
     }
     var ts=nameChars.map(toneOf);
     if(!nameChars.length || ts.some(function(t){return !t;})){ yinlv=14; yinlvNote='读音档案不足，按中位计'; return; }
@@ -237,7 +229,7 @@ function score(r){
     var same=ts.every(function(t){return t===ts[0];});
     if(ts.length>=2 && same){ notes.push('名内'+ts.length+'字同调，欠起伏'); v-=2; }
     else if(ts.length>=2 && ts[0]!==ts[ts.length-1]){ notes.push('首尾平仄相异，读来起伏'); v+=4; }
-    var plain=function(ch){ if(!P[ch]) return ''; return P[ch].replace(/[0-9]$/,'').replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g,function(m){return {'ā':'a','á':'a','ǎ':'a','à':'a','ē':'e','é':'e','ě':'e','è':'e','ī':'i','í':'i','ǐ':'i','ì':'i','ō':'o','ó':'o','ǒ':'o','ò':'o','ū':'u','ú':'u','ǔ':'u','ù':'u','ǖ':'v','ǘ':'v','ǚ':'v','ǜ':'v'}[m]||m;});};
+    var plain=function(ch){ return P[ch]?xjPyPlain(P[ch]):''; };
     var pys=nameChars.map(plain), dup=false;
     for(var a=0;a<pys.length;a++) for(var b=a+1;b<pys.length;b++) if(pys[a]===pys[b]) dup=true;
     /* 叠字（名字两字同字）为有意重复，亲昵顺口，不作同音扣分，反加音律分 */

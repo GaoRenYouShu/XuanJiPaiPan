@@ -940,3 +940,39 @@ function xjFsShWheelSvg(){
   return `<svg class="wheel" id="fsShWheel" viewBox="0 0 440 440" role="img" aria-label="三合水法长生十二宫盘：外圈十二宫名，内圈地支方位，点选一宫看该宫断水">${s}</svg>`;
 }
 window.xjFsShWheelSvg = xjFsShWheelSvg;
+
+/* ===== 生克判吉凶（全站共用） =====
+   以人格为我：对方克我判凶，我克对方判半吉，相生与同气判吉。
+   三才两轴与三运三格同此一判，各页只把视角折到我这一侧，不另立档位表。 */
+function xjWxLuckSelf(code){
+  return code === 'beike' ? 'xiong' : (code === 'ke' ? 'xj' : 'ji');
+}
+window.xjWxLuckSelf = xjWxLuckSelf;
+
+/* ===== 姓名学音律取数（全站共用） =====
+   拼音取值带调号，尾位数字是结构索引而非声调，故调由调号判、结构另由尾位取。
+   声调、平仄、无调拼音只在此处判，页面与推荐引擎直取，不各存一份调号映射。
+   平仄取一二声为平、三四声为仄，轻声与未载读作平，与音律表的档位一致。 */
+var XJ_PY_MARKS = { 'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a', 'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e',
+  'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i', 'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o',
+  'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u', 'ǖ': 'v', 'ǘ': 'v', 'ǚ': 'v', 'ǜ': 'v' };
+var XJ_PY_TONE = (function () {
+  var m = {};
+  [['āēīōūǖ', 1], ['áéíóúǘ', 2], ['ǎěǐǒǔǚ', 3], ['àèìòùǜ', 4]].forEach(function (p) {
+    p[0].split('').forEach(function (c) { m[c] = p[1]; });
+  });
+  return m;
+})();
+function xjPyTone(v){
+  var s = String(v == null ? '' : v);
+  for (var i = 0; i < s.length; i++) { if (XJ_PY_TONE[s[i]]) return XJ_PY_TONE[s[i]]; }
+  return 0;
+}
+function xjPyPlain(v){
+  return String(v == null ? '' : v).replace(/[0-5]$/, '')
+    .replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g, function (m) { return XJ_PY_MARKS[m] || m; });
+}
+function xjPyPingZe(t){ return (t === 3 || t === 4) ? '仄' : '平'; }
+window.xjPyTone = xjPyTone;
+window.xjPyPlain = xjPyPlain;
+window.xjPyPingZe = xjPyPingZe;

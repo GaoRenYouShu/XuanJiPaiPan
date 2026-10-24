@@ -7,8 +7,7 @@
  * ============================================================ */
 window.NAME_HOMOPHONE = (function () {
   'use strict';
-  var TONE = { 'ā':'a','á':'a','ǎ':'a','à':'a','ē':'e','é':'e','ě':'e','è':'e','ī':'i','í':'i','ǐ':'i','ì':'i','ō':'o','ó':'o','ǒ':'o','ò':'o','ū':'u','ú':'u','ǔ':'u','ù':'u','ǖ':'v','ǘ':'v','ǚ':'v','ǜ':'v' };
-  function plain(s) { return String(s).replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g, function (m) { return TONE[m]; }); }
+  function plain(s) { return xjPyPlain(s); }
   function D() { var w = window.NAME_ARCHIVE_HOMOPHONE; return w ? (w.data || w) : null; }
 
   /* 读音取引擎统一入口，姓氏位读异读音（单 shàn 等），与音律表同口径；

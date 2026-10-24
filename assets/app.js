@@ -669,6 +669,7 @@ function xjWxRelCode(a, b, ke, sheng){
 }
 window.xjWxRelCode = xjWxRelCode;
 
+
 /* ===== 洗牌（全站共用） =====
    Fisher-Yates，原地打乱并返回同一数组。 */
 function xjShuffle(a){
