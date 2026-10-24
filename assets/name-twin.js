@@ -126,38 +126,31 @@ window.NAME_TWIN = (function(){
    * 人工维护、发现问题即增补。 */
   var PART_BLACK = '隶折口鸟皿艮兑兼专各卜尸犬豕虫鼠瓦臼';
 
-  /* 拼音去声调：wěi→wei，用于声旁同音判定 */
-  function stripTone(py){
-    return (py || '').toLowerCase()
-      .replace(/[āáǎà]/g, 'a').replace(/[ōóǒò]/g, 'o')
-      .replace(/[ēéěè]/g, 'e').replace(/[īíǐì]/g, 'i')
-      .replace(/[ūúǔù]/g, 'u').replace(/[ǖǘǚǜü]/g, 'v')
-      .replace(/[^a-z]/g, '');
-  }
+  /* 拼音去声调：wěi→wei，直取全站共用 xjPyPlain（xuanji-lib），用于声旁同音判定 */
 
   /* 形声判定：末部件（右半、下半）与整字同音，即典型的形旁＋声旁结构。
    * 只查末部件而不查首部件，是因为形旁兼声的情况（仁＝人＋二，人既是形旁也与仁同音）
    * 若一并查首部件会误判，查末部件则二(èr)与仁(rén)不同音，仁得留在本档。 */
   function isPhonoSemantic(whole, parts){
-    var w = stripTone(pinyinOf(whole));
+    var w = xjPyPlain(pinyinOf(whole)).toLowerCase();
     if(!w) return false;
     var last = parts[parts.length - 1];
-    var lp = stripTone(pinyinOf(last));
+    var lp = xjPyPlain(pinyinOf(last)).toLowerCase();
     return !!lp && lp === w;
   }
 
   function isNameChar(c){ return Object.prototype.hasOwnProperty.call(N, c); }
 
-  /* 字库自带质量标记：寓意句含不宜入名者硬淘汰。
-   * 寓意取 NAME_YUYI：覆盖全部 4271 字，判定口径一致（页面 xingming.html 先于本引擎加载）。 */
-  var YY = window.NAME_YUYI || {};
-  function yiNote(c){ return YY[c] || ''; }
+  /* 字库自带质量标记：不宜入名者硬淘汰、凡字少用者慎用。
+   * 标记取 name-yuyi 的结构化宜忌表 NAME_YUYI_FLAG，判定口径一致
+   * （页面 xingming.html 先于本引擎加载）。 */
+  var YF = window.NAME_YUYI_FLAG || {};
   function isBadChar(c){
     if(!isNameChar(c)) return true;
-    return yiNote(c).indexOf('不宜入名') >= 0;
+    return YF[c] === 'bad';
   }
   function isRareChar(c){
-    return yiNote(c).indexOf('凡字少用') >= 0;
+    return YF[c] === 'rare';
   }
   function cls(c){ return isNameChar(c) ? N[c][5] : ''; }
   function genderOf(c){ return isNameChar(c) ? N[c][6] : 0; }
@@ -532,7 +525,7 @@ window.NAME_TWIN = (function(){
       for(var i = 0; i < pool.length && mates.length < M; i++){
         var m = pool[i];
         if(m === sc) continue;
-        if(stripTone(pinyinOf(m)) === stripTone(pinyinOf(sc))) continue; /* 同音则不辨，失了各表其意的用处 */
+        if(xjPyPlain(pinyinOf(m)) === xjPyPlain(pinyinOf(sc))) continue; /* 同音则不辨，失了各表其意的用处 */
         mates.push(m);
       }
       for(var a = 0; a < mates.length; a++){
@@ -693,7 +686,7 @@ window.NAME_TWIN = (function(){
    * 卓、越、嘉、美这些恰恰没有，拿它算相似度会全线落空。 */
   function yuTail(c){
     var Y = window.NAME_YUYI || {};
-    var s = Y[c] || yiNote(c);
+    var s = Y[c] || (Y[c]||'');
     var i = s.indexOf('寓');
     return i >= 0 ? s.slice(i + 1) : s;
   }
@@ -744,7 +737,7 @@ window.NAME_TWIN = (function(){
         for(var i = 0; i < big.length; i++){
           var t = big[i];
           if(t === c1) continue;
-          if(stripTone(pinyinOf(t)) === stripTone(pinyinOf(c1))) continue;
+          if(xjPyPlain(pinyinOf(t)) === xjPyPlain(pinyinOf(c1))) continue;
           var s = synSim(t, c1);
           if(s > bs){ bs = s; best = t; }
         }
@@ -764,7 +757,7 @@ window.NAME_TWIN = (function(){
         for(var n = 0; n < big.length; n++){
           var x = big[n];
           if(x === c1 || x === c2 || x === p1) continue;
-          if(stripTone(pinyinOf(x)) === stripTone(pinyinOf(p1))) continue;
+          if(xjPyPlain(pinyinOf(x)) === xjPyPlain(pinyinOf(p1))) continue;
           var sx = synSim(x, p1);
           if(sx >= 0.15 && sx > fs){ fs = sx; found = x; }
         }
@@ -814,7 +807,7 @@ window.NAME_TWIN = (function(){
     for(var a = 0; a < pool.length && pairs.length < pairCap; a++){
       var n = 0;
       for(var b = a + 1; b < pool.length && n < 6 && pairs.length < pairCap; b++){
-        if(stripTone(pinyinOf(pool[a])) === stripTone(pinyinOf(pool[b]))) continue;
+        if(xjPyPlain(pinyinOf(pool[a])) === xjPyPlain(pinyinOf(pool[b]))) continue;
         pairs.push([pool[a], pool[b]]);
         n++;
       }
@@ -826,13 +819,13 @@ window.NAME_TWIN = (function(){
         var c = big[i];
         if(c === pr[0] || c === pr[1]) continue;
         var s = synSim(c, pr[0]);
-        if(s >= 0.15 && stripTone(pinyinOf(c)) !== stripTone(pinyinOf(pr[0]))) synA.push([c, s]);
+        if(s >= 0.15 && xjPyPlain(pinyinOf(c)) !== xjPyPlain(pinyinOf(pr[0]))) synA.push([c, s]);
       }
       for(var j = 0; j < big.length; j++){
         var c2 = big[j];
         if(c2 === pr[0] || c2 === pr[1]) continue;
         var s2 = synSim(c2, pr[1]);
-        if(s2 >= 0.15 && stripTone(pinyinOf(c2)) !== stripTone(pinyinOf(pr[1]))) synB.push([c2, s2]);
+        if(s2 >= 0.15 && xjPyPlain(pinyinOf(c2)) !== xjPyPlain(pinyinOf(pr[1]))) synB.push([c2, s2]);
       }
       synA.sort(function(p, q){ return q[1] - p[1]; });
       synB.sort(function(p, q){ return q[1] - p[1]; });

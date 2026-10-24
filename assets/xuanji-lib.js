@@ -973,6 +973,11 @@ function xjPyPlain(v){
     .replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g, function (m) { return XJ_PY_MARKS[m] || m; });
 }
 function xjPyPingZe(t){ return (t === 3 || t === 4) ? '仄' : '平'; }
+/* 声母表（全站共用）：zh、ch、sh 在前，余单声母与 y、w 在后；取声母按最长前缀命中。
+   姓名学音律评断与推荐排序同用此表，不各存一份。 */
+var XJ_PY_INITIALS = ['zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h',
+  'j', 'q', 'x', 'r', 'z', 'c', 's', 'y', 'w'];
 window.xjPyTone = xjPyTone;
 window.xjPyPlain = xjPyPlain;
 window.xjPyPingZe = xjPyPingZe;
+window.XJ_PY_INITIALS = XJ_PY_INITIALS;

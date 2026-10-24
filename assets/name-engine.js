@@ -82,11 +82,10 @@ window.NAME_ENGINE = (function(){
   /* ---- 三才：天人地三格个位五行 ---- */
   function sancaiWx(w){ return window.NAME_DATA.WX_OF_NUM[w%10]; }
 
-  /* ---- 三运关系 ---- */
-  var WX_SHENG={木:'火',火:'土',土:'金',金:'水',水:'木'};
-  var WX_KE={木:'土',火:'金',土:'水',金:'木',水:'火'};
+  /* ---- 三运关系 ----
+   * 关系码取 app.js 的 xjWxRelCode（生克两表为全站定本，缺省即用）。 */
   var REL_LABEL={same:'同我', sheng:'我生', beisheng:'生我', ke:'我克', beike:'克我'};
-  function relName(a, b){ return REL_LABEL[xjWxRelCode(a, b, WX_KE, WX_SHENG)]||''; }
+  function relName(a, b){ return REL_LABEL[xjWxRelCode(a, b)]||''; }
 
 /* ---- 汉字五行双轨 ----
  * 数理五行：按康熙笔画个位取（1~2 木 3~4 火 5~6 土 7~8 金 9~0 水），为五格剖象派内生口径，
@@ -97,6 +96,50 @@ window.NAME_ENGINE = (function(){
 function yiWxOf(ch){
   var C = window.NAME_CHARS || {};
   return (C[ch] && C[ch][4]) || '';
+}
+
+/* ---- 喜用匹配双轨判定（共用） ----
+ * 义五行一票、数理五行半票，避免厚此薄彼；姓不可改不入补益，判从 fromIdx 起算
+ * （主盘传姓字数跳过姓，推荐引擎传 0 只判名字段候选）。
+ * 计数口径两态：缺省去重计（同五行数字只计一票，主盘展示与评分用）；
+ * opts.perChar 逐字计（推荐排序用，同五行数字各计一票），两态阈值阶梯同一处。
+ * items：各字 {ch, strokes}；charWx 与 shuWx 为逐字对照数组随返，
+ * 无义五行共识的字哨兵为全角横（'—'），展示层与消费端一律判 '—'。 */
+function matchTrack(items, xi, ji, fromIdx, opts){
+  var D = window.NAME_DATA;
+  var from = fromIdx || 0;
+  var dedupe = !(opts && opts.perChar);
+  var good=[], bad=[], shuGood=[], shuBad=[], neutral=0;
+  for(var mi=from; mi<items.length; mi++){
+    var w=yiWxOf(items[mi].ch), sw=D.WX_OF_NUM[(items[mi].strokes||0)%10];
+    if(w){
+      if(xi.indexOf(w)>=0 && (!dedupe || good.indexOf(w)<0)) good.push(w);
+      if(ji.indexOf(w)>=0 && (!dedupe || bad.indexOf(w)<0)) bad.push(w);
+    } else {
+      neutral++;
+    }
+    /* 数理五行独立计一遍：与义五行并行，不偏废 */
+    if(xi.indexOf(sw)>=0 && (!dedupe || shuGood.indexOf(sw)<0)) shuGood.push(sw);
+    if(ji.indexOf(sw)>=0 && (!dedupe || shuBad.indexOf(sw)<0)) shuBad.push(sw);
+  }
+  var eff=items.length-from-neutral;
+  var hit=good.length, miss=bad.length;
+  /* 双轨合计：义五行一票、数理五行半票（义五行按字义是本源，数理按笔画是通行口径） */
+  var score = hit*2 - miss*2 + shuGood.length - shuBad.length
+    + (hit>0 && miss===0 && shuBad.length===0 ? 1 : 0);
+  var lvl;
+  if(eff===0 && shuGood.length===0 && shuBad.length===0) lvl=['名字无五行可参','neutral'];
+  else if(score>=4) lvl=['双轨补益得力','ji'];
+  else if(score>=2) lvl=['补益得力','ji'];
+  else if(score>=1) lvl=['略有助益','xj'];
+  else if(score<=-3) lvl=['双轨犯忌','xiong'];
+  else if(score<=-2) lvl=['多与忌神同气','xiong'];
+  else if(score<=-1) lvl=['略有妨碍','xj'];
+  else lvl=['平淡','neutral'];
+  return {good:good, bad:bad, shuGood:shuGood, shuBad:shuBad, score:score, label:lvl[0], luck:lvl[1],
+    neutral:neutral,
+    charWx:items.map(function(it){ return yiWxOf(it.ch)||'—'; }),
+    shuWx:items.map(function(it){ return D.WX_OF_NUM[(it.strokes||0)%10]; })};
 }
 
 /* ---- 综合分析入口 ----
@@ -130,54 +173,18 @@ function analyze(xing, ming, linkXi, linkJi){
 
   /* 三运关系 */
   function yun(a,b){
-    var code=xjWxRelCode(a, b, WX_KE, WX_SHENG), r=REL_LABEL[code]||'';
+    var code=xjWxRelCode(a, b), r=REL_LABEL[code]||'';
     var t=D.SANYUN_TEXT[r]||{def:''};
     return {rel:r, luck:xjWxLuckSelf(code), text:t.ji||t.def||''};
   }
   var syc=yun(ren.wx,tian.wx), jic=yun(ren.wx,di.wx), shj=yun(ren.wx,wai.wx);
 
-  /* 喜用匹配：义五行与数理五行双轨并判，避免厚此薄彼。
-     姓不可改不入补益（名学通例为名补喜用），只对名字段匹配；
-     无义五行共识的字不等于无判，数理五行仍参与。 */
+  /* 喜用匹配：双轨判定在 matchTrack（共用），主盘从姓后起判，charWx 覆盖全名各字 */
   var xi=linkXi||[], ji=linkJi||[];
-  var match=null;
-  if(xi.length||ji.length){
-    /* 各字双轨五行：义五行与数理五行并列 */
-    var yiWx=plans.map(function(pp){ return yiWxOf(pp.ch); });
-    var shuWx=plans.map(function(pp){ return D.WX_OF_NUM[pp.strokes%10]; });
-    var good=[], bad=[], shuGood=[], shuBad=[], neutral=0;
-    for(var mi=xchars.length; mi<plans.length; mi++){
-      var w=yiWx[mi], sw=shuWx[mi];
-      if(w){
-        if(xi.indexOf(w)>=0 && good.indexOf(w)<0) good.push(w);
-        if(ji.indexOf(w)>=0 && bad.indexOf(w)<0) bad.push(w);
-      } else {
-        neutral++;
-      }
-      /* 数理五行独立计一遍：与义五行并行，不偏废 */
-      if(xi.indexOf(sw)>=0 && shuGood.indexOf(sw)<0) shuGood.push(sw);
-      if(ji.indexOf(sw)>=0 && shuBad.indexOf(sw)<0) shuBad.push(sw);
-    }
-    var eff=mchars.length-neutral;
-    var hit=good.length, miss=bad.length;
-    /* 双轨合计：义五行一票、数理五行半票（义五行按字义是本源，数理按笔画是通行口径） */
-    var score = hit*2 - miss*2 + shuGood.length - shuBad.length
-      + (hit>0 && miss===0 && shuBad.length===0 ? 1 : 0);
-    var lvl;
-    if(eff===0 && shuGood.length===0 && shuBad.length===0) lvl=['名字无五行可参','neutral'];
-    else if(score>=4) lvl=['双轨补益得力','ji'];
-    else if(score>=2) lvl=['补益得力','ji'];
-    else if(score>=1) lvl=['略有助益','xj'];
-    else if(score<=-3) lvl=['双轨犯忌','xiong'];
-    else if(score<=-2) lvl=['多与忌神同气','xiong'];
-    else if(score<=-1) lvl=['略有妨碍','xj'];
-    else lvl=['平淡','neutral'];
-    match={good:good, bad:bad, shuGood:shuGood, shuBad:shuBad, score:score, label:lvl[0], luck:lvl[1],
-           charWx:yiWx, shuWx:shuWx, neutral:neutral};
-  }
+  var match=(xi.length||ji.length)?matchTrack(plans, xi, ji, xchars.length):null;
 
   return {
-    ok:true, plans:plans, wg:wg, n81:n81, xcharsLen:xchars.length,
+    ok:true, plans:plans, wg:wg, xcharsLen:xchars.length,
     tian:tian, ren:ren, di:di, wai:wai, zong:zong,
     sancai:{tian:st, ren:sr, di:sd, luck:sc.luck, text:sc.text},
     sanyun:{chenggong:syc, jichu:jic, shejiao:shj},
@@ -193,21 +200,28 @@ function analyze(xing, ming, linkXi, linkJi){
  *   组合意境＝姓与名相邻字对义类联动逐对分析（义类取 NAME_CHARS 档案）；
  *   字形＝结构变化、开合、疏密、轻重、繁简折算；数理配置＝五格三才三运打包折算。 */
 /* 缺陷封顶：分项存在负向缺陷时不得给满分（每条缺陷压 capPer 分，保底 floor）。
- * 原则：有描述为'欠起伏、拗口、易混、平平、俗白、缺档案'等缺陷的分项，分数必须低于满分。 */
-function capFlaws(full, flaws, capPer, floor){
-  var n=flaws.length;
-  if(!n) return full;
-  return Math.max(floor, full - n*capPer);
+ * 缺陷以计数传入（flawN），计数在各缺陷判定点累加，与展示 note 同源同点，不作文案回读。 */
+function capFlaws(full, flawN, capPer, floor){
+  return flawN ? Math.max(floor, full - flawN*capPer) : full;
 }
 
-function score(r){
-  /* 数理配置：五格三才三运打包折算（85 分制比例压缩到 5 分，吉满凶不尽废） */
+/* ---- 数理配置折算（共用）：五格各 8 分制、三才 30 分制、三运各 5 分制，满分 85 ----
+ * 综合评分与推荐引擎的数理缓存同用此一折算，档位取数只在此一处。 */
+function shuliRaw(geLucks, sancaiLuck, yunLucks){
   function g8(l){return l==='ji'?8:(l==='xj'?5:1);}
   function g30(l){return l==='ji'?30:(l==='xj'?18:6);}
   function g5(l){return l==='xiong'?2:(l==='xj'?4:5);}
-  var raw = g8(r.tian.luck)+g8(r.ren.luck)+g8(r.di.luck)+g8(r.wai.luck)+g8(r.zong.luck)
-    + g30(r.sancai.luck)
-    + g5(r.sanyun.chenggong.luck)+g5(r.sanyun.jichu.luck)+g5(r.sanyun.shejiao.luck);
+  var s=0;
+  geLucks.forEach(function(l){ s+=g8(l); });
+  s+=g30(sancaiLuck);
+  (yunLucks||[]).forEach(function(l){ s+=g5(l); });
+  return s;
+}
+
+function score(r){
+  /* 数理配置：五格三才三运打包折算（折算档在 shuliRaw 共用一处，与推荐引擎同取） */
+  var raw = shuliRaw([r.tian.luck, r.ren.luck, r.di.luck, r.wai.luck, r.zong.luck], r.sancai.luck,
+    [r.sanyun.chenggong.luck, r.sanyun.jichu.luck, r.sanyun.shejiao.luck]);
   var shuli = Math.round(raw/85*5);
 
   var C = window.NAME_CHARS || {};
@@ -225,9 +239,9 @@ function score(r){
     }
     var ts=nameChars.map(toneOf);
     if(!nameChars.length || ts.some(function(t){return !t;})){ yinlv=14; yinlvNote='读音档案不足，按中位计'; return; }
-    var notes=[], v=10;
+    var notes=[], v=10, flawN=0;
     var same=ts.every(function(t){return t===ts[0];});
-    if(ts.length>=2 && same){ notes.push('名内'+ts.length+'字同调，欠起伏'); v-=2; }
+    if(ts.length>=2 && same){ notes.push('名内'+ts.length+'字同调，欠起伏'); v-=2; flawN++; }
     else if(ts.length>=2 && ts[0]!==ts[ts.length-1]){ notes.push('首尾平仄相异，读来起伏'); v+=4; }
     var plain=function(ch){ return P[ch]?xjPyPlain(P[ch]):''; };
     var pys=nameChars.map(plain), dup=false;
@@ -235,26 +249,23 @@ function score(r){
     /* 叠字（名字两字同字）为有意重复，亲昵顺口，不作同音扣分，反加音律分 */
     var redup=(nameChars.length===2 && nameChars[0]===nameChars[1]);
     if(redup){ notes.push('叠音亲昵，读来顺口'); v+=3; }
-    else if(dup){ notes.push('名内有同音字，口语易混'); v-=4; }
-    /* 双声、叠韵、声母三连（与推荐引擎 soundScore 同规） */
-    var NM_INI=['zh','ch','sh','b','p','m','f','d','t','n','l','g','k','h','j','q','x','r','z','c','s','y','w'];
-    function iniOf(p0){ for(var i=0;i<NM_INI.length;i++){ if(p0.indexOf(NM_INI[i])===0) return NM_INI[i]; } return ''; }
+    else if(dup){ notes.push('名内有同音字，口语易混'); v-=4; flawN++; }
+    /* 双声、叠韵、声母三连（声母表取全站共用 XJ_PY_INITIALS） */
+    function iniOf(p0){ for(var i=0;i<XJ_PY_INITIALS.length;i++){ if(p0.indexOf(XJ_PY_INITIALS[i])===0) return XJ_PY_INITIALS[i]; } return ''; }
     var inis=nameChars.map(function(ch){ return P[ch]?iniOf(plain(ch)):''; });
     var finals=nameChars.map(function(ch){ if(!P[ch]) return ''; var p1=plain(ch); var ii=iniOf(p1); return ii?p1.slice(ii.length):p1; });
     var SONORANT=/^(l|m|n|r)$/; /* 流音鼻音类：双声为柔连之美（玲珑、绵绵），非声病 */
     var ini3=(inis.length>=3 && inis.every(function(x){return x===inis[0] && x;}));
     var ini2=(inis.length===2 && inis[0]===inis[1] && inis[0]);
     if(ini3 && SONORANT.test(inis[0])){ notes.push('声母连贯柔和（流音双声），读来清亮'); v+=2; }
-    else if(ini3){ notes.push('三字声母雷同（塞擦音三连），拗口'); v-=5; }
-    else if(ini2 && !redup && !SONORANT.test(inis[0])){ notes.push('名内两字声母相同（塞音双声），稍拗口'); v-=2; }
+    else if(ini3){ notes.push('三字声母雷同（塞擦音三连），拗口'); v-=5; flawN++; }
+    else if(ini2 && !redup && !SONORANT.test(inis[0])){ notes.push('名内两字声母相同（塞音双声），稍拗口'); v-=2; flawN++; }
     var fin2=(finals.length===2 && finals[0]===finals[1] && finals[0]);
-    if(fin2 && !redup){ notes.push('名内两字韵母相同（叠韵），稍拗口'); v-=2; }
+    if(fin2 && !redup){ notes.push('名内两字韵母相同（叠韵），稍拗口'); v-=2; flawN++; }
     if(!notes.length) notes.push('声调错落，无同音之弊');
     yinlvNote=notes.join('；');
-    /* 缺陷封顶：欠起伏、同音、拗口、叠韵任一存在即不得满分 */
-    var FLAW=/欠起伏|同音|拗口|叠韵|雷同/;
-    var flaws=notes.filter(function(x){ return FLAW.test(x); });
-    yinlv=Math.max(4, Math.min(capFlaws(20, flaws, 3, 10), v*2));
+    /* 缺陷封顶：flawN 在各缺陷判定点累加（同调、同音、声母雷同、双声、叠韵） */
+    yinlv=Math.max(4, Math.min(capFlaws(20, flawN, 3, 10), v*2));
   })();
 
   /* 俗白叠字判定（可泛化口径）：叠字用字属通用组扣档字（适用度<0，多为具象、方位、口语字根）
@@ -289,31 +300,29 @@ function score(r){
     if(!a||!b) return null;
     if(a==='虚词'||b==='虚词'){
       var other=a==='虚词'?b:a;
-      return (other==='吉祥'||other==='品德')?{v:1,note:'虚实相生'}:{v:-2,note:'虚词泛用，实感不足'};
+      return (other==='吉祥'||other==='品德')?{v:1,note:'虚实相生'}:{v:-2,note:'虚词泛用，实感不足',flaw:1};
     }
     var k1=a+b, k2=b+a;
     if(AFFIN[k1]!==undefined) return {v:AFFIN[k1],note:'义类相映'};
     if(AFFIN[k2]!==undefined) return {v:AFFIN[k2],note:'义类相映'};
-    if(a===b) return PARALLEL_OK[a]?{v:1,note:'同义并列，意蕴相承'}:{v:0,note:'同义类并列，观感平平'};
+    if(a===b) return PARALLEL_OK[a]?{v:1,note:'同义并列，意蕴相承'}:{v:0,note:'同义类并列，观感平平',flaw:1};
     return {v:1,note:'义类互补'};
   }
   var nameFull=([allChars[r.xcharsLen-1]]).concat(nameChars); /* 姓末字+名字段：意境看承接 */
   var cats=nameFull.map(function(ch){ return C[ch]?C[ch][5]:''; });
   var redupName=(allChars.length===3 && allChars[1]===allChars[2]);
   var redupPlain=redupName && C[allChars[1]] && (C[allChars[1]][7]||0)<0 && NM_REDUP_OK.indexOf(allChars[1])<0;
-  var yj=0, pairs=[];
+  var yj=0, pairs=[], yjFlawN=0;
   for(var pi=0; pi<cats.length-1; pi++){
     var pr=semPair(cats[pi],cats[pi+1]);
-    if(pr){ yj+=pr.v; pairs.push(nameFull[pi]+'（'+(cats[pi]||'无档案')+'）×'+nameFull[pi+1]+'（'+(cats[pi+1]||'无档案')+'）：'+pr.note); }
+    if(pr){ yj+=pr.v; if(pr.flaw) yjFlawN++; pairs.push(nameFull[pi]+'（'+(cats[pi]||'无档案')+'）×'+nameFull[pi+1]+'（'+(cats[pi+1]||'无档案')+'）：'+pr.note); }
   }
   /* 按对数归一：多字名不因字对多而累计冲顶 */
   var avg = pairs.length ? yj/pairs.length : 0;
-  /* 缺陷封顶：含'观感平平、泛用'缺陷对时，意境不得进 13/15 高档 */
-  var YJ_FLAW=/观感平平|泛用/;
-  var yjFlaws=pairs.filter(function(x){ return YJ_FLAW.test(x); });
+  /* 缺陷封顶：flaw 对（虚词泛用、同义类并列观感平平）在 semPair 判定点标记，意境不得进 13/15 高档 */
   var yjFen = pairs.length===0 ? 8
     : avg>=2?15 : avg>=1.5?13 : avg>=1?11 : avg>=0.5?8 : avg>=0?5 : avg>=-0.5?3 : 1;
-  if(yjFlaws.length && yjFen>11) yjFen=11;
+  if(yjFlawN && yjFen>11) yjFen=11;
   if(redupName && !redupPlain && yjFen<6) yjFen=6; /* 褒义叠字自成语感，意境兜底 */
   var yjNote = pairs.length===0 ? '用字缺义类档案，无组合分析，按中位计'
     : pairs.join('；');
@@ -407,11 +416,11 @@ function luckTxtWx(l){ return l==='ji'?'吉':(l==='xj'?'半吉':'凶'); }
     var m=n81(total), info=window.NAME_DATA.NAME81[m-1];
     var zongGe={raw:total, num:m, luck:info.luck, key:info.key, tag:info.tag,
                 wx:window.NAME_DATA.WX_OF_NUM[m%10]};
-    /* 各字双轨五行：义五行为主（'：'为无共识），数理五行对照 */
+    /* 各字双轨五行：义五行为主（'—'为无共识哨兵），数理五行对照 */
     var yiWx=plans.map(function(p){ return yiWxOf(p.ch) || '—'; });
     var charWx=yiWx;
     var shuWx=plans.map(function(p){ return window.NAME_DATA.WX_OF_NUM[p.strokes%10]; });
-    /* 八字联动：按义五行统计补忌（'：'中性不计），不下五格结论 */
+    /* 八字联动：按义五行统计补忌（'—'无共识不计），不下五格结论 */
     var match=null;
     var xi=linkXi||[], ji=linkJi||[];
     if(xi.length||ji.length){
@@ -438,6 +447,10 @@ function luckTxtWx(l){ return l==='ji'?'吉':(l==='xj'?'半吉':'凶'); }
     n81: n81,
     sancaiWx: sancaiWx,
     relName: relName,
+    yiWxOf: yiWxOf,
+    matchTrack: matchTrack,
+    shuliRaw: shuliRaw,
+    luckTxtWx: luckTxtWx,
     analyze: analyze,
     analyzeLong: analyzeLong,
     score: score

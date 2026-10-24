@@ -658,8 +658,13 @@ function xjApplyEngineModState(key, idsFn){
 }
 window.xjApplyEngineModState = xjApplyEngineModState;
 /* ===== 五行关系码（全站共用） =====
-   同我、我生、生我、我克、克我五态；称谓由页映射，关系表由页传入，本件不另存一份。 */
+   同我、我生、生我、我克、克我五态；称谓由页映射。五行生克两表在此存全站定本一份，
+   调用缺省即用定本；个别体系另有生克取法时仍可显式传入，不传即取定本。 */
+var XJ_WX_SHENG = {木:'火', 火:'土', 土:'金', 金:'水', 水:'木'}; /* 我生 */
+var XJ_WX_KE    = {木:'土', 火:'金', 土:'水', 金:'木', 水:'火'}; /* 我克 */
 function xjWxRelCode(a, b, ke, sheng){
+  ke = ke || XJ_WX_KE;
+  sheng = sheng || XJ_WX_SHENG;
   if(a === b) return 'same';
   if(sheng[a] === b) return 'sheng';
   if(sheng[b] === a) return 'beisheng';

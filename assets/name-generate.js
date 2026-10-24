@@ -22,12 +22,10 @@ window.NAME_GENERATE = (function () {
     if (!raw) return null;
     return { py: raw.replace(/[0-9]$/, ''), tone: xjPyTone(raw) };
   }
-  /* 韵母近似切分：去掉声母（含 zh、ch、sh 与 y、w），余部作韵母 */
-  var INITIALS = ['zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h',
-    'j', 'q', 'x', 'r', 'z', 'c', 's', 'y', 'w'];
+  /* 韵母近似切分：去掉声母（含 zh、ch、sh 与 y、w），余部作韵母；声母表取全站共用 XJ_PY_INITIALS */
   function finalOf(py) {
-    for (var i = 0; i < INITIALS.length; i++) {
-      if (py.indexOf(INITIALS[i]) === 0) return py.slice(INITIALS[i].length);
+    for (var i = 0; i < XJ_PY_INITIALS.length; i++) {
+      if (py.indexOf(XJ_PY_INITIALS[i]) === 0) return py.slice(XJ_PY_INITIALS[i].length);
     }
     return py;
   }
@@ -65,25 +63,17 @@ window.NAME_GENERATE = (function () {
     var wg = E.calcWuge(xst, mst);
     var ren = E.n81(wg.ren), di = E.n81(wg.di), zong = E.n81(wg.zong), wai = E.n81(wg.wai), tian = E.n81(wg.tian);
     function lk(n) { return D.NAME81[n - 1].luck; }
-    function g8(l) { return l === 'ji' ? 8 : (l === 'xj' ? 5 : 1); }
-    function g30(l) { return l === 'ji' ? 30 : (l === 'xj' ? 18 : 6); }
-    function g5(l) { return l === 'xiong' ? 2 : (l === 'xj' ? 4 : 5); }
     var st = D.WX_OF_NUM[wg.tian % 10], sr = D.WX_OF_NUM[wg.ren % 10], sd = D.WX_OF_NUM[wg.di % 10];
     var sc = D.SANCAI[st + sr + sd] || { luck: 'xj' };
-    function rel(a, b) { return E.relName(a, b); }
-    var s = g8(lk(tian)) + g8(lk(ren)) + g8(lk(di)) + g8(lk(wai)) + g8(lk(zong)) + g30(sc.luck);
-    s += g5(rel(sr, st) === '克我' ? 'xiong' : (rel(sr, st) === '我克' ? 'xj' : 'ji'));
-    s += g5(rel(sr, sd) === '克我' ? 'xiong' : (rel(sr, sd) === '我克' ? 'xj' : 'ji'));
+    /* 成功运与基础运两轴：关系码与判吉取全站共用件（xjWxRelCode、xjWxLuckSelf），
+       折算档取 name-engine 的 shuliRaw（与综合评分同一处折算） */
+    var s = E.shuliRaw([lk(tian), lk(ren), lk(di), lk(wai), lk(zong)], sc.luck,
+      [xjWxLuckSelf(xjWxRelCode(sr, st)), xjWxLuckSelf(xjWxRelCode(sr, sd))]);
     GRID_CACHE[key] = { base: Math.max(1, s), sancai: sc.luck, renWx: sr, zongWx: D.WX_OF_NUM[wg.zong % 10] };
     return GRID_CACHE[key];
   }
 
-  /* ---- 喜用补益分（义五行口径，镜像 name-engine.analyze 的 match 双轨判定） ----
-   * r 传候选的 charYi（名字段各字义五行）；姓不入补益（名学通例为名补喜用）。
-   * 返回档位 4 / 7 / 9 / 11 / 15，满档为双轨补益得力。 */
-  function yiWxOf(ch) {
-    return (C[ch] && C[ch][4]) || '';
-  }
+  /* 义五行取数用 name-engine 的 yiWxOf（共用一源）；姓不入补益（名学通例为名补喜用）。 */
 
   /* 成词库：名字段两字成词命中时加分并记词义，推荐卡展示组合释义与出处 */
   var WORDS = null; /* generate 首调用时惰性取 window.NAME_WORDS，规避 script 加载顺序 */
@@ -101,32 +91,19 @@ window.NAME_GENERATE = (function () {
     chs.forEach(function (c) { var h = HEAT[c] || 0; if (h > top) top = h; });
     return top;
   }
+  /* ---- 喜用补益分：双轨判定取 name-engine 的 matchTrack（共用，逐字计态），此处只按档折点 ----
+   * v 档：双轨得力 15、略有助益 11、略有妨碍 7、犯忌 4、无参或平淡 9（推荐排序口径）。 */
   function xiMatchScore(chars, xi, ji) {
     if (!(xi && xi.length) && !(ji && ji.length)) return null;
-    var D = window.NAME_DATA;
-    var good = 0, bad = 0, sg = 0, sb = 0, eff = 0;
-    chars.forEach(function (ch) {
-      var w = yiWxOf(ch);
-      var sw = D.WX_OF_NUM[(C[ch] ? C[ch][2] : 0) % 10];
-      if (w) {
-        eff++;
-        if (xi.indexOf(w) >= 0) good++;
-        if (ji.indexOf(w) >= 0) bad++;
-      }
-      if (xi.indexOf(sw) >= 0) sg++;
-      if (ji.indexOf(sw) >= 0) sb++;
-    });
-    var sc = good * 2 - bad * 2 + sg - sb + (good > 0 && bad === 0 && sb === 0 ? 1 : 0);
-    var label, luck, v;
-    if (eff === 0 && sg === 0 && sb === 0) { label = '名字无五行可参'; luck = 'neutral'; v = 9; }
-    else if (sc >= 4) { label = '双轨补益得力'; luck = 'ji'; v = 15; }
-    else if (sc >= 2) { label = '补益得力'; luck = 'ji'; v = 15; }
-    else if (sc >= 1) { label = '略有助益'; luck = 'xj'; v = 11; }
-    else if (sc <= -3) { label = '双轨犯忌'; luck = 'xiong'; v = 4; }
-    else if (sc <= -2) { label = '多与忌神同气'; luck = 'xiong'; v = 4; }
-    else if (sc <= -1) { label = '略有妨碍'; luck = 'xj'; v = 7; }
-    else { label = '平淡'; luck = 'neutral'; v = 9; }
-    return { label: label, luck: luck, v: v, good: good, bad: bad };
+    var m = E.matchTrack(chars.map(function (c) { return { ch: c, strokes: (C[c] ? C[c][2] : 0) }; }),
+      xi, ji, 0, { perChar: true });
+    var v;
+    if (m.label === '双轨补益得力' || m.label === '补益得力') v = 15;
+    else if (m.label === '略有助益') v = 11;
+    else if (m.label === '略有妨碍') v = 7;
+    else if (m.luck === 'xiong') v = 4;
+    else v = 9;
+    return { label: m.label, luck: m.luck, v: v, good: m.good.length, bad: m.bad.length };
   }
 
   /* ---- 音律调分 ---- */
@@ -137,8 +114,8 @@ window.NAME_GENERATE = (function () {
     var tones = valid.map(function (p) { return p.tone; });
     var finals = valid.map(function (p) { return finalOf(p.py); });
     var initials = valid.map(function (p) {
-      for (var i = 0; i < INITIALS.length; i++) {
-        if (p.py.indexOf(INITIALS[i]) === 0) return INITIALS[i];
+      for (var i = 0; i < XJ_PY_INITIALS.length; i++) {
+        if (p.py.indexOf(XJ_PY_INITIALS[i]) === 0) return XJ_PY_INITIALS[i];
       }
       return '';
     });
@@ -160,7 +137,7 @@ window.NAME_GENERATE = (function () {
     return { v: v, note: notes.length ? notes.join('；') : '声韵协调' };
   }
 
-  /* ---- 谐音避忌：与页面 NM_TABOO 同源同规 ----
+  /* ---- 谐音避忌：表取 NAME_DATA.NM_TABOO（与页面展示同一份数据） ----
    * 读音无调比对，来源与页面 nmSyll 一致（字库拼音优先、拼音表兜底）
    * 硬忌（2）直接淘汰；软忌（1）记档，排序时扣 40 分沉底，不淘汰 */
   /* 音节与结构逐字缓存：候选量以十万计，避免每候选重复做正则与切片 */
@@ -183,7 +160,7 @@ window.NAME_GENERATE = (function () {
   var TABOO_IDX = null;
   function tabooIndex() {
     if (TABOO_IDX) return TABOO_IDX;
-    var idx = {}, T = window.NM_TABOO || [];
+    var idx = {}, T = (D && D.NM_TABOO) || [];
     for (var k = 0; k < T.length; k++) {
       var s = T[k][0], h = s[0];
       (idx[h] = idx[h] || []).push({ rest: s.slice(1), lv: T[k][3] || 1, word: T[k][1] });
@@ -324,6 +301,12 @@ window.NAME_GENERATE = (function () {
     var nameLen = parseInt(opts.len, 10) || (opts.single ? 1 : 2);
     if ([1, 2, 3, 4].indexOf(nameLen) < 0) nameLen = 2;
     var single = nameLen === 1;
+    /* 典籍出处偏好：classicNames 为所选典籍的名目数组，命中名目在确定性分序前优先排前，未命中随后不淘汰 */
+    var classicSet = null;
+    if (opts.classicNames && opts.classicNames.length) {
+      classicSet = {};
+      opts.classicNames.forEach(function (n) { classicSet[n] = 1; });
+    }
 
     /* ---- 五行要求（按名首字五行计）----
      * 正数：名单中该五行至少几名，名额在各正数五行间轮转分配；
@@ -373,7 +356,7 @@ window.NAME_GENERATE = (function () {
       /* 五行排除、配额：按义五行计（水字属水）；无共识的字不属任何五行，不受排除约束；
          字辈字为宗族必用字，豁免排除 */
       for (var wxi = 0; wxi < chs.length; wxi++) {
-        if (chs[wxi] !== beizi && wxExcl[yiWxOf(chs[wxi])]) return;
+        if (chs[wxi] !== beizi && wxExcl[E.yiWxOf(chs[wxi])]) return;
       }
       /* 字辈与避讳先判：硬性条件不符直接淘汰，免做后续笔画、音律、义类计算 */
       if (beizi && chs[bzIdx] !== beizi) return;
@@ -481,12 +464,12 @@ window.NAME_GENERATE = (function () {
         shuli: shuli10,
         q: cs.reduce(function (s, c) { return s + (c[7] || 0); }, 0),
         grid: r,
-        gridNote: '三才' + (r.sancai === 'ji' ? '吉' : r.sancai === 'xj' ? '次吉' : '凶'),
+        gridNote: '三才' + E.luckTxtWx(r.sancai),
         sound: snd,
         sem: sem,
         xi: xiM,
         pinyin: xpy.map(function (p) { return p ? p.py : '?'; }).concat(py2.map(function (p) { return p ? p.py : '?'; })).join(' '),
-        charWx: chs.map(function (c) { return yiWxOf(c) || '—'; }),
+        charWx: chs.map(function (c) { return E.yiWxOf(c) || '—'; }),
         charWxShu: cs.map(function (c) { return D.WX_OF_NUM[c[2] % 10]; }),
         word: word ? { def: word[0], src: word[3] || '', classic: classic } : null,
         heat: heat,
@@ -608,6 +591,7 @@ window.NAME_GENERATE = (function () {
         + '|' + avChars.join(',') + '|' + avSyls.join(',') + '|' + xi.join(',') + '|' + ji.join(',')
         + '|' + (opts.strictSancai !== false) + '|' + (single ? 1 : 0)
         + '|' + (opts.wxQuota ? JSON.stringify(opts.wxQuota) : '')
+        + '|' + (classicSet ? (opts.classicNames.length + ':' + opts.classicNames[0] + ':' + opts.classicNames[opts.classicNames.length - 1]) : '')
         /* 已列集合参与窗口构建，故入签名；摘要取条数加首末名，续段间互不相同 */
         + '|' + (opts.exclude && opts.exclude.length
           ? opts.exclude.length + ':' + opts.exclude[0] + ':' + opts.exclude[opts.exclude.length - 1] : '');
@@ -624,7 +608,14 @@ window.NAME_GENERATE = (function () {
       for (var u = 0; u < arr.length; u++) {
         if (!seenN[arr[u].name]) { seenN[arr[u].name] = 1; uniq.push(arr[u]); }
       }
-      var sorted = uniq.sort(function (a, b) { return b._dscore - a._dscore; });
+      /* 排序：选典籍出处时命中名目优先排前（组内保持确定性分降序），未选即纯确定性分降序 */
+      var sorted = uniq.sort(function (a, b) {
+        if (classicSet) {
+          var ka = classicSet[a.name] ? 1 : 0, kb = classicSet[b.name] ? 1 : 0;
+          if (ka !== kb) return kb - ka;
+        }
+        return b._dscore - a._dscore;
+      });
       /* 已列候选整段剔除后再建窗口：续段取的是排序序贯的下一段，段与段互不重复 */
       if (opts.exclude && opts.exclude.length) {
         sorted = sorted.filter(function (n) { return !__exSet[n.name]; });
@@ -872,11 +863,18 @@ window.NAME_GENERATE = (function () {
       return { ok: false, xst: xst, reason: '所选五行在该姓氏下无候选（按义五行计），请调整五行组合、数量或名字字数。' };
     }
 
+    /* 典籍出处偏好最终落序：窗口、五行配额与多样性机制各按己序取用，出表前按命中名目做一次稳定分组，
+       命中名目保持原相对次序排在前列，未命中次序不变随后 */
+    if (classicSet) {
+      picked = picked.filter(function (n) { return classicSet[n.name]; })
+        .concat(picked.filter(function (n) { return !classicSet[n.name]; }));
+    }
+
     return { ok: true, xing: xing, xst: xst, candidateCount: rawT.count || rawT[0].length, len: nameLen,
       relaxed: relaxedLv,
       wxQuota: quota, wxGot: wxGot, wxShort: wxShort, wxCount: wxAll,
       wxExcl: Object.keys(wxExcl).length ? Object.keys(wxExcl) : null,
-      bzExemptWx: beizi && wxExcl[yiWxOf(beizi)] ? beizi : null,
+      bzExemptWx: beizi && wxExcl[E.yiWxOf(beizi)] ? beizi : null,
       list: picked.map(function (n) {
         return { name: n.name, pinyin: n.pinyin, shuli: n.shuli,
           gridNote: n.gridNote,
