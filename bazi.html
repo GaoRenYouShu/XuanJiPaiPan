@@ -1323,12 +1323,12 @@ function tableizeCore(BZ, err){
     yitiSecs.push('<details class="zr-mod zr-quant" id="'+mod[2]+'"><summary>'+escT(name)+'</summary><div class="zr-mod-b">'+html+'</div></details>');
     if(card.parentNode) card.parentNode.removeChild(card);
   });
-  // 四模块独立成"四、人生议题"折叠板块（与基础信息、本命分析、易理象数、运势分析同机制：初始折叠、状态可保存），插到运势分析前
+  // 四模块独立成"人生议题"折叠板块（与基础信息、本命分析、易理象数、运势分析同机制：初始折叠、状态可保存），插到运势分析前
   const out=document.getElementById('out');
   const sec=document.createElement('section');
   sec.className='mod collapsed'; /* 与 mod-life/mod-yun 一致：默认折叠 */
   sec.id='mod-yiti';
-  sec.innerHTML='<div class="mod-head" onclick="toggleMod(\'mod-yiti\')"><span class="mod-caret">▾</span><span class="gua-ico">'+((window._guaIcons&&window._guaIcons.yiti)||'☴')+'</span><span class="mod-title">四、人生议题</span><span class="mod-sub">事业财运 婚姻感情 性格健康 家庭子女</span></div><div class="mod-body">'+yitiSecs.join('')+'</div>';
+  sec.innerHTML='<div class="mod-head" onclick="toggleMod(\'mod-yiti\')"><span class="mod-caret">▾</span><span class="gua-ico">'+((window._guaIcons&&window._guaIcons.yiti)||'☴')+'</span><span class="mod-title">人生议题</span><span class="mod-sub">事业财运 婚姻感情 性格健康 家庭子女</span></div><div class="mod-body">'+yitiSecs.join('')+'</div>';
   const yun=document.getElementById('mod-yun');
   if(yun&&out) out.insertBefore(sec, yun);
   else if(out) out.appendChild(sec);

@@ -861,7 +861,7 @@ function query(){
     var matchHtml='';
     if(r.match){
       var m=r.match;
-      matchHtml='<section class="mod" id="nmModXiYong"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">五、喜用匹配</span><span class="mod-sub">义五行与数理五行、双轨并判</span></div>'
+      matchHtml='<section class="mod" id="nmModXiYong"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">喜用匹配</span><span class="mod-sub">义五行与数理五行、双轨并判</span></div>'
         +'<div class="mod-body">'
         +'<p class="sub-note">喜用五行【'+(LINK_XI.join('、')||'未明')+'】　忌神五行【'+(LINK_JI.join('、')||'未明')+'】</p>'
         +'<table class="xlr-table nm-mt-1"><tbody>'
@@ -889,12 +889,12 @@ function query(){
     /* 返回名单链接渲染在详排盘顶部（随 GEN_BACK 出现），不依赖历史栏 */
     var backBar=GEN_BACK?'<p class="sub-note"><a href="javascript:void(0)" id="nmBackGen" class="nm-back-link">← 返回'+(GEN_BACK_MODE==='twin'?'联名':'推荐')+'名单</a></p>':'';
     out.dataset.nmView='han';
-    out.innerHTML=backBar+'<section class="mod" id="nmModBihua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">一、康熙笔画取数</span><span class="mod-sub">计画用字、简转繁</span></div>'
+    out.innerHTML=backBar+'<section class="mod" id="nmModBihua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">康熙笔画取数</span><span class="mod-sub">计画用字、简转繁</span></div>'
       +'<div class="mod-body"><div class="lr-kes">'+chips+'</div>'
       +jfLine
       +'</div></section>'
       /* 二 数理格局：五格 + 三才 + 三运 合并一模块 */
-      +'<section class="mod" id="nmModShuli"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">二、数理格局</span><span class="mod-sub">五格剖象、三才配置、三运关系</span></div>'
+      +'<section class="mod" id="nmModShuli"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">数理格局</span><span class="mod-sub">五格剖象、三才配置、三运关系</span></div>'
       +'<div class="mod-body">'
       +'<div class="nm-sub-sec"><p class="det-h">五格剖象</p>'+wuge
       +'</div>'
@@ -902,7 +902,7 @@ function query(){
       +'<div class="nm-sub-sec"><p class="det-h">三运关系</p>'+yunHtml+'<p class="sub-note nm-center">三才与三运吉凶为生克档（吉、半吉、凶），与八十一数理档（大吉、次吉、凶）分系两判。</p></div>'
       +'</div></section>'
       /* 三 音形避忌：音律 + 谐音避讳 + 字形评断 合并一模块 */
-      +'<section class="mod" id="nmModYinXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">三、音形避忌</span><span class="mod-sub">音律、谐音避讳、字形评断</span></div>'
+      +'<section class="mod" id="nmModYinXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">音形避忌</span><span class="mod-sub">音律、谐音避讳、字形评断</span></div>'
       +'<div class="mod-body">'
       +phonHtml
       +tabooBlock(r.plans.map(function(p){return p.ch;}), ms.length, parseAvoid(document.getElementById('nmAvoid').value), {ch:[...document.getElementById('nmBeizi').value.trim()][0]||'', pos:+document.getElementById('nmBzPos').value})
@@ -1282,7 +1282,7 @@ function etymBlock(chars, mingMs, xingLen, beiziCh){
       +'</tbody></table>')
       :'<p class="sub-note">名源库未收此名目，典籍语料亦无连文命中（名源库按两字名目收录）。</p>')
     +'</div>';
-  return '<section class="mod" id="nmModZiYi"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">四、字义字源</span><span class="mod-sub">姓氏溯源、单字本义、典籍名源</span></div>'
+  return '<section class="mod" id="nmModZiYi"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">字义字源</span><span class="mod-sub">姓氏溯源、单字本义、典籍名源</span></div>'
     +'<div class="mod-body">'
     +'<p class="nm-imp-p"><span class="nm-imp-k">印象标签　</span>'+(nmTagChips(chars, 4)||'<span class="nm-dim">用字之义未详，无标签</span>')+'</p>'
     +xingTable
@@ -1532,7 +1532,7 @@ function twinXiBlock(){
     body='<div class="mh-method">已按第一名出生信息排盘：'+NM_XI_NOTE+'。'
       +'若两名出生时辰不同，可在上方补填第二名时辰，此处即出两命对照。</div>';
   }
-  return '<section class="mod" id="nmModXiDui"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">二、两命喜用对照</span><span class="mod-sub">双胞胎时辰相接、喜用各补</span></div>'
+  return '<section class="mod" id="nmModXiDui"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">两命喜用对照</span><span class="mod-sub">双胞胎时辰相接、喜用各补</span></div>'
     +'<div class="mod-body">'
     +body
     +'</div></section>';
@@ -1675,7 +1675,7 @@ function renderTwin(out, more){
         +'两说取径不同，故分列并陈、不相校夺。长幼按部件书写位次分，先出者为长，后出者为幼。</p>'
       :'')
     +'</div>'
-    +'<section class="mod" id="nmModTwinList"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">一、联名名单</span><span class="mod-sub">五法生成、适用对象</span></div>'
+    +'<section class="mod" id="nmModTwinList"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">联名名单</span><span class="mod-sub">五法生成、适用对象</span></div>'
     +'<div class="mod-body"><div class="nm-gen-grid nm-twin-list">'+cards+'</div></div></section>'
     +(GEN_FAV.length?'<div class="nm-fav-bar"><span class="nm-dim">已收藏：</span>'+GEN_FAV.map(function(f){return '<a href="javascript:void(0)" class="nm-fav-item" data-favn="'+f+'">'+f+'</a>';}).join('　')+'　<a href="javascript:void(0)" id="nmFavClr" class="nm-hist-clr">全部清理</a></div>':'')
     +'<div class="nm-pager">'
@@ -1895,7 +1895,7 @@ function renderGen(out, endNote){
   ];
   out.dataset.nmView='gen';
   out.innerHTML=
-    '<section class="mod" id="nmModGenList"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">一、推荐名单</span><span class="mod-sub">随附典籍出处、翻页续取</span></div>'
+    '<section class="mod" id="nmModGenList"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">推荐名单</span><span class="mod-sub">随附典籍出处、翻页续取</span></div>'
     +'<div class="mod-body"><div class="nm-gen-grid">'+cards+'</div></div></section>'
     +(GEN_FAV.length?'<div class="nm-fav-bar"><span class="nm-dim">已收藏：</span>'+GEN_FAV.map(function(f){return '<a href="javascript:void(0)" class="nm-fav-item" data-favn="'+f+'">'+f+'</a>';}).join('　')+'　<a href="javascript:void(0)" id="nmFavClr" class="nm-hist-clr">全部清理</a></div>':'')
     +'<div class="nm-pager">'
@@ -1904,7 +1904,7 @@ function renderGen(out, endNote){
     +(GEN_PAGE<r.totalPages-1?'<button class="nm-gen-btn nm-pg-btn" data-pg="next">下一页</button>':'')
     +'</div>'
     +(endNote?'<p class="notice">'+endNote+'</p>':'')
-    +'<section class="mod collapsed" id="nmModGenNote"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">二、推荐口径说明</span><span class="mod-sub">枢姓规模、五行名额、避讳字辈</span></div>'
+    +'<section class="mod collapsed" id="nmModGenNote"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">推荐口径说明</span><span class="mod-sub">枢姓规模、五行名额、避讳字辈</span></div>'
     +'<div class="mod-body"><table class="xlr-table nm-note-tbl"><tbody>'+noteRows.filter(Boolean).join('')+'</tbody></table></div></section>';
   /* 收藏栏：点击名字详排全析 + 全部清理 */
   out.querySelectorAll('.nm-fav-item').forEach(function(a){
@@ -1993,7 +1993,7 @@ function renderLong(out){
   var matchHtml='';
   if(r.match){
     var m=r.match;
-    matchHtml='<section class="mod" id="nmModLongXiYong"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">五、喜用匹配</span><span class="mod-sub">义五行补忌、不下五格结论</span></div>'
+    matchHtml='<section class="mod" id="nmModLongXiYong"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">喜用匹配</span><span class="mod-sub">义五行补忌、不下五格结论</span></div>'
       +'<div class="mod-body">'
       +'<p class="sub-note">喜用五行【'+(LINK_XI.join('、')||'未明')+'】　忌神五行【'+(LINK_JI.join('、')||'未明')+'】</p>'
       +'<table class="xlr-table nm-mt-1"><tbody>'
@@ -2005,17 +2005,17 @@ function renderLong(out){
   }
   out.dataset.nmView='long';
   out.innerHTML=
-    '<section class="mod" id="nmModLongBihua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">一、康熙笔画取数</span><span class="mod-sub">逐字计画、简转繁</span></div>'
+    '<section class="mod" id="nmModLongBihua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">康熙笔画取数</span><span class="mod-sub">逐字计画、简转繁</span></div>'
     +'<div class="mod-body"><div class="lr-kes">'+chips+'</div>'
     +'</div></section>'
-    +'<section class="mod" id="nmModLongZongGe"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">二、总格数理</span><span class="mod-sub">全名合计、八十一数理、民俗参考</span></div>'
+    +'<section class="mod" id="nmModLongZongGe"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">总格数理</span><span class="mod-sub">全名合计、八十一数理、民俗参考</span></div>'
     +'<div class="mod-body">'+zongCard+'</div></section>'
-    +'<section class="mod" id="nmModLongYinXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">三、音形避忌</span><span class="mod-sub">音律、谐音、字形</span></div>'
+    +'<section class="mod" id="nmModLongYinXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">音形避忌</span><span class="mod-sub">音律、谐音、字形</span></div>'
     +'<div class="mod-body">'
     +phonBlock(r.plans.map(function(p){return p.ch;}))
     +tabooBlock(r.plans.map(function(p){return p.ch;}))
     +'</div></section>'
-    +'<section class="mod" id="nmModLongWuXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">四、各字五行</span><span class="mod-sub">义五行为主、数理对照</span></div>'
+    +'<section class="mod" id="nmModLongWuXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">各字五行</span><span class="mod-sub">义五行为主、数理对照</span></div>'
     +'<div class="mod-body">'
     +'<p class="ly-zh-p nm-center">义五行　'+charWxLine+'</p>'
     +'<p class="ly-zh-p nm-center nm-dim nm-shu-line">数理对照　'+shuLine+'</p>'

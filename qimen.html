@@ -262,21 +262,21 @@ function renderQiOutput(pan, cells, baseInfo, purpose){
   const plain = plainTalk(pan, purpose||'综合');
   const plainRows = plain.map(r=>qiTr(r.label, r.text)).join('');
   qiHtml=`
-    <section class="mod" id="qmModBase"><div class="mod-head" onclick="qmToggleMod('qmModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">一、基础信息</span><span class="mod-sub">四柱 局数 九宫格</span></div><div class="mod-body">
+    <section class="mod" id="qmModBase"><div class="mod-head" onclick="qmToggleMod('qmModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">基础信息</span><span class="mod-sub">四柱 局数 九宫格</span></div><div class="mod-body">
      <table class="qm-tbl base-info"><tbody>${infoRows}</tbody></table>
      <div class="qi-board">${cells}</div>
      <div class="qi-legend">${QI_LEGEND}</div>
     </div></section>
-    <section class="mod" id="qmModGong"><div class="mod-head" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">二、宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
+    <section class="mod" id="qmModGong"><div class="mod-head" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
      <table class="qm-tbl qm-tbl-sm"><thead><tr><th>宫</th><th>九星</th><th>八门</th><th>八神</th><th>门宫关系</th><th>星之旺衰</th><th>十干克应</th></tr></thead>
      <tbody>${gongOverviewRows}</tbody></table>
      <div class="qm-note">门迫（门克宫，事受制）<span class="qm-rel-xiong">红字</span>；门制（宫克门，力有牵制）<span class="qm-rel-ji">金字</span>。星旺衰：旺相<span class="qm-wx-wang">绿</span>、囚废<span class="qm-wx-ruo">红</span>、休平<span class="qm-wx-ping">灰</span>。</div>
     </div></section>
-    <section class="mod" id="qmModGeju"><div class="mod-head" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="gua-ico">✦</span><span class="mod-title">三、格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}</div></section>
-    <section class="mod" id="qmModSynth"><div class="mod-head" onclick="qmToggleMod('qmModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">四、综合判断</span><span class="mod-sub">值符 值使 用神</span></div><div class="mod-body">
+    <section class="mod" id="qmModGeju"><div class="mod-head" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="gua-ico">✦</span><span class="mod-title">格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}</div></section>
+    <section class="mod" id="qmModSynth"><div class="mod-head" onclick="qmToggleMod('qmModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">综合判断</span><span class="mod-sub">值符 值使 用神</span></div><div class="mod-body">
      <table class="qm-tbl zh-tbl"><tbody>${zhRows}</tbody></table>
     </div></section>
-    <section class="mod" id="qmModPlain"><div class="mod-head" onclick="qmToggleMod('qmModPlain')"><span class="mod-caret">▾</span><span class="gua-ico">✎</span><span class="mod-title">五、白话解读</span><span class="mod-sub">逐项白话</span></div><div class="mod-body">
+    <section class="mod" id="qmModPlain"><div class="mod-head" onclick="qmToggleMod('qmModPlain')"><span class="mod-caret">▾</span><span class="gua-ico">✎</span><span class="mod-title">白话解读</span><span class="mod-sub">逐项白话</span></div><div class="mod-body">
      <table class="qm-plain-tb"><tbody>${plainRows}</tbody></table>
      <div class="qm-note">奇门排盘为传统文化研究，结果仅供参考，请勿迷信。</div>
     </div></section>`;

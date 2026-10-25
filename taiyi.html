@@ -357,7 +357,7 @@ function boardHTML(s){
     </div>`;
   }
   document.getElementById('out').innerHTML=`
-    <section class="mod" id="tyModBase"><div class="mod-head" onclick="tyToggleMod('tyModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">一、基础信息</span><span class="mod-sub">积年 局数 阳遁</span></div><div class="mod-body">
+    <section class="mod" id="tyModBase"><div class="mod-head" onclick="tyToggleMod('tyModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">基础信息</span><span class="mod-sub">积年 局数 阳遁</span></div><div class="mod-body">
     <table class="ty-np"><tbody>
       <tr><td>推算信息</td><td><div class="ty-flow"><span>${ly}</span><span>太岁 ${lunar.getYearInGanZhi()[1]}</span><span>体系：${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}（阳遁）</span></div></td></tr>
       <tr><td>岁计</td><td>值年太乙，${R.year.wen}，太乙居 ${GONG_NAME[R.year.tyGong]}宫</td></tr>
@@ -367,7 +367,7 @@ function boardHTML(s){
       <tr><td>二十八宿</td><td>${(()=>{const song=(lunar.getXiuSong?lunar.getXiuSong():'').trim();const song2=song?(/[。！？]$/.test(song)?song:song+'。'):'';return '本日值宿 '+lunar.getXiu()+'（<span class="'+(lunar.getXiuLuck()==='凶'?'d-xj3':'d-jj3')+'">'+lunar.getXiuLuck()+'</span>）'+(lunar.getZheng?'，其曜为'+lunar.getZheng():'')+(lunar.getAnimal?'，宿主'+lunar.getAnimal():'')+(lunar.getGong?'，所在'+lunar.getGong():'')+'。星宿临日，主当日吉凶所应：'+song2;})()}</td></tr>
     </tbody></table>
     </div></section>
-    <section class="mod" id="tyModZhi"><div class="mod-head" onclick="tyToggleMod('tyModZhi')"><span class="mod-caret">▾</span><span class="gua-ico">☲</span><span class="mod-title">二、本局要旨与兵阵胜负</span><span class="mod-sub">主客 算与格 胜负</span></div><div class="mod-body">
+    <section class="mod" id="tyModZhi"><div class="mod-head" onclick="tyToggleMod('tyModZhi')"><span class="mod-caret">▾</span><span class="gua-ico">☲</span><span class="mod-title">本局要旨与兵阵胜负</span><span class="mod-sub">主客 算与格 胜负</span></div><div class="mod-body">
     <table class="ty-np"><tbody>${(()=>{
       const c=(s,label)=>{
         const gName=G2NINE[s.tyGong]||GONG_NAME[s.tyGong];
@@ -395,7 +395,7 @@ function boardHTML(s){
       </tbody></table>
       <div class="ty-note">日计五音：${R.day.bz.feng||'日支不定'}。据《太乙金镜式经》卷十五。</div>
     </div></section>
-    <section class="mod" id="tyMod16"><div class="mod-head" onclick="tyToggleMod('tyMod16')"><span class="mod-caret">▾</span><span class="gua-ico">☷</span><span class="mod-title">三、十六宫神将盘与太乙八门</span><span class="mod-sub">神将 门值使</span></div><div class="mod-body">
+    <section class="mod" id="tyMod16"><div class="mod-head" onclick="tyToggleMod('tyMod16')"><span class="mod-caret">▾</span><span class="gua-ico">☷</span><span class="mod-title">十六宫神将盘与太乙八门</span><span class="mod-sub">神将 门值使</span></div><div class="mod-body">
     <h3 class="rel-title">十六宫神将盘</h3>
     <div class="ty16-wrap">${boardHTML(R.year)}${boardHTML(R.month)}${boardHTML(R.day)}${Rshi?boardHTML(Rshi):''}</div>
     <div class="ty-note ty-legend">图例：<span class="lg-ty">金底</span>=太乙，<span class="lg-wc">蓝底</span>=文昌，<span class="lg-sh">红底</span>=始击，<span class="lg-js">紫</span>=计神、合神，<span class="lg-zhu">绿</span>=主大将、主参将，<span class="lg-ke">赭</span>=客大将、客参将，<span class="lg-shen">棕</span>=十神（君基、臣基、民基、四神、天乙、地乙、直符、飞符），<span class="lg-ty">金</span>=五福。</div>
@@ -403,14 +403,14 @@ function boardHTML(s){
     ${doorCard(R.year)}${doorCard(R.month)}${doorCard(R.day)}${Rshi?doorCard(Rshi):''}
     <div class="ty-note ty-note-tight ty-legend">图例：<span class="lg-tj">金底</span>=太乙所临之宫。据《太乙统宗宝鉴》卷二《八门所主》、《太乙金镜式经》八门值事法。</div>
     </div></section>
-    <section class="mod" id="tyModFen"><div class="mod-head" onclick="tyToggleMod('tyModFen')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">四、九宫分野与大游小游</span><span class="mod-sub">分野 游年行度</span></div><div class="mod-body">
+    <section class="mod" id="tyModFen"><div class="mod-head" onclick="tyToggleMod('tyModFen')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">九宫分野与大游小游</span><span class="mod-sub">分野 游年行度</span></div><div class="mod-body">
       <table class="ty-np"><thead><tr><th>宫</th><th>数</th><th>方位</th><th>分野</th><th>所主</th><th>灾祥所应</th></tr></thead>
       <tbody>${(()=>{const hit=new Set([R.year.tyGong,R.month.tyGong,R.day.tyGong].concat(Rshi?[Rshi.tyGong]:[]).map(g=>G2NINE[g]||g));return Taiyi.NINE_PALACE.map(p=>'<tr'+(hit.has(p.宫)?' class="ty-hit"':'')+'><td>'+p.宫+'</td><td>'+p.n+'</td><td>'+p.方位+'</td><td>'+p.州+'</td><td>'+p.所主+'</td><td>'+p.灾祥+'</td></tr>').join('');})()}</tbody></table>
       <div class="ty-note">金底行为本局太乙所落之宫（岁计${G2NINE[R.year.tyGong]||GONG_NAME[R.year.tyGong]}、月计${G2NINE[R.month.tyGong]||GONG_NAME[R.month.tyGong]}、日计${G2NINE[R.day.tyGong]||GONG_NAME[R.day.tyGong]}${Rshi?'、时计'+(G2NINE[Rshi.tyGong]||GONG_NAME[Rshi.tyGong]):''}）。</div>
     <h3 class="rel-title">大游小游</h3>
     <div class="info-box"><p>${(()=>{const d=Taiyi.dayouXiaoyou(R.day.acc);return '大游太乙居'+d.大游宫+'宫，入宫'+d.大游凶算.入宫年数+'年，凶算所主：'+d.大游凶算.凶算所主+'；大游天目'+d.大游天目.落辰+'辰，'+d.大游天目.本象+'。小游太乙居'+d.小游宫+'宫。';})()}</p></div>
     </div></section>
-    <section class="mod" id="tyModXiang"><div class="mod-head" onclick="tyToggleMod('tyModXiang')"><span class="mod-caret">▾</span><span class="gua-ico">☶</span><span class="mod-title">五、详细版推演与占断总纲</span><span class="mod-sub">推演 总纲</span></div><div class="mod-body">
+    <section class="mod" id="tyModXiang"><div class="mod-head" onclick="tyToggleMod('tyModXiang')"><span class="mod-caret">▾</span><span class="gua-ico">☶</span><span class="mod-title">详细版推演与占断总纲</span><span class="mod-sub">推演 总纲</span></div><div class="mod-body">
     ${deriveCard(R.year)}${deriveCard(R.month)}${deriveCard(R.day)}${Rshi?deriveCard(Rshi):''}
     ${Rshi?(()=>{const mf=Taiyi.mingFa(Rshi);if(!mf)return '';const YI=Taiyi._tables&&Taiyi._tables.GONG_MING_YI;const rows=[
       ['太乙', '命宫', Rshi.tyGong],

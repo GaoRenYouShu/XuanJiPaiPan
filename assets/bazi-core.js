@@ -2898,7 +2898,7 @@ function renderBaziPage(R, BZ = window.BZ){
     }
   }catch(e){}
   try{ window._guaIcons=_gua; }catch(e){}
-  // ===== 一、基础信息 =====
+  // ===== 基础信息 =====
   // 四柱候选日期确认（仅四柱模式）：未确认时列出候选、确认后显示横幅。
   let pillarConfirm='';
   if(mode==='pillar'){
@@ -2913,7 +2913,7 @@ function renderBaziPage(R, BZ = window.BZ){
     }
   }
   html+=pillarConfirm;
-  html+=`<section class="mod" id="mod-base"><div class="mod-head" onclick="toggleMod('mod-base')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.base}</span><span class="mod-title">一、基础信息</span><span class="mod-sub">四柱 纳音 神煞 农历节气</span></div><div class="mod-body">`;
+  html+=`<section class="mod" id="mod-base"><div class="mod-head" onclick="toggleMod('mod-base')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.base}</span><span class="mod-title">基础信息</span><span class="mod-sub">四柱 纳音 神煞 农历节气</span></div><div class="mod-body">`;
   // ts-box：按输入模式分别呈现
   if(mode==='pillar'){
     const {yg,yz,mg,mz,dg,dz,tg,tz,hasDate,pillarChosenDate,lunar}=R;
@@ -3033,10 +3033,10 @@ function renderBaziPage(R, BZ = window.BZ){
   }
   html+=`</div></section>`;
 
-  // ===== 二、本命分析 =====
+  // ===== 本命分析 =====
   /* 本命分析副标题：命局断事由核心解读无条件渲染，两种输入模式一致。 */
   const lifeSub='五行旺衰 格局喜用 各流派 宜忌补救 断事 纳音';
-  html+=`<section class="mod collapsed" id="mod-life"><div class="mod-head" onclick="toggleMod('mod-life')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.life}</span><span class="mod-title">二、本命分析</span><span class="mod-sub">${lifeSub}</span></div><div class="mod-body">`;
+  html+=`<section class="mod collapsed" id="mod-life"><div class="mod-head" onclick="toggleMod('mod-life')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.life}</span><span class="mod-title">本命分析</span><span class="mod-sub">${lifeSub}</span></div><div class="mod-body">`;
   // 五行统计 + 旺相休囚死
   const cnt=wxCount(BZ.gans, BZ.zhis);
   const cnt2=wxCountAll(BZ.gans, BZ.zhis);
@@ -3082,13 +3082,13 @@ function renderBaziPage(R, BZ = window.BZ){
   html+=renderRemedy(BZ);
   html+=`</div></section>`;
 
-  // ===== 三、易理象数 =====
-  html+=`<section class="mod collapsed" id="mod-yili"><div class="mod-head" onclick="toggleMod('mod-yili')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.yili}</span><span class="mod-title">三、易理象数</span><span class="mod-sub">四时运行 五德性格 四库象数</span></div><div class="mod-body">`;
+  // ===== 易理象数 =====
+  html+=`<section class="mod collapsed" id="mod-yili"><div class="mod-head" onclick="toggleMod('mod-yili')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.yili}</span><span class="mod-title">易理象数</span><span class="mod-sub">四时运行 五德性格 四库象数</span></div><div class="mod-body">`;
   html+=renderYiliModule(BZ);
   html+=`</div></section>`;
 
   // ===== 四、运势分析 =====
-  html+=`<section class="mod collapsed" id="mod-yun"><div class="mod-head" onclick="toggleMod('mod-yun')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.yun}</span><span class="mod-title">五、运势分析</span><span class="mod-sub">岁运引动 大运流年 一生曲线</span></div><div class="mod-body">`;
+  html+=`<section class="mod collapsed" id="mod-yun"><div class="mod-head" onclick="toggleMod('mod-yun')"><span class="mod-caret">▾</span><span class="gua-ico">${_gua.yun}</span><span class="mod-title">运势分析</span><span class="mod-sub">岁运引动 大运流年 一生曲线</span></div><div class="mod-body">`;
   // 四柱模式未确认出生时间：只排大运起运占位（renderPillarDaYun）；公元前：仅呈现命局本体说明
   if(mode==='pillar' && R.isBC){
     html+=`<div class="info-box"><h4>运势分析（公元前）</h4><p>本命局为公元前出生（${fmtAstroDate(R.pillarChosenDate)}），大运、流年、流月流日及一生运势曲线以公元后出生为推算基准，对公元前人物缺乏现代流年参照，且节气与真太阳时基于现代天文模型外推、公元前越久远偏差越大，故运势分析暂不展开，仅呈现命局本体（四柱，十神，格局，神煞）。如需考据岁运，可据命局十神喜忌自行推演。</p></div>`;

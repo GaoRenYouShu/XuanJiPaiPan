@@ -99,7 +99,7 @@
 <script>
 let __xz = '';
 /* 出生地三级联动：provList/PROV/distList 由 latlng.js 提供，坐标单源禁止本页自维护。
-   bindPlace('xz') 绑本命行，bindPlace('xzB') 绑第二人合盘行（#1180）。
+   bindPlace('xz') 绑本命行，bindPlace('xzB') 绑第二人合盘行。
    默认停在未知地，须择定省市才出坐标：起首若是某地，未动过表单的盘便按该地起宫，来历不著。 */
 function xzBindPlace(pre){
   const sp=document.getElementById(pre+'Prov'),sc=document.getElementById(pre+'City'),sd=document.getElementById(pre+'Dist');
@@ -140,6 +140,11 @@ function xzCoordWarn(lonV, latV, lon, lat, tz, place, bads){
     hint = `<div class="sub-note">手动坐标已生效：${lon >= 0 ? '东经' + lon.toFixed(2) + '°' : '西经' + (-lon).toFixed(2) + '°'}、${lat >= 0 ? '北纬' + lat.toFixed(2) + '°' : '南纬' + (-lat).toFixed(2) + '°'}（西经、南纬以负数表示，请核对是否填反）</div>`;
   }
   return hint + (parts.length ? `<div class="sub-note xz-warn">⚠ ${parts.join('；')}。</div>` : '');
+}
+/* 半球感知经纬标注：负值即西经南纬，标注随符号走，供出生地行、合盘注记与中点盘共用 */
+function xzLonLatTxt(lon, lat, digits){
+  const f = n => Math.abs(n).toFixed(digits);
+  return (lon >= 0 ? '东经' : '西经') + f(lon) + '°、' + (lat >= 0 ? '北纬' : '南纬') + f(lat) + '°';
 }
 /* 当前年龄（按出生时刻精确到年，供大运与副运定位）；出生时刻在今天尚未到达时钳为 0，防负岁数令小限轮转出第 0 宫 */
 function xzAgeNow(dt){
@@ -183,9 +188,14 @@ function renderWheel(chart){
     s += `<text class="sgn" x="${sg.x.toFixed(1)}" y="${(sg.y+5).toFixed(1)}" text-anchor="middle">${XZ_SIGN_GLYPH[cuspSignIdx]}</text>`;
     // 该宫星体
     const inHouse = XZ_PLANETS.filter(p => chart.planets[p.key].house === h);
+    const nH = inHouse.length;
     inHouse.forEach((p, i) => {
-      const pr = R * (0.565 - i * 0.15);
-      const pp = pt(mid, pr);
+      /* 同宫多星沿宫中角射线按半径排开：四星内步幅固定，更多星收步幅保半径恒正不越心，
+         并按角向微张防叠字；角向总张角窄于整宫三十度，不越出本宫 */
+      const step = nH <= 4 ? 0.15 : (0.565 - 0.10) / (nH - 1);
+      const pr = R * (0.565 - i * step);
+      const ang = mid + (nH > 4 ? (i - (nH - 1) / 2) * 2 : 0);
+      const pp = pt(ang, pr);
       s += `<text class="pl" x="${pp.x.toFixed(1)}" y="${(pp.y+4).toFixed(1)}" text-anchor="middle">${p.glyph}</text>`;
     });
   }
@@ -421,6 +431,17 @@ function xzToggleMod(id){
   if(el) el.classList.toggle('collapsed');
   xjSaveModSections('xzModState','__xzInitDone');
 }
+/* 本盘成立组合的应对指向：只补表格判定之外的信息（各格传统化解与运用之道），不重复依据；
+   页面判读与 AI 导出串共用这一份 */
+const XZ_YOGA_ADVICE = {
+  'Mangal Dosha（火星煞）': '传统以晚婚、合婚择对方盘火星受制者相抵，日常遇争执先冷处理再谈',
+  'Kaal Sarp Yoga（罗睺计都夹命）': '传统以敬奉与持续行善疏导，人生主题集中反而宜深耕一域',
+  'Gajakesari Yoga（象狮之格）': '宜主动争取师长贵人提携，声望之格重声誉积累，忌自毁承诺',
+  'Budhaditya Yoga（水日同宫）': '宜以文笔、教学、思辨类工作立身，锋芒用于表达而非争胜',
+  'Pancha Mahapurusha（五大人格格）': '成格之曜所主领域即是人生主战场，宜尽早在该领域定专业方向',
+  'Chandra-Mangala Yoga（月火相成）': '情感驱动行动是天赋，理财宜顺势但忌情绪化加仓',
+  'Dhana Yoga（财富格）': '进财渠道易彼此联动，宜打通多元收入并留意渠道间的联动效应'
+};
 function xzPai(){
   const dv = document.getElementById('xzDate').value;
   const tv = document.getElementById('xzTime').value;
@@ -470,7 +491,7 @@ function xzPai(){
     return;
   }
   window.__xzChart = chart; /* 行运区局部刷新（改日期不重排本命盘）共用当前本命盘 */
-  /* ---- 双人合盘（#1180）：勾选且第二人资料齐备时另算第二盘，追加三个合盘模块 ---- */
+  /* ---- 双人合盘：勾选且第二人资料齐备时另算第二盘，追加三个合盘模块 ---- */
   let chartB = null, placeB = '', bWarn = '';
   if(document.getElementById('xzRel').checked){
     const bdv = document.getElementById('xzBDate').value;
@@ -513,7 +534,7 @@ function xzPai(){
     }
   }
   /* 双人合盘独立大模块：勾选第二人时出现，默认展开（用户勾选即为看合盘） */
-  const relMod = chartB ? `<section class="mod" id="xzModRel"><div class="mod-head" onclick="xzToggleMod('xzModRel')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">四、双人合盘</span><span class="mod-sub">基本盘对照 Synastry Composite Davison</span></div><div class="mod-body">${xzRelHtml(chart, chartB, placeB, bWarn)}</div></section>` : '';
+  const relMod = chartB ? `<section class="mod" id="xzModRel"><div class="mod-head" onclick="xzToggleMod('xzModRel')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">双人合盘</span><span class="mod-sub">基本盘对照 Synastry Composite Davison</span></div><div class="mod-body">${xzRelHtml(chart, chartB, placeB, bWarn)}</div></section>` : '';
   const pSun = chart.planets.sun, pMoon = chart.planets.moon;
   const ascSign = XZ_SIGNS[chart.ascSignIdx];
   /* ---- 三要素：三个独立框各对应一张表格 ---- */
@@ -568,7 +589,7 @@ function xzPai(){
   const fbNote = chart.sysFallback
     ? '<div class="sub-note">出生纬度接近极昼极夜区，Placidus 分宫无解，宫位已自动回退整宫制。</div>' : '';
   /* ---- 相位（表格化：星体一、相位、星体二、偏差、含义） ---- */
-  let aspRows = chart.aspects.length ? '' : '';
+  let aspRows = '';
   chart.aspects.forEach(a => {
     const na = XZ_PLANETS.find(p => p.key === a.a).name;
     const nb = XZ_PLANETS.find(p => p.key === a.b).name;
@@ -659,17 +680,8 @@ function xzPai(){
     const verdict = y.hit ? '<b class="hit">成</b>' : '不成';
     yogaRows += `<tr><td>${y.name}</td><td>${verdict}</td><td>${y.base}</td><td>${y.note}</td></tr>`;
   });
-  /* 本盘成立组合的应对指向：只补表格判定之外的信息（各格传统化解与运用之道），不重复依据 */
-  const YOGA_ADVICE = {
-    'Mangal Dosha（火星煞）': '传统以晚婚、合婚择对方盘火星受制者相抵，日常遇争执先冷处理再谈',
-    'Kaal Sarp Yoga（罗睺计都夹命）': '传统以敬奉与持续行善疏导，人生主题集中反而宜深耕一域',
-    'Gajakesari Yoga（象狮之格）': '宜主动争取师长贵人提携，声望之格重声誉积累，忌自毁承诺',
-    'Budhaditya Yoga（水日同宫）': '宜以文笔、教学、思辨类工作立身，锋芒用于表达而非争胜',
-    'Pancha Mahapurusha（五大人格格）': '成格之曜所主领域即是人生主战场，宜尽早在该领域定专业方向',
-    'Chandra-Mangala Yoga（月火相成）': '情感驱动行动是天赋，理财宜顺势但忌情绪化加仓',
-    'Dhana Yoga（财富格）': '进财渠道易彼此联动，宜打通多元收入并留意渠道间的联动效应'
-  };
-  const hitAdv = vg.list.filter(y => y.hit).map(y => YOGA_ADVICE[y.name]).filter(Boolean);
+  /* 本盘成立组合的应对指向：取共表 XZ_YOGA_ADVICE，只补表格判定之外的信息 */
+  const hitAdv = vg.list.filter(y => y.hit).map(y => XZ_YOGA_ADVICE[y.name]).filter(Boolean);
   const yogaHere = hitAdv.length
     ? `<p>成格之运的传统应对：${hitAdv.join('；')}。</p>`
     : '<p>本盘七项组合均未成，各曜所主之事按各曜落宫常态判读即可。</p>';
@@ -698,15 +710,14 @@ function xzPai(){
   </div>`;
   /* ---- 古典计时法：小限、法达、黄道释放与 Vimshottari 年份轴，均按当前实岁静态呈现 ---- */
   const clBlk = xzClassicHtml(chart, age);
-  /* ---- 五大折叠模块：一、西洋占星（默认展开） 二、运势分析 三、印度占星 四、双人合盘（勾选时） 五（或四）、综合判断；折叠机制与八字页 .mod 一致 ---- */
-  const nSyn = chartB ? '五' : '四';
+  /* ---- 五大折叠模块：西洋占星（默认展开） 运势分析 印度占星 双人合盘（勾选时） 综合判断；折叠机制与八字页 .mod 一致 ---- */
   document.getElementById('out').innerHTML = `
     <section class="mod" id="xzModWest">
-      <div class="mod-head" onclick="xzToggleMod('xzModWest')"><span class="mod-caret">▾</span><span class="gua-ico">☉</span><span class="mod-title">一、西洋占星</span><span class="mod-sub">三要素 星座档案 星体落座 十二宫 相位 格局 行运 推运 计时法</span></div>
+      <div class="mod-head" onclick="xzToggleMod('xzModWest')"><span class="mod-caret">▾</span><span class="gua-ico">☉</span><span class="mod-title">西洋占星</span><span class="mod-sub">三要素 星座档案 星体落座 十二宫 相位 格局 行运 推运 计时法</span></div>
       <div class="mod-body">
-        <div class="wheel-wrap">${renderWheel(chart)}</div>${placeLabel ? `<div class="sub-note">出生地：${placeLabel}，按东经${lon.toFixed(2)}° 北纬${lat.toFixed(2)}° 计算上升与宫位</div>` : ''}${coordWarn}
+        <div class="wheel-wrap">${renderWheel(chart)}</div>${placeLabel ? `<div class="sub-note">出生地：${placeLabel}，按${xzLonLatTxt(lon, lat, 2)} 计算上升与宫位</div>` : ''}${coordWarn}
         <h3 class="rel-title">☉☽↑ 三要素</h3>${tri}
-        <h3 class="rel-title">出生星座档案（太阳星座速览）</h3><div class="xz-vedic">${profTbl}</div>
+        <h3 class="rel-title">出生星座档案（太阳星座速览）</h3><div class="sub-note">诞生石、幸运数日等为通行速览，各本互有出入，取通行一说。</div><div class="xz-vedic">${profTbl}</div>
         <h3 class="rel-title">十大星体落入十二星座</h3>${xzNatalWheelBlk(chart)}
         <h3 class="rel-title">星体定位星链（守护归属与最终定位星）</h3>${dispBlk}
         <h3 class="rel-title">${houseTitle}</h3>${houseGrid}${fbNote}
@@ -724,11 +735,11 @@ function xzPai(){
       </div>
     </section>
     <section class="mod" id="xzModFortune">
-      <div class="mod-head" onclick="xzToggleMod('xzModFortune')"><span class="mod-caret">▾</span><span class="gua-ico">✶</span><span class="mod-title">二、运势分析</span><span class="mod-sub">行运评分 月亮过宫 月度节奏 全年走势</span></div>
+      <div class="mod-head" onclick="xzToggleMod('xzModFortune')"><span class="mod-caret">▾</span><span class="gua-ico">✶</span><span class="mod-title">运势分析</span><span class="mod-sub">行运评分 月亮过宫 月度节奏 全年走势</span></div>
       <div class="mod-body">${xzFortuneBlk(chart)}</div>
     </section>
     <section class="mod collapsed" id="xzModVedic">
-      <div class="mod-head" onclick="xzToggleMod('xzModVedic')"><span class="mod-caret">▾</span><span class="gua-ico">ॐ</span><span class="mod-title">三、印度占星</span><span class="mod-sub">九曜落座 D9 分盘 月宿 大运副运 Dosha</span></div>
+      <div class="mod-head" onclick="xzToggleMod('xzModVedic')"><span class="mod-caret">▾</span><span class="gua-ico">ॐ</span><span class="mod-title">印度占星</span><span class="mod-sub">九曜落座 D9 分盘 月宿 大运副运 Dosha</span></div>
       <div class="mod-body">
         <h3 class="rel-title">印度占星 九曜落座（Sidereal 恒星黄道）</h3>${xzRashiWheelBlk(chart, vg, curMaha ? curMaha.graha.toLowerCase() : '')}
         <h3 class="rel-title">印度占星 D9 Navamsa 分盘（婚姻与人格成熟期互证）</h3>
@@ -749,7 +760,7 @@ function xzPai(){
     </section>
     ${relMod}
     <section class="mod collapsed" id="xzModSynth">
-      <div class="mod-head" onclick="xzToggleMod('xzModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">${nSyn}、综合判断</span><span class="mod-sub">综合解读</span></div>
+      <div class="mod-head" onclick="xzToggleMod('xzModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">综合判断</span><span class="mod-sub">综合解读</span></div>
       <div class="mod-body">
         ${synRows(buildOverall(chart))}
       </div>
@@ -1080,16 +1091,7 @@ function buildAiText(chart, chartB){
   L.push('九、印度占星 Dosha 与 Yoga 判定：');
   vg.list.forEach(y => L.push(`- ${y.name}：${y.hit ? '成' : '不成'}（${strip(y.base)}）${strip(y.note)}`));
   const hitList = vg.list.filter(y => y.hit);
-  const ADVICE = {
-    'Mangal Dosha（火星煞）': '传统以晚婚、合婚择对方盘火星受制者相抵，日常遇争执先冷处理再谈',
-    'Kaal Sarp Yoga（罗睺计都夹命）': '传统以敬奉与持续行善疏导，人生主题集中反而宜深耕一域',
-    'Gajakesari Yoga（象狮之格）': '宜主动争取师长贵人提携，声望之格重声誉积累，忌自毁承诺',
-    'Budhaditya Yoga（水日同宫）': '宜以文笔、教学、思辨类工作立身，锋芒用于表达而非争胜',
-    'Pancha Mahapurusha（五大人格格）': '成格之曜所主领域即是人生主战场，宜尽早在该领域定专业方向',
-    'Chandra-Mangala Yoga（月火相成）': '情感驱动行动是天赋，理财宜顺势但忌情绪化加仓',
-    'Dhana Yoga（财富格）': '进财渠道易彼此联动，宜打通多元收入并留意渠道间的联动效应'
-  };
-  const hitAdvA = hitList.map(y => ADVICE[y.name]).filter(Boolean);
+  const hitAdvA = hitList.map(y => XZ_YOGA_ADVICE[y.name]).filter(Boolean);
   L.push(`成格应对：${hitAdvA.length ? hitAdvA.join('；') : '七项均未成，按各曜落宫常态判读'}`);
   L.push('');
   L.push('九之二、综合判断：');
@@ -1136,7 +1138,7 @@ function buildAiText(chart, chartB){
     L.push(`  回归引动：${retA.hits.length ? '' : '无明显'}`);
     retA.hits.slice(0, 12).forEach(a => L.push(`  ${xz_dispName(a.a)} ${a.type} ${a.bName}（偏差 ${Math.abs(a.orb).toFixed(1)}°）`));
   }
-  /* 古典计时法：小限、法达、黄道释放与 Vimshottari 公历年份轴，按当前实岁（#1179） */
+  /* 古典计时法：小限、法达、黄道释放与 Vimshottari 公历年份轴，按当前实岁 */
   const ageC = xzAgeNow(chart.dt);
   const fmtX = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
   L.push(`十二、古典计时法（小限、法达、黄道释放与 Vimshottari 公历年份轴，按当前实岁约 ${Math.floor(ageC)} 岁）：`);
@@ -1158,7 +1160,7 @@ function buildAiText(chart, chartB){
   const vX = xz_vimYears(chart);
   const vCurX = vX.find(v => ageC >= v.from && ageC < v.to);
   if(vCurX) L.push(`- Vimshottari 公历年份轴：当前${XZ_NAV_GRAHA[vCurX.graha]}大运，约 ${vCurX.calFrom} 至 ${vCurX.calTo} 年（对应 ${xzAgeTxt(vCurX.from)}–${xzAgeTxt(vCurX.to)} 岁）`);
-  /* 双人合盘（#1180）：勾选第二人并入排盘后，追加 Synastry 比较盘、Composite 组合中点盘
+  /* 双人合盘：勾选第二人并入排盘后，追加 Synastry 比较盘、Composite 组合中点盘
      与 Davison 时空中点盘三法的关系联动要点；无第二人时整段跳过 */
   if(chartB){
     L.push('十三、双人合盘（Synastry 比较盘、Composite 组合中点盘与 Davison 时空中点盘）：');
@@ -1192,7 +1194,7 @@ function buildAiText(chart, chartB){
       L.push(`  ${XZ_PLANETS.find(p => p.key === a.a).name} ${a.type} ${XZ_PLANETS.find(p => p.key === a.b).name}，偏差 ${Math.abs(a.orb).toFixed(1)}°，${XZ_ASPECT_KEY[a.type]}`);
     });
     const dR = xz_davisonChart(chart, chartB, chart.system);
-    L.push(`- Davison 时空中点盘：虚拟出生时刻约 ${dR.loc.y} 年 ${dR.loc.m} 月 ${dR.loc.d} 日 ${pad2(dR.loc.hh)}:${pad2(dR.loc.mm)}（按第一人时区），地点取东经 ${dR.lon.toFixed(1)}° 北纬 ${dR.lat.toFixed(1)}° 中点${dR.system === 'placidus' ? '，宫位制沿用第一人 Placidus 分宫制' : '，宫位制整宫制'}${dR.sysFallback ? '（高纬 Placidus 无解已回退整宫）' : ''}；上升落 ${dR.ascSignT}、中天落 ${dR.mcSignT}。盘内星体：`);
+    L.push(`- Davison 时空中点盘：虚拟出生时刻约 ${dR.loc.y} 年 ${dR.loc.m} 月 ${dR.loc.d} 日 ${pad2(dR.loc.hh)}:${pad2(dR.loc.mm)}（按第一人时区），地点取${xzLonLatTxt(dR.lon, dR.lat, 1)} 中点${dR.system === 'placidus' ? '，宫位制沿用第一人 Placidus 分宫制' : '，宫位制整宫制'}${dR.sysFallback ? '（高纬 Placidus 无解已回退整宫）' : ''}；上升落 ${dR.ascSignT}、中天落 ${dR.mcSignT}。盘内星体：`);
     dR.list.forEach(p => L.push(`  ${p.name}：${p.signT} ${xz_fmtDeg(p.degT)}${p.retro ? '（逆行）' : ''}，第 ${p.house} 宫${XZ_HOUSE_MEAN[p.house].split('，')[0]}`));
     L.push(`  盘内主要相位${dR.aspects.length ? '：' : '：无明显'}`);
     dR.aspects.slice(0, 10).forEach(a => {
@@ -1403,8 +1405,11 @@ function xzClassicHtml(chart, age){
       + `<td>${calTxt(v.calFrom, v.calTo)}</td></tr>`;
   }).join('');
   const vimCur = vims.find(v => age >= v.from && age < v.to);
+  const vimLead = vimCur
+    ? `现年行 <b>${XZ_NAV_GRAHA[vimCur.graha]}大运</b> 的公历区间见下表，行高亮与印度区一致。`
+    : '现年已超出百二十年大运表程，下表供回查各段公历年份。';
   const blkVim = `<h4>Vimshottari 大运公历年份轴（120 年大运的年份落地）</h4>
-    <p class="xz-tr-lead">现年行 <b>${vimCur ? XZ_NAV_GRAHA[vimCur.graha] + '大运' : ''}</b> 的公历区间见下表，行高亮与印度区一致。</p>
+    <p class="xz-tr-lead">${vimLead}</p>
     <div class="xz-tbl-wrap"><table class="xz-tbl xz-fit xz-trtbl"><thead><tr><th>大运主曜</th><th>起止年龄</th><th>公历年份</th></tr></thead><tbody>${vimRows}</tbody></table></div>`;
   return `<div class="xz-vedic xz-tr">${blkProf}${blkFird}${blkZr}${blkVim}</div>`;
 }
@@ -1464,7 +1469,7 @@ function xzRelDavisonBlk(chartA, chartB){
     return `<tr><td>${na}</td><td class="asp-name">${a.type}<span class="el">（${a.en}）</span></td><td>${nb}</td>`
       + `<td>${Math.abs(a.orb).toFixed(1)}°</td><td><span class="el">${XZ_ASPECT_KEY[a.type]}</span></td></tr>`;
   }).join('');
-  return `<p class="xz-tr-lead">虚拟出生时刻约 ${loc.y} 年 ${loc.m} 月 ${loc.d} 日 ${pad2(loc.hh)}:${pad2(loc.mm)}（按第一人时区），地点取东经 ${d.lon.toFixed(1)}° 北纬 ${d.lat.toFixed(1)}° 中点；宫位制沿用第一人所选（${sysTxt}）${d.sysFallback ? '，高纬 Placidus 无解已回退整宫制' : ''}。盘内上升落 <b>${d.ascSignT}</b>、中天落 <b>${d.mcSignT}</b>。</p>`
+  return `<p class="xz-tr-lead">虚拟出生时刻约 ${loc.y} 年 ${loc.m} 月 ${loc.d} 日 ${pad2(loc.hh)}:${pad2(loc.mm)}（按第一人时区），地点取${xzLonLatTxt(d.lon, d.lat, 1)} 中点；宫位制沿用第一人所选（${sysTxt}）${d.sysFallback ? '，高纬 Placidus 无解已回退整宫制' : ''}。盘内上升落 <b>${d.ascSignT}</b>、中天落 <b>${d.mcSignT}</b>。</p>`
     + xzRelWheelBlk('xzDavWheel', 'Davison 落座盘', d.list, 'sun')
     + (d.aspects.length
       ? `<div class="xz-tbl-wrap"><table class="xz-tbl xz-trtbl"><thead><tr><th>星体一</th><th>相位</th><th>星体二</th><th>偏差</th><th>含义</th></tr></thead><tbody>${aspRows}</tbody></table></div>`

@@ -227,7 +227,9 @@ const XZ_PLANETS = [
   {key:'pluto', name:'冥王星', glyph:'♇', cn:'冥王星'}
 ];
 
-/* ---------- 庙旺落陷（西洋古典，本垣、旺、弱、落） ---------- */
+/* ---------- 庙旺落陷（本垣、旺、弱、落） ----------
+   七政七行为古典表；天海冥三行为现代派约定，诸说并存（冥王旺位有白羊狮子双鱼诸说，
+   天王旺位有天蝎狮子诸说），本表取通行一说，取值随详情注文声明派别。 */
 const XZ_DIGNITY = {
   sun:    {dom:['狮子'],            exa:'白羊', det:['水瓶'],          fal:'天秤'},
   moon:   {dom:['巨蟹'],            exa:'金牛', det:['摩羯'],          fal:'天蝎'},
@@ -305,7 +307,7 @@ const XZ_NAK_INFO = [
   {cn:'胃宿', deva:'阎摩 Yama', sym:'女阴', gana:'人', pada:['Li','Lu','Le','Lo'], mean:'承载与约束，含取舍与蜕变之象'},
   {cn:'昴宿', deva:'火神 Agni', sym:'火焰剃刀', gana:'阿修罗', pada:['A','I','U','E'], mean:'锐利灼炼，意志坚强，宜断不宜拖'},
   {cn:'毕宿', deva:'梵天 Brahma', sym:'牛车', gana:'人', pada:['O','Va','Vi','Vu'], mean:'滋长丰美，重安稳与感官之享受'},
-  {cn:'觜宿', deva:'月神 Soma', sym:'鹿头', gana:'天神', pada:['Ve','Vo','Ka','Ke'], mean:'寻索探求，好奇善变，心思活跃'},
+  {cn:'觜宿', deva:'月神 Soma', sym:'鹿头', gana:'天神', pada:['Ve','Vo','Ka','Ki'], mean:'寻索探求，好奇善变，心思活跃'},
   {cn:'参宿', deva:'鲁陀罗 Rudra', sym:'泪滴', gana:'人', pada:['Ku','Gha','Ng','Chha'], mean:'破而后立，情绪激烈，宜疏导转化'},
   {cn:'井宿', deva:'阿底提 Aditi', sym:'弓与箭袋', gana:'天神', pada:['Ke','Ko','Ha','Hi'], mean:'复归更新，能失而复得，宜重建'},
   {cn:'鬼宿', deva:'祭主 Brihaspati', sym:'花环', gana:'天神', pada:['Hu','He','Ho','Da'], mean:'滋养守护，最为吉祥，宜教养积蓄'},
@@ -322,7 +324,7 @@ const XZ_NAK_INFO = [
   {cn:'尾宿', deva:'尼利提 Nirriti', sym:'束根', gana:'阿修罗', pada:['Ye','Yo','Bha','Bhi'], mean:'拔根究底，破旧立新，宜溯源'},
   {cn:'箕宿', deva:'水神 Apas', sym:'象与扇', gana:'人', pada:['Bhu','Dha','Pha','Dha'], mean:'不可阻遏，信念坚定，宜远行'},
   {cn:'斗宿', deva:'诸天 Vishvedevas', sym:'象牙', gana:'人', pada:['Bhe','Bho','Ja','Ji'], mean:'终成正果，持久者胜，宜守成'},
-  {cn:'牛宿', deva:'毗湿奴 Vishnu', sym:'耳', gana:'天神', pada:['Ju','Je','Jo','Ghi'], mean:'听闻学习，名声传布，宜受教'},
+  {cn:'牛宿', deva:'毗湿奴 Vishnu', sym:'耳', gana:'天神', pada:['Ju','Je','Jo','Gha'], mean:'听闻学习，名声传布，宜受教'},
   {cn:'女宿', deva:'八婆苏 Vasus', sym:'鼓与笛', gana:'阿修罗', pada:['Ga','Gi','Gu','Ge'], mean:'声名与财，节奏感强，宜表现'},
   {cn:'虚宿', deva:'伐楼那 Varuna', sym:'空圆', gana:'阿修罗', pada:['Go','Sa','Si','Su'], mean:'孤高医理，隐秘探究，宜独处'},
   {cn:'危宿', deva:'独脚羊 Aja Ekapada', sym:'剑', gana:'人', pada:['Se','So','Da','Di'], mean:'烈火炼心，偏于极端，宜调节'},
@@ -378,11 +380,16 @@ function xz_dignity(key, signName){
   const d = XZ_DIGNITY[key]; if(!d) return {level:'', note:''};
   const dom = Array.isArray(d.dom) ? d.dom : [d.dom];
   const det = Array.isArray(d.det) ? d.det : [d.det];
-  if(dom.includes(signName)) return {level:'庙', note:'入本垣（庙旺），力量强、特质顺畅发挥'};
-  if(signName === d.exa)    return {level:'旺', note:'入垣升殿（旺），天赋被放大、易得机遇'};
-  if(det.includes(signName))return {level:'弱', note:'失势（弱），力量受阻、需后天努力'};
-  if(signName === d.fal)    return {level:'落', note:'降卑（落），天赋打折、易有损耗'};
-  return {level:'平', note:'游走（中和），无特殊尊贵，看相位与宫位'};
+  let level, note;
+  if(dom.includes(signName)){ level = '庙'; note = '入本垣（庙旺），力量强、特质顺畅发挥'; }
+  else if(signName === d.exa){ level = '旺'; note = '入垣升殿（旺），天赋被放大、易得机遇'; }
+  else if(det.includes(signName)){ level = '弱'; note = '失势（弱），力量受阻、需后天努力'; }
+  else if(signName === d.fal){ level = '落'; note = '降卑（落），天赋打折、易有损耗'; }
+  else { level = '平'; note = '游走（中和），无特殊尊贵，看相位与宫位'; }
+  /* 外行星尊贵是现代派约定而无共识，凡给出庙旺落陷判即随注文声明派别 */
+  if(level !== '平' && (key === 'uranus' || key === 'neptune' || key === 'pluto'))
+    note += '；外行星尊贵为现代派约定，诸说并存';
+  return {level, note};
 }
 
 /* =================== 埃及界与 Chaldean 面 ===================
@@ -835,17 +842,19 @@ const XZ_D9_HOUSE_MEAN = {
   9:'婚后共同信念与远行', 10:'婚姻带来的社会身份', 11:'婚姻延伸的人脉与收益', 12:'私密相处与彼此退让'
 };
 
-/* 大运组合判读：Mahadasha × Antardasha 的吉凶叠加（和谐、紧张、交点） */
+/* 大运组合判读：Mahadasha × Antardasha 的吉凶叠加（和谐、紧张、交点）。
+   亲疏取九曜自然亲疏通行表：朋友叠加判和谐、敌人叠加判紧张、罗计副运恒判交点、
+   中性关系与其余未列组合判平；站内只取自然亲疏，不叠临时亲疏。 */
 function xz_dashaPair(m, a){
-  const HAR = {sun:'月亮、火星、木星', moon:'太阳、水星、木星', mars:'太阳、月亮、木星', mercury:'月亮、金星、木星',
-               jupiter:'太阳、月亮、火星', venus:'水星、土星', saturn:'水星、金星', rahu:'', ketu:''};
-  const TEN = {sun:'土星、罗睺、计都', moon:'火星、土星、罗睺', mars:'月亮、土星', mercury:'太阳、火星、土星',
-               jupiter:'水星、金星', venus:'太阳、月亮、火星', saturn:'太阳、月亮、火星', rahu:'', ketu:''};
-  const key = a[0] + a[1] + a[2];
+  /* 键与值皆用大运序列的全名，按名检索；七曜交点无自然亲疏不入表 */
+  const FRIENDS = {Sun:'Moon Mars Jupiter', Moon:'Sun Mercury', Mars:'Sun Moon Jupiter', Mercury:'Sun Venus',
+    Jupiter:'Sun Moon Mars', Venus:'Mercury Saturn', Saturn:'Mercury Venus'};
+  const ENEMIES = {Sun:'Venus Saturn', Moon:'', Mars:'Mercury', Mercury:'Moon',
+    Jupiter:'Mercury Venus', Venus:'Sun Moon', Saturn:'Sun Moon Mars'};
   const isNode = (g) => g === 'Rahu' || g === 'Ketu';
   if(isNode(a)) return {tone:'变', text:'交点副运：无论大运为何曜，罗睺或计都作副运多带不稳定与转折，变化容易加速，宜顺势布局少硬扛'};
-  if((HAR[m] || '').indexOf(key) >= 0) return {tone:'吉', text:'和谐叠加：两曜能量相互放大，多为阶段高点，可把握推进'};
-  if((TEN[m] || '').indexOf(key) >= 0) return {tone:'紧', text:'紧张叠加：两曜能量互相牵制，需有意识地平衡，宜稳字当头'};
+  if((FRIENDS[m] || '').indexOf(a) >= 0) return {tone:'吉', text:'和谐叠加：两曜能量相互放大，多为阶段高点，可把握推进'};
+  if((ENEMIES[m] || '').indexOf(a) >= 0) return {tone:'紧', text:'紧张叠加：两曜能量互相牵制，需有意识地平衡，宜稳字当头'};
   return {tone:'平', text:'中性叠加：运程平稳，按常规节奏推进即可'};
 }
 
