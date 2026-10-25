@@ -699,7 +699,7 @@ function xzPai(){
     <h4>未来一年行运时间线（${xzTrTimeTitle(chart)}）</h4>
     <div id="xzTrTime">${xzTrTimelineHtml(chart)}</div>
   </div>`;
-  /* ---- 推运：次限推进、太阳弧、太阳回归盘，共享一个日期选择，改日期只刷推运区 ---- */
+  /* ---- 推运：次限推进、太阳弧、太阳回归盘、月亮返照盘，共享一个日期选择，改日期只刷推运区 ---- */
   const prToday = xzTodayYmd().split('-').map(Number);
   const prBlk = `<div class="xz-vedic xz-tr">
     <div class="xz-tr-bar">
@@ -730,7 +730,7 @@ function xzPai(){
           ${synRows(synth.health)}
         </div>
         <h3 class="rel-title">行运 Transits（天星行运对照本命盘）</h3>${trBlk}
-        <h3 class="rel-title">推运（次限推进、太阳弧、太阳回归盘）</h3>${prBlk}
+        <h3 class="rel-title">推运（次限推进、太阳弧、太阳回归盘、月亮返照盘）</h3>${prBlk}
         <h3 class="rel-title">古典计时法（小限、法达、黄道释放与 Vimshottari 年份轴）</h3>${clBlk}
       </div>
     </section>
@@ -1123,7 +1123,7 @@ function buildAiText(chart, chartB){
   const prd = xzTodayYmd().split('-').map(Number);
   const secA = xz_secProg(chart, prd[0], prd[1], prd[2]);
   if(!secA.neg){
-    L.push(`十一、推运（次限推进、太阳弧、太阳回归盘，默认今天）：`);
+    L.push(`十一、推运（次限推进、太阳弧、太阳回归盘、月亮返照盘，默认今天）：`);
     L.push(`- 次限推进（一日一年，所选日期距出生约 ${secA.years.toFixed(1)} 岁）：`);
     secA.list.forEach(p => L.push(`  ${p.name}：${p.signT} ${xz_fmtDeg(p.degT)}，${p.retro ? '逆行' : '顺行'}，过本命第 ${p.house} 宫`));
     L.push(`  次限引动（合冲 2°、其余 1.5°）：${secA.hits.length ? '' : '无明显'}`);
@@ -1137,6 +1137,11 @@ function buildAiText(chart, chartB){
     retA.list.forEach(p => L.push(`  ${p.name}：${p.signT} ${xz_fmtDeg(p.degT)}，过本命第 ${p.house} 宫`));
     L.push(`  回归引动：${retA.hits.length ? '' : '无明显'}`);
     retA.hits.slice(0, 12).forEach(a => L.push(`  ${xz_dispName(a.a)} ${a.type} ${a.bName}（偏差 ${Math.abs(a.orb).toFixed(1)}°）`));
+    const mrA = xz_lunarReturn(chart, prd[0], prd[1], prd[2]);
+    L.push(`- 月亮返照盘（${mrA.loc.y} 年 ${mrA.loc.m} 月 ${mrA.loc.d} 日 ${pad2(mrA.loc.hh)}:${pad2(mrA.loc.mm)} 当地，上升落 ${XZ_SIGNS[xz_signIndex(mrA.ascR.lon)]}）：`);
+    mrA.list.forEach(p => L.push(`  ${p.name}：${p.signT} ${xz_fmtDeg(p.degT)}，过本命第 ${p.house} 宫`));
+    L.push(`  月返引动：${mrA.hits.length ? '' : '无明显'}`);
+    mrA.hits.slice(0, 12).forEach(a => L.push(`  ${xz_dispName(a.a)} ${a.type} ${a.bName}（偏差 ${Math.abs(a.orb).toFixed(1)}°）`));
   }
   /* 古典计时法：小限、法达、黄道释放与 Vimshottari 公历年份轴，按当前实岁 */
   const ageC = xzAgeNow(chart.dt);
@@ -1293,8 +1298,8 @@ function xzTrTimeTitle(chart){
   const cd = xzAddDays(t0.getFullYear(), t0.getMonth() + 1, t0.getDate(), 365);
   return `${xzYmdStr(t0.getFullYear(), t0.getMonth() + 1, t0.getDate())} 至 ${xzYmdStr(cd.y, cd.m, cd.d)}`;
 }
-/* =================== 推运（次限、太阳弧、太阳回归）渲染 =================== */
-/* 推运日期输入：默认今天，点"查看推运"仅重算推运区三块，不动本命盘其他区块 */
+/* =================== 推运（次限、太阳弧、太阳回归、月亮返照）渲染 =================== */
+/* 推运日期输入：默认今天，点"查看推运"仅重算推运区四块，不动本命盘其他区块 */
 window.xzPrGo = function(){
   const v = (document.getElementById('xzPrDate') || {}).value || '';
   if(!v){ alert('请填写推运日期'); return; }
@@ -1353,7 +1358,18 @@ function xzPrHtml(chart, y, m, d){
     ${ret.hits.length
       ? `<p class="el">年盘星体对本命敏感点的主要相位（跳过回归太阳对本命太阳的自对）：</p><div class="xz-tbl-wrap"><table class="xz-tbl xz-trtbl"><thead><tr><th>回归星</th><th>相位</th><th>本命星</th><th>偏差</th><th>主题</th></tr></thead><tbody>${xzHitRows(ret.hits)}</tbody></table></div>`
       : ''}`;
-  return `${blk1}${blk2}${blk3}`;
+  /* 月亮返照盘：所选日期前最近一次月亮回归，一月一盘 */
+  const mr = xz_lunarReturn(chart, y, m, d);
+  const mrT = mr.loc;
+  const moonRet = `月亮回到本命（恒星黄道）${xz_signName(mr.tgt)} ${xz_fmtDeg(xz_degInSign(mr.tgt))}`;
+  const mrWheel = xzTransitWheelBlk('xzMrWheel', '月亮返照落星盘', mr.list, 'moon', () => '');
+  const blk4 = `<h4>月亮返照盘（Lunar Return，一月一度月盘）</h4>
+    <p class="el">取所选日期前最近一次：<b>${mrT.y} 年 ${mrT.m} 月 ${mrT.d} 日 ${pad2(mrT.hh)}:${pad2(mrT.mm)}</b>（当地时），${moonRet}。月盘按出生地重排，上升落 <b>${XZ_SIGNS[xz_signIndex(mr.ascR.lon)]}</b>；盘内为月盘星体落座与过本命宫（该月重点领域），下为月盘星体对本命敏感点的主要相位。</p>
+    ${mrWheel}
+    ${mr.hits.length
+      ? `<p class="el">月盘星体对本命敏感点的主要相位（跳过月亮对本命月亮的自对）：</p><div class="xz-tbl-wrap"><table class="xz-tbl xz-trtbl"><thead><tr><th>月盘星</th><th>相位</th><th>本命星</th><th>偏差</th><th>主题</th></tr></thead><tbody>${xzHitRows(mr.hits)}</tbody></table></div>`
+      : '<p class="sub-note">该月月盘星体与本命敏感点未入容许相位带，月度主题主要看月盘星体过本命宫的领域。</p>'}`;
+  return `${blk1}${blk2}${blk3}${blk4}`;
 }
 /* =================== 古典计时法（小限、法达、黄道释放与 Vimshottari 年份轴）渲染 =================== */
 /* 四法皆以当前实岁（age 由出生时刻精确计）为锚的静态年轴，独立于本命盘各区块 */

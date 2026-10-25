@@ -1394,6 +1394,37 @@ function xz_solarReturn(chart, yr){
   return {yr, jdR, loc: xz_localFromJd(jdR, chart.tz), ascR, list, hits};
 }
 
+/* 月亮返照：求所选日期前最近一次月亮（恒星黄道）回到本命月亮恒星黄经的精确时刻。
+   月亮约 27.3 日一轮，故所选日期前 30 日内必有一返；取该时刻按出生地成盘，
+   十星落座与过本命宫同太阳回归口径，并对本命敏感点列主要相位（跳过同键自对）。
+   日返看一年，月返看一月，二者同构。 */
+function xz_lunarReturn(chart, y, m, d){
+  const tgt = xz_norm360(chart.planets.moon.lonT - chart.ayan);
+  const jdT = xz_jd(y, m, d, 12, 0, chart.tz);
+  const g = j => {
+    let x = xz_norm360(xz_norm360(xz_planetLon(j, 'moon') - xz_ayanamsa(j)) - tgt);
+    return x > 180 ? x - 360 : x;
+  };
+  /* 自所选日期正午向前逐日找零上穿：月亮顺行，返照前 g 为负、后为正 */
+  let lo = null, hi = null;
+  for(let k = 0; k <= 31; k++){
+    const a = jdT - k - 1, b = jdT - k;
+    if(g(a) <= 0 && g(b) > 0){ lo = a; hi = b; break; }
+  }
+  if(lo == null){ lo = jdT - 31; hi = jdT; }
+  for(let i = 0; i < 40; i++){
+    const mid = (lo + hi) / 2;
+    if(g(mid) > 0) hi = mid; else lo = mid;
+  }
+  const jdR = (lo + hi) / 2;
+  const list = xz_transitSnap(jdR, chart.cusps);
+  const ascR = xjAscCalc(jdR, chart.lon, chart.lat);
+  const lons = {};
+  list.forEach(p => lons[p.key] = p.lonT);
+  const hits = xz_crossAspects(lons, xz_natalPoints(chart), null, true).slice(0, 24);
+  return {jdR, loc: xz_localFromJd(jdR, chart.tz), ascR, list, hits, tgt};
+}
+
 /* =================== 古典计时法：小限、法达、黄道释放与 Vimshottari 年份轴（#1179） =================== */
 /* 黄道释放（Zodiacal Releasing）星座级段年数：每星座按其守护星小年数（Minor Years）计年，
    土星所主二座取传统口径摩羯 27、水瓶 30。 */
