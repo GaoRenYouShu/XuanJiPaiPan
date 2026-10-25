@@ -577,29 +577,6 @@ function xjApplyModState(key, detailsSelector){
 }
 window.xjApplyModState = xjApplyModState;
 
-/* ===== 模块折叠态保存与应用（七政、占星两页共用） =====
-   只记模块段的收起与否，不涉折叠块；初始化完成前不写，标志名由页给。 */
-function xjSaveModSections(key, initFlag){
-  if(!window[initFlag]) return;
-  try{
-    const o = {};
-    document.querySelectorAll('#out section.mod[id]').forEach(function(m){ o[m.id] = !m.classList.contains('collapsed'); });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem(key, v); }catch(e){}
-    try{ sessionStorage.setItem(key, v); }catch(e){}
-  }catch(e){}
-}
-window.xjSaveModSections = xjSaveModSections;
-
-function xjApplyModSections(key){
-  try{
-    let raw = localStorage.getItem(key);
-    if(!raw) raw = sessionStorage.getItem(key);
-    const s = JSON.parse(raw || '{}');
-    document.querySelectorAll('#out section.mod[id]').forEach(function(m){ if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  }catch(e){}
-}
-window.xjApplyModSections = xjApplyModSections;
 /* ===== 模块折叠态保存与应用（相术两页） =====
    守卫由页传 getter：守卫变量可能落在页内闭包里，本件不按 window 名硬取。 */
 function xjSaveModCollapsed(key, ready, selector){

@@ -73,7 +73,7 @@ function show(sign, setKey){
   const guHtml=sign.gu?`<p class="lq-gu">古人典故：${sign.gu}</p>`:'';
   const lvHtml=sign.lv?`<div class="lq-lv ${LV_CLS[sign.lv]||''}">${sign.lv}</div>`:'';
   const jieHtml=sign.jie?`<h4 class="det-h">解曰</h4><div class="lq-jie">${sign.jie.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('')}</div>`:'';
-  const dianHtml=set.dian?`<details class="lq-ref"><summary>${setKey}典故</summary><div class="lq-ref-b">${set.dian}</div></details>`:'';
+  const dianHtml=set.dian?`<details class="lq-ref" id="lqDian"><summary>${setKey}典故</summary><div class="lq-ref-b">${set.dian}</div></details>`:'';
   document.getElementById('out').innerHTML=`
   <div class="lq-slip">
     <div class="lq-head">
@@ -87,6 +87,7 @@ function show(sign, setKey){
   ${fenHtml}
   ${dianHtml}
   <p class="sub-note">※ 求签贵在诚心，一事一签，不宜反复重摇。切换签种可对比不同体系之签文。</p>`;
+  xjApplyFold('lqFoldState','#out details[id]');
   LAST=sign; LAST_SET=setKey;
 }
 function draw(){
@@ -112,6 +113,10 @@ function saveSel(){ try{ localStorage.setItem(LQ_SEL_KEY, document.getElementByI
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('lingqian.html');
+    document.addEventListener('toggle', function(e){
+      const t = e.target;
+      if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) xjSaveFold('lqFoldState','#out details[id]');
+    }, true);
     fillSet();
     document.getElementById('lqSet').addEventListener('change',()=>{ const k=document.getElementById('lqSet').value; saveSel(); show(curSet().signs[0], k); });
     (function initLq(){

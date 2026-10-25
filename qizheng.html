@@ -45,7 +45,6 @@
         <div class="field f-time"><label for="qzTime">出生时间</label><input type="time" id="qzTime" value="12:00"></div>
         <div class="field f-sex"><label for="qzSex">性别</label><select id="qzSex"><option>男</option><option>女</option></select></div>
         <div class="field f-tz" id="qzTzField"><label for="qzTz">时区</label><input type="number" id="qzTz" value="8" step="0.5"></div>
-        <div class="field chk" id="qzLocalDstField" hidden><input type="checkbox" id="qzLocalDst"><label for="qzLocalDst">当地夏令时（钟面减1小时）</label></div>
         <div class="field f-mode"><label for="qzQiHeng">过宫制</label><select id="qzQiHeng"><option value="ding">定气过宫</option><option value="heng">恒气过宫</option></select></div>
         <div class="field f-mode"><label for="qzMingFa">命度法</label><select id="qzMingFa"><option value="guolao">果老度级</option><option value="asc">天文上升</option></select></div>
         <div class="field f-mode"><label for="qzNode">罗计口径</label><select id="qzNode"><option value="mean">平交点 古法</option><option value="true">真交点 天文</option></select></div>
@@ -62,20 +61,40 @@
         <div class="field"><label for="qzLat">手动纬度</label><input type="text" id="qzLat" inputmode="decimal" placeholder="正负北南纬" title="北纬填正数、南纬填负数；支持十进制与度分：40、40°43′、S28、南纬28 均可；留空按出生地取数"></div>
       </div>
       <div class="sub-note" id="qzOverseasNote" hidden></div>
+      <div class="qz-row-inputs qz-opts">
+        <div class="group-label">时间折算与流派</div>
+        <div class="field"><label for="qzDst">夏令时</label><select id="qzDst">
+          <option value="auto">自动折算（中国 1986 至 1991）</option>
+          <option value="on">按夏令时（钟面减1小时）</option>
+          <option value="off">不折算（钟面即标准时）</option>
+        </select></div>
+        <div class="field"><label for="qzSun">太阳时</label><select id="qzSun">
+          <option value="off">不校正</option>
+          <option value="true">真太阳时（均时差加经度）</option>
+          <option value="mean">平太阳时（仅经度差）</option>
+        </select></div>
+        <div class="field"><label for="qzZi">子时算法</label><select id="qzZi">
+          <option value="late">晚子时（23点归次日）</option>
+          <option value="early">早子时（23点归当日）</option>
+        </select></div>
+        <div class="field"><label for="qzYearAxis">年界</label><select id="qzYearAxis">
+          <option value="lichun">立春换年</option>
+          <option value="chunjie">春节换年</option>
+          <option value="dongzhi">冬至换年</option>
+        </select></div>
+      </div>
       <div class="qz-chks">
-        <div class="field chk hh-true"><input type="checkbox" id="qzTrue" aria-label="是否启用真太阳时校正"><label for="qzTrue">真太阳时校正</label><span class="qz-chk-note">用于定时辰、安命安身；星历按天文口径另算。</span></div>
         <label class="qz-chk"><input type="checkbox" id="qzRel" onchange="document.getElementById('qzRel2').classList.toggle('open',this.checked)"> 双人对照（勾选后填第二人出生资料，追加命宫互照、命主互临、贵人四余对照）</label>
       </div>
       <div class="qz-rel2" id="qzRel2">
         <div class="qz-row-inputs">
-          <div class="field f-date"><label for="qzBDate">第二人出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qzBDate"></div>
-          <div class="field f-time"><label for="qzBTime">第二人出生时间</label><input type="time" id="qzBTime" value="12:00"></div>
-          <div class="field f-sex"><label for="qzBSex">第二人性别</label><select id="qzBSex"><option>女</option><option>男</option></select></div>
-          <div class="field f-tz" id="qzBTzField" hidden><label for="qzBTz">时区</label><select id="qzBTz" aria-label="选择第二人出生地标准时区偏移"></select></div>
-          <div class="field chk" id="qzBLocalDstField" hidden><input type="checkbox" id="qzBLocalDst"><label for="qzBLocalDst">当地夏令时（钟面减1小时）</label></div>
+          <div class="field f-date"><label for="qzBDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qzBDate"></div>
+          <div class="field f-time"><label for="qzBTime">出生时间</label><input type="time" id="qzBTime" value="12:00"></div>
+          <div class="field f-sex"><label for="qzBSex">性别</label><select id="qzBSex"><option>女</option><option>男</option></select></div>
+          <div class="field f-tz" id="qzBTzField" hidden><label for="qzBTz">时区</label><select id="qzBTz" aria-label="选择出生地标准时区偏移"></select></div>
         </div>
         <div class="birth-group compact">
-          <div class="group-label">第二人出生地（用于真太阳时与经纬度，手填经纬度优先）</div>
+          <div class="group-label">出生地（用于真太阳时与经纬度，手填经纬度优先）</div>
           <div class="field"><label for="qzBProv">省份</label><select id="qzBProv"></select></div>
           <div class="field"><label for="qzBCity">城市</label><select id="qzBCity"></select></div>
           <div class="field"><label for="qzBDist">区县</label><select id="qzBDist"></select></div>
@@ -85,7 +104,6 @@
         <div class="sub-note" id="qzBOverseasNote" hidden></div>
       </div>
     </div>
-        <p class="sub-note">可选境外城市自动带时区，手填经纬度仍优先</p>
     <div id="out"></div>
   </div>
 </div>
@@ -109,25 +127,25 @@ function qzBindPlace(pre){
   if(!sp||!sc||!sd) return null;
   return fillPlaceTrio(sp, sc, sd, qzSyncOverseas);
 }
-/* 境外时区与当地夏令时：主盘与第二人各一组，随所选城市显隐并回填时区；
-   境内收起，说明行由共享件按城市写出。 */
+/* 境外时区：主盘与第二人各一组，随所选城市显隐并回填时区；
+   境内收起，说明行由共享件按城市写出。当地夏令时由时间折算与流派行的夏令时选择统一控制。 */
 function qzSyncOverseas(){
   const bt = document.getElementById('qzBTz');
   if(bt && !bt.options.length) bt.innerHTML = overseasTzOptions();
-  syncOverseasFields({ prov:'qzProv', city:'qzCity', lng:'qzLon', tz:'qzTz', dst:'qzLocalDst',
-    tzField:'qzTzField', dstField:'qzLocalDstField', note:'qzOverseasNote' });
-  syncOverseasFields({ prov:'qzBProv', city:'qzBCity', lng:'qzBLon', tz:'qzBTz', dst:'qzBLocalDst',
-    tzField:'qzBTzField', dstField:'qzBLocalDstField', note:'qzBOverseasNote' });
+  syncOverseasFields({ prov:'qzProv', city:'qzCity', lng:'qzLon', tz:'qzTz',
+    tzField:'qzTzField', note:'qzOverseasNote' });
+  syncOverseasFields({ prov:'qzBProv', city:'qzBCity', lng:'qzBLon', tz:'qzBTz',
+    tzField:'qzBTzField', note:'qzBOverseasNote' });
 }
 /* 未定出生地且未填经纬度即无坐标可起盘：上升与十二宫都按出生地经纬度算，
    缺一则整盘无从落宫，故拦在排盘之前，不回退东经 120 度北纬 0 度。 */
 const QZ_NO_PLACE_MSG='请先定出生地：在出生地组选择省份与城市，或手动填写经度与纬度。七政四余的上升与十二宫按出生地经纬度起算，未定则无从出盘。';
 /* 手动经纬度宽容解析（同星占页逻辑） */
-/* ===== 大模块折叠（localStorage 键 qzModState） ===== */
+/* ===== 模块与折叠块状态（localStorage 键 qzModState） ===== */
 function qzToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  xjSaveModSections('qzModState','__qzInitDone');
+  xjSaveModState('qzModState','#out details.qz-ref[id]','__qzInitDone');
 }
 /* ===== 小工具 ===== */
 function qzEsc(s){ return ('' + (s == null ? '' : s)).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -135,16 +153,25 @@ function qzStateCls(st){ return 'dg-' + st; }
 function qzGongNm(i){ return QZ_GONG[((i % 12) + 12) % 12].zhi + '宫' + QZ_GONG[((i % 12) + 12) % 12].nm; }
 function qzFmtLon(lam){
   const n = qz_norm360(lam);
-  const g = QZ_GONG[Math.floor(n / 30)];
-  const inG = n % 30;
-  const d = Math.floor(inG), mm = Math.round((inG - d) * 60);
-  return g.zhi + '宫' + g.nm + d + '°' + (mm === 60 ? '0′' : mm + '′');
+  let gi = Math.floor(n / 30), d = Math.floor(n % 30), mm = Math.round((n % 30 - d) * 60);
+  if(mm === 60){ mm = 0; d += 1; }
+  if(d === 30){ d = 0; gi = (gi + 1) % 12; }
+  const g = QZ_GONG[gi];
+  return g.zhi + '宫' + g.nm + d + '°' + mm + '′';
 }
 function qzDegTxt(lam){
   const inG = qz_norm360(lam) % 30;
-  const d = Math.floor(inG), mm = Math.round((inG - d) * 60);
-  return d + '°' + (mm === 60 ? '0′' : mm + '′');
+  let d = Math.floor(inG), mm = Math.round((inG - d) * 60);
+  if(mm === 60){ mm = 0; d += 1; }
+  return d + '°' + mm + '′';
 }
+/* 经纬回显按符号取东西南北，负值即西经南纬 */
+function qzCoordTxt(lon, lat){
+  const f = v => Math.abs(v).toFixed(2);
+  return (lon >= 0 ? '东经' : '西经') + f(lon) + '° ' + (lat >= 0 ? '北纬' : '南纬') + f(lat) + '°';
+}
+function qzZiNm(m){ return m === 'early' ? '早子时' : '晚子时'; }
+function qzYearNm(a){ return a === 'chunjie' ? '春节换年' : a === 'dongzhi' ? '冬至换年' : '立春换年'; }
 /* ===== 中式星盘 SVG =====
    黄经 λ → 屏幕角 θ = 135 − λ：正上为 0、顺时针为正，与圆盘通用件 WHEEL.px 同制式，故几何全借通用件，
    画布随通用件取 440 见方、盘心 220。θ 与 λ 反向，故午宫落正上、子宫落正下、卯在左、酉在右，
@@ -277,6 +304,18 @@ function qzGongDetail(c, gi){
   return `${hi + 1}. ${QZ_HOUSES[hi]}（${g.zhi}宫${g.nm}）　宫主 ${zhu.nm} 躔${zp.gong.zhi}宫${zp.gong.nm}（<span class="${qzStateCls(zp.state)}">${zp.state}</span>）<br>坐曜 ${inner.length ? inner.map(l => l.nm + '（' + c.pl[l.k].state + '）').join('、') : '空宫'}；神煞 ${sha.length ? sha.map(s => s.nm).join('、') : '无'}`;
 }
 /* ===== 排盘 ===== */
+/* 夏令时折算：境内按中国 1986 至 1991 年时段自动判，境外按所选取舍折一小时 */
+function qzApplyDst(y,m,d,hh,mm,mode,overseas){
+  if(overseas){
+    if(mode === 'on'){
+      const ld = shiftClockDay(y,m,d,hh,mm,-60);
+      return {y:ld.y,m:ld.m,d:ld.d,h:ld.h,mi:ld.mi,note:'当地夏令时：钟面折 1 小时'};
+    }
+    return {y,m,d,h:hh,mi:mm,note:''};
+  }
+  const r = applyDstCorrection(y,m,d,hh,mm,mode);
+  return {y:r.y,m:r.m,d:r.d,h:r.h,mi:r.mi,note:r.note || ''};
+}
 function qzPai(){
   const dv = document.getElementById('qzDate').value;
   const tv = document.getElementById('qzTime').value;
@@ -284,14 +323,17 @@ function qzPai(){
   let [y,m,d] = dv.split('-').map(Number);
   let [hh,mm] = tv.split(':').map(Number);
   const sex = document.getElementById('qzSex').value;
-  /* 境外时刻口径：时区与当地夏令时由共享件按出生地取数，境内固定东八区；
-     当地夏令时先把钟面折回标准时，再入星历与真太阳时校正。 */
-  const _pto = placeTimeOptsOf({ prov:'qzProv', city:'qzCity', tz:'qzTz', dst:'qzLocalDst' });
+  /* 时刻折算顺序：夏令时先折回标准时，再入星历与太阳时校正；时区由共享件按出生地取数 */
+  const dstMode = document.getElementById('qzDst').value;
+  const sunMode = document.getElementById('qzSun').value;
+  const ziMode = document.getElementById('qzZi').value;
+  const yearAxis = document.getElementById('qzYearAxis').value;
+  const _pto = placeTimeOptsOf({ prov:'qzProv', city:'qzCity', tz:'qzTz' });
   const tzUse = _pto.overseas ? _pto.tz : 8;
-  if(_pto.localDst){
-    const ld = shiftClockDay(y, m, d, hh, mm, -60);
-    y = ld.y; m = ld.m; d = ld.d; hh = ld.h; mm = ld.mi;
-  }
+  const raw = {y, m, d, hh, mm};
+  const dstRes = qzApplyDst(y, m, d, hh, mm, dstMode, _pto.overseas);
+  const dstNote = dstRes.note || '';
+  y = dstRes.y; m = dstRes.m; d = dstRes.d; hh = dstRes.h; mm = dstRes.mi;
   const lonV = document.getElementById('qzLon').value, latV = document.getElementById('qzLat').value;
   const prov = document.getElementById('qzProv').value;
   const lonP = xjCoordParse(lonV, false), latP = xjCoordParse(latV, true);
@@ -313,29 +355,28 @@ function qzPai(){
   }
   const qiHeng = document.getElementById('qzQiHeng').value;
   const mingFa = document.getElementById('qzMingFa').value;
-  const trueSolar = document.getElementById('qzTrue').checked;
   const nodeMode = document.getElementById('qzNode').value;
   let c;
   try{
-    c = qz_compute({y, m, d, hh, mm, sex, tz: tzUse, lon, lat, qiHeng, mingFa, nodeMode, trueSolar});
+    c = qz_compute({y, m, d, hh, mm, raw, dstNote, sex, tz: tzUse, lon, lat, qiHeng, mingFa, nodeMode, sunMode, ziMode, yearAxis});
   }catch(e){
     console.error('[排盘]', e); document.getElementById('out').innerHTML = '<p class="notice">排盘失败，请核对输入后重试。</p>';
     return;
   }
   window.__qzChart = c;
-  /* 双人对照（勾选时）：第二人坐标手填优先、留空按出生地取数，过宫制、命度法、真太阳时随本命设置 */
+  /* 双人对照（勾选时）：第二人坐标手填优先、留空按出生地取数，时间折算与流派随本命设置 */
   let chartB = null;
   if(document.getElementById('qzRel').checked){
     const bdv = document.getElementById('qzBDate').value, btv = document.getElementById('qzBTime').value;
     if(!bdv || !btv){ alert('请填写第二人出生日期与时间'); return; }
     const bp = bdv.split('-').map(Number), bt = btv.split(':').map(Number);
     let by = bp[0], bm = bp[1], bd = bp[2], bhh = bt[0], bmm = bt[1];
-    const _ptoB = placeTimeOptsOf({ prov:'qzBProv', city:'qzBCity', tz:'qzBTz', dst:'qzBLocalDst' });
+    const _ptoB = placeTimeOptsOf({ prov:'qzBProv', city:'qzBCity', tz:'qzBTz' });
     const tzUseB = _ptoB.overseas ? _ptoB.tz : 8;
-    if(_ptoB.localDst){
-      const ld = shiftClockDay(by, bm, bd, bhh, bmm, -60);
-      by = ld.y; bm = ld.m; bd = ld.d; bhh = ld.h; bmm = ld.mi;
-    }
+    const rawB = {y: by, m: bm, d: bd, hh: bhh, mm: bmm};
+    const dstResB = qzApplyDst(by, bm, bd, bhh, bmm, dstMode, _ptoB.overseas);
+    const dstNoteB = dstResB.note || '';
+    by = dstResB.y; bm = dstResB.m; bd = dstResB.d; bhh = dstResB.h; bmm = dstResB.mi;
     const bLonP = xjCoordParse(document.getElementById('qzBLon').value, false);
     const bLatP = xjCoordParse(document.getElementById('qzBLat').value, true);
     let blon = bLonP.ok ? bLonP.v : null, blat = bLatP.ok ? bLatP.v : null;
@@ -346,15 +387,15 @@ function qzPai(){
       if(blat === null) blat = bc.lat;
     }
     if(blon === null || blat === null){
-      document.getElementById('out').innerHTML = '<p class="notice">第二人' + QZ_NO_PLACE_MSG + '</p>';
+      alert('第二人' + QZ_NO_PLACE_MSG);
       return;
     }
-    chartB = qz_compute({y: by, m: bm, d: bd, hh: bhh, mm: bmm,
+    chartB = qz_compute({y: by, m: bm, d: bd, hh: bhh, mm: bmm, raw: rawB, dstNote: dstNoteB,
       sex: document.getElementById('qzBSex').value, tz: tzUseB, lon: blon, lat: blat,
-      qiHeng, mingFa, trueSolar});
+      qiHeng, mingFa, nodeMode, sunMode, ziMode, yearAxis});
   }
   document.getElementById('out').innerHTML = qzRenderAll(c, placeLabel, lon, lat, chartB);
-  xjApplyModSections('qzModState');
+  xjApplyModState('qzModState','#out details.qz-ref[id]');
   window.__qzInitDone = true;
   if(window.initPickers) initPickers();
   __qz = qzBuildAiText(c, chartB);
@@ -364,15 +405,15 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
   /* 模块一：排盘总览 */
   const diffDeg = Math.abs(qz_norm180(c.mingDu - c.mingDuAlt)).toFixed(1);
   const overTbl = `<table class="qz-tbl qz-tri">
-    <tr><th>公历</th><td>${c.y} 年 ${c.m} 月 ${c.d} 日 ${String(c.hh).padStart(2,'0')}:${String(c.mm).padStart(2,'0')}（${c.sex}，时区 UTC${c.tz>=0?'+':''}${c.tz}）</td></tr>
+    <tr><th>公历</th><td>${c.raw.y} 年 ${c.raw.m} 月 ${c.raw.d} 日 ${String(c.raw.hh).padStart(2,'0')}:${String(c.raw.mm).padStart(2,'0')}（${c.sex}，时区 UTC${c.tz>=0?'+':''}${c.tz}）${c.dstNote ? '；' + c.dstNote : ''}</td></tr>
     <tr><th>农历干支</th><td>${c.lunarStr}；${c.yGZ}年 ${c.mGZ}月 ${c.dGZ}日 ${c.hGZ}时；${c.shiNm}时</td></tr>
-    <tr><th>真太阳时</th><td>${c.tsInfo ? c.tsInfo.text + '，校正后 ' + c.tsInfo.hh + ':' + String(c.tsInfo.mi).padStart(2,'0') + (c.tsInfo.dayShift ? '（真太阳时跨日，日期已调整）' : '') + '，用于定时辰与安命安身' : '未启用（按钟表时间定时辰）'}</td></tr>
-    <tr><th>出生地坐标</th><td>${placeLabel ? qzEsc(placeLabel) + '　' : ''}东经${lon.toFixed(2)}° 北纬${lat.toFixed(2)}°</td></tr>
+    <tr><th>太阳时</th><td>${c.tsInfo ? c.tsInfo.text + '，校正后 ' + c.tsInfo.hh + ':' + String(c.tsInfo.mi).padStart(2,'0') + (c.tsInfo.dayShift ? '（太阳时校正后跨日，日期已调整）' : '') + '，用于定时辰与安命安身' : '不校正（按钟表时间定时辰）'}</td></tr>
+    <tr><th>出生地坐标</th><td>${placeLabel ? qzEsc(placeLabel) + '　' : ''}${qzCoordTxt(lon, lat)}</td></tr>
     <tr><th>昼夜</th><td><b>${c.dayNight}生</b>（太阳地平高度 ${c.sunAlt.toFixed(1)}°，${c.dayNight === '昼' ? '取昼贵、日曜为重' : '取夜贵、月曜为重'}）</td></tr>
     <tr><th>安命安身</th><td>命宫 <b>${qzGongNm(c.mingIdx)}</b>；身宫 <b>${qzGongNm(c.shenIdx)}</b>（太阴所躔）；安法：太阳躔${qzGongNm(c.pl.sun.gIdx)}起${c.shiNm}时，顺数至卯</td></tr>
     <tr><th>命度</th><td>取用（${c.mingFa === 'asc' ? '天文上升' : '果老度级'}）：<b>${qzFmtLon(c.mingDu)}</b>，躔${c.mingDuXiu.txt}，度主${c.mingDuXiu.duzhu}<br><span class="el">两法对照：果老度级 ${qzFmtLon(c.mingFa === 'guolao' ? c.mingDu : c.mingDuAlt)}、天文上升 ${qzFmtLon(c.mingFa === 'asc' ? c.mingDu : c.mingDuAlt)}，差 ${diffDeg}°</span></td></tr>
     <tr><th>身度</th><td>${c.shenDuXiu.txt}，度主${c.shenDuXiu.duzhu}</td></tr>
-    <tr><th>宫位口径</th><td>${c.qiHeng === 'ding' ? '定气过宫（太阳真黄经三十度一宫，现代主流）' : '恒气过宫（平太阳黄经均分，果老古法）'}；命度法：${c.mingFa === 'asc' ? '天文上升点（Meeus 公式）' : '果老度级（太阳度起生时数至卯）'}；罗计口径：${c.nodeMode === 'true' ? '真交点（天文）' : '平交点（古法）'}，两口径差 ${c.nodeDiff.toFixed(1)}°</td></tr>
+    <tr><th>宫位口径</th><td>${c.qiHeng === 'ding' ? '定气过宫（太阳真黄经三十度一宫，现代主流）' : '恒气过宫（平太阳黄经均分，果老古法）'}；命度法：${c.mingFa === 'asc' ? '天文上升点（按天球坐标解析）' : '果老度级（太阳度起生时数至卯）'}；罗计口径：${c.nodeMode === 'true' ? '真交点（天文）' : '平交点（古法）'}，两口径差 ${c.nodeDiff.toFixed(1)}°；子时算法：${qzZiNm(c.ziMode)}；年界：${qzYearNm(c.yearAxis)}</td></tr>
     <tr><th>蚀神临照</th><td>${c.eclipse.length ? c.eclipse.map(e => `<b>${QZ_LUM_MAP[e.k].nm}距罗计 ${e.d.toFixed(1)}°，蚀神临照</b>，光华受损、宜韬光养晦`).join('；') : '未犯（日月距罗计十五度以外）'}</td></tr>
     <tr><th>星盘图</th><td class="el">最外圈十二宫名沿圆周环布（点选任一切换盘下详情，命宫加重并铺极淡扇面），次带地支宫名（命宫附“命”字），三带二十八宿（宿界按距星实测定界，觜参次序随实测对调），盘心区十一曜（字色即庙旺：绿庙、蓝旺、深绿乐、棕闲、红陷）；实线为命度、虚线为身度，盘心三行给命宫、命度、身宫；方位取中式盘式：午上子下、卯左酉右。</td></tr>
   </table>`;
@@ -417,7 +458,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
     <td>${q.nm}</td>
     <td>${q.gong.zhi}宫${q.gong.nm}</td>
     <td>${QZ_LUM_MAP[q.zhu].nm}（躔${q.zhuPl.gong.zhi}宫，${q.zhuPl.state}）</td>
-    <td>${q.inner.join('、') || '空'}</td>
+    <td>${q.inner.join('、') || '空宫'}</td>
     <td>${q.sha.length ? q.sha.map(s => s.nm).join('、') : '无'}</td>
     <td>${q.txt}</td>
   </tr>`).join('');
@@ -449,7 +490,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
   const xianRows = c.xian.map(s => {
     const here = s === c.curXian;
     return `<tr${here ? ' class="cur"' : ''}>
-      <td>${s.from}–${s.to} 岁${here ? '<span class="qz-here">现行</span>' : ''}</td>
+      <td>${s.from}–${s.to} 岁</td>
       <td>${s.nm}</td>
       <td>${s.gong.zhi}宫${s.gong.nm}</td>
       <td>${QZ_LUM_MAP[s.zhu].nm}</td>
@@ -458,7 +499,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
     </tr>`;
   }).join('');
   const xlRows = c.xianRows.map(r => `<tr${r.cur ? ' class="cur"' : ''}>
-    <td class="age">${r.age}–${r.age + 1} 岁${r.cur ? '<span class="qz-here">今年</span>' : ''}</td>
+    <td class="age">${r.age}–${r.age + 1} 岁</td>
     <td>${r.gong}</td>
     <td>${r.xiu.nm}${r.xiu.q}宿第${r.xiu.du}度</td>
     <td>${r.xiu.duzhu}</td>
@@ -480,7 +521,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
   const syn = [
     ['命主身主', `命主${mingZhu.nm}躔${mzp.gong.zhi}宫${mzp.gong.nm}（${mzp.state}），身主太阴躔${qzGongNm(c.shenIdx)}（${c.pl.moon.state}）。${QZ_YAO_GONG[QZ_GONG[c.mingIdx].zhu][mzp.gong.zhi]}`],
     ['昼夜用曜', `${c.dayNight}生人，${c.dayNight === '昼' ? '太阳为主、以太阴金水为辅' : '太阴为主、以太阳木土为辅'}；昼贵在${shaZhou ? shaZhou.zhi + '宫' : '—'}、夜贵在${shaYe ? shaYe.zhi + '宫' : '—'}，本盘取${c.dayNight === '昼' ? '昼' : '夜'}贵`],
-    ['庙旺大势', `得地（庙旺）者${qiang.length ? qiang.join('、') : '无'}；失陷者${ruo.length ? ruo.join('、') : '无'}。${qiang.length >= 3 ? '得地之曜过半，格局清朗。' : qiang.length ? '强弱相济，宜扬长补短。' : '得地之曜少，宜自励多磨。'}`],
+    ['庙旺大势', `得地（庙旺）者${qiang.length ? qiang.join('、') : '无'}；失陷者${ruo.length ? ruo.join('、') : '无'}。${qiang.length >= 6 ? '得地之曜过半，格局清朗。' : qiang.length ? '强弱相济，宜扬长补短。' : '得地之曜少，宜自励多磨。'}`],
     ['格局要点', c.geju.length ? c.geju.map(g => g.nm + '（' + (g.ji ? '忌' : '吉') + '）').join('、') : '未成诸格，以曜宫生克为断'],
     ['六亲要点', `父母看${c.qin[0].gong.zhi}宫、妻妾看${c.qin[2].gong.zhi}宫、子女看${c.qin[3].gong.zhi}宫；财帛主${QZ_LUM_MAP[c.qin[4].zhu].nm}、官禄主${QZ_LUM_MAP[c.qin[5].zhu].nm}，详见十二宫模块`],
     ['限运要点', `现行${c.curXian.nm}限（${c.curXian.from}–${c.curXian.to} 岁，限主${QZ_LUM_MAP[c.curXian.zhu].nm}）${curY ? '，行至' + curY.xiu.nm + '宿第' + curY.xiu.du + '度' + (curY.hits.length ? '，遇' + curY.hits.join('、') : '') : ''}${c.eclipse.length ? '；日月犯蚀神临照，光华有损' : ''}`],
@@ -488,6 +529,16 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
   ];
   const synHtml = `<table class="qz-tbl qz-syn"><tbody>${syn.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>`;
   const synthMod = `${synHtml}`;
+  const refMod = `<details class="qz-ref" id="qzAlgoRef"><summary>算法与流派说明</summary><div class="qz-ref-body">
+<div class="el">安命：太阳躔宫起生时，顺数至卯。命度双法并列：果老度级按太阳躔度随生时数至卯，天文上升点按天球坐标解析，两法差度随盘显示。</div>
+<div class="el">过宫：定气按太阳真黄经三十度一宫，恒气按平太阳黄经均分。两制随盘可见。</div>
+<div class="el">四余：罗睺与计都取交点平行度，可选平交点或真交点；月孛取月亮平远点；紫炁为古典虚点，以二〇〇〇年历元黄经零度起算，各家历元不同，允许数度差异。</div>
+<div class="el">二十八宿：宿界按距星黄经定界，随岁差每年东移约五十角秒；觜参次序随实测对调。</div>
+<div class="el">度主：每宿逐度自宿属五行起，按木火土金水相生序轮排；日宿从火起，月宿从水起。</div>
+<div class="el">洞微限：宫限基数取通行百六限表，命宫起逆行十二宫；宫内每庙加一年、每陷减一年，加减上下限三年，限年最低三年；度级行限每年行三十度除以限年。</div>
+<div class="el">庙旺：同宫为庙，宫生曜为旺，曜生宫为乐，曜克宫为闲，宫克曜为陷。</div>
+<div class="el">神煞与格局：神煞按年干与年支起；格局按同宫与相对位置判定，出处随格列出。释义为典籍通义改写。</div>
+</div></details>`;
   /* 导航与装配 */
   /* 五大模块：总览、躔次、宫煞、格限、综合（择时、双人对照并入综合） */
   const relBody = chartB ? qzRelBody(c, chartB) : '';
@@ -501,28 +552,33 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
           <div class="field f-date"><label for="qzZeD2">结束日期</label><input type="text" class="dt-input" id="qzZeD2" value="${qzTodayYmdPlus(29)}"></div>
           <button class="btn" onclick="qzZeGo()">开始择时</button>
         </div>
+        <div class="sub-note">罗计口径随本命盘：平交点或真交点与上方所选一致；评分含格局、庙旺与蚀神临照。</div>
         <div id="qzZeOut"></div>`;
   return `
     <section class="mod" id="qzModOver">
-      <div class="mod-head" onclick="qzToggleMod('qzModOver')"><span class="mod-caret">▾</span><span class="gua-ico">☉</span><span class="mod-title">总览</span><span class="mod-sub">命宫身宫 命度双法 中式星盘 昼夜</span></div>
+      <div class="mod-head" onclick="qzToggleMod('qzModOver')"><span class="mod-caret">▾</span><span class="mod-title">总览</span><span class="mod-sub">命宫身宫 命度双法 中式星盘 昼夜</span></div>
       <div class="mod-body">${over}</div>
     </section>
     <section class="mod" id="qzModLum">
-      <div class="mod-head" onclick="qzToggleMod('qzModLum')"><span class="mod-caret">▾</span><span class="gua-ico">✶</span><span class="mod-title">躔次</span><span class="mod-sub">十一曜 入宫入宿 度主 庙旺 化曜</span></div>
+      <div class="mod-head" onclick="qzToggleMod('qzModLum')"><span class="mod-caret">▾</span><span class="mod-title">躔次</span><span class="mod-sub">十一曜 入宫入宿 度主 庙旺 化曜</span></div>
       <div class="mod-body">${lum}</div>
     </section>
     <section class="mod collapsed" id="qzModGong">
-      <div class="mod-head" onclick="qzToggleMod('qzModGong')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">宫煞</span><span class="mod-sub">十二宫 六亲 化曜 神煞</span></div>
+      <div class="mod-head" onclick="qzToggleMod('qzModGong')"><span class="mod-caret">▾</span><span class="mod-title">宫煞</span><span class="mod-sub">十二宫 六亲 化曜 神煞</span></div>
       <div class="mod-body">${houseMod}${shaMod}</div>
     </section>
     <section class="mod collapsed" id="qzModGeXian">
-      <div class="mod-head" onclick="qzToggleMod('qzModGeXian')"><span class="mod-caret">▾</span><span class="gua-ico">限</span><span class="mod-title">格限</span><span class="mod-sub">格局 洞微限 流年盘</span></div>
+      <div class="mod-head" onclick="qzToggleMod('qzModGeXian')"><span class="mod-caret">▾</span><span class="mod-title">格限</span><span class="mod-sub">格局 洞微限 流年盘</span></div>
       <div class="mod-body">${gejuMod}${xianMod}<h3 class="rel-title">流年盘（流年立春天象过本命宫）</h3>${lnBody}</div>
     </section>
     <section class="mod collapsed" id="qzModSyn">
-      <div class="mod-head" onclick="qzToggleMod('qzModSyn')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">综合</span><span class="mod-sub">择时 双人对照 综合解读</span></div>
-      <div class="mod-body"><h3 class="rel-title">七政择时（天象格局吉时扫描）</h3>${zeBody}${relBody ? `<h3 class="rel-title">双人对照</h3>${relBody}` : ''}<h3 class="rel-title">综合解读</h3>${synthMod}</div>
-    </section>`;
+      <div class="mod-head" onclick="qzToggleMod('qzModSyn')"><span class="mod-caret">▾</span><span class="mod-title">综合</span><span class="mod-sub">择时 双人对照 综合解读</span></div>
+      <div class="mod-body"><h3 class="rel-title">七政择时（天象格局吉时扫描）</h3>${zeBody}${relBody ? `<h3 class="rel-title">双人对照</h3>${relBody}` : ''}<h3 class="rel-title">综合解读</h3>${synthMod}${refMod}</div>
+    </section>
+    <details class="qz-ref" id="qzLumRef">
+      <summary>十一曜通义（参考）</summary>
+      <div class="qz-ref-body"><div class="qz-tbl-wrap"><table class="qz-tbl qz-lum-ref-tbl"><thead><tr><th>曜</th><th>通义</th></tr></thead><tbody>${QZ_LUM.map(l => `<tr><td>${l.nm}</td><td>${QZ_LUM_TXT[l.k]}</td></tr>`).join('')}</tbody></table></div></div>
+    </details>`;
 }
 /* ===== 流年盘、择时、双人对照 ===== */
 function qzTodayYmd(){
@@ -559,12 +615,13 @@ function qzZeHtml(r){
   const rows = r.top.map((t, i) => `<tr>
     <td>${i + 1}</td>
     <td>${t.y} 年 ${t.m} 月 ${t.d} 日 ${t.hm}</td>
+    <td>${t.lY} 年 ${t.lM} 月 ${t.lD} 日 ${t.hmLocal}</td>
     <td>${t.dayNight}</td>
     <td><b>${t.score}</b></td>
     <td>${t.hits.length ? t.hits.map(h => h.nm + (h.ji ? '（忌）' : '')).join('、') : '—'}</td>
     <td>${t.ecl ? '<span class="qz-ji">犯蚀神</span>' : '—'}</td>
   </tr>`).join('');
-  return `<div class="qz-tbl-wrap"><table class="qz-tbl"><thead><tr><th>名次</th><th>日期时刻（东八）</th><th>昼夜</th><th>得分</th><th>命中格局</th><th>蚀神</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div class="qz-tbl-wrap"><table class="qz-tbl"><thead><tr><th>名次</th><th>日期时刻（东八）</th><th>当地时刻</th><th>昼夜</th><th>得分</th><th>命中格局</th><th>蚀神</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function qzZeGo(){
   const d1 = document.getElementById('qzZeD1').value, d2 = document.getElementById('qzZeD2').value;
@@ -574,7 +631,7 @@ function qzZeGo(){
   out.innerHTML = '<p class="notice">扫描中，约需数秒，请稍候……</p>';
   setTimeout(() => {
     try{
-      const r = qz_zejiScan(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], window.__qzChart.qiHeng, window.__qzChart.lon, window.__qzChart.lat);
+      const r = qz_zejiScan(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], window.__qzChart.qiHeng, window.__qzChart.lon, window.__qzChart.lat, window.__qzChart.nodeMode, window.__qzChart.tz);
       out.innerHTML = r.err ? '<p class="notice">' + qzEsc(r.err) + '</p>' : qzZeHtml(r);
     }catch(e){
       console.error('[择时]', e); out.innerHTML = '<p class="notice">择时失败，请核对输入后重试。</p>';
@@ -608,13 +665,13 @@ function qzRelBody(c, chartB){
 /* ===== AI 导出文本 ===== */
 function qzBuildAiText(c, chartB){
   const L = [];
-  L.push(`【七政四余排盘】${c.y}-${c.m}-${c.d} ${c.hh}:${c.mm} ${c.sex}；${c.yGZ}年${c.mGZ}月${c.dGZ}日${c.hGZ}时（${c.shiNm}时）；东经${c.lon}° 北纬${c.lat}°；${c.dayNight}生`);
-  if(c.tsInfo) L.push(`真太阳时：${c.tsInfo.text}，校正后 ${c.tsInfo.hh}:${c.tsInfo.mi}`);
+  L.push(`【七政四余排盘】${c.raw.y}-${c.raw.m}-${c.raw.d} ${c.raw.hh}:${c.raw.mm} ${c.sex}；${c.yGZ}年${c.mGZ}月${c.dGZ}日${c.hGZ}时（${c.shiNm}时）；${qzCoordTxt(c.lon, c.lat)}；${c.dayNight}生${c.dstNote ? '；' + c.dstNote : ''}`);
+  if(c.tsInfo) L.push(`太阳时：${c.tsInfo.text}，校正后 ${c.tsInfo.hh}:${c.tsInfo.mi}`);
   L.push(`命宫${qzGongNm(c.mingIdx)}；身宫${qzGongNm(c.shenIdx)}；命度(${c.mingFa === 'asc' ? '天文' : '果老'})${qzFmtLon(c.mingDu)}躔${c.mingDuXiu.txt}；两法差${Math.abs(qz_norm180(c.mingDu - c.mingDuAlt)).toFixed(1)}°；过宫${c.qiHeng === 'ding' ? '定气' : '恒气'}`);
   L.push('十一曜躔次：');
   QZ_LUM.forEach(l => {
     const p = c.pl[l.k];
-    L.push(`${l.nm}：${p.gong.zhi}宫${p.gong.nm}${Math.floor(p.deg)}°，${p.xiu.nm}${p.xiu.q}宿第${p.xiu.du}度（度主${p.xiu.duzhu}），${p.state}，${p.motion}${p.eclipse ? '' : ''}`);
+    L.push(`${l.nm}：${p.gong.zhi}宫${p.gong.nm}${qzDegTxt(p.deg)}，${p.xiu.nm}${p.xiu.q}宿第${p.xiu.du}度（度主${p.xiu.duzhu}），${p.state}，${p.motion}`);
   });
   if(c.eclipse.length) L.push('蚀神临照：' + c.eclipse.map(e => QZ_LUM_MAP[e.k].nm + '距罗计' + e.d.toFixed(1) + '°').join('、'));
   L.push('化曜（' + c.gan + '年）：' + QZ_HUA_NAMES.map((n, i) => n + '=' + QZ_LUM_MAP[c.hua[i]].nm).join('、'));
@@ -639,7 +696,7 @@ function qzBuildAiText(c, chartB){
     L.push('命主互临：甲命主' + rel.mingZhuA.nm + '入乙方' + rel.mingZhuA.house + '；乙命主' + rel.mingZhuB.nm + '入甲方' + rel.mingZhuB.house + '；甲身主入乙方' + rel.shenA.house + '；乙身主入甲方' + rel.shenB.house);
     L.push('四余互临：' + rel.yuRows.map(r => r.nm + '（甲→乙' + r.toB + '，乙→甲' + r.toA + '）').join('、'));
   }
-  L.push('口径：庙旺按宫曜五行生克；罗计取' + (c.nodeMode === 'true' ? '真交点' : '平交点') + '；28宿距星实测定界岁差前推；限年含庙旺加减（每庙加一、每陷减一，上下限三年）；释义为典籍通义改写。请以传统文化研究视角解读。');
+  L.push('口径：庙旺按宫曜五行生克；罗计取' + (c.nodeMode === 'true' ? '真交点' : '平交点') + '；子时' + qzZiNm(c.ziMode) + '；年界' + qzYearNm(c.yearAxis) + '；28宿距星实测定界岁差前推；限年含庙旺加减（每庙加一、每陷减一，上下限三年）；释义为典籍通义改写。请以传统文化研究视角解读。');
   return L.join('\n');
 }
 /* 刷新重出：全站顶层机制回填输入后按此钩子重排本命盘（首次进入随上方自动排盘，无须重排） */
@@ -654,6 +711,10 @@ window.xjRefreshHook=function(changed){
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('qizheng.html');
+    document.addEventListener('toggle', function(e){
+      const t = e.target;
+      if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) xjSaveModState('qzModState','#out details.qz-ref[id]','__qzInitDone');
+    }, true);
     qzBindPlace('qz');
     qzBindPlace('qzB');
     qzSyncOverseas();

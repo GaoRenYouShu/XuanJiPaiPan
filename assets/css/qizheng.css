@@ -9,6 +9,8 @@
 
 .page-qz .qz-row-inputs{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-3)}
 
+.page-qz .qz-opts .group-label{width:100%;color:var(--qz2)}
+
 .page-qz .qz-form .f-tz input{width:64px}
 
 .page-qz .qz-btns{display:flex;gap:var(--sp-3);align-items:flex-end}
@@ -17,12 +19,8 @@
 
 .page-qz .qz-chk input{width:auto;margin:0}
 
-/* 真太阳时勾选行的随行说明（控件已归共享件 field chk hh-true，说明文字独立随行） */
-.page-qz .qz-chk-note{font-size:13px;color:var(--qz-ink2)}
-
-/* 真太阳时与双人对照两行勾选的纵排容器：行距取 --sp-2，与紫微、占星双人块同档 */
+/* 双人对照勾选行的纵排容器：行距取 --sp-2，与紫微、占星双人块同档 */
 .page-qz .qz-chks{display:flex;flex-direction:column;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-2)}
-.page-qz .qz-chks .qz-chk-note{margin-left:var(--sp-1)}
 
 .page-qz .qz-rel2{display:none;padding:var(--sp-2) 0 0;border:0;border-top:1px dashed var(--qz-line);margin-bottom:var(--sp-2)}
 
@@ -36,25 +34,25 @@
 
 .page-qz table.qz-tbl th{background:var(--qz-tint);color:var(--qz-deep);font-weight:400;white-space:nowrap}
 
+.page-qz table.qz-lum-ref-tbl th:first-child{width:4em}
+
 .page-qz table.qz-tbl td{color:var(--qz-ink)}
 
 .page-qz table.qz-tbl td .el{font-size:12px;color:var(--qz-ink2)}
 
 .page-qz .dg-庙{color:var(--green);font-weight:700}
 
-.page-qz .dg-旺{color:#1b6fa8;font-weight:700}
+.page-qz .dg-旺{color:var(--qz-旺);font-weight:700}
 
-.page-qz .dg-乐{color:#2e7d32}
+.page-qz .dg-乐{color:var(--qz-乐)}
 
-.page-qz .dg-平{color:var(--qz-ink2)}
+.page-qz .dg-平{color:var(--qz-平)}
 
-.page-qz .dg-闲{color:#8a6d2f}
+.page-qz .dg-闲{color:var(--qz-闲)}
 
-.page-qz .dg-陷{color:#b3261e;font-weight:700}
+.page-qz .dg-陷{color:var(--qz-陷);font-weight:700}
 
 .page-qz .yu-tag{display:inline-block;font-size:10px;border:0;border-radius:0;padding:0 var(--sp-1);background:var(--qz-tint);color:var(--qz-ink2);margin-left:var(--sp-1)}
-
-.page-qz .qz-t{display:inline-block;color:var(--qz2);font-weight:400;margin-bottom:var(--sp-1)}
 
 .page-qz .qz-vedic b,.page-qz .qz-house-box b,.page-qz .qz-house-box strong{font-weight:400;color:var(--qz2)}
 
@@ -110,11 +108,9 @@
 
 .page-qz .qz-vedic{font-size:13px;line-height:1.8}
 
-.page-qz .note-vedic{border:1px solid var(--qz-line);border-radius:0;padding:var(--sp-3) var(--sp-3);font-size:13px;line-height:1.7;color:var(--qz-ink)}
+.page-qz .qz-here{color:var(--qz2);font-size:11px;margin-left:var(--sp-1);white-space:nowrap}
 
-.page-qz .qz-here{color:var(--qz2);display:inline-block;font-size:11px;padding:0 var(--sp-1);border:1px solid var(--qz2);border-radius:0;margin-left:var(--sp-1);white-space:nowrap}
-
-.page-qz .qz-ji{color:#b3261e}
+.page-qz .qz-ji{color:var(--red)}
 
 .page-qz table.qz-xian-tbl tr.cur td{background:var(--qz-hl)}
 
@@ -133,6 +129,14 @@
 .page-qz .qz-inline{flex-direction:row;align-items:center;gap:var(--sp-2)}
 
 .page-qz .qz-inline label{white-space:nowrap}
+
+.page-qz .qz-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--qz-line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.page-qz .qz-ref:not([open]){border-bottom:1px solid var(--qz-line)}
+
+.page-qz .qz-ref summary{cursor:pointer;font-family:var(--qz-serif);font-weight:400;color:var(--qz2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.page-qz .qz-ref .qz-ref-body .el{font-size:12px;line-height:1.8;color:var(--qz-ink2);padding:var(--sp-1) 0}
 
 @media(max-width:640px){
   /* 长表（非键值表、非短三列表）列宽走全站契约，由容器横向滚动 */
@@ -220,7 +224,7 @@
 
 .page-qz .ai-model-row:hover{background:var(--qz-tint)}
 
-.page-qz .ai-tip{color:#6f6a80}
+.page-qz .ai-tip{color:var(--qz-ink2)}
 
 @media(max-width:640px){
   .page-qz .mod,.page-qz .info-box{box-shadow:none}

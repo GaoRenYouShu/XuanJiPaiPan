@@ -425,11 +425,11 @@ function xzRelWheelBlk(id, title, list, selKey){
   const anchor = list.find(function(p){ return p.key === selKey; }) || list[0];
   return xzWheelBlk(id, title, items, xzWheelSign(anchor.lonT), detail);
 }
-/* 大模块折叠：机制与八字页 .mod 一致（collapsed 类切换 + localStorage 持久化，键独立防串页） */
+/* 大模块折叠：collapsed 类切换，接入全站模块与折叠态存档，键独立防串页 */
 function xzToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  xjSaveModSections('xzModState','__xzInitDone');
+  xjSaveModState('xzModState','#out details[id]','__xzInitDone');
 }
 /* 本盘成立组合的应对指向：只补表格判定之外的信息（各格传统化解与运用之道），不重复依据；
    页面判读与 AI 导出串共用这一份 */
@@ -765,7 +765,7 @@ function xzPai(){
         ${synRows(buildOverall(chart))}
       </div>
     </section>`;
-  xjApplyModSections('xzModState');
+  xjApplyModState('xzModState','#out details[id]');
   window.__xzInitDone = true;
   /* 行运日期输入为动态节点，重绑一次自建弹层（幂等：已绑定的节点自动跳过） */
   if(window.initPickers) initPickers();

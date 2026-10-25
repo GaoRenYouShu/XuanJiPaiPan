@@ -22,27 +22,27 @@ function qz_toJd(y, m, d, hh, mi, tz){
   return (dt.getTime() - tz * 3600000) / 86400000 + 2440587.5;
 }
 
-/* ===== 真太阳时：NOAA 均时差（分钟）+ 经度差 4 分、度 =====
-   经度差相对所取时区的中央经线（tz×15°，东八区即 120°E），境外时区同样适用 */
-function qz_trueSolar(y, m, d, hh, mi, lon, tz){
-  const utc0 = Date.UTC(y, 0, 1);
-  const doy = Math.floor((Date.UTC(y, m - 1, d) - utc0) / 86400000) + 1;
-  const g = 2 * Math.PI / 365 * (doy - 1 + (hh - 12) / 24);
-  const eot = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g)
-    - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
-  const lngAdj = (lon - tz * 15) * 4;
-  let tot = hh * 60 + mi + eot + lngAdj;
-  let dayShift = 0;
-  while(tot < 0){ tot += 1440; dayShift--; }
-  while(tot >= 1440){ tot -= 1440; dayShift++; }
-  const nh = Math.floor(tot / 60), nm = Math.round(tot % 60);
-  return {hh: nh, mi: nm, eot, lngAdj, dayShift, text: '均时差 ' + (eot >= 0 ? '+' : '') + eot.toFixed(1) + ' 分、经度差 ' + (lngAdj >= 0 ? '+' : '') + lngAdj.toFixed(1) + ' 分'};
+/* ===== 太阳时：真太阳时取均时差加经度差，平太阳时只取经度差 =====
+   校正基准为所取时区的中央经线（tz×15°），境外时区同样适用；出数走共享件 trueSolarTime */
+function qz_solarTime(y, m, d, hh, mi, lon, tz, mode){
+  const r = trueSolarTime(y, m, d, hh, mi, lon, mode === 'mean' ? 'mean' : 'true', tz * 15);
+  const dayShift = Math.round((Date.UTC(r.y, r.m - 1, r.d) - Date.UTC(y, m - 1, d)) / 86400000);
+  const eot = mode === 'mean' ? 0 : r.E;
+  return {hh: r.h, mi: r.mi, eot, lngAdj: r.lngAdj, dayShift,
+    text: mode === 'mean'
+      ? '平太阳时，经度差 ' + (r.lngAdj >= 0 ? '+' : '') + r.lngAdj.toFixed(1) + ' 分'
+      : '均时差 ' + (eot >= 0 ? '+' : '') + eot.toFixed(1) + ' 分、经度差 ' + (r.lngAdj >= 0 ? '+' : '') + r.lngAdj.toFixed(1) + ' 分'};
 }
 
 /* ===== 时辰（23-1 子时）===== */
 function qz_shiIdx(hh, mi){
   const h = hh + mi / 60;
   return Math.floor(((h + 1) % 24) / 2);
+}
+/* 五鼠遁：日上起时。早子时二十三时归当日，历法库仍出次日子时之柱，时干须按当日日干遁子 */
+const QZ_WUSHU = {甲:0,乙:2,丙:4,丁:6,戊:8,己:0,庚:2,辛:4,壬:6,癸:8};
+function qz_hourGZ(dayGan, zhiIdx){
+  return QZ_GAN[(QZ_WUSHU[dayGan] + zhiIdx) % 10] + QZ_ZHI[zhiIdx];
 }
 
 /* ===== 太阳中心差（度），恒气过宫用平黄经 = 真黄经 − 中心差 ===== */
@@ -174,6 +174,14 @@ function qz_sha(gan, zhi){
   push('天乙贵人（昼）', gr[0], '天乙贵人'); push('天乙贵人（夜）', gr[1], '天乙贵人');
   push('天官贵人', QZ_TIANGUAN[gan]);
   push('禄勋', QZ_LUXUN[gan]);
+  push('天福贵人', QZ_TIANFU[gan]);
+  push('天厨贵人', QZ_TIANCHU[gan]);
+  push('天寿', QZ_TIANSHOU[zhi]);
+  push('天哭', QZ_TIANKU[zhi]);
+  push('天虚', QZ_TIANXU[zhi]);
+  /* 岁前十二神：岁驾居太岁宫，岁殿居次宫；底本待核 */
+  push('岁驾', zhi);
+  push('岁殿', QZ_ZHI[(ziIdx + 1) % 12]);
   const hl = ((3 - ziIdx) % 12 + 12) % 12;
   push('红鸾', QZ_ZHI[hl]); push('天喜', QZ_ZHI[(hl + 6) % 12]);
   const gg = QZ_GUGUA[zhi];
@@ -255,7 +263,34 @@ const QZ_GEJU_RULES = {
     const hits = ['sun','moon'].map(k => ({k, d: Math.min(Math.abs(qz_norm180(c.pl[k].lon - c.pl.rahu.lon)), Math.abs(qz_norm180(c.pl[k].lon - c.pl.ketu.lon)))}))
       .filter(o => o.d <= 15);
     return hits.length ? hits.map(o => QZ_LUM_MAP[o.k].nm + '距罗计仅 ' + o.d.toFixed(1) + '°').join('、') : null;
-  }
+  },
+  '日月拱命': c => {
+    const a = ((c.mingIdx + 4) % 12 + 12) % 12, b = ((c.mingIdx + 8) % 12 + 12) % 12;
+    const ok = [c.pl.sun.gIdx, c.pl.moon.gIdx].every(g => g === a || g === b) && c.pl.sun.gIdx !== c.pl.moon.gIdx;
+    return ok ? '日月分居' + c.gName(a) + '、' + c.gName(b) + '拱命' : null;
+  },
+  '罗计夹命': c => {
+    const a = ((c.mingIdx + 1) % 12 + 12) % 12, b = ((c.mingIdx - 1) % 12 + 12) % 12;
+    const ok = (c.pl.rahu.gIdx === a && c.pl.ketu.gIdx === b) || (c.pl.rahu.gIdx === b && c.pl.ketu.gIdx === a);
+    return ok ? '罗计分居命宫前后两宫夹命' : null;
+  },
+  '官福夹命': c => {
+    const guan = ((c.mingIdx + 9) % 12 + 12) % 12, fu = ((c.mingIdx + 10) % 12 + 12) % 12;
+    const a = ((c.mingIdx + 1) % 12 + 12) % 12, b = ((c.mingIdx - 1) % 12 + 12) % 12;
+    const zg = QZ_GONG[guan].zhu, zf = QZ_GONG[fu].zhu;
+    const gs = [c.pl[zg].gIdx, c.pl[zf].gIdx];
+    const ok = gs.every(g => g === a || g === b) && gs[0] !== gs[1];
+    return ok ? '官禄主' + QZ_LUM_MAP[zg].nm + '与福德主' + QZ_LUM_MAP[zf].nm + '夹辅命宫' : null;
+  },
+  '日守命宫': c => c.pl.sun.gIdx === c.mingIdx ? '太阳守命宫' : null,
+  '火罗交会': c => c.pl.mars.gIdx === c.pl.rahu.gIdx
+    ? '火星与罗睺同宫' + c.gName(c.pl.mars.gIdx) : null,
+  '木炁同宫': c => c.pl.jupiter.gIdx === c.pl.qi.gIdx
+    ? '木星与紫炁同宫' + c.gName(c.pl.jupiter.gIdx) : null,
+  '水木相生': c => c.pl.mercury.gIdx === c.pl.jupiter.gIdx
+    ? '水星与木星同宫' + c.gName(c.pl.mercury.gIdx) : null,
+  '金木相克': c => c.pl.venus.gIdx === c.pl.jupiter.gIdx
+    ? '金星与木星同宫' + c.gName(c.pl.venus.gIdx) : null
 };
 
 /* ===== 洞微大限：宫限（命宫起逆行十二宫，含庙旺加减）+ 度级行限 =====
@@ -305,10 +340,14 @@ function qz_xianRows(stages, lumLon, birthYear, curAge){
 
 /* ===== 总排盘 ===== */
 function qz_compute(o){
-  /* o: y,m,d,hh,mm,sex,tz,lon,lat,qiHeng('ding'|'heng'),mingFa('guolao'|'asc'),trueSolar */
+  /* o: y,m,d,hh,mm,sex,tz,lon,lat,qiHeng('ding'|'heng'),mingFa('guolao'|'asc'),
+        nodeMode('mean'|'true'),sunMode('off'|'true'|'mean'),ziMode('late'|'early'),
+        yearAxis('lichun'|'chunjie'|'dongzhi') */
   let hh = o.hh, mi = o.mm, tsInfo = null;
-  if(o.trueSolar){
-    tsInfo = qz_trueSolar(o.y, o.m, o.d, o.hh, o.mm, o.lon, o.tz);
+  /* 星历按钟面标准时的实际时刻取儒略日；太阳时只用于定时辰与安命安身 */
+  const clock = {y: o.y, m: o.m, d: o.d, hh: o.hh, mi: o.mm};
+  if(o.sunMode === 'true' || o.sunMode === 'mean'){
+    tsInfo = qz_solarTime(o.y, o.m, o.d, o.hh, o.mm, o.lon, o.tz, o.sunMode);
     hh = tsInfo.hh; mi = tsInfo.mi;
     if(tsInfo.dayShift !== 0){
       const dt = new Date(0); dt.setUTCFullYear(o.y, o.m - 1, o.d);
@@ -316,8 +355,10 @@ function qz_compute(o){
       o.y = dt.getUTCFullYear(); o.m = dt.getUTCMonth() + 1; o.d = dt.getUTCDate();
     }
   }
+  const ziMode = o.ziMode === 'early' ? 'early' : 'late';
+  const yearAxis = ['chunjie','dongzhi'].indexOf(o.yearAxis) >= 0 ? o.yearAxis : 'lichun';
   const shiIdx = qz_shiIdx(hh, mi);
-  const jd = qz_toJd(o.y, o.m, o.d, hh, mi, o.tz);
+  const jd = qz_toJd(clock.y, clock.m, clock.d, clock.hh, clock.mi, o.tz);
   const nodeMode = o.nodeMode === 'true' ? 'true' : 'mean';
   const lons = qz_lons(jd, nodeMode);
   const nodeMean = nodeMode === 'true' ? xz_meanNode(jd) : lons.rahu;
@@ -358,10 +399,36 @@ function qz_compute(o){
   const shenIdx = pl.moon.gIdx;
   const shenDuXiu = qz_xiu(lons.moon, year);
 
-  /* 干支（lunar.js，年柱按立春交接 Exact） */
-  const solar = Solar.fromYmdHms(o.y, o.m, o.d, hh, mi, 0);
-  const lunar = solar.getLunar();
-  const yGZ = lunar.getYearInGanZhiExact();
+  /* 干支：晚子时二十三时后归次日，早子时归当日；年柱按所选年界 */
+  let dayY = o.y, dayM = o.m, dayD = o.d, dayH = hh, dayMi = mi;
+  if(hh === 23 && ziMode === 'late'){
+    const nx = Solar.fromYmd(o.y, o.m, o.d).nextDay(1);
+    dayY = nx.getYear(); dayM = nx.getMonth(); dayD = nx.getDay(); dayH = 0;
+  }
+  const lunar = Solar.fromYmdHms(dayY, dayM, dayD, dayH, dayMi, 0).getLunar();
+  let hGZ = lunar.getTimeInGanZhi();
+  if(hh === 23 && ziMode === 'early') hGZ = qz_hourGZ(lunar.getDayGan(), 0);
+  let yGZ = lunar.getYearInGanZhiExact();
+  if(yearAxis === 'chunjie'){
+    const ly = lunar.getYearInGanZhi();
+    if(ly !== yGZ) yGZ = ly;
+  } else if(yearAxis === 'dongzhi'){
+    let dz = null;
+    try{
+      const tbl = lunar.getJieQiTable(), ds = lunar.getSolar();
+      Object.keys(tbl).forEach(k => {
+        if(k.indexOf('冬至') < 0 && k !== 'DONG_ZHI') return;
+        const d = tbl[k];
+        if(d.getYear() < ds.getYear() || (d.getYear() === ds.getYear() && (d.getMonth() < ds.getMonth() || (d.getMonth() === ds.getMonth() && d.getDay() <= ds.getDay())))){
+          if(!dz || d.getJulianDay() > dz.getJulianDay()) dz = d;
+        }
+      });
+    }catch(e){ dz = null; }
+    if(dz){
+      const gi = ((((dz.getYear() + 1) - 4) % 60) + 60) % 60;
+      yGZ = QZ_GAN[gi % 10] + QZ_ZHI[gi % 12];
+    }
+  }
   const gan = yGZ[0], zhi = yGZ[1];
 
   /* 化曜与神煞 */
@@ -410,12 +477,13 @@ function qz_compute(o){
 
   return {
     y: o.y, m: o.m, d: o.d, hh: o.hh, mm: o.mm, sex: o.sex, tz: o.tz, lon: o.lon, lat: o.lat,
-    trueSolar: o.trueSolar, tsInfo, shiIdx, shiNm: QZ_SHICHEN[shiIdx],
+    sunMode: o.sunMode || 'off', ziMode, yearAxis, tsInfo, dstNote: o.dstNote || '',
+    raw: o.raw || {y: o.y, m: o.m, d: o.d, hh: o.hh, mm: o.mm}, shiIdx, shiNm: QZ_SHICHEN[shiIdx],
     qiHeng: o.qiHeng, mingFa: o.mingFa,
     jd, lons, pl, dayNight, sunAlt: alt, asc, mingIdx, mingDu, mingDuAlt, mingDuXiu,
     nodeMode, nodeMean, nodeTrue, nodeDiff: Math.abs(qz_norm180(nodeTrue - nodeMean)),
     mgK: mg.k, shenIdx, shenDuXiu, yGZ, gan, zhi,
-    mGZ: lunar.getMonthInGanZhiExact(), dGZ: lunar.getDayInGanZhi(), hGZ: lunar.getTimeInGanZhi(),
+    mGZ: lunar.getMonthInGanZhiExact(), dGZ: lunar.getDayInGanZhi(), hGZ,
     hua, shas, shaByGong, geju, eclipse, xian, xianRows, ageNow, curXian, qin,
     lunarStr: '农历' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese()
   };
@@ -457,11 +525,11 @@ function qz_liunian(c, year){
 
 /* ===== 七政择时（天象格局 + 庙旺评分扫描） =====
    评分口径：吉格每格 +10、忌格每格 −8；七政每庙 +3、每旺 +2、每陷 −2；
-   日月犯蚀神临照 −6。两段扫描：粗扫 120 分钟一步，候选取前 24 再以 20 分钟细化。
+   日月犯蚀神临照 −6。两段扫描：粗扫 180 分钟一步，候选取前 16 再以 20 分钟细化。
    限 60 日内。择时无命宫，仅取不依赖安命的格局。 */
-const QZ_ZS_GEJU = ['日月合璧','五星连珠','木火通明','木月清辉','金水相涵','金水会日月','水火既济','火金失位','土罗相会','计孛同宫'];
+const QZ_ZS_GEJU = ['日月合璧','五星连珠','木火通明','木月清辉','金水相涵','金水会日月','水火既济','火金失位','土罗相会','计孛同宫','火罗交会','木炁同宫','水木相生','金木相克'];
 /* 择时快速星历：只需日月五星（5 次 GeoVector）+ 公式化四余，跳过天海冥与黄纬，速度约快 4 倍 */
-function qz_lons7(jd){
+function qz_lons7(jd, nodeMode){
   const t = Astronomy.MakeTime(xz_jdToDate(jd));
   const out = {};
   out.sun = xz_norm360(Astronomy.SunPosition(t).elon);
@@ -471,7 +539,7 @@ function qz_lons7(jd){
     const g = Astronomy.GeoVector(Astronomy.Body[bodies[k]], t, true);
     out[k] = xz_norm360(Astronomy.Ecliptic(g).elon);
   }
-  out.rahu = xz_meanNode(jd);
+  out.rahu = nodeMode === 'true' ? xz_moonNodes(jd).rahu : xz_meanNode(jd);
   out.ketu = qz_norm360(out.rahu + 180);
   const T = (jd - 2451545.0) / 36525;
   const perigee = 83.3532465 + 4069.0137287 * T - 0.0103200 * T * T - T * T * T / 80053 + T * T * T * T / 18999000;
@@ -479,8 +547,8 @@ function qz_lons7(jd){
   out.qi = qz_norm360((jd - 2451545.0) * QZ_QI_RATE);
   return out;
 }
-function qz_zejiLite(jd, qiHeng, lon, lat){
-  const lons = qz_lons7(jd);
+function qz_zejiLite(jd, qiHeng, lon, lat, nodeMode){
+  const lons = qz_lons7(jd, nodeMode);
   const pl = {};
   QZ_LUM.forEach(l => {
     const gIdx = qz_gongIdx(lons[l.k], qiHeng, jd);
@@ -510,13 +578,14 @@ function qz_zejiLite(jd, qiHeng, lon, lat){
   return {jd, score, hits, ecl, dayNight: alt > 0 ? '昼' : '夜',
           strong: QZ_LUM.filter(l => !l.yu && (pl[l.k].state === '庙' || pl[l.k].state === '旺')).map(l => l.nm)};
 }
-function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng, lon, lat){
+function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng, lon, lat, nodeMode, tz){
+  const tzLocal = typeof tz === 'number' && isFinite(tz) ? tz : 8;
   const jd1 = qz_toJd(y1, m1, d1, 0, 0, 8), jd2 = qz_toJd(y2, m2, d2, 23, 59, 8);
   if(jd2 <= jd1) return {err: '结束日期须晚于开始日期'};
   if(jd2 - jd1 > 61) return {err: '日期跨度请控制在 60 日以内'};
   const coarse = [];
   for(let jd = jd1; jd <= jd2; jd += 180 / 1440){
-    coarse.push(qz_zejiLite(jd, qiHeng, lon, lat));
+    coarse.push(qz_zejiLite(jd, qiHeng, lon, lat, nodeMode));
   }
   coarse.sort((a, b) => b.score - a.score);
   const refined = [];
@@ -525,7 +594,7 @@ function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng, lon, lat){
       if(t === 0) continue;
       const jd = c0.jd + t;
       if(jd < jd1 || jd > jd2) continue;
-      refined.push(qz_zejiLite(jd, qiHeng, lon, lat));
+      refined.push(qz_zejiLite(jd, qiHeng, lon, lat, nodeMode));
     }
   });
   const all = coarse.concat(refined).sort((a, b) => b.score - a.score);
@@ -533,12 +602,15 @@ function qz_zejiScan(y1, m1, d1, y2, m2, d2, qiHeng, lon, lat){
   for(const c of all){
     const d = xz_jdToDate(c.jd);
     const local = new Date(d.getTime() + 8 * 3600000);
+    const localZone = new Date(d.getTime() + tzLocal * 3600000);
     const key = local.getUTCFullYear() + '-' + (local.getUTCMonth() + 1) + '-' + local.getUTCDate();
     if(seen[key]) continue;
     seen[key] = 1;
     top.push({score: c.score, hits: c.hits, ecl: c.ecl, dayNight: c.dayNight,
               y: local.getUTCFullYear(), m: local.getUTCMonth() + 1, d: local.getUTCDate(),
-              hm: String(local.getUTCHours()).padStart(2, '0') + ':' + String(local.getUTCMinutes()).padStart(2, '0')});
+              hm: String(local.getUTCHours()).padStart(2, '0') + ':' + String(local.getUTCMinutes()).padStart(2, '0'),
+              lY: localZone.getUTCFullYear(), lM: localZone.getUTCMonth() + 1, lD: localZone.getUTCDate(),
+              hmLocal: String(localZone.getUTCHours()).padStart(2, '0') + ':' + String(localZone.getUTCMinutes()).padStart(2, '0')});
     if(top.length >= 12) break;
   }
   return {top};
