@@ -171,6 +171,27 @@ function draw(){
   renderSpread(picks,sp);
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
 }
+/* 最近一次抽牌：刷新与分享还原共用一份，牌序与正逆原样回填，不重洗 */
+const TAROT_LAST_KEY='tarot_last_v1';
+function tarotSaveLast(){
+ if(!LAST) return;
+ try{ localStorage.setItem(TAROT_LAST_KEY,JSON.stringify({sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))})); }catch(e){}
+}
+function tarotRestore(d){
+ if(!d||!d.sp) return false;
+ const layout=POS[d.sp]; if(!layout||!Array.isArray(d.picks)) return false;
+ const sel=document.getElementById('spread'); if(sel) sel.value=d.sp;
+ const q=document.getElementById('question'); if(q&&d.q) q.value=d.q;
+ const deck=buildTarotDeck(false);
+ const byId={}; deck.forEach(c=>byId[c.id]=c);
+ const picks=d.picks.map((x,i)=>({card:byId[x.id],rev:x.rev==='1',pos:layout[i]?layout[i].pos:'',desc:layout[i]?layout[i].desc:'',role:layout[i]?(layout[i].role||'state'):'state',cls:layout[i]?(layout[i].cls||''):'',staff:layout[i]?!!layout[i].staff:false})).filter(p=>p.card);
+ if(!picks.length) return false;
+ renderSpread(picks,d.sp);
+ return true;
+}
+function tarotRestoreLast(){
+ try{ const raw=localStorage.getItem(TAROT_LAST_KEY); return raw?tarotRestore(JSON.parse(raw)):false; }catch(e){ return false; }
+}
 /* 牌图加载失败兜底：回退为花色符号 */
 function trImgFallback(el,sym){ el.outerHTML='<span class="tr-sym">'+sym+'</span>'; }
 /* 位×牌合断一句 */
@@ -233,6 +254,7 @@ function renderSpread(picks,sp){
    ${tarotRead(picks,sp)}
    <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图，取自 Wikimedia Commons。</div>`;
  LAST={q:document.getElementById('question').value,sp:layoutName,key:sp,picks};
+ tarotSaveLast();
 }
 /* 元素尊贵：同气相强，火风、水土相生互旺，水火、土风相冲互削，余者（火土、风水）中性。
    流派并列：黄金黎明 Book T 以火亲土、风亲水为相友而互强，现代通行作中性，此处以中性为主口径，断语处两说并列备参 */
@@ -363,7 +385,8 @@ function tarotRead(picks,sp){
 window.addEventListener('load', function () {
   setTimeout(function () {
     renderChrome('tarot.html');
-    draw();
+    window.xjRefreshHook=function(){ if(!tarotRestoreLast()) draw(); };
+    if(!tarotRestoreLast()) draw();
     document.addEventListener('keydown',e=>{ if(e.key==='Escape') trClose(); });
     mountAI(function(){
      if(!LAST) return '';
@@ -391,17 +414,7 @@ window.addEventListener('load', function () {
        if(!LAST) return {};
        return {sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))};
      },
-     restore:function(d){
-       if(!d||!d.sp) return;
-       const sel=document.getElementById('spread'); if(sel) sel.value=d.sp;
-       const q=document.getElementById('question'); if(q&&d.q) q.value=d.q;
-       const layout=POS[d.sp]; if(!layout||!Array.isArray(d.picks)) return;
-       const deck=buildTarotDeck(false);
-       const byId={}; deck.forEach(c=>byId[c.id]=c);
-       const picks=d.picks.map((x,i)=>({card:byId[x.id],rev:x.rev==='1',pos:layout[i]?layout[i].pos:'',desc:layout[i]?layout[i].desc:'',role:layout[i]?(layout[i].role||'state'):'state',cls:layout[i]?(layout[i].cls||''):'',staff:layout[i]?!!layout[i].staff:false})).filter(p=>p.card);
-       if(!picks.length) return;
-       renderSpread(picks,d.sp);
-     }
+     restore:function(d){ tarotRestore(d); }
     } });
   }, 0);
 });

@@ -971,6 +971,7 @@ let __aiTemperature = 0.7;
 
 function mountAI(getContext, pageTitle, opts){
   opts = opts || {};
+  const schoolSet = opts.schools || (pageTitle === '八字排盘' ? AI_SCHOOLS : null);
   __aiSysCustom = opts.systemPrompt || '';
   __aiTemperature = typeof opts.temperature === 'number' ? opts.temperature : 0.7;
   let host = document.getElementById('aiMount');
@@ -992,6 +993,13 @@ function mountAI(getContext, pageTitle, opts){
       <div id="aiOutWrap"></div>
     </div>
   </details>`;
+  const aiBlockEl = document.getElementById('aiBlock');
+  if (aiBlockEl) {
+    try { if (window.xjApplyOneFold) window.xjApplyOneFold('aiBlockFold', '#aiBlock'); } catch (e) {}
+    aiBlockEl.addEventListener('toggle', function(){
+      try { if (window.xjSaveOneFold) window.xjSaveOneFold('aiBlockFold', '#aiBlock'); } catch (e) {}
+    });
+  }
   const st = host.querySelector('.ai-status'); refreshAiStatus(st);
   /* 分享工具是附加功能模块的一截，与面板同一次挂载出齐：opts.share 给出即按其
      collect、restore、recast 走；不给则按缺省（页名取路径、标题取 document.title、
@@ -1001,8 +1009,11 @@ function mountAI(getContext, pageTitle, opts){
   try { mountGeo(); } catch (e){}
   window.__aiGetContext = getContext; window.__aiTitle = pageTitle;
   /* 八字页（页题八字排盘）启用流派定制与多轮追问，五派默认全出 */
-  window.__aiSchoolPage = pageTitle === '八字排盘';
-  window.__aiSchoolSel = AI_SCHOOLS.map(s => s.key);
+  window.__aiSchools = Array.isArray(schoolSet) && schoolSet.length ? schoolSet : null;
+  window.__aiSchoolSel = window.__aiSchools ? window.__aiSchools.map(s => s.key) : [];
+  window.__aiSchoolLabel = opts.schoolLabel || '流派视角';
+  window.__aiSchoolClosing = opts.schoolClosing || '每派段末写明本派对该盘的喜忌，喜忌取各自方法论所出，不共用合成喜忌。';
+  window.__aiSchoolSummary = opts.schoolSummary || '五派成段后另起一段总收，先列五派共识、再列分歧所在，并说明读盘时按所宗一派为准、余派作参照。';
   const histKey = 'ai_history_' + pageTitle;
   try {
     const raw = sessionStorage.getItem(histKey);
@@ -1032,21 +1043,22 @@ const AI_SCHOOLS = [
 
 /* 流派勾选行：只在八字页出，随面板重建保持勾选态 */
 function schoolRowHtml(){
-  if (!window.__aiSchoolPage) return '';
-  const sel = Array.isArray(window.__aiSchoolSel) ? window.__aiSchoolSel : AI_SCHOOLS.map(s => s.key);
-  const boxes = AI_SCHOOLS.map(s => `<label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" class="ai-chk-school" data-key="${s.key}" ${sel.indexOf(s.key) !== -1 ? 'checked' : ''} onchange="onAiSchoolChange()"> ${s.name}</label>`).join('');
+  const schools = window.__aiSchools || [];
+  if (!schools.length) return '';
+  const sel = Array.isArray(window.__aiSchoolSel) ? window.__aiSchoolSel : schools.map(s => s.key);
+  const boxes = schools.map(s => `<label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" class="ai-chk-school" data-key="${s.key}" ${sel.indexOf(s.key) !== -1 ? 'checked' : ''} onchange="onAiSchoolChange()"> ${s.name}</label>`).join('');
   return `<div class="ai-follow" style="margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px">
-      <span style="font-size:13px;color:var(--ink2);white-space:nowrap">流派视角：</span>
-      <label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="aiSchoolAll" ${sel.length === AI_SCHOOLS.length ? 'checked' : ''} onchange="toggleAllSchoolChk(this)"> 五派全选</label>
+      <span style="font-size:13px;color:var(--ink2);white-space:nowrap">${window.__aiSchoolLabel || '流派视角'}：</span>
+      <label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer"><input type="checkbox" id="aiSchoolAll" ${sel.length === schools.length ? 'checked' : ''} onchange="toggleAllSchoolChk(this)"> ${schools.length}派全选</label>
       <span style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${boxes}</span>
     </div>
-    <div class="ai-tip">默认五派全出、逐派标注流派；取消勾选即只出所选派。</div>`;
+    <div class="ai-tip">默认${schools.length}派全出、逐派标注流派；取消勾选即只出所选派。</div>`;
 }
 
 function getSelectedSchools(){
   const out = [];
   document.querySelectorAll('.ai-chk-school').forEach(cb => { if (cb.checked) out.push(cb.getAttribute('data-key')); });
-  return AI_SCHOOLS.filter(s => out.indexOf(s.key) !== -1).map(s => s.key);
+  return (window.__aiSchools || []).filter(s => out.indexOf(s.key) !== -1).map(s => s.key);
 }
 
 function onAiSchoolChange(){
@@ -1065,16 +1077,17 @@ function toggleAllSchoolChk(chk){
 
 /* 解析提示词附流派要求：所选各派逐派成段、段首标注流派；五派全选时另加共识与分歧总收 */
 function aiSchoolPrompt(){
-  if (!window.__aiSchoolPage) return '';
-  const sel = AI_SCHOOLS.filter(s => getSelectedSchools().indexOf(s.key) !== -1);
+  const schools = window.__aiSchools || [];
+  if (!schools.length) return '';
+  const sel = schools.filter(s => getSelectedSchools().indexOf(s.key) !== -1);
   if (!sel.length) return '';
-  const all = sel.length === AI_SCHOOLS.length;
+  const all = sel.length === schools.length;
   let t = '\n\n【流派要求】';
   t += all
-    ? '请按下列五派各自的立论与口径逐派成段解读，每段以流派名起首标注；各段只依本派方法，不混入他派口径。'
-    : '本次只按下列 ' + sel.length + ' 派解读，逐派成段，每段以流派名起首标注；只依所列各派方法，不混入未列各派口径。';
-  t += '每派段末写明本派对该盘的喜忌，喜忌取各自方法论所出，不共用合成喜忌。';
-  if (all) t += '五派成段后另起一段总收，先列五派共识、再列分歧所在，并说明读盘时按所宗一派为准、余派作参照。';
+    ? `请按下列${schools.length}派各自的立论与口径逐派成段解读，每段以流派名起首标注；各段只依本派方法，不混入他派口径。`
+    : `本次只按下列 ${sel.length} 派解读，逐派成段，每段以流派名起首标注；只依所列各派方法，不混入未列各派口径。`;
+  t += window.__aiSchoolClosing || '';
+  if (all) t += window.__aiSchoolSummary || '';
   t += '\n' + sel.map((s, i) => (i + 1) + '. ' + s.name + '：' + s.brief).join('\n');
   return t;
 }
@@ -1082,9 +1095,10 @@ function aiSchoolPrompt(){
 /* 追问上下文：随每轮追问补一条系统消息，交代术数类型、本轮所宗流派与盘面摘要，
    使追问承接上一轮结果，不必从长历史里自行翻检 */
 function aiFollowContext(title, ctx){
-  const sel = window.__aiSchoolPage ? getSelectedSchools() : [];
-  const names = AI_SCHOOLS.filter(s => sel.indexOf(s.key) !== -1).map(s => s.name);
-  const schoolTxt = names.length === AI_SCHOOLS.length ? ('五派全出（' + names.join('、') + '）') : names.join('、');
+  const schools = window.__aiSchools || [];
+  const sel = schools.length ? getSelectedSchools() : [];
+  const names = schools.filter(s => sel.indexOf(s.key) !== -1).map(s => s.name);
+  const schoolTxt = (schools.length && names.length === schools.length) ? (schools.length + '派全出（' + names.join('、') + '）') : names.join('、');
   return '【追问上下文】术数类型：' + title + '；' + (schoolTxt ? ('本轮所宗流派：' + schoolTxt + '；') : '') + '盘面摘要：' + (aiCtxDigest(ctx) || '见前文盘面信息') + '。请承接上一轮解读作答，不重复整段盘面。';
 }
 

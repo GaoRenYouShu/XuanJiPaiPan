@@ -29,9 +29,13 @@
 
 .page-qm .qi-cell .men-xiong,.modal.qi-gong-modal .men-xiong{color:#b3261e;font-weight:600}
 
+.page-qm .qi-cell .men-ping,.modal.qi-gong-modal .men-ping{color:var(--gold2);font-weight:600}
+
 .page-qm .qi-cell .shen-ji,.modal.qi-gong-modal .shen-ji{color:#1b6fa8}
 
 .page-qm .qi-cell .shen-xiong,.modal.qi-gong-modal .shen-xiong{color:var(--special-text)}
+
+.page-qm .qi-cell .shen-ping,.modal.qi-gong-modal .shen-ping{color:var(--ink2)}
 
 .page-qm .qi-cell .an{color:#777}
 
@@ -115,11 +119,18 @@
 
 .page-qm .page > .form-row{margin-bottom:var(--sp-2)}
 
-.page-qm .qm-plain-tb{width:100%;border-collapse:collapse;margin-top:var(--sp-1)}
+.page-qm .opts{margin-top:var(--sp-3)}
 
-.page-qm .qm-plain-tb th,.page-qm .qm-plain-tb td{font-size:var(--tier4);line-height:1.85;vertical-align:top;text-align:left;word-break:break-word;font-weight:400;border:1px solid var(--line);padding:6px 10px;background:transparent}
+.page-qm .birth-group,.page-qm .birth-group.compact{padding-bottom:0}
 
-.page-qm .qm-plain-tb th{color:var(--gold2);white-space:nowrap}
+/* 应期多法：取法列作行标签，推算、应期、说明、出处各占一列 */
+.page-qm .qm-tbl.yq-tbl th.col-yq{width:100px;white-space:nowrap}
+
+.page-qm .qm-tbl.yq-tbl td.col-yqr{width:240px}
+
+.page-qm .qm-tbl.yq-tbl td.col-yqn{width:240px;font-size:12px;color:var(--qm-ink2)}
+
+.page-qm .qm-tbl.yq-tbl td.col-yqs{width:170px}
 
 .page-qm .qm-gloss{width:100%;border-collapse:collapse;margin-top:var(--sp-1);table-layout:fixed}
 
@@ -161,9 +172,22 @@
 
 .page-qm .qm-tbl.geju td.qi-xiong{color:var(--red);font-weight:600}
 
+/* 多派断局：一列一类，派别与取用、权重各占其列；得分判名按内容定宽居中 */
+.page-qm .qm-tbl.duju th.col-pai{width:72px;white-space:nowrap}
+
+.page-qm .qm-tbl.duju td.col-qu{width:150px;font-size:12px;line-height:1.6;color:var(--qm-ink2)}
+
+.page-qm .qm-tbl.duju td.col-wt{width:170px;font-size:12px;line-height:1.6;color:var(--qm-ink2)}
+
+.page-qm .qm-tbl.duju td.col-fen,.page-qm .qm-tbl.duju td.col-pan{width:56px;white-space:nowrap;text-align:center}
+
+.page-qm .qm-tbl.duju td.col-pan{font-weight:600}
+
+.page-qm .duju-synth{margin:var(--sp-2) 0 var(--sp-3)}
+
 .page-qm .qm-src{color:var(--ink2);font-size:12px}
 
-.page-qm .qi-cell:hover{background:var(--cal-hover)}
+.page-qm .qi-cell:hover{background:var(--qm-tint)}
 
 .page-qm .qi-cell:active{transform:scale(.98)}
 
@@ -177,10 +201,9 @@
   .page-qm .qi-badge span{font-size:9px}
   /* 移动端键值表首列一律按内容定宽且不折行：写死 55px 与 43px 会把三字术语拆成单字 */
   .page-qm .qm-tbl.zh-tbl th{width:auto;min-width:0;max-width:none;white-space:nowrap}
-  .page-qm .qm-plain-tb th{width:auto;min-width:0;max-width:none;white-space:nowrap}
   /* 表头与首列不折行：内容区只剩 26px 时两字表头（九星、八门）与两字宫位（巽宫、离宫）卡在临界值被拆成两个单字 */
   .page-qm .qm-tbl th,.page-qm .qm-tbl td:first-child{white-space:nowrap}
-  /* 断语按标点整段换行，末字不再独占一行 */
+  /* 断语按标点整段换行 */
   .page-qm .qm-tbl td{word-break:keep-all}
   .page-qm .qm-gloss{table-layout:auto}
   .page-qm .qm-gloss th:first-child,.page-qm .qm-gloss td:first-child{width:auto;white-space:nowrap}
@@ -220,13 +243,13 @@
 
 .page-qm .group-label{color:var(--qm2)}
 
-.page-qm .btn{background:var(--qm);color:#fff;box-shadow:none}
+.page-qm .btn:not(.soft):not(.btn-ghost){background:var(--qm);color:#fff;box-shadow:none}
 
-.page-qm .btn:hover{background:var(--qm2)}
+.page-qm .btn:not(.soft):not(.btn-ghost):hover{background:var(--qm2)}
 
-.page-qm .btn-ghost{background:var(--card);border:1px solid var(--qm);color:var(--qm2);box-shadow:none}
+.page-qm .btn-ghost{background:var(--qm-tint);border:1px solid var(--qm-line);color:var(--qm-ink);box-shadow:none}
 
-.page-qm .btn-ghost:hover{background:var(--qm-tint)}
+.page-qm .btn-ghost:hover{background:var(--card);border-color:var(--qm-line);color:var(--qm2)}
 
 .page-qm .qm-tbl td{color:var(--qm-ink);border-color:var(--qm-line)}
 
@@ -260,7 +283,7 @@
 
 .page-qm .qm-wx-ping{color:var(--ink2)}
 
-.page-qm .ai-block .btn.gold:hover,.page-qm .ai-block .btn.soft:hover{background:var(--card);border-color:var(--qm);color:var(--qm2)}
+.page-qm .ai-block .btn.gold:hover,.page-qm .ai-block .btn.soft:hover{background:var(--card);border-color:var(--qm-line);color:var(--qm2)}
 
 .page-qm .ai-block .ai-out,.page-qm .ai-block .ai-bubble.user,.page-qm .ai-block .ai-bubble.assistant,.page-qm .ai-block .ai-model-name{color:var(--qm-ink)}
 
@@ -333,3 +356,29 @@
 @font-face{font-family:"Noto Serif SC";font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/pages/qimen-0.woff2) format("woff2");unicode-range:U+4e01, U+4e0a, U+4e11, U+4e13-4e14, U+4e19-4e1a, U+4e1c, U+4e22, U+4e2a, U+4e2d, U+4e34, U+4e49, U+4e58, U+4e5d, U+4e5f, U+4e66, U+4e7e, U+4e86, U+4e89, U+4e8b, U+4e8e-4e8f, U+4e92, U+4e9b, U+4ea1, U+4ea4-4ea7, U+4eab, U+4eae, U+4eb2, U+4eba, U+4ecb, U+4ed5-4ed6, U+4ee3-4ee4, U+4eec, U+4ef6, U+4eff, U+4f0f, U+4f11, U+4f19, U+4f20, U+4f24, U+4f3c, U+4f4d, U+4f55, U+4f5c, U+4f60, U+4f7f, U+4f8b, U+4f9d, U+4fdd, U+500d, U+503c, U+504f, U+505a, U+505c, U+5065, U+5143, U+5145, U+5149, U+514b, U+514d, U+5151, U+515c, U+5168, U+516e, U+5173, U+5175-5177, U+517b-517c, U+5185, U+518d, U+5192, U+5199, U+519c, U+51b2-51b3, U+51c6, U+51cf, U+51f6, U+51fb, U+5207, U+5211-5212, U+5217, U+5219-521b, U+5220, U+5224, U+5229, U+522b, U+5236-5237, U+523b, U+529b, U+529f-52a1, U+52a8-52a9, U+52bf, U+52fe, U+5305, U+5317, U+533a, U+5347-5348, U+534a, U+534e-534f, U+5357, U+536f, U+5373, U+539a, U+539f, U+53c1, U+53cd, U+53d1, U+53d7-53d8, U+53df-53e0, U+53e3, U+53e6, U+53ea, U+53ef, U+53f2, U+53f7-53f8, U+5404, U+5409, U+5411, U+541f, U+5426, U+542b, U+542f, U+548c, U+54b8, U+54cd, U+54ea, U+5546, U+559c, U+5668, U+56ca, U+56da, U+56e0, U+56e2, U+56f4, U+56fa, U+56fd-56fe, U+571f, U+5730, U+5740, U+574e-5750, U+5757, U+5764, U+578b, U+57cb, U+57df, U+57fa, U+585e, U+586b, U+58f0, U+58f9, U+5904, U+5907, U+590d, U+591a, U+5929, U+592e, U+5931, U+5934, U+5957, U+5973, U+597d, U+5982, U+5984, U+59fb, U+5a01, U+5a36, U+5ac1, U+5b50, U+5b58, U+5b83, U+5b88-5b89, U+5b8c, U+5b98, U+5b9e, U+5ba1, U+5bab, U+5bb6, U+5bb9, U+5bbd, U+5bc4-5bc6, U+5bd2, U+5c04, U+5c11, U+5c1a, U+5c24, U+5c31, U+5c40, U+5c42, U+5c45, U+5c55, U+5c5e, U+5c71, U+5df1-5df3, U+5dfd, U+5e03, U+5e08, U+5e0c, U+5e38, U+5e72-5e73, U+5e76, U+5e86-5e87, U+5e8f, U+5e94, U+5e9a, U+5e9f, U+5ea6, U+5eb7, U+5efa, U+5f02, U+5f15, U+5f31, U+5f39-5f3a, U+5f53, U+5f71, U+5f85, U+5f97, U+5fb7, U+5fbd, U+5fc3, U+5fc6, U+5fcc, U+5feb, U+6001, U+601d, U+6025, U+6027, U+602a, U+603b, U+6050, U+6062, U+606f, U+6076, U+60ac, U+60c5, U+60ca, U+60f9, U+610f, U+614e, U+6167, U+61c2, U+620a, U+620c, U+6237, U+623f-6240, U+6253, U+6263, U+6267, U+626c, U+627f, U+628a, U+6298, U+62a4, U+62c5-62c6, U+62c9, U+62db, U+6355, U+635f, U+6362, U+63a8, U+63d0, U+6444, U+6447, U+64ce, U+652f, U+6539, U+653b, U+6548, U+6559, U+6563, U+6574, U+65ad, U+65af-65b0, U+65b9, U+65cb, U+65e0, U+65ec, U+65fa, U+660c, U+6620, U+6627, U+662f, U+6635, U+663e, U+666e-666f, U+667a, U+6682, U+6697, U+66f4, U+6700, U+6708, U+670d, U+671b, U+671f, U+6728, U+672c, U+6743, U+675c, U+6765, U+6784, U+67a2, U+67d0, U+67d3, U+67e5, U+67f1, U+6807, U+6838, U+683c, U+6846, U+68cb, U+6b3a, U+6b4c, U+6b62-6b64, U+6b66, U+6b7b, U+6b8a, U+6bb5, U+6bc1, U+6bcd, U+6bcf, U+6bd4, U+6c42, U+6c60, U+6c9f, U+6ce2, U+6ce8, U+6d3e, U+6d41, U+6d4f, U+6d6e, U+6d88, U+6e05, U+6e29, U+6e32, U+6e38, U+6f5c, U+706b, U+7070, U+707e, U+70c8, U+70df, U+7136, U+715e, U+7236, U+7269, U+7275, U+7279, U+72b6, U+72ec, U+72f1, U+730e, U+732e, U+7530, U+7533, U+7537, U+7559, U+7565, U+75be, U+75c5, U+7678, U+767d-767e, U+7684, U+7686, U+76d7, U+770b, U+77e3, U+7834, U+7840, U+786c, U+788d, U+793a, U+7981, U+798f, U+79bb, U+79bd, U+79c1, U+79ef-79f0, U+7a33, U+7a74, U+7acb, U+7ae0, U+7b26, U+7b49, U+7b56, U+7ba1, U+7c7b, U+7cbe, U+7cfb, U+7d20, U+7ea2, U+7ea7, U+7eb3, U+7ebd, U+7ebf, U+7ec4, U+7ed1, U+7ed5, U+7edf, U+7efc, U+7eff, U+7f20, U+7f3a, U+7f51, U+7f6a, U+7f72, U+7ffb, U+800c, U+8017, U+8054, U+805a, U+8086, U+80c6, U+80f6, U+80fd, U+8111, U+817e, U+820c, U+826e, U+8272, U+8282, U+82ae, U+82f1, U+8305, U+836b, U+83b7, U+8425, U+843d, U+84c4, U+84dd, U+84ec, U+864e, U+865a, U+86c7, U+87a3, U+8840, U+8865, U+8868, U+8870, U+897f, U+8981, U+89c1-89c2, U+89c4, U+89c8, U+89d2, U+8ba1, U+8ba4, U+8bae, U+8bb0, U+8bba, U+8bbc, U+8bbe-8bbf, U+8bc8, U+8bd1, U+8bd5, U+8bdd, U+8be5-8be6, U+8bed}
 @font-face{font-family:"Noto Serif SC";font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/pages/qimen-1.woff2) format("woff2");unicode-range:U+8bfb, U+8c03, U+8c0b, U+8c24, U+8c28, U+8c61, U+8d22, U+8d25, U+8d30, U+8d35, U+8d3c, U+8d56, U+8d66, U+8d77, U+8dcc, U+8def, U+8f69, U+8f6c, U+8f7d, U+8f83, U+8f85, U+8f93, U+8f95, U+8f9b, U+8fb0, U+8fbe, U+8fc1, U+8fd1, U+8fd4, U+8fd9, U+8fdb-8fdc, U+8fde, U+8feb, U+9000, U+9002, U+9009, U+9010, U+901a, U+901f, U+9022, U+9047, U+907f, U+90a3, U+90fd, U+9149, U+91ca, U+91cd, U+91cf, U+91d1, U+9493, U+94a5, U+94fe, U+950b, U+952e, U+9547, U+957f, U+95ed-95f0, U+95f4, U+9632, U+9635, U+963b, U+9664, U+9669, U+968f-9690, U+9694, U+96be, U+9700, U+9707, U+9732, U+9752, U+9759, U+975e, U+9879-987a, U+9886, U+9898, U+98de, U+9a6c, U+9a71, U+9a7f, U+9a8c, U+9aa8, U+9ad8, U+9e1f, U+9ed1, U+9ed8, U+9f99}
 /* page-font:end */
+
+.page-qm .qm-tbl.crit-tbl th.col-crit{width:96px;white-space:nowrap}
+
+.page-qm .qm-tbl.evi-tbl{width:100%;table-layout:fixed}
+
+.page-qm .qm-tbl.evi-tbl th.col-pai,
+.page-qm .qm-tbl.evi-tbl td.col-pai{width:10%;white-space:nowrap}
+
+.page-qm .qm-tbl.evi-tbl td.col-pai{color:var(--gold2)}
+
+.page-qm .qm-tbl.evi-tbl th.col-layer,
+.page-qm .qm-tbl.evi-tbl td.col-layer{width:10%;white-space:nowrap}
+
+.page-qm .qm-tbl.evi-tbl th.col-ev,
+.page-qm .qm-tbl.evi-tbl td.col-ev{width:40%}
+
+.page-qm .qm-tbl.evi-tbl th.col-src,
+.page-qm .qm-tbl.evi-tbl td.col-src{width:40%;white-space:nowrap}
+
+/* 已存局：只留起局模式，其余输入项收起，列表单独成块 */
+.page-qm .qm-saved .form-row.r3 > .field:not(.qm-mode-field),
+.page-qm .qm-saved .form-row.r3 > .btn,
+.page-qm .qm-saved #qmOptsWrap,
+.page-qm .qm-saved #qmOverseasNote{display:none}
+
+.page-qm #qmSavedPanel{margin-top:var(--sp-3)}

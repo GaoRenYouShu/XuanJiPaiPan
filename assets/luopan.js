@@ -1423,11 +1423,11 @@
   function realDiskOverlay(o) {
     const C = RD_C, ROUT = 985;
     if (o.cross === false) {
-      return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixed') + '" viewBox="0 0 2000 2000" aria-hidden="true"></svg>';
+      return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixedSvg') + '" viewBox="0 0 2000 2000" aria-hidden="true"></svg>';
     }
     let s = '<line x1="' + (C - ROUT) + '" y1="' + C + '" x2="' + (C + ROUT) + '" y2="' + C + '" class="rd-cross"/>'
       + '<line x1="' + C + '" y1="' + (C - ROUT) + '" x2="' + C + '" y2="' + (C + ROUT) + '" class="rd-cross"/>';
-    return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixed') + '" viewBox="0 0 2000 2000" aria-hidden="true">' + s + '</svg>';
+    return '<svg class="wheel rd-wheel rd-overlay" id="' + (o.id || 'lpCrossFixedSvg') + '" viewBox="0 0 2000 2000" aria-hidden="true">' + s + '</svg>';
   }
 
   /* 各层取格：以坐度反查该层此刻落在何格，为详情条逐层读数与盘面绘制之共用口径。
