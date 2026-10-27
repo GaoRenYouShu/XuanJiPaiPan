@@ -242,7 +242,8 @@ function getAiCfg(){
     __aiCfgCache = {};
     __aiCfgReady = _loadCfgOnce();
   }
-  return __aiCfgCache;
+  /* 无存储配置时异步加载落成 null：仍按空配置返回，免调用方读到 null 即崩 */
+  return __aiCfgCache || (__aiCfgCache = {});
 }
 
 function setAiCfg(c, silent){
@@ -921,6 +922,60 @@ function injectShare(host, share){
   try { window.__xjSharePayload = payloadJson; } catch(e) {}
   const applyShared = function(data){ (restore)(data.d); if(recast){ try{ recast(); }catch(e){} } };
 
+  /* 结果快照：计算完成后存本页数据，刷新只恢复不重算。
+     快照按页一键，只留当前页；表单签名不一致即作废。 */
+  const SNAP_KEY = 'xj:last:' + page;
+  const SNAP_VER = '2026-10-27';
+  const resultSel = share.result || '#out';
+  function formValues(){
+    const host = document.querySelector('[data-xj-page]') || document.querySelector('.page') || document.body;
+    const o = {};
+    host.querySelectorAll('input,select,textarea').forEach(function(el){
+      if(!el.id) return;
+      o[el.id] = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? '1' : '0') : el.value;
+    });
+    return o;
+  }
+  function formSig(){
+    const o = formValues();
+    return Object.keys(o).sort().map(function(k){ return k + '=' + o[k]; }).join('&');
+  }
+  /* 快照恢复按当前存在的字段逐项比对；刷新后才创建的字段不参与，避免整串签名误判。 */
+  function formSigMatches(sig){
+    const cur = formValues();
+    return String(sig || '').split('&').every(function(p){
+      const i = p.indexOf('=');
+      if(i < 0) return true;
+      const k = p.slice(0, i);
+      return !(k in cur) || String(cur[k]) === p.slice(i + 1);
+    });
+  }
+  function readSnap(){ try { return JSON.parse(sessionStorage.getItem(SNAP_KEY) || 'null'); } catch(e){ return null; } }
+  function writeSnap(){
+    if(window.__xjRestoring) return;
+    try {
+      const el = document.querySelector(resultSel);
+      if(!el || !el.textContent.trim()) return;
+      const data = collect();
+      if(!data) return;
+      const html = el.innerHTML;
+      for(let i = sessionStorage.length - 1; i >= 0; i--){
+        const k = sessionStorage.key(i);
+        if(k && k.indexOf('xj:last:') === 0 && k !== SNAP_KEY) sessionStorage.removeItem(k);
+      }
+      sessionStorage.setItem(SNAP_KEY, JSON.stringify({v:SNAP_VER, sig:formSig(), data:data, html:html, at:Date.now()}));
+    } catch(e){}
+  }
+  const resultEl = document.querySelector(resultSel);
+  if(resultEl){
+    let snapTimer = 0;
+    new MutationObserver(function(){
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(writeSnap, 400);
+    }).observe(resultEl, {childList:true, subtree:true});
+  }
+  try { window.__xjShare = {page:page, collect:collect, restore:restore, recast:recast, apply:applyShared, save:writeSnap, resultSel:resultSel}; } catch(e){}
+
   const mk=function(label,act){ const b=document.createElement('button'); b.type='button'; b.className='btn soft'; b.textContent=label; b.setAttribute('data-xj',act); return b; };
   host.appendChild(mk('复制分享链接','link'));
   host.appendChild(mk('导出 JSON','dl'));
@@ -956,7 +1011,55 @@ function injectShare(host, share){
   });
 
   const m=(location.hash||'').match(/#xj=([A-Za-z0-9\-_]+)/);
-  if(m){ try{ const data=JSON.parse(shareB64d(m[1])); if(data&&data.d){ applyShared(data); toastMsg('已从分享链接还原盘面'+(data.p?('（来源：'+data.p+'）'):'')+'。',true); } try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }catch(e){ toastMsg('分享链接解析失败',false); } }
+  if(m){ try{ const data=JSON.parse(shareB64d(m[1])); if(data&&data.d){
+    const go=function(err){
+      if(err){ toastMsg('引擎加载失败，请刷新重试',false); return; }
+      applyShared(data); toastMsg('已从分享链接还原盘面'+(data.p?('（来源：'+data.p+'）'):'')+'。',true);
+    };
+    if(window.xjLoadEngine && !window.xjEngineReady(page)) window.xjLoadEngine(page, go); else go();
+  } try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }catch(e){ toastMsg('分享链接解析失败',false); } }
+  else {
+    /* 结果快照只在刷新时恢复；普通导航不恢复，避免未点按钮就出盘。 */
+    const navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+    const isReload = navEntry ? navEntry.type === 'reload' : (performance.navigation && performance.navigation.type === 1);
+    if (!isReload) {
+      try { sessionStorage.removeItem(SNAP_KEY); } catch (e) {}
+      return;
+    }
+    let snapDone = false;
+    const restoreSnap = function(){
+      if(snapDone) return;
+      snapDone = true;
+      const snap=readSnap();
+      if(!snap || !snap.data) return;
+      if(snap.v!==SNAP_VER || !formSigMatches(snap.sig)){
+        try{ sessionStorage.removeItem(SNAP_KEY); }catch(e){}
+        return;
+      }
+      const doRestore=function(){
+        window.__xjRestoring = true;
+        try{ applyShared({d:snap.data}); }catch(e){}
+          try{
+            const el = document.querySelector(resultSel);
+            if(el && snap.html) el.innerHTML = snap.html;
+          }catch(e){}
+        window.__xjRestoring = false;
+      };
+      const loadEngine=function(err){
+        if(err){ window.__xjRestoring = false; toastMsg('引擎加载失败，请刷新重试',false); return; }
+        doRestore();
+      };
+      if(window.xjLoadEngine && !window.xjEngineReady(page)) window.xjLoadEngine(page, loadEngine);
+      else doRestore();
+    };
+    if(window.__xjFormRestored) restoreSnap();
+    else {
+      window.addEventListener('xj:form-restored', restoreSnap, {once:true});
+      window.addEventListener('load', function(){
+        setTimeout(function(){ if(!window.__xjFormRestored) restoreSnap(); }, 300);
+      }, {once:true});
+    }
+  }
 }
 /* 附加功能面板默认收起（低频工具区），只在用户主动发起解析时展开，
    刷新恢复与重出一律不动其开合态（重出函数不得改交互态）。 */
@@ -995,7 +1098,7 @@ function mountAI(getContext, pageTitle, opts){
   </details>`;
   const aiBlockEl = document.getElementById('aiBlock');
   if (aiBlockEl) {
-    try { if (window.xjApplyOneFold) window.xjApplyOneFold('aiBlockFold', '#aiBlock'); } catch (e) {}
+    /* 附加功能面板每次载入从收起态开始，不恢复上次开合。 */
     aiBlockEl.addEventListener('toggle', function(){
       try { if (window.xjSaveOneFold) window.xjSaveOneFold('aiBlockFold', '#aiBlock'); } catch (e) {}
     });
@@ -1099,7 +1202,7 @@ function aiFollowContext(title, ctx){
   const sel = schools.length ? getSelectedSchools() : [];
   const names = schools.filter(s => sel.indexOf(s.key) !== -1).map(s => s.name);
   const schoolTxt = (schools.length && names.length === schools.length) ? (schools.length + '派全出（' + names.join('、') + '）') : names.join('、');
-  return '【追问上下文】术数类型：' + title + '；' + (schoolTxt ? ('本轮所宗流派：' + schoolTxt + '；') : '') + '盘面摘要：' + (aiCtxDigest(ctx) || '见前文盘面信息') + '。请承接上一轮解读作答，不重复整段盘面。';
+  return '【追问上下文】术数类型：' + title + '；' + (schoolTxt ? ('本轮所宗流派：' + schoolTxt + '；') : '') + '盘面摘要：' + (aiCtxDigest(ctx) || '见前文盘面信息') + '。请承接前文解读作答，不重复整段盘面。';
 }
 
 /* 盘面摘要：取盘面文本开头几行，给出四柱与日主等识别信息，供追问轮次随行 */

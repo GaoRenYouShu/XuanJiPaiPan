@@ -911,7 +911,6 @@ function hlInit(){
     window.hlPlaceTrio=fillPlaceTrio(document.getElementById('hlProv'),document.getElementById('hlCity'),document.getElementById('hlDist'),function(){ hlSyncOverseas(); });
   }
   hlSyncOverseas();
-  renderQigua();
   hlClearYun();
   document.getElementById('hlBtn').addEventListener('click',function(){
     renderQigua();
@@ -923,7 +922,7 @@ function hlInit(){
   });
   if(window.mountAI) window.mountAI(heluoAiContext,'河洛理数',{
     'share':{
-      'page':'heluo','title':'河洛理数',
+      'page':'heluo','title':'河洛理数','result':'#hlQgOut',
       'collect':hlCollect,'restore':hlRestore,
       'recast':function(){ renderQigua(); renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan(); }
     }

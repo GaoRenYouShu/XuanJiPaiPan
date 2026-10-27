@@ -100,8 +100,10 @@ function renderChrome(active){
     }
   });
 
-  /* 站标印面由 assets/logo 静态文件加载；备用墨底版为 assets/logo/xuanji-seal-ink.svg，改下行 src 即切换 */
-  document.getElementById('topbar').innerHTML = `
+  /* 顶栏已静态写入各页；只有旧页仍留空占位时才注入，避免覆盖静态块并重复绑定。 */
+  const topbarHost = document.getElementById('topbar');
+  if (topbarHost && !topbarHost.querySelector('.topbar')) {
+    topbarHost.innerHTML = `
   <div class="topbar"><div class="wrap">
     <a class="brand" href="index.html" aria-label="玄机排盘 首页">
       <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
@@ -110,6 +112,7 @@ function renderChrome(active){
     <nav class="nav" id="nav">${navHtml}<!-- 外部链接：fork 者改 href 指向自己的仓库与账号 --><span class="nav-tools"><button class="ai-gear" id="aiGear" title="AI 解析配置" onclick="if(window.openAiConfig)openAiConfig()">⚙AI</button><a class="ext-link" href="https://github.com/GaoRenYouShu/XuanJiPaiPan" target="_blank" rel="noopener" title="GitHub 仓库" aria-label="GitHub"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a><a class="ext-link" href="https://t.me/gaoren" target="_blank" rel="noopener" title="Telegram" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a></span></nav>
     <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
   </div></div>`;
+  }
 
   const f = document.getElementById('footer');
   if(f){
@@ -771,7 +774,9 @@ window.xjShuffle = xjShuffle;
           });
         }catch(e){}
       }
-      if(hook){ try{ hook(changed); }catch(e){} }
+      window.__xjFormRestored = true;
+      try{ window.dispatchEvent(new Event('xj:form-restored')); }catch(e){}
+      /* 结果由结果快照恢复，首屏不在加载时重算。 */
       var sy=parseInt(rd(K_S)||'0',10);
       var anchor=null;
       if(typeof window.xjRefreshAnchor==='function'){
@@ -1224,4 +1229,122 @@ window.xjShuffle = xjShuffle;
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
   window.addEventListener('resize', function(){ clearTimeout(timer); timer = setTimeout(run, 150); });
+})();
+
+/* ===== 重计算引擎按需装载 =====
+   页面首屏只载界面件；计算件在用户触发计算时按清单顺序加载。
+   MAP 按页登记脚本清单，同一页只装一次，失败保留错误状态供下次重试。
+   脚本以 async=false 插入，下载并行而执行按清单顺序，依赖次序与静态引用一致。 */
+(function(){
+  var MAP = {
+    bazi: [
+      'assets/bazi-rel.js',
+      'assets/bazi-shishen.js',
+      'assets/chengu-songs.js',
+      'assets/bazi-duanyu.js',
+      'assets/gua.js',
+      'assets/bazi-mangpai.js',
+      'assets/bazi-xinpai.js',
+      'assets/wheel.js',
+      'assets/bazi-core.js'
+    ],
+    ziwei: [
+      'assets/iztro.min.js',
+      'assets/bazi-core.js'
+    ],
+    tieban: [
+      'assets/gua.js',
+      'assets/jingwen.js',
+      'assets/jingwen-ref.js',
+      'assets/bazi-rel.js',
+      'assets/bazi-duanyu.js',
+      'assets/bazi-core.js',
+      'assets/tieban-hegu.js',
+      'assets/tieban-tiaowen.js'
+    ],
+    hehun: [
+      'assets/bazi-rel.js',
+      'assets/bazi-core.js'
+    ],
+    zeri: [
+      'assets/bazi-rel.js',
+      'assets/fengshui-engine.js',
+      'assets/zeri-zaoming.js'
+    ],
+    liuyao: [
+      'assets/jingwen-ref.js',
+      'assets/jianfan.js',
+      'assets/kangxi.js'
+    ],
+    meihua: [
+      'assets/jingwen.js',
+      'assets/jingwen-ref.js',
+      'assets/jianfan.js',
+      'assets/kangxi.js'
+    ],
+    tarot: [
+      'assets/tarot-data.js'
+    ]
+  };
+  var state = {};
+  var queue = {};
+
+  function finish(page, err){
+    state[page] = err ? 'error' : 'ready';
+    var list = queue[page] || [];
+    queue[page] = [];
+    list.forEach(function(fn){
+      try { fn(err); } catch(e) { /* 单次回调失败不阻断其余等待者 */ }
+    });
+  }
+
+  window.xjLoadEngine = function(page, cb){
+    var list = MAP[page];
+    if(!list){ if(cb) cb(); return; }
+    if(state[page] === 'ready'){ if(cb) cb(); return; }
+    if(state[page] === 'loading'){ (queue[page] = queue[page] || []).push(cb); return; }
+    state[page] = 'loading';
+    queue[page] = cb ? [cb] : [];
+    var i = 0;
+    (function next(){
+      if(i >= list.length){ finish(page); return; }
+      var s = document.createElement('script');
+      s.src = list[i++];
+      s.async = false;
+      s.onload = next;
+      s.onerror = function(){ finish(page, true); };
+      document.head.appendChild(s);
+    })();
+  };
+
+  window.xjEngineReady = function(page){ return state[page] === 'ready'; };
+})();
+
+/* ===== 主容器按需装载 =====
+   带 data-xj-engine 的容器内，首次点击或改值先装引擎，装完重放该事件。
+   事件在捕获阶段拦下，页面原有的 onclick/onchange 不动。 */
+(function(){
+  function gate(e){
+    var host = e.target && e.target.closest ? e.target.closest('[data-xj-engine]') : null;
+    if(!host) return;
+    if(!e.isTrusted) return;
+    var page = host.getAttribute('data-xj-engine');
+    if(!page || window.xjEngineReady(page)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if(host.__xjBusy) return;
+    host.__xjBusy = true;
+    window.xjLoadEngine(page, function(err){
+      host.__xjBusy = false;
+      if(err) return;
+      var target = e.target;
+      var type = e.type;
+      setTimeout(function(){
+        if(type === 'click' && target && target.click) target.click();
+        else if(target && target.dispatchEvent) target.dispatchEvent(new Event(type, {bubbles:true, cancelable:true}));
+      }, 0);
+    });
+  }
+  document.addEventListener('click', gate, true);
+  document.addEventListener('change', gate, true);
 })();

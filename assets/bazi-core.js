@@ -2568,7 +2568,7 @@ const BaziState = {
   CITY_LNG: null,         // 出生地经度（出生地三级联动写入；未选定出生地时为空，不得回退任一省会）
   pillarChosenDate: null, // 四柱模式已确认公历日期串（confirmPillarDate / clearPillarDate 写入）
   lastPaipanSig: null,    // 上次排盘输入签名（去重守卫）
-  baziInitDone: false     // 页面初始化完成标志（localStorage 恢复后允许持久化）
+  baziInitDone: (typeof baziInitDone !== 'undefined' ? baziInitDone : false) // 页面初始化完成标志（localStorage 恢复后允许持久化）
 };
 /* 顶层裸名代理到 BaziState：BZ/CTX 等裸名读写即落到单一真源。 */
 ['BZ','CTX','kongAxis','qiYunSect','changShengSect','yearGZcur','CITY_LNG','pillarChosenDate','lastPaipanSig','baziInitDone']

@@ -441,6 +441,7 @@ if (typeof window !== 'undefined') {
 /* 入口 paipan / paipanPillar / 模块折叠状态、事件、初始化，最后加载。 */
 /* 页面交互初始化仅八字页执行（以 bMode 表单为标志）：他页（如姓名学页）只复用
    buildBaziState/getAnalysis/getBazi 排盘 API 直算喜用，不挂载本页 UI 与导航 */
+window.baziInitDone = false; /* 页面初始化完成标志：引擎按需装载时由本页先定义，供 UI 初始化读写 */
 var BAZI_PAGE_UI = !!document.getElementById('bMode');
 if (BAZI_PAGE_UI) renderChrome('bazi.html'); /* 页面级单例，见顶部“页面级可变状态说明” */
 if (BAZI_PAGE_UI) (function initBirth(){
@@ -484,10 +485,20 @@ function syncOverseasUi(){
 function localDstChange(){
   lastPaipanSig='';
   try{ savePillarSel(); }catch(e){}
-  try{ go(); }catch(e){}
 }
 
 function paipan(){
+  /* 重计算件按需装载：首屏只载界面件，点排盘时按清单加载 bazi-core 一系。
+     装载期间按钮置忙；失败时恢复按钮文字，下一次点击重试。 */
+  if (window.xjLoadEngine && !window.xjEngineReady('bazi')) {
+    const btn = document.querySelector('button[onclick="go()"]');
+    if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = '排盘中'; }
+    window.xjLoadEngine('bazi', function (err) {
+      if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || '排盘'; }
+      if (!err) paipan();
+    });
+    return;
+  }
   /* 性能守卫：输入签名未变且已渲染过，则跳过全量重排（避免重复计算与重绘）。
      切换输入方式（bMode）会纳入签名，故模式切换仍会正常重排。 */
   { const sig=paipanSig(); if(sig===lastPaipanSig && BZ && document.getElementById('out').innerHTML){ return; } lastPaipanSig=sig; }
@@ -675,8 +686,8 @@ function gs(id, show){ const el=document.getElementById(id); if(el) el.hidden=!s
    块内日期形态随主盘历法：主盘农历则第二盘同显农历字段，四柱、名人、已存三模式无日期可对照、整块随勾选一并隐藏。 */
 function dualRelToggle(){
   dualRelSync();
-  /* 勾选变化须触发重排：对照层随勾选挂起或撤下 */
-  if(baziInitDone){ lastPaipanSig=''; try{ if(window.paipan) paipan(); }catch(e){} }
+  /* 勾选变化只失效输入签名，重排由排盘按钮触发 */
+  if(baziInitDone){ lastPaipanSig=''; }
 }
 function dualRelSync(){
   const chk=document.getElementById('dualRel'), box=document.getElementById('dualRel2');
@@ -749,11 +760,8 @@ function toggleBaziMode(){
     const _out=document.getElementById('out');
     if(_out) _out.innerHTML='';
   }
-  /* 切回公历、农历且输出区为空：用当前输入自动重排，避免切换后空白需手动点"排盘"（仅在初始化完成后，防与初始自动排盘冲突）。
-     回调时现查输出区：名人直排等流程在切换后已随即渲染结果，此刻输出区非空即跳过，免得重排抹掉随后写入的提示 */
-  if(!isPillar && !isSaved && !isCeleb && document.getElementById('out').innerHTML==='' && baziInitDone){
-    if(window.paipan) setTimeout(()=>{ const _o=document.getElementById('out'); if(_o && _o.innerHTML===''){ try{ paipan(); }catch(e){} } }, 0);
-  }
+  /* 模式切换只失效输入签名，重排由排盘按钮触发 */
+  if(!isPillar && !isSaved && !isCeleb && !isHourless){ lastPaipanSig=''; }
   /* 已存模式下让姓名框随面板隐藏（姓名仅在输入模式下参与保存） */
   gs('fName', !isSaved);
   /* 境外两项（当地夏令时、时区）随模式与出生地再同步一次：境内收起，境外且日期模式挂出 */
@@ -1438,10 +1446,10 @@ function htmlToText(html){
   }).filter(function(l){ return l.length>0; }).join('\n');
 }
 
-/* 附加功能面板挂载：与文件内其余页面级语句同守 BAZI_PAGE_UI 一闸（他页复用本件只为取
-   buildBaziState 等排盘 API，不挂本页 UI）。不守此闸则他页加载本件时会去调本页才有的
-   mountAI，而该函数在其后加载的 ai.js 里，故必报未定义。 */
-if (BAZI_PAGE_UI) mountAI(function(){
+/* 附加功能面板挂载：八字页初始化完成后由 window.baziMountAI 调用，
+   确保页面级 recast 已挂出；他页复用本件只取排盘 API，不挂本页 UI。 */
+function baziMountAI(){
+  mountAI(function(){
   if(!BZ||!BZ.meta) return '';
   const m=BZ.meta;
   const wx=BZ.wxCnt?Object.keys(BZ.wxCnt).map(k=>`${k}${BZ.wxCnt[k]}`).join(' '):'';
@@ -1543,10 +1551,9 @@ if (BAZI_PAGE_UI) mountAI(function(){
     },
     recast: function () { xjShareRecast(function () { window.baziRecast(); }); }
   }
-});
+  });
 
-/* 复核档下载并入附加功能按钮行：本页独有的导出项与分享导出同处一行，页底不再另设折叠块 */
-if (BAZI_PAGE_UI) {
+  /* 复核档下载并入附加功能按钮行：本页独有的导出项与分享导出同处一行，页底不再另设折叠块 */
   try {
     const aiAct = document.querySelector('#aiMount .ai-actions');
     if (aiAct && !aiAct.querySelector('[data-xj-review]')) {
@@ -1557,13 +1564,9 @@ if (BAZI_PAGE_UI) {
     }
   } catch (e) {}
 }
+if (BAZI_PAGE_UI) window.baziMountAI = baziMountAI;
 
-/* 初始排盘：置于全文件末尾，确保所有顶层 const（含 SHA_LIFE 等数据表）已初始化后再触发，避免 TDZ；
-   仅八字页执行（paipanSig 等输入签名函数由八字页内联提供） */
-if (BAZI_PAGE_UI) paipan();
-
-/* 双保险：无论上述 paipan() 是否被性能守卫拦截或中途异常，初始渲染完成后都无条件再应用一次
-   三大模块折叠状态（避免"展开本命分析→刷新后折叠"），须在滚动位置恢复之前执行（先展开、高度正确、再定位）。 */
+/* 三大模块折叠状态在首屏渲染完成后应用一次，先展开、高度正确、再定位。 */
 try{ applyModState(); }catch(e){}
 
 /* 滚动位置保持：刷新与重载后停在离开时的位置。

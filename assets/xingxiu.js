@@ -462,7 +462,7 @@
     $('xxYanBtn').addEventListener('click', renderYan);
     if (window.mountAI) window.mountAI(xxAiContext, '星宿', {
       share: {
-        page: 'xingxiu', title: '星宿',
+        page: 'xingxiu', title: '星宿', result: '#xxMingOut',
         collect: xxCollect, restore: xxRestore, recast: function () { renderMing(); renderYan(); }
       }
     });
