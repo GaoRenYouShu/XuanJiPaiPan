@@ -26,21 +26,340 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/xiaoliuren.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/comp-mid.css">
-<link rel="stylesheet" href="assets/css/comp-shared.css">
-<link rel="stylesheet" href="assets/css/dt.css">
-<link rel="stylesheet" href="assets/css/xiaoliuren.css">
+.xj-search-out:empty{display:none}
+
+.xj-only-has:empty{display:none}
+
+@media print{
+.data-export-hide{display:none !important}
+}
+
+.dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
+
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+body{--footer-ink:#3c5a38}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.wx-mu{color:#5DC336}.wx-huo{color:#F65352}.wx-tu{color:#A07040}
+
+.wx-jin{color:#D4A017}.wx-shui{color:#4190FA}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
+#out + *{margin-top:var(--sp-4)}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
+
+@media(max-width:600px){
+.form-row.r2 .field{flex:0 0 auto;width:auto;min-width:0}
+}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-xlr .page > .form-row{margin-bottom:var(--sp-2)}
+
+.page-xlr .xlr-ref .mh-ref{background:transparent}
+
+.page-xlr .xlr-alt-note{color:var(--ink2);font-size:11px}
+
+.page-xlr .luck-吉{color:var(--green)}
+
+.page-xlr .luck-凶{color:var(--red)}
+
+.page-xlr .xlr-ref{margin:var(--sp-2) 0 var(--sp-1)}
+
+.page-xlr .xlr-ref-grid{display:flex;flex-direction:column;gap:var(--sp-2)}
+
+.page-xlr .xlr-palm-wrap{display:flex;justify-content:center;margin-bottom:var(--sp-2)}
+
+.page-xlr .xlr-palm{display:inline-flex;flex-direction:column;align-items:center;gap:var(--sp-2)}
+
+.page-xlr .xlr-palm-cap{font-size:13px;color:var(--xlr-ink2);line-height:1.5;margin-top:var(--sp-1)}
+
+.page-xlr .xlr-palm-fingers{display:flex;gap:var(--sp-2);align-items:flex-start}
+
+.page-xlr .xlr-palm-col{display:flex;flex-direction:column;gap:var(--sp-1);align-items:stretch}
+
+.page-xlr .xlr-palm-finger{font-size:11px;color:var(--xlr2);text-align:center;font-weight:400}
+
+.page-xlr .xlr-palm-cell{border:1px solid var(--xlr-line);border-radius:0;background:transparent;box-shadow:none;padding:var(--sp-3) var(--sp-2);display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);min-width:60px;min-height:96px;transition:background .15s}
+
+.page-xlr .xlr-palm-cell:hover{background:var(--gold-bg)}
+
+.page-xlr .xlr-palm-num{font-size:11px;color:var(--xlr-ink2);line-height:1.2}
+
+.page-xlr .xlr-palm-nm{font-size:16px;font-weight:700;line-height:1.25;border-top:1px solid var(--xlr-line);margin:var(--sp-1) auto 0;padding-top:var(--sp-2);width:62%;text-align:center}
+
+.page-xlr .xlr-palm-seg{font-size:10px;color:var(--xlr-ink2);line-height:1.2;margin-top:var(--sp-1)}
+
+.page-xlr .xlr-table-wrap{overflow-x:auto;max-width:100%}
+
+.page-xlr .xlr-table{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--xlr-line)}
+
+.page-xlr .xlr-table th,.page-xlr .xlr-table td{border:0;border-bottom:1px solid var(--xlr-line);padding:6px 8px;text-align:left}
+
+.page-xlr .xlr-table th{background:transparent;color:var(--xlr2);font-weight:400}
+
+.page-xlr .xlr-table td{color:var(--xlr-ink)}
+
+.page-xlr .xlr-hecan-tbl th{font-weight:400;color:var(--xlr2);vertical-align:top}
+
+@media(max-width:600px){
+.page-xlr .xlr-palm-fingers{gap:var(--sp-2)}
+
+.page-xlr .xlr-palm-nm{width:auto}
+
+.page-xlr .xlr-table th,.page-xlr .xlr-table td{padding:5px 4px}
+
+.page-xlr .xlr-table th{white-space:nowrap;min-width:3.2em}
+
+.page-xlr .xlr-table-wrap table{width:max-content;min-width:100%}
+
+.page-xlr .xlr-table-wrap{padding-bottom:var(--sp-4)}
+}
+
+.page-xlr .page h1{color:var(--xlr-deep);font-family:var(--xlr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-xlr .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--xlr-line);margin:0 auto var(--sp-3)}
+
+.page-xlr .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--xlr-line);margin:var(--sp-3) auto 0}
+
+.page-xlr .page .lead::after{background:var(--xlr-line)}
+
+.page-xlr .page .lead{color:var(--xlr-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-xlr .field label{color:var(--xlr2);font-weight:400}
+
+.page-xlr .field input,.page-xlr .field select{border-color:var(--xlr-line);background:var(--card);color:var(--xlr-deep)}
+
+.page-xlr .field input:focus,.page-xlr .field select:focus{border-color:var(--xlr);outline:none}
+
+.page-xlr .btn:not(.soft):not(.btn-ghost){background:var(--xlr)}
+
+.page-xlr .btn:not(.soft):not(.btn-ghost):hover{background:var(--xlr2)}
+
+.page-xlr .ai-block{border:0;border-top:1px solid var(--xlr-line);border-bottom:1px solid var(--xlr-line);border-radius:0;background:transparent;color:var(--xlr-ink);box-shadow:none}
+
+.page-xlr .ai-head{background:transparent;border-bottom-color:var(--xlr-line)}
+
+.page-xlr .ai-head h3{color:var(--xlr2)}
+
+.page-xlr .ai-block .btn{background:var(--xlr);color:#fff}
+
+.page-xlr .ai-block .btn:hover{background:var(--xlr2)}
+
+.page-xlr .ai-block .btn.gold,.page-xlr .ai-block .btn.soft{background:var(--xlr-tint);border-color:var(--xlr-line);color:var(--xlr-ink);box-shadow:none}
+
+.page-xlr .ai-block .btn.gold:hover,.page-xlr .ai-block .btn.soft:hover{background:var(--card);border-color:var(--xlr-line);color:var(--xlr2)}
+
+@media (prefers-color-scheme: dark){
+html .page-xlr {
+    --xlr:#74a069;
+    --xlr2:#6b9e64;
+    --xlr-deep:#d9ded8;
+    --xlr-ink:#d0d3cf;
+    --xlr-blossom:#b5c873;
+    --xlr-line:#434f3f;
+    --xlr-tint:#292d1f;
+    --xlr-ink2:#9fab9c;
+  }
+}
+
+.page-xlr{
+  --xlr:#4f7047;          /* 苍青主色 */
+  --xlr2:#3c5a38;         /* 深苍青：hover与强调 */
+  --xlr-deep:#2a3b26;     /* 青墨：大标题字色 */
+  --xlr-ink:#3c4438;      /* 青灰墨：正文字色 */
+  --xlr-blossom:#8aa03f;  /* 青黄点缀（装饰用） */
+  --xlr-line:#d3e2cf;     /* 青浅线 */
+  --xlr-tint:#f1f5e9;     /* 青纸淡底 */
+  --xlr-ink2:#556d4f;  /* 次级字色：卷首说明、副注、标注 */
+  --xlr-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  --gold2:var(--xlr2); --gold:var(--xlr); --gold-brown:var(--xlr2); --gold-bg:var(--xlr-tint);
+  --line:var(--xlr-line);--ink:var(--xlr-ink)
+}
+
+.dtm-xlr{--tk:#4f7047;--tk2:#3c5a38;--tk-ink:#3c4438;--tk-line:#dbe2cf;--tk-tint:#f1f5e9}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/xiaoliuren-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0e, U+4e11, U+4e19, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4ec5, U+4ee5, U+4f9b, U+4fd7, U+4fe1, U+5148, U+5165, U+516b-516d, U+5171, U+5173, U+519c, U+51ac, U+51f6, U+51f8, U+5206, U+521d, U+524d, U+529f-52a0, U+52ff, U+5316, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+53c2, U+53c8, U+53d6, U+5409, U+540c-540d, U+547d, U+56db, U+56fe, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5973, U+5a31, U+5b50, U+5b9a, U+5bab, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c45, U+5df1, U+5df3, U+5e74, U+5e93, U+5e9a, U+5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f55, U+5f85, U+603b, U+60ca, U+620a, U+620c, U+6210, U+62e9, U+6307, U+636e, U+638c, U+6392, U+63d0, U+6570, U+6587, U+65ad, U+65b0, U+65b9, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+679c, U+6b63, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d3e, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7334, U+7384, U+7406, U+751f, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7709, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+7a76, U+7acb, U+7b97, U+7ed3, U+7f6e, U+7f8a, U+8003, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+843d, U+845b, U+86c7, U+86f0, U+86fe, U+89c8, U+8bbe, U+8bc0, U+8bef, U+8bf4, U+8bf7-8bf8, U+8bfe, U+8c37, U+8d77, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8ff7, U+9009, U+9149, U+914d, U+9519, U+95ed, U+95f0, U+95f4, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9f99, U+ff08-ff09, U+ff0c}
+
+body:has(.page-xlr) .scroll-jump:not(.show){display:none}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/xiaoliuren-0.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/xiaoliuren.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/xiaoliuren.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -104,7 +423,7 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-xlr">
+<div class="wrap page-xlr" data-built="2026-10-30">
   <div class="page">
     <h1>小六壬</h1>
     <div class="lead">又名诸葛马前课。以农历月、日、时三数起课，落六宫断吉凶。</div>
@@ -115,339 +434,53 @@
         <option value="rand">随机数</option>
         <option value="char">汉字笔画</option>
       </select></div>
-      <div class="field" id="fDate"><label for="dInput">日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput"></div>
+      <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" value="2026-10-29"></div>
       <div class="field" id="fShi"><label for="shichen">时辰</label>
-        <select id="shichen"></select>
+        <select id="shichen"><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select>
       </div>
       <div class="field" id="fNum1" style="display:none"><label for="qNum1">第一数（月）</label><input type="number" min="1" max="999" id="qNum1" class="dt-input xlr-num-input"></div>
       <div class="field" id="fNum2" style="display:none"><label for="qNum2">第二数（日）</label><input type="number" min="1" max="999" id="qNum2" class="dt-input xlr-num-input"></div>
       <div class="field" id="fNum3" style="display:none"><label for="qNum3">第三数（时）</label><input type="number" min="1" max="999" id="qNum3" class="dt-input xlr-num-input"></div>
       <div class="field" id="fChar" style="display:none"><label for="qChar">汉字</label><input type="text" maxlength="3" id="qChar" class="xlr-char-input" placeholder="输一个字或三个字"></div>
-      <div class="field"><label for="school">流派</label><select id="school"></select></div>
+      <div class="field"><label for="school">流派</label><select id="school"><option value="ma">诸葛马前课</option><option value="li">李淳风六壬时课</option><option value="dao">道家小六壬</option><option value="qm">奇门小六壬</option><option value="hua">华山小六壬</option><option value="jiang">江氏小六壬</option><option value="xian">仙家小六壬</option><option value="si">四盘小六壬</option></select></div>
       <button class="btn" onclick="query()">起课</button>
     </div>
     <div class="sub-note xlr-line-note" id="lunarLine"></div>
     <div id="out"></div>
-    <div class="xlr-ref" id="xlrRef"></div>
-  </div>
+    <div class="xlr-ref" id="xlrRef"><details class="mh-ref" id="xlrFold"><summary>掌诀指图 六宫总览</summary><div class="xlr-ref-grid"><div class="xlr-palm-wrap"><div class="xlr-palm" role="img" aria-label="小六壬掌诀图"><div class="xlr-palm-fingers"><div class="xlr-palm-col"><div class="xlr-palm-finger">食指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">2</div><div class="xlr-palm-nm luck-凶">留连</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">1</div><div class="xlr-palm-nm luck-吉">大安</div><div class="xlr-palm-seg">指根</div></div></div><div class="xlr-palm-col"><div class="xlr-palm-finger">中指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">3</div><div class="xlr-palm-nm luck-吉">速喜</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">6</div><div class="xlr-palm-nm luck-凶">空亡</div><div class="xlr-palm-seg">指根</div></div></div><div class="xlr-palm-col"><div class="xlr-palm-finger">无名指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">4</div><div class="xlr-palm-nm luck-凶">赤口</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">5</div><div class="xlr-palm-nm luck-吉">小吉</div><div class="xlr-palm-seg">指根</div></div></div></div><div class="xlr-palm-cap">大安起 1，顺数至 6 循环</div></div></div><div class="xlr-table-wrap"><table class="xlr-table xlr-hecan-tbl"><thead><tr><th>宫</th><th>序</th><th>五行</th><th>六神</th><th>方位</th><th>颜色</th><th>主数</th><th>应期</th><th>意象</th></tr></thead><tbody><tr><td class="luck-吉">大安</td><td>1</td><td><span class="wx-mu">木</span></td><td>青龙</td><td>东方</td><td>青</td><td>1、5、7</td><td>静迟稳</td><td>安稳、静止、守成</td></tr><tr><td class="luck-凶">留连</td><td>2</td><td><span class="wx-shui">水</span><br><small class="xlr-alt-note">水土两说</small></td><td>玄武<br><small class="xlr-alt-note">亦作腾蛇</small></td><td>北方</td><td>黑</td><td>2、8、10</td><td>缓迟反复</td><td>纠缠、拖延、犹豫</td></tr><tr><td class="luck-吉">速喜</td><td>3</td><td><span class="wx-huo">火</span></td><td>朱雀</td><td>南方</td><td>红</td><td>3、6、9</td><td>速近快</td><td>迅速、喜讯、通达</td></tr><tr><td class="luck-凶">赤口</td><td>4</td><td><span class="wx-jin">金</span></td><td>白虎</td><td>西方</td><td>白</td><td>4、7、10</td><td>急争凶</td><td>口舌、争讼、血光</td></tr><tr><td class="luck-吉">小吉</td><td>5</td><td><span class="wx-shui">水</span><br><small class="xlr-alt-note">木水两说</small></td><td>六合</td><td>东方</td><td>绿</td><td>1、5、7</td><td>和缓合</td><td>和合、顺利、双喜</td></tr><tr><td class="luck-凶">空亡</td><td>6</td><td><span class="wx-tu">土</span></td><td>勾陈</td><td>中央</td><td>灰</td><td>5、10<br><small class="xlr-alt-note">亦作1、5、7</small></td><td>空无远</td><td>落空、虚耗、无果</td></tr></tbody></table></div></div></details></div>
+  <div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled>停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    </div>
+  </details></div></div>
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script defer src="assets/lunar.js"></script>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/jianbi.js"></script>
-<script defer src="assets/jianfan.js"></script>
-<script defer src="assets/kangxi.js"></script>
-<script defer src="assets/xuanji-lib.js"></script>
-<script defer src="assets/ai.js"></script>
-<script>
-const ZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-const SHI_NAME=['子(23-01)','丑(01-03)','寅(03-05)','卯(05-07)','辰(07-09)','巳(09-11)','午(11-13)','未(13-15)','申(15-17)','酉(17-19)','戌(19-21)','亥(21-23)'];
-const GONG=[
-  {n:'大安',wx:'木',sx:'青龙',fx:'东方',luck:'吉',ying:'静迟稳',xiang:'安稳、静止、守成',
-   duan:'大安事事昌，求财在坤方，失物去不远，宅舍保安康。行人身未动，病者主无妨，将军回田野，仔细好推详。',
-   brief:'身不动时，属静、稳、安。主平安顺遂，宜守不宜攻。',
-   cats:{hun:'婚缘平稳，宜迟不宜急，终成。',cai:'财稳缓得，不宜冒进，守可获利。',bing:'病无大妨，静养可愈，勿忧。',ren:'行人未动身，会回家，缓至。',shi:'失物去不远，就近、家中寻。',xun:'寻人未远行，在近处或家中，可寻。',chan:'生产平稳，母子安康，宜顺其自然。',xue:'学业稳进，根基扎实，宜循序渐进。',qiu:'求职可成，宜守成稳进，不急躁。',hehuo:'合伙平顺，宜守分，不宜冒进。',jia:'家宅安稳，平安无事。',kai:'开张平顺，宜守成，客源渐稳。',xing:'行人未动身，失物去不远，就近寻。',guan:'官事平宁，无忧无刑。',chu:'宜静守，出行缓，动则平平。',mou:'谋事昌顺，宜守不宜攻。',jiao:'交易平稳，和而不迫。'}},
-  {n:'留连',wx:'水',sx:'玄武',fx:'北方',luck:'凶',ying:'缓迟反复',xiang:'纠缠、拖延、犹豫',
-   duan:'留连事难成，求谋日未明，官事只宜缓，去者未回程。失物南方去，急寻方可寻，更需防口舌，恐怕自身刑。',
-   brief:'主拖延、纠缠、反复。事情难以速成，宜耐心等待。',
-   cats:{hun:'婚姻反复，迟滞难成，防口舌。',cai:'财迟有阻，防耗散，急则无。',bing:'病势缠绵，迟愈，防反复。',ren:'行人未回程，迟归，防音信阻。',shi:'失物向南方，急寻可获，迟则难寻。',xun:'寻人迟滞，在外滞留，急寻可获。',chan:'生产迟滞，宜缓，防反复不顺。',xue:'学业受阻，进展迟慢，宜耐心。',qiu:'求职反复，迟成，防中途有变。',hehuo:'合伙纠缠，宜分清权责，防牵绊。',jia:'家宅多口舌，宜和缓，勿急进。',kai:'开张迟滞，客源反复，宜待时机。',xing:'行人未回程，失物向南方，急寻可获。',guan:'官事宜缓，恐自身刑，慎防。',chu:'出行迟滞，反复多阻。',mou:'谋事难成，宜缓图，勿躁。',jiao:'交易迟滞，难就。'}},
-  {n:'速喜',wx:'火',sx:'朱雀',fx:'南方',luck:'吉',ying:'速近快',xiang:'迅速、喜讯、通达',
-   duan:'速喜喜来临，求财向南行，失物申未午，逢人须回音。官事有福德，病者无祸侵，田宅六畜吉，行人有喜临。',
-   brief:'主快速、喜讯、好消息。求谋易成，多有惊喜。',
-   cats:{hun:'喜事速成，媒妁得力，吉。',cai:'财速至，向南行，求谋易成。',bing:'病无祸侵，速愈，勿药而安。',ren:'行人有喜临，近归，音信至。',shi:'失物可寻，在申、未、午方。',xun:'寻人速有音信，近处可寻，南向。',chan:'生产迅速，母子平安，顺产之象。',xue:'学业速成，成绩提升，考试可中。',qiu:'求职速成，机会即至，宜主动把握。',hehuo:'合伙速成，进展顺利，利合作。',jia:'家宅喜庆，和乐安康。',kai:'开张大吉，客源兴旺，财气速至。',xing:'行人有喜临，失物在申未午。',guan:'官事有福德，无妨。',chu:'出行有喜，顺畅。',mou:'谋事速成，多有惊喜。',jiao:'交易速成，向南有利。'}},
-  {n:'赤口',wx:'金',sx:'白虎',fx:'西方',luck:'凶',ying:'急争凶',xiang:'口舌、争讼、血光',
-   duan:'赤口主口舌，官非切要防，失物急去寻，行人有惊慌。鸡犬多作怪，病者出西方，更须防咀咒，恐怕染瘟殃。',
-   brief:'主口舌、是非、争执。凡事谨言慎行，防冲突官非。',
-   cats:{hun:'口舌争斗，婚不成或迟，慎防。',cai:'破财之象，防争讼耗散。',bing:'病凶，防血光，出西方，宜慎。',ren:'行人有惊慌，途中有口舌争阻。',shi:'失物急寻西方，迟恐难获。',xun:'寻人难获，有口舌惊阻，宜防。',chan:'生产不顺，防血光，宜谨慎。',xue:'学业受阻，防口舌，宜静心。',qiu:'求职有争，防口舌，宜缓图。',hehuo:'合伙防争讼，权责分明防破败。',jia:'家宅多口舌是非，谨言慎行。',kai:'开张防官非口舌，宜迟不宜急。',xing:'行人有惊慌，失物急寻西方。',guan:'官非切要防，口舌刑伤。',chu:'出行防口舌，争执。',mou:'谋事有争，防破败。',jiao:'交易防争讼，不成。'}},
-  {n:'小吉',wx:'水',sx:'六合',fx:'东方',luck:'吉',ying:'和缓合',xiang:'和合、顺利、双喜',
-   duan:'小吉最吉昌，路上好商量，阴人来报喜，失物在坤方。行人立便至，交易甚是强，凡事皆和合，病者祷上苍。',
-   brief:'主和合、顺利、双喜。人和事顺，交易婚姻皆宜。',
-   cats:{hun:'和合美满，成，宜婚。',cai:'财和合，缓得，交易强。',bing:'病渐愈，和，祷之安。',ren:'行人立便至，速归。',shi:'失物在坤方（西南），可寻自出。',xun:'寻人可寻，近处或西南方，有音信。',chan:'生产和顺，母子平安。',xue:'学业和顺，稳步提升，有助。',qiu:'求职和合，贵人有助，可成。',hehuo:'合伙和合，互有裨益，利合作。',jia:'家宅和乐，邻里和睦。',kai:'开张和顺，客源和合，渐入佳境。',xing:'行人立便至，失物在坤方。',guan:'官事和合，无妨。',chu:'出行和顺，利。',mou:'谋事和合，成。',jiao:'交易甚强，和合。'}},
-  {n:'空亡',wx:'土',sx:'勾陈',fx:'中央',luck:'凶',ying:'空无远',xiang:'落空、虚耗、无果',
-   duan:'空亡事不祥，阴人多乖张，求财无利益，行人有灾殃。失物寻不见，官事有刑伤，病人逢暗鬼，析祷保安康。',
-   brief:'主落空、虚耗、无果。凡谋多不遂，宜暂缓改期。',
-   cats:{hun:'婚事不成，落空。',cai:'求财无利益，落空。',bing:'病逢暗鬼，虚怯，宜祷禳。',ren:'行人有灾殃，阻隔，返期难定。',shi:'失物寻不见，已遗失难获。',xun:'寻人不见，音信渺茫，难寻。',chan:'生产不顺，虚惊，宜防。',xue:'学业无成，落空，宜改期。',qiu:'求职无果，落空，宜另寻机会。',hehuo:'合伙无益，虚耗，宜防。',jia:'家宅空落，防虚耗，宜静守。',kai:'开张不利，客源空落，不宜开业。',xing:'行人有灾殃，失物寻不见。',guan:'官事有刑伤，凶。',chu:'出行不利，落空。',mou:'谋事不成，虚耗。',jiao:'交易不成，落空。'}},
-];
-/* 两宫合断（日加时断）：以"日宫所落"加"时宫所落"，据二宫关系断其结果。
-   30 组经典断语（六宫 × 除本宫外五宫），主断婚姻、失物、办事等。 */
-const HE_RI={
- '大安':{'留连':'办事不周全，失物西北去，婚姻晚几天。','速喜':'事事自己起，失物当日见，婚姻自己提。','赤口':'办事不顺手，失物不用找，婚姻两分手。','小吉':'事事从己及，失物不出门，婚姻成就地。','空亡':'病人要上床，失物无踪影，事事不顺情。'},
- '留连':{'大安':'办事两分张，婚姻有喜事，先苦后来甜。','速喜':'事事由自己，婚姻有成意，失物三天里。','赤口':'病者死人口，失物准丢失，婚姻两分手。','小吉':'事事不用提，失物东南去，病者出人齐。','空亡':'病人准死亡，失物不见面，婚姻两分张。'},
- '速喜':{'赤口':'自己往外走，失物往正北，婚姻得勤走。','小吉':'婚姻有人提，病人当天好，失物在家里。','空亡':'婚姻有分张，病者积极治，失物不久见。','大安':'事事都平安，婚姻成全了，占病都相安。','留连':'婚姻不可言，失物无信息，病人有仙缘。'},
- '赤口':{'小吉':'办事自己提，婚姻不能成，失物无信息。','空亡':'无病也上床，失物不用找，婚姻不能成。','大安':'办事险和难，失物东北找，婚姻指定难。','留连':'办事有困难，行人在外走，失物不回还。','速喜':'婚姻在自己，失物有着落，办事官事起。'},
- '小吉':{'空亡':'病人不妥当，失物正东找，婚姻再想想。','大安':'事事两周全，婚姻当日定，失物自己损。','留连':'事事有反还，婚姻有人破，失物上西南。','速喜':'事事从头起，婚姻能成就，失物在院里。','赤口':'办事往外走，婚姻有难处，失物丢了手。'},
- '空亡':{'大安':'事事不周全，婚姻从和好，失物反复间。','留连':'办事处处难，婚姻重新定，失物永不还。','速喜':'事事怨自己，婚姻有一定，失物在家里。','赤口':'办事官非有，婚姻难定准，失物往远走。','小吉':'事事有猜疑，婚姻有喜事，失物回家里。'}
-};
-/* 六宫颜色与谋事主数（传统小六壬属性） */
-const GONG_COLOR={'大安':'青','留连':'黑','速喜':'红','赤口':'白','小吉':'绿','空亡':'灰'};
-const GONG_NUM={'大安':'1、5、7','留连':'2、8、10','速喜':'3、6、9','赤口':'4、7、10','小吉':'1、5、7','空亡':'5、10'};
-/* 五行生克（小六壬页局部表，供合参合断的三宫五行关系分析） */
-const WX_SH={'木':'火','火':'土','土':'金','金':'水','水':'木'};
-const WX_KE={'木':'土','火':'金','土':'水','金':'木','水':'火'};
-function wxShengKe(a,b){
-  const r=xjWxRelCode(a,b,WX_KE,WX_SH);
-  return r==='same'?'比和':r==='sheng'?'相生':r==='beisheng'?'被生':r==='ke'?'相克':r==='beike'?'被克':'';
-}
-function wxRelDesc(a,b,role){
-  const r=wxShengKe(a,b);
-  const as=wxColorSpan(a), bs=wxColorSpan(b);
-  if(r==='比和') return `${role}：${as}与${bs}比和，事体平稳`;
-  if(r==='相生') return `${role}：${as}生${bs}，事机顺延`;
-  if(r==='被生') return `${role}：${bs}生${as}，气得滋养`;
-  if(r==='相克') return `${role}：${as}克${bs}，事有阻滞`;
-  if(r==='被克') return `${role}：${bs}克${as}，事受制约`;
-  return '';
-}
-/* 小六壬各流派：起课掌诀差异（月、日、时起宫偏移），落宫不同即排盘不同；
-   断语六宫为共有文化内容，学派差别主要在起课与侧重。 */
-const SCHOOLS=[
-  {id:'ma',  name:'诸葛马前课',     m0:0,d0:0,t0:0, note:'最通行之法（通法）。月从大安起顺数月数，落宫接数日，再接数时。'},
-  {id:'li',  name:'李淳风六壬时课',     m0:0,d0:0,t0:1, note:'示意性变体：月日时起法同通法，时辰落宫顺移一位，尤重占时之应。'},
-  {id:'dao', name:'道家小六壬',         m0:0,d0:1,t0:1, note:'示意性变体：月日时三宫同参，日宫、时宫各顺移一位。'},
-  {id:'qm',  name:'奇门小六壬',         m0:0,d0:0,t0:0, qiMen:true, note:'示意性变体：合奇门方位，落宫再配八卦方位断吉凶与方位选择。'},
-  {id:'hua', name:'华山小六壬',         m0:1,d0:0,t0:0, note:'示意性变体：华山派掌诀，月从留连起数。'},
-  {id:'jiang',name:'江氏小六壬',        m0:2,d0:0,t0:0, note:'示意性变体：江氏秘传，月从速喜起数，重空亡应期。'},
-  {id:'xian',name:'仙家小六壬',         m0:4,d0:0,t0:0, note:'示意性变体：仙家用法，月从小吉起数，重灵应与感应。'},
-  {id:'si',  name:'四盘小六壬',         m0:0,d0:0,t0:0, four:true, note:'示意性变体：天地人神四盘同参，月日时三盘外加“占事盘”（按时辰序）四宫合断。'}
-];
-function fillSchool(){
-  const sel=document.getElementById('school');
-  sel.innerHTML=SCHOOLS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-}
-function fillShichen(){
-  const sel=document.getElementById('shichen');
-  sel.innerHTML=SHI_NAME.map((s,i)=>`<option value="${i}">${s}</option>`).join('');
-}
-// 起卦方式切换：时间、数字、随机、汉字笔画
-function switchQiMode(){
-  const mode=document.getElementById('qiMode').value;
-  const showTime = mode==='time';
-  const showNum = mode==='num';
-  const showRand = mode==='rand';
-  const showChar = mode==='char';
-  ['fDate','fShi'].forEach(id=>document.getElementById(id).style.display = showTime?'':'none');
-  ['fNum1','fNum2','fNum3'].forEach(id=>document.getElementById(id).style.display = showNum?'':'none');
-  document.getElementById('fChar').style.display = showChar?'':'none';
-  // 汉字模式：清空预填值并确保可编辑（防被日期选择器预填、只读）
-  if(showChar){
-    const qc=document.getElementById('qChar');
-    qc.value='';
-    qc.readOnly=false;
-    qc.classList.remove('dt-input');
-  }
-  // 随机数：自动填入随机数
-  if(showRand){
-    document.getElementById('qNum1').value = Math.floor(Math.random()*6)+1;
-    document.getElementById('qNum2').value = Math.floor(Math.random()*6)+1;
-    document.getElementById('qNum3').value = Math.floor(Math.random()*6)+1;
-    ['fNum1','fNum2','fNum3'].forEach(id=>document.getElementById(id).style.display='');
-  }
-}
-function setNow(){
-  const n=new Date();
-  document.getElementById('dInput').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
-  let h=n.getHours(); let idx=Math.floor(((h+1)%24)/2);
-  document.getElementById('shichen').value=idx;
-}
-let LAST=null;
-/* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function renderRef(){
-  // 掌诀指图：三指（食、中、无名）六节，指尖排上、指根排下；每节一张白卡，复用大六壬四课、三传同款样式（lr-ke）
-  const COLS=[
-    {finger:'食指', cells:[{g:1,seg:'指尖'},{g:0,seg:'指根'}]},
-    {finger:'中指', cells:[{g:2,seg:'指尖'},{g:5,seg:'指根'}]},
-    {finger:'无名指', cells:[{g:3,seg:'指尖'},{g:4,seg:'指根'}]}
-  ];
-  let palm='<div class="xlr-palm" role="img" aria-label="小六壬掌诀图"><div class="xlr-palm-fingers">';
-  COLS.forEach(col=>{
-    palm+='<div class="xlr-palm-col"><div class="xlr-palm-finger">'+col.finger+'</div>';
-      col.cells.forEach(c=>{ const g=GONG[c.g]; const luckCls='luck-'+g.luck;
-        palm+='<div class="xlr-palm-cell"><div class="xlr-palm-num">'+(c.g+1)+'</div>'
-          +'<div class="xlr-palm-nm '+luckCls+'">'+g.n+'</div>'
-          +'<div class="xlr-palm-seg">'+c.seg+'</div></div>';
-      });
-    palm+='</div>';
-  });
-  palm+='</div><div class="xlr-palm-cap">大安起 1，顺数至 6 循环</div></div>';
-  const rows=GONG.map((g,i)=>{
-    const wxNote=g.n==='留连'?'<br><small class="xlr-alt-note">水土两说</small>':(g.n==='小吉'?'<br><small class="xlr-alt-note">木水两说</small>':'');
-    const sxNote=g.n==='留连'?'<br><small class="xlr-alt-note">亦作腾蛇</small>':'';
-    const numNote=g.n==='空亡'?'<br><small class="xlr-alt-note">亦作1、5、7</small>':'';
-    return '<tr><td class="luck-'+g.luck+'">'+g.n+'</td><td>'+(i+1)+'</td><td>'+wxColorSpan(g.wx)+wxNote+'</td><td>'+g.sx+sxNote+'</td><td>'+g.fx+'</td><td>'+GONG_COLOR[g.n]+'</td><td>'+GONG_NUM[g.n]+numNote+'</td><td>'+g.ying+'</td><td>'+g.xiang+'</td></tr>';
-  }).join('');
-  document.getElementById('xlrRef').innerHTML=
-    '<details class="mh-ref" id="xlrFold" open><summary>掌诀指图 六宫总览</summary>'+
-    '<div class="xlr-ref-grid"><div class="xlr-palm-wrap">'+palm+'</div>'+
-    '<div class="xlr-table-wrap"><table class="xlr-table xlr-hecan-tbl"><thead><tr><th>宫</th><th>序</th><th>五行</th><th>六神</th><th>方位</th><th>颜色</th><th>主数</th><th>应期</th><th>意象</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '</div></details>';
-}
-function query(){
- try{
-  const mode=document.getElementById('qiMode').value;
-  let lm, ld, shi, lunarStr, lunar=null, shiIdx=0, srcNote, rawM, rawD, rawS;
-  if(mode==='time'){
-    const v=document.getElementById('dInput').value; if(!v)return;
-    shiIdx=parseInt(document.getElementById('shichen').value,10);
-    const [y,m,d]=v.split('-').map(Number);
-    const solar=Solar.fromYmd(y,m,d); lunar=solar.getLunar();
-    rawM=Math.abs(lunar.getMonth()); rawD=lunar.getDay(); rawS=shiIdx+1;
-    lm=rawM; ld=rawD; shi=rawS;
-    lunarStr=`农历 ${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}　${ZHI[shiIdx]}时`;
-    srcNote=`（月${lm}日${ld}时${shi}）`;
-  } else {
-    // 变通取数：数字、随机、汉字笔画 → 三数代月、日、时
-    let n1,n2,n3;
-    if(mode==='num'||mode==='rand'){
-      n1=parseInt(document.getElementById('qNum1').value,10)||1;
-      n2=parseInt(document.getElementById('qNum2').value,10)||1;
-      n3=parseInt(document.getElementById('qNum3').value,10)||1;
-      srcNote=`（变通取数 月${n1}日${n2}时${n3}）`;
-    } else { // char 汉字笔画
-      const s=(document.getElementById('qChar').value||'').trim();
-      if(!s) return;
-      const chars=[...s];
-      if(chars.length===1){ n1=n2=n3=chars.map(hanziStrokes)[0]; }
-      else if(chars.length===2){ n1=hanziStrokes(chars[0]); n2=hanziStrokes(chars[1]); n3=n1+n2; }
-      else { n1=hanziStrokes(chars[0]); n2=hanziStrokes(chars[1]); n3=hanziStrokes(chars[2]); }
-      srcNote=chars.length===1?`（汉字笔画 ${s}为${n1}画，三数同取${n1}）`:`（汉字笔画 ${chars.join('、')} → ${n1}/${n2}/${n3}）`;
-    }
-    rawM=n1; rawD=n2; rawS=n3;
-    // 取数需先转为 1-6（÷6 余数，0 记 6）
-    const to6=n=>{ const r=n%6; return r===0?6:r; };
-    lm=to6(n1); ld=to6(n2); shi=to6(n3);
-    lunarStr=mode==='char'?`汉字笔画起课：${(document.getElementById('qChar').value||'').trim()}`:`变通取数起课`;
-    lunar=lunar||null;
-  }
-  document.getElementById('lunarLine').textContent = lunarStr+srcNote;
-  // 起课：按所选流派掌诀，月、日、时起宫偏移不同 → 落宫不同（排盘不同）
-  const sch=SCHOOLS.find(s=>s.id===document.getElementById('school').value)||SCHOOLS[0];
-  const gMonth=(sch.m0+(lm-1))%6;
-  const gDay=((sch.m0)+(lm-1)+(ld-1)+sch.d0)%6;
-  const gTime=((sch.m0)+(lm-1)+(ld-1)+sch.d0+(shi-1)+sch.t0)%6;
-  // 占事盘：时宫基础上再叠“时辰序”顺行。时间模式取地支序 shiIdx；
-  // 数字、汉字、随机模式无地支时辰，以第三原始数 rawS 顺行；若结果与时宫重合则再顺移一格，确保占事盘独立。
-  let gFour=null;
-  if(sch.four){
-    const fourExtra=(mode==='time')?shiIdx:rawS;
-    gFour=((sch.m0)+(lm-1)+(ld-1)+(shi-1)+fourExtra)%6;
-    if(mode!=='time'&&gFour===gTime) gFour=(gFour+1)%6;
-  }
-  LAST={lm,ld,shi,shiIdx,gMonth,gDay,gTime,gFour,schId:sch.id,mode,
-    lunarStr: lunar?`${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${ZHI[shiIdx]}时`:lunarStr};
-  const stages=[['月宫',gMonth],['日宫',gDay],['时宫（结果）',gTime]];
-  let flow=stages.map((s,i)=>{
-    const g=GONG[s[1]];
-    return `<div class="xlr-step ${i===2?'final':''}">
-      <div class="xlr-step-lbl">${s[0]}</div>
-      <div class="xlr-gong luck-${g.luck}">
-        <div class="xlr-name">${g.n}</div>
-        <div class="xlr-meta">${g.sx}　${wxColorSpan(g.wx)}　${g.fx}　<b class="luck-${g.luck}">${g.luck}</b></div>
-      </div>
-    </div>${i<2?'<div class="xlr-arrow">→</div>':''}`;
-  }).join('');
-  if(gFour!==null){ flow+=`<div class="xlr-arrow">→</div><div class="xlr-step"><div class="xlr-step-lbl">占事盘</div><div class="xlr-gong luck-${GONG[gFour].luck}"><div class="xlr-name">${GONG[gFour].n}</div><div class="xlr-meta">${GONG[gFour].sx}　${GONG[gFour].luck}</div></div></div>`; }
-  const fg=GONG[gTime];
-  // 合参合断（三宫合参 + 两宫合断 + 五行生克 + 数理刚柔 合一表）
-  const lk=[GONG[gMonth].luck,GONG[gDay].luck,GONG[gTime].luck];
-  let hecan;
-  if(lk.every(l=>l==='吉')) hecan='三宫皆吉，诸事顺遂，大吉之象。';
-  else if(lk.every(l=>l==='凶')) hecan='三宫皆凶，事多阻滞，宜守勿动。';
-  else if(GONG[gTime].luck==='吉') hecan='时宫独吉，结局可成，纵中途有阻终得善果。';
-  else hecan='时宫独凶，结局受阻，宜缓图改期。';
-  const riG=GONG[gDay].n, shiG=GONG[gTime].n;
-  const heTxt=(HE_RI[riG]&&HE_RI[riG][shiG])?HE_RI[riG][shiG]:(riG===shiG?'日时同宫，无两宫组合之断，以时宫单宫吉凶为准。':'本组合无传世断语，以时宫单宫吉凶为准。');
-  // 五行生克：三宫五行两两关系
-  const wMon=GONG[gMonth].wx, wDay=GONG[gDay].wx, wTime=GONG[gTime].wx;
-  const wxSegs=[];
-  wxSegs.push(wxRelDesc(wMon,wDay,'月→日')+'；');
-  wxSegs.push(wxRelDesc(wDay,wTime,'日→时'));
-  // 数理刚柔：原始三数和奇偶
-  const rawSum=(rawM||0)+(rawD||0)+(rawS||0);
-  const gangRou=rawSum%2===0?'偶数（柔），事体缓、宜静观待变':'奇数（刚），事体急、宜主动进取';
-  const hecanRows=[
-    ['三宫合参', hecan],
-    ['两宫合断', heTxt],
-    ['五行生克', wxSegs.join('')],
-    ['数理刚柔', `三数之和 ${rawSum}，为${gangRou}`],
-    ['断语', fg.duan+'（六宫通行断语，各派共用）'],
-    ['白话提要', fg.brief]
-  ];
-  const hecanHtml='<h3 class="rel-title">合参合断</h3><table class="xlr-table xlr-hecan-tbl"><tbody>'+hecanRows.map(r=>`<tr><th>${r[0]}</th><td class="xlr-hecan-td">${r[1]}</td></tr>`).join('')+'</tbody></table>';
-  // 占类专项断：表格化（16 类，四列：类别、五行、关系、说明，五行生克单列显示）
-  const CATS=[['婚姻','hun'],['求财','cai'],['疾病','bing'],['行人','ren'],['失物','shi'],['寻人','xun'],['生产','chan'],['官非','guan'],['出行','chu'],['谋事','mou'],['交易','jiao'],['学业','xue'],['求职','qiu'],['合伙','hehuo'],['家宅','jia'],['开张','kai']];
-  const CAT_WX={'婚姻':'火','求财':'金','疾病':'土','行人':'水','失物':'土','寻人':'水','生产':'金','官非':'金','出行':'火','谋事':'火','交易':'金','学业':'火','求职':'金','合伙':'木','家宅':'土','开张':'金'};
-  const wxRelTxt={'比和':'同气','相生':'得助','被生':'气散','相克':'受制','被克':'不顺'};
-  const catsRows=CATS.map(([lb,k])=>{
-    const cwx=CAT_WX[lb]||'';
-    const rel=wxRelTxt[wxShengKe(fg.wx,cwx)]||'';
-    const wxCls={'木':'wx-mu','火':'wx-huo','土':'wx-tu','金':'wx-jin','水':'wx-shui'}[cwx]||'';
-    const lbCol=wxCls?'<span class="'+wxCls+'">'+lb+'</span>':lb;
-    const wxCol=cwx?wxColorSpan(cwx):'';
-    const relCol=rel?'<span class="xlr-rel-note">'+rel+'</span>':'';
-    return '<tr><td>'+lbCol+'</td><td>'+wxCol+'</td><td>'+relCol+'</td><td class="xlr-hecan-td">'+fg.cats[k]+'</td></tr>';
-  }).join('');
-  let html=`<h3 class="rel-title">三宫掐指流转 ${sch.name}</h3>
-  <div class="xlr-note">${sch.note}</div>
-
-    <div class="xlr-flow">${flow}</div>
-    <div class="today-card"><div class="today-top"><div class="xlr-result-host">
-      <div class="xlr-result-name luck-${fg.luck}">${fg.n}　<span class="xlr-result-luck">（${fg.luck}）</span></div>
-      <div class="zodiac">六神 ${fg.sx}　五行 ${wxColorSpan(fg.wx)}　方位 ${fg.fx}　应期 ${fg.ying}${sch.qiMen?'　奇门方位 '+(['东','东南','南','西南','西','西北','北','东北','东'][(gTime*45)%8]||'中'):''}</div>
-    </div></div></div>
-    ${hecanHtml}
-    <div class="xlr-section"><h3 class="rel-title">占类专项断 ${fg.n}</h3>
-      <table class="xlr-table xlr-hecan-tbl"><thead><tr><th>类别</th><th>五行</th><th>关系</th><th>说明</th></tr></thead><tbody>${catsRows}</tbody></table>
-    </div>
-    `;
-  document.getElementById('out').innerHTML=html;
- }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起课出错：'+(e.message||e)+'</p>'; }
-}
-</script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    renderChrome('xiaoliuren.html');
-    fillSchool();
-    fillShichen();
-    renderRef();
-    xjApplyFold('xlrFoldState','details[id]');
-    switchQiMode();
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('xlrFoldState','details[id]');
-    },true);
-    setNow();
-    mountAI(function(){
-      if(!LAST) return '';
-      const fg=GONG[LAST.gTime];
-      const sch=LAST.schId?SCHOOLS.find(s=>s.id===LAST.schId):null;
-      const aiFour=(LAST.gFour!==null&&LAST.gFour!==undefined)?('\n占事盘：'+GONG[LAST.gFour].n+'（'+GONG[LAST.gFour].luck+'）'):'';
-      const aiMath='\n起课数理（算法）：月'+LAST.lm+'、日'+LAST.ld+'、时'+LAST.shi+'（序号 1 大安 … 6 空亡循环）。月宫='+GONG[LAST.gMonth].n+'，日宫='+GONG[LAST.gDay].n+'，时宫='+fg.n+(LAST.gFour!==null&&LAST.gFour!==undefined?('，占事盘='+GONG[LAST.gFour].n):'')+'。';
-      return `小六壬起课（${sch?sch.name:''}）\n农历：${LAST.lunarStr}（月${LAST.lm}日${LAST.ld}时${LAST.shi}）\n月宫：${GONG[LAST.gMonth].n}\n日宫：${GONG[LAST.gDay].n}\n时宫（结果）：${fg.n}（${fg.luck}）${aiFour}\n六神：${fg.sx}　五行：${fg.wx}　方位：${fg.fx}　主数：${GONG_NUM[fg.n]}　颜色：${GONG_COLOR[fg.n]}\n断语：${fg.duan}\n白话提要：${fg.brief}${aiMath}`;
-    }, '小六壬', { share:{ page:"xiaoliuren", title:"小六壬在线掐算",
-      collect:function(){
-        const d={m:document.getElementById('qiMode').value};
-        ['dInput','shichen','qNum1','qNum2','qNum3','qChar','school'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
-        return d;
-      },
-      restore:function(d){
-        if(!d||!d.m) return;
-        Object.keys(d).forEach(function(k){
-          if(k==='m') return;
-          const el=document.getElementById(k); if(el) el.value=d[k];
-        });
-        const m=document.getElementById('qiMode'); if(m){ m.value=d.m; }
-        try{ switchQiMode(); }catch(e){}
-      },
-      /* 刷新重出：全站顶层机制回填输入后按此钩子起重课 */
-      recast:function(){ try{ query(); }catch(e){} }
-    } });
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-xiaoliuren-now.js"></script>
+<script defer fetchpriority="low" src="assets/lunar.js"></script>
+<script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/jianbi.js"></script>
+<script defer fetchpriority="low" src="assets/jianfan.js"></script>
+<script defer fetchpriority="low" src="assets/kangxi.js"></script>
+<script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
+<script defer fetchpriority="low" src="assets/ai.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-xiaoliuren-07.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-xiaoliuren-08.js"></script>
 </body>
 </html>

@@ -26,19 +26,296 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/taisui.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/dt.css">
-<link rel="stylesheet" href="assets/css/taisui.css">
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+body{--footer-ink:#265a34}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));padding-top:var(--sp-2)}
+
+#nmTwinKind{width:130px}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
+#out + *{margin-top:var(--sp-4)}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+.scroll-jump{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);background:var(--paper);
+  opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
+
+.sj-btn{font:inherit;font-size:16px;line-height:1;cursor:pointer;
+  border:0;border-radius:0;background:transparent;color:var(--gold2);
+  padding:var(--sp-2) var(--sp-1);outline:none;transition:color .15s}
+
+.sj-btn:hover{color:var(--gold)}
+
+.sj-btn:focus{outline:none}
+
+.sj-btn:disabled{opacity:.35;cursor:default}
+
+@media(max-width:640px){
+.sj-btn{font-size:13px;padding:var(--sp-1) 2px}
+}
+
+.mod-head{display:flex;align-items:center;justify-content:flex-start;gap:var(--sp-2);cursor:pointer;user-select:none;
+  background:transparent;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;
+  box-shadow:none;padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-3);transition:.15s}
+
+@media (hover:hover) and (pointer:fine){
+.mod-head:hover{background:var(--gold-bg);box-shadow:none}
+}
+
+.mod-caret{display:inline-block;color:var(--gold);font-size:13px;line-height:1;transition:transform .2s ease}
+
+.mod.collapsed .mod-caret{transform:rotate(-90deg)}
+
+.mod-title{font-size:var(--tier1);font-weight:400;color:var(--ink);letter-spacing:.6px}
+
+.mod-sub{font-size:12px;color:var(--ink2);margin-left:var(--sp-1)}
+
+.mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
+
+.mod:last-child{margin-bottom:0}
+
+@media screen{
+section.mod{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none}
+}
+
+@media(max-width:640px){
+.mod-head{padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-2);flex-wrap:wrap}
+
+.mod-title{flex-shrink:0;white-space:nowrap;letter-spacing:.3px}
+
+.mod-sub{flex:1 0 100%;margin-left:0;margin-top:var(--sp-1);font-size:11px;line-height:1.45}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-ts .page h1{color:var(--ts-deep);font-family:var(--ts-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-ts .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ts-line);margin:0 auto var(--sp-3)}
+
+.page-ts .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ts-line);margin:var(--sp-3) auto 0}
+
+.page-ts .page .lead::after{background:var(--ts-line)}
+
+.page-ts .page .lead{color:var(--ts-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-ts .btn:not(.soft):not(.btn-ghost){background:var(--ts);border-color:var(--ts);color:#fff;box-shadow:none}
+
+.page-ts .btn:not(.soft):not(.btn-ghost):hover{background:var(--ts2);border-color:var(--ts2);color:#fff;box-shadow:none}
+
+.page-ts .ts-tbl th{background:transparent;text-align:left;font-weight:400;font-size:13px;white-space:nowrap;color:var(--ts2);border-bottom:1px solid var(--ts-line);padding:6px 8px}
+
+.page-ts .ts-tbl td{padding:7px 8px;vertical-align:top;color:var(--ts-ink);border-bottom:1px solid var(--ts-line)}
+
+.page-ts .ts-tbl .ts-c0{font-family:inherit;font-weight:700;white-space:nowrap;color:var(--ts2)}
+
+.page-ts .mod-title{color:var(--ts2)}
+
+.page-ts .mod-head{border-top-color:var(--ts-line);border-bottom-color:var(--ts-line)}
+
+.page-ts .mod-caret{color:var(--ts)}
+
+.page-ts .mod-sub{color:#54635a}
+
+.page-ts .ai-block{
+  border:0;border-top:1px solid var(--ts-line);border-bottom:1px solid var(--ts-line);border-radius:0;
+  background:transparent;color:var(--ts-ink);box-shadow:none;
+}
+
+.page-ts .ai-head{background:transparent;border-bottom-color:var(--ts-line)}
+
+.page-ts .ai-head h3{color:var(--ts2)}
+
+.page-ts .ai-block .btn{background:var(--ts);color:#fff;box-shadow:none}
+
+.page-ts .ai-block .btn:hover{background:var(--ts2)}
+
+.page-ts .ai-block .btn.gold,.page-ts .ai-block .btn.soft{background:var(--ts-tint);border-color:var(--ts-line);color:var(--ts-ink);box-shadow:none}
+
+.page-ts .ai-block .btn.gold:hover,.page-ts .ai-block .btn.soft:hover{background:var(--card);border-color:var(--ts-line);color:var(--ts2)}
+
+.page-ts .ts-tbl-wrap{margin-top:var(--sp-2);overflow-x:auto}
+
+.page-ts .ts-tbl{width:100%;border-collapse:collapse;font-size:13px;line-height:1.6}
+
+.page-ts .ts-tbl .ts-ming{color:var(--ink2);font-size:12px}
+
+.page-ts .ts-fold .ts-tbl-wrap{margin-top:var(--sp-2)}
+
+.page-ts details.ts-bio>summary::-webkit-details-marker{display:none}
+
+.page-ts .ts-alt{font-size:11.5px;color:var(--ink2)}
+
+@media (max-width:640px){
+.page-ts .ts-fold table.ts-tbl{width:auto;max-width:none}
+
+.page-ts .ts-fold table.ts-tbl th,
+  .page-ts .ts-fold table.ts-tbl td{white-space:nowrap}
+}
+
+@media (prefers-color-scheme: dark){
+html .page-ts {
+    --ts:#47a761;
+    --ts2:#47a962;
+    --ts-deep:#d6e1d9;
+    --ts-ink:#cfd3d1;
+    --ts-gold:#4aae65;
+    --ts-line:#424d44;
+    --ts-tint:#222b23;
+    --ts-ink2:#9caba0;
+  }
+}
+
+.page-ts{--ts:#2f6e40;--ts2:#265a34;--ts-deep:#1d3f28;--ts-ink:#33403a;--ts-gold:#2f6e40;--ts-line:#d5e2d8;--ts-tint:#eff5f0;--gold2:var(--ts2);--gold:var(--ts);--gold-brown:var(--ts2);--gold-bg:var(--ts-tint);
+  --ts-ink2:#4f6d57;  /* 次级字色：卷首说明、副注、标注 */
+  --ts-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */;--line:var(--ts-line);--ink:var(--ts-ink)}
+
+.dtm-ts{--tk:#2f6e40;--tk2:#265a34;--tk-ink:#33403a;--tk-line:#d5e2d8;--tk-tint:#eff5f0}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/taisui-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0e, U+4e11, U+4e19, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4ec5, U+4eea, U+4f20, U+4f9b, U+4fd7, U+4fe1, U+5148, U+5165, U+5168, U+516b-516d, U+5171, U+5173, U+519c, U+51ac, U+51f8, U+5206, U+521d, U+5224, U+529f-52a0, U+52ff, U+5316, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+53c2, U+53d6, U+540c, U+541b, U+547d, U+56db, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+592a, U+5973, U+5a31, U+5b50, U+5b9a, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c42, U+5c45, U+5c81, U+5df1, U+5df3, U+5e74, U+5e76, U+5e93, U+5e9a, U+5ea6-5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f55, U+5f85, U+603b, U+60ca, U+620a, U+620c, U+6210, U+62dc, U+62e9, U+636e, U+6392, U+63d0, U+6444, U+6570, U+6587, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672c, U+672f, U+673a, U+679c, U+67e5, U+6b63, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+72af, U+7334, U+7384, U+7406, U+751f, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7709, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+7a0b, U+7a76, U+7acb, U+7b97, U+7cfb, U+7ed3, U+7f6e, U+7f8a, U+8003, U+8096, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+86c7, U+86f0, U+86fe, U+8868, U+89c8, U+8bbe, U+8be2, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8f68, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8ff7, U+9009, U+901a, U+9149, U+914d, U+9519, U+95ed, U+95f0, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9f99, U+ff08-ff09, U+ff0c}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/taisui-0.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/taisui.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/taisui.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -102,7 +379,7 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-ts">
+<div class="wrap page-ts" data-built="2026-10-30">
 <main class="page">
   <h1>太岁生肖</h1>
   <p class="lead">输入生日查本命生肖与流年犯太岁，并览六十甲子星君全传与化太岁仪轨。</p>
@@ -155,30 +432,27 @@
   </details>
   <details class="mh-ref ts-fold" id="tsFoldBio">
     <summary>六十星君全传</summary>
-    <div id="tsBioBody"></div>
+    <div id="tsBioBody" hidden><div class="ts-bio-grid"><details class="ts-bio" id="tsBio-甲子" data-gz="甲子"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">甲子</span><span class="ts-bio-name">金辨</span></span><span class="ts-bio-tag">明、山阳、鼠相、持桃</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：金辨，本名金濂。明时人。山阳人。</p><p class="ts-bio-text">甲子太岁明时降生于山阳，名金濂，亦名金辨。正统三年擢佥部御史，参赞宁夏军务，举贤任能，人服其公。宁夏旧有五渠，而鸣沙州、七星汉、伯石灰三渠淤，濂请浚之，溉芜田一千三百余顷。时诏富民输米助振千石以上，褒以玺书。辨以边地粟贵，请并旌不及千石者，储由此充，边民赖之。</p></div></details><details class="ts-bio" id="tsBio-乙丑" data-gz="乙丑"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">乙丑</span><span class="ts-bio-name">陈材</span></span><span class="ts-bio-tag">宋、金华、牛相、执红缨枪</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：陈材，字俊卿。宋时人。金华人。</p><p class="ts-bio-text">乙丑太岁宋时降生于金华，名陈材，字俊卿。正统丁卯举人，膂力过人，尝五更之田间遇虎，以手搏之，虎死。后会试场屋火，以右手据墙垣，左手持同事生，履肩而出，活数十人，名动天下。后选安丘知县。贼掠库金，材一骑一弹赴之，弹发中贼左目，再弹中右耳，贼大骇伏地。材命之曰：好为我送库金还。群贼惟命。抵县，群贼请死，材以各杖三十遣之。御史竟以纵寇论，免官罢归。</p></div></details><details class="ts-bio" id="tsBio-丙寅" data-gz="丙寅"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丙寅</span><span class="ts-bio-name">耿章</span></span><span class="ts-bio-tag">明、鲁地、虎相、执如意</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：耿章，本名耿章光。明时人。鲁地人。</p><p class="ts-bio-text">丙寅太岁明时降生于鲁地，名耿章光，亦名耿章。章，山西巡抚耿如杞之子，性刚方。如杞被陷下狱，章充家僮侍狱中。如杞死于极刑，章刺血明心，一疏代父鸣冤，举朝悼悯。崇祯间以进士知曲沃县，以蒙城驿代翼走马为邑累，抗颜大吏前，援祖制与争，退复具详以请，寻调。濒行遗一联馆中曰：解印空传去害马，移山何日是坚城。祀名宦。</p></div></details><details class="ts-bio" id="tsBio-丁卯" data-gz="丁卯"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丁卯</span><span class="ts-bio-name">沈興</span></span><span class="ts-bio-tag">明、建宁、兔相、执枪</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：沈興。明时人。建宁人。</p><p class="ts-bio-text">丁卯太岁明时降生于建宁，名沈兴。兴貌短而精悍，目光炯炯烛人，善谋多智，议论磊落。洪武间任建宁右卫指挥使司之后所百户，筑城建防，外阻盗寇出没，内靖百姓治安，民遂安居乐业。后其子沈亮、沈镛、沈泽、沉重等袭职。</p></div></details><details class="ts-bio" id="tsBio-戊辰" data-gz="戊辰"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">戊辰</span><span class="ts-bio-name">赵达</span></span><span class="ts-bio-tag">三国、河南、龙相、双手攥龙</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：赵达。三国时人。河南人。</p><p class="ts-bio-text">戊辰太岁三国时降生于河南，名赵达。达少时从学于汉侍中单用，用思精密，谓东南有王者气，遂脱身渡江。治九宫一算之术，究其微旨，应机立成。能计飞蝗，射隐伏，无不微中，对问若神。曾使人取小豆数斗，播之席上，立处其数，验复果信。孙权行师征伐，每令达有所推步，皆如其言。后引算如校，知自尽于某年月日，果如期死。孙权求其术，秘而不宣，由此见薄，禄位不至。</p></div></details><details class="ts-bio" id="tsBio-己巳" data-gz="己巳"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">己巳</span><span class="ts-bio-name">郭灿</span></span><span class="ts-bio-tag">明、安阳、蛇相、执棍</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：郭灿。明时人。安阳人。</p><p class="ts-bio-text">己巳太岁明时降生于安阳，名郭灿。灿举人出身，初知直隶。邻境妖贼披猖，灿曰：待其临城，剿之晚矣。乃选精锐，出贼不意，二鼓大歼之。父朴，进士，授编修。灿承家学，事亲至孝，宗族称之。政尚宽和而秉衷介，酌民利害，约法不爽。</p></div></details><details class="ts-bio" id="tsBio-庚午" data-gz="庚午"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">庚午</span><span class="ts-bio-name">王济</span></span><span class="ts-bio-tag">宋、深州饶阳、马相、手持卷轴</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：王济。宋时人。深州饶阳人。别本异名：王清。</p><p class="ts-bio-text">庚午太岁宋时降生于深州饶阳，名王济。济父恕，开运中知秀州，会盗起城陷，恕为盗所杀，并欲害济。济伏榇号恸，谓贼曰：吾父已死，吾安用生还！但恨力不能杀汝，以报父仇耳。贼义之，舍去。济携父骨匿山谷间。既而官军大集，济脱身谒其帅朱乙，陈讨贼之计。后济母终，并护二丧还饶阳，州将以闻，太祖召见。雍熙中上书自陈死事之孤，中试学士院，补龙溪主簿。济颇涉经史，好读《左氏春秋》，性刚直，无所畏避。时调福建输鹤羽为箭羽，民甚苦之，济谕民取鹅翎代输，驿奏其事，因诏悉如济所陈。再徙临河主簿，迁光禄寺丞，权大理丞，通判镇州。牧守多勋旧武臣，倨贵陵下，济未尝挠屈，秉公执法，于是军城畏肃。太宗大悦，诏书奖劳，拜监察御史。上疏陈统天下之术、节民物之道，大者有十：择左右，别贤愚，正名器，去冗食等，其言切于时。大中祥符三年徙知洪州，兼江南路安抚使。岁旱民饥，躬督官吏为糜粥，日亲尝而给，录饥民为州兵，全活甚众。是岁卒，年五十九。遗奏以进贤退谀、罢不急之费为言。</p></div></details><details class="ts-bio" id="tsBio-辛未" data-gz="辛未"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">辛未</span><span class="ts-bio-name">李素</span></span><span class="ts-bio-tag">唐、陇西、羊相、手托钢鞭</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：李素，字贞一。唐时人。陇西人。别本异名：李熹。</p><p class="ts-bio-text">辛未太岁唐时降生于陇西，名李素，字贞一。七岁丧父，贫不能家，母夫人提携以归，教养于外氏。以明经选主弘农簿，又芮城尉。德宗贞元初，李泌为陕虢观察水陆运使，素为从事。以课迁尉京兆鄠，选主万年簿。宪宗元和初，衢州饥，任衢州刺史，后迁苏州。二年，盐铁转运使李锜谋反，诸州刺史手无与敌。李素将左右，与贼将姚志安战于州门，不胜。贼呼入，素端立，责以义，皆敛兵立不逼。素被桎梏，钉于船舷，未及京口，锜败，素获免，民抱扶迎尽出。天子使贵人持紫衣金鱼以赐。五年拜河南少尹，行大尹事，减民赋钱岁五十万，请缓民输期一月，诏天下皆缓一月。公之断，治不收声，事常出名。</p></div></details><details class="ts-bio" id="tsBio-壬申" data-gz="壬申"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">壬申</span><span class="ts-bio-name">刘旺</span></span><span class="ts-bio-tag">明、三万卫、猴相、手持书卷</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：刘旺。明时人。三万卫人。别本异名：刘玉。</p><p class="ts-bio-text">壬申太岁明时降生于三万卫，名刘旺。旺任都指挥使，性刚方敦学，行以名教，加固边防，鞠躬尽瘁。成化间，鞑靼兵入边骚扰，旺与子塔斯于古城堡设伏伺之。敌至出战，援绝矢竭，突围不得出。鞑靼兵索之，刘旺父子俱曰：我为国家守边关者，誓与边关共存亡。遂俱殁于阵。</p></div></details><details class="ts-bio" id="tsBio-癸酉" data-gz="癸酉"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">癸酉</span><span class="ts-bio-name">康志</span></span><span class="ts-bio-tag">唐、灵州、鸡相、持令旗</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：康志，本名康志睦，字得众。唐时人。灵州人。别本异名：康忠。</p><p class="ts-bio-text">癸酉太岁唐时降生于灵州，名康志睦，亦名康志，字得众。姿魁伟，工驰射，累迁大将军。讨张韶，以功进平卢军节度使。李同捷反，略千乘，志挫其锐，遂下蒲台，尽夺其械，加检校尚书左仆射。徙泾原，封会稽郡公。康志父康日知以谋略止李惟岳之叛乱，康志子康承训平南诏盗边，攻拔徐州，斩首万级。康氏一门忠君爱国。</p></div></details><details class="ts-bio" id="tsBio-甲戌" data-gz="甲戌"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">甲戌</span><span class="ts-bio-name">施广</span></span><span class="ts-bio-tag">明、桂平、狗相、持玉笏</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：施广。明时人。桂平人。别本异名：詹广、誓广。</p><p class="ts-bio-text">甲戌太岁明时降生于桂平，名施广。成化元年举人，任训导。自幼倜傥，有大志，家贫力学，博通经史，刻苦励行，言动不苟，署学事教规，克举若师儒。师范尊严，诲人不倦，诸生心悦诚服，勤学慎行。为诸生时拾金还主。迨迁官，则捐俸泽枯，至老不衰，乡评推重。</p></div></details><details class="ts-bio" id="tsBio-乙亥" data-gz="乙亥"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">乙亥</span><span class="ts-bio-name">任保</span></span><span class="ts-bio-tag">明、建宁府、猪相、持钢鞭</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：任保。明时人。建宁府人。别本异名：伍保、吴保。</p><p class="ts-bio-text">乙亥太岁明时降生于福建建宁府，名任保。年二十三举乡试，登进士，升府同知。时倭寇犯境，保统兵力战，自书其姓名于腹背手足，曰：死战，吾责也。不可弃先人之遗体，兹用以识，庶得收葬焉。闻者感泣。又与其兵同寝食，或连日夜粒米不入口，或露宿草莽，植立泥淖中，未尝稍自异。由是其兵日奋，败贼于海上。病中报贼至，保裹疮出，海涛如山，南人习舟者皆失色。保独意气弥厉，手剑麾舟师捣之，贼大败，俘斩百余。明年倭寇平，升山东布政使参政。</p></div></details><details class="ts-bio" id="tsBio-丙子" data-gz="丙子"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丙子</span><span class="ts-bio-name">郭嘉</span></span><span class="ts-bio-tag">元、濮阳、鼠相、手托葫芦</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：郭嘉，字元礼。元时人。濮阳人。别本异名：邵嘉。</p><p class="ts-bio-text">丙子太岁元时降生于濮阳，名郭嘉，字元礼。慷慨有大志，由国子生登进士第，授林州判官，历翰林编修、广东帅府经历、京畿漕运副使，拜监察御史，擢广宁路总管。时辽东乱，贼势日炽，嘉孤城无援，因竭家所有衣服财物，犒义士以励其勇。贼遣使胁降，嘉杀其使，开门督战，力竭而死之。谥忠烈。</p></div></details><details class="ts-bio" id="tsBio-丁丑" data-gz="丁丑"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丁丑</span><span class="ts-bio-name">汪文</span></span><span class="ts-bio-tag">宋、婺源、牛相、执金瓜</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：汪文，字质甫。宋时人。婺源人。</p><p class="ts-bio-text">丁丑太岁宋时降生于婺源，名汪文，字质甫。宝庆二年进士。有神力，善智谋。时盗群起，连跨州郡，镇巡抚束手无策。文多设疑兵，深入盗区，擒斩万级。后在征战中粮运不继，众心危惧。文诡言远攻近交，帅兵先进，发其窖藏，军不得乏，乱赖以平。授神策将军，屡战有功。</p></div></details><details class="ts-bio" id="tsBio-戊寅" data-gz="戊寅"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">戊寅</span><span class="ts-bio-name">鲁先</span></span><span class="ts-bio-tag">明、西大通、虎相、手拿桃枝</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：鲁先，本名鲁鉴。明时人。西大通人。别本异名：曾光。</p><p class="ts-bio-text">戊寅太岁明时降生于西大通，名鲁鉴，亦名鲁先。先之祖明初率部落归附太祖，授为百夫长，令居庄浪，累官至庄浪卫指挥同知。正统末，先嗣父职，擢署都指挥佥事。成化四年以士兵从征，贼平，进署都督同知，寻充左参将，分守庄浪。十七年充左副总兵，协守甘肃，俄命充总兵官，镇守延绥。致仕。先有才勇，遇敌辄冒矢石，数被伤，不为阻。弘治十五年卒，赠右都督。</p></div></details><details class="ts-bio" id="tsBio-己卯" data-gz="己卯"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">己卯</span><span class="ts-bio-name">龙仲</span></span><span class="ts-bio-tag">宋、永新、兔相、持拂尘</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：龙仲，本名龙崇。宋时人。永新人。别本异名：龚仲、伍仲、方仲。</p><p class="ts-bio-text">己卯太岁宋时降生于永新，名龙崇，亦名龙仲。仲好读书著述。陈恺帅九江，重加礼聘。建议筑永新城，人民赖以保障。京尹赵与权表监酒米税，修《中兴政要》，书成，与权檄进，荐授从仕郎。复修《宋朝帝学增释》二百卷，再进儒林郎、史馆校勘，卒于京邸。与权取诏语表其墓曰忠勤先生。</p></div></details><details class="ts-bio" id="tsBio-庚辰" data-gz="庚辰"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">庚辰</span><span class="ts-bio-name">董德</span></span><span class="ts-bio-tag">宋、乐安、龙相、端盅</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：董德，本名董德修，字仲修。宋时人。乐安人。别本异名：重德、重祖。</p><p class="ts-bio-text">庚辰太岁宋时降生于乐安，名董德修，亦名董德，字仲修。幼敏慧习儒，重厚寡言，不事嬉戏，立志勤苦，读书忘倦。及长，三赴漕试不第，隐居力学，曰：吾族自显，庸矣，何必仕。生而乐善，家贫割产以让他人。尝进陆九渊之门，终日静坐，潜心理窟，有学行，善文章，诗思和平，类其人。从游者多德成名立。</p></div></details><details class="ts-bio" id="tsBio-辛巳" data-gz="辛巳"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">辛巳</span><span class="ts-bio-name">郑但</span></span><span class="ts-bio-tag">明、歙、蛇相、双手持画轴</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：郑但，本名郑旦，字希周。明时人。歙人。别本异名：郑祖。</p><p class="ts-bio-text">辛巳太岁明时降生于歙，名郑旦，亦名郑但，字希周。嘉靖癸未进士，历官浙江右布政使。有诗名，若"花明沛上宴，香起洛中尘""河影城头坠，秋声塞上生""棘道黄云上，蛮村白草傍""箐道千盘临戍堡，山城百雉入边州"，皆出浑沦，不落轻靡。时人称但家敦伦理，朝励官箴，有德之才，炳为辞藻。</p></div></details><details class="ts-bio" id="tsBio-壬午" data-gz="壬午"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">壬午</span><span class="ts-bio-name">陆明</span></span><span class="ts-bio-tag">明、铜陵、马相、持幡</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：陆明。明时人。铜陵人。</p><p class="ts-bio-text">壬午太岁明时降生于铜陵，名陆明。天顺六年壬子科举人。明终身好书，未尝一日不读，循道以守官而不谄其上。时有兄弟争财者，为辨其曲直，而卒使之感悟让财，相与同居。莅事严毅，措置有方，凡百兴作，民不知劳而事已毕。</p></div></details><details class="ts-bio" id="tsBio-癸未" data-gz="癸未"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">癸未</span><span class="ts-bio-name">魏仁</span></span><span class="ts-bio-tag">明、华州、羊相、赤脚、持如意</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：魏仁，字子行。明时人。华州人。别本异名：魏明。</p><p class="ts-bio-text">癸未太岁明时降生于华州，名魏仁，字子行。少好学，永乐元年举人，二年进士，任训导。其师为出妇所告，坐系狱。仁乃肉袒以箭贯耳，抱师子，潜伏道旁，候车驾而持章叩头。骑虎贲惧惊乘舆，举弓射之，犹不肯去。旄头又以戟叉伤仁胸，仁犹不退。衰泣辞请，终感帝心，雪师耻。</p></div></details><details class="ts-bio" id="tsBio-甲申" data-gz="甲申"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">甲申</span><span class="ts-bio-name">方杰</span></span><span class="ts-bio-tag">宋、福建、猴相、持器物</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：方杰。宋时人。福建人。别本异名：方公。</p><p class="ts-bio-text">甲申太岁宋时降生于福建，名方杰。嘉定时知同安县，缓催征，平冤滞，兴堤防，清浮田，勤荒政，倡教化，不阿上官，不假贵要，治称最。父老以三善名其堂：一曰田无废土，二曰市无游民，三曰狱无宿系。万民称颂之。</p></div></details><details class="ts-bio" id="tsBio-乙酉" data-gz="乙酉"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">乙酉</span><span class="ts-bio-name">蒋崇</span></span><span class="ts-bio-tag">元、东阳、鸡相、持双钩</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：蒋崇，本名蒋尚。元时人。东阳人。别本异名：蒋端。</p><p class="ts-bio-text">乙酉太岁元时降生于东阳，名蒋尚，亦名蒋崇。崇纯谨无伪，自守甚笃，遇人恒抑抑然，若畏之者。或有纷纠，出片言谕之，则又翕然服。箪食豆羹不继，室庐不足蔽风雨，崇安之。唯拯患扶难，则竭志虑不遗余力。人求之以田，崇亦予之不吝。乡民无不崇敬，劳疾时问者无虚日。及死，莫不哀伤。</p></div></details><details class="ts-bio" id="tsBio-丙戌" data-gz="丙戌"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丙戌</span><span class="ts-bio-name">白敏</span></span><span class="ts-bio-tag">明、闽地、狗相、持扇</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：白敏，本名白叔敏。明时人。闽地人。别本异名：向般、向敏。</p><p class="ts-bio-text">丙戌太岁明时降生于闽地，名白叔敏，亦名白敏。敏洪武十八年任潮州知府，兴学校，课农桑，持身清白，不敢以私。诸子弟遵其教，习服清素，革纨绔淫靡之俗。时潮多绝户荒田，税粮令民倍纳，至鬻子女不能给。敏奏除之，人怀其德。</p></div></details><details class="ts-bio" id="tsBio-丁亥" data-gz="丁亥"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丁亥</span><span class="ts-bio-name">封济</span></span><span class="ts-bio-tag">明、湖广、猪相、执钢鞭</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：封济，本名封益。明时人。湖广人。</p><p class="ts-bio-text">丁亥太岁明时降生于湖广，名封益，亦名封济。洪武中举人，任湖广岳州知府。时乡民聚为盗，积岁难平。济亲往贼所，贼皆罗拜，弃兵甲愿抚，贼平。岁饥，置义仓以备荒，酌常平粜籴法疏闻，上嘉之，迁户部侍郎。</p></div></details><details class="ts-bio" id="tsBio-戊子" data-gz="戊子"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">戊子</span><span class="ts-bio-name">邹铛</span></span><span class="ts-bio-tag">明、芜湖、鼠相、端坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：邹铛，本名邹锐，字克刚。明时人。芜湖人。别本异名：郭铛、郢班、郑镗。</p><p class="ts-bio-text">戊子太岁明时降生于芜湖，名邹锐，亦名邹铛，字克刚。永乐初由监生任河南按察司副使，擢贵州布政司左参政，寻升通政。在任处事精详，政尚德教，不事苛虐，不避权势，所至斥蠹摘奸，甚惬民心。体貌清臞，性行廉恪，居官既久，家无厚积。年八十余，卒于家。</p></div></details><details class="ts-bio" id="tsBio-己丑" data-gz="己丑"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">己丑</span><span class="ts-bio-name">傅佑</span></span><span class="ts-bio-tag">宋、考城、牛相、执枪</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：傅佑，本名傅求，字命之。宋时人。考城人。别本异名：潘佐。</p><p class="ts-bio-text">己丑太岁宋时降生于考城，名傅求，亦名傅佑，字命之。天圣二年进士甲科，授大理评事，知兖州仙源县，有吏能。历梓州路转运使，因县吏冒取播州田，致夷獠恐乱，佑驰往按状，黥吏置岭南，患遂息。徙陕西，自康定用兵，移税输边，民力大困。佑令输本州，转钱以供边饷，民受其惠而兵食亦足。累迁龙图阁学士，权知开封府。熙宁六年卒，年七十一。</p></div></details><details class="ts-bio" id="tsBio-庚寅" data-gz="庚寅"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">庚寅</span><span class="ts-bio-name">邬桓</span></span><span class="ts-bio-tag">元、新昌、虎相、持仙草</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：邬桓，本名邬谲。元时人。新昌人。别本异名：邬柏。</p><p class="ts-bio-text">庚寅太岁元时降生于新昌，名邬谲，亦名邬桓。宣德中任溧阳县丞。桓幼好学，有志节，躬处节俭，每以振施为务。在任锄强扶弱，去蠹除弊，赋役为之均平，隶胥不得勾摄为奸，于是良善获安。秩满，数千人诣阙保留，得升知县行事，愈励于前。未几，卒于官，百姓思慕不忘。</p></div></details><details class="ts-bio" id="tsBio-辛卯" data-gz="辛卯"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">辛卯</span><span class="ts-bio-name">范宁</span></span><span class="ts-bio-tag">东晋、南阳、兔相、执剑</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：范宁，字武子。东晋时人。南阳人。</p><p class="ts-bio-text">辛卯太岁东晋时降生于南阳，名范宁，字武子。为人才气豪迈，笃学通览，嫉恶虚浮。任余杭令，兴学校，养生徒，风化大行。迁临淮太守，封阳遂乡侯。为豫章太守，大设庠序，遣人往交市盘石以供学用，资给众费一出私禄，远近至者千余人，讽诵之声有若齐鲁，开豫章好经学之风。</p></div></details><details class="ts-bio" id="tsBio-壬辰" data-gz="壬辰"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">壬辰</span><span class="ts-bio-name">彭泰</span></span><span class="ts-bio-tag">明、凤翔、龙相、双手托龙</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：彭泰。明时人。凤翔人。</p><p class="ts-bio-text">壬辰太岁明时降生于凤翔，名彭泰。幼聪慧，洪武二十七年甲戌进士，任侍讲。泰为人刚介，居官泊然如布素，勤于政务，动以古人自励。始未第时聘同里贫家女。及发解，其家以陋辞亲戚，复以女貌陋止之。泰不可，竟成婚，恩爱甚笃。</p></div></details><details class="ts-bio" id="tsBio-癸巳" data-gz="癸巳"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">癸巳</span><span class="ts-bio-name">徐单</span></span><span class="ts-bio-tag">汉、陕地平陵、蛇相、端盅</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：徐单，本名徐干。汉时人。陕地平陵人。别本异名：徐华、徐舜、时单。</p><p class="ts-bio-text">癸巳太岁汉时降生于陕地平陵，名徐干，亦名徐单。单少习武，慷慨勇猛，上疏愿奋身佐班超平西域。遂以单为假司马，将弛刑及义从千人就超，击破番辰，斩首千余级，复拜单为军司马，与超大破乌孙，西域五十余国悉纳质内属焉。</p></div></details><details class="ts-bio" id="tsBio-甲午" data-gz="甲午"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">甲午</span><span class="ts-bio-name">章词</span></span><span class="ts-bio-tag">明、泾县、马相、抚琴</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：章词，本名章文粹。明时人。泾县人。别本异名：张嗣、章嗣、张词。</p><p class="ts-bio-text">甲午太岁明时降生于泾县，名章文粹，亦名章词。词习儒，通五经，能文章，有才略，讲贯《诗经》要旨，大有发明。为人持重，不苟其教，行以身先，不尚浮靡。任福宁州训导，劝民耕稼，岁获丰稔。值倭警闭城，避倭之众无所归，词以身任开门纳之，全活甚众。卒于官，士民千里奔送。</p></div></details><details class="ts-bio" id="tsBio-乙未" data-gz="乙未"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">乙未</span><span class="ts-bio-name">杨仙</span></span><span class="ts-bio-tag">宋、淄齐之地、羊相、执剑</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：杨仙。宋时人。淄齐之地人。别本异名：杨贤。</p><p class="ts-bio-text">乙未太岁宋时降于淄齐之地，名杨仙。仙少好仙术，淡薄名利，隐游诸山，入山与虎豹为戏，狎之如鹜雏。郢州朱司户仰慕杨仙，留其居家数载。仙不图俗利，不拘俗礼，言简意赅，料事如神。一日酒酣曰：我辞世矣。无疾而逝，葬山中。后二载，朱往京师，忽见于道，言笑如旧。诘所以，不言。朱归，发墓视之，乃空棺，因创塔于墓。</p></div></details><details class="ts-bio" id="tsBio-丙申" data-gz="丙申"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丙申</span><span class="ts-bio-name">管仲</span></span><span class="ts-bio-tag">春秋、齐国颍上、猴相、手托如意</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：管仲，本名管夷吾，字仲。春秋时人。齐国颍上人。别本异名：管敬仲。</p><p class="ts-bio-text">丙申太岁春秋时降生于齐国颍上，名管夷吾，亦名管敬仲，字仲。管仲少时家贫，与鲍叔牙游，鲍叔牙终善遇之。仲三仕三见逐于君，鲍不以为不肖。仲三战三走，鲍不以为怯。仲幽囚受辱，鲍不以为耻，并进仲于齐桓公，任仲于齐。仲以齐国滨海之宜，治国以定人之居，治人以三选为上卿，治法以择善而用之，治军以内政寄军令，治税分肥瘠而征收，通货积财，富国强兵，与俗同好恶。治外招携以礼，怀远以德，尊王攘夷，九合诸侯，遂霸诸侯。桓公四十一年，管仲卒。齐国遵其政，常强于诸侯。管氏子孙世禄于齐，有封邑者十余世。存《管子》，有其遗说。</p></div></details><details class="ts-bio" id="tsBio-丁酉" data-gz="丁酉"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丁酉</span><span class="ts-bio-name">唐杰</span></span><span class="ts-bio-tag">唐、安乡、鸡相、执狼牙棒</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：唐杰，字子文。唐时人。安乡人。别本异名：康杰、唐查。</p><p class="ts-bio-text">丁酉太岁唐时降生于安乡，名唐杰，字子文。少习武，有奇力，举武科。时南方寇乱，杰奉旨南征大战，斩贼首并首级一百三十二颗。乘胜征贼于桃花冈，复斩贼首并首级五十八颗，大有奇功，升官赐蟒服银两，功勋德望，一时推重。</p></div></details><details class="ts-bio" id="tsBio-戊戌" data-gz="戊戌"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">戊戌</span><span class="ts-bio-name">姜武</span></span><span class="ts-bio-tag">明、保德州、狗相、持笏</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：姜武，本名姜名武，字我扬。明时人。保德州人。</p><p class="ts-bio-text">戊戌太岁明时降生于保德州，名姜名武，亦名姜武，字我扬。武举天启二年武会试，授大同威远守备。崇祯初迁大水峪游击，筑杏山城，迁宣府西域参将，击斩大盗王科。移守宣府右卫，擢通州副总兵，护诸陵。十五年从保定总督杨文岳往援开封，诸营溃，悉奔，独武一军坚壁不动。侵晨贼军大至，武督麾下血战，杀数百人。力竭被执，大骂，为贼磔死。赠特进荣禄大夫，右都督，荫外卫，世袭总旗。</p></div></details><details class="ts-bio" id="tsBio-己亥" data-gz="己亥"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">己亥</span><span class="ts-bio-name">谢焘</span></span><span class="ts-bio-tag">明、临晋、猪相、端坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：谢焘，本名谢廷辅。明时人。临晋人。别本异名：谢太、谢寿。</p><p class="ts-bio-text">己亥太岁明时降生于临晋，名谢廷辅，亦名谢太，一名谢焘。谢太路拾遗金四百两，覆衣坐山中，不得其人，归置梁上。明日再往，则有乘骑奔号而来者，邀与归，具盘餐，探物还之。其人感泣曰：我为主人营官事，蒙全躯命，愿以半酬。谢太不许。请白当事，又不许。后五世孙魁官翰林。</p></div></details><details class="ts-bio" id="tsBio-庚子" data-gz="庚子"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">庚子</span><span class="ts-bio-name">卢秘</span></span><span class="ts-bio-tag">明、昆山、鼠相、执刀</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：卢秘，本名卢熙，字公暨。明时人。昆山人。别本异名：虞起、卢超、卢起。</p><p class="ts-bio-text">庚子太岁明时降生于昆山，名卢熙，亦名卢秘，字公暨。贯通经史，工文章，善笔札，以荐授睢州同知。时中原甫定，岁复洊饥。秘与民休息，惟恐伤之。适御史衔命，搜旧军籍民充之，睢民当入伍者千人，檄秘追送。秘令民自实，得尝隶尺籍者数人畀之。御史怒，械系曹吏，必尽得，不则以格诏论。同官皆惧，议发民应之。秘曰：吾牧民吏也，民散，吾谁与处？乃自诣御史曰：州军籍尽此矣，迫之民且散，独有同知在耳，请以充役。御史怒斥去，坚立不动，竟不能夺，乃罢去。秘卒于官，贫不能丧，官为其殓。丧归，吏民挽哭者塞道。大雨，无一人却者。</p></div></details><details class="ts-bio" id="tsBio-辛丑" data-gz="辛丑"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">辛丑</span><span class="ts-bio-name">杨信</span></span><span class="ts-bio-tag">汉、陕地、牛相、秉笔</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：杨信。汉时人。陕地人。别本异名：汤信。</p><p class="ts-bio-text">辛丑太岁汉时降生于陕地，名杨信。汉武帝元鼎时杨信出使匈奴。信刚直屈强，忠贞不二，不辱使命。单于见杨信一介儒生，素非贵臣，屡加刁难。单于欲召入，杨信节不离手，单于乃坐穹庐外见之。是时武帝东拨濊貉、朝鲜为郡，西置酒泉郡阻断胡羌通道，并西通月氏、大夏，分裂匈奴之援国。杨信说单于，欲和亲则以单于太子质汉。单于欲折其词，挫其气，乃以缯絮食物为和亲之首，终未果。后遣信归。</p></div></details><details class="ts-bio" id="tsBio-壬寅" data-gz="壬寅"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">壬寅</span><span class="ts-bio-name">贺谔</span></span><span class="ts-bio-tag">元、鄂县、虎相、举剑</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：贺谔，本名贺贲。元时人。鄂县人。别本异名：贤谔。</p><p class="ts-bio-text">壬寅太岁元时降生于鄂县，名贺贲，亦名贺谔。谔有才略，善攻战。关中兵后，积尸满野，谔为大冢收瘗之。后助世祖，以总管京兆诸军奥鲁。尝于毁垣中得白金七千，时世祖以皇太弟受诏征云南，驻六盘山，乃持五千两助军。卒，追封雍国公，谥贞献。</p></div></details><details class="ts-bio" id="tsBio-癸卯" data-gz="癸卯"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">癸卯</span><span class="ts-bio-name">皮时</span></span><span class="ts-bio-tag">北魏、渔阳、兔相、端坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：皮时，本名皮喜。北魏时人。渔阳人。别本异名：李成（另表孤例，待考）。</p><p class="ts-bio-text">癸卯太岁魏时降生于渔阳，名皮喜，亦名皮时。时名将皮豹子之子，少好武略。高宗以其名臣子，擢为侍御中散，迁侍御长。吐谷浑部落侵凉洮河，诏时为平西将军、广川公，领凉州诸军讨平之。又拜为使持节侍中，都督秦雍荆梁益五州军事，所至申恩布威，民大悦。太和元年，刘准、葭芦戌主杨文度窃据仇池，时追奔西入，攻葭芦，斩文度，传首京师。转散骑常侍安南将军、豫州刺史。诏让宽怠，以饮酒废事，杖罚。卒赠本官，谥曰恭公。</p></div></details><details class="ts-bio" id="tsBio-甲辰" data-gz="甲辰"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">甲辰</span><span class="ts-bio-name">李诚</span></span><span class="ts-bio-tag">元、渭南、龙相、一手执剑、一手握巾</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：李诚，字克诚。元时人。渭南人。</p><p class="ts-bio-text">甲辰太岁元时降生于渭南，名李诚，字克诚。渭南人，为陇右宪司掾，擢知三原。性至孝，操履清洁，居官宽而能察，威以济惠，任德缓刑，劝农兴学，屏除奸盗，钤束群吏兵，盗贼闻其名而不敢入。时河南寇贼不轨，天兵徂征，转粟挽刍，赋役倍他日。诚量户高下而均其徭，民不告病，一境安堵。时称循良，廉能足称焉。</p></div></details><details class="ts-bio" id="tsBio-乙巳" data-gz="乙巳"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">乙巳</span><span class="ts-bio-name">吴遂</span></span><span class="ts-bio-tag">宋、安徽、蛇相、执蛇形长矛</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：吴遂，字至道。宋时人。安徽人。</p><p class="ts-bio-text">乙巳太岁宋时降生于安徽，名吴遂，字至道。嘉熙四年七月知休宁县。善发奸伏，邻邑疑狱皆求讯。岁大旱，遂求城隍神三昼夜，乃大雨。乞蠲租科，降救饥者四万八千。时两淮民流徙入境者四十余万，遂亟加慰抚。旁郡流民焚劫无虚日，独遂县太平，境内肃然，无敢哗者。</p></div></details><details class="ts-bio" id="tsBio-丙午" data-gz="丙午"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丙午</span><span class="ts-bio-name">文哲</span></span><span class="ts-bio-tag">明、东莞、马相、执刀</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：文哲，本名王缜。明时人。东莞人。别本异名：文折、新祈、艾析。</p><p class="ts-bio-text">丙午太岁明时降生于东莞，名王缜，字文哲。为人敦伦，寡言笑。弘治癸丑进士，授兵科给事中。出使安南，却所馈金，不辱使臣体。迁礼科，核南畿屯田，刬革宿弊，擢工科都给事中。正德间擢山西参政，改云南右布政使，转福建左布政使，进副都御史巡抚，讨姚峒贼有功，赐钞币。以乾清宫灾疏，答天谴四事，皆切时弊。己卯夏，宁藩煽乱，荆襄震动，文哲下令设备，民心遂安。嘉靖改元，文哲疏陈十事：正大本，法祖德，广延访，重诏令，禁奢侈，求贤才，恤民穷，正风俗，复旧制，重人命，多见采纳。迁南京户部尚书，疏辞不许。时畿内大饥，文哲赈恤，请内帑银五万两给之。寻卒于官，年六十有一，赐祭葬。</p></div></details><details class="ts-bio" id="tsBio-丁未" data-gz="丁未"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丁未</span><span class="ts-bio-name">缪丙</span></span><span class="ts-bio-tag">宋、汴地、羊相、一手托桃</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：缪丙，本名缪鉴，字君宝。宋时人。汴地人。别本异名：伍炳、僇丙。</p><p class="ts-bio-text">丁未太岁宋时降生于汴地，名缪鉴，亦名缪丙，字君宝。好读书，躬行孝弟，乐施与人，不求入仕。靖康之难，丙迁江阴，居城东之瓠岱，耕读怡乐，采菊篱下。既殁，有《效颦集》行于世。世称其性成而孝弟，学优而从仕，莅官而辨治，三者备而不显于位，勇于退而优游。</p></div></details><details class="ts-bio" id="tsBio-戊申" data-gz="戊申"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">戊申</span><span class="ts-bio-name">徐浩</span></span><span class="ts-bio-tag">唐、越州、猴相、执钉锤</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：徐浩，字季海。唐时人。越州人。别本异名：俞诰、俞昌、俞志。</p><p class="ts-bio-text">戊申太岁唐时降生于越州，名徐浩，字季海。浩父峤善书，以法授浩。浩尤工草隶，世状其法曰：怒猊抉石，渴骥奔泉。初以文学称，擢明经，张说称其才，繇鲁山主簿，荐为集贤校理。以识符命之伪诈，迁都官郎中，为岭南选补使，领东都选。肃宗立，四方诏令多出浩手，辞赡速而书法至精。又参太上皇诰册，宠绝一时。进国子祭酒，为李辅国谮，贬庐州长史。代宗时迁工部侍郎，出为岭南节度使，拜吏部侍郎。德宗初召授彭王傅，进郡公。卒年八十，赠太子少师，谥曰定始。</p></div></details><details class="ts-bio" id="tsBio-己酉" data-gz="己酉"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">己酉</span><span class="ts-bio-name">程宝</span></span><span class="ts-bio-tag">五代十国、南汉、鸡相、端坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：程宝。五代十国时人。南汉人。别本异名：程实、程寅。</p><p class="ts-bio-text">己酉太岁五代十国时降生于南汉，名程宝。后唐高祖时，程宝官承旨，忠勇不屈。爱州将杨廷艺时养假子三千人，密图复交州。交州守将李进受其赂，不以闻。长兴二年冬，廷艺举兵围交州，汉主遣承旨程宝将兵往救。未至而城陷，李进遁归，汉主杀之。程宝遂攻杨廷艺于交州，以战败死。</p></div></details><details class="ts-bio" id="tsBio-庚戌" data-gz="庚戌"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">庚戌</span><span class="ts-bio-name">倪秘</span></span><span class="ts-bio-tag">宋、罗源、狗相、执权杖</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：倪秘，本名倪翼，号儋斋。宋时人。罗源人。</p><p class="ts-bio-text">庚戌太岁宋时降生于罗源，名倪翼，亦名倪秘，号儋斋。修髯广颡，气和行朴。与人交，终始一致。家饶而性尚俭素。庆元五年特奏名，官潮州秋曹。邻境有蛮窃发，秘一单骑至营，抚之以恩，谕之以理，蛮咸信服。后因与太守争一死囚，不遂其意，拂袖而归。朝廷嘉之，特进秩奉议大夫，再召为丞，不起。年八十余卒。</p></div></details><details class="ts-bio" id="tsBio-辛亥" data-gz="辛亥"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">辛亥</span><span class="ts-bio-name">叶坚</span></span><span class="ts-bio-tag">明、闽县、猪相、左手握拳</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：叶坚。明时人。闽县人。别本异名：蔡坚。</p><p class="ts-bio-text">辛亥太岁明时降生于闽县，名叶坚。身长八尺，膂力过人，善武艺，能骑射，武举得魁。时山寇作乱，坚修城筑堡，率民守护，又被檄招怀，直造巢穴，谕以祸福，寇悉听命。晚年优游乡里，为人慷慨，不事谀佞，博古尚礼。</p></div></details><details class="ts-bio" id="tsBio-壬子" data-gz="壬子"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">壬子</span><span class="ts-bio-name">丘德</span></span><span class="ts-bio-tag">宋、未详、鼠相、手托牡丹</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：丘德。宋时人。未详人。别本异名：邱德、卸德、邶德。</p><p class="ts-bio-text">壬子太岁降生于宋，名丘德。德，政和进士洪皓隶卒。建炎三年，洪皓奉命使金，丘德等五人俱副使。皓屡拒金之高官厚爵，曰：万里衔命，不得御两宫。金怒，遂流递皓与丘德等于冷山。土庐乌舍，苦寒薪尽，马矢煨面，须发俱白。被扣十五年，仍以诗文忧国忧民。绍兴十二年，皓与丘德等四人被释归宋。</p></div></details><details class="ts-bio" id="tsBio-癸丑" data-gz="癸丑"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">癸丑</span><span class="ts-bio-name">朱得</span></span><span class="ts-bio-tag">明、灵璧、牛相、持金瓜</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：朱得。明时人。灵璧人。别本异名：朱薄、朱雍、朱簿。</p><p class="ts-bio-text">癸丑太岁明时降生于灵璧，名朱得。洪武初以万户从渡江，下江东，收常婺，克武昌，平苏湖，转战南北，以功升常山中护卫佥事。调福州右卫，勤于职守，倭犯沿海，率众剿之，军声甚振。</p></div></details><details class="ts-bio" id="tsBio-甲寅" data-gz="甲寅"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">甲寅</span><span class="ts-bio-name">张朝</span></span><span class="ts-bio-tag">明、如皋、虎相、袖手而坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：张朝。明时人。如皋人。别本异名：章朝。</p><p class="ts-bio-text">甲寅太岁明时降生于如皋，名张朝。洪武初年设黄平所，朝自贵州卫千户改任黄平，军政修举。天资凝重，才兼智勇，常衣皂甲，乘黑马，执铁简，出入敌阵，往来如飞。尤能练士卒，知几料敌，严治肃理，盗贼窜逸，境内帖然。</p></div></details><details class="ts-bio" id="tsBio-乙卯" data-gz="乙卯"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">乙卯</span><span class="ts-bio-name">万清</span></span><span class="ts-bio-tag">元、建昌南城、兔相、跷腿而坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：万清，字仕廉。元时人。建昌南城人。别本异名：方清、万春。</p><p class="ts-bio-text">乙卯太岁元时降生于建昌南城，名万清，字仕廉。沉静尚志节，由进士官至枢密院使。至正中镇守建昌路总管府。辛丑四海不宁，遂弃任归家。洪武初窜入闽地，明太祖屡征，以一女不事二夫、一臣不事二朝为由，不就。使人求得之，贬和州知州，不就，卒。</p></div></details><details class="ts-bio" id="tsBio-丙辰" data-gz="丙辰"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丙辰</span><span class="ts-bio-name">辛亚</span></span><span class="ts-bio-tag">隋、狄道、龙相、左手握拳、双袖飞起</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：辛亚，本名辛公义。隋时人。狄道人。</p><p class="ts-bio-text">丙辰太岁隋时降生于狄道，名辛公义，亦名辛亚。开皇初授宣纳中士，征讨平乱，累迁扫寇将军，安辑边境，勾检诸马牧，所获十万余匹从军。亚除岷州刺史。岷俗畏疫，一人有疾，阖家避之，病者多死。亚欲变其俗，凡有疾病者皆辇来安置听事厅廊，悉满。亚亲设一榻，昼夜处其间。所得秩俸尽用市药，病者多愈。亚召其亲戚喻之，诸病家子弟皆惭谢而去。合境之内，呼为慈母。</p></div></details><details class="ts-bio" id="tsBio-丁巳" data-gz="丁巳"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">丁巳</span><span class="ts-bio-name">杨彦</span></span><span class="ts-bio-tag">宋、候宫、蛇相、一手立胸前</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：杨彦，字邦杰。宋时人。候宫人。别本异名：商谚（另本）、杨秀（误写）。</p><p class="ts-bio-text">丁巳太岁宋时降生于候宫，名杨彦，字邦杰。幼警敏，卓荦过人，常取前贤文集纵观，作歌行。及长，志在泉石，不乐仕进。每乘牛往来村店，自称东里野民，常入山之穷尽处。尝被召见，还作《归耕赋》。无意进取，日事唱酬，优游自适。终迪功郎。</p></div></details><details class="ts-bio" id="tsBio-戊午" data-gz="戊午"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">戊午</span><span class="ts-bio-name">黎卿</span></span><span class="ts-bio-tag">明、安徽、马相、一手持莲花、一脚脱鞋上盘</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：黎卿，本名黎近。明时人。安徽人。</p><p class="ts-bio-text">戊午太岁明时降生于安徽，名黎近，亦名黎卿。卿甫弱冠，遂以著述为事。宣德间应文学才行，卓然出众，授铜陵丞，政教兼举。升知高安县时，徭贼据城东南，卿出榜谕降之，负固，辄火其巢。然御隶太严，为权臣所忌，系狱十年。狱中作《太平铙歌》《鼓吹曲》诸篇以颂英庙。上嘉叹释之，改知泌阳。</p></div></details><details class="ts-bio" id="tsBio-己未" data-gz="己未"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">己未</span><span class="ts-bio-name">傅赏</span></span><span class="ts-bio-tag">宋、须城、羊相、一手握拳、一手执枪</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：傅赏，本名傅康。宋时人。须城人。别本异名：傅党、傅傥、傅税、傅悦。</p><p class="ts-bio-text">己未太岁宋时降生于须城，名傅康，亦名傅党，一本作傅赏。党父任知古田县，猾胥匿簿书，赋入日少，籍其家出所匿，复得实邑计以饶。党入为司农寺丞，除知汀州。时兄壅守漳，其父往来就养，乡人荣之。徙知南剑，发奸摘伏，吏不敢欺。适寇起，亲率治军，奋力鏖战，贼皆溃去，百姓哄城，呼曰傅父。</p></div></details><details class="ts-bio" id="tsBio-庚申" data-gz="庚申"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">庚申</span><span class="ts-bio-name">毛梓</span></span><span class="ts-bio-tag">金、临潢长泰、猴相、手握长矛</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：毛梓，本名毛子廉。金时人。临潢长泰人。别本异名：毛幸、毛粹。</p><p class="ts-bio-text">庚申太岁金时降生于临潢长泰，名毛子廉，亦名毛梓。材勇善射。辽季群盗起，募勇士，梓应募，以捕盗功授东头供奉官。天辅四年，招谕临潢，梓率户二千六百来归，令就领其众。天会三年，除上京副留守。久之，兼盐铁事。天眷中，除燕京曲院都监。梓在临潢十余年，吏民畏爱如一日。</p></div></details><details class="ts-bio" id="tsBio-辛酉" data-gz="辛酉"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">辛酉</span><span class="ts-bio-name">石政</span></span><span class="ts-bio-tag">元、河南、鸡相、执剑端坐</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：石政，本名石正卿。元时人。河南人。别本异名：文政、右政。</p><p class="ts-bio-text">辛酉太岁元时降生于河南，名石正卿，亦名石政。泰定间为万泉尹。直而不华，勤而能慎，政尚廉平，善化平民，有义气，劲直不屈。谳狱平允，讼无冤滥。致仕平生，廉介不阿，卓有定守。岁饥，出谷赈济，又煮粥施药，全活甚众。</p></div></details><details class="ts-bio" id="tsBio-壬戌" data-gz="壬戌"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">壬戌</span><span class="ts-bio-name">洪充</span></span><span class="ts-bio-tag">明、钱塘、狗相、双手握拳</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：洪充，本名洪钟，字宣之。明时人。钱塘人。别本异名：洪克、洪范。</p><p class="ts-bio-text">壬戌太岁明时降生于钱塘，名洪钟，亦名洪充，字宣之。成化十二年进士，任刑部主事，迁郎中，奉命安辑江西、福建流民。弘治初再迁四川按察使，历江西、福建左右布政使，擢右副都御史，巡抚顺天，整饬蓟州边备，增筑塞垣，减防秋兵，岁省费数万计。于所部潮河川凿渠屯种。正德初督漕运，进右都御史，改掌南京都察院，迁刑部尚书，掌院事。五年春，湖广盗起，充以本官总制军务，破灭沔阳贼。保宁贼蓝廷瑞等聚众十万余，延蔓陕西、湖广。充设方略，悉就擒，以功进太子太保。未几乞归。嘉靖三年卒，谥襄恩。</p></div></details><details class="ts-bio" id="tsBio-癸亥" data-gz="癸亥"><summary><span class="ts-bio-line1"><span class="ts-bio-gz">癸亥</span><span class="ts-bio-name">虞程</span></span><span class="ts-bio-tag">明、昆山、猪相、文袍加身</span></summary><div class="ts-bio-body"><p class="ts-bio-meta">星君：虞程，本名虞臣。明时人。昆山人。别本异名：卢程、卢经。</p><p class="ts-bio-text">癸亥太岁明时降生于昆山，名虞臣，亦名虞程。明成化戊戌科进士，初任车驾司主事，改武库，复调车驾，升四川参议，累官布政使参议。刚正不屈，不避劳怨。历官二十年，清慎自持。居蜀二年，急流勇退。居家苦节，不问公府，笃于孝友。清苦节操，居家尤著。</p></div></details></div></div>
   </details>
+  <div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+  </details></div>
 </main>
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/ai.js"></script>
-<script defer src="assets/lunar.js"></script>
-<script defer src="assets/xuanji-lib.js"></script>
-<script defer src="assets/bazi-data.js"></script>
-<script defer src="assets/bazi-rel.js"></script>
-<script defer src="assets/bazi-app.js"></script>
-<script defer src="assets/taisui-data.js"></script>
-<script defer src="assets/taisui.js"></script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    renderChrome('taisui.html');
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-taisui-now.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/taisui.seg1.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-lunar.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/taisui.seg2.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-bazi-data.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/taisui.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-taisui-data.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/taisui.seg3.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-taisui-00.js"></script>
 </body>
 </html>

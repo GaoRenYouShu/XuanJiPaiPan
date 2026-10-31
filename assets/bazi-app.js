@@ -500,8 +500,9 @@ function paipan(){
     return;
   }
   /* 性能守卫：输入签名未变且已渲染过，则跳过全量重排（避免重复计算与重绘）。
-     切换输入方式（bMode）会纳入签名，故模式切换仍会正常重排。 */
-  { const sig=paipanSig(); if(sig===lastPaipanSig && BZ && document.getElementById('out').innerHTML){ return; } lastPaipanSig=sig; }
+     切换输入方式（bMode）会纳入签名，故模式切换仍会正常重排。
+     渲染态记输出区 expando，清空输出区时一并清签名。 */
+  { const sig=paipanSig(), out=document.getElementById('out'); if(sig===lastPaipanSig && BZ && out && out.__renderedSig===sig){ return; } lastPaipanSig=sig; }
   if(document.getElementById('bMode').value==='celeb'){ if(typeof paipanCeleb==='function'){ paipanCeleb(); return; } }
   if(document.getElementById('bMode').value==='hourless'){ if(typeof paipanHourless==='function'){ paipanHourless(); return; } }
   if(document.getElementById('bMode').value==='pillar'){ paipanPillar(); return; }
@@ -648,7 +649,7 @@ function paipan(){
             dualA2, dualBZ2, dualBuilt2: (typeof window!=='undefined' ? window.__dualBuilt2 : null) };  const html=renderBaziPage(R, BZ);
   /* 复核档所读的校正事实与经度取值：取本次装配既得结果挂上本命状态，导出时直读，不重算 */
   BZ.tsInfo=built.tsInfo; BZ.lng=lng; BZ.pj=R.pj; BZ.nj=R.nj;
-  document.getElementById('out').innerHTML=html;
+  { const out=document.getElementById('out'); out.innerHTML=html; out.__renderedSig=lastPaipanSig; }
   renderDyn(BZ);
   drawYunChart(BZ);
   const foot=document.createElement('div');
@@ -758,7 +759,7 @@ function toggleBaziMode(){
   /* 四柱、已存模式清空命局输出区，避免旧 date 模式输出残留 */
   if(isPillar || isSaved || isCeleb || isHourless){
     const _out=document.getElementById('out');
-    if(_out) _out.innerHTML='';
+    if(_out){ _out.innerHTML=''; _out.__renderedSig=''; }
   }
   /* 模式切换只失效输入签名，重排由排盘按钮触发 */
   if(!isPillar && !isSaved && !isCeleb && !isHourless){ lastPaipanSig=''; }
@@ -904,7 +905,7 @@ function paipanPillar(){
     y:hasDate?y:null, m:hasDate?m:null, d:hasDate?d:null };
   BZ.lunar = hasDate?lunar:null; /* 挂农历对象（表法定配偶方位用；四柱模式无日期则为 null，安全降级） */
   const html=renderBaziPage(R, BZ);
-  document.getElementById('out').innerHTML=html;
+  { const out=document.getElementById('out'); out.innerHTML=html; out.__renderedSig=lastPaipanSig; }
   if(hasDate && !isBC){ renderDyn(BZ); drawYunChart(BZ); }
   const foot=document.createElement('div');
   foot.className='notice notice-bottom';

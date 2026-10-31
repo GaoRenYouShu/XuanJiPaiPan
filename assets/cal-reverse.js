@@ -57,7 +57,7 @@
     var dayOpts='';
     for(var j=1;j<=30;j++) dayOpts+='<option value="'+j+'">'+DAY_CN[j-1]+'</option>';
     el.innerHTML='<div class="rev-row">'
-      +'<div class="form-row rev-fields">'
+      +'<div class="rev-fields">'
       +'<div class="field"><label for="rvYear">'+esc(yearLabel)+'</label>'
       +'<input type="number" id="rvYear" class="rv-year" step="1" min="'+(isTib?1027:1)+'" max="9999"></div>'
       +'<div class="field"><label for="rvMonth">月</label><select id="rvMonth" class="rv-month">'+monthOpts+'</select></div>'

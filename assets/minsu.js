@@ -743,11 +743,15 @@
     $('msNumBtn').addEventListener('click', renderNum);
     $('msSanshiBtn').addEventListener('click', renderSanshi);
     fillToday();
-    /* 三框有日期预填，加载即出结果；号码无输入不渲染，保留框内说明 */
-    renderChengu();
-    renderFanyue();
-    renderBuddha();
-    renderSanshi();
+    /* 三框有日期预填，加载即出结果；号码无输入不渲染，保留框内说明。
+       首屏结果已是页面终值，data-built 记写出当日，访问日与所记不同才按当日重出。 */
+    var built = document.querySelector('.ms-page') ? document.querySelector('.ms-page').getAttribute('data-built') : '';
+    if (built !== todayStr()) {
+      renderChengu();
+      renderFanyue();
+      renderBuddha();
+      renderSanshi();
+    }
     if (window.mountAI) window.mountAI(msAiContext, '民俗占法', {
       share: {
         page: 'minsu', title: '民俗占法',

@@ -930,7 +930,7 @@ function hlInit(){
   const jwHost=document.getElementById('hlJwBody'),jwFold=document.getElementById('hlJwFold');
   if(jwHost&&jwFold&&window.jwRenderInto){
     jwFold.addEventListener('toggle',function(){
-      if(this.open&&!jwHost.dataset.done){ window.jwRenderInto(jwHost); jwHost.dataset.done='1'; }
+      if(this.open&&!jwHost.__jwRendered){ window.jwRenderInto(jwHost); jwHost.__jwRendered=true; }
     });
   }
   /* 渲染完成：打标后折叠状态才允许写回，并恢复已存折叠偏好 */

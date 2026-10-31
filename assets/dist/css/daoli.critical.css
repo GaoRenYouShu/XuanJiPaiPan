@@ -1,0 +1,414 @@
+/* 本页首屏样式。 */
+
+.cal-page .cal-title{color:var(--red)}
+
+.cal-title{font-weight:700;font-size:1.05rem;margin:var(--sp-1) 0 var(--sp-2);text-align:center;color:var(--gold2)}
+
+.nav-btn{width:30px;height:30px;border:1px solid transparent;background:transparent;color:var(--gold2);
+  border-radius:0;font-family:inherit;font-size:17px;line-height:1;cursor:pointer;transition:.15s;padding:0}
+
+.nav-btn:hover{border-color:var(--gold);background:var(--gold);color:#fff}
+
+.btn-mini{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 var(--sp-1);
+  border:0;border-radius:0;background:transparent;color:var(--gold);font:inherit;font-size:12px;cursor:pointer;box-sizing:border-box}
+
+.btn-mini:hover{color:var(--gold2)}
+
+.xj-query-row{display:flex;flex:0 0 auto;flex-wrap:nowrap;align-items:flex-end;gap:var(--sp-2);max-width:100%}
+
+.xj-query-row .field label{white-space:nowrap;color:var(--gold2)}
+
+.xj-search-out:empty{display:none}
+
+.xj-only-has:empty{display:none}
+
+.xj-filter-row{display:flex;flex:0 1 auto;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:var(--sp-1) var(--sp-2);margin:0;max-width:100%;min-width:0;font-size:var(--tier4);color:var(--ink2)}
+
+.xj-filter-opts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-2)}
+
+.xj-filter-cap{color:var(--gold2);letter-spacing:.08em}
+
+.xj-chk{display:inline-flex;align-items:center;gap:var(--sp-1);cursor:pointer}
+
+.xj-chk input{width:14px;height:14px;accent-color:var(--gold2)}
+
+@media(max-width:640px){
+.cal-grid{gap:var(--sp-1) var(--sp-1);width:100%;max-width:100%;box-sizing:border-box;padding:var(--sp-2)}
+
+.cal-nav-grp{gap:var(--sp-1)}
+}
+
+@media(max-width:420px){
+.cal-nav{flex-wrap:wrap}
+
+.cal-nav .cal-title{flex:1 1 100%;order:-1}
+}
+
+@media print{
+.data-export-hide{display:none !important}
+}
+
+.rev-row{display:contents}
+
+.rev-row .rev-fields{display:flex;flex:0 0 auto;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2);max-width:100%;min-width:0}
+
+.rev-row .field{display:flex;flex:0 0 auto;width:auto;min-width:0;flex-direction:column;gap:var(--sp-1)}
+
+.rev-row .field label{color:var(--gold2);font-weight:400;white-space:nowrap;margin:0}
+
+.rev-row .field input[type="number"]{width:76px}
+
+.rev-row .field select{width:auto;max-width:none}
+
+.rev-row .rev-check-line{display:flex;align-items:center;gap:var(--sp-1);height:30px}
+
+.rev-row .field input[type="checkbox"]{width:auto;height:auto;padding:0;margin:0}
+
+.rev-row .rev-note{flex:1 1 100%;max-width:none;margin:var(--sp-1) 0 0;font-size:12px;color:var(--ink2);line-height:1.6;text-align:left}
+
+.cal-query-flow{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:var(--sp-3);margin-top:var(--sp-2)}
+
+.cal-date-group{display:flex;flex:0 0 auto;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2);max-width:100%}
+
+.cal-query-flow #xjQuery,
+.cal-query-flow #calReverse,
+.cal-query-flow .rev-row{display:contents}
+
+.cal-query-flow .field{flex:0 0 auto;width:auto;min-width:0}
+
+.xj-query-row .field input.xj-search-input{width:120px}
+
+.cal-query-flow .btn{width:auto;height:30px;margin:0}
+
+@media(max-width:640px){
+.cal-query-flow{gap:var(--sp-2)}
+}
+
+.dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+body{--footer-ink:#2c3040}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.today-card{
+  background:var(--paper2);border:1px solid var(--line);border-radius:0;
+  box-shadow:var(--shadow);padding:var(--sp-4);margin:var(--sp-3) 0;
+}
+
+.today-top{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-4);justify-content:center}
+
+.big-date{text-align:center;min-width:100px}
+
+.big-date .d{font-size:40px;font-weight:700;color:var(--red);line-height:1}
+
+.big-date .ym{font-size:14px;color:var(--ink2);margin-top:var(--sp-1)}
+
+.lunar-info{text-align:center}
+
+.lunar-info .ln{font-size:18px;font-weight:700}
+
+.lunar-info .zodiac{font-size:13px;color:var(--ink2);margin-top:var(--sp-1)}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.cal-page .btn.gold{background:var(--red)}
+
+.cal-page .btn.gold:hover{background:var(--red2)}
+
+.cal-nav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-2)}
+
+.cal-nav-grp{display:flex;gap:var(--sp-1);flex:0 0 auto}
+
+.cal-nav .cal-title{flex:1 1 auto;margin:0}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--sp-2) var(--sp-2);
+  padding:0;border:0;border-radius:0;background:transparent;margin-top:var(--sp-4)}
+
+#dayDetail,#out,.detail-anim{animation:fadeInUp .3s ease}
+
+#out + *{margin-top:var(--sp-4)}
+
+.cal-grid .wd{text-align:center;font-size:13px;color:var(--ink2);padding:var(--sp-1) 0;font-weight:700}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.cal-grid .wd{font-size:12px;padding:var(--sp-1) 0}
+
+.cal-cell{padding:var(--sp-3) 0;min-height:64px;aspect-ratio:auto;min-width:0}
+
+.cal-cell .sd{font-size:15px;line-height:1}
+
+.cal-cell .jq-mark,.cal-cell .fest-mark,.cal-cell .mem-mark,.cal-cell .rest-mark,.cal-cell .mk{font-size:8px}
+
+.cal-cell .ld{font-size:8px;line-height:1.15;margin-top:var(--sp-1)}
+
+.cal-cell .slot{display:none}
+
+.cal-nav{margin:var(--sp-1) 0 var(--sp-2);gap:var(--sp-1)}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+.page.cal-page .today-card,
+.cal-page .today-card{
+  background:var(--card);border:1px solid var(--line);border-radius:0;
+  box-shadow:var(--shadow);padding:var(--sp-4) var(--sp-4);
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-daoli .page h1{color:var(--dao-deep);font-family:var(--font-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-daoli .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--dao-line);margin:0 auto var(--sp-3)}
+
+.page-daoli .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--dao-line);margin:var(--sp-3) auto 0}
+
+.page-daoli .page .lead{color:var(--dao-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-daoli .page .lead::after{background:var(--dao-line)}
+
+.page-daoli .cal-query-flow .field label{color:var(--dao2);font-weight:400;margin:0;white-space:nowrap}
+
+.page-daoli .cal-query-flow .field input{border-color:var(--dao-line);border-radius:0;padding:4px 10px;
+  transition:border-color .15s,box-shadow .15s}
+
+.page-daoli .cal-query-flow .field input.dt-input{width:96px;height:30px}
+
+body:has(.page-daoli) .scroll-jump:not(.show){display:none}
+
+.page-daoli .cal-query-flow .field input:focus{border-color:var(--dao);outline:none}
+
+.page-daoli .cal-query-flow .btn.gold{background:var(--dao);border-radius:0;padding:5px 14px;box-shadow:none;margin-bottom:0}
+
+.page-daoli .cal-query-flow .btn.gold:hover{background:var(--dao2)}
+
+.page-daoli .btn:not(.soft):not(.btn-ghost),.page-daoli .btn.gold{background:var(--dao);border-color:var(--dao);color:#fff;box-shadow:none}
+
+.page-daoli .btn:not(.soft):not(.btn-ghost):hover,.page-daoli .btn.gold:hover{background:var(--dao2);color:#fff;box-shadow:none}
+
+.page-daoli .cal-nav{margin:var(--sp-3) 0 var(--sp-2)}
+
+.page-daoli .cal-title{color:var(--dao-deep);font-family:var(--font-serif);font-weight:400;font-size:19px;letter-spacing:.2em;text-indent:.2em;padding:0 var(--sp-2)}
+
+.page-daoli .nav-btn{background:transparent;border-color:transparent;color:var(--dao);border-radius:0}
+
+.page-daoli .nav-btn:hover{background:var(--dao-tint);border-color:transparent;color:var(--dao2);box-shadow:none}
+
+.page-daoli .nav-btn:focus-visible{border-color:var(--dao);outline:none}
+
+.page-daoli .cal-grid .wd{color:var(--dao);font-family:var(--font-serif);font-weight:400;
+  letter-spacing:.12em;border-bottom:1px solid var(--dao-line);padding-bottom:var(--sp-1)}
+
+.page-daoli .cal-cell.today{background:var(--dao);box-shadow:none}
+
+.page-daoli .cal-cell.zhai{background:transparent}
+
+.page-daoli .cal-cell .festival{color:var(--red);font-weight:400}
+
+.page-daoli .cal-cell.selected:not(.today){background:var(--dao-tint);border-color:var(--dao)}
+
+.page-daoli .cal-cell:hover:not(.today){background:#e9e9ef}
+
+.page-daoli .cal-cell.today:hover{background:var(--dao2)}
+
+.page-daoli .cal-cell .festival+.ld{display:block}
+
+.page-daoli .cal-cell .ld{color:var(--dao-ink2)}
+
+.page-daoli .cal-cell.weekend .sd-num{color:var(--red)}
+
+.page-daoli .cal-cell .mk-z{left:var(--sp-1);color:var(--red)}
+
+.page-daoli .cal-cell .mk-d{right:var(--sp-1);color:var(--dao)}
+
+.page-daoli .today-card{
+  position:relative;overflow:hidden;
+  background:transparent;
+  border:0;border-top:1px solid var(--dao-line);border-bottom:1px solid var(--dao-line);
+  border-radius:0;
+  box-shadow:none;
+  padding:var(--sp-4) 0;
+}
+
+.page-daoli .today-top{flex-direction:column;gap:var(--sp-3)}
+
+.page-daoli .big-date{display:flex;flex-direction:column-reverse;align-items:center}
+
+.page-daoli .big-date .d{color:var(--dao);font-family:var(--font-serif);font-weight:400;font-size:42px}
+
+.page-daoli .big-date .ym{font-size:12.5px;letter-spacing:.2em;text-indent:.2em;color:var(--dao-ink2)}
+
+.page-daoli .lunar-info .ln{color:var(--dao-deep);font-family:var(--font-serif);font-weight:400;
+  font-size:22px;letter-spacing:.14em;text-indent:.14em}
+
+.page-daoli .lunar-info .zodiac{font-size:12px;letter-spacing:.06em;color:var(--dao-ink2);margin-top:var(--sp-2)}
+
+@media(max-width:640px){
+.page-daoli .cal-cell .festival{display:none}
+}
+
+@media (prefers-color-scheme: dark){
+html .page-daoli {
+    --dao:#5c6482;
+    --dao2:#a8b2d8;
+    --dao-deep:#d9dade;
+    --dao-ink:#ced0d4;
+    --dao-ink2:#9fa1a8;
+    --dao-purple:#9476b3;
+    --dao-line:#44454b;
+    --dao-tint:#22242a;
+    --paper:#17171a;
+    --card:#1d1d20;
+    --ink2:#aea698;
+    --cal-hover:#2a2a2e;
+    --cal-selected:#333338;
+  }
+
+body:has(.page-daoli){background:#17171a;color:#d6d2cd}
+
+.page-daoli .cal-cell:hover:not(.today){background:var(--dao-tint)}
+}
+
+.page-daoli{
+  --dao:#3a3f52;           /* 玄青主色 */
+  --dao2:#2c3040;          /* 深玄青：hover/强调 */
+  --dao-deep:#232734;      /* 玄墨：大标题字色 */
+  --dao-ink:#363b47;       /* 玄墨灰：正文字色（比纯黑柔和、与主题同族） */
+  --dao-ink2:#555a68;      /* 玄青次级字：卷首说明、农历日、副注、AI 状态字 */
+  --dao-serif:var(--font-serif);   /* 卷首宋体：随全站主字体 */
+  --dao-purple:#6b4d8a;    /* 紫炁：本页第二点缀色，只留九宫飞星折叠三角一处 */
+  --dao-line:#d4d6dd;      /* 玄青浅线 */
+  --dao-tint:#f3f4f7;      /* 玄青淡底 */
+
+  /* 全站强调令牌族在本页一律落到玄青族：表格加粗、年月导航钮、折叠框标题、右侧直达箭头等
+     共享规则由此一次对齐，不会漏出全站鎏金 */
+  --gold:var(--dao);
+  --gold2:var(--dao2);
+  --gold-brown:var(--dao2);
+  --gold-bg:var(--dao-tint);
+
+  /* 圆盘令牌（双圆盘区：十二时辰吉凶盘 + 圣诞圆盘）：骨架与尺寸走通用件 .wheel，此处只绑本页色；
+     吉凶两色供时辰盘外圈时辰名与盘心吉凶字的 fill:var(--wheel-good) 与 fill:var(--wheel-bad) 取用 */
+  --wheel-serif:var(--dao-serif);
+  --wheel-line:var(--dao-line);
+  --wheel-arc:var(--dao);
+  --wheel-ink:var(--dao-ink);
+  --wheel-deep:var(--dao-deep);
+  --wheel-ink2:var(--dao-ink2);
+  --wheel-cur:var(--dao);
+  --wheel-core:var(--dao-tint);
+  --wheel-h4:var(--dao2);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);
+  --line:var(--dao-line);--ink:var(--dao-ink)
+}
+
+.dtm-daoli{--tk:#3a3f52;--tk2:#2c3040;--tk-ink:#363b47;--tk-line:#d4d6dd;--tk-tint:#f3f4f7}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../../fonts/pages/daoli-0.woff2) format("woff2");unicode-range:U+0020-007e, U+00ab, U+00bb, U+2039-203a, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0e, U+4e11, U+4e16, U+4e19, U+4e4b, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4eba, U+4eca, U+4ed9, U+4f1a, U+4fd7, U+5143, U+5148, U+5165, U+516b-516d, U+5173, U+519c, U+51ac, U+51f6, U+51f8, U+5206, U+521d, U+52a0, U+5317, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+53cd, U+53d6, U+53ef, U+5409, U+540d, U+541b, U+542b, U+547d, U+56db, U+5723, U+589e, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5929, U+5973, U+5b50, U+5b88, U+5b9a, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c45, U+5df1, U+5df3, U+5e1d, U+5e74, U+5e9a, U+5ea7, U+5eff, U+5f0f, U+5f26, U+5f55, U+5f85, U+60ca, U+620a, U+620c, U+6216, U+62e9, U+636e, U+6392, U+63d0, U+6559, U+6570, U+658b, U+6597, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671d, U+671f, U+672a, U+672f, U+673a, U+679c, U+67e5, U+68c0, U+6b63, U+6b8b, U+6bcf, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d88, U+6e05, U+6e10, U+6ee1, U+70b9, U+7334, U+7384, U+7406, U+7532-7533, U+7537, U+7678, U+767d, U+7687, U+76c8, U+76d8, U+76f4, U+76f8, U+7709, U+771f, U+786e, U+793a, U+795e, U+798f, U+79cb, U+79cd, U+7a7a, U+7acb, U+7b49, U+7b5b, U+7d22, U+7eaa, U+7ed3, U+7f6e, U+7f8a, U+7fc1, U+814a, U+81f3, U+8282, U+8292, U+8428, U+86c7, U+86f0, U+86fe, U+8bbe, U+8bde, U+8be5, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8d22, U+8d66, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+9009, U+9053, U+9149, U+914d, U+9519, U+95ed, U+95f0, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9ec4, U+9f99, U+ff0c}

@@ -1,0 +1,206 @@
+
+const CZ_LUCK_TXT={ji:'吉',ping:'平',xiong:'凶'};
+function czFillCat(){
+  const sel=document.getElementById('czCat');
+  sel.innerHTML=Object.keys(CEZI_DATA.CATS).map(k=>`<option value="${k}">${CEZI_DATA.CATS[k].name}</option>`).join('');
+}
+let LAST=null;
+/* 六十四卦经文检索：首次展开才渲染；重排按上一次折叠态重建 */
+function czRenderJw(){
+  const d=document.getElementById('czJwRef');
+  if(d&&d.open&&window.jwRenderInto) jwRenderInto(d.querySelector('.jw-host'));
+}
+function wxTag(w){ return w&&w!=='未详'?wxColorSpan(w):'<span>未详</span>'; }
+function show(r){
+  /* ---- 字象总览 + 评级（三区：大字、元数据、可视化评级） ---- */
+  const itemsHtml=r.items.map(it=>{
+    const pct=Math.round(it.v*100);
+    return `<li><b>${it.name}</b><span>${pct}</span><span class="bar" title="${it.name}（权${it.w}）${pct}分，${it.desc}"><i style="width:${pct}%"></i></span></li>`;
+  }).join('');
+  /* 部首展示：内部记号 A>B（本形>形变）、A-B（整字去部件）改中文表述 */
+  const bsDisp=(function(s){
+    if(!s) return '未详';
+    var m=/^(.+?)>(.+)$/.exec(s); if(m) return m[1]+'（'+m[2]+'）';
+    m=/^(.+?)-(.+)$/.exec(s); if(m) return m[1]+'去'+m[2]+'之形';
+    return s;
+  })(r.bs);
+  const meta=[
+    ['读音',r.py||'未详'],
+    ['康熙笔画',r.ks?r.ks+'画':(r.js?r.js+'画（康熙未详）':'未详')],
+    ['简体笔画',r.js?r.js+'画':'未详'],
+    ['字形结构',r.struct],
+    ['康熙部首',bsDisp],
+    ['字义五行',wxTag(r.yiWx)],
+    ['数理五行',wxTag(r.shuWx)],
+    ['拆解主气',wxTag(r.mainWx)]
+  ].map(a=>`<div><span class="cz-em">${a[0]}</span><span>${a[1]}</span></div>`).join('');
+  const gColor=r.level.name==='大吉'||r.level.name==='吉'?'var(--green)':(r.level.name==='凶'?'#c0392b':(r.level.name==='谨'?'#c0392b':'#61432a'));
+  const head=`
+  <div class="cz-head">
+    <div class="cz-bigwrap">
+      <div class="cz-big">${r.char}</div>
+      <div class="cz-py">${(r.py||'').replace(/（.*）/,'')}</div>
+    </div>
+    <div class="cz-meta">${meta}</div>
+    <div class="cz-grade">
+      <div class="cz-lv" style="color:${gColor}">${r.level.name}<small> ${r.total}分</small></div>
+      <div class="cz-gbar"><i style="width:${r.total}%"></i></div>
+      <div class="cz-note-s">所问：${r.catName}</div>
+      <ul class="cz-score">${itemsHtml}</ul>
+      ${r.xiesheng?`<div class="cz-note-yi">谐声参断：${r.char} 音同 ${r.xiesheng.join('、')}。</div>`:''}
+    </div>
+  </div>`;
+  /* ---- 拆字拆解（相字十法，主断随问而取） ---- */
+  const chaiHtml=r.chai.list.map((x,i)=>{
+    const chips=x.parts.length?`<span class="cz-parts">${x.parts.map(p=>`<span class="cz-part" title="${p.yi||''}（${p.wx||'未详'}）">${p.p}</span>`).join('')}</span>`
+      :`<span class="cz-part">${x.p}</span>`;
+    const sangParts=x.parts.filter(p=>p.sang&&p.sang.length);
+    const yis=x.parts.length?`<div class="cz-note-yi">${x.parts.map(p=>p.yi?`${p.p}：${p.yi}${p.wx?'（'+p.wx+'）':''}`:'').filter(Boolean).join('；')}</div>`:'';
+    const sangHtml=sangParts.length?`<div class="cz-note-yi">散格（卷五骨格）：${sangParts.map(p=>p.p+'：'+p.sang.join('、')).join('；')}</div>`:'';
+    const mainTag=i===r.chai.pick?`<span class="cz-tag cz-tag-main">主断</span>`:'';
+    const catTag=(x.cats&&x.cats.length)?`<span class="cz-tag">${x.cats.map(c=>CEZI_DATA.CATS[c]?CEZI_DATA.CATS[c].name:c).join('、')}切</span>`:'';
+    const srcTag=x.src?`<span class="cz-tag" title="断语出处">${x.src}</span>`:'';
+    const gmHtml=(x.gm&&i===r.chai.pick)?`<div class="cz-line-t cz-note-s">观梅字象：形，${x.gm.x}；神气，${x.gm.sh}。</div>`:'';
+    return `<div class="cz-chai">
+      <div class="cz-chai-row">${chips}<span class="cz-tag">${x.fa||x.tag}</span>${x.lx?`<span class="cz-tag">${x.lx}</span>`:''}${srcTag}${catTag}${mainTag}<span class="cz-luck ${x.luck}">${CZ_LUCK_TXT[x.luck]}</span></div>
+      <div class="cz-line">${x.note}。</div>${gmHtml}${sangHtml}${x.ge?`<div class="cz-line-s"><span class="cz-tag">取格</span> ${x.ge}<span class="cz-note-s">（${x.geSrc}已验）</span></div>`:''}${x.bm?`<div class="cz-line-s"><span class="cz-tag">底本</span> ${x.bm}<span class="cz-note-s">（${x.bmSrc}）</span></div>`:''}${x.shuang?`<div class="cz-line-s"><span class="cz-tag">双句格</span> ${x.shuang}<span class="cz-note-s">（${x.shuangSrc}）</span></div>`:''}${yis}
+    </div>`;
+  }).join('');
+  const jiaZhuaHtml=`${r.jia?`<div class="cz-chai cz-sec"><div class="cz-line"><span class="cz-tag">假借</span> ${r.jia}<span class="cz-note-s">（测字秘牒卷二心易）</span></div></div>`:''}${r.zhuan?`<div class="cz-chai cz-sec"><div class="cz-line"><span class="cz-tag">转注</span> ${r.zhuan}<span class="cz-note-s">（测字秘牒卷二心易）</span></div></div>`:''}`;
+  const noneHtml=r.chai.source==='none'?`<p class="notice cz-p">所测“${r.char}”未收录精编拆解，如实以待；以下数理、卦象、外应诸层照常参断。</p>`:'';
+  const huoHtml=(r.huo&&r.huo.length)?`<div class="cz-chai cz-sec">
+    <div class="cz-chai-row"><span class="cz-tag">活拆变象</span></div>
+    ${r.huo.map(h=>`<div class="cz-line-t"><span class="cz-tag">${h.f2||''}</span>${h.f==='加'?'添<span class="cz-part">'+h.a+'</span>':'减去一笔'}成<span class="cz-part">${h.r}</span>，${h.n}。${(h.cats&&h.cats.indexOf(r.catKey)>=0)?'<span class="cz-tag">'+r.catName+'切</span>':''}</div>`).join('')}
+  </div>`:'';
+  const zhaiHtml=r.zhai?`<div class="cz-chai cz-sec">
+    <div class="cz-chai-row"><span class="cz-tag">摘字</span><span class="cz-note-s">取字之一部另有所主</span></div>
+    <div class="cz-line-t">摘<span class="cz-part">${r.zhai.zhai}</span>，${r.zhai.n}。</div>
+  </div>`:'';
+  const gongParts=(r.chai.source==='cezi'&&r.chai.list[r.chai.pick])?r.chai.list[r.chai.pick].parts.filter(p=>p.gong):[];
+  const gongHtml=gongParts.length?`<div class="cz-note-yi cz-sec">八卦归象（说卦类象）：${gongParts.map(p=>`${p.p}归${p.gong}`).join('、')}。</div>`:'';
+  const chaiBox=`
+  <h3 class="rel-title">拆字拆解（相字十法）</h3>
+  <div class="info-box">${noneHtml}${jiaZhuaHtml}${chaiHtml}${gongHtml}${zhaiHtml}${huoHtml}</div>`;
+  /* ---- 断曰 ---- */
+  const duanBox=`
+  <h3 class="rel-title">断曰（${r.catName}）</h3>
+  <div class="info-box cz-duan">${r.duan}</div>`;
+  /* ---- 康熙数理 ---- */
+  const shuliBox=`
+  <h3 class="rel-title">康熙数理</h3>
+  <div class="info-box">
+    <p class="cz-p">${r.ks}画 → 数理 <span class="cz-em">${r.shuli.idx}</span>${r.ks>81?'（超81减80取模）':''}，
+      <span class="cz-em">${r.shuli.label}</span>，
+      ${r.shuli.key}。定性标签：${r.shuli.tag||'未详'}；数理五行${wxTag(r.shuWx)}。</p>
+  </div>`;
+  /* ---- 梅花卦象 ---- */
+  const g=r.gua;
+  const guaBox=`
+  <h3 class="rel-title">梅花字占卦象</h3>
+  <div class="info-box">
+    <p class="cz-p"><span class="cz-gua-sym">${g.upSym}</span><span class="cz-gua-sym">${g.lowSym}</span>
+      <span class="cz-em">${g.benName}</span>（上${g.upName}${g.up}、下${g.lowName}${g.low}，动第${g.dong}爻）</p>
+    <p class="cz-p">${g.palace}${g.palType?'，'+g.palType:''}，世${g.world}应${g.ying}。卦义：${g.yi||'未详'}。</p>
+    ${g.ci?`<p class="cz-p">卦辞：${g.ci}。</p>`:''}
+    ${g.yaoCi?`<p class="cz-p">动第${g.dong}爻爻辞：${g.yaoCi}。</p>`:''}
+    ${r.yaoJie?`<p class="cz-p">爻解：${r.yaoJie.yi}。于${r.catName}：<span class="cz-em">${r.yaoJie.duan[r.catKey]||'未详'}</span>。</p>`:''}
+    <p class="cz-p">互卦<span class="cz-em">${g.huName}</span>（事之中机），${g.huRel}；变卦<span class="cz-em">${g.bianName}</span>（事之终应），${g.bianRel}。${r.huJie.txt?'互见'+g.huRel+'，'+r.huJie.txt+'。':''}${r.bianJie.txt?'变见'+g.bianRel+'，'+r.bianJie.txt+'。':''}变后用卦${g.bianYongName}${wxTag(g.bianYongWx)}与体<span class="cz-em">${g.bianRel}</span>，${g.bianRelTxt}。</p>
+    <p class="cz-p">动爻在${g.dongInUpper?'上':'下'}卦，体卦${g.tiName}${wxTag(g.tiWx)}、用卦${g.yongName}${wxTag(g.yongWx)}，
+      <span class="cz-em">${g.rel}</span>，${g.relTxt}。</p>
+  </div>`;
+  /* ---- 时辰外应与应期 ---- */
+  const w=r.wai, y=r.ying;
+  const waiBox=`
+  <h3 class="rel-title">时辰外应与应期</h3>
+  <div class="info-box">
+    <p class="cz-p">起测时刻：${w.dayGZ||'未详'}日${w.shiZhi?w.shiZhi+'时（'+(w.shiWx||'未详')+'）':'，时辰未详'}，
+      ${w.season}月建${w.lingWx}旺。字之主气${wxTag(r.mainWx)}，<span class="cz-em">${w.wang?w.wang.label:'未详'}</span>，${w.wang?w.wang.txt:'无时辰可参'}。</p>
+    <p class="cz-p">事类喜用：${r.catName}喜${r.xi&&CEZI_DATA.CATS[r.catKey].xi.length?CEZI_DATA.CATS[r.catKey].xi.map(wxTag).join('、'):'中和无偏'}；${r.xi.txt}。</p>
+    <p class="cz-p">应期推断：字气属${wxTag(r.mainWx)}，宜候${y.day}，应于${y.season}，方位利${y.fang}；${y.near==='期近'?'体气得时，应期近。':(y.near==='期缓'?'体气失时，应期缓。':'无时辰可参，应期不定。')}${y.zhi?'六十日内，值日为'+y.zhi+'，冲日为'+y.chong+'。':'六十日内未见值冲之日。'}</p>
+  </div>`;
+  /* ---- 相字十法说明（法例数动态统计） ---- */
+  const sfCnt={};
+  Object.keys(CEZI_DATA.CEZI).forEach(function(k){
+    CEZI_DATA.CEZI[k].c.forEach(function(x){ const f=x.f||'破解'; sfCnt[f]=(sfCnt[f]||0)+1; });
+  });
+  Object.values(CEZI_DATA.HUO).forEach(function(list){
+    list.forEach(function(h){ const f=h.f2||'添笔'; sfCnt[f]=(sfCnt[f]||0)+1; });
+  });
+  const sfBox=`
+  <details class="cz-fold" id="czSfFold">
+    <summary>相字十法说明</summary>
+    <div class="info-box">
+    <div class="cz-sf-list">
+      <span class="cz-sf-i"><b>装头</b>${sfCnt['装头']||0} 例</span>
+      <span class="cz-sf-i"><b>接脚</b>${sfCnt['接脚']||0} 例</span>
+      <span class="cz-sf-i"><b>穿心</b>${sfCnt['穿心']||0} 例</span>
+      <span class="cz-sf-i"><b>包笼</b>${sfCnt['包笼']||0} 例</span>
+      <span class="cz-sf-i"><b>破解</b>${sfCnt['破解']||0} 例</span>
+      <span class="cz-sf-i"><b>添笔</b>${sfCnt['添笔']||0} 例</span>
+      <span class="cz-sf-i"><b>减笔</b>${sfCnt['减笔']||0} 例</span>
+      <span class="cz-sf-i"><b>对关</b>${sfCnt['对关']||0} 例</span>
+      <span class="cz-sf-i"><b>摘字</b>${(CEZI_DATA.ZHAI?Object.keys(CEZI_DATA.ZHAI).length:0)} 例</span>
+      <span class="cz-sf-i"><b>观梅</b>${sfCnt['观梅']||0} 例</span>
+    </div>
+  </div>
+  </details>`;
+  const casesRows=(CEZI_DATA.CASES||[]).map(function(c){
+    const body=c.text.replace(new RegExp('^'+c.zi+'字'),'').replace(/^[\s，、。]+/,'');
+    return `<tr><td class="cz-zi">${c.zi}</td><td>${body}</td></tr>`;
+  }).join('');
+  const casesBox=`
+  <details class="cz-fold" id="czCasesFold">
+    <summary>底本测例</summary>
+    <div class="info-box">
+      <table class="cz-case-table"><thead><tr><th class="cz-case-zi">字</th><th>测例（程省临证验案）</th></tr></thead><tbody>${casesRows}</tbody></table>
+    </div>
+  </details>`;
+  const jwBox=`
+  <details class="cz-fold cz-jwref" id="czJwRef" ontoggle="czRenderJw()">
+    <summary>六十四卦经文检索</summary>
+    <div class="info-box"><div class="jw-host"></div></div>
+  </details>`;
+  document.getElementById('out').innerHTML =
+    head + chaiBox + duanBox + shuliBox + guaBox + waiBox + sfBox + casesBox + jwBox +
+    `<div class="xz-note cz-tail-note">※ 健康之问请遵医嘱，切勿以此断病。</div>`;
+  czRenderJw();
+  xjApplyFold('czFoldState','#out details[id]');
+  LAST=r;
+}
+/* 折叠态属交互态：结果区折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+function czValidate(){
+  const raw=(document.getElementById('czChar').value||'').trim();
+  if(!raw) return {err:'请先写下一个字。'};
+  const arr=Array.from(raw);
+  const ch=arr[0];
+  if(!/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(ch)) return {err:'“'+ch+'”不是汉字，请书写一个汉字。'};
+  return {ch:ch};
+}
+/* 起测时刻：外应旺衰、日干支、应期值冲皆由此刻定，非仅由字与事类定，故盘面须随时刻一并留档 */
+function czNow(){
+  const d=new Date(); const p=n=>('0'+n).slice(-2);
+  return { date:d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()), hm:p(d.getHours())+':'+p(d.getMinutes()) };
+}
+/* 由日期与时分重建起测时刻；无时刻则返回 null，外应诸层按无时辰参断 */
+function czSolarOf(date, hm){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date||''); if(!m) return null;
+  const t=/^(\d{1,2}):(\d{2})$/.exec(hm||'');
+  return t ? Solar.fromYmdHms(+m[1],+m[2],+m[3],+t[1],+t[2],0) : Solar.fromYmd(+m[1],+m[2],+m[3]);
+}
+function czRender(ch, catKey, solar){
+  show(CEZI_ENGINE.analyze(ch, catKey, solar?solar.getLunar():null, solar));
+}
+function draw(){
+  const v=czValidate();
+  const box=document.getElementById('out');
+  if(v.err){ box.innerHTML=`<p class="notice cz-err">${v.err}</p>`; LAST=null; return; }
+  const catKey=document.getElementById('czCat').value;
+  try{ localStorage.setItem('ceziForm',JSON.stringify({czChar:v.ch,czCat:catKey})); }catch(e){}
+  const t=czNow();
+  czRender(v.ch, catKey, czSolarOf(t.date, t.hm));
+}
+function nianzi(){
+  const ch=CEZI_ENGINE.pickRandom();
+  document.getElementById('czChar').value=ch;
+  draw();
+}

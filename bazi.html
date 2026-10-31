@@ -26,16 +26,464 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
-<link rel="stylesheet" href="assets/dist/css/bazi.critical.219cd371.css">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="preload" as="style" href="assets/dist/css/bazi.b4598ab5.css" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="assets/dist/css/bazi.b4598ab5.css"></noscript>
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
+
+.dual-rel-chk{display:inline-flex;align-items:center;gap:var(--sp-1);
+  margin:0;font-size:13px;color:var(--ink2);cursor:pointer;user-select:none}
+
+.dual-rel-chk input{width:auto;margin:0}
+
+.dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
+
+.stage2-late{content-visibility:auto;contain-intrinsic-size:auto 1200px}
+
+html.stage2 .stage2-late{content-visibility:visible}
+
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+body{--footer-ink:#285443}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+.page-bazi .field input[type="text"].dt-input{width:96px;height:30px}
+
+.page-bazi .field input[type="time"]{width:72px;height:30px}
+
+body:has(.page-bazi) .scroll-jump:not(.show){display:none}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+#out + *{margin-top:var(--sp-4)}
+
+.opts .field{flex:0 0 auto;min-width:120px}
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
+  flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
+  border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
+
+.dual-wrap{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2);flex:1 1 100%}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+@media(max-width:640px){
+.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+
+.birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
+}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+@media(max-width:640px){
+.bazi-top .field{gap:var(--sp-1);min-width:0}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
+
+.wrap.page-bazi{max-width:1080px;margin:0 auto;padding:0 var(--sp-2)}
+
+@media (max-width:900px){
+body:where(.bz-root){max-width:none;margin:0;padding:0}
+
+.wrap.page-bazi{max-width:none;margin:0;padding:0 var(--sp-3)}
+
+.page-bazi .page{margin:0;padding:var(--sp-4)}
+
+.page-bazi .opts-row{padding:0;gap:var(--sp-2)}
+
+.page-bazi .form-row{padding:0;gap:var(--sp-2);margin-bottom:var(--sp-2)}
+}
+
+.page-bazi .bazi-top{display:flex;flex-wrap:wrap;align-items:flex-end;margin-bottom:var(--sp-3)}
+
+.page-bazi .bazi-top .field#fName input{width:96px;align-self:flex-start}
+
+.page-bazi .bazi-top .field select{width:auto;align-self:flex-start}
+
+.page-bazi .bazi-top .field{flex:0 0 auto;width:auto;margin:0;min-width:0}
+
+@media(max-width:640px){
+.mode-date:where(.bz-root) .bazi-top .field,.mode-lunar:where(.bz-root) .bazi-top .field,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field{flex:0 0 auto;width:auto;min-width:0}
+
+.mode-date:where(.bz-root) .bazi-top .field select,.mode-lunar:where(.bz-root) .bazi-top .field select,body:where(.bz-root):not(.mode-date):not(.mode-lunar):not(.mode-pillar) .bazi-top .field select{width:auto;align-self:flex-start}
+
+.mode-date:where(.bz-root) .bazi-top .field#fName input,.mode-lunar:where(.bz-root) .bazi-top .field#fName input{width:96px;align-self:flex-start}
+}
+
+@media(max-width:640px){
+.mode-date:where(.bz-root) .opts-row,.mode-lunar:where(.bz-root) .opts-row{gap:var(--sp-2)}
+}
+
+.page-bazi .bazi-linkage{margin:0;background:transparent;border:0;border-top:1px solid var(--bz-line);border-radius:0;padding:var(--sp-3) 0}
+
+.page-bazi .field#fName{position:relative}
+
+.page-bazi .celeb-row{display:flex;gap:var(--sp-1);align-items:flex-end;width:100%}
+
+.page-bazi .celeb-row input{flex:0 0 auto}
+
+.page-bazi .celeb-sug{display:none;position:absolute;top:100%;left:0;z-index:30;min-width:220px;max-height:220px;overflow:auto;background:var(--card);border:1px solid var(--bz-line);box-shadow:none}
+
+.page-bazi .bazi-linkage:not([open]){border-bottom:1px solid var(--bz-line)}
+
+.page-bazi .bazi-linkage summary{font-size:var(--tier3);color:var(--bz-deep);font-family:var(--bz-serif);font-weight:400;letter-spacing:.2em;cursor:pointer}
+
+.page-bazi .mh-ref:not(.bazi-linkage){border-color:var(--bz-line)}
+
+.page-bazi .link-list{display:flex;flex-direction:column;gap:0;margin-top:var(--sp-1)}
+
+.page-bazi .link-item{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) 0;border:0;border-bottom:1px solid var(--bz-line);border-radius:0;cursor:pointer;transition:background .15s;text-decoration:none;font-size:13px}
+
+.page-bazi .link-item:hover{background:var(--bz-tint)}
+
+.page-bazi .link-item .li-ico{font-size:15px;flex:none;line-height:1}
+
+.page-bazi .link-item .li-name{color:var(--bz2);font-weight:400;font-family:var(--bz-serif);letter-spacing:.05em;white-space:nowrap;flex:none}
+
+.page-bazi .link-item .li-desc{color:var(--bz-ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+
+.page-bazi .link-item .li-tag{font-size:11px;color:var(--bz2);white-space:nowrap;flex:none;margin-left:auto;background:var(--bz-tint);padding:1px var(--sp-1);border-radius:0;line-height:1.5}
+
+@media(max-width:540px){
+.page-bazi .link-item .li-desc{display:none}
+}
+
+.page-bazi .page h1{color:var(--bz-deep);font-family:var(--bz-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-bazi .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--bz-line);margin:0 auto var(--sp-3)}
+
+.page-bazi .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--bz-line);margin:var(--sp-3) auto 0}
+
+.page-bazi .page .lead{color:var(--bz-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-bazi .page .lead::after{background:var(--bz-line)}
+
+.page-bazi input,.page-bazi select,.page-bazi textarea{border-color:var(--bz-line);transition:border-color .15s;color:var(--bz-ink)}
+
+.page-bazi input:focus,.page-bazi select:focus,.page-bazi textarea:focus{border-color:var(--bz);outline:none}
+
+.page-bazi .field input,.page-bazi .field select,.page-bazi .field textarea{background:var(--card)}
+
+.page-bazi .btn:not(.soft):not(.btn-ghost),.page-bazi .btn.gold{background:var(--bz);border-color:var(--bz);color:#fff;box-shadow:none}
+
+.page-bazi .btn:not(.soft):not(.btn-ghost):hover,.page-bazi .btn.gold:hover{background:var(--bz2);color:#fff;box-shadow:none}
+
+.page-bazi .ai-block .btn{border-radius:0}
+
+.page-bazi .birth-group,.page-bazi .birth-group.compact{padding-bottom:0}
+
+.page-bazi .dual-wrap.is-off{display:none}
+
+.duan-fold-shut{display:none}
+
+.duan-fold-body{display:none}
+
+.duan-fold-cb:checked ~ .duan-fold-head .duan-fold-more{display:none}
+
+.page-bazi .btn-ghost,.page-bazi .ai-block .btn.gold,.page-bazi .ai-block .btn.soft{background:var(--bz-tint);border:1px solid var(--bz-line);color:var(--bz-ink)}
+
+.page-bazi .btn-ghost:hover,.page-bazi .ai-block .btn.gold:hover,.page-bazi .ai-block .btn.soft:hover{background:var(--card);border-color:var(--bz-line);color:var(--bz2)}
+
+.page-bazi .zr-mod-b > :last-child,
+.page-bazi .zr-mod-b > :last-child > :last-child{margin-bottom:0}
+
+.page-bazi .ai-block{
+  border:0;border-top:1px solid var(--bz-line);border-bottom:1px solid var(--bz-line);border-radius:0;
+  background:transparent;color:var(--bz-ink);box-shadow:none;
+}
+
+.page-bazi .ai-head{background:transparent;border-bottom-color:var(--bz-line)}
+
+.page-bazi .ai-head h3{color:var(--bz2);font-family:var(--bz-serif);font-weight:400}
+
+.page-bazi .ai-head .ai-status{color:var(--bz-ink2)}
+
+.page-bazi .ai-tip{color:var(--bz-ink2)}
+
+@media print{
+.page-bazi .form-row,.page-bazi .opts,.page-bazi .saved-panel,.page-bazi #formErr,.page-bazi .bazi-linkage,.page-bazi .ai-block,.page-bazi .notice-bottom{display:none !important}
+
+.page-bazi #dyn .dyn-block,.page-bazi .yun-crumbs,.page-bazi #yunChartWrap{display:none !important}
+
+.page-bazi .birth-group{display:none !important}
+
+.duan-fold-head{display:none !important}
+}
+
+.page-bazi :where(.tip){color:var(--bz2)}
+
+@media(max-width:640px){
+.page-bazi .opts{gap:var(--sp-2)}
+}
+
+@media (prefers-color-scheme: dark){
+html .page-bazi {
+    --bz:#50a27f;
+    --bz2:#4ca080;
+    --bz-deep:#d6e0dc;
+    --bz-ink:#cfd4d1;
+    --bz-ink2:#9fa7a2;
+    --bz-line:#414e48;
+    --bz-tint:#222b28;
+  }
+}
+
+.page-bazi{
+  --bz:#356b54;          /* 松青主色 */
+  --bz2:#285443;         /* 深松青：hover 与强调 */
+  --bz-deep:#1c3a2d;     /* 松墨：大标题与表头字色 */
+  --bz-ink:#33413a;      /* 松墨灰：正文字色 */
+  --bz-ink2:#5c6e63;     /* 次级字色：松族暖灰（降饱和，不另立色相） */
+  --bz-line:#ceded7;     /* 松浅线：主色同色相，明度 84% */
+  --bz-tint:#eff5f3;     /* 松纸淡底：主色同色相，明度 96% */
+  --bz-serif:var(--font-serif);
+
+  /* 全站中性次级字色 --ink2 在本页一并落到松族灰：表单标签、模块副标题、图例等共享件
+     都挂这一档，不在此统一定色就会在松青页上混进一支冷灰 */
+  --ink2:var(--bz-ink2);
+
+  /* 全站强调令牌在本页一律落到松青族：表格加粗、折叠框标题、圆盘字色、
+     右侧到顶箭头等共享件由此一次对齐，不必逐条覆写，也不会漏出全站鎏金 */
+  --gold:var(--bz);
+  --gold2:var(--bz2);
+  --gold-brown:var(--bz2);
+  --gold-bg:var(--bz-tint);
+
+
+  /* 圆盘令牌（量化四柱圆盘、十二长生盘）：骨架、尺寸、字号走通用件 .wheel，此处只绑本页色 */
+  --wheel-serif:var(--bz-serif);
+  --wheel-line:var(--bz-line);
+  --wheel-arc:var(--bz);
+  --wheel-cur:var(--bz);
+  --wheel-core:var(--bz-tint);
+  --wheel-ink:var(--bz-ink);
+  --wheel-ink2:var(--bz-ink2);
+  --wheel-deep:var(--bz-deep);
+  --wheel-h4:var(--bz2);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);--line:var(--bz-line);--ink:var(--bz-ink)}
+
+.dtm-bazi{--tk:#356b54;--tk2:#285443;--tk-ink:#33413a;--tk-line:#ceded7;--tk-tint:#eff5f3}
+
+@media(max-width:640px){
+.bazi-top,
+  .bazi-pillar{margin-bottom:var(--sp-3)}
+}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/bazi-0.woff2) format("woff2");unicode-range:U+0021, U+0029, U+002e, U+0030-0031, U+0033, U+0035, U+0038-003a, U+003c-003d, U+0040, U+0042-0043, U+0045, U+0047-0048, U+004a, U+004c-004d, U+0050, U+0052-0053, U+0055, U+0057-0059, U+005c-005e, U+0061, U+0064-0069, U+006c, U+006e-0070, U+0072, U+0074, U+0076, U+0078, U+007c-007d, U+3000-3002, U+4e00-4e01, U+4e03, U+4e11, U+4e50, U+4e5d, U+4e8f, U+4e94, U+4ea5, U+4ee3, U+4f9b, U+4fd7, U+4fe1, U+516b-516d, U+518d, U+51ac, U+51f8, U+5206, U+5212, U+522b, U+529f, U+52a8, U+5341, U+5348, U+535c, U+5360, U+53c2, U+53cc, U+540c, U+540e, U+547d, U+548c, U+571f, U+5730, U+57ce, U+58ec, U+590f, U+5915, U+5927, U+5973, U+5a31, U+5b50, U+5b57, U+5bab, U+5bd2, U+5bf9, U+5dee, U+5df3, U+5e02, U+5e9a, U+5ea6, U+5f0f, U+5f55, U+6027, U+60ca, U+62e9, U+6362, U+6536, U+6574, U+6587, U+6599, U+65b0, U+660e, U+6625, U+665a, U+6666, U+6691, U+66f4, U+6708, U+6714, U+671f, U+672a, U+672c, U+672f, U+673a, U+6821, U+6b21, U+6b8b, U+6c34, U+6cd5, U+6d41, U+6e05, U+6e10, U+6e90, U+706b, U+7167, U+7334, U+7406, U+7528, U+7531, U+7533, U+7537, U+7678, U+76c8, U+7709, U+77e5, U+786e, U+793a, U+795e, U+79cb, U+79cd, U+7a7a, U+7acb, U+7b97, U+7d22, U+7ed3, U+7f8a, U+8003, U+8054, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+86fe, U+884c, U+8bbe, U+8bf4, U+8f7d, U+8fb0, U+8ff7, U+8ffd, U+9009, U+9149, U+957f, U+9644, U+96e8, U+96ea, U+9732, U+9996, U+ff08}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/bazi-1.woff2) format("woff2");unicode-range:U+0020, U+0022-0028, U+002a-002d, U+002f, U+0032, U+0034, U+0036-0037, U+003b, U+003e-003f, U+0041, U+0044, U+0046, U+0049, U+004b, U+004e-004f, U+0051, U+0054, U+0056, U+005a-005b, U+005f-0060, U+0062-0063, U+006a-006b, U+006d, U+0071, U+0073, U+0075, U+0077, U+0079-007b, U+007e, U+4e09-4e0b, U+4e0d-4e0e, U+4e19, U+4e3b, U+4e59, U+4e8c, U+4e8e, U+4ea1, U+4eba, U+4ec5, U+4ee4, U+4efd, U+4fdd, U+5148, U+5165, U+5171, U+5173, U+5185, U+519c, U+51c6, U+51fa, U+521d, U+52a0, U+52fe-52ff, U+5316, U+533a, U+536f, U+5373, U+5386, U+53bf, U+53d6, U+53ef, U+540d, U+56db, U+57fa, U+586b, U+5904, U+591c, U+592a, U+59d3, U+5b58, U+5b9a, U+5bb5, U+5bc5, U+5bdd, U+5c0f, U+5c45, U+5c81, U+5df1-5df2, U+5e73-5e74, U+5e93, U+5ea7, U+5eff-5f00, U+5f26, U+5f52, U+5f85, U+606f, U+620a, U+620c, U+6210, U+6298, U+636e, U+6392, U+63d0, U+653f, U+6570, U+65b9, U+65e0, U+65e2, U+65e5, U+65f6, U+65fa, U+661f, U+6653, U+6682, U+6709, U+671b, U+6790, U+679c, U+67f1, U+6863, U+68c0, U+6b63, U+6c11, U+6c14, U+6d3e, U+6d88, U+6df1, U+6ee1, U+70b9, U+7269, U+7384, U+751f, U+7532, U+754c, U+767d, U+76d8, U+76f8, U+7701, U+7814, U+7840, U+7a76, U+7b2c, U+7ecf, U+7f6e, U+86c7, U+86f0, U+8870, U+8bef, U+8bf7, U+8c37, U+8d44, U+8d77, U+8f93, U+8f9b, U+8fd0, U+914d, U+9519, U+95ed, U+95f0, U+95f4, U+9633, U+964d, U+971c, U+9875, U+9a6c, U+9e21, U+9f99, U+ff09, U+ff0c}
+
+@media(max-width:970px){
+.page-bazi .opts-row .field select{width:93px}
+
+.page-bazi .opts-row .field select#bZi{width:80px}
+}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/bazi-0.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/bazi-1.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/bazi.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/bazi.css"></noscript>
 </head>
 <body class="mode-date bz-root">
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -99,7 +547,7 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-bazi">
+<div class="wrap page-bazi" data-built="2026-10-30">
   <div class="page">
     <h1 id="pageTitle">八字排盘</h1>
     <div class="lead">公历、农历、四柱、时辰未定、名人、已存六种输入，名人库收历代人物，检索即出生辰四柱再排盘，排四柱、十神、五行旺衰与岁运。</div>
@@ -121,7 +569,7 @@
         <select id="bSex" aria-label="选择性别"><option value="1">男</option><option value="0">女</option></select>
       </div>
       <div class="field" id="fName"><label for="bName">姓名</label><div class="celeb-row"><input type="text" id="bName" aria-label="姓名" placeholder="选填" maxlength="12"><button type="button" class="btn celeb-btn" id="bCelebGo" onclick="lookupCeleb()" hidden>检索</button></div><div class="celeb-sug" id="celebSug"></div></div>
-      <div class="field" id="fDate"><label for="bDate">公历日期</label><input type="text" class="dt-input" id="bDate" aria-label="公历出生日期" placeholder="2026-09-30" value=""><script></script></div>
+      <div class="field" id="fDate" data-built="2026-10-29"><label for="bDate">公历日期</label><input type="text" class="dt-input" id="bDate" aria-label="公历出生日期" placeholder="2026-09-30" value="2026-10-29"></div>
       <div class="field" id="fLunarY" hidden><label for="bLunarY">农历年</label><input type="number" id="bLunarY" aria-label="农历年" min="1900" max="2100" step="1" value="2026"></div>
       <div class="field" id="fLunarM" hidden><label for="bLunarM">农历月</label><select id="bLunarM" aria-label="农历月"><option value="1">正月</option><option value="2">二月</option><option value="3">三月</option><option value="4">四月</option><option value="5">五月</option><option value="6">六月</option><option value="7">七月</option><option value="8">八月</option><option value="9">九月</option><option value="10">十月</option><option value="11">十一月</option><option value="12">十二月</option></select></div>
       <div class="field chk" id="fLunarLeap" hidden><input type="checkbox" id="bLunarLeap" aria-label="闰月"><label for="bLunarLeap">闰月</label></div>
@@ -170,9 +618,9 @@
     <div class="opts">
       <div class="birth-group compact" id="birthGroup">
         <div class="group-label">出生地（用于经度校正，内置行政区划经度）</div>
-        <div class="field"><label for="bProv">省份</label><select id="bProv" aria-label="选择省份"></select></div>
-        <div class="field"><label for="bCity">城市</label><select id="bCity" aria-label="选择城市"></select></div>
-        <div class="field"><label for="bDist">区县</label><select id="bDist" aria-label="选择区或县"></select></div>
+        <div class="field"><label for="bProv">省份</label><select id="bProv" aria-label="选择省份"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="bCity">城市</label><select id="bCity" aria-label="选择城市"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="bDist">区县</label><select id="bDist" aria-label="选择区或县"><option value="未知地">未知地</option></select></div>
         <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" aria-label="手动经度东经度数" step="0.01" placeholder="出生地" onchange="savePillarSel()"></div>
       </div>
       <div class="opts-row" id="optsRow">
@@ -194,7 +642,7 @@
         </div>
         <div class="field" id="bSunField"><label for="bSun">太阳时</label>
           <select id="bSun" aria-label="选择太阳时口径" onchange="savePillarSel()">
-            <option value="off">不校正</option>
+            <option value="off">不校正（无时差经度差）</option>
             <option value="true">真太阳时（均时差加经度）</option>
             <option value="mean">平太阳时（仅经度差）</option>
           </select>
@@ -305,12 +753,31 @@
       </div>
       <div class="saved-list" id="savedList"></div>
     </div>
-    <div id="out"></div>
+    <div class="stage2-late">
+<div id="out"></div>
     <details class="mh-ref bazi-linkage" id="baziLinkage">
       <summary>关联数术 深入分析</summary>
-      <div class="link-list" id="linkList"></div>
+      <div class="link-list" id="linkList"><a class="link-item" onclick="return openLink('hehun.html')" href="javascript:" title="以本命盘为一方，自动带入出生信息与出生地，补另一方后合婚"><span class="li-ico">💑</span><span class="li-name">八字合婚</span><span class="li-desc">以本命盘为一方，自动带入出生信息与出生地，补另一方后合婚</span><span class="li-tag">传出生信息</span></a><a class="link-item" onclick="return openLink('ziwei.html')" href="javascript:" title="以出生时刻与出生地自动排紫微命盘"><span class="li-ico">🌟</span><span class="li-name">紫微斗数</span><span class="li-desc">以出生时刻与出生地自动排紫微命盘</span><span class="li-tag">传出生信息</span></a><a class="link-item" onclick="return openLink('tieban.html')" href="javascript:" title="以出生时刻自动起铁板盘，六亲问卷考时定刻、抽演条文"><span class="li-ico">🧮</span><span class="li-name">铁板神数</span><span class="li-desc">以出生时刻自动起铁板盘，六亲问卷考时定刻、抽演条文</span><span class="li-tag">传出生信息</span></a><a class="link-item" onclick="return openLink('qimen.html')" href="javascript:" title="以喜用神五行映射九宫方位，判当前时空所喜方位吉凶"><span class="li-ico">🧭</span><span class="li-name">奇门遁甲</span><span class="li-desc">以喜用神五行映射九宫方位，判当前时空所喜方位吉凶</span><span class="li-tag">喜用联动</span></a><a class="link-item" onclick="return openLink('xingming.html')" href="javascript:" title="以喜用神五行参姓名五格数理三才配置，判姓名是否补益命局"><span class="li-ico">📛</span><span class="li-name">姓名学</span><span class="li-desc">以喜用神五行参姓名五格数理三才配置，判姓名是否补益命局</span><span class="li-tag">喜用联动</span></a><a class="link-item" onclick="return openLink('zeri.html')" href="javascript:" title="以本命盘出生信息推算喜用神，精择日课按喜忌加减分"><span class="li-ico">📅</span><span class="li-name">择日吉时</span><span class="li-desc">以本命盘出生信息推算喜用神，精择日课按喜忌加减分</span><span class="li-tag">传出生信息</span></a></div>
     </details>
+    <div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled="">停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj-review="1">导出复核档</button><button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    </div>
+  </details></div>
   </div>
+</div>
 </div>
 <!-- 详情弹窗 -->
 <div class="modal-mask" id="modalMask" onclick="if(event.target===this)closeTip()">
@@ -321,1225 +788,17 @@
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script src="assets/dist/js/data-lunar.b90eb2dc.js"></script>
-<script src="assets/dist/js/bazi.seg1.d82a9d81.js"></script>
-<script src="assets/dist/js/data-latlng.89a09231.js"></script>
-<script src="assets/dist/js/data-bazi-data.733be96b.js"></script>
-<script src="assets/dist/js/bazi.ab95c13a.js"></script>
-<script>
-/* ============ 事业财运：按章节1-7，纯文本表格化 + 文字层兜底 ============
- * 1 本命基调 | 2 十神关系 | 3 神煞纳音十二长生 | 4 六亲与命局特征
- * 5 风险预警 | 6 职业机遇 | 7 名利层级
- * 铁律：单元格纯文本（无<b>/<span>等HTML标签）；空格以"-"；禁斜杠与全角竖线符号；
- *       无法表格化的总结性文字以"补充说明"附加在表格后。
- */
-function scl(s){ return String(s==null?'':s).replace(/[。；；\s]+$/,'').trim(); }
-function cutYunTail(s){ return cardCutYunTail(s); }
-function escT(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\uFF0F/\u2502|]/g,'、'); }
-/* escC = escT 基础上删除十神个数信息（"命局X个"等无意义计数） */
-function escC(s){ return escT(String(s==null?'':s).replace(/命局\d+个[、，,；;]?/g,'')); }
-/* 文字段尾统一补句号。排除：已有结束标点（。！？…）、冒号未完、纯标点、占位（- 等）、纯数字、短标签（≤2字）。
- * 分号、逗号、顿号结尾→转句号；括号结尾→括号外补句号；按 [[BR]] 分段逐段处理。 */
-function addPeriods(s){
-  if(s==null) return s;
-  return String(s).split('[[BR]]').map(seg=>{
-    let x=seg.replace(/\s+$/,'');
-    if(!x) return seg;
-    if(/[。！？…]$/.test(x)) return seg;
-    if(/[:：]$/.test(x)) return seg;
-    if(/^[\s\-—–•。，,、；;：:（）()]+$/.test(x)) return seg;
-    if(/^[\d\s.％%]+$/.test(x)) return seg;
-    if(x.length<=2) return seg;
-    /* 无标点的 ≤6 字短语视为名词、标签（神煞名"天乙贵人"、状态词"平和"等），不加句号 */
-    if(x.length<=6 && !/[，,、；;：:。！？…（）()]/.test(x)) return seg;
-    if(/[；;]$/.test(x)) return x.slice(0,-1)+'。';
-    if(/[，,、]$/.test(x)) return x.slice(0,-1)+'。';
-    if(/[）)]$/.test(x)) return x+'。';
-    return x+'。';
-  }).join('[[BR]]');
-}
-/* sec(title, rows, heads, lblCol, cls) — 单元格纯文本，空格填-；cls 追加到 table 的 class（供列宽对齐定位）
- * secMerge(title, groups, heads, lblCol) — 首列同类只首行显示其余留空(用于分类合并) */
-function sec(title, rows, heads, lblCol, cls){
-  if(!rows||!rows.length) return '';
-  const hd=heads.map(h=>(typeof h==='string'?{t:h}:h||{t:''}));
-  const th=hd.map(h=>'<th>'+escT(h.t)+'</th>').join('');
-  const body=rows.map(r=>{
-    const tds=r.map((c,i)=>{ const v=(i===0&&c==='')? '': (c===''?'-':c); const isLbl=(lblCol===0&&i===0);
-      /* 标签列（≤8字）不加句号；noperiod 列（古籍断语出处等）不加；长文标签列（古籍断语等）与非标签列内容列统一 addPeriods */
-      const vv=(isLbl&&(v||'').length<=8)? v : ((hd[i]&&hd[i].noperiod)? v : addPeriods(v));
-      return '<td'+((lblCol===0&&i===0)?' class="lbl"':'')+((hd[i]&&hd[i].nowrap)?' class="nowrap"':'')+'>'+escC(vv).replace(/\[\[BR\]\]/g,'<br>')+'</td>'; }).join('');
-    return '<tr>'+tds+'</tr>';
-  }).join('');
-  return '<div class="sub-h">'+escT(noSecNum(title))+'</div><div class="tbl-wrap"><table class="stab'+(cls?' '+cls:'')+'"><tr>'+th+'</tr>'+body+'</table></div>';
-}
-/* 十神经典断语表（四模块统一渲染）：合并同名分支（按 matchAll 权重序，Map 保持插入序）+ 数量截断。
- * 每模块最多输出 MAX_DUAN 条，超出部分以 sub-note 提示从略，避免某方向命中过多撑长表格、
- * 方向间数量不均。排序已由 REL.tenCombo.matchAll 统一完成（w 降序：核心经典组合→方向专断→刑冲补充），
- * 此处只消费其顺序，不再重复排序。 */
-const MAX_DUAN = 15;
-function duanTable(title, hits){
-  if(!hits || !hits.length) return '';
-  const mg = new Map();
-  hits.forEach(x=>{
-    const o = mg.get(x.tname);
-    if(!o) mg.set(x.tname, { say: x.say });
-    else if(o.say.indexOf(x.say) < 0) o.say += '；' + x.say;
-  });
-  const rows = Array.from(mg.entries()).map(([n,o])=>[n, cutYunTail(String(o.say).replace(/<[^>]*>/g,''))]);
-  const shown = rows.slice(0, MAX_DUAN);
-  let h = sec(title, shown, [{t:'组合',noperiod:true},'判定'], 0, 'stab-ssd');
-  if(rows.length > MAX_DUAN) h += '<div class="sub-note">本模块另有 ' + (rows.length - MAX_DUAN) + ' 条十神断语从略（优先输出核心经典组合与方向专断）。</div>';
-  return h;
-}
-/* 首列只显示每组的第一个，其余(该组行)首列留空。组项：[名称,内容] 或 [内容] */
-function secCat(title, groups, heads){
-  if(!groups||!groups.length) return '';
-  const ncol=heads.length;
-  const th=heads.map(h=>'<th>'+escT(h)+'</th>').join('');
-  const body=[];
-  groups.forEach(g=>{
-    if(!g[1]||!g[1].length) return;
-    for(let k=0;k<g[1].length;k++){
-      const it=g[1][k];
-      const name=(ncol===3)?(it[0]||''):'';
-      const content=(ncol===3)?(it.slice(1).join(' - ')):(it.join(' - '));
-      if(!content&&!name) continue;
-      let tds='<td class="lbl">'+(k===0?escT(g[0]):'')+'</td>';
-      if(ncol===3){ tds+='<td>'+escC(name)+'</td><td>'+escC(addPeriods(content))+'</td>'; }
-      else { tds+='<td>'+escC(addPeriods(content))+'</td>'; }
-      body.push('<tr>'+tds+'</tr>');
-    }
-  });
-  return '<div class="sub-h">'+escT(noSecNum(title))+'</div><div class="tbl-wrap"><table class="stab"><tr>'+th+'</tr>'+body.join('')+'</table></div>';
-}
-/* 表格小标题去序号前缀："2.1  十神关系总览"→"十神关系总览"（"1  "、"6.2  "等同理） */
-function noSecNum(t){ return String(t==null?'':t).replace(/^\s*\d+(\.\d+)?([.、，]|\s+)\s*/,''); }
-function note(html){ return '<div class="sub-note">'+html+'</div>'; }
-/* ---------- 1 本命基调（八字重财官） ---------- */
-function T1(){
-  /* 本命基调表取自生成层终值：八行在事业卡组装处直接出行，
-     此处只按原两列排版，不再从卡片文字里切段抠值。 */
-  const M=(typeof window!=='undefined'&&window.__BAZI_CORE_MODEL)||{};
-  const secs=(M.career&&M.career.sections)||[];
-  let rows=null;
-  for(let i=0;i<secs.length;i++){
-    const s=secs[i];
-    if(s.title==='本命基调'&&s.heads&&s.rows&&s.rows.length&&s.rows[0].cells){
-      rows=s.rows.map(r=>r.cells.slice(0,2));
-      break;
-    }
-  }
-  if(!rows) return '';
-  return sec('1  本命基调', rows, ['项目','内容'], 0);
-}
-/* ---------- 2 十神关系（总览） ---------- */
-/* ---------- 2 十神关系（生克组合+十神经典断语）＝直接调顶层资产 REL.ten / REL.tenCombo ---------- */
-function T2b(){
-  /* 十神经典断语取自生成层终值：命中合并与权重序在事业卡组装处完成，
-     此处只按原列头排版并按原上限截断。 */
-  const rows=modelRows('career','十神经典断语');
-  if(!rows.length) return '';
-  let h=sec('2.3  十神经典断语', rows.slice(0, MAX_DUAN), [{t:'组合',noperiod:true},'判定'], 0, 'stab-ssd');
-  if(rows.length>MAX_DUAN) h+='<div class="sub-note">本模块另有 '+(rows.length-MAX_DUAN)+' 条十神断语从略（优先输出核心经典组合与方向专断）。</div>';
-  return h;
-}
-/* 生克组合表后补充：格局倾向、十神结构 两段最重要的分析（补注文字在生成层组装，此处按段名直取） */
-function T2note(){
-  const rows=modelRows('career','十神关系补注');
-  if(!rows.length||!rows[0][0]) return '';
-  return note(rows[0][0]);
-}
-/* ---------- 3(4) 神煞  纳音  十二长生（合并一张，分类列仅首行） ---------- */
-function T3(){
-  /* 神煞、纳音、十二长生三组行取自生成层终值，此处只按原分类合并排版。 */
-  const rows=modelRows('career','神煞、纳音与十二长生');
-  if(!rows.length) return '';
-  const groups=[];
-  let cur=null;
-  rows.forEach(r=>{
-    const cat=r[0]||'';
-    if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); }
-    cur[1].push([r[1]||'', r[2]||'']);
-  });
-  return secCat('3  神煞、纳音与十二长生', groups, ['分类','名称','内容']);
-}
-/* 四柱六亲：柱位→六亲；状态与作用=该柱原文解读直接入栏（行值取自生成层终值） */
-function T4(){
-  const rows=modelRows('career','六亲与命局特征');
-  if(!rows.length) return '';
-  return sec('4  六亲与命局特征', rows, ['宫位十神','状态与作用'], 0);
-}
-/* ---------- 5 风险预警（分类合并：风险、短板、可证伪 仅首行） ---------- */
-function T5(){
-  /* 风险预警三组行取自生成层终值，此处只按原分类合并排版。 */
-  const rows=modelRows('career','风险预警');
-  if(!rows.length) return '';
-  const groups=[];
-  let cur=null;
-  rows.forEach(r=>{
-    const cat=r[0]||'';
-    if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); }
-    cur[1].push([r[1]||'']);
-  });
-  return secCat('5  风险预警', groups, ['分类','提示']);
-}
-/* 模型段取行：四卡发布的结构化终值按段名直取，不再从卡片文字回解析。 */
-function modelRows(cardKey, title){
-  const M=(typeof window!=='undefined'&&window.__BAZI_CORE_MODEL)||{};
-  const secs=(M[cardKey]&&M[cardKey].sections)||[];
-  for(let i=0;i<secs.length;i++){
-    const s=secs[i];
-    if(s.title===title&&s.heads&&s.rows&&s.rows.length&&s.rows[0].cells) return s.rows.map(r=>r.cells.slice());
-  }
-  return [];
-}
-/* ---------- 6 职业机遇 ---------- */
-function T6(){
-  let h='';
-  const jobs=modelRows('career','职业方向与宜忌');
-  if(jobs.length) h+=sec('6.1  职业方向与宜忌', jobs, ['宜忌',{t:'十神',nowrap:true},{t:'方向',nowrap:true},'依据'], 0, 'stab-cy');
-  /* 财库不在此出条：财库定调归表1 本命基调财库栏，开合二说与土库辰戌二说归本命分析墓库速查行，此处不重复输出 */
-  const inds=modelRows('career','五行行业对照');
-  if(inds.length) h+=sec('6.2  五行行业对照', inds, ['五行','宜忌','行业'], 0, 'stab-inds');
-  // 行业成败附加说明：补注文字在生成层组装，此处按段名直取
-  const noteRows=modelRows('career','职业机遇补注');
-  if(noteRows.length&&noteRows[0][0]) h+=note(noteRows[0][0]);
-  const gjRows=modelRows('career','古籍断语');
-  if(gjRows.length) h+=sec('6.3  古籍断语', gjRows, ['断语',{t:'出处',noperiod:true}], 0, 'stab-a2');
-  return h;
-}
-/* ---------- 7 名利层级（十行取自生成层终值） ---------- */
-function T7(){
-  /* 名利层级十行取自生成层终值，此处只按原三列排版并按原规则分段。 */
-  const rows=modelRows('career','名利层级').map(r=>r.map(c=>String(c==null?'':c).replace(/<[^>]*>/g,'')));
-  if(!rows.length) return '';
-  rows.forEach(r=>{ if(r[2]) r[2]=sentBR(r[2]); });
-  return sec('7  名利层级', rows, ['维度','层级','说明'], 0, 'stab-a3');
-}
-/* 说明列每句话分段：仅在句号后换行（[[BR]]），分号（；）为句内并列不换行，避免"长期投入；命理示…"被拆成两行；括号内不换行。 */
-function sentBR(s){
-  let t=String(s==null?'':s);
-  // 逐句断行：句号后换行；成对全角括号内的句号不换行，如"结识。主晚运"整段保持一排
-  t=t.replace(/。/g,function(m,off,str){
-    const before=str.slice(0,off);
-    return (before.lastIndexOf('（')>before.lastIndexOf('）'))? m : m+'[[BR]]';
-  });
-  return t.replace(/\[\[BR\]\][\s]*\[\[BR\]\]/g,'[[BR]]');
-}
-/* ---------- 事业 7 表总渲染 ---------- */
-function renderCareer7(card,BZ,A,eS,isMale){
-  let h='';
-  h+=T1();
-  h+=T2b();
-  h+=T2note();
-  h+=T3();
-  h+=T4();
-  h+=T5();
-  h+=T6();
-  h+=T7();
-  return h;
-}
-/* ============ 婚姻、性格健康、家庭子女 V17：按事业财运同样逻辑（章节.子表、纯文本、sub-note补充） ============ */
-/* 复用通用工具：sec/secCat/note/scl/cutYunTail */
-/* 具体十神判定（相对日主）：五行生克+阴阳。返回 比肩、劫财、食神、伤官、正财、偏财、正官、七杀、正印、偏印 */
-/* 地支本气 */
-/* ---- 模块通用：层级表（三维 + 综合判定 + 取向） ---- */
-function levelBlock(card, title){
-  /* 层级表数据取自生成层终值：四卡在算出三维等级与外部内在条件处直接出行，
-     此处只按原列头与列宽排版，不再从卡片文字里正则抠取。 */
-  const want=String(title||'').replace(/^\d+\s+/,'');
-  const M=(typeof window!=='undefined'&&window.__BAZI_CORE_MODEL)||{};
-  let rows=null;
-  Object.keys(M).forEach(function(k){
-    ((M[k]&&M[k].sections)||[]).forEach(function(s){
-      if(!rows && s.title===want && s.heads && s.rows && s.rows.length && s.rows[0].cells) rows=s.rows.map(function(r){ return r.cells.map(function(c){ return String(c==null?'':c).replace(/<[^>]*>/g,''); }); });
-    });
-  });
-  if(!rows) return '';
-  rows.forEach(function(r){ if(r[2]&&typeof r[2]==='string') r[2]=sentBR(r[2]); });
-  return sec(title, rows, ['维度','层级','说明'], 0, 'stab-a3');
-}
-/* 单元格收尾：去尾随圈序号（②③④…）、补齐失衡全角括号（cutYunTail 剥"、待岁运引出"会留孤儿左括号 */
-function cleanCell(s){ return cardCleanCell(s); }
-/* ========== 择偶方位两法（宫位法、择偶方向表法）========== */
-const GAN_FANG2={'甲':'东','乙':'东','丙':'南','丁':'南','戊':'中央','己':'中央','庚':'西','辛':'西','壬':'北','癸':'北'};
-const FANG_CHONG2={'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'};
-const MONTH_JIAN2=['','寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑']; /* 1-12 月建落宫 */
-/* 宫位法：男命以财星为妻星、女命以官杀为夫星，依夫妻星所临天干地支宫位定配偶方位（以出生地为圆点）。
- * 顺序：① 夫妻星天干透出（跳日干自身）→ 以坐下地支方位为主、天干所主方位为辅；
- *      ② 不现则查地支藏干（含日支）→ 以藏夫妻星之地支方位为据；
- *      ③ 再不现则取夫妻宫（日支）方位。 */
-function gongWeiFa(BZ,isMale){ return xjGongWeiFa(BZ,isMale,ZHI_FANG,GAN_FANG2); }
-/* 择偶方向表法：按农历出生月日，自月建落宫起一顺数至出生日期，落宫方向及其对冲方向即可能方位；
- * 闰月按当月算、夜子时仍按当天日期查（lunar 已按页面口径取好日期，此处直接取月日）。 */
-function zeOuBiaoFa(BZ){ return xjZeOuBiaoFa(BZ,MONTH_JIAN2,FANG_CHONG2,ZHI_FANG); }
-function renderMarry7(card,BZ,A,eS,isMale){
-  let h='';
-  // 1.1 十神经典断语（直调顶层 REL.tenCombo，marry 方向＋婚姻主题句，性别由顶层门控）
-  try{
-    const _cb=REL.tenCombo.buildCtx(BZ);
-    const _mHits=REL.tenCombo.matchAll(_cb,{dirs:['marry'],theme:'marry'});
-    h+=duanTable('1.1  十神经典断语', _mHits);
-  }catch(e){}
-  // 1.2 配偶星与夫妻宫（行值取自生成层终值）
-  const spRows=modelRows('marry','配偶星与夫妻宫');
-  if(spRows.length){
-    spRows.forEach(r=>{ if(r[1]) r[1]=sentBR(r[1]); });
-    h+=sec('1.2  配偶星与夫妻宫', spRows.filter(r=>r[1]&&r[1].length>1), ['项目','判定'], 0);
-  }
-  // 2 神煞、纳音与十二长生（三组行取自生成层终值）
-  const shaRows=modelRows('marry','神煞、纳音与十二长生');
-  if(shaRows.length){
-    const groups=[]; let cur=null;
-    shaRows.forEach(r=>{ const cat=r[0]||''; if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); } cur[1].push([r[1]||'', r[2]||'']); });
-    h+=secCat('2  神煞、纳音与十二长生', groups, ['分类','名称','内容']);
-  }
-  // 3 六亲与婚恋特征（行值取自生成层终值）
-  const sixRows=modelRows('marry','六亲与婚恋特征');
-  if(sixRows.length) h+=sec('3  六亲与婚恋特征', sixRows, ['六亲','状态与作用'], 0);
-  // 4 感情风险预警（三组行取自生成层终值）
-  const riskRows=modelRows('marry','感情风险预警');
-  if(riskRows.length){
-    const groups=[]; let cur=null;
-    riskRows.forEach(r=>{ const cat=r[0]||''; if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); } cur[1].push([r[1]||'']); });
-    h+=secCat('4  感情风险预警', groups, ['分类','提示']);
-  }
-  // 5.1 婚缘机遇与择偶方向（行值取自生成层终值）
-  const zeRows=modelRows('marry','婚缘机遇与择偶方向');
-  if(zeRows.length){
-    zeRows.forEach(r=>{ if(r[1]) r[1]=sentBR(r[1]); });
-    h+=sec('5.1  婚缘机遇与择偶方向', zeRows.filter(r=>r[1]&&r[1].length>2), ['项目','内容'], 0);
-  }
-  const hyRows=modelRows('marry','婚缘说明补注');
-  if(hyRows.length&&hyRows[0][0]) h+=note(hyRows[0][0]);
-  // 5.2 古籍断语：取生成层结构化行
-  const gjRows=modelRows('marry','古籍断语');
-  if(gjRows.length) h+=sec('5.2  古籍断语', gjRows, ['断语',{t:'出处',noperiod:true}], 0, 'stab-a2');
-  // 6 感情质量层级
-  h+=levelBlock(card,'6  感情质量层级');
-  return h;
-}
-function renderHealth7(card,BZ,A,eS,isMale){
-  let h='';
-  // ---- 1 身心基调：日主、阴阳、喜忌、性格、格局、总结（行值取自生成层终值）----
-  const rows1=modelRows('health','身心基调');
-  h+=sec('1  身心基调', rows1.filter(r=>r[1]), ['项目','内容'], 0, 'stab-a1');
-  /* 十神性格健康总览并入“十神经典断语”表（同一数据源，不重复出表） */
-  // 2b 十神经典断语（直调顶层，health 方向；六亲、身心断语按 cats 过滤、性别门控）
-  // 统一走 duanTable（合并同名 + 权重序截断）
-  try{
-    const _cb=REL.tenCombo.buildCtx(BZ);
-    const _hHits=REL.tenCombo.matchAll(_cb,{dirs:['health'],theme:'health'});
-    h+=duanTable('2  十神经典断语', _hHits);
-  }catch(e){};
-  // ---- 3 神煞纳音十二长生（行值取自生成层终值）----
-  { const shaRows=modelRows('health','神煞、纳音与十二长生');
-    if(shaRows.length){
-      const groups=[]; let cur=null;
-      shaRows.forEach(r=>{ const cat=r[0]||''; if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); } cur[1].push([r[1]||'', r[2]||'']); });
-      h+=secCat('3  神煞、纳音与十二长生', groups, ['分类','名称','内容']);
-    }
-    const xjRows=modelRows('health','神煞喜忌');
-    if(xjRows.length&&xjRows[0][0]) h+=note(cleanCell(scl(xjRows[0][0]))+'。');
-  }
-  // ---- 4 六亲脏腑与命局特征（行值取自生成层终值）----
-  { const sixRows=modelRows('health','六亲脏腑与命局特征').filter(r=>r[1]);
-    if(sixRows.length) h+=sec('4  六亲脏腑与命局特征', sixRows, ['项目','状态与作用'], 0)
-      +note('脏腑一项所言为先天易感倾向与调养方向，非诊断结论；身体不适请就医。'); }
-  // ---- 5 风险预警（三组行取自生成层终值）----
-  { const riskRows=modelRows('health','风险预警');
-    if(riskRows.length){
-      const groups=[]; let cur=null;
-      riskRows.forEach(r=>{ const cat=r[0]||''; if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); } cur[1].push([r[1]||'']); });
-      h+=secCat('5  风险预警', groups, ['分类','提示']);
-    } }
-  // ---- 6.1 养护调护方向（行值取自生成层终值）----
-  { const yhRows=modelRows('health','养护调护方向');
-    if(yhRows.length) h+=sec('6.1  养护调护方向', yhRows, ['项目','内容'], 0); }
-  // ---- 6.2 寿元根基（行值取自生成层终值，首句总述单列补注）----
-  const syRows=modelRows('health','寿元根基');
-  if(syRows.length) h+=sec('6.2  寿元根基', syRows.filter(r=>r[1]), ['项目','内容'], 0);
-  const syNoteRows=modelRows('health','寿元根基补注');
-  if(syNoteRows.length&&syNoteRows[0][0]) h+='<div class="sub-note">'+syNoteRows[0][0]+'</div>';
-  // 古籍断语：取生成层结构化行
-  const gjRows=modelRows('health','古籍断语').map(r=>[cleanCell(r[0]), r[1]]);
-  if(gjRows.length) h+=sec('6.3  古籍断语', gjRows, ['断语',{t:'出处',noperiod:true}], 0, 'stab-a2');
-  // ---- 7 身心素质层级 ----
-  h+=levelBlock(card,'身心素质层级');
-  return h;
-}
-/* ================= 四、家庭子女 ================= */
-function renderFamily7(card,BZ,A,eS,isMale){
-  let h='';
-  /* 十神家庭子女总览并入“十神经典断语”表（同一数据源，不重复出表） */
-  // 1b 十神经典断语（直调顶层，family 方向；六亲、子女、手足断语按 cats 过滤、性别门控）
-  // 统一走 duanTable（合并同名 + 权重序截断）
-  try{
-    const _cb=REL.tenCombo.buildCtx(BZ);
-    const _fHits=REL.tenCombo.matchAll(_cb,{dirs:['family'],theme:'family'});
-    h+=duanTable('1  十神经典断语', _fHits);
-  }catch(e){};
-  // 2 神煞纳音十二长生（行值取自生成层终值）
-  { const shaRows=modelRows('family','神煞、纳音与十二长生');
-    if(shaRows.length){
-      const groups=[]; let cur=null;
-      shaRows.forEach(r=>{ const cat=r[0]||''; if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); } cur[1].push([r[1]||'', r[2]||'']); });
-      h+=secCat('2  神煞、纳音与十二长生', groups, ['分类','名称','内容']);
-    }
-    const xjRows=modelRows('family','神煞喜忌');
-    if(xjRows.length&&xjRows[0][0]) h+=note(cleanCell(scl(xjRows[0][0]))+'。');
-  }
-  // 3 六亲与命局特征（行值取自生成层终值）
-  { const sixRows=modelRows('family','六亲与命局特征');
-    if(sixRows.length) h+=sec('3  六亲与命局特征', sixRows, ['项目','状态与作用'], 0); }
-  // 4 风险预警（三组行取自生成层终值）
-  { const riskRows=modelRows('family','风险预警');
-    if(riskRows.length){
-      const groups=[]; let cur=null;
-      riskRows.forEach(r=>{ const cat=r[0]||''; if(!cur||cur[0]!==cat){ cur=[cat,[]]; groups.push(cur); } cur[1].push([r[1]||'']); });
-      h+=secCat('4  风险预警', groups, ['分类','提示']);
-    } }
-  // 5.1 家庭经营方向（行值取自生成层终值）
-  { const jyRows=modelRows('family','家庭经营方向');
-    if(jyRows.length) h+=sec('5.1  家庭经营方向', jyRows, ['项目','内容'], 0); }
-  // 5.2 古籍断语：取生成层结构化行
-  const gjRows=modelRows('family','古籍断语');
-  if(gjRows.length) h+=sec('5.2  古籍断语', gjRows, ['断语',{t:'出处',noperiod:true}], 0, 'stab-a2');
-  // 6 家庭子女缘分层级
-  h+=levelBlock(card,'6  家庭子女缘分');
-  return h;
-}
-/* ================= 渲染 ================= */
-function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-/* ============ 关联数术联动：仅列真正能联动者 ============
- * 传出生信息（基于出生时刻，真联动）：八字合婚、紫微斗数、择日
- * 喜用神联动：奇门遁甲（喜用五行映射九宫）
- * 按当前问事时间（不传出生信息）：六爻、梅花、大六壬、小六壬、太乙，不列入联动 */
-const LINK_TOOLS=[
-  {id:'hehun',name:'八字合婚',ico:'💑',desc:'以本命盘为一方，自动带入出生信息与出生地，补另一方后合婚',tag:'传出生信息'},
-  {id:'ziwei',name:'紫微斗数',ico:'🌟',desc:'以出生时刻与出生地自动排紫微命盘',tag:'传出生信息'},
-  {id:'tieban',name:'铁板神数',ico:'🧮',desc:'以出生时刻自动起铁板盘，六亲问卷考时定刻、抽演条文',tag:'传出生信息'},
-  {id:'qimen',name:'奇门遁甲',ico:'🧭',desc:'以喜用神五行映射九宫方位，判当前时空所喜方位吉凶',tag:'喜用联动'},
-  {id:'xingming',name:'姓名学',ico:'📛',desc:'以喜用神五行参姓名五格数理三才配置，判姓名是否补益命局',tag:'喜用联动'},
-  {id:'zeri',name:'择日吉时',ico:'📅',desc:'以本命盘出生信息推算喜用神，精择日课按喜忌加减分',tag:'传出生信息'}
-];
-/* ============ 名人输入方式 ============
- * 三库皆取自全站共用真源：名单两库（assets/name-celebs.js 策展库与 name-celebs-cbdb.js CBDB 库）
- * 与生辰库（assets/bazi-celebs-db.js），体量大（合计约十一兆）故按需懒加载：
- * 切到名人模式后首次联想或点检索才注入脚本，浏览器缓存后不再重复下载，未用名人检索者零请求。
- * 名单只载全名、朝代与身份短语，不载生辰：排盘须走四柱反查，本模块按人物朝代预置检索跨度并切四柱模式。 */
-const CELEB_SPAN={
-  '商':'-1600|-1046','西周':'-1046|-771','春秋':'-770|-476','战国':'-475|-221','秦':'-221|-207',
-  '西汉':'-202|-8','东汉':'25|220','三国':'220|589','晋':'220|589','南北朝':'220|589',
-  '隋':'581|618','唐':'618|907','五代':'907|960','宋':'960|1279','金':'960|1279',
-  '元':'1271|1368','明':'1368|1644','清':'1644|1911','民国':'1864|2103'
-};
-const CELEB_SPAN_KEYS=Object.keys(CELEB_SPAN).sort((a,b)=>b.length-a.length);
-function celebSpanOf(dyn){
-  if(!dyn) return null;
-  if(CELEB_SPAN[dyn]) return CELEB_SPAN[dyn];
-  const hit=CELEB_SPAN_KEYS.find(k=>dyn.indexOf(k)>=0);
-  return hit?CELEB_SPAN[hit]:null;
-}
-/* 生辰无载时的措辞：须分活人与古人。
-   在世或近现当代人物说"史未载"是错的：人还在世，无史可载，只是本站未收。
-   说成本站未收才是实话，也不致让人以为翻过史料确无记载。
-   古人则确是史籍未载生辰，两者不可混用同一句。 */
-const CELEB_LIVING=/当代|现代|在世/;
-function celebNoBirthWord(dyn){
-  return CELEB_LIVING.test(dyn||'')
-    ? '本站未收其生辰（在世人物的出生信息以本人公开为准，本站不擅收录），无法直接排盘；'
-    : '史籍未载其确切生辰，无法直接排盘；';
-}
-/* 无生辰时的引导语：只说自行排盘，不指路到四柱反查。
-   当代人物手里有的是出生年月日，四柱得由公历换算而来，让人去填干支是本末倒置；
-   该走哪条输入方式由用户自己定，此处只交还主动权，不替他挑路。 */
-const CELEB_NO_BIRTH_TAIL='若你掌握其出生信息，可自行排盘输出。';
-/* 三库的在途装载：键到 Promise 的映射。
-   同一库被重复请求时（打字触发联想一次、点检索再一次）共用同一次装载，
-   否则会挂出两份 script，先到的那两份里若恰是同一库的副本，计数被副本凑满而另一库仍未落地。 */
-const _celebLibPending={};
-function _loadCelebLib(src, key){
-  if(window[key]) return Promise.resolve();
-  if(_celebLibPending[src]) return _celebLibPending[src];
-  _celebLibPending[src]=new Promise(res=>{
-    const s=document.createElement('script');
-    s.src=src;
-    s.onload=res; s.onerror=res;
-    document.head.appendChild(s);
-  });
-  return _celebLibPending[src];
-}
-/* 查库前须确认三库俱在：任一库缺失即开查会漏人，生辰库缺失还会把可排盘者标成无生辰。
-   三库合计十一兆、异步抵达，先到者先触发 onload；若按先到即回调，
-   首次检索会在另两库还没落地时开查，策展库里明明有的人被判成"名单未载"，
-   且给出的相近人物只来自已到的那一库，看上去像库里真没这个人。
-   故一律等齐三库（失败亦放行，交由查库结果如实报未载）再回调。 */
-function ensureCelebLibs(cb){
-  Promise.all([
-    _loadCelebLib('assets/name-celebs.js','NAME_CELEBS'),
-    _loadCelebLib('assets/name-celebs-cbdb.js','NM_CBDB_FULL'),
-    _loadCelebLib('assets/bazi-celebs-db.js','BAZI_CELEBS_DB')
-  ]).then(()=>cb(), ()=>cb());
-}
-/* 人名查库：策展库优先（含身份短语），CBDB 库按首字桶行文本精确匹配全名 */
-function celebLookup(nm){
-  if(!nm) return null;
-  const cur=window.NAME_CELEBS&&window.NAME_CELEBS[nm];
-  if(cur) return {name:nm, dyn:cur.dynasty||'', role:cur.note||''};
-  const B=window.NM_CBDB_FULL, bucket=B&&B[nm.charAt(0)];
-  if(bucket){
-    const rows=bucket.split('\n');
-    const row=rows.find(r=>r.startsWith(nm+'\t'));
-    if(row){ const c=row.split('\t'); return {name:c[0], dyn:c[1]||'', role:c[2]||''}; }
-  }
-  return null;
-}
-/* 人名联想：策展库键名与 CBDB 桶行同扫，前缀命中优先，合并去重各取若干 */
-function celebSuggest(q){
-  const out=[], seen=new Set();
-  /* 生辰标记分两档：生年月日俱全者标可排盘，仅生年可考者标生年可考，两者不得混标 */
-  const push=(name,dyn,role)=>{
-    if(seen.has(name)||out.length>=12) return;
-    seen.add(name);
-    const _b=window.BAZI_CELEBS_DB&&window.BAZI_CELEBS_DB[name];
-    out.push({name,dyn,role,hasBirth:!!(_b&&_b.y&&!_b.yo),hasYear:!!(_b&&_b.y&&_b.yo)});
-  };
-  const cur=window.NAME_CELEBS||{};
-  Object.keys(cur).forEach(k=>{ if(k.indexOf(q)===0) push(k,cur[k].dynasty||'',cur[k].note||''); });
-  const B=window.NM_CBDB_FULL, bucket=B&&B[q.charAt(0)];
-  if(bucket){
-    bucket.split('\n').forEach(r=>{
-      if(!r||r.indexOf('\t')<0) return;
-      const c=r.split('\t');
-      if(c[0].indexOf(q)===0) push(c[0],c[1]||'',c[2]||'');
-    });
-  }
-  return out;
-}
-function renderCelebSug(list){
-  const box=document.getElementById('celebSug');
-  if(!box) return;
-  if(!list.length){ box.classList.remove('on'); box.innerHTML=''; return; }
-  const esc2=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  box.innerHTML=list.map(p=>`<button type="button" data-nm="${esc2(p.name)}"><b>${esc2(p.name)}</b><span>${esc2(p.dyn)}${p.role?('　'+esc2(p.role)):''}${p.hasBirth?'　生辰可考':(p.hasYear?'　生年可考':'')}</span></button>`).join('');
-  box.classList.add('on');
-}
-function bindCelebInput(){
-  /* 联想复用姓名输入框：仅名人模式下响应，其余模式输入姓名不触发查库 */
-  const inp=document.getElementById('bName'), box=document.getElementById('celebSug');
-  if(!inp||inp._celebBound) return;
-  inp._celebBound=true;
-  inp.addEventListener('input', ()=>{
-    const bm=document.getElementById('bMode');
-    if(!bm || bm.value!=='celeb'){ box.classList.remove('on'); return; }
-    const q=inp.value.trim();
-    if(q.length<2){ box.classList.remove('on'); box.innerHTML=''; return; }
-    /* 名库懒加载完成再渲染；回调取输入框现值，防加载期间继续输入导致联想落在旧词上 */
-    ensureCelebLibs(()=>{ const cur=inp.value.trim(); if(cur.length>=2) renderCelebSug(celebSuggest(cur)); });
-  });
-  box.addEventListener('click', e=>{
-    const b=e.target&&e.target.closest?e.target.closest('button[data-nm]'):null;
-    if(!b) return;
-    inp.value=b.getAttribute('data-nm');
-    box.classList.remove('on'); box.innerHTML='';
-  });
-  inp.addEventListener('keydown', e=>{ if(e.key==='Escape'){ box.classList.remove('on'); } });
-  inp.addEventListener('blur', ()=>{ setTimeout(()=>{ if(box) box.classList.remove('on'); },200); });
-}
-/* 名人出生地：库载三级地名取可读文本（市与省同名者不重复并写，区县空则止于市） */
-function celebPlaceText(birth){
-  const p=birth&&birth.bp;
-  if(!p||!p[0]) return '';
-  const _seg=p[1]&&p[1]!==p[0]?p[1]:'';
-  const _dst=p[2]&&p[2]!==p[1]?p[2]:'';
-  return [p[0],_seg,_dst].filter(Boolean).join('');
-}
-/* 名人出生地经度：由三级地名现查全站坐标真源，库内只存地名不存坐标，免各处重复维护经度表。
-   库载只到省者按该省代表经度回折：这一层精度由 celebPlaceNote 在页面上明写，
-   读者知其所据是省域代表点而非具体市县，与用户自填出生地未定之情不同，不算暗兜底。
-   查不出经度者返回 null，调用方按不校正处理。 */
-function celebLng(birth){
-  const p=birth&&birth.bp;
-  if(!p||!p[0]||typeof findLng!=='function') return null;
-  const l=findLng(p[0],p[1]||'',p[2]||'');
-  if(typeof l==='number'&&!isNaN(l)) return l;
-  if(!p[1]&&!p[2]){
-    const pc=provCenter(p[0]);
-    if(pc&&typeof pc.lng==='number'&&!isNaN(pc.lng)) return pc.lng;
-  }
-  return null;
-}
-/* 直辖市判定：省下只有一个市且市名与省名同，即省与市是一回事（北京、天津、上海、重庆）。
-   由坐标真源的表形推得，不另立名单，免得两处维护不一致。 */
-function isMunicipal(prov){
-  const list=typeof PROV!=='undefined'&&PROV[prov];
-  return !!(list&&list.length===1&&list[0].c===prov);
-}
-/* 名人生地措辞：库载出生地有的只到省，有的细到区县。只到省者按省域代表经度回折，
-   措辞须如实说出这一层精度，不让人误以为已落到具体市县。
-   无坐标时分三段：有记载而无从校正者说出记载在何处；近现代人物按标准时记录，
-   不校正即按标准时出盘；古人记时用地方时，史载时辰本身就是当地时间，再折一次反倒是错盘。
-   三段不可混用一句，也不可把本站未收说成史未载。
-   可见文字只说校正与否这一专业事实，不说为何校正不了：坐标表的完备程度属后端数据状况，
-   写出来即暴露数据来源与校正过程。 */
-const CELEB_STD_TIME=/当代|现代|近现代|民国/;
-function celebPlaceNote(birth){
-  const p=birth&&birth.bp;
-  if(!p||!p[0]){
-    const _n=birth&&birth.bpName;
-    if(_n) return '出生地载于'+_n+'，未作经度校正，按标准时出盘。';
-    return CELEB_STD_TIME.test((birth&&birth.dyn)||'')
-      ? '出生地未载，按标准时出盘，未经经度校正。'
-      : '史未载出生地，按史载地方时排盘，不经经度校正。';
-  }
-  const _t=celebPlaceText(birth);
-  /* 直辖市省即市，省名本身就是市名，再说该省代表经度反而把精度说低了 */
-  if(p[1]||isMunicipal(p[0])) return '史载出生地'+_t+'，排盘按该地经度回折真太阳时。';
-  return '史载出生地在'+_t+'，具体市县未载，排盘按该省代表经度回折真太阳时。';
-}
-/* 名人时辰来源措辞：hs 记来源，1 为史载（档案、年谱、自述、权威传记明载），
-   2 为传世（命理界长期流通、生平可相印证）。两层措辞分开，不把传世说成史载，
-   也不把无记载者说成有记载；无 hs 者即史未详，按午时正计。 */
-function celebHourSrc(birth){
-  const _z=ZHI_ORDER[Math.floor(((birth&&birth.h!=null?birth.h:12)+1)%24/2)]+'时';
-  if(!birth||birth.h==null) return {tag:'时辰史未详，按午时正计', name:'', hs:0};
-  if(birth.hs===1) return {tag:'时辰据史载'+_z, name:_z, hs:1};
-  if(birth.hs===2) return {tag:'时辰据传世记载'+_z+'（命理界流通之说，非档案明载）', name:_z, hs:2};
-  return {tag:'时辰据记载'+_z, name:_z, hs:0};
-}
-/* 名人出生地归位：库载出生地者按三级地名回填出生地组并开真太阳时，按该地经度回折；
-   无库载出生地者关掉太阳时校正，古人记时用地方时，史载时辰本身即当地时间，
-   再按某一经度折一次反而是错盘。两种情形都显式设口径：不设则沿用上一次检索或本地存留的
-   出生地，古代人物会按别人的经度折算，出的盘无从说明其来历。
-   库载只到省者市一级无从落位，改把手动经度框填上该省代表经度：经度在框里看得见，
-   配 celebPlaceNote 那句省域精度的说明，读盘者知其所据，不属暗兜底。 */
-function applyCelebPlace(birth){
-  const p=birth&&birth.bp;
-  const su=document.getElementById('bSun');
-  const bl=document.getElementById('bLng');
-  if(!p||!p[0]){
-    if(su) su.value='off';
-    if(bl) bl.value='';
-    return;
-  }
-  if(window.__baziPlaceTrio) window.__baziPlaceTrio.set(p[0], p[1], p[2]);
-  if(bl) bl.value='';
-  if(!p[1]&&!isMunicipal(p[0])){
-    const pc=provCenter(p[0]);
-    if(bl&&pc&&pc.lng!=null) bl.value=String(pc.lng);
-  }
-  if(su) su.value='true';
-}
-/* 历史出生年份口径提示：出生年份早于 1949 时显一条，说明当时中国尚未普及标准时、
-   钟面时间多为当地地方时，按史载时辰录入宜取不校正。与名人库对古人时辰"即当地时间、
-   再折一次反倒是错盘"的口径一致。纯提示：不改任何缺省，不拦出盘。
-   年份取自当前输入方式：公历模式读日期串首段（含公元前负年），农历模式读农历年。 */
-function eraTimeNote(){
-  const box=document.getElementById('eraNote');
-  if(!box) return;
-  const mode=(document.getElementById('bMode')||{}).value||'';
-  let y=null;
-  if(mode==='date'){
-    const m=/^\s*(-?\d{1,6})/.exec(((document.getElementById('bDate')||{}).value||''));
-    if(m) y=parseInt(m[1],10);
-  } else if(mode==='lunar'){
-    const v=parseInt(((document.getElementById('bLunarY')||{}).value||''),10);
-    if(isFinite(v)) y=v;
-  }
-  box.hidden=!(y!=null && isFinite(y) && y<1949);
-}
-/* 检索未得出完备生辰时的收尾：清空结果区与排盘状态。
-   本分支的提示直写 formErr 的 textContent 而不走 showFormErr，
-   后者带清空本命状态的终止语义，会把刚写上的提示一并抹掉；
-   故此处只清 #out 与 _celebHit，不动提示框本身。 */
-function clearCelebResult(){
-  const _o=document.getElementById('out'); if(_o) _o.innerHTML='';
-  window._celebHit=null;
-  try{ window.BZ=null; }catch(e){}
-}
-/* 记下"检索过但无完整生辰"的姓名：名人模式下排盘据此给出如实提示，
-   否则用户明明检索过却被告知"请先检索"，既无解释也不知该怎么办。 */
-function markCelebBlocked(nm){ window._celebBlocked=nm||null; }
-/* 清空八个柱位下拉：下拉为纯选项列表，置空值后无选中项，
-   此时点排盘会被 paipanPillar 的"请完整填写四柱干支"拦下，不会带着上一位的干支出盘。
-   残留柱位是本页最隐蔽的错源：它长得像已填好的输入，用户无从知道那是别人的八字。 */
-function clearPillarInputs(){
-  ['pyG','pyZ','pmG','pmZ','pdG','pdZ','ptG','ptZ'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  try{ if(typeof pillarChosenDate!=='undefined') pillarChosenDate=null; }catch(e){}
-}
-/* 名人检索：输出名人生辰与四柱供确认，检索与排盘两段分离 */
-function lookupCeleb(){
-  clearFormErr();
-  const _sug=document.getElementById('celebSug');
-  if(_sug) _sug.classList.remove('on');
-  const inp=document.getElementById('bName');
-  const nm=(inp&&inp.value||'').trim();
-  if(!nm){ showFormErr('请输入名人姓名，可从联想列表选择'); return; }
-  /* 首次检索需先装载名单库（八兆），点击到出结果之间会有可见间隔；
-     不即时反馈会被当成点击没生效而连点，故先报一句正在检索。 */
-  const _fe0=document.getElementById('formErr');
-  if(_fe0){ _fe0.textContent='正在检索，请稍候…'; _fe0.hidden=false; }
-  ensureCelebLibs(()=>{
-    const hit=celebLookup(nm);
-    const birth=window.BAZI_CELEBS_DB&&window.BAZI_CELEBS_DB[nm];
-    const _fe=document.getElementById('formErr');
-    if(birth&&birth.y){
-      const _pad=n=>String(n).padStart(2,'0');
-      /* 乙层：仅生年可考，月日时无考者给出年柱与生卒区间，不可排盘（四柱须年月日时俱全） */
-      if(birth.yo){
-        /* 清空结果区与本命状态：检索不出完备生辰时留在画面上的会是上一位人物的盘，
-           用户无从分辨这张盘属于谁，故此处显式抹除，与 showFormErr 同一收尾口径。
-           八个柱位一并清空：残留柱位会在用户切到四柱模式点排盘时被当成这位名人的八字排出。 */
-        clearCelebResult();
-        clearPillarInputs();
-        markCelebBlocked(nm);
-        let _yg='';
-        try{ _yg=liunianGZ(birth.y)||''; }catch(e){ _yg=''; }
-        window._celebHit=null;
-        _fe.textContent='已检索到名人：'+nm+'（'+(birth.dyn||'朝代未载')+(birth.role?('，'+birth.role):'')+'）'
-          +'，史载生年 '+birth.y+' 年'+(birth.dy?('，卒年 '+birth.dy+' 年'):'')+(_yg?('，年柱 '+_yg):'')
-          +'。生辰月日时无考，四柱不全，无法排盘；'+CELEB_NO_BIRTH_TAIL;
-        _fe.hidden=false;
-        return;
-      }
-      const _dstr=birth.y+'-'+_pad(birth.m)+'-'+_pad(birth.d);
-      const _hasH=birth.h!=null;
-      const _tstr=_hasH?(_pad(birth.h)+':'+_pad(birth.mi||0)):'12:00';
-      const _hs=celebHourSrc(birth);
-      window._celebHit={name:nm, birth};
-      markCelebBlocked(null);
-      /* 出生地归位：库载出生地者按三级地名填入出生地组并开真太阳时；
-         无记载者显式关掉校正，按史载地方时排盘 */
-      const _place=celebPlaceText(birth);
-      applyCelebPlace(birth);
-      /* 四柱须按与排盘同一口径取：库载出生地者先折真太阳时再起柱，
-         否则检索报出的时柱与排盘所出之时柱会差一位，同一次检索自相矛盾 */
-      let lunarTxt='', gz='';
-      try{
-        const _lng=_place?celebLng(birth):null;
-        const _hh=_hasH?birth.h:12, _mm=_hasH?(birth.mi||0):0;
-        const _s=(_lng!=null&&typeof trueSolarTime==='function')?trueSolarTime(birth.y,birth.m,birth.d,_hh,_mm,_lng,'true'):null;
-        const _sy=_s?_s.y:birth.y, _sm=_s?_s.m:birth.m, _sd=_s?_s.d:birth.d, _sh=_s?_s.h:_hh, _smi=_s?_s.mi:_mm;
-        const _lu=Solar.fromYmdHms(_sy,_sm,_sd,_sh,_smi,0).getLunar();
-        lunarTxt='，农历'+_lu.getMonthInChinese()+'月'+_lu.getDayInChinese();
-        const _c=_lu.getEightChar();
-        gz=_c.getYear()+' '+_c.getMonth()+' '+_c.getDay()+' '+_c.getTime();
-      }catch(e){}
-      _fe.textContent='已检索到名人：'+nm+'（'+(birth.dyn||'朝代未载')+(birth.role?('，'+birth.role):'')+'），生于公历 '+_dstr+lunarTxt+'，'+_hs.tag+(_hasH?('（'+_tstr+'）'):'')+'，四柱 '+gz+'。'+celebPlaceNote(birth)+'核对无误后点“排盘”出盘。';
-      /* 显示提示框：摘下 hidden 即显示，显隐一律走属性，不经样式直写 */
-      _fe.hidden=false;
-      return;
-    }
-    if(hit){
-      /* 未得完备生辰者一律不代为切模式：切到四柱模式后八个柱位仍留着上一次的残留干支，
-         用户照着提示点排盘，排出的是别人的八字却冠以这位名人的姓名，属最严重的误导。
-         此处只清空结果区与残留柱位，模式不动，由用户自己决定走公历还是四柱。
-         检索跨度照旧按朝代预置（切模式后仍在），但不谎称已为其排盘。 */
-      clearCelebResult();
-      clearPillarInputs();
-      markCelebBlocked(nm);
-      const span=celebSpanOf(hit.dyn);
-      /* 有跨度才写到检索跨度上：写着"已按某朝预置"却没真改是最坏的提示，
-         用户信了这句话去查，查到的年份仍是上一次残留的区间。无跨度即如实不说。 */
-      let _spanTxt='';
-      if(span){ const ps=document.getElementById('pSpan'); if(ps){ ps.value=span; applyPillarSpan(); _spanTxt='已按'+(hit.dyn||'该朝')+'预置四柱检索跨度，'; } }
-      savePillarSel();
-      _fe.textContent='已检索到名人：'+hit.name+'（'+(hit.dyn||'朝代未载')+(hit.role?('，'+hit.role):'')+'）。'+celebNoBirthWord(hit.dyn)+_spanTxt+'若你掌握其出生信息，可自行排盘输出。';
-      _fe.hidden=false;
-      return;
-    }
-    const sug=celebSuggest(nm.slice(0,2));
-    clearCelebResult();
-    showFormErr('名单未载“'+nm+'”'+(sug.length?('。相近人物：'+sug.slice(0,5).map(p=>p.name+'（'+p.dyn+'）').join('、')):'，请核对姓名或改用公历、四柱输入'));
-  });
-}
-/* 名人模式排盘：只消费检索结果；无检索结果或姓名与检索时不一致，须先检索 */
-function paipanCeleb(){
-  clearFormErr();
-  const inp=document.getElementById('bName');
-  const nm=(inp&&inp.value||'').trim();
-  const pending=window._celebHit;
-  if(!pending || pending.name!==nm){
-    /* 检索过但无完整生辰者单独措辞：沿用"请先检索"是假话，用户明明刚检索过 */
-    if(window._celebBlocked===nm){ clearPillarInputs(); showFormErr('“'+nm+'”无完整生辰可排；'+CELEB_NO_BIRTH_TAIL); return; }
-    showFormErr('请先点“检索”确认名人生辰，再点“排盘”出盘。'); return;
-  }
-  const birth=pending.birth;
-  /* 检索未得出完备生辰（无记录或仅生年可考）时不得出盘：
-     此处若放行，排出来的会是表单里残留的日期或别人的柱位，却冠以这位名人的姓名。
-     名人模式下的排盘只消费检索证实的生辰，其余一律拦断在此并清空残留。 */
-  if(!birth || !birth.y || birth.yo){ clearCelebResult(); clearPillarInputs(); showFormErr('“'+nm+'”无完整生辰可排；'+CELEB_NO_BIRTH_TAIL); return; }
-  /* 生辰确载：切公历模式填日期直接排盘；时辰库载者按史载填入，未载按午时正计 */
-  const _pad=n=>String(n).padStart(2,'0');
-  const _dstr=birth.y+'-'+_pad(birth.m)+'-'+_pad(birth.d);
-  const _hasH=birth.h!=null;
-  const _tstr=_hasH?(_pad(birth.h)+':'+_pad(birth.mi||0)):'12:00';
-  const _hs=celebHourSrc(birth);
-  const bm=document.getElementById('bMode');
-  bm.value='date'; toggleBaziMode();
-  /* 出生地在切模式后再归位一次：模式切换会走本地保存的表单还原，先切后填方不被还原值盖掉 */
-  applyCelebPlace(birth);
-  const bd=document.getElementById('bDate'), bt=document.getElementById('bTime');
-  bd.value=_dstr; bt.value=_tstr;
-  bd.dispatchEvent(new Event('change',{bubbles:true}));
-  savePillarSel();
-  let lunarTxt='';
-  try{ const _lu=Solar.fromYmdHms(birth.y,birth.m,birth.d,_hasH?birth.h:12,_hasH?(birth.mi||0):0,0).getLunar(); lunarTxt='，农历'+_lu.getMonthInChinese()+'月'+_lu.getDayInChinese(); }catch(e){}
-  let ok=false;
-  try{ go(); ok=!!(window.BZ&&window.BZ.gans&&window.BZ.gans.length===4); }catch(e){ ok=false; }
-  /* 提示直接写提示框元素，不走 showFormErr：该函数带清空结果区与置空本命状态的终止语义，会抹掉刚排出的盘 */
-  const _fe=document.getElementById('formErr');
-  _fe.textContent = ok
-    ? ('已按检索结果排盘：'+nm+'（'+(birth.dyn||'朝代未载')+'），生于公历 '+_dstr+lunarTxt+'，'+_hs.tag+(_hasH?('（'+_tstr+'）'):('，如掌握史载时辰可调整出生时间后重排'))+'。'+celebPlaceNote(birth))
-    : ('已检索到 '+nm+'（生于公历 '+_dstr+'），但自动排盘未完成；请在公历模式手动填入该日期后点排盘。');
-  /* 显示提示框：摘下 hidden 即显示，显隐一律走属性，不经样式直写 */
-  _fe.hidden=false;
-}
-/* ============ 时辰未定：十二时辰候选盘 ============
- * 年月日与性别可考而时辰无考时，按当日十二时辰各排一盘，列成对照表供点选：
- * 每行给该时辰的完整四柱与命理要点（旺衰档、格局、时干十神），
- * 点选任意一行即以该候选走日期模式同一条装配链渲染完整盘，并在盘首标注候选来历。
- * 子时按当日 00:00 取（早子时）；出生在 23 时之后者日柱或归次日，表内另有说明。
- * 一期只列事实，不按已知事实自动反推打分。 */
-const HOURS12=[
-  {z:'子',h:0},{z:'丑',h:2},{z:'寅',h:4},{z:'卯',h:6},{z:'辰',h:8},{z:'巳',h:10},
-  {z:'午',h:12},{z:'未',h:14},{z:'申',h:16},{z:'酉',h:18},{z:'戌',h:20},{z:'亥',h:22}
-];
-let _hourlessPick=null;   /* 已点选的候选时辰支，未选为 null */
-let _hourlessCache=null;  /* { sig, rows }：同一输入签名下十二盘只装配一次，点选换盘不再重算 */
-/* 候选行所需事实：装配走 buildBaziState（与日期、四柱两模式同源），
-   旺衰与格局走 getAnalysis（与页内解读同源），时干十神取该候选自己的盘。 */
-function hourlessRow(opt, hour){
-  const pad=n=>String(n).padStart(2,'0');
-  const built=buildBaziState(Object.assign({}, opt, { time: pad(hour)+':00' }));
-  const An=getAnalysis(built.BZ);
-  const c=built.cols[3];
-  return { built, An, c };
-}
-/* 点选候选：候选不在输入签名内，显式失效去重守卫，令本次点选必重排 */
-function pickHourless(z){
-  _hourlessPick=z;
-  lastPaipanSig='';
-  try{ paipan(); }catch(e){}
-}
-function paipanHourless(){
-  clearFormErr();
-  const dv=document.getElementById('bDate').value;
-  if(!dv){ showFormErr('请选择出生日期'); return; }
-  const sex=parseInt(document.getElementById('bSex').value);
-  const ziMode=document.getElementById('bZi').value;
-  const sunMode=(document.getElementById('bSun')||{}).value||'off';
-  const dstMode=(document.getElementById('bDst')||{}).value||'auto';
-  const yearAxis=(document.getElementById('bYearAxis')||{}).value||'lichun';
-  kongAxis=document.getElementById('bKong').value; /* 空亡基准轴：写回全局，供渲染期 kongOf 使用 */
-  qiYunSect=(document.getElementById('bQiYun')||{}).value==='2'?2:1;
-  changShengSect=(document.getElementById('bCsSect')||{}).value==='2'?2:1;
-  /* 经度三源与日期模式同口径：手动经度、区县经度、出生地组联动写入的 CITY_LNG。
-     三源皆空即出生地未知，此时不得回退任一城市经度顶上。 */
-  const manualLng=document.getElementById('bLng').value;
-  const distName=document.getElementById('bDist').value;
-  let lng;
-  if(manualLng!=='') lng=parseFloat(manualLng);
-  else if(distName!==''){ lng=findLng(document.getElementById('bProv').value, document.getElementById('bCity').value, distName); }
-  else lng=CITY_LNG;
-  if(lng==null||isNaN(lng)){
-    if(sunMode!=='off'){ showFormErr(SUN_NO_PLACE_MSG); return; }
-    lng=null;
-  }
-  const _pto=(typeof placeTimeOpts==='function')?placeTimeOpts():{overseas:false, baseLng:120, localDst:false};
-  const opt={ date:dv, sex, ziMode, sunMode, dst:_pto.overseas?'off':dstMode, yearAxis, lng, kongAxis, baseLng:_pto.baseLng, localDst:_pto.localDst };
-  const sig=paipanSig();
-  if(!(_hourlessCache&&_hourlessCache.sig===sig)){
-    try{
-      _hourlessCache={ sig, rows: HOURS12.map(c=>hourlessRow(opt, c.h)) };
-    }catch(e){ _hourlessCache=null; showFormErr((e&&e.message)||String(e)); return; }
-    _hourlessPick=null; /* 输入一变，旧点选随旧候选表作废 */
-  }
-  const rows=_hourlessCache.rows;
-  const pad=n=>String(n).padStart(2,'0');
-  let h='<div class="hourless-box"><div class="confirm-h">时辰未定：十二时辰候选盘</div>';
-  h+='<div class="sub-note">出生日期 '+esc(dv)+'，性别 '+(sex?'男':'女')+'。下表按当日十二时辰各排一盘，点选任意一行即以该时辰渲染完整命盘；子时按当日 00:00 取（早子时），出生在 23 时之后者日柱或归次日，可回公历模式另行核对。</div>';
-  h+='<table class="confirm-tb hourless-tb"><thead><tr><th>时辰</th><th>四柱</th><th>旺衰</th><th>格局</th><th>时干十神</th><th></th></tr></thead><tbody>';
-  HOURS12.forEach((c,i)=>{
-    const r=rows[i];
-    h+='<tr'+(c.z===_hourlessPick?' class="cur"':'')+' onclick="pickHourless(\''+c.z+'\')">'
-      +'<td class="hl-hour"><b>'+c.z+'时</b></td>'
-      +'<td>'+gzColorSpan(r.built.cols.map(x=>x.gz).join(' '))+'</td>'
-      +'<td>'+esc(r.An.strength||'无')+'</td>'
-      +'<td>'+esc(r.An.geName||'无')+'</td>'
-      +'<td>'+esc(r.c.ssg||'无')+'</td>'
-      +'<td><button type="button" class="btn">排盘</button></td></tr>';
-  });
-  h+='</tbody></table>';
-  h+='<div class="sub-note">以已知事实反推：先取确知的事实缩小范围，如时干十神所主之事、旺衰档与格局，与上表相符者再点选排盘核对。本表只列事实，不作自动打分。</div>';
-  h+='</div>';
-  let picked=-1;
-  if(_hourlessPick!=null) picked=HOURS12.findIndex(c=>c.z===_hourlessPick);
-  if(picked>=0){
-    const built=rows[picked].built;
-    BZ=built.BZ; CTX=built.CTX;
-    yearGZcur=built.yearGZ; /* date 模式为数组 ['庚','午']，供 kongOf 取年柱旬空 */
-    /* 挂农历对象（表法定配偶方位用）：校正跨日后 lunar 会指向次日，表法须按出生当天农历查 */
-    { const _ls=built.lunar.getSolar(), _rs=built.stdDate||built.rawSolar;
-      BZ.lunar=(_ls.getYear()===_rs.y&&_ls.getMonth()===_rs.m&&_ls.getDay()===_rs.d)?built.lunar:built.lunar.next(-1); }
-    const rs=built.rawSolar;
-    const R={ mode:'hourless', y:rs.y, m:rs.m, d:rs.d, h:rs.h, mi:rs.mi, lng, sunMode,
-      raw:built.rawSolar, std:built.stdDate, tsInfo:built.tsInfo, ziNote:built.ziNote,
-      dstNote:built.dstNote, axisNote:built.axisNote, lunar:built.lunar,
-      pj:built.lunar.getPrevJieQi(), nj:built.lunar.getNextJieQi(),
-      sex, dayGan:built.BZ.dayGan, cols:built.cols, ec:built.ec,
-      dualA2:null, dualBZ2:null, dualBuilt2:null };
-    h+='<div class="confirm-banner hourless-banner">候选盘（时辰未定）：'+_hourlessPick+'时<span>以该时辰 '+pad(HOURS12[picked].h)+':00 排出，非出生时辰之确认</span></div>';
-    h+=renderBaziPage(R, BZ);
-  }
-  document.getElementById('out').innerHTML=h;
-  if(picked>=0){ renderDyn(BZ); drawYunChart(BZ); }
-  const foot=document.createElement('div');
-  foot.className='notice notice-bottom';
-  foot.innerHTML='以上为依格局、五行、十神、神煞及大运流年流月流日的常规推演，各派结论可能不同，仅供文化研究与参考；健康与人生重大决定请务必咨询专业人士，切勿迷信。';
-  document.getElementById('out').appendChild(foot);
-  if(picked>=0 && !baziInitDone) restoreYunSel(); /* 首次渲染：恢复已保存的岁运选择，在 renderDyn 默认选择之后覆盖 */
-  applyModState(); /* 刷新重排后读回三大模块折叠状态，避免展开被复位 */
-  if(picked>=0 && typeof tableizeCore==='function' && !document.getElementById('proto')){ try{ tableizeCore(BZ); }catch(e){} }
-  if(typeof setupMingJuCol==='function'){
-    try{
-      if(document.fonts && document.fonts.ready){
-        document.fonts.ready.then(function(){ try{ setupMingJuCol(); }catch(e){} }).catch(function(){ try{ setupMingJuCol(); }catch(e){} });
-      } else { setupMingJuCol(); }
-    }catch(e){ try{ setupMingJuCol(); }catch(e2){} }
-  }
-  if(typeof setupMingJuCol==='function' && !window._setupMingJuColBound){
-    window._setupMingJuColBound = true;
-    let _rT;
-    window.addEventListener('resize', ()=>{ clearTimeout(_rT); _rT = setTimeout(setupMingJuCol, 150); });
-  }
-}
-function buildLinkParams(){
-  const BZ=window.BZ;
-  if(!BZ||!BZ.gans) return '';
-  let A=null; try{ A=(typeof getAnalysis==='function')?getAnalysis(BZ):null; }catch(e){}
-  const xi=(A&&A.synthesis&&A.synthesis.xiWxEff&&A.synthesis.xiWxEff.length)?A.synthesis.xiWxEff:(A&&A.fu&&A.fu.xiWx&&A.fu.xiWx.length?A.fu.xiWx:[]);
-  const ji=(A&&A.synthesis&&A.synthesis.jiWxEff&&A.synthesis.jiWxEff.length)?A.synthesis.jiWxEff:(A&&A.fu&&A.fu.ji&&A.fu.ji.length?A.fu.ji:[]);
-  const p=new URLSearchParams();
-  p.set('fromBazi','1');
-  p.set('dayGan', BZ.dayGan||'');
-  p.set('yearGZ', (BZ.gans&&BZ.zhis)?(BZ.gans[0]+BZ.zhis[0]):'');
-  p.set('sex', (BZ.sex===1||BZ.sex==='男')?'男':'女');
-  if(xi.length) p.set('xi', xi.join(','));
-  if(ji.length) p.set('ji', ji.join(','));
-  /* 联动参数须是当前这张盘自己的输入项，不能沿用表单残留值。
-     四柱模式下日期、时间两框隐藏却保留着上一次公历模式的值，照发会让联动页按别人的生辰重排，
-     两页结论对不上而用户无从察觉；故非公历、农历模式一律不向下游发日期与时间。 */
-  ['bProv','bCity','bDist','bLng'].forEach(id=>{
-    const el=document.getElementById(id); if(el) p.set(id, el.value||'');
-  });
-  const _datable=(document.getElementById('bMode').value==='date'||document.getElementById('bMode').value==='lunar');
-  if(_datable) ['bDate','bTime'].forEach(id=>{
-    const el=document.getElementById(id); if(el) p.set(id, el.value||'');
-  });
-  /* 联动页仍读布尔 bTrue，此处由太阳时口径派生（off 之外均为启用），并同发 bSun 供后续升级 */
-  const bs=document.getElementById('bSun');
-  if(bs){ const _sm=bs.value||'true'; p.set('bSun', _sm); p.set('bTrue', _sm==='off'?'0':'1'); }
-  return p;
-}
-function openLink(page){
-  const BZ=window.BZ;
-  if(!BZ||!BZ.gans){ alert('请先完成排盘，再进行关联分析'); return; }
-  const p=buildLinkParams();
-  window.location.href=page+'?'+p.toString();
-}
-function renderLinkCards(){
-  const el=document.getElementById('linkList'); if(!el) return;
-  el.innerHTML=LINK_TOOLS.map(t=>`<a class="link-item" onclick="return openLink('${t.id}.html')" href="javascript:" title="${t.desc}">
-    <span class="li-ico">${t.ico}</span>
-    <span class="li-name">${t.name}</span>
-    <span class="li-desc">${t.desc}</span>
-    <span class="li-tag">${t.tag}</span>
-  </a>`).join('');
-}
-function go(){
-  let err=null;
-  try{ paipan(); }catch(e){ err=(e&&e.message)?e.message:String(e); }
-  const BZ=window.BZ;
-  /* 核心解读四模块就地表格化。 */
-  tableizeCore(BZ, err);
-}
-/* ---- 人生议题应期窗口（四卡共用）----
- * 议题卡其余各表讲命局里"有没有、长什么样"，本表答"什么时候应"。
- * 数据与岁运引动表、流年事件表同源同口径：evalGZ 对每步大运与流年给 lifeTrig 分项标引
- * （事业、婚姻、感情、健康、家庭、学业六类）与吉凶档，此处只按议题过滤聚合，不另设判法，
- * 免两处口径分叉。大运行只列该议题确有引动的十年，按行运先后排；近年应期给未来三年内
- * 确有引动的流年，历史盘（出生距今超过一百二十年）无"近年"可谈，不给流年行；
- * 近三个月应期以当下节气月顺推两月，逐月按同一口径标引，历史盘同不出此行。 */
-function yingQiBlock(topic, BZ, A){
-  try{
-    const KEY = topic==='感情' ? ['婚姻','感情'] : [topic];
-    /* lifeTrig 原文带术语释义的内联标记（span.tip），表格单元要纯文本，先剥净再入表，
-       否则标记原样可见即代码泄漏 */
-    const plain = s => String(s==null?'':s).replace(/<[^>]*>/g,'');
-    const hasTrig = s => s && s.lifeTrig && s.lifeTrig.some(t=>KEY.some(k=>plain(t).indexOf(k+'：')===0));
-    if(typeof baziDaYunSteps!=='function' || typeof baziYunDong!=='function' || typeof evalGZ!=='function') return '';
-    const yd=baziYunDong(BZ, A||getAnalysis(BZ), baziDaYunSteps(BZ));
-    if(!yd || !yd.steps || !yd.steps.length) return '';
-    const pick = s => (s.lifeTrig||[]).filter(t=>{const p=plain(t); return KEY.some(k=>p.indexOf(k+'：')===0);})
-      .map(t=>plain(t).replace(/^[^：]+：/,'')).join('；').replace(/[。；]+$/,'');
-    const rows=yd.steps.filter(s=>!s.empty && hasTrig(s)).map(s=>{
-      const y2=(s.year&&BZ.birthYear>0)?(s.age+' 岁（约 '+s.year+'–'+(s.year+9)+' 年）'):(s.age!=null?(s.age+' 岁'):'');
-      return [s.gz, y2, s.rating||'', pick(s)];
-    });
-    let near='', nearM='';
-    const cy=baziNowDate().getFullYear();
-    if(BZ.birthYear>0 && (cy-BZ.birthYear+1)<=120){
-      const hits=[], yTxt=new Map();
-      for(let i=0;i<3;i++){
-        const y=cy+i;
-        try{
-          const gz=liunianGZ(y);
-          const ev=evalGZ(BZ, A, {gz, gan:gz[0], zhi:gz[1], age:y-BZ.birthYear+1, year:y, kind:'流年'});
-          if(hasTrig(ev)){ const t=pick(ev); hits.push(y+' 年（'+gz+'）'+t); yTxt.set(y, new Set(t.split('；'))); }
-        }catch(e){}
-      }
-      near = hits.length ? note('近年应期：'+hits.join('；')+'。') : note('近年无'+(topic==='感情'?'婚恋':topic)+'方面的显著引动。');
-      /* 近三个月应期：当下节气月与随后两月（月柱在六十甲子中连排，顺推一位、两位即得），
-         逐月按流年同一口径 evalGZ 标引、按本卡 KEY 过滤，不另立判法；月柱起于立春，
-         子丑两月仍属上一干支年，故按寅首月序推各月所属流年与虚岁；月级引动逐句与
-         所含流年之近年行比对，同文之句不重述，免同一引动于两行并出 */
-      try{
-        const tn=baziNowDate(), Y=tn.getFullYear();
-        const ec=Solar.fromYmd(Y, tn.getMonth()+1, tn.getDate()).getLunar().getEightChar();
-        const ygz=ec.getYear(), mgz=ec.getMonth();
-        if(ygz && mgz){
-          const yStart=(liunianGZ(Y)===ygz)?Y:Y-1;
-          const p0=(ZHI_ORDER.indexOf(mgz[1])-2+12)%12, k0=gzIndexOf(mgz);
-          const hitsM=[];
-          for(let j=0;j<3;j++){
-            try{
-              const gz=gzAtIndex(k0+j), yy=yStart+Math.floor((p0+j)/12);
-              const ev=evalGZ(BZ, A, {gz, gan:gz[0], zhi:gz[1], age:yy-BZ.birthYear+1, year:yy, kind:'流月'});
-              if(!hasTrig(ev)) continue;
-              const ySet=yTxt.get(yy);
-              const t=pick(ev).split('；').filter(s=>!(ySet&&ySet.has(s))).join('；');
-              if(t) hitsM.push(gz[1]+'月（'+gz+'）'+t);
-            }catch(e){}
-          }
-          nearM = hitsM.length ? note('近三个月应期：'+hitsM.join('；')+'。') : note('近三个月无'+(topic==='感情'?'婚恋':topic)+'方面的显著引动。');
-        }
-      }catch(e){}
-    }
-    /* 行运与吉凶两列是标签与档位、非完整句，过 noperiod 免加句号；引动列为论述句照常加句号 */
-    let h= rows.length ? sec('应期窗口', rows, ['大运',{t:'行运',noperiod:true},{t:'吉凶',noperiod:true},(topic==='感情'?'婚恋':topic)+'引动'], 0)
-      : '<div class="sub-h">应期窗口</div>'+note((topic==='感情'?'婚恋':topic)+'在大运层面无明显引动，以原局之气平稳推之。');
-    h+=near;
-    h+=nearM;
-    return h;
-  }catch(e){ return ''; }
-}
-/* 四卡与议题标引前缀的对应：婚姻感情卡取婚姻与感情两类标引，其余各取一prefix */
-const YQ_TOPIC={'事业财运':'事业','婚姻感情':'感情','性格健康':'健康','家庭子女':'家庭'};
-/* 就地表格化：把核心解读里 事业财运、婚姻感情、性格健康、家庭子女 四个 life-card 的源文
- * 替换为表格化板块（人生议题），其余 life-card 不动；BZ 来自 paipan() 的 window.BZ */
-function tableizeCore(BZ, err){
-  if(!BZ) return;
-  const A=(typeof getAnalysis==='function')?getAnalysis(BZ):null;
-  const eS=(typeof wxElementScore==='function')?wxElementScore(BZ):null;
-  const isMale=(BZ.sex===1||BZ.sex==='男');
-  const MODS=[['事业财运',renderCareer7,'yiti-career'],['婚姻感情',renderMarry7,'yiti-marry'],['性格健康',renderHealth7,'yiti-health'],['家庭子女',renderFamily7,'yiti-family']];
-  // 先收集四模块 life-card：一个都找不到说明当前已是表格化状态（paipan 性能守卫拦截、DOM 未重建），
-  // 直接返回并保留现有"人生议题"板块，严禁"先删后找"，守卫拦截场景会凭空删掉整个板块
-  const cards=document.querySelectorAll('#zr-core .life-card');
-  const hits=[];
-  cards.forEach(card=>{
-    const h5=card.querySelector('h5'); if(!h5) return;
-    const mod=MODS.find(m=>m[0]===h5.textContent.trim()); if(!mod) return;
-    const p=card.querySelector('p');
-    const cardTxt=p?p.textContent:'';
-    if(!cardTxt) return;
-    hits.push({card, mod, name:mod[0], cardTxt});
-  });
-  if(!hits.length) return; /* 已是表格化状态，保持现状 */
-  // 有源文 card → 重排后重建：先移除旧的"人生议题"板块（防重复），再逐卡表格化
-  const oldYiti=document.getElementById('mod-yiti'); if(oldYiti) oldYiti.parentNode.removeChild(oldYiti);
-  const yitiSecs=[];
-  hits.forEach(({card,mod,name,cardTxt})=>{
-    let html='';
-    try{ html=mod[1](cardTxt, BZ, A, eS, isMale); }
-    catch(e2){ console.error('[人生议题]', e2); html='<div class="subnote">本模块暂不可用。</div>'; }
-    /* 应期窗口：四卡统一收尾，按卡名取议题标引（数据与岁运引动同源，见 yingQiBlock 头注） */
-    const tp=YQ_TOPIC[name];
-    if(tp){ try{ html+=yingQiBlock(tp, BZ, A); }catch(e2){} }
-    // 内部折叠块与其他 zr-mod（干支关系、量化四柱等）同机制：默认闭合，带 id 供折叠状态持久化
-    yitiSecs.push('<details class="zr-mod zr-quant" id="'+mod[2]+'"><summary>'+escT(name)+'</summary><div class="zr-mod-b">'+html+'</div></details>');
-    if(card.parentNode) card.parentNode.removeChild(card);
-  });
-  // 四模块独立成"人生议题"折叠板块（与基础信息、本命分析、易理象数、运势分析同机制：初始折叠、状态可保存），插到运势分析前
-  const out=document.getElementById('out');
-  const sec=document.createElement('section');
-  sec.className='mod collapsed'; /* 与 mod-life/mod-yun 一致：默认折叠 */
-  sec.id='mod-yiti';
-  sec.innerHTML='<div class="mod-head" onclick="toggleMod(\'mod-yiti\')"><span class="mod-caret">▾</span><span class="gua-ico">'+((window._guaIcons&&window._guaIcons.yiti)||'☴')+'</span><span class="mod-title">人生议题</span><span class="mod-sub">事业财运 婚姻感情 性格健康 家庭子女</span></div><div class="mod-body">'+yitiSecs.join('')+'</div>';
-  const yun=document.getElementById('mod-yun');
-  if(yun&&out) out.insertBefore(sec, yun);
-  else if(out) out.appendChild(sec);
-  // 板块已入 DOM → 应用保存的折叠状态（与三大板块同一机制；paipan 内提前调用的 applyModState 此时 mod-yiti 尚不存在）
-  if(typeof applyModState==='function'){ try{ applyModState(); }catch(e){} }
-  // 动态列宽：逐表按首列内容字数判定（短标签→收缩；长文如古籍断语→auto 折行），剩余宽度让给文字多的内容列
-  layoutYitiTables(sec);
-  // 列宽对齐（以命局断事、事业古籍、事业层级为基准校准同组列宽）；字体加载后或延迟确保宽度已布局
-  try{
-    if(typeof alignLblCols==='function'){
-      const _run=()=>{ try{ alignLblCols(document); }catch(e){ const _t=setTimeout(()=>{ try{ alignLblCols(document); }catch(e2){} clearTimeout(_t); }, 80); } };
-      if(document.fonts && document.fonts.ready){ document.fonts.ready.then(_run).catch(_run); } else { setTimeout(_run, 60); }
-      _run();
-    }
-  }catch(e){}
-}
-/* 短标签列（首列）宽度、换行方案：按【本列最长词字数】决定。
- *   最长 ≤3 字（日主、祖辈宫、红艳煞…）：整列 nowrap 整词单行，列宽 auto（=最长词宽）→ 绝不单字孤行。
- *   最长 ≥4 字（宫位十神、官印相生、综合判定…）：整列在 2.6em（≈2 字宽，≤3 字上限）内折行 → 每行 2 字（2+2），无单字孤行。
- * 其余列（首列外）不动；末列长文本由 CSS 自适应、不锁宽。 */
-function layoutYitiTables(root){
-  if(!root) return;
-  /* 仅移动端（≤760px）排除 stab-ssd（十神经典断语"组合"列）：该列在移动端由 CSS @media 规则控制 4 字折行；
-     桌面端宽度充裕，stab-ssd 照常走 nowrap 整词单行 + 列宽按最长词自适应，禁止换行挤压。 */
-  const isMob = window.innerWidth <= 760;
-  root.querySelectorAll('#mod-yiti table.stab:not(.stab-a2)' + (isMob ? ':not(.stab-ssd)' : '')).forEach(t=>{
-    const th=t.querySelector('tr');
-    if(!th) return;
-    /* 首列短标签：整词单行 nowrap，列宽由内容（最长词）自适应，绝对不折行、不出现单字孤行。
-       2/3/4 字标签均整词一行；列宽按本表最长短标签词宽自然分配。 */
-    Array.from(t.querySelectorAll('tr')).forEach(tr=>{
-      const c=tr.cells&&tr.cells[0]; if(!c) return;
-      c.style.setProperty('white-space','nowrap','important');
-      c.style.removeProperty('width'); c.style.removeProperty('max-width'); c.style.removeProperty('min-width');
-    });
-  });
-}
-/* 列宽对齐（alignLblCols）：把同组表格的对应列设成同宽，保证视觉整齐。
- *   组2 ::stab-a2 第2列 → 古籍断语"出处"列，按内容量取整条单行宽，上限取可用宽一半
- *   组1 ::stab-a1 首列 → 以命局断事(stab-ds)"项目"列为基准，对齐 事业十神"十神"、身心基调"项目"首列（仅桌面）
- *   组3 ::stab-a3 第1、2列 → 以第一张(事业)"维度、层级"列为基准，对齐其他卡层级"维度、层级"列（仅桌面）
- * 响应式(≤760px)下组1、组3不写列宽，交还 CSS 自适应（清掉桌面端残留的 inline 宽度）。 */
-function alignLblCols(root){
-  root = root || document;
-  const isResp = window.innerWidth <= 760;
-  const clearCol = (t, idxs) => { t.querySelectorAll('tr').forEach(r=>{ idxs.forEach(i=>{ const c=r.cells&&r.cells[i]; if(c){ c.style.removeProperty('width'); c.style.removeProperty('min-width'); c.style.removeProperty('max-width'); } }); }); };
-  const applyW = (c, colW) => { if(!c||!colW||colW<=0) return; c.style.setProperty('width', colW+'px','important'); c.style.setProperty('min-width', colW+'px','important'); c.style.setProperty('max-width', colW+'px','important'); };
-  const firstCellW = t => { const h=t.querySelector('tr:first-child>th:first-child'); if(h&&h.offsetWidth>0) return h.offsetWidth; const tr=t.querySelector('tr'); if(tr&&tr.cells&&tr.cells[0]) return tr.cells[0].offsetWidth; return 0; };
-  /* 量某表指定列"整条不折行"的自然渲染宽（含左右 padding/border 与 2px 余量）。
-     探测 span 挂 body（挂表格内 absolute 会塌陷为 0 宽），字体逐属性复制（禁 font shorthand）。 */
-  const measureCol = (t, idx) => {
-    const ref = t.querySelector('tr > td:nth-child(' + (idx+1) + ')') || t.querySelector('tr > th:nth-child(' + (idx+1) + ')');
-    if(!ref) return 0;
-    const cs = window.getComputedStyle(ref);
-    const probe = document.createElement('span');
-    probe.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:-99999px;white-space:nowrap;'
-      + 'font-family:' + cs.fontFamily + ';'
-      + 'font-size:' + cs.fontSize + ';'
-      + 'font-weight:' + cs.fontWeight + ';'
-      + 'letter-spacing:' + (cs.letterSpacing || 'normal') + ';';
-    document.body.appendChild(probe);
-    let textW = 1;
-    t.querySelectorAll('tr').forEach(r=>{
-      const c = r.cells && r.cells[idx]; if(!c) return;
-      const s = (c.textContent || '').trim(); if(!s) return;
-      probe.textContent = s;
-      const w = probe.getBoundingClientRect().width;
-      if(w > textW) textW = w;
-    });
-    document.body.removeChild(probe);
-    const padSum = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0)
-                 + (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
-    return Math.ceil(textW + padSum + 2);
-  };
-  // 响应式：先清掉桌面端写入的首列、次列内联宽度，交还 CSS 自适应（组1、组3 在响应式下不写宽）
-  if(isResp) root.querySelectorAll('table.stab').forEach(t=>clearCol(t,[0,1]));
-  // 组2：古籍断语出处列(第2列)。出处列按内容量取整条单行宽，上限取可用宽一半，
-  //   使断语列在窄屏下保有主体宽度；断语列占余宽随文折行。各表独立量取。
-  root.querySelectorAll('table.stab-a2').forEach(t=>{
-    const host = (t.parentNode && t.parentNode.clientWidth > 0) ? t.parentNode : t;
-    let avail = host.clientWidth || 0;
-    // 模块默认折叠，表所在的 .mod-body 为 display:none 量不到宽；取最近的可见祖先（折叠态下即模块本身）宽度作容器宽
-    for(let p = t.parentElement; p && !avail; p = p.parentElement) avail = p.clientWidth || 0;
-    if(!avail) return;
-    const w2 = measureCol(t, 1);
-    if(w2 <= 0) return;
-    const colW = Math.min(w2, Math.round(avail * 0.5));
-    t.querySelectorAll('tr').forEach(r=>{ if(r.cells&&r.cells[1]) applyW(r.cells[1], colW); });
-  });
-  // 响应式下组1、组3 不写宽，交还 CSS 自适应
-  if(isResp) return;
-  // 组1：stab-ds 首列 → 全部 stab-a1 首列
-  const ds = root.querySelector('table.stab-ds');
-  if(ds){ const bw = firstCellW(ds); if(bw>0) root.querySelectorAll('table.stab-a1').forEach(t=>{ t.querySelectorAll('tr').forEach(r=>{ if(r.cells&&r.cells[0]) applyW(r.cells[0],bw); }); }); }
-  // 组3：第一张 stab-a3 第1、2列 → 其余 stab-a3 第1、2列
-  const a3 = root.querySelectorAll('table.stab-a3');
-  if(a3.length){ const ref = a3[0]; clearCol(ref,[0,1]);
-    const bw1=(()=>{const h=ref.querySelector('tr:first-child>th:nth-child(1)'); return (h&&h.offsetWidth>0)?h.offsetWidth:0;})();
-    const bw2=(()=>{const h=ref.querySelector('tr:first-child>th:nth-child(2)'); return (h&&h.offsetWidth>0)?h.offsetWidth:0;})();
-    if(bw1>0||bw2>0) a3.forEach(t=>{ if(t===ref) return; t.querySelectorAll('tr').forEach(r=>{
-      if(r.cells&&r.cells[0]&&bw1>0) applyW(r.cells[0],bw1);
-      if(r.cells&&r.cells[1]&&bw2>0) applyW(r.cells[1],bw2);
-    }); }); }
-}
-/* 展开含 stab 表格的板块、折叠块后补跑对齐（折叠态 offsetWidth=0 测不到宽，展开后需重算）。 */
-function _alignNowYiti(el){
-  try{ if(typeof layoutYitiTables==='function') layoutYitiTables(el); }catch(e){}
-  try{ if(typeof alignLblCols==='function') alignLblCols(el); }catch(e){}
-}
-function _scheduleYitiAlign(el){
-  if(!el) return;
-  if(typeof requestAnimationFrame!=='function'){ try{ setTimeout(()=>_alignNowYiti(el),60); }catch(e){} return; }
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{ try{ _alignNowYiti(el); }catch(e){} }));
-}
-/* 包裹原生 toggleMod：展开（去 collapsed）后补跑对齐；原始逻辑不变 */
-(function(){
-  if(typeof window.toggleMod==='function' && !window._toggleModWrapped){
-    const _orig=window.toggleMod; window.toggleMod=function(id){ const r=_orig.apply(this,arguments); const el=document.getElementById(id); if(el && !el.classList.contains('collapsed')) _scheduleYitiAlign(el); return r; }; window._toggleModWrapped=true;
-  }
-})();
-</script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    (function(n,p){var d=document.getElementById('bDate');if(d&&!d.value)d.value=n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate());})(new Date(),function(x){return String(x).padStart(2,'0');});
-    renderLinkCards();
-    if(typeof bindCelebInput==='function') bindCelebInput();
-    /* 历史出生年份口径提示：日期、农历年与输入方式三处变化即重判显隐，初次进入也判一次 */
-    ['bDate','bLunarY','bMode'].forEach(function(id){
-      var el=document.getElementById(id); if(!el) return;
-      el.addEventListener('change', eraTimeNote);
-      el.addEventListener('input', eraTimeNote);
-    });
-    eraTimeNote();
-    /* 境外出生地两项与口径说明：初次进入按已恢复的出生地同步一次 */
-    if(typeof syncOverseasUi==='function') syncOverseasUi();
-    try{ document.addEventListener('toggle', e=>{ const t=e.target; if(t && t.classList && t.classList.contains('zr-mod') && t.open){ const host=t.closest('#mod-yiti')||t; _scheduleYitiAlign(host); } }, true); }catch(e){};
-    (function(){
-      if(window._alignYitiBound) return; window._alignYitiBound = true;
-      var _t=null;
-      window.addEventListener('resize', ()=>{
-        clearTimeout(_t);
-        _t = setTimeout(()=>{
-          try{
-            const sec=document.getElementById('mod-yiti');
-            if(typeof layoutYitiTables==='function') layoutYitiTables(sec||document);
-            if(typeof alignLblCols==='function') alignLblCols(document);
-          }catch(e){}
-        }, 150);
-      });
-    })();
-    /* 重排入口先挂出，再挂附加功能面板：分享还原在挂载时即可回调本页 go。 */
-    window.baziRecast = go;
-    if (window.baziMountAI) window.baziMountAI();
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-bazi-now.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-lunar.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/bazi.seg1.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-latlng.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-bazi-data.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/bazi.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-bazi-00.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-bazi-01.js"></script>
 </body>
 </html>

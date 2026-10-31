@@ -534,9 +534,9 @@ const xjCalQuery = (function(){
     const label = o.label || '内容检索';
     const ph = o.placeholder || '神名或节日名';
     const filterLabel = o.filterLabel || '筛选';
-    mount.innerHTML = '<div class="form-row xj-query-row">'
+    mount.innerHTML = '<div class="xj-query-row">'
       + '<div class="field"><label for="xjSearch">' + esc(label) + '</label><input type="text" id="xjSearch" class="xj-search-input" placeholder="' + esc(ph) + '" autocomplete="off"></div>'
-      + '<button class="btn soft" type="button" id="xjSearchBtn">检索</button></div>'
+      + '<button class="btn gold" type="button" id="xjSearchBtn">检索</button></div>'
       + '<div class="xj-filter-row" id="xjFilterRow"></div>'
       + '<div class="xj-search-out" id="xjSearchOut"></div>';
     const input = document.getElementById('xjSearch');

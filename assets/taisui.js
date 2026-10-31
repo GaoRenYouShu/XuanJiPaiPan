@@ -108,7 +108,7 @@ var TS_TEMPLATES = {
     label:'害太岁', w:'轻',
     note:'害者，穿害、妨害之象，为五类中最轻，多应人事摩擦、信任受损。',
     total:'多应人际摩擦、被拖累之象，防熟人之扰。',
-    career:'协作、合伙之事多沟通留痕，防被熟人拖累背书。',
+    career:'协作、合伙之事多沟通留据，防被熟人拖累背书。',
     wealth:'防借贷与代偿风险，垫资、代购、代持之类能免则免。',
     love:'防口舌是非，与异性同事、密友界限分明，家庭内部多体谅。',
     health:'脾胃、情绪类小恙，问题不大，规律饮食即可。'
@@ -692,23 +692,28 @@ function saveTsModState(){ xjSaveEngineModState(TS_MOD_KEY, function(){ return t
 function applyTsModState(){ xjApplyEngineModState(TS_MOD_KEY, _tsAllModIds); }
 /* 页内折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
 try{ document.addEventListener('toggle', function(e){ if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveTsModState(); }, true); }catch(e){}
+/* 六十星君卡片收起态不参与首屏：静态件带 hidden，外层折叠区展开时才露出。 */
+function bindBioFold(){
+  var fold = $('tsFoldBio'), body = $('tsBioBody');
+  if (!fold || !body) return;
+  var show = function(){ body.removeAttribute('hidden'); };
+  fold.addEventListener('toggle', function(){ if (fold.open) show(); });
+  if (fold.open) show();
+}
 /* ===== 14. 初始化 ===== */
 function init(){
   renderStarTable();
   renderBioCards();
+  bindBioFold();
   renderRitual();
   $('tsCheckBtn').addEventListener('click', renderCheck);
   $('tsYearBtn').addEventListener('click', renderYearView);
-  /* 默认当天直接出结果：公历生日=今天、流年参考日=今天、生肖太岁查询日=今天 */
+  /* 日期默认当天，三块结果区留空，等用户点各自主按钮后出结果 */
   $('tsDate').value = todayStr();
   $('tsSuiDate').value = todayStr();
   $('tsYearDate').value = todayStr();
-  renderCheck();
-  renderYearView();
-  /* 生肖运程模块：默认当天出结果 */
   $('tsFortuneDate').value = todayStr();
   $('tsFortuneBtn').addEventListener('click', renderFortune);
-  renderFortune();
   if (window.mountAI) window.mountAI(tsAiContext, '太岁生肖', {
     share: {
       page:'taisui', title:'太岁生肖',

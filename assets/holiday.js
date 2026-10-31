@@ -73,14 +73,17 @@
     return out;
   }
 
-  function fetchJson(url) {
+  /* 本模块自足的取数实现：超时真中止，不依赖页脚定位脚本。 */
+  function fetchJson(url, timeout) {
     return new Promise(function (res, rej) {
       if (typeof fetch !== 'function') { rej(new Error('no fetch')); return; }
       let done = false;
-      /* 超时须真中止连接：只弃结果不断连接，慢源上挂起的请求会积在页面上不放 */
       const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
       const fin = function (fn, v) { if (done) return; done = true; clearTimeout(timer); fn(v); };
-      const timer = setTimeout(function () { if (ctl) { try { ctl.abort(); } catch (e) {} } fin(rej, new Error('timeout')); }, 6000);
+      const timer = setTimeout(function () {
+        if (ctl) { try { ctl.abort(); } catch (e) {} }
+        fin(rej, new Error('timeout'));
+      }, timeout || 6000);
       try {
         fetch(url, { method: 'GET', cache: 'no-store', credentials: 'omit', signal: ctl ? ctl.signal : undefined })
           .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); })
@@ -95,10 +98,10 @@
     const cached = readCache(y);
     const p = cached
       ? Promise.resolve(cached)
-      : fetchJson(CN_URL + y + '.json')
+      : fetchJson(CN_URL + y + '.json', 6000)
           .then(function (d) { const g = parseCn(d); if (!g) throw new Error('bad cn'); return g; })
           .catch(function () {
-            return fetchJson(TM_URL + y + '/').then(function (d) {
+            return fetchJson(TM_URL + y + '/', 6000).then(function (d) {
               const g = parseTm(d);
               if (!g) throw new Error('bad timor');
               return g;

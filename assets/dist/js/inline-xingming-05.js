@@ -1,0 +1,2096 @@
+
+/* 八字联动参数（fromBazi=1 由 app.js 自动注入顶部横幅），此处读喜用、忌神五行 */
+var LINK_XI=[], LINK_JI=[];
+/* 联名模式第二盘的喜用忌：与单盘 LINK_XI 并行、互不覆盖，只作两命对照之用 */
+var LINK_XI2=[], LINK_JI2=[], NM_XI_NOTE2='', NM_XI_META2=null;
+var FROM_BAZI=false; /* 本轮载入是否来自八字页联动 */
+var URL_BIRTH=false;
+/* 数据表与引擎随计算栈在首屏之后取回，故以取值器现取，不在载入时捕获 */
+Object.defineProperty(window,'D',{get:function(){ return window.NAME_DATA; }});
+Object.defineProperty(window,'E',{get:function(){ return window.NAME_ENGINE; }});
+var LAST=null;
+/* 推荐名单详排来源标记：true 时详排页顶部显示"返回推荐名单"按钮，进入非详排模式即清除 */
+var GEN_BACK=false;
+var GEN_BACK_MODE='gen'; /* 详排来源模式：gen=起名推荐 / twin=联名推荐，返回时按此还原 */
+/* 推荐名单：推荐数量＝每页条数，单次页数定单次总量（每页条数×页数，3 至 5 页）；
+   主按钮每点一次整批换新（单次总量、已出键回传引擎排除），批内分页只来回翻供并排比对。
+   配置签名变（姓氏、字数、性别、五行、避讳、字辈、喜忌）即清空重来。 */
+var GEN_LIST=[];
+var GEN_EX=[];
+var GEN_SIG='';
+var GEN_PAGE=0;
+var GEN_META=null;
+var GEN_FAV=[];
+/* 联名推荐：与起名推荐同一套机制（收藏栏复用 GEN_FAV、翻页与详排同款按钮），
+ * 但名单另立，联名的候选是“成对的名字”，与单名名单不可混用 */
+var TWIN_LIST=[];
+var TWIN_EX=[];
+var TWIN_SIG='';
+var TWIN_PAGE=0;
+var TWIN_META=null;
+/* 主按钮点击＝再要一批；页面其余入口（刷新重出、切模式、历史回放）只按已有名单重绘 */
+var NM_MORE=false;
+/* T13 简繁改选：{原字: 改选繁体}，query() 时替换输入后按繁体取数，改选后自动重算 */
+var NM_JF_OVERRIDES={};
+/* 吉凶配色统一走站内既有体系：.luck-吉（绿）、.luck-凶（红），次吉亦归吉色（同小六壬 luck-* 用法），不再自造颜色 */
+var LUCK_CLS={ji:'luck-吉',xj:'luck-吉',xiong:'luck-凶',neutral:''};
+function luckTxt(l){ return D.LUCK_LABEL[l]||'半吉'; }
+/* ---- 八字喜用页内直算 ----
+   与八字排盘页同一计算链（buildBaziState + getAnalysis），喜忌唯一真源为 synthesis
+   （普通格扶抑、特殊格顺势）；出生地经纬度取自全站唯一坐标表 latlng.js，供真太阳时校正 */
+var NM_XI_NOTE='', NM_XI_META=null;
+var NM_PLACE=null;
+/* 出生地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地折过一道，
+   校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时两项并写说明行，境内还原。
+   显隐与文案由共享件 syncOverseasFields 一处判 */
+function nmSyncOverseas(){
+  syncOverseasFields({prov:'nmBProv', city:'nmBCity', lng:'nmBLng', tz:'nmBTz', dst:'nmBLocalDst',
+    tzField:'nmBTzField', dstField:'nmBLocalDstField', note:'nmBOverseasNote'});
+}
+/* 境外时刻参数：时区、基准子午线与当地夏令时一律取共享件 placeTimeOptsOf 的结果；
+   境内返回东经 120 度与不折 */
+function nmPlaceTimeOpts(){
+  return placeTimeOptsOf({prov:'nmBProv', city:'nmBCity', lng:'nmBLng', tz:'nmBTz', dst:'nmBLocalDst'});
+}
+function nmBirthInit(){
+  var sp=document.getElementById('nmBProv'), sc=document.getElementById('nmBCity'), sd=document.getElementById('nmBDist');
+  var tz=document.getElementById('nmBTz');
+  if(tz) tz.innerHTML=overseasTzOptions();
+  NM_PLACE=fillPlaceTrio(sp, sc, sd, nmSyncOverseas);
+  sp.addEventListener('change', nmSyncOverseas);
+  sc.addEventListener('change', nmSyncOverseas);
+  if(tz) tz.addEventListener('change', nmSyncOverseas);
+  nmSyncOverseas();
+}
+function nmBirthLng(){
+  var manual=document.getElementById('nmBLng').value.trim();
+  if(manual!==''){ var v=parseFloat(manual); if(!isNaN(v)) return v; }
+  var dist=document.getElementById('nmBDist').value;
+  if(dist!=='') return findLng(document.getElementById('nmBProv').value, document.getElementById('nmBCity').value, dist);
+  return findLng(document.getElementById('nmBProv').value, document.getElementById('nmBCity').value, '');
+}
+/* 未定出生地即无经度可校：此时按钟面标准时出盘并在结论旁注明未校，
+   不回退东经 120 度，那是替用户坐到别人家的经度上折一道，折了多少盘面一字不著。 */
+function nmSunModeOf(lng, useTrue){
+  return (useTrue && lng!=null && !isNaN(lng)) ? 'true' : 'off';
+}
+var NM_NO_PLACE_NOTE='（未定出生地，按钟面标准时出盘，未作太阳时校正）';
+function nmXiCalc(){
+  var d=document.getElementById('nmBDate').value, t=document.getElementById('nmBTime').value;
+  if(!d||!t){ LINK_XI=[]; LINK_JI=[]; NM_XI_NOTE=''; NM_XI_META=null; nmXiRender(); return; }
+  var useTrue=document.getElementById('nmBTrue').checked;
+  var lng=nmBirthLng(), lngNote='';
+  var sunMode=nmSunModeOf(lng, useTrue);
+  if(useTrue && sunMode==='off') lngNote=NM_NO_PLACE_NOTE;
+  var _pto=nmPlaceTimeOpts();
+  var built=buildBaziState({date:d, time:t, sex:document.getElementById('nmSex').value==='女'?0:1,
+    ziMode:document.getElementById('nmBZi').value, sunMode:sunMode, lng:lng, kongAxis:'day',
+    dst:_pto.overseas?'off':'auto', baseLng:_pto.baseLng, localDst:_pto.localDst});
+  var An=getAnalysis(built.BZ);
+  var s=An.synthesis||{};
+  LINK_XI=(s.xiWxEff&&s.xiWxEff.length)?s.xiWxEff.slice():[];
+  LINK_JI=(s.jiWxEff&&s.jiWxEff.length)?s.jiWxEff.slice():[];
+  var segs=['日主 '+built.BZ.dayGan, '四柱 '+built.BZ.gans.join(''), '旺衰 '+An.strength,
+    '喜用【'+(LINK_XI.join('、')||'无')+'】', '忌神【'+(LINK_JI.join('、')||'无')+'】'];
+  if(useTrue&&built.tsInfo) segs.push('真太阳时校正 '+(built.tsInfo.totalAdj>=0?'+':'')+built.tsInfo.totalAdj+' 分'+lngNote);
+  NM_XI_META={zhu:built.BZ.gans.join(''), shuai:An.strength||''};
+  NM_XI_NOTE=segs.join('　');
+  nmXiRender();
+}
+/* 联名模式：第二盘的喜用忌。日期与出生地复用第一盘（双胞胎多同日同城），只另取时辰。
+ * 与 nmXiCalc 完全并行，不写入 LINK_XI，故不影响既有的单名评分链路。 */
+function nmXiCalc2(){
+  var d=document.getElementById('nmBDate').value, t=document.getElementById('nmBTime2').value;
+  if(!d||!t){ LINK_XI2=[]; LINK_JI2=[]; NM_XI_NOTE2=''; NM_XI_META2=null; return; }
+  var useTrue=document.getElementById('nmBTrue').checked;
+  var lng=nmBirthLng();
+  var _pto=nmPlaceTimeOpts();
+  try{
+    var built=buildBaziState({date:d, time:t, sex:document.getElementById('nmSex').value==='女'?0:1,
+      ziMode:document.getElementById('nmBZi').value, sunMode:nmSunModeOf(lng, useTrue), lng:lng, kongAxis:'day',
+      dst:_pto.overseas?'off':'auto', baseLng:_pto.baseLng, localDst:_pto.localDst});
+    var An=getAnalysis(built.BZ);
+    var s=An.synthesis||{};
+    LINK_XI2=(s.xiWxEff&&s.xiWxEff.length)?s.xiWxEff.slice():[];
+    LINK_JI2=(s.jiWxEff&&s.jiWxEff.length)?s.jiWxEff.slice():[];
+    NM_XI_META2={zhu:built.BZ.gans.join(''), shuai:An.strength||''};
+    NM_XI_NOTE2=['日主 '+built.BZ.dayGan, '四柱 '+built.BZ.gans.join(''), '旺衰 '+An.strength,
+      '喜用【'+(LINK_XI2.join('、')||'无')+'】', '忌神【'+(LINK_JI2.join('、')||'无')+'】'].join('　');
+  }catch(e){ LINK_XI2=[]; LINK_JI2=[]; NM_XI_NOTE2=''; NM_XI_META2=null; }
+}
+function nmXiRender(){
+  var el=document.getElementById('linkLine'); if(!el) return;
+  var back=FROM_BAZI?' <a href="bazi.html" class="nm-link-s">← 返回八字排盘</a>':'';
+  if(NM_XI_NOTE){
+    el.innerHTML='📌 '+(FROM_BAZI?'已从<b>八字命盘</b>联动进入，自动填入出生信息：':'已按出生信息页内排盘：')+NM_XI_NOTE+'。'+back;
+    return;
+  }
+  if(FROM_BAZI&&(LINK_XI.length||LINK_JI.length)){
+    var segs=[];
+    if(LINK_XI.length) segs.push('喜用【'+LINK_XI.join('、')+'】');
+    if(LINK_JI.length) segs.push('忌神【'+LINK_JI.join('、')+'】');
+    el.innerHTML='📌 已从<b>八字命盘</b>联动进入：'+segs.join('　')+'。'+back;
+    return;
+  }
+  el.innerHTML='';
+}
+function nmBirthFromUrl(){
+  var p=new URLSearchParams(location.search);
+  if(p.get('fromBazi')!=='1') return false;
+  var d=p.get('bDate'), t=p.get('bTime');
+  if(!d||!t) return false;
+  /* 联动参数优先于上次会话的表单快照：先清掉全站刷新机制的本页快照，
+     否则 app.js 在 load 后会把上次会话的控件值回灌，覆盖刚填入的出生信息 */
+  try{
+    var pg=(location.pathname.split('/').pop()||'index').replace(/\.html?$/,'')||'index';
+    sessionStorage.removeItem('xj:form:'+pg);
+    sessionStorage.removeItem('xj:scroll:'+pg);
+  }catch(e){}
+  document.getElementById('nmBDate').value=d;
+  document.getElementById('nmBTime').value=t;
+  var sx=p.get('sex'); if(sx) document.getElementById('nmSex').value=sx;
+  var pr=p.get('bProv'), ci=p.get('bCity'), di=p.get('bDist');
+  if(NM_PLACE) NM_PLACE.set(pr, ci, di);
+  nmSyncOverseas();
+  var bl=p.get('bLng'); if(bl) document.getElementById('nmBLng').value=bl;
+  document.getElementById('nmBTrue').checked=(p.get('bTrue')==='1');
+  return true;
+}
+/* 综合评分六档等级色：取全站五行色板（与 style.css 的 .wx-mu/.wx-shui/.wx-tu/.wx-jin/.wx-huo 同值，
+   与合婚页 HH_LV_META、紫微页 ZW_HH_LV_META 同源同档）；档位 >=86 火、>=75 金、>=68 金、>=56 土、>=45 水、其余 木。
+   五行五色属语义色，页面段直写，不走本页令牌（本页令牌只有一个青玉色轴，分不出六档） */
+var NM_LV_COLORS=['#5DC336','#4190FA','#A07040','#D4A017','#D4A017','#F65352'];
+function nmScoreColor(t){
+  return NM_LV_COLORS[t>=86?5:t>=75?4:t>=68?3:t>=56?2:t>=45?1:0];
+}
+/* 汉字校验：仅收 CJK 汉字（含扩展A），拦截字母、空格、间隔号等 */
+function isHanzi(s){ return /^[\u3400-\u9FFF\uF900-\uFAFF]$/.test(s); }
+function splitName(s){ return [...(s||'').replace(/\s+/g,'')]; }
+/* 字段显隐：统一按 nm-hide 类切换，样式单一来源在 style.css */
+function nmShow(id, on){
+  document.getElementById(id).classList[on?'remove':'add']('nm-hide');
+}
+/* 典籍名源反转索引：书名 → 名目数组，名源库与成词库出处并集，取数现算一次；下拉按部列出不写死。
+   名源库随计算栈异步到货，未到货时不构建索引并保留 null，待栈就绪回调或任一次渲染再建 */
+var NM_K_BOOK=null;
+/* 典籍部序：按成书与朝代先后排列，未在序表中的部名排末尾按字序 */
+var NM_CLASSIC_ORDER=['周易','尚书','诗经','老子','论语','左传','楚辞','孟子','庄子','荀子','韩非子','礼记','大学','中庸','汉魏诗','晋文','千字文','唐诗','王勃','王维','李白','杜甫','宋词','元曲','增广贤文','朱子家训','纳兰性德'];
+function nmFillClassicOpts(){
+  var el=document.getElementById('nmGenClassic');
+  var cur=el.value;
+  if(!window.NAME_CLASSICS){ NM_K_BOOK=null; return; }
+  if(!NM_K_BOOK){
+    NM_K_BOOK={};
+    var K=window.NAME_CLASSICS;
+    Object.keys(K).forEach(function(n){
+      K[n].forEach(function(e){
+        var arr=NM_K_BOOK[e.book]||(NM_K_BOOK[e.book]=[]);
+        if(arr.indexOf(n)<0) arr.push(n);
+      });
+    });
+    /* 成词库出处并入：首段须为在册部名（取意、朝代、人名一类的散式出处不入下拉），退而在推荐卡随附 */
+    var allow=Object.keys(NM_K_BOOK);
+    var W=window.NAME_WORDS||{};
+    Object.keys(W).forEach(function(word){
+      var src=W[word][3]||'';
+      if(!src) return;
+      var b=src.split(' ')[0];
+      if(allow.indexOf(b)<0 && NM_CLASSIC_ORDER.indexOf(b)<0) return;
+      var arr=NM_K_BOOK[b]||(NM_K_BOOK[b]=[]);
+      if(arr.indexOf(word)<0) arr.push(word);
+    });
+  }
+  if(el.options.length===Object.keys(NM_K_BOOK).length+1) return;
+  Object.keys(NM_K_BOOK).sort(function(a,b){
+    var ia=NM_CLASSIC_ORDER.indexOf(a), ib=NM_CLASSIC_ORDER.indexOf(b);
+    if(ia<0&&ib<0) return a<b?-1:a>b?1:0;
+    if(ia<0) return 1;
+    if(ib<0) return -1;
+    return ia-ib;
+  }).forEach(function(b){
+    var o=document.createElement('option');
+    o.value=b; o.textContent=b;
+    el.appendChild(o);
+  });
+  el.value=cur||'';
+}
+function switchMode(){
+  var m=document.getElementById('nmMode').value;
+  var gen=(m==='gen');
+  var twin=(m==='twin');
+  nmShow('fXing', m==='han'||gen||twin);
+  nmShow('fMing', m==='han');
+  nmShow('fLong', m==='long');
+  nmShow('fCmp', m==='han');
+  nmShow('fAvoid', m==='han'||gen||twin);
+  nmShow('fBeizi', m==='han'||gen);
+  /* 性别与联名的“适用对象”功能重叠（后者含兄弟、姐妹、龙凤胎先后，已覆盖性别取向），
+   * 联名模式下隐去"性别"，免得同一件事两处填写、口径还可能打架 */
+  nmShow('fSex', m!=='twin');
+  /* 联名各法对名字字数的口径：成语拆名可单可双，由下拉定；
+     拆字合名两人各取一部件、恒单字；共用字、排行字、同义对仗须两字成对、恒双字。
+     后三者字数由联名法本身定死，故不给下拉 */
+  var twinMethod = document.getElementById('nmTwinMethod').value;
+  nmShow('fGenLen', gen || (twin && twinMethod==='idiom'));
+  nmShow('fGenCnt', gen||twin);
+  nmShow('fGenPg', gen||twin);
+  nmShow('fGenClassic', gen);
+  nmShow('fGenWx', gen);
+  if (gen) nmFillClassicOpts();
+  nmShow('fTwinKind', twin);
+  nmShow('fTwinMethod', twin);
+  nmShow('fTwinFix', twin);
+  nmShow('fTwinB2', twin);
+  syncTwinFix(twinMethod);
+  /* 简繁改选是针对某个具体姓名的字形，离开单名与长名模式即作废，
+     免得残留的改选表跟着引擎走，把推荐名单的康熙笔画也改了 */
+  if(m!=='han'&&m!=='long'&&Object.keys(NM_JF_OVERRIDES).length){
+    NM_JF_OVERRIDES={};
+    E.setPlanOverride(NM_JF_OVERRIDES);
+  }
+  /* 名单必经主按钮生成：用户主动离开推荐或联名模式（模式下拉 onchange 已先清 GEN_BACK）即作废该名单；
+     详排跳转（GEN_BACK 在途）豁免，返回推荐名单时名单与页码原样恢复 */
+  var out=document.getElementById('out');
+  if(m!=='gen'&&GEN_LIST.length&&!GEN_BACK){ GEN_LIST=[]; GEN_EX=[]; GEN_PAGE=0; }
+  if(m!=='twin'&&TWIN_LIST.length&&!GEN_BACK){ TWIN_LIST=[]; TWIN_EX=[]; TWIN_PAGE=0; }
+  /* 结果区只呈现当前模式的内容：切模式时凡视图标记不是新模式的内容（含失败提示等未打标渲染）
+     一律清成提示，点主按钮才开始；详排跳转豁免 */
+  if(!GEN_BACK&&out.firstChild&&out.dataset.nmView!==m){
+    out.innerHTML='<p class="notice">已切换模式，点击主按钮开始。</p>';
+    out.dataset.nmView=m;
+  }
+  nmSyncPool();
+}
+/* 候选池签名：只含内容口径，不含每页条数与单次页数，后两者只管一次取多少、一页摆多少，
+   不决定候选是谁。签名一变即整批作废重来，按钮文案随之回到“开始推荐”与“生成联名”。
+   切模式与取批两处共用同一函数，故改参数即可见、点按钮即生效，口径只有一处。 */
+function nmWxQuota(){
+  var WXN=['金','木','水','火','土'], q=null;
+  WXN.forEach(function(w,i){
+    var v=document.getElementById('nmWx'+i).value;
+    if(v==='') return; /* 不限：不进配额也不排除 */
+    q=q||{}; q[w]=parseInt(v,10)||0; /* 0 也记，引擎按排除处理 */
+  });
+  return q;
+}
+function nmGenSig(){
+  return [splitName(document.getElementById('nmXing').value).join(''),
+    document.getElementById('nmSex').value,
+    document.getElementById('nmGenLen').value,
+    JSON.stringify(nmWxQuota()),
+    document.getElementById('nmAvoid').value,
+    document.getElementById('nmBeizi').value,
+    document.getElementById('nmBzPos').value,
+    document.getElementById('nmGenClassic').value,
+    LINK_XI.join(''), LINK_JI.join('')].join('|');
+}
+function nmTwinSig(){
+  var method=document.getElementById('nmTwinMethod').value;
+  var fixEl=document.getElementById('nmTwinFix');
+  var av=parseAvoid(document.getElementById('nmAvoid').value);
+  return [splitName(document.getElementById('nmXing').value).join(''), method,
+    document.getElementById('nmTwinKind').value, nmTwinLen(method),
+    fixEl?fixEl.value.trim():'', document.getElementById('nmTwinPos').value,
+    av.map(function(a){return a.ch+(a.syl||'');}).join('')].join('|');
+}
+/* 联名的名字字数：成语拆名随下拉，拆字合名恒 1（各取一部件），其余三法恒 2（两字成对） */
+function nmTwinLen(method){
+  if(method==='split') return 1;
+  if(method==='idiom') return parseInt(document.getElementById('nmGenLen').value,10)||2;
+  return 2;
+}
+function nmSyncPool(){
+  var m=document.getElementById('nmMode').value;
+  if(m==='gen'){
+    var g=nmGenSig();
+    if(g!==GEN_SIG){ GEN_SIG=g; GEN_LIST=[]; GEN_EX=[]; GEN_PAGE=0; }
+  } else if(m==='twin'){
+    var t=nmTwinSig();
+    if(t!==TWIN_SIG){ TWIN_SIG=t; TWIN_LIST=[]; TWIN_EX=[]; TWIN_PAGE=0; }
+  }
+  document.getElementById('nmGoBtn').textContent=nmBtnLabel();
+}
+/* 联名法的指定字词：五种联名法各有其核心字词，输入框共用一个，随联名法换标签、长度上限与宽度。
+ * 切换联名法即清空旧值，免得把“温润如玉”这类四字成语带进只收单字的拆字法。
+ * w 为各法宽度（顶层输入框宽度规则：输入类须显式给值，不得随字段铺满）；
+ * 共用字与位置下拉并排，取 4.5em 只容一字，其余四种按标签与内容定值。 */
+var TWIN_FIX_SPEC={
+  idiom:{label:'指定成语（选填）',ph:'',max:4,w:'145px'},
+  split:{label:'指定合体字（选填）',ph:'',max:1,w:'120px'},
+  shared:{label:'共用字（选填）',ph:'',max:1,w:'4.5em'},
+  rank:{label:'指定排行字（选填）',ph:'',max:2,w:'115px'},
+  synonym:{label:'指定同义字（选填）',ph:'',max:2,w:'115px'}
+};
+function syncTwinFix(m){
+  var sp=TWIN_FIX_SPEC[m]; if(!sp) return;
+  var lb=document.getElementById('nmTwinFixLabel');
+  var ip=document.getElementById('nmTwinFix');
+  var ps=document.getElementById('nmTwinPos');
+  if(lb) lb.textContent=sp.label;
+  if(ip){
+    if(ip.getAttribute('data-fixmode') && ip.getAttribute('data-fixmode')!==m) ip.value='';
+    ip.setAttribute('data-fixmode', m);
+    ip.setAttribute('maxlength', String(sp.max));
+    ip.placeholder=sp.ph;
+    /* 宽度按联名法取 SPEC 定值，不随字段伸缩 */
+    ip.style.width=sp.w||'';
+  }
+  if(ps) ps.style.display=(m==='shared')?'':'none';
+}
+/* ---- 历史记录（localStorage，最近 8 条，点击回填） ---- */
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem('nm_history')||'[]'); }catch(e){ return []; }
+}
+function saveHistory(mode, xing, ming){
+  try{
+    var h=loadHistory();
+    h=h.filter(function(it){return !(it.mode===mode&&it.x===xing&&it.m===ming);});
+    h.unshift({mode:mode, x:xing, m:ming});
+    localStorage.setItem('nm_history', JSON.stringify(h.slice(0,8)));
+  }catch(e){}
+  renderHistory(); /* 保存即刷新列表：新查询置顶、超量自动淘汰旧条，屏幕不再停留陈旧名单 */
+}
+/* 历史条目名：单名与长名直接用姓名本身；起名与联名只记姓氏，故缀法名以别二者 */
+function nmHistName(it){
+  if(it.mode==='long') return it.m;
+  if(it.mode==='gen') return it.x+'（起名）';
+  if(it.mode==='twin') return it.x+'（联名）';
+  return it.x+it.m;
+}
+function renderHistory(){
+  var h=loadHistory(), el=document.getElementById('nmHist');
+  if(!el) return;
+  if(!h.length){ el.classList.add('nm-hide'); el.innerHTML=''; return; }
+  el.classList.remove('nm-hide');
+  el.innerHTML='最近查询：'+h.map(function(it,i){
+    return '<a href="javascript:void(0)" data-i="'+i+'">'+nmHistName(it)+'</a>';
+  }).join('　')+'　<a href="javascript:void(0)" id="nmHistClr" class="nm-hist-clr">全部清理</a>';
+  el.querySelectorAll('a[data-i]').forEach(function(a){
+    a.onclick=function(){
+      var it=h[+a.getAttribute('data-i')];
+      document.getElementById('nmMode').value=it.mode;
+      switchMode();
+      document.getElementById('nmXing').value=it.x;
+      document.getElementById('nmMing').value=(it.mode==='han')?it.m:'';
+      document.getElementById('nmLong').value=(it.mode==='long')?it.m:'';
+      query();
+    };
+  });
+  document.getElementById('nmHistClr').onclick=function(){
+    try{ localStorage.removeItem('nm_history'); }catch(e){}
+    renderHistory();
+  };
+}
+/* 主按钮文案：起名模式已有名单即续取下一段，故为"继续推荐"；其余按模式定名 */
+function nmBtnLabel(){
+  var m=document.getElementById('nmMode').value;
+  if(m==='gen') return GEN_LIST.length?'继续推荐':'开始推荐';
+  if(m==='twin') return TWIN_LIST.length?'继续联名':'生成联名';
+  return '开始分析';
+}
+/* 起名提交：先切到"正在计算中"并禁用按钮，让出主线程一次（setTimeout）使浏览器真正重绘，
+   再跑同步排盘、枚举，避免长任务期间按钮无反馈；计算完恢复按钮原态。
+   计算栈与按需组（semantic/jianfan-full）各有其通道，二者皆到才跑，未到即就地等候，
+   故首屏之后立刻提交也能得到与栈早已就位时逐字相同的结果。 */
+function nmGo(){
+  var btn=document.getElementById('nmGoBtn');
+  btn.disabled=true;
+  btn.textContent='正在计算中';
+  nmStackReady(function(){
+    var ready=(window.NAME_ARCHIVE_LOADER&&window.NAME_ARCHIVE_LOADER.ensure)?window.NAME_ARCHIVE_LOADER.ensure(['semantic','jianfan-full']):Promise.resolve(true);
+    ready.then(function(){
+      var mode=document.getElementById('nmMode').value;
+      var needData=(mode==='gen'||mode==='twin');
+      var dataReady=(needData&&window.nmDataStart)?window.nmDataStart():Promise.resolve(true);
+      dataReady.then(function(){
+        setTimeout(function(){
+          /* 主按钮＝再要一批，故进入时置续取标记；该标记由本函数收尾清除，
+             使早退分支（姓氏未填等）不把它留给别的重绘入口 */
+          try{ NM_MORE=true; query(); }
+          finally{
+            NM_MORE=false;
+            btn.disabled=false;
+            btn.textContent=nmBtnLabel();
+          }
+          if(!needData&&window.nmDataStart) window.nmDataStart();
+        }, 30);
+      });
+    });
+  });
+}
+/* 大件数据到货后的补算：只补"结果已出且输入未改动"这一种情形。
+ * 用户正在改表单时不擅自重算：未提交的编辑不是查询。 */
+function nmRefresh(){
+  var out=document.getElementById('out');
+  if(!LAST||!out||!out.firstChild) return;
+  var mode=document.getElementById('nmMode').value;
+  if(mode!==(LAST.mode||'han')) return;
+  /* 推荐与联名名单必经主按钮生成：到货补算只重绘已有名单，绝不自动出新批 */
+  if(mode==='gen'){ if(GEN_LIST.length) renderGen(out); return; }
+  if(mode==='twin'){ if(TWIN_LIST.length) renderTwin(out); return; }
+  if(!LAST.mode){
+    var xs=splitName(document.getElementById('nmXing').value), ms=splitName(document.getElementById('nmMing').value);
+    if(xs.join('')!==LAST.xs.join('')||ms.join('')!==LAST.ms.join('')) return;
+  }
+  query();
+}
+/* ---- 评分分项盘：骨架照合婚页 hhWheel（最外圈两字环名沿圆周环布，取皇极外层四件套，内圈与盘心取老黄历二十八宿盘），
+   本页只填数据与令牌。弧一律淡环，量值由内圈数字、盘心水位与盘下详情承担，不塞进弧的墨色。 ---- */
+var NMW_C=220, NMW_OUT=179, NMW_IN=120, NMW_CORE=78, NMW_ARC=188, NMW_HIT=194,
+    NMW_LAB_OUT=206, NMW_LAB_IN=148, NMW_T0=171, NMW_T1=177, NMW_P0=82, NMW_P1=116;
+/* 外圈只放两字简称，全名由盘心与盘下详情承担；数理五行与数理配置前两字同为数理，故显式取别名 */
+var NMW_ABBR={'字义寓意':'字义','组合意境':'意境','音律':'音律','喜用匹配':'喜用',
+  '义五行':'义五','数理五行':'数五','数理配置':'配置','字形':'字形'};
+function nmwShort(k){ return NMW_ABBR[k]||String(k).slice(0,2); }
+function nmwMid(i,step){ return i*step+step/2; }
+/* 盘心水位取该项得分率：得 0 分即无色，满分即满盘 */
+function nmwFill(p){ return WHEEL.coreFill(NMW_CORE, p.v/p.full*100); }
+function nmWheel(list){
+  var step=360/list.length;
+  return WHEEL.render({
+    id:'nmScoreWheel',
+    aria:'评分分项盘：外圈为各项简称、内圈为该项得分，盘心水位即该项得分率',
+    n:list.length,
+    span:function(i){ return [i*step,(i+1)*step]; },
+    mid:function(i){ return nmwMid(i,step); },
+    arc:NMW_ARC, rIn:NMW_IN, hit1:NMW_HIT, tick0:NMW_T0, tick1:NMW_T1, p0:NMW_P0, p1:NMW_P1, out:NMW_OUT, core:NMW_CORE,
+    sel:0, hitOn:false,
+    selId:'nmScoreArc', needleId:'nmScoreNeedle', dotId:'nmScoreDot',
+    onclick:'nmPick',
+    labelsOut:function(i,dg){
+      var a=nmwMid(i,step), po=WHEEL.px(NMW_LAB_OUT,a);
+      return '<text x="'+WHEEL.n(po[0])+'" y="'+WHEEL.n(po[1])+'" class="w-lab" data-i="'+i+'" transform="rotate('
+        +WHEEL.ring(a)+' '+WHEEL.n(po[0])+' '+WHEEL.n(po[1])+')">'+nmwShort(list[i].k)+'</text>';
+    },
+    labelsIn:function(i,dg){
+      var a=nmwMid(i,step), pi=WHEEL.px(NMW_LAB_IN,a);
+      return '<text x="'+WHEEL.n(pi[0])+'" y="'+WHEEL.n(pi[1])+'" class="w-lab w-lab-lg" transform="rotate('
+        +WHEEL.radial(a)+' '+WHEEL.n(pi[0])+' '+WHEEL.n(pi[1])+')">'+list[i].v+'</text>';
+    },
+    rings:[{r:NMW_OUT,cls:'w-ring'},{r:NMW_IN,cls:'w-ring'}],
+    extra:function(){
+      var f0=nmwFill(list[0]);
+      return '<clipPath id="nmScoreClip"><circle cx="'+NMW_C+'" cy="'+NMW_C+'" r="'+NMW_CORE+'"/></clipPath>'
+        +'<rect id="nmScoreFill" class="w-fill" x="'+(NMW_C-NMW_CORE)+'" y="'+f0.y+'" width="'+(NMW_CORE*2)+'" height="'+f0.height+'" clip-path="url(#nmScoreClip)"/>'
+        +'<circle cx="'+NMW_C+'" cy="'+NMW_C+'" r="'+NMW_CORE+'" class="w-core-hollow"/>';
+    },
+    center:[
+      {y:NMW_C-16, cls:'w-c1', id:'nmScoreC1', text:''},
+      {y:NMW_C+12, cls:'w-c2', id:'nmScoreC2', text:''},
+      {y:NMW_C+32, cls:'w-c3', id:'nmScoreC3', text:''}
+    ]
+  });
+}
+function nmPick(i){
+  var list=window.__nmScore; if(!list||!list[i]) return;
+  var step=360/list.length, a=nmwMid(i,step), p=list[i];
+  document.getElementById('nmScoreArc').setAttribute('d',WHEEL.arc(NMW_ARC,i*step,(i+1)*step));
+  var q0=WHEEL.px(NMW_P0,a), q1=WHEEL.px(NMW_P1,a);
+  var nd=document.getElementById('nmScoreNeedle');
+  nd.setAttribute('x1',WHEEL.n(q0[0])); nd.setAttribute('y1',WHEEL.n(q0[1]));
+  nd.setAttribute('x2',WHEEL.n(q1[0])); nd.setAttribute('y2',WHEEL.n(q1[1]));
+  var dt=document.getElementById('nmScoreDot');
+  dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
+  WHEEL.pick('nmScoreWheel',i);
+  WHEEL.lab('nmScoreWheel',i);
+  WHEEL.text('nmScoreC1',p.k);
+  WHEEL.text('nmScoreC2',p.v+' 分（满分 '+p.full+'）');
+  WHEEL.text('nmScoreC3','得 '+Math.round(p.v/p.full*100)+'%');
+  var fl=document.getElementById('nmScoreFill');
+  if(fl){ var f=nmwFill(p); fl.setAttribute('y',f.y); fl.setAttribute('height',f.height); }
+  document.getElementById('nmScoreDetail').innerHTML=nmDetailHTML(p);
+}
+/* 盘下详情：题名与分值一行，说明按分号拆作数行，长句成墙则读不出层次 */
+function nmDetailHTML(p){
+  var body=String(p.note||'').split(/[；;]/).map(function(x){return x.trim();}).filter(Boolean)
+    .join('<span class="wd-br"></span>');
+  return '<span class="wd-t">'+p.k+'</span>　'+p.v+' 分（满分 '+p.full+'）　得 '+Math.round(p.v/p.full*100)+'%'
+    +'<span class="wd-br"></span>'+body;
+}
+function query(){
+  var out=document.getElementById('out');
+  var mode=document.getElementById('nmMode').value;
+  /* 喜用机制：出生日期与时辰齐备即随本轮分析页内直算喜用（联动自动填入同径），齐备即计入评分 */
+  if(document.getElementById('nmBDate').value&&document.getElementById('nmBTime').value) nmXiCalc();
+  try{
+    if(mode==='long'){ GEN_BACK=false; renderLong(out); return; }
+    /* 回到名单即退出详排上下文：历史栏随之重画，返回链接同时收起 */
+    if(mode==='twin'){ GEN_BACK=false; renderHistory(); nmXiCalc2(); renderTwin(out, NM_MORE); return; }
+    if(mode==='gen'){ GEN_BACK=false; renderHistory(); genAdvance(out, NM_MORE); return; }
+    var xs=splitName(document.getElementById('nmXing').value);
+    var ms=splitName(document.getElementById('nmMing').value);
+    /* T13：用户改选的繁体形直接替换输入（字义、字形、谐音一并按该字形取，语义即用户选定字形） */
+    if(Object.keys(NM_JF_OVERRIDES).length){
+      xs=xs.map(function(c){return NM_JF_OVERRIDES[c]||c;});
+      ms=ms.map(function(c){return NM_JF_OVERRIDES[c]||c;});
+    }
+    if(!xs.length||!ms.length){ out.innerHTML='<p class="notice">请填写姓与名。</p>'; return; }
+    if(xs.length>2||ms.length>2){ out.innerHTML='<p class="notice">姓氏支持 1~2 字（单姓、复姓、双姓），名支持 1-2 字，姓名合计 2~4 字；三字以上姓名请改用长姓名模式。</p>'; return; }
+    var all=xs.concat(ms), badType=all.filter(function(c){return !isHanzi(c);});
+    if(badType.length){ out.innerHTML='<p class="notice">含非汉字字符：'+badType.join('、')+'，本页仅支持汉字姓名。</p>'; return; }
+    /* 改选后的字形即计画字形：康熙笔画按它取，与本页其余取数同源 */
+    E.setPlanOverride(NM_JF_OVERRIDES);
+    var r=E.analyze(xs.join(''), ms.join(''), LINK_XI, LINK_JI);
+    if(!r.ok){
+      out.innerHTML='<p class="notice">字库未收录 '+r.failed.join('、')+' 的康熙笔画，请更换用字或改用其他用字。生僻字可参考：改用对应通行繁体字形再试。</p>';
+      return;
+    }
+    var s=E.score(r);
+    LAST={xs:xs, ms:ms, r:r, s:s};
+    /* 1. 康熙笔画取数：大六壬四课同款卡（lr-kes、lr-ke），只留 字、笔画（映射注在笔画行内） */
+    var chips=r.plans.map(function(p){
+      var mapNote=(p.use!==p.ch)?(' → 计画用 <b>'+p.use+'</b>'):'';
+      return '<div class="lr-ke">'
+        +'<div class="lr-ke-u">'+p.ch+'</div>'
+        +'<div class="lr-ke-d">'+p.strokes+' 画'+mapNote+'</div>'
+        +'</div>';
+    }).join('');
+    /* 2. 五格剖象：同款四课卡 ×5；分类数标签 + 吉凶小字注 */
+    function geBox(lbl, g){
+      var cls=((window.NAME_DATA.NUM_CLS||{})[g.num]||[]).map(function(t){
+        return '<span class="zr-tag nm-tag">'+t+'</span>';
+      }).join('');
+      return '<div class="lr-ke">'
+        +'<div class="lr-ke-u">'+g.raw+'</div>'
+        +'<div class="lr-ke-d">'+g.key+'</div>'
+        +'<div class="lr-ke-l">'+lbl+'　'+wxColorSpan(g.wx)+'</div>'
+        +'<div class="nm-jx '+LUCK_CLS[g.luck]+'">'+luckTxt(g.luck)+'</div>'
+        +(cls?'<div class="nm-cls">'+cls+'</div>':'')
+        +'</div>';
+    }
+    var wuge='<div class="lr-kes nm-ge-kes">'
+      +geBox('天格',r.tian)+geBox('人格',r.ren)+geBox('地格',r.di)+geBox('外格',r.wai)+geBox('总格',r.zong)
+      +'</div>';
+    /* 3. 三才：同款卡 ×3（五行色大字与天地盘 lr-tian 同例） */
+    var sc=r.sancai;
+    var scBox='<div class="lr-kes nm-cai-kes">'
+      +'<div class="lr-ke"><div class="lr-ke-u">'+wxColorSpan(sc.tian)+'</div><div class="lr-ke-l">天</div></div>'
+      +'<div class="lr-ke"><div class="lr-ke-u">'+wxColorSpan(sc.ren)+'</div><div class="lr-ke-l">人</div></div>'
+      +'<div class="lr-ke"><div class="lr-ke-u">'+wxColorSpan(sc.di)+'</div><div class="lr-ke-l">地</div></div>'
+      +'</div>'
+      +'<p class="xlr-note nm-center"><b class="'+LUCK_CLS[sc.luck]+'">'+E.luckTxtWx(sc.luck)+'</b>　'+sc.text+'</p>';
+    /* 4. 三运：三传同款单行（lr-chuan），大字墨色为吉凶档一字，吉凶色仅作小字注 */
+    function yunBox(t, pair, y){
+      var zword = y.luck==='xiong'?'凶':(y.luck==='xj'?'半':'吉');
+      return '<div class="lr-chuan">'
+        +'<span class="lr-chuan-l">'+t+'</span>'
+        +'<span class="lr-chuan-z">'+zword+'</span>'
+        +'<span class="lr-chuan-j">'+pair+'　'+y.text+'</span>'
+        +'<span class="lr-chuan-yq"><span class="'+LUCK_CLS[y.luck]+'">'+E.luckTxtWx(y.luck)+'</span>　'+y.rel+'</span>'
+        +'</div>';
+    }
+    var yunHtml='<div class="lr-chuans nm-chuans">'
+      +yunBox('成功运','人格→天格',r.sanyun.chenggong)
+      +yunBox('基础运','人格→地格',r.sanyun.jichu)
+      +yunBox('社交运','人格→外格',r.sanyun.shejiao)
+      +'</div>';
+    /* 5. 音律字形 + 喜用匹配 + 对比 */
+    var phonHtml=phonBlock(r.plans.map(function(p){return p.ch;}), r.xcharsLen||1);
+    /* T13：简繁多读改选行（多候选字逐一下拉，改选即重算；无多候选则不显示） */
+    var jfLine='';
+    if(window.NAME_JIANFAN_SELECT&&window.NAME_ARCHIVE_JIANFAN_FULL){
+      var sel=window.NAME_JIANFAN_SELECT.selectName(all.join(''));
+      /* 简繁同字在康熙口径下一律按繁体计画，笔画本就相同（如 万、萬 皆 15 画）。
+         故只给计画结果真有差异的字出改选下拉：无差异者改选不改数，不必摆出来。 */
+      var multiRows=sel.filter(function(x){
+        if(!x.multi) return false;
+        var ns=x.alternatives.map(function(a){ return E.planChar(a.t).strokes; });
+        return ns.some(function(n){ return n!==ns[0]; });
+      });
+      if(multiRows.length){
+        jfLine='<p class="sub-note nm-jf-line">简繁多读（改选后自动重算）：'+multiRows.map(function(x){
+          var cur=NM_JF_OVERRIDES[x.char]||x.selected;
+          return '<span class="nm-jf-item">'+x.char+'：<select class="nm-jf-sel" data-raw="'+x.char+'">'+x.alternatives.map(function(a){
+            /* 画数取站内康熙计画结果，与改选后实算同源：
+               字档自带的画数含简体笔画，照抄会与本页康熙口径两歧 */
+            return '<option value="'+a.t+'"'+(a.t===cur?' selected':'')+'>'+a.t+'（'+E.planChar(a.t).strokes+'画）</option>';
+          }).join('')+'</select></span>';
+        }).join('　')+'</p>';
+      }
+    }
+    /* T15：名卦区块（梅花字占人名通例，民俗参考；复用 gua.js 京房世应） */
+    function hexagramHtmlBuild(){
+      if(!window.NAME_HEXAGRAM) return '';
+      var r2=window.NAME_HEXAGRAM.build((LAST.xs||[]).filter(function(c){return isHanzi(c);}), (LAST.ms||[]).filter(function(c){return isHanzi(c);}));
+      if(!r2) return '';
+      return '<details class="mh-ref" id="nmModMingGua"><summary>名卦（梅花字占，民俗参考）</summary>'
+        +'<div class="nm-fold-body" hidden>'
+        +'<div class="hex-row nm-center"><div class="hex-name"><span class="hx">'+r2.lsym+r2.usym+'</span> <b>'+r2.name+'</b></div></div>'
+        +'<p class="sub-note nm-center">上卦'+r2.upper+'（姓 '+r2.xingStrokes+' 画），下卦'+r2.lower+'（名 '+r2.mingStrokes+' 画），动爻第'+r2.dong+'爻，变卦<b>'+r2.changedName+'</b></p>'
+        +'<p class="sub-note nm-center">'+r2.palace+' '+r2.type+'（世'+r2.world+' 应'+r2.ying+'）　口径：'+r2.caliber+'</p>'
+        +'</div></details>';
+    }
+    var hexagramHtml=hexagramHtmlBuild();
+    /* T13：生肖宜忌区块（字根宜忌为民俗通行口径；判定引擎 name-zodiac.js，
+       年支由出生日期经四柱精确定，不用公历年粗排，立春与正月边界粗排会错档）。
+       无出生日期即无生肖，如实不出区块。 */
+    function zodiacHtmlBuild(){
+      if(!window.NAME_ZODIAC) return '';
+      var bd=document.getElementById('nmBDate').value;
+      if(!bd) return '';
+      var bzLng=nmBirthLng();
+      var _pto=nmPlaceTimeOpts();
+      var bz=buildBaziState({date:bd, time:document.getElementById('nmBTime').value||'12:00',
+        sex:document.getElementById('nmSex').value==='女'?0:1,
+        ziMode:document.getElementById('nmBZi').value,
+        sunMode:nmSunModeOf(bzLng, document.getElementById('nmBTrue').checked),
+        lng:bzLng, kongAxis:'day',
+        dst:_pto.overseas?'off':'auto', baseLng:_pto.baseLng, localDst:_pto.localDst}).BZ;
+      var zk=window.NAME_ZODIAC.zodiacFromBranch(bz.zhis[0]);
+      if(!zk) return '';
+      var a=window.NAME_ZODIAC.analyzeName((LAST.xs||[]).concat(LAST.ms||[]).join(''), zk);
+      var relLine=[];
+      if(a.sanhe) relLine.push('三合'+a.sanhe);
+      if(a.liuhe) relLine.push('六合'+a.liuhe);
+      if(a.chong) relLine.push('冲'+a.chong);
+      if(a.xing) relLine.push('刑'+a.xing);
+      if(a.hai) relLine.push('害'+a.hai);
+      var rows=a.per.map(function(p){
+        if(p.n_a) return '<tr><th>'+p.char+'</th><td>字根不属部首层，不作宜忌判（如实不判）</td></tr>';
+        var yi=p.yi.length?'宜 '+p.yi.join('、'):'宜 无';
+        var ji=p.ji.length?'忌 '+p.ji.join('、'):'忌 无';
+        return '<tr><th>'+p.char+'</th><td>'+yi+'　'+ji+'</td></tr>';
+      }).join('');
+      var lv=a.level==='宜'?'吉':(a.level==='慎'?'凶':'');
+      var lvHtml=a.level==='中性'?'中性':'<b class="'+LUCK_CLS[lv]+'">'+a.level+'</b>';
+      return '<details class="mh-ref" id="nmModShengXiao"><summary>生肖宜忌</summary>'
+        +'<div class="nm-fold-body" hidden>'
+        +'<p class="sub-note nm-center">生肖'+a.zodiac+'（'+a.branch+'）　'+relLine.join('　')+'　综合档：<b class="'+(lv?LUCK_CLS[lv]:'')+'">'+a.level+'</b></p>'
+        +'<table class="xlr-table nm-mt-1"><tbody>'
+        +'<tr><th>宜用字根</th><td>'+(a.yiHits.length?a.yiHits.join('、'):'无')+'</td></tr>'
+        +'<tr><th>避用字根</th><td>'+(a.jiHits.length?a.jiHits.join('、'):'无')+'</td></tr>'
+        +rows
+        +'</tbody></table>'
+        +'<p class="sub-note nm-center">地支关系为客观规则；字根宜忌为民俗通行口径。</p>'
+        +'</div></details>';
+    }
+    var zodiacHtml=zodiacHtmlBuild();
+    var matchHtml='';
+    if(r.match){
+      var m=r.match;
+      matchHtml='<section class="mod" id="nmModXiYong"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">喜用匹配</span><span class="mod-sub">义五行与数理五行、双轨并判</span></div>'
+        +'<div class="mod-body">'
+        +'<p class="sub-note">喜用五行【'+(LINK_XI.join('、')||'未明')+'】　忌神五行【'+(LINK_JI.join('、')||'未明')+'】</p>'
+        +'<table class="xlr-table nm-mt-1"><tbody>'
+        +'<tr><th>各字义五行</th><td colspan="5">'+m.charWx.map(function(w,i){ return (w&&w!=='—')?wxColorSpan(w):'<span class="nm-dim">无共识</span>'; }).join('、')+'</td></tr>'
+        +'<tr><th>各字数理五行</th><td colspan="5">'+m.shuWx.map(wxColorSpan).join('、')+'</td></tr>'
+        +'<tr><th>匹配结论</th><td colspan="5"><b class="'+LUCK_CLS[m.luck]+'">'+m.label+'</b>（义五行与数理五行双轨并判）　'+(m.good.length?('义五行'+m.good.join('、')+'与喜用同气，得补。'):'')+((m.bad.length)?('义五行'+m.bad.join('、')+'犯忌神。'):'')+((m.shuGood&&m.shuGood.length)?('数理五行'+m.shuGood.join('、')+'亦与喜用同气。'):'')+((m.shuBad&&m.shuBad.length)?('数理五行'+m.shuBad.join('、')+'亦犯忌神。'):'')+((m.neutral)?('　'+m.neutral+' 字无义五行共识（数理五行已并判）。'):'')+'</td></tr>'
+        +'</tbody></table></div></section>';
+    }
+    /* 6. 评分：总分卡沿用合婚 hh-total，分项改走圆盘（wheel 通用件，骨架见 nmWheel），
+          分数色沿用站内五行色体系；条式 hh-item 已撤，不再有边框挤压 */
+    var grade = s.total>=86?'上乘':s.total>=75?'优良':s.total>=68?'良好':s.total>=56?'中等':s.total>=45?'偏弱':'需斟酌';
+    var col = nmScoreColor(s.total);
+    window.__nmScore=s.parts;
+    var scoreHtml='<section class="mod" id="nmModScore"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">'+(r.match?'六':'五')+'、综合评分</span><span class="mod-sub">八项分项、权重透明</span></div>'
+      +'<div class="mod-body">'
+      +'<div class="hh-total hh-total-xz nm-total">'
+      +'<div class="hh-total-cap">综合评分</div>'
+      +'<div class="hh-total-score" style="--score-col:'+col+'">得分<b>'+s.total+'</b></div>'
+      +'<div class="hh-total-lv" style="--score-col:'+col+'">'+grade+'</div>'
+      +'</div>'
+      +'<div class="wheel-wheels single"><div class="wheel-block"><h4>评分分项盘（'+s.parts.length+' 项，合计 '+s.total+' 分）</h4>'
+      +nmWheel(s.parts)+'<div class="wheel-detail" id="nmScoreDetail">'+nmDetailHTML(s.parts[0])+'</div></div></div>'
+      +'</div></section>';
+    saveHistory('han', xs.join(''), ms.join(''));
+    /* 返回名单链接渲染在详排盘顶部（随 GEN_BACK 出现），不依赖历史栏 */
+    var backBar=GEN_BACK?'<p class="sub-note"><a href="javascript:void(0)" id="nmBackGen" class="nm-back-link">← 返回'+(GEN_BACK_MODE==='twin'?'联名':'推荐')+'名单</a></p>':'';
+    out.dataset.nmView='han';
+    out.innerHTML=backBar+'<section class="mod" id="nmModBihua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">康熙笔画取数</span><span class="mod-sub">计画用字、简转繁</span></div>'
+      +'<div class="mod-body"><div class="lr-kes">'+chips+'</div>'
+      +jfLine
+      +'</div></section>'
+      /* 二 数理格局：五格 + 三才 + 三运 合并一模块 */
+      +'<section class="mod" id="nmModShuli"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">数理格局</span><span class="mod-sub">五格剖象、三才配置、三运关系</span></div>'
+      +'<div class="mod-body">'
+      +'<div class="nm-sub-sec"><p class="det-h">五格剖象</p>'+wuge
+      +'</div>'
+      +'<div class="nm-sub-sec"><p class="det-h">三才配置</p>'+scBox+'</div>'
+      +'<div class="nm-sub-sec"><p class="det-h">三运关系</p>'+yunHtml+'<p class="sub-note nm-center">三才与三运吉凶为生克档（吉、半吉、凶），与八十一数理档（大吉、次吉、凶）分系两判。</p></div>'
+      +'</div></section>'
+      /* 三 音形避忌：音律 + 谐音避讳 + 字形评断 合并一模块 */
+      +'<section class="mod" id="nmModYinXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">音形避忌</span><span class="mod-sub">音律、谐音避讳、字形评断</span></div>'
+      +'<div class="mod-body">'
+      +phonHtml
+      +tabooBlock(r.plans.map(function(p){return p.ch;}), ms.length, parseAvoid(document.getElementById('nmAvoid').value), {ch:[...document.getElementById('nmBeizi').value.trim()][0]||'', pos:+document.getElementById('nmBzPos').value})
+      +homophoneBlock(r.plans.map(function(p){return p.ch;}), r.xcharsLen||1)
+      +formBlock(LAST.ms)
+      +'</div></section>'
+      /* 四 字义字源（姓氏溯源并入本模块之首） */
+      +etymBlock(r.plans.map(function(p){return p.ch;}), LAST.ms, LAST.xs ? LAST.xs.length : 1, [...document.getElementById('nmBeizi').value.trim()][0]||'')
+      +matchHtml
+      +scoreHtml
+      +hexagramHtml
+      +zodiacHtml
+      +cmpBlock();
+    /* 盘默认落在第一项：盘心、加粗弧与盘下详情须与详情条的初始文本同指一处 */
+    if(document.getElementById('nmScoreWheel')) nmPick(0);
+    /* T13：简繁改选下拉 → 更新覆盖并重算 */
+    Array.prototype.forEach.call(document.querySelectorAll('.nm-jf-sel'),function(s){
+      s.onchange=function(){ NM_JF_OVERRIDES[s.getAttribute('data-raw')]=s.value; nmGo(); };
+    });
+    renderRefTable([r.tian.num,r.ren.num,r.di.num,r.wai.num,r.zong.num]);
+    var refWrap=document.getElementById('nmRefWrap');
+    refWrap.classList.remove('nm-hide');
+    refWrap.open=false; /* 81 表内容长，保持折叠，点击展开 */
+    /* 返回名单：详排盘顶链接（GEN_BACK 在途才渲染），点击回来源名单原样恢复 */
+    var nmBack=document.getElementById('nmBackGen');
+    if(nmBack) nmBack.onclick=function(){
+      GEN_BACK=false;
+      document.getElementById('nmMode').value=GEN_BACK_MODE;
+      switchMode();
+      query();
+      window.scrollTo(0,0);
+    };
+    nmApplyModState();
+  }catch(e){
+    console.error(e);
+    out.innerHTML='<p class="notice">分析出错：'+(e.message||e)+'。请调整输入后重试，若持续出错请反馈。</p>';
+  }
+}
+/* ---- 音律字形（NAME_PHON：拼音、结构索引；主源 hanzi-jiegou 加国标仲裁，覆盖全量） ---- */
+var NM_STRUCT=['左右','上下','半包围','全包围','独体','品字'];
+var NM_TONE=['阴平','阳平','上声','去声','轻声'];
+var NM_TONE_SHORT=['平','平','仄','仄','平'];
+/* 韵母近似切分：先去调号再去声母（含 zh/ch/sh 与 y/w），余部作韵母；与 name-generate 内 finalOf 同规 */
+var NM_INITIALS=['zh','ch','sh','b','p','m','f','d','t','n','l','g','k','h','j','q','x','r','z','c','s','y','w'];
+function nmFinal(py){
+  var s=xjPyPlain(py);
+  for(var i=0;i<NM_INITIALS.length;i++){ if(s.indexOf(NM_INITIALS[i])===0) return s.slice(NM_INITIALS[i].length); }
+  return s;
+}
+function nmOpenMouth(fin){ return /^(a|o|e|ai|ei|ao|ou|an|en|ang|eng|ong|er)$/.test(fin); }
+function nmPhon(ch, isSurname){
+  /* T10：统一取数入口，姓氏位优先异读表（单 shàn 等），字档缺读音退旧表 */
+  if(window.NAME_ENGINE&&window.NAME_ENGINE.getPhon){
+    var g=window.NAME_ENGINE.getPhon(ch, isSurname);
+    if(g) return g;
+  }
+  var v=(window.NAME_PHON||{})[ch];
+  if(!v) return null;
+  var m=v.match(/^([^0-9]+)([0-9])$/);
+  if(!m) return null;
+  return {py:m[1], st:parseInt(m[2],10)};
+}
+function phonBlock(chars, surnameLen){
+  var SL=surnameLen||0; /* 姓氏位数：姓氏位读异读音（单 shàn 等），长名无姓则传 0 */
+  var missing=chars.filter(function(c,i){return !nmPhon(c,i<SL);});
+  if(missing.length===chars.length) return '';   /* 全缺则整块省略 */
+  var rows=chars.map(function(c,i){
+    var o=nmPhon(c, i<SL);
+    if(!o) return '<tr><th>'+c+'</th><td colspan="4" class="small nm-dim">读音未收录</td></tr>';
+    var ti=xjPyTone(o.py)||5;
+    var st=(o.st>=0&&o.st<=5&&NM_STRUCT[o.st])||null;
+    var fin=nmFinal(o.py);
+    var open=nmOpenMouth(fin)?'开口':'齐合撮';
+    return '<tr><th>'+c+'</th><td>'+o.py+'</td><td>'+NM_TONE_SHORT[ti-1]+'（'+NM_TONE[ti-1]+'）</td><td>'+open+'</td><td>'+(st||'未推定')+'</td></tr>';
+  }).join('');
+  /* 平仄与双声叠韵（按读音已收录的字计；姓氏位读异读音） */
+  var seq=chars.map(function(c,i){var o=nmPhon(c,i<SL);if(!o)return null;
+    var ti=xjPyTone(o.py)||5;
+    return NM_TONE_SHORT[ti-1];}).filter(Boolean);
+  var ping=seq.filter(function(t){return t==='平';}).length;
+  var note='';
+  if(seq.length>=2){
+    note+='平仄：'+ping+' 平 '+(seq.length-ping)+' 仄。';
+    var norm=function(c,i){var o=nmPhon(c,i<SL);return o?xjPyPlain(o.py):null;};
+    var dup=chars.some(function(a,i){return chars.some(function(b,j){return j>i&&norm(a,i)&&norm(b,j)&&norm(a,i)===norm(b,j);});});
+    if(dup) note+='有同音字，口语易混，宜留意。';
+    /* 正向择优：末字口呼（响亮度） */
+    var lastO=nmPhon(chars[chars.length-1], chars.length-1<SL);
+    if(lastO){
+      var lf=nmFinal(lastO.py);
+      if(nmOpenMouth(lf)) note+='末字韵母'+lf+'属开口呼，收音响亮。';
+      else note+='末字韵母'+lf+'属齐合撮，收音偏收敛。';
+    }
+  }
+  return '<div class="nm-sub-sec"><p class="det-h">音律</p>'
+    +'<table class="xlr-table"><thead><tr><th>字</th><th>读音</th><th>平仄</th><th>口呼</th><th>字形结构</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<p class="sub-note">'+(note||'读音数据不足，仅列已知。')+'</p>'
+    +'</div>';
+}
+/* ---- T14 谐音提示：词级双关（high/mid 明列），单音节弱提示折叠；民俗参考口径 ---- */
+function homophoneBlock(chars, xLen){
+  if(!window.NAME_HOMOPHONE) return '';
+  var r=window.NAME_HOMOPHONE.check(chars.filter(function(c){return isHanzi(c);}).join(''), xLen||0);
+  if(!r) return '';
+  var strong=r.hits.filter(function(h){return h.severity==='high'||h.severity==='mid';});
+  var weak=r.hits.filter(function(h){return h.severity==='low';});
+  var body;
+  if(strong.length){
+    body='<p class="sub-note">连读谐音提示：<b>'+strong.map(function(h){return h.word;}).join('、')+'</b>与“'+r.chars.join('')+'”读音相近，民俗以为易生歧义，宜斟酌。</p>';
+  } else if(weak.length){
+    body='<p class="sub-note">单字读音含民俗弱联想（'+weak.map(function(h){return h.word;}).join('、')+'），词级无不良双关。</p>';
+  } else {
+    body='<p class="sub-note">未检出不良谐音双关。</p>';
+  }
+  return '<div class="nm-sub-sec"><p class="det-h">连读谐音</p>'+body
+    +'</div>';
+}
+/* ---- 印象标签：义类档案映射听感标签（推荐卡与详排页共用） ----
+ * 8 标签体系：每字按义类带 1~2 标签，名字标签取各字并集，按出现频次取前三为主标签 */
+var NM_CAT_TAGS={
+  '气度':['刚毅','明朗'], '山岳':['刚毅','沉稳'], '动作':['刚毅'],
+  '品德':['温润'], '容貌':['温润','俊朗'],
+  '才学':['儒雅','聪慧'], '虚词':['儒雅'],
+  '草木':['灵秀'], '水泽':['灵秀','沉稳'],
+  '天象':['明朗'], '时令':['明朗'],
+  '珍宝':['华贵'], '色彩':['华贵'],
+  '吉祥':['吉庆'], '器物':['沉稳'], '通用':[]
+};
+var NM_TAG_ORDER=['刚毅','温润','聪慧','儒雅','灵秀','明朗','华贵','吉庆','沉稳','俊朗'];
+function nmImpressionTags(chars){
+  var C=window.NAME_CHARS||{};
+  var cnt={}, order=[];
+  chars.forEach(function(ch){
+    var cat=C[ch]?C[ch][5]:'';
+    (NM_CAT_TAGS[cat]||[]).forEach(function(t){
+      if(cnt[t]===undefined){ order.push(t); cnt[t]=0; }
+      cnt[t]++;
+    });
+  });
+  order.sort(function(a,b){ return cnt[b]-cnt[a]||NM_TAG_ORDER.indexOf(a)-NM_TAG_ORDER.indexOf(b); });
+  return order;
+}
+function nmTagChips(chars, max){
+  var tags=nmImpressionTags(chars).slice(0, max||3);
+  if(!tags.length) return '';
+  return tags.map(function(t){ return '<span class="zr-tag nm-tag nm-tag-imp">'+t+'</span>'; }).join('');
+}
+/* ---- 字义字源：单字表 + 合观表，两张表格同一式样。
+ * 合观表"词"列列取材单元，均取站内已核实资产（字源、寓意、成词库、典籍库、成语库、语料检索、名人库），
+ * 组词释义列只陈述该词或该组合的既有所指，取名寓意列落到起名常用义；查不到的格子如实留白，不做虚构。 */
+function etymBlock(chars, mingMs, xingLen, beiziCh){
+  var SN=window.NAME_SURNAMES||{}, T=window.NAME_ETYM||{}, Y=window.NAME_YUYI||{}, W=window.NAME_WORDS||{}, K=window.NAME_CLASSICS||{};
+  /* 寓意短语兜底（常用名字用字未入寓意库者，据《说文》本义缀意；逐字可核，不虚构） */
+  var YSUPP={'池':'水所停居，寓城池稳固、临池学书','醉':'饮酒尽意，寓酣然自得、沉醉于艺',
+    '缨':'冠系也，寓请缨报国、志在功名','为':'做也，寓有所作为、敢作敢为'};
+  /* 字义寓语直取结构化三表：YU 双寓语对、HEAD 本义前半；YSUPP 两行对映为其策展兜底 */
+  var YYU=window.NAME_YUYI_YU||{}, YYH=window.NAME_YUYI_HEAD||{}, WYU=window.NAME_WORDS_YU||{};
+  var YSUPP_YU={'池':['城池稳固','临池学书'],'醉':['酣然自得','沉醉于艺'],'缨':['请缨报国','志在功名'],'为':['有所作为','敢作敢为']};
+  var YSUPP_H={'池':'水所停居','醉':'饮酒尽意','缨':'冠系也','为':'做也'};
+  function yu(c){ /* 取名寓意列取寓意库（YUYI 覆盖 4271 候选字），YSUPP 为策展兜底，字档 gloss 殿后。
+                    字档 gloss 属训诂本义，与释义列同科，不作寓意首选，免得寓意列落成一句本义。 */
+    var g=window.NAME_ENGINE&&window.NAME_ENGINE.getChar?((window.NAME_ENGINE.getChar(c)||{}).gloss||''):'';
+    return Y[c]||YSUPP[c]||g||''; }
+  var CC=window.NAME_CHARS||{}, ID=window.NAME_IDIOMS||{};
+  var LC=window.LINK_CORPUS||{};
+  /* 语料为简体标点成句版：引文按句读整句裁剪，收束于句末标点，杜绝半截无标点长串 */
+  function snipCtx(t,i,len){
+    var en=Math.min(t.length,i+len);
+    while(en<t.length&&!/[。！？；?!;]/.test(t[en])) en++;
+    if(en<t.length) en++;
+    var st=Math.max(0,en-90), cut=st;
+    for(var j=st;j<i;j++){ if(/[。！？；，、?!;:：]/.test(t[j])){ cut=j+1; } }
+    if(en-cut<24){ /* 命中句过短则向前再并一个分句（取窗口内首个句读为界），保证引文可读 */
+      var s3=Math.max(0,cut-60), c2=cut;
+      for(var k=s3;k<cut;k++){ if(/[。！？；]/.test(t[k])){ c2=k+1; break; } }
+      if(c2<cut) cut=c2;
+    }
+    /* 过长则自句首整句裁去，引文控制在两三句之内 */
+    while(en-cut>55){
+      var e2=-1, m3;
+      for(m3=cut;m3<en;m3++){ if(/[。！？；]/.test(t[m3])){ e2=m3; break; } }
+      if(e2<0||en-(e2+1)<24) break;
+      cut=e2+1;
+    }
+    return t.slice(cut,en);
+  }
+  function corpusHits(str,n){
+    var out=[];
+    Object.keys(LC).forEach(function(bk){
+      if(out.length>=n) return;
+      var t=LC[bk], i=t.indexOf(str);
+      if(i>=0){
+        out.push({book:bk,ctx:snipCtx(t,i,str.length)});
+      }
+    });
+    return out;
+  }
+  var xLen=(xingLen===undefined||xingLen===null||xingLen<1)?1:xingLen;
+  var xchars=chars.slice(0,xLen), mchars=chars.slice(xLen);
+  var word=mchars.join(''), full=chars.join('');
+  var IMG={'天象':'云日星月之象','水泽':'江湖泉瀑之象','山岳':'峰峦岩岳之象','草木':'兰蕙松筠之象',
+    '珍宝':'琬琰琳琅之象','色彩':'丹青黼黻之象','品德':'德音雅行之蕴','才学':'翰墨诗书之气',
+    '吉祥':'福寿康宁之祈','容貌':'清扬婉丽之姿','气度':'弘毅冲和之量','器物':'钟鼎弦歌之致',
+    '时令':'四时朝暮之序','动作':'飞举驰骤之势','虚词':'文气虚灵之韵','动物':'鹤鸿麟鹿之态','通用':''};
+  /* 无调音节：NAME_PHON 全量为主（值="xú0"式：带调字母+结构索引数字），NAME_CHARS 兜底 */
+  var PH=window.NAME_PHON||{};
+  function syl(c){
+    var p=(typeof PH[c]==='string'?PH[c]:'')||((CC[c]&&CC[c][0])||'');
+    return xjPyPlain(p).toLowerCase();
+  }
+  /* 第零层：姓氏溯源（并入本模块，置于字表格之前；姓字之义在此，字表格只列名字用字） */
+  var XING_MEAN={'范':'楷模、标准','张':'张开、扩展','陶':'陶人埏埴为器','甄':'审视、鉴别','尚':'崇扬、取法','慕':'心向往之','向':'朝向、奔赴','任':'担荷、任用','施':'给予、推行','许':'应诺、赞许','高':'加高、崇拔','游':'优游、行走','石':'贞固如石','林':'林木成象','江':'大川奔流','河':'水系贯通','马':'奔蹄不止','龙':'腾骧之象','雷':'声震千里','秋':'收成之时','春':'发生之候','冬':'闭藏之节','冰':'凝净不挠','冷':'清峻自持','温':'和厚之气','和':'相应相谐','甘':'滋味之美','辛':'劳而后甘','咸':'众味之合','康':'安泰之意','宁':'静定之境','定':'锚定不摇','安':'静处无危','荣':'草木华发','华':'光采焕发','英':'草木之美','蕙':'香草之质','兰':'香草同心','郭':'外城开阔','关':'门隘守正','边':'近远之境','路':'所行之途','涂':'通达之径','殷':'盛厚之色','白':'素净本色','朱':'赤色鲜明','黄':'中央正色','青':'东方生色','金':'坚刚久炼','洪':'大水浩阔','方':'端方有则','常':'恒久不易','齐':'整肃齐一','平':'水平如衡','伍':'行列之伍','冯':'马行冯冯','穆':'雍容肃穆','庄':'庄敬严正','严':'庄重威严','尹':'治事之官','易':'变易生生','简':'大竹为简','舒':'舒缓从容','盛':'丰茂之盛','宣':'宣布昭示','喻':'晓喻明达','闵':'愍恤仁厚'};
+  var fullX=xchars.join('');
+  var xkeys=SN[fullX]?[fullX]:xchars;
+  var xSet={};
+  xkeys.forEach(function(x){ xSet[x]=1; });
+  function charEtym(c){
+    /* 单字字源本义；无字源则回退寓意短语之本义前半（均不虚构） */
+    var e0=T[c]&&T[c].length?((T[c][1]?'从'+T[c][1]+'，':'')+T[c][0]):(yuHead(c)||'');
+    return e0?('<b>'+c+'</b>，'+e0):('');
+  }
+  var xingRows=xkeys.map(function(x){
+    var s=SN[x];
+    var et='';
+    if(x.length===2){ /* 复姓：逐字析本义，合观成姓义 */
+      et=charEtym(x[0])+(charEtym(x[1])?('；'+charEtym(x[1])):'');
+    } else {
+      et=charEtym(x)||'';
+    }
+    var meanS=XING_MEAN[x]||'';
+    var etCell=et?('<span class="nm-word-s">'+et+(meanS?('；'+x+'取'+meanS+'之意'):'')+'</span>'):(meanS?'<span class="nm-word-s">'+x+'取'+meanS+'之意</span>':'<span class="nm-dim">-</span>');
+    if(!s){
+      return '<tr><th>'+x+'</th><td>'+etCell+'</td><td><span class="nm-dim">源流档案暂缺该姓，可参氏族通考支系；此处不作虚构。</span></td>'
+        +'<td><span class="nm-dim">-</span></td><td><span class="nm-dim">-</span></td></tr>';
+    }
+    return '<tr><th>'+x+'</th><td>'+etCell+'</td><td><span class="nm-word-s">['+s.typ+'] '+s.origin+'</span></td>'
+      +'<td>'+s.zuDi+'</td><td>'+(s.junWang||'-')+'</td></tr>';
+  }).join('');
+  var xingTable='<div class="nm-sub-sec"><p class="det-h">姓氏溯源</p>'
+    +'<table class="xlr-table nm-left"><thead><tr><th>姓</th><th>释义</th><th>得姓源流</th><th>发源祖地</th><th>汉唐郡望</th></tr></thead><tbody>'+xingRows+'</tbody></table></div>';
+  /* 第一层：单字分析（名字用字） */
+  var givenChars=chars.slice(xLen);
+  var charRows=givenChars.map(function(c){
+    var et=T[c]&&T[c].length?T[c]:null;
+    var src=et?('<b>'+(et[1]?'从'+et[1]+'，':'')+et[0]+'</b>'):'';
+    var py=yu(c)||'';
+    if(!src&&!py) return '<tr><th>'+c+'</th><td colspan="2" class="small nm-dim">暂无字义档案</td></tr>';
+    return '<tr><th>'+c+'</th><td>'+(src||'<span class="nm-dim">字源待补</span>')+'</td><td>'+(py||'&mdash;')+'</td></tr>';
+  }).join('');
+  /* 合观表行：词 | 组词释义 | 取名寓意；引文随释义列其后（extra 为名同前贤等附注），无据的格子以“-”占位 */
+  function wordRow(term, gloss, quote, meaning, extra){
+    var src=quote?'<span class="nm-word-s">'+quote+'</span>':'';
+    var ex=extra?'<span class="nm-word-s">'+extra+'</span>':'';
+    var tail=src&&ex?(src+'<br>'+ex):(src||ex);
+    var g=(gloss||'')+(tail?((gloss?'<br>':'')+tail):'');
+    return '<tr><th>'+(term||'')+'</th><td>'+(g||'-')+'</td><td>'+(meaning||'-')+'</td></tr>';
+  }
+  /* 第二层：合观表。行一名（两字名取名的两字、单字名取单名），行二全名，仅此两行。
+   * 组词释义列只陈述该词的既有所指（词书、典籍所载）；取名寓意列析组合之寓意：
+   * 行一取两字寓语各前半合成新意，行二取姓义与名义的呼应，均不复述单字表整句；
+   * 引文一律带原书标点，实在无据可补的格子以“-”占位。 */
+  var wordSec='';
+  if(mchars.length>=1){
+    var a=mchars[0], b=mchars[1]||'';
+    var rows=[];
+    var NO='-';
+    /* 字义寓语直取结构化三表：双寓语对本取，本义取 HEAD 前半，无条目时回寓意全文 */
+    function yuPairs(c){
+      var y=YYU[c]||YSUPP_YU[c];
+      return y?[y[0],y[1]]:['',''];
+    }
+    function yuHead(c){
+      return YYH[c]||YSUPP_H[c]||yu(c);
+    }
+    /* 名同前贤：全名与历代名人用名相同时 → 附于全名行释义格；
+     * 反面典型不入引注；与全名完全相同的名人剔除（其事已由名人事实条陈述，避免同人说两遍） */
+    var cgList=NM_GIVEN_LIST(word).filter(function(p){ var cb=NM_CELEB(p); return p!==full && !(cb&&cb.neg); });
+    var cgRef=cgList.length?('名同'+cgList.slice(0,2).map(function(p){ var cb2=NM_CELEB(p); var nt=(cb2&&cb2.note&&cb2.note!=='（生平待补）')?'，'+cb2.note.slice(0,20):''; return (cb2&&cb2.dynasty?'['+cb2.dynasty+']':'')+p+nt; }).join('；')+(cgList.length>2?'等':'')):'';
+    /* 行一：两字名才单列名行（单字名不重复列，字表格已析）；只析名之词义，名同前贤归全名行 */
+    var kw=K[word]&&K[word][0];
+    if(mchars.length===2){
+      var pa1=yuPairs(a), pb1=yuPairs(b);
+      if(W[word]){
+        var w1=pa1[0]&&pb1[0]?(a+'取'+pa1[0]+'、'+b+'取'+pb1[0]+'，合于词义而意象更丰'):('作名取成词之义，字面与词义相发');
+        rows.push(wordRow(word, W[word][0],
+          kw?('《'+kw.book+'·'+kw.chapter+'》'+kw.line):'',
+          w1, ''));
+      } else {
+        var m2=(pa1[0]&&pb1[0])?(a+'取'+pa1[0]+'、'+b+'取'+pb1[0]+'，两字相济，气象开阔'):'二字并立，各承其义，相映成趣';
+        rows.push(wordRow(word, '二字并立，不作一词取',
+          kw?('《'+kw.book+'·'+kw.chapter+'》'+kw.line):'',
+          m2, ''));
+      }
+    }
+    /* 全名行：寓意列为主体（必出），证据（成语、典籍、名人）作简注附后 */
+    (function(){
+      var x0=xchars.join(''), xz=xchars[0];
+      var xc=CC[xz]?CC[xz][5]:'';
+      var imgCats={'天象':1,'水泽':1,'山岳':1,'草木':1,'色彩':1,'珍宝':1,'动物':1,'时令':1};
+      var VERB_XING={'顾':1,'望':1,'听':1,'观':1,'吟':1,'飞':1,'行':1,'随':1,'遇':1,'涉':1,'临':1,'抱':1,'怀':1,'寻':1,'得':1,'知':1,'见':1,'映':1,'入':1,'满':1,'过':1,'照':1,'秉':1,'执':1};
+     var fh=corpusHits(full,1);
+      var g2a=null; /* 典籍连文：某字（与姓同音）+名 */
+      if(x0.length===1&&word.length>=2){
+        Object.keys(LC).forEach(function(bk){
+          if(g2a) return;
+          var t=LC[bk], from=1;
+          for(;;){
+            var i=t.indexOf(word,from);
+            if(i<1) break;
+            from=i+1;
+            var prev=t[i-1];
+            if(!/[\u3400-\u9fff]/.test(prev)) continue; /* 语料带标点：命中文言句读字非连文，跳过 */
+            if(prev===xz) continue;
+            if(syl(prev)===syl(xz)){ g2a={sub:prev,book:bk,ctx:snipCtx(t,i,word.length)}; break; }
+          }
+        });
+      }
+      /* 组合寓意主干：姓义参与则点出呼应，否则以名义承接姓 */
+      var px=yuPairs(xz), pm=yuPairs(a);
+      var combo='';
+      if(x0.length===1&&VERB_XING[xz]){
+        var VMAP={顾:'回望',望:'远望',听:'静听',观:'纵观',吟:'长吟',知:'深知',见:'真见',映:'反照',入:'深入',满:'盈满',过:'历尽',照:'返照',秉:'持守',执:'把握',行:'行走',随:'随遇',遇:'偶遇',涉:'历涉',临:'登临',抱:'怀拥',怀:'心怀',寻:'寻访',飞:'高飞'};
+        combo='姓本义即用，全名连读犹言'+(VMAP[xz]||xz)+word+'，姓是句眼，名承其动而意成';
+      } else if(x0.length===1&&imgCats[xc]){
+        combo='姓自具'+(IMG[xc]||'自然意象')+'，姓为地、名为景，'+(pm[0]?(word+'之'+pm[0]+'因姓而有所归'):'合观如一幅小画');
+      } else if(x0.length===1&&XING_MEAN[xz]){
+        combo=xz+'取'+XING_MEAN[xz]+'之意，'+(px[0]&&pm[0]?(word+'取'+pm[0]+'，姓义与名义相成'):'与名相合，共成一义');
+      } else if(px[0]&&pm[0]){
+        combo='姓取'+px[0]+'，名取'+pm[0]+'，姓为体、名为用，全名气象相生';
+      } else if(pm[0]&&pm[1]){
+        combo='名取'+pm[0]+'、'+pm[1]+'，'+(x0.length>1?'复姓领起':'姓领其名')+'，立意完整';
+      } else if(px[0]&&WYU[word]){
+        /* 词义寓语兜底：姓有寓语而字库缺名义时，用成词寓语接（取结构化 NAME_WORDS_YU） */
+        var pw=WYU[word];
+        combo='姓取'+px[0]+'，名'+word+'取'+(pw[0]||'成词之义')+'，姓与名相合成意';
+      } else {
+        combo='';
+      }
+      /* 名人事实：全名恰与历代名人相同时，释义格附“朝代行业，正、反面典型（简注）”；
+       * 注为人物身份与事迹，自引用（词列即其名）不再重复，但注文保留 */
+      var cb=NM_CELEB(full);
+      /* 称谓分级：清代以前称“历史名人”，晚清以后近现代人物称“名人”（cb 判空在后） */
+      var FICTION_CATS={'文学':1,'武侠':1,'神话':1,'民间':1,'影视':1,'外国文学':1};
+      var cbNote='';
+      if(cb){
+        var noteTxt=(cb.note&&cb.note!=='（生平待补）')?'，'+cb.note:'';
+        if(FICTION_CATS[cb.cat]){
+          cbNote=cb.cat+'人物'+noteTxt;
+        } else {
+          var era=['晚清','民国','现代','当代','外国'].indexOf(cb.dynasty)>=0?'名人':'历史名人';
+          cbNote=cb.dynasty+(cb.cat||'')+'，'+(cb.neg?'反面典型':era)+noteTxt;
+        }
+      }
+      /* 释义列：名人事实 + 名同前贤（全名级实据）；典籍名源由本模块"典籍名源"小节专列，名字诸字之义已在姓名释义表，不再重复 */
+      var parts=[];
+      if(cbNote) parts.push(cbNote);
+      if(cgRef) parts.push(cgRef);
+      var beng=parts.join('。');
+      /* 寓意列：组合寓意解读为主体 */
+      var meanOut=combo||NO;
+      rows.push(wordRow(full, beng||NO, '', meanOut, ''));
+    })();
+    wordSec='<table class="xlr-table nm-word-tbl nm-left"><thead><tr><th class="nm-word-term">姓名</th><th>释义</th><th class="nm-word-mean">寓意</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>';
+  }
+  /* 典籍名源三层：名源库整名、成词库出处、典籍语料连文；三层皆空时明示未收 */
+  var KL=K[word]||[];
+  var rows3=[];
+  KL.forEach(function(e){ rows3.push(['《'+e.book+'·'+e.chapter+'》', e.line+'（'+e.gloss+'）']); });
+  if(!rows3.length){
+    var ws=(W[word]&&W[word][3])||'';
+    if(ws){ var sp0=ws.split(' '); rows3.push(['《'+sp0[0]+'》', sp0.slice(1).join(' ')]); }
+    corpusHits(word,3).forEach(function(c){ rows3.push(['《'+c.book+'》', c.ctx]); });
+  }
+  var classicsSec='<div class="nm-sub-sec"><p class="det-h">典籍名源</p>'
+    +(rows3.length?('<table class="xlr-table nm-left"><thead><tr><th>出处</th><th>原句</th></tr></thead><tbody>'
+      +rows3.map(function(r3){ return '<tr><th>'+r3[0]+'</th><td>'+r3[1]+'</td></tr>'; }).join('')
+      +'</tbody></table>')
+      :'<p class="sub-note">名源库未收此名目，典籍语料亦无连文命中（名源库按两字名目收录）。</p>')
+    +'</div>';
+  return '<section class="mod" id="nmModZiYi"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">字义字源</span><span class="mod-sub">姓氏溯源、单字本义、典籍名源</span></div>'
+    +'<div class="mod-body">'
+    +'<p class="nm-imp-p"><span class="nm-imp-k">印象标签　</span>'+(nmTagChips(chars, 4)||'<span class="nm-dim">用字之义未详，无标签</span>')+'</p>'
+    +xingTable
+    +'<div class="nm-sub-sec"><p class="det-h">姓名释义</p>'
+    +'<table class="xlr-table nm-left"><thead><tr><th>名</th><th>释义</th><th>寓意</th></tr></thead><tbody>'+charRows+'</tbody></table>'
+    +wordSec
+    +classicsSec
+    +'</div>'
+    +'</div></section>';
+}
+/* 统一读音来源：字库拼音（带调）优先，拼音表（末位为结构索引）兜底，两源同音只取其一
+ * 字库有 196 字不在拼音表内，只读拼音表会漏判，故必须双源；两源去调后一致，无分歧 */
+function nmPy(ch){
+  var c=(window.NAME_CHARS||{})[ch];
+  if(c&&c[0]) return c[0];
+  var v=(window.NAME_PHON||{})[ch];
+  if(v) return v.replace(/[0-9]$/,'');
+  return null;
+}
+function nmSyll(ch){
+  var py=nmPy(ch);
+  if(!py) return null;
+  return xjPyPlain(py);
+}
+/* 避讳输入解析：提取全部汉字去重，逐字取去调音节（同字同音皆犯讳，只约束名） */
+function parseAvoid(str){
+  var seen={}, list=[];
+  [...String(str||'')].forEach(function(c){
+    if(!isHanzi(c)||seen[c]) return;
+    seen[c]=1;
+    list.push({ch:c, syl:nmSyll(c)});
+  });
+  return list;
+}
+function tabooBlock(chars, msLen, avoid, beizi){
+  var seq=chars.map(nmSyll);
+  var hard=[], soft=[];
+  D.NM_TABOO.forEach(function(t){
+    for(var i=0;i+t[0].length<=seq.length;i++){
+      var ok=true;
+      for(var j=0;j<t[0].length;j++){ if(seq[i+j]!==t[0][j]){ ok=false; break; } }
+      if(!ok) continue;
+      var s='<span class="zr-tag nm-tag '+(t[3]===2?'nm-tag-warn':'nm-tag-soft')+'">'
+        +chars.slice(i,i+t[0].length).join('')+' 与 '+t[1]+' 谐音（'+t[2]+'）</span>';
+      (t[3]===2?hard:soft).push(s);
+    }
+  });
+  var hits=hard.concat(soft);
+  /* 字辈与避讳核查：msLen 为名字数（姓在前），缺省不核查；避讳只查名，姓不可改不计 */
+  var guard='';
+  if(msLen){
+    var mch=chars.slice(chars.length-msLen);
+    if(beizi&&beizi.ch){
+      var pos=(mch.length===1)?0:(beizi.pos||0);
+      if(mch[pos]===beizi.ch){
+        guard+='<p class="ly-zh-p">字辈：名第 '+(pos+1)+' 字为字辈字 '+beizi.ch+'，与字辈谱相合。</p>';
+      }else{
+        guard+='<span class="zr-tag nm-tag nm-tag-warn">未合字辈：字辈字 '+beizi.ch+' 应在名第 '+(pos+1)+' 字，此名该字为 '+(mch[pos]||'空')+'</span>';
+      }
+    }
+    if(avoid&&avoid.length){
+      var same=[], homophone=[];
+      mch.forEach(function(c){
+        var s=nmSyll(c);
+        avoid.forEach(function(a){
+          if(c===a.ch) same.push('<span class="zr-tag nm-tag nm-tag-warn">'+c+' 与长辈名讳用字同字（'+a.ch+'）</span>');
+          else if(s&&a.syl&&s===a.syl) homophone.push('<span class="zr-tag nm-tag nm-tag-warn">'+c+' 与长辈名讳 '+a.ch+' 同音</span>');
+        });
+      });
+      var gh=same.concat(homophone);
+      guard+=gh.length?('<p class="nm-guard-p">'+gh.join('')+'</p>')
+        :'<p class="ly-zh-p">避讳：名未犯长辈名讳，同字同音均无。</p>';
+    }
+  }
+  return '<div class="nm-sub-sec"><p class="det-h">谐音避讳</p>'
+    +guard
+    +(hits.length?('<div class="'+(guard?'nm-hits':'')+'">'+hits.join('')+'</div>'
+      +'<p class="sub-note">'+(hard.length?'命主此名检得硬忌（民俗谐音避忌口径），宜斟酌另择。':'此名仅涉软忌，听感可斟酌，非不可用。')+'</p>')
+      :(guard?'':'<p class="ly-zh-p">未检出常见贬义谐音。</p>'))
+    +'</div>';
+}
+/* ---- 字形评断：名的结构搭配与笔画疏密（书写观感，民俗维度，不计入五格数理总分） ----
+ * 结构取 NAME_PHON 末位（0左右 1上下 2半包围 3全包围 4独体 5品字），笔画取康熙口径
+ * 评断对象为名；姓不可改，不计其过。结构索引缺者（-1）只论笔画 */
+function formBlock(mchars){
+  if(!mchars||!mchars.length) return '';
+  var P=window.NAME_PHON||{};
+  var st=[], sc=[], i;
+  for(i=0;i<mchars.length;i++){
+    var k=E.planChar(mchars[i]);
+    if(!k||!k.strokes) return '';
+    sc.push(k.strokes);
+    var p=P[mchars[i]];
+    st.push(p?parseInt(p.slice(-1),10):-1);
+  }
+  var n=mchars.length, v=0, rows=[];
+  function hit(name, txt, d){
+    v+=d;
+    rows.push('<tr><td>'+name+'</td><td>'+txt+'（'+(d>0?'+':'')+d+'）</td></tr>');
+  }
+  var cnt={};
+  st.forEach(function(s){ if(s>=0) cnt[s]=(cnt[s]||0)+1; });
+  var maxSame=0, sameKind=-1;
+  Object.keys(cnt).forEach(function(s){ if(cnt[s]>maxSame){ maxSame=cnt[s]; sameKind=+s; } });
+  /* 两字同构在汉语名中极常见（如左右+左右），只作轻扣；三字以上通篇一式方为重扣 */
+  if(n>=2&&maxSame===n) hit('结构变化','名内 '+n+' 字皆作'+NM_STRUCT[sameKind]+'，通篇一式，板滞少变',(n===2?-3:-5));
+  else if(n>=3&&maxSame>=2) hit('结构变化','名内 '+maxSame+' 字同作'+NM_STRUCT[sameKind]+'，变化不足',-3);
+  else if(n>=2&&maxSame===1&&Object.keys(cnt).length===n) hit('结构变化','名内诸字结构各异，间架错落有致',3);
+  var wb=st.filter(function(s){return s===3;}).length;
+  if(wb>=2) hit('开合','名内 '+wb+' 字为全包围，四面封闭，形局壅塞',-5);
+  else if(wb===1&&n>=2) hit('开合','名内含全包围结构，须配疏朗之字以通其气',-2);
+  var pz=st.filter(function(s){return s===5;}).length;
+  if(pz>=2) hit('疏密','名内 '+pz+' 字为品字结构，三重相叠，笔画稠密',-6);
+  else if(pz===1) hit('疏密','名内含品字结构，笔画堆垒，宜配简远之字',-3);
+  var dt=st.filter(function(s){return s===4;}).length;
+  if(n>=2&&dt===n) hit('偏旁','名内诸字皆独体，无偏旁相配，形单势薄',-3);
+  if(n>=2){
+    var mx=Math.max.apply(null,sc), mn=Math.min.apply(null,sc), gap=mx-mn;
+    if(gap>=12) hit('轻重','名内笔画自 '+mn+' 至 '+mx+' 画，悬殊过甚，落笔不稳',-5);
+    else if(gap>=8) hit('轻重','名内笔画相差 '+gap+' 画，轻重略偏',-3);
+    else if(gap<=3) hit('轻重','名内 '+sc.join('、')+' 画，轻重停匀',2);
+  }
+  /* 繁简按字的均画数论，使 1-2 字名同一把尺；末档兜底，保证恒有分项 */
+  var sum=sc.reduce(function(a,b){return a+b;},0);
+  var avg=Math.round(sum/n*10)/10;
+  if(avg>14) hit('繁简','名共 '+sum+' 画，均 '+avg+' 画，过繁，幼学书写为难',-4);
+  else if(avg<4) hit('繁简','名共 '+sum+' 画，均 '+avg+' 画，过简，形局单薄',-3);
+  else if(avg>=6&&avg<=11) hit('繁简','名共 '+sum+' 画，均 '+avg+' 画，繁简适中',2);
+  else hit('繁简','名共 '+sum+' 画，均 '+avg+' 画，繁简尚可，无过与不及',0);
+  if(!rows.length) return '';
+  var lv = v>=4?'优':(v>=1?'良':(v>=-3?'平':'疵'));
+  var cls = v>=1?'ji':(v>=-3?'neutral':'xiong');
+  var lead = v>=4?'间架停匀，疏密得宜，书写观感上乘':(v>=1?'大体停匀，略有可观':(v>=-3?'四平八稳，无大疵亦无大巧':'形局有偏，宜酌改配字'));
+  /* 总评置于表末行：项名"总评"，断语与分值入结论列 */
+  rows.push('<tr><th>总评</th><td class="'+(LUCK_CLS[cls]||'')+'"><b>'+lv+'</b>　'+lead+'（'+v+' 分）</td></tr>');
+  return '<div class="nm-sub-sec"><p class="det-h">字形评断</p>'
+    +'<table class="xlr-table"><thead><tr><th>评断项</th><th>结论</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+    +'</div>';
+}
+/* ---- 姓名对比（选填第二姓名，六维对等对比） ---- */
+function cmpBlock(){
+  var raw=document.getElementById('nmCmp').value||'';
+  var cs=[...(raw.replace(/\s+/g,''))];
+  if(!cs.length) return '';
+  if(cs.length<2||cs.length>4) return '<p class="notice">对比姓名需 2~4 字（姓+名连写）。</p>';
+  var bad=cs.filter(function(c){return !isHanzi(c);});
+  if(bad.length) return '<p class="notice">对比姓名含非汉字字符：'+bad.join('、')+'。</p>';
+  /* 对比输入的姓氏边界：以主姓起头者即按主姓切分（"王芳"＝姓王名芳）；
+     不起头且恰两字者是换字比对用的纯名，继承主姓后与主名同姓同口径。
+     表头注明承接口径，避免误解。 */
+  var xLen=(LAST.xs&&LAST.xs.length)||0;
+  var startWithXing=xLen>0&&cs.length>xLen&&cs.slice(0,xLen).join('')===LAST.xs.join('');
+  var cmpInherited=false, xs, ms, cs2;
+  if(startWithXing){
+    xs=LAST.xs.slice(); ms=cs.slice(xLen); cs2=cs.slice();
+  } else if(cs.length===2 && xLen>0){
+    cmpInherited=true;
+    xs=LAST.xs.slice(); ms=cs.slice(); cs2=LAST.xs.concat(cs);
+  } else {
+    xs=[cs[0]]; ms=cs.slice(1); cs2=cs;
+  }
+  var rc=E.analyze(xs.join(''), ms.join(''), LINK_XI, LINK_JI); /* 与主名同口径：喜用联动一致，否则对比总分失真 */
+  if(!rc.ok) return '<p class="notice">对比姓名中 '+rc.failed.join('、')+' 未收录康熙笔画。</p>';
+  var sc=E.score(rc);
+  /* 分项分数提取：按综合评分的分项逐项对照，键名与评分模块同源 */
+  function byParts(s){
+    var m={};
+    s.parts.forEach(function(p){ m[p.k]=p.v; });
+    return m;
+  }
+  var pa=byParts(LAST.s), pb=byParts(sc);
+  function dim(v1,v2){
+    var d=v1-v2;
+    if(d>0) return '<span class="luck-吉">'+v1+'（+'+d+'）</span>、'+v2;
+    if(d<0) return v1+'、<span class="luck-吉">'+v2+'（+'+(-d)+'）</span>';
+    return v1+'、'+v2;
+  }
+  var rows=[['字义寓意',pa['字义寓意'],pb['字义寓意']],
+    ['组合意境',pa['组合意境'],pb['组合意境']],
+    ['音律',pa['音律'],pb['音律']],
+    ['喜用匹配',pa['喜用匹配'],pb['喜用匹配']],
+    ['义五行',pa['义五行'],pb['义五行']],
+    ['数理五行',pa['数理五行'],pb['数理五行']],
+    ['数理配置',pa['数理配置'],pb['数理配置']],
+    ['字形',pa['字形'],pb['字形']]];
+  var total=LAST.s.total, totalB=sc.total;
+  var winner = total>totalB?(LAST.xs.join('')+LAST.ms.join('')):(totalB>total?(cs2.join('')):'');
+  var body=rows.map(function(r){
+    return '<tr><th>'+r[0]+'</th><td>'+dim(r[1],r[2])+'</td></tr>';
+  }).join('')
+    +'<tr><th>总分</th><td><b>'+total+'</b>、<b>'+totalB+'</b>'+(winner?('　<span class="luck-吉">'+winner+' 占优</span>'):'　两名同分')+'</td></tr>';
+  /* 数理五格明细折叠行 */
+  function wu5(rc){
+    return '天格'+rc.tian.raw+'（'+luckTxt(rc.tian.luck)+'）、人格'+rc.ren.raw+'（'+luckTxt(rc.ren.luck)+'）、地格'+rc.di.raw+'（'+luckTxt(rc.di.luck)+'）、外格'+rc.wai.raw+'（'+luckTxt(rc.wai.luck)+'）、总格'+rc.zong.raw+'（'+luckTxt(rc.zong.luck)+'）';
+  }
+  return '<section class="mod" id="nmModDuiBi"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">'+(LAST.r.match?'七':'六')+'、姓名对比</span><span class="mod-sub">两盘对照、分项占优</span></div>'
+    +'<div class="mod-body">'
+    +'<table class="xlr-table"><thead><tr><th>维度</th><th>'+LAST.xs.join('')+LAST.ms.join('')+'、'+cs2.join('')+(cmpInherited?'（按主姓）':'')+'</th></tr></thead><tbody>'
+    +body
+    +'</tbody></table>'
+    +'<div class="nm-sub-sec nm-5g-open"><p class="det-h">数理五格明细</p>'
+    +'<table class="xlr-table nm-mt-1"><tbody>'
+    +'<tr><th>'+LAST.xs.join('')+LAST.ms.join('')+'</th><td>'+wu5(LAST.r)+'</td></tr>'
+    +'<tr><th>'+cs2.join('')+'</th><td>'+wu5(rc)+'</td></tr>'
+    +'</tbody></table></div>'
+    +'</div></section>';
+}
+/* 81 数理速查表渲染 + 当前格高亮（高亮仅暗金着色，不用背景色）；nums 为所用数数组 */
+function renderRefTable(nums){
+  var set={};
+  (nums||[]).forEach(function(n){set[n]=true;});
+  var rows=D.NAME81.map(function(o,i){
+    var n=i+1, hit=set[n];
+    return '<tr'+(hit?' class="nm-hl"':'')+'><td>'+n+(hit?' ●':'')+'</td>'
+      +'<td class="'+LUCK_CLS[o.luck]+'">'+luckTxt(o.luck)+'</td>'
+      +'<td class="nm-td-l">'+o.key+'</td><td class="nm-td-l">'+o.tag+'</td></tr>';
+  }).join('');
+  document.querySelector('#nmRefTable tbody').innerHTML=rows;
+}
+/* 两命喜用对照：双胞胎时辰相接，八字或同或只差一时辰，喜用未必相同。
+ * 同则两名可共用一行，异则须各补其喜，此为联名与命理相冲时的实际取舍。 */
+function twinXiBlock(){
+  var has1=LINK_XI.length>0, has2=LINK_XI2.length>0;
+  if(!has1&&!has2) return '';
+  var body='';
+  if(has1&&has2){
+    var same=LINK_XI.join('、')===LINK_XI2.join('、');
+    var inter=LINK_XI.filter(function(w){ return LINK_XI2.indexOf(w)>=0; });
+    var verdict=same
+      ? '两命喜用<b>完全相同</b>，两名可取同一五行取向，配字的回旋余地最大，联名与命理此处无冲突。'
+      : (inter.length
+        ? '两命喜用<b>部分相合</b>（同取 '+inter.join('、')+'），另有各自所喜。'
+          +'可在相合处取同、在各异处分别补益，两名仍成呼应。'
+        : '两命喜用<b>全不相同</b>，两名宜各补其喜用：共用的那个字须两命皆不忌，'
+          +'另一字则分别补益。此为联名与命理相冲时的取舍，如何权衡请自行定夺。');
+    body='<div class="xlr-table-wrap"><table class="xlr-table"><thead><tr>'
+      +'<th>命主</th><th>四柱</th><th>旺衰</th><th>喜用</th><th>忌神</th></tr></thead><tbody>'
+      +'<tr><th>第一名</th><td>'+((NM_XI_META&&NM_XI_META.zhu)||'-')+'</td><td>'
+      +((NM_XI_META&&NM_XI_META.shuai)||'-')+'</td><td><b>'+LINK_XI.join('、')+'</b></td><td>'+(LINK_JI.join('、')||'-')+'</td></tr>'
+      +'<tr><th>第二名</th><td>'+((NM_XI_META2&&NM_XI_META2.zhu)||'-')+'</td><td>'
+      +((NM_XI_META2&&NM_XI_META2.shuai)||'-')+'</td><td><b>'+LINK_XI2.join('、')+'</b></td><td>'+(LINK_JI2.join('、')||'-')+'</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="mh-method">'+verdict+'</div>'
+      +'<div class="mh-method">取用提示：上表两名的五行取向已分列，'
+      +'点开任一名字的“详排全析”可核对该名与对应命盘的喜用是否相合。</div>';
+  } else if(has1){
+    body='<div class="mh-method">已按第一名出生信息排盘：'+NM_XI_NOTE+'。'
+      +'若两名出生时辰不同，可在上方补填第二名时辰，此处即出两命对照。</div>';
+  }
+  return '<section class="mod" id="nmModXiDui"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">两命喜用对照</span><span class="mod-sub">双胞胎时辰相接、喜用各补</span></div>'
+    +'<div class="mod-body">'
+    +body
+    +'</div></section>';
+}
+/* ---- 联名推荐模式：两个名字“彼此之间”的横向设计 ----
+ * 与起名推荐（单体纵向分析）互补：本模式不评判单个名字的吉凶，
+ * 而解决多子女命名中“两名如何呼应”的问题，合读成词、共用一字、同出一篇。
+ * 数据取站内成语库与起名字库，引擎见 assets/name-twin.js。 */
+/* 五联名法定名：页内说明、AI 摘要共用同一份，不各写一套 */
+var TWIN_MNAME={idiom:'成语拆名',split:'拆字合名',shared:'共用一字',rank:'排行字',synonym:'同义对仗'};
+function renderTwin(out, more){
+  var T=window.NAME_TWIN;
+  if(!T){ out.innerHTML='<p class="notice">联名引擎未加载。</p>'; return; }
+  var xs=splitName(document.getElementById('nmXing').value);
+  if(!xs.length){ out.innerHTML='<p class="notice">请填写姓氏。</p>'; return; }
+  if(xs.length>2){ out.innerHTML='<p class="notice">姓氏支持 1~2 字（单姓、复姓、双姓）。</p>'; return; }
+  var badType=xs.filter(function(c){return !isHanzi(c);});
+  if(badType.length){ out.innerHTML='<p class="notice">姓氏含非汉字字符：'+badType.join('、')+'。</p>'; return; }
+  var method=document.getElementById('nmTwinMethod').value;
+  var kind=document.getElementById('nmTwinKind').value;
+  var len=nmTwinLen(method);
+  var av=parseAvoid(document.getElementById('nmAvoid').value);
+  /* 指定字词：五种联名法共用一个输入框，按联名法落到各自参数上 */
+  var fixEl=document.getElementById('nmTwinFix');
+  var fix=fixEl?fixEl.value.trim():'';
+  var pos=document.getElementById('nmTwinPos').value;
+  /* 推荐数量＝每页条数，单次页数×每页条数＝单次总量；主按钮每点一次整批换新
+     （已出组键回传引擎排除），批内翻页只换页不重取 */
+  var cnt=parseInt(document.getElementById('nmGenCnt').value,10)||24; /* 每页条数 */
+  var total=cnt*(parseInt(document.getElementById('nmGenPages').value,10)||4); /* 单次总量 */
+  nmSyncPool();
+  if(!(TWIN_LIST.length && !more)){
+    var tOpt={method:method, len:len, kind:kind, pos:pos, count:total, exclude:TWIN_EX,
+      avoid:{chars:av.map(function(a){return a.ch;}),
+             syls:av.filter(function(a){return a.syl;}).map(function(a){return a.syl;})}};
+    if(method==='shared') tOpt.shared=fix;
+    else if(method==='idiom') tOpt.idiom=fix;
+    else if(method==='split') tOpt.whole=fix;
+    else if(method==='rank') tOpt.rank=fix;
+    else if(method==='synonym') tOpt.syn=fix;
+    var bigR=T.generate(xs.join(''), tOpt);
+    if(!bigR.ok){ out.innerHTML='<p class="notice">'+bigR.reason+'</p>'; return; }
+    /* 列尽不清场：屏上已有名单时保留现批照常渲染，仅在页脚补一行列尽提示 */
+    var endNote='';
+    if(!bigR.list.length){
+      var endMsg='候选已列尽：该条件下 '+bigR.candidateCount+' 组候选已全部列出。可放宽适用对象、改换联名法或改名之字数再试。';
+      if(!TWIN_LIST.length){ out.innerHTML='<p class="notice">'+endMsg+'</p>'; return; }
+      endNote=endMsg;
+    } else {
+      TWIN_LIST=bigR.list; /* 整批换新 */
+      TWIN_EX=TWIN_EX.concat(bigR.list.map(function(x){return x.key;}));
+      TWIN_META=bigR;
+      TWIN_PAGE=0; /* 新批从首页看起 */
+      saveHistory('twin', xs.join(''), '');
+    }
+  }
+  var totalPages=Math.max(1, Math.ceil(TWIN_LIST.length/cnt));
+  if(TWIN_PAGE>=totalPages) TWIN_PAGE=totalPages-1;
+  if(TWIN_PAGE<0) TWIN_PAGE=0;
+  var pageList=TWIN_LIST.slice(TWIN_PAGE*cnt,(TWIN_PAGE+1)*cnt);
+  var Y=window.NAME_YUYI||{};
+  var ET=window.NAME_ETYM||{};
+  var kindName={any:'不限',brother:'兄弟',sister:'姐妹',mixed:'龙凤胎（男先）',mixedF:'龙凤胎（女先）'}[kind]||'不限';
+  /* 单个名字的方框：两名各带“详排全析”与“收藏”，与起名推荐名单同款操作 */
+  function nameBox(nm){
+    var yi=nm.chars.map(function(c){
+      var et=(ET[c]&&ET[c].length)?('<span class="nm-dim">'+ET[c][0]+'</span>　'):'';
+      return c+'：'+et+(Y[c]||'释义待补');
+    }).join('<br>');
+    /* 与起名推荐名单同构：卡内 .nm-gen-top 左名右按钮，释义用 .nm-gen-yi，
+     * 字号、颜色、背景、按钮位置一律复用 .nm-gen-* 系列，不再自造一套 */
+    return '<div class="nm-gen-card nm-twin-one">'
+      +'<div class="nm-gen-top"><span class="nm-gen-name">'+xs.join('')+nm.name+'</span>'
+      +'<span class="nm-twin-act">'
+      +'<button class="nm-gen-btn" data-nm="'+nm.name+'">详排全析</button>'
+      +'<button class="nm-gen-btn nm-fav-btn" data-fav="'+xs.join('')+nm.name+'">收藏</button>'
+      +'</span></div>'
+      +'<div class="nm-gen-yi">'+yi+'</div>'
+      +'</div>';
+  }
+  /* 拆字合名：整字居中，两名分列左右，一眼看出“合起来是那个字” */
+  function splitCard(it){
+    var pair=it.names.map(nameBox).join('<span class="nm-twin-join">＋</span>');
+    return '<div class="nm-gen-card nm-twin-card">'
+      +'<div class="nm-gen-top"><span class="nm-twin-idiom">'+it.parts.join(' ＋ ')+' ＝ '+it.whole+'</span>'
+      +'<span class="zr-tag nm-tag">合体字</span></div>'
+      +'<div class="nm-twin-pair">'+pair+'</div>'
+      +'<div class="nm-gen-note">两人各取一部件，合起来即“'+it.whole+'”字'
+      +(it.ge?('；取格“'+it.ge+'”'+(it.geSrc?'（'+it.geSrc+'）':'')):'')+'。</div>'
+      +'<div class="nm-gen-note nm-dim">拆法断语：'+it.note+'</div>'
+      +'</div>';
+  }
+  /* 共用字、排行字：两名并排，关系写在卡头 */
+  function relCard(it){
+    var head, sub, tag;
+    if(method==='shared'){
+      head='共用'+(it.pos==='head'?'首':'末')+'字“'+it.shared+'”';
+      sub='一字系住血缘，另一字各表其意；共用字的好处是可扩展，再来一个孩子也能接上。';
+      tag='<span class="zr-tag nm-tag">共用“'+it.shared+'”</span>';
+    } else if(method==='synonym'){
+      head=it.base.join('')+'　＋　'+it.syn.join('');
+      sub='两个位置各以同义字替换，寓意相等而字面全异；'
+        +'字面契合度 '+it.sim.toFixed(2)+'（越高越近，为机器估算，是否真同义仍须人眼复核）。';
+      tag='<span class="zr-tag nm-tag">同义对仗</span>';
+    } else {
+      head=it.rankPair.join('　＋　');
+      sub=it.rankDesc+'。排行字定长幼，另一字由配字池择优相配。';
+      tag='<span class="zr-tag nm-tag">排行字</span>';
+    }
+    var pair=it.names.map(nameBox).join('<span class="nm-twin-join">＋</span>');
+    return '<div class="nm-gen-card nm-twin-card">'
+      +'<div class="nm-gen-top"><span class="nm-twin-idiom">'+head+'</span>'+tag+'</div>'
+      +'<div class="nm-twin-pair">'+pair+'</div>'
+      +'<div class="nm-gen-note">'+sub+'</div></div>';
+  }
+  function twinCard(it){
+    var pair=it.names.map(nameBox).join('<span class="nm-twin-join">＋</span>');
+    return '<div class="nm-gen-card nm-twin-card">'
+      +'<div class="nm-gen-top"><span class="nm-twin-idiom">'+it.idiom+'</span>'
+      +(it.shared?'<span class="zr-tag nm-tag">共用“'+it.shared+'”</span>':'')
+      +'<span class="zr-tag nm-tag nm-tag-soft">'+({half:'对半',cross:'交错',p13:'一三位',p24:'二四位'}[it.split]||'')+'拆</span></div>'
+      +'<div class="nm-twin-pair">'+pair+'</div>'
+      +'<div class="nm-gen-note">'+it.desc+'</div>'
+      +'<div class="nm-gen-note nm-dim">成语释义：'+it.def+'</div>'
+      +(it.warn?('<div class="nm-gen-note nm-twin-warn">此条'+it.warn+'，含贬义，一般不宜用作名字。'
+        +'自动择优时已剔除，此处因指名保留，是否取用请自行斟酌。</div>'):'')
+      +'</div>';
+  }
+  var CARDFN={idiom:twinCard,split:splitCard,shared:relCard,rank:relCard,synonym:relCard}[method]||twinCard;
+  var cards=pageList.map(CARDFN).join('');
+  out.dataset.nmView='twin';
+  out.innerHTML=''
+    +'<div class="nm-lead"><p class="ly-zh-p">以姓氏 <b>'+xs.join('')+'</b> 为枢，'
+    +'按“'+(TWIN_MNAME[method]||'')+'”联名法本批生成 '+TWIN_LIST.length+' 组（候选 '+TWIN_META.candidateCount+' 组，累计已列 '+TWIN_EX.length+' 组），'
+    +'适用对象：'+kindName+'，名之字数：'+(len===1?'单字':'双字')+'。'
+    +(fix?('已按所填“<b>'+fix+'</b>”生成（留空则由引擎从库中择优）。'):'')
+    +'</p>'
+    +(method==='split'
+      ?'<p class="ly-zh-p">拆字取径两说并存：字占一派以整字取格断事，本页格断取测字秘牒卷三；五格一派以拆出的两字各自成篇、各排五格，本页两名的分项分即按此。'
+        +'两说取径不同，故分列并陈、不相校夺。长幼按部件书写位次分，先出者为长，后出者为幼。</p>'
+      :'')
+    +'</div>'
+    +'<section class="mod" id="nmModTwinList"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">联名名单</span><span class="mod-sub">五法生成、适用对象</span></div>'
+    +'<div class="mod-body"><div class="nm-gen-grid nm-twin-list">'+cards+'</div></div></section>'
+    +(GEN_FAV.length?'<div class="nm-fav-bar"><span class="nm-dim">已收藏：</span>'+GEN_FAV.map(function(f){return '<a href="javascript:void(0)" class="nm-fav-item" data-favn="'+f+'">'+f+'</a>';}).join('　')+'　<a href="javascript:void(0)" id="nmFavClr" class="nm-hist-clr">全部清理</a></div>':'')
+    +'<div class="nm-pager">'
+    +(TWIN_PAGE>0?'<button class="nm-gen-btn nm-pg-btn" data-pg="prev">上一页</button>':'')
+    +'<span class="nm-pg-info">第 '+(TWIN_PAGE+1)+' 页，共 '+totalPages+' 页，本批 '+TWIN_LIST.length+' 组</span>'
+    +(TWIN_PAGE<totalPages-1?'<button class="nm-gen-btn nm-pg-btn" data-pg="next">下一页</button>':'')
+    +'</div>'
+    +(endNote?'<p class="notice">'+endNote+'</p>':'')
+    +twinXiBlock();
+  /* 收藏栏：点名字即回填姓氏＋名，进详排全析 */
+  out.querySelectorAll('.nm-fav-item').forEach(function(a){
+    a.onclick=function(){
+      GEN_BACK=true; GEN_BACK_MODE='twin';
+      var full=a.getAttribute('data-favn');
+      var xLen=xs.join('').length;
+      document.getElementById('nmMode').value='han';
+      document.getElementById('nmXing').value=full.slice(0,xLen);
+      document.getElementById('nmMing').value=full.slice(xLen);
+      switchMode(); query(); window.scrollTo(0,0);
+    };
+  });
+  var favClr=document.getElementById('nmFavClr');
+  if(favClr) favClr.onclick=function(){ GEN_FAV=[]; renderTwin(out); };
+  /* 翻页 */
+  out.querySelectorAll('.nm-pg-btn').forEach(function(b){
+    b.onclick=function(){
+      var pg=b.getAttribute('data-pg');
+      if(pg==='prev'&&TWIN_PAGE>0) TWIN_PAGE--;
+      if(pg==='next') TWIN_PAGE++;
+      renderTwin(out);
+    };
+  });
+  /* 收藏按钮 */
+  out.querySelectorAll('[data-fav]').forEach(function(b){
+    b.onclick=function(){
+      var fn=b.getAttribute('data-fav');
+      var idx=GEN_FAV.indexOf(fn);
+      if(idx>=0) GEN_FAV.splice(idx,1); else GEN_FAV.push(fn);
+      renderTwin(out);
+    };
+  });
+  /* 详排全析：回填姓名模式跑完整五格分析 */
+  out.querySelectorAll('.nm-gen-btn[data-nm]').forEach(function(b){
+    b.onclick=function(){
+      GEN_BACK=true; GEN_BACK_MODE='twin';
+      document.getElementById('nmMode').value='han';
+      document.getElementById('nmXing').value=xs.join('');
+      document.getElementById('nmMing').value=b.getAttribute('data-nm');
+      switchMode(); query(); window.scrollTo(0,0);
+    };
+  });
+  /* 联名名单即本页当前结论：AI 摘要读 LAST，故本模式同样写入，
+     使摘要与屏上名单同指一处 */
+  LAST={mode:'twin', xing:xs.join(''), method:method, kind:kind, len:len, list:TWIN_LIST, meta:TWIN_META};
+  nmApplyModState();
+}
+/* ---- 起名推荐模式：候选字库按六维综合排序（数理零否决） ---- */
+/* 取批：推荐数量＝每页条数，单次页数×每页条数＝单次总量；主按钮每点一次整批换新
+   （已出键回传引擎排除，故批批不同名），候选列尽为止；批内翻页由 renderGen 承担 */
+function genAdvance(out, more){
+  var G=window.NAME_GENERATE;
+  if(!G){ out.innerHTML='<p class="notice">起名引擎未加载。</p>'; return; }
+  var xs=splitName(document.getElementById('nmXing').value);
+  if(!xs.length){ out.innerHTML='<p class="notice">请填写姓氏。</p>'; return; }
+  if(xs.length>2){ out.innerHTML='<p class="notice">姓氏支持 1~2 字（单姓、复姓、双姓）。</p>'; return; }
+  var badType=xs.filter(function(c){return !isHanzi(c);});
+  if(badType.length){ out.innerHTML='<p class="notice">姓氏含非汉字字符：'+badType.join('、')+'。</p>'; return; }
+  var pref=document.getElementById('nmSex').value;
+  var nameLen=parseInt(document.getElementById('nmGenLen').value,10)||2;
+  var cnt=parseInt(document.getElementById('nmGenCnt').value,10)||24; /* 每页条数 */
+  var total=cnt*(parseInt(document.getElementById('nmGenPages').value,10)||4); /* 单次总量 */
+  /* 五行输出配额（按名首字五行计）：正数=至少几名；显式选 0=排除该五行；不限（缺省）=不干预、不排除 */
+  var wxQuota=nmWxQuota();
+  nmSyncPool();
+  /* 已有名单且非续取：只按名单重绘（翻页、刷新重出、切模式回看） */
+  if(GEN_LIST.length && !more){ renderGen(out); return; }
+  var av=parseAvoid(document.getElementById('nmAvoid').value);
+  var bzRaw=document.getElementById('nmBeizi').value.trim();
+  var classicSel=document.getElementById('nmGenClassic').value;
+  var r=G.generate(xs.join(''), {gender:pref==='男'?'m':(pref==='女'?'f':'a'), len:nameLen, xi:LINK_XI, ji:LINK_JI, wxQuota:wxQuota, count:total, classicNames:(classicSel&&NM_K_BOOK[classicSel])||null,
+    avoid:{chars:av.map(function(a){return a.ch;}), syls:av.filter(function(a){return a.syl;}).map(function(a){return a.syl;})},
+    beizi:[...bzRaw][0]||'',
+    bzPos:parseInt(document.getElementById('nmBzPos').value,10)||0,
+    exclude:GEN_EX});
+  if(!r.ok){ out.innerHTML='<p class="notice">'+r.reason+'</p>'; return; }
+  /* 列尽不清场：屏上已有名单时保留现批照常渲染，仅在页脚补一行列尽提示 */
+  var endNote='';
+  if(!r.list.length){
+    var endMsg='候选已列尽：该条件下 '+r.candidateCount+' 名候选已全部列出。可放宽五行、避讳或字辈约束后再行推荐。';
+    if(!GEN_LIST.length){ out.innerHTML='<p class="notice">'+endMsg+'</p>'; return; }
+    endNote=endMsg;
+  } else {
+    GEN_LIST=r.list; /* 整批换新 */
+    GEN_EX=GEN_EX.concat(r.list.map(function(n){return n.name;}));
+    GEN_META=r;
+    GEN_PAGE=0; /* 新批从首页看起 */
+    LAST={mode:'gen', xing:xs.join(''), gen:r};
+    saveHistory('gen', xs.join(''), '');
+    nmSyncPool(); /* 本批已落袋，按钮文案随之由"开始推荐"转为"继续推荐" */
+  }
+  renderGen(out, endNote);
+}
+/* 名单渲染：页码按每页条数在当前批内切页，翻页只换页不重取；主按钮整批换新；
+   endNote 非空时在页码下补一行列尽提示（列尽不清场） */
+function renderGen(out, endNote){
+  var r=GEN_META;
+  var xs=splitName(document.getElementById('nmXing').value);
+  /* 典籍名源库体现量：名源库与成词库出处并集，部数与名目数现算不写死 */
+  var NM_K=window.NAME_CLASSICS||{};
+  nmFillClassicOpts();
+  var NM_UNION={};
+  Object.keys(NM_K_BOOK).forEach(function(b){ NM_K_BOOK[b].forEach(function(n){ NM_UNION[n]=1; }); });
+  var NM_K_BOOKN=Object.keys(NM_K_BOOK).length;
+  var NM_K_TOTAL=Object.keys(NM_UNION).length;
+  var pref=document.getElementById('nmSex').value;
+  var nameLen=parseInt(document.getElementById('nmGenLen').value,10)||2;
+  var cnt=parseInt(document.getElementById('nmGenCnt').value,10)||24; /* 每页条数 */
+  var total=cnt*(parseInt(document.getElementById('nmGenPages').value,10)||4); /* 单次总量 */
+  /* 五行序与页面五行配额控件同序（金木水火土），供口径说明里按行列出名额 */
+  var WXN=['金','木','水','火','土'];
+  var totalPages=Math.max(1, Math.ceil(GEN_LIST.length/cnt));
+  if(GEN_PAGE>totalPages-1) GEN_PAGE=totalPages-1;
+  if(GEN_PAGE<0) GEN_PAGE=0;
+  r.totalPages=totalPages;
+  r.totalInPool=GEN_LIST.length;
+  r.page=GEN_PAGE;
+  var pageList=GEN_LIST.slice(GEN_PAGE*cnt, (GEN_PAGE+1)*cnt);
+  var Y=window.NAME_YUYI||{};
+  /* 字辈标注位：单字名恒按首字论 */
+  var bzCh=[...document.getElementById('nmBeizi').value.trim()][0]||'';
+  var bzIdx=nameLen===1?0:(parseInt(document.getElementById('nmBzPos').value,10)||0);
+  if(bzCh&&xs.indexOf(bzCh)>=0){ out.innerHTML='<p class="notice">字辈字 '+bzCh+' 与姓氏用字相同：名与姓同字在五格口径下直接淘汰，将无候选可出，请核对输入。</p>'; return; }
+  function genCard(n){
+    var ET=window.NAME_ETYM||{};
+    var yi=n.chars.map(function(c){
+      var et=ET[c]&&ET[c].length?('<span class="nm-dim">'+ET[c][0]+'</span>　'):'';
+      return '<b>'+c+'</b>：'+et+(Y[c]||'释义待补');
+    }).join('<br>');
+    var xiTag=n.xi?(n.xi.luck==='ji'?'　<span class="zr-tag nm-tag">补喜用</span>':(n.xi.luck==='xiong'?'　<span class="zr-tag nm-tag nm-tag-warn">犯忌神</span>':'')):'';
+    /* T18：名人同名标识，全名命中标“名”，名与名人名相同标“名同”（姓不同） */
+    var celebTag='';
+    var cb=NM_CELEB(xs.join('')+n.name);
+    if(cb){
+      var era=(['晚清','民国','现代','当代','外国'].indexOf(cb.dynasty)>=0)?'名人':'历史名人';
+      var who=cb.dynasty?(cb.dynasty+(cb.cat||'')+'　'+era):era;
+      celebTag='　<span class="zr-tag nm-tag nm-tag-imp">名</span><span class="nm-dim">同'+who+(cb.note?'，'+cb.note:'')+'</span>';
+    } else {
+      var gList=NM_GIVEN_LIST(n.name);
+      if(gList.length){
+        var gNames=gList.slice(0,2).map(function(p){ var cb2=NM_CELEB(p); var nt=(cb2&&cb2.note&&cb2.note!=='（生平待补）')?'，'+cb2.note.slice(0,20):''; return (cb2&&cb2.dynasty?'['+cb2.dynasty+']':'')+p+nt; }).join('；')+(gList.length>2?'等':'');
+        celebTag='　<span class="zr-tag nm-tag nm-tag-soft">名同</span><span class="nm-dim">'+gNames+'</span>';
+      }
+    }
+    var imp=nmTagChips(n.chars, 3);
+    return '<div class="nm-gen-card">'
+      +'<div class="nm-gen-top"><span class="nm-gen-name">'+xs.join('')+n.name+'</span>'
+      +'<button class="nm-gen-btn" data-nm="'+n.name+'">详排全析</button><button class="nm-gen-btn nm-fav-btn" data-fav="'+xs.join('')+n.name+'">收藏</button></div>'
+      +'<div class="nm-gen-py">'+n.pinyin+(imp?'　'+imp:'')+'</div>'
+      +'<div class="nm-gen-row">数理 <b>'+n.shuli+'</b> 分　'+n.gridNote+'　字义五行 '+n.charWx.map(function(w,i){return w==='—'?'<span class="nm-dim">—</span>':wxColorSpan(w);}).join('')+'<span class="nm-dim">（数 '+n.charWxShu.map(wxColorSpan).join('')+'）</span>'+xiTag+celebTag+(n.tabooWord?'　<span class="zr-tag nm-tag nm-tag-soft">谐 '+n.tabooWord+'</span>':'')+(bzCh&&n.name[bzIdx]===bzCh?'　<span class="zr-tag nm-tag">合字辈</span>':'')+'</div>'
+      +(n.word?'<div class="nm-word-card nm-word-sm"><span class="nm-word-t">'+n.name+'</span>'+(n.word.classic?'<span class="nm-tag-imp nm-word-jd">典</span>':'')+'<span class="nm-word-d">'+n.word.def+'</span>'+(n.word.src?'<span class="nm-word-s">'+n.word.src+'</span>':'')+'</div>':'')
+      +(function(){
+        var kc=NM_K[n.name]&&NM_K[n.name][0];
+        var ws=!kc&&n.word&&n.word.src?n.word.src:'';
+        if(kc) return '<div class="nm-gen-note"><span class="zr-tag nm-tag nm-tag-soft">典</span><span class="nm-word-s">《'+kc.book+'·'+kc.chapter+'》</span>'+kc.line+(kc.gloss?'（'+kc.gloss+'）':'')+'</div>';
+        if(ws){ var sp0=ws.split(' '); return '<div class="nm-gen-note"><span class="zr-tag nm-tag nm-tag-soft">典</span><span class="nm-word-s">《'+sp0[0]+'》</span>'+sp0.slice(1).join(' ')+'</div>'; }
+        return '';
+      })()
+      +(n.heat?'<div class="nm-heat-p">重名风险：'+(n.heat===4?'高（官方榜单前十用字）':'中（官方榜单用字）')+'</div>':'')
+      +'<div class="nm-gen-note">'+n.sound.note+'；'+n.sem.note+'</div>'
+      +'<div class="nm-gen-yi">'+yi+'</div>'
+      +'</div>';
+  }
+  var cards=pageList.map(genCard).join('');
+  function wxReport(){
+    var q=r.wxQuota||{}, req=[], act=[];
+    WXN.forEach(function(w){
+      if(q[w]>0){
+        req.push(w+'至少'+q[w]+'名');
+        act.push(w+' '+(r.wxCount[w]||0)+'名'+(r.wxShort[w]?'（缺'+r.wxShort[w]+'）':''));
+      }
+    });
+    /* 名额要求与排除结果各成一句：只排不派时只出排除句，不并列空的要求句 */
+    var segs=[];
+    if(req.length) segs.push('要求 '+req.join('、')+'，实际 '+act.join('、'));
+    if(r.wxExcl&&r.wxExcl.length){
+      segs.push('选 0 已排除 '+r.wxExcl.join('、')+'，全名任何字均不含'
+        +(r.bzExemptWx?'；字辈字 '+r.bzExemptWx+' 为宗族必用字，豁免排除':'')
+        +(r.list.length<total?('；该姓氏此配置下合格候选仅 '+r.list.length+' 名（宁缺勿错，不足单次总量），可调整五行组合或改回不限补足'):''));
+    }
+    return segs.join('。');
+  }
+  /* 推荐名单模块只留卡片；全部口径说明收进页底表格模块，前端只呈现专业结论 */
+  var genderNote=(function(){
+    if(pref!=='男'&&pref!=='女') return '';
+    var cnt={m:0,n:0,f:0};
+    r.list.forEach(function(n){
+      var cls='n';
+      [...n.name].forEach(function(ch){
+        var g=window.NAME_CHARS[ch]?window.NAME_CHARS[ch][6]:0;
+        if(g===-1) cls='f'; else if(g===1&&cls!=='f') cls='m';
+      });
+      cnt[cls]++;
+    });
+    return '本性别 '+cnt[pref==='男'?'m':'f']+'、中性 '+cnt.n+'、'+(pref==='男'?'女':'男')+'性 '+cnt[pref==='男'?'f':'m']+'。';
+  })();
+  var avCh=parseAvoid(document.getElementById('nmAvoid').value);
+  var noteRows=[
+    '<tr><th>枢姓与规模</th><td>以姓氏 <b>'+xs.join('')+'</b>（'+r.xst.join('、')+' 画）为枢，候选池 '+r.candidateCount+' 名，本批列出 '+r.list.length+' 名（每页 '+cnt+' 名、共 '+r.totalPages+' 页），累计已列 '+GEN_EX.length+' 名。</td></tr>',
+    '<tr><th>喜用补益</th><td>'+(LINK_XI.length?'已计入八字喜用【'+LINK_XI.join('、')+'】。':(LINK_JI.length?'已计入八字忌神【'+LINK_JI.join('、')+'】。':'未计喜用：在上方出生信息组填入出生日期与时辰即可页内直算八字喜用，也可从八字排盘页联动进入。'))+'</td></tr>',
+    ((r.wxQuota||(r.wxExcl&&r.wxExcl.length))?'<tr><th>五行名额</th><td>当前：'+wxReport()+'。</td></tr>':''),
+    (genderNote?'<tr><th>性别构成</th><td>'+genderNote+'</td></tr>':''),
+    (avCh.length?'<tr><th>避讳</th><td>已避讳长辈名讳用字【'+avCh.map(function(a){return a.ch;}).join('、')+'】。</td></tr>':''),
+    (bzCh?'<tr><th>字辈</th><td>已按字辈字 '+bzCh+' 定位于名第 '+(bzIdx+1)+' 字，所有候选均合字辈'+(r.list.length<total?('；字辈约束下候选收窄，仅得 '+r.list.length+' 名，如需更多请放宽五行要求或改换字辈字'):'')+'。</td></tr>':''),
+    (r.relaxed?'<tr><th>多样性</th><td>该配置下候选有限，已适当放宽同名首字、同结构等上限以足额推荐数量。</td></tr>':''),
+    '<tr><th>重名热度</th><td>按公安部户政管理研究中心《全国姓名报告》新生儿名字用字榜（二〇一九年、二〇二〇年、二〇二一年三期）判档：曾入前十者标重名风险高，其余入榜者标中，命中的组合在排序中降权。该报告以二〇二一年为最后一期，其后未再发布。</td></tr>',
+    '<tr><th>典籍出处</th><td>候选名目逐一点对典籍名源库（现收 '+NM_K_BOOKN+' 部典籍、'+NM_K_TOTAL+' 名目，周易、诗经、楚辞、论语、唐诗、宋词等，含成词库出处），命中者卡面随附书名、篇目与原句；在典籍出处下拉选定某部典籍时，其命中名目优先排前、其余按综合分随后，不作淘汰。</td></tr>'
+  ];
+  out.dataset.nmView='gen';
+  out.innerHTML=
+    '<section class="mod" id="nmModGenList"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">推荐名单</span><span class="mod-sub">随附典籍出处、翻页续取</span></div>'
+    +'<div class="mod-body"><div class="nm-gen-grid">'+cards+'</div></div></section>'
+    +(GEN_FAV.length?'<div class="nm-fav-bar"><span class="nm-dim">已收藏：</span>'+GEN_FAV.map(function(f){return '<a href="javascript:void(0)" class="nm-fav-item" data-favn="'+f+'">'+f+'</a>';}).join('　')+'　<a href="javascript:void(0)" id="nmFavClr" class="nm-hist-clr">全部清理</a></div>':'')
+    +'<div class="nm-pager">'
+    +(GEN_PAGE>0?'<button class="nm-gen-btn nm-pg-btn" data-pg="prev">上一页</button>':'')
+    +'<span class="nm-pg-info">第 '+(GEN_PAGE+1)+' 页，共 '+r.totalPages+' 页，本批 '+r.totalInPool+' 名</span>'
+    +(GEN_PAGE<r.totalPages-1?'<button class="nm-gen-btn nm-pg-btn" data-pg="next">下一页</button>':'')
+    +'</div>'
+    +(endNote?'<p class="notice">'+endNote+'</p>':'')
+    +'<section class="mod collapsed" id="nmModGenNote"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">推荐口径说明</span><span class="mod-sub">枢姓规模、五行名额、避讳字辈</span></div>'
+    +'<div class="mod-body"><table class="xlr-table nm-note-tbl"><tbody>'+noteRows.filter(Boolean).join('')+'</tbody></table></div></section>';
+  /* 收藏栏：点击名字详排全析 + 全部清理 */
+  out.querySelectorAll('.nm-fav-item').forEach(function(a){
+    a.onclick=function(){
+      GEN_BACK=true; GEN_BACK_MODE='gen';
+      var full=a.getAttribute('data-favn');
+      var xLen=xs.join('').length;
+      document.getElementById('nmMode').value='han';
+      document.getElementById('nmXing').value=full.slice(0,xLen);
+      document.getElementById('nmMing').value=full.slice(xLen);
+      switchMode(); query(); window.scrollTo(0,0);
+    };
+  });
+  var favClr=document.getElementById('nmFavClr');
+  if(favClr) favClr.onclick=function(){ GEN_FAV=[]; renderGen(out); };
+  /* 翻页按钮 */
+  out.querySelectorAll('.nm-pg-btn').forEach(function(b){
+    b.onclick=function(){
+      var pg=b.getAttribute('data-pg');
+      if(pg==='prev'&&GEN_PAGE>0) GEN_PAGE--;
+      if(pg==='next') GEN_PAGE++;
+      renderGen(out);
+    };
+  });
+  /* 收藏按钮 */
+  out.querySelectorAll('[data-fav]').forEach(function(b){
+    b.onclick=function(){
+      var fn=b.getAttribute('data-fav');
+      var idx=GEN_FAV.indexOf(fn);
+      if(idx>=0) GEN_FAV.splice(idx,1); else GEN_FAV.push(fn);
+      renderGen(out);
+    };
+  });
+  /* 详排按钮：回填姓名模式跑完整五格分析（只匹配 data-nm 属性的按钮，不影响翻页、收藏） */
+  out.querySelectorAll('.nm-gen-btn[data-nm]').forEach(function(b){
+    b.onclick=function(){
+      var nm=b.getAttribute('data-nm');
+      GEN_BACK=true; GEN_BACK_MODE='gen';
+      document.getElementById('nmMode').value='han';
+      document.getElementById('nmXing').value=xs.join('');
+      document.getElementById('nmMing').value=nm;
+      switchMode();
+      query();
+      window.scrollTo(0,0);
+    };
+  });
+  var refWrap=document.getElementById('nmRefWrap');
+  refWrap.classList.add('nm-hide');
+  nmApplyModState();
+}
+/* ---- 长姓名模式：无汉姓结构，不排五格，仅参总格数理与逐字五行 ---- */
+function renderLong(out){
+  var raw=document.getElementById('nmLong').value||'';
+  var stripped=raw.replace(/[\s\u3000\u00B7\u30FB\u2022]/g,'');
+  var ls=[...stripped];
+  if(!ls.length){ out.innerHTML='<p class="notice">请填写全名（音译连写，间隔号与空格会自动剔除）。</p>'; return; }
+  if(ls.length>12){ out.innerHTML='<p class="notice">长姓名最多 12 个汉字（当前 '+ls.length+' 个）。</p>'; return; }
+  var badType=ls.filter(function(c){return !isHanzi(c);});
+  if(badType.length){ out.innerHTML='<p class="notice">含非汉字字符：'+badType.join('、')+'。长姓名仅支持汉字，输入中的间隔号与空格会自动剔除。</p>'; return; }
+  E.setPlanOverride(NM_JF_OVERRIDES);
+  var r=E.analyzeLong(stripped, LINK_XI, LINK_JI);
+  if(!r.ok){
+    out.innerHTML='<p class="notice">字库未收录 '+r.failed.join('、')+' 的康熙笔画，请更换用字或改用其他用字。</p>';
+    return;
+  }
+  LAST={mode:'long', name:stripped, r:r};
+  var chips=r.plans.map(function(p){
+    return '<div class="lr-ke">'
+      +'<div class="lr-ke-u">'+p.ch+'</div>'
+      +'<div class="lr-ke-d">'+p.strokes+' 画</div>'
+      +'</div>';
+  }).join('');
+  var zg=r.zongGe;
+  var zongCard='<div class="lr-kes nm-cai-kes">'
+    +'<div class="lr-ke">'
+    +'<div class="lr-ke-u">'+zg.raw+'</div>'
+    +'<div class="lr-ke-d">'+zg.key+'</div>'
+    +'<div class="lr-ke-l">总格（全名合计）　'+wxColorSpan(zg.wx)+'</div>'
+    +'<div class="nm-jx '+LUCK_CLS[zg.luck]+'">'+luckTxt(zg.luck)+'</div>'
+    +'</div></div>';
+  var charWxLine=r.charWx.map(function(w){return w==='—'?'<span class="nm-dim">—</span>':wxColorSpan(w);}).join('　');
+  var shuLine=r.shuWx.map(wxColorSpan).join('　');
+  var dist={};
+  r.charWx.forEach(function(w){dist[w]=(dist[w]||0)+1;});
+  var distTxt=Object.keys(dist).map(function(w){return (w==='—'?'<span class="nm-dim">—</span>':wxColorSpan(w))+'×'+dist[w];}).join('　');
+  var matchHtml='';
+  if(r.match){
+    var m=r.match;
+    matchHtml='<section class="mod" id="nmModLongXiYong"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">喜用匹配</span><span class="mod-sub">义五行补忌、不下五格结论</span></div>'
+      +'<div class="mod-body">'
+      +'<p class="sub-note">喜用五行【'+(LINK_XI.join('、')||'未明')+'】　忌神五行【'+(LINK_JI.join('、')||'未明')+'】</p>'
+      +'<table class="xlr-table nm-mt-1"><tbody>'
+      +'<tr><th>各字义五行</th><td>'+r.charWx.map(function(w){return w==='—'?'<span class="nm-dim">—</span>':wxColorSpan(w);}).join('、')+'</td></tr>'
+      +'<tr><th>各字数理五行</th><td>'+r.shuWx.map(wxColorSpan).join('、')+'<span class="nm-dim">（笔画尾数口径，仅作对照）</span></td></tr>'
+      +'<tr><th>匹配结论</th><td colspan="1"><b class="'+LUCK_CLS[m.luck]+'">'+m.label+'</b>'
+      +((m.good.length)?('　与喜用同气 '+m.good.length+' 字。'):'')+((m.bad.length)?('　与忌神同气 '+m.bad.length+' 字，宜注意。'):'')+'</td></tr>'
+      +'</tbody></table></div></section>';
+  }
+  out.dataset.nmView='long';
+  out.innerHTML=
+    '<section class="mod" id="nmModLongBihua"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">康熙笔画取数</span><span class="mod-sub">逐字计画、简转繁</span></div>'
+    +'<div class="mod-body"><div class="lr-kes">'+chips+'</div>'
+    +'</div></section>'
+    +'<section class="mod" id="nmModLongZongGe"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">总格数理</span><span class="mod-sub">全名合计、八十一数理、民俗参考</span></div>'
+    +'<div class="mod-body">'+zongCard+'</div></section>'
+    +'<section class="mod" id="nmModLongYinXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">音形避忌</span><span class="mod-sub">音律、谐音、字形</span></div>'
+    +'<div class="mod-body">'
+    +phonBlock(r.plans.map(function(p){return p.ch;}))
+    +tabooBlock(r.plans.map(function(p){return p.ch;}))
+    +'</div></section>'
+    +'<section class="mod" id="nmModLongWuXing"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">各字五行</span><span class="mod-sub">义五行为主、数理对照</span></div>'
+    +'<div class="mod-body">'
+    +'<p class="ly-zh-p nm-center">义五行　'+charWxLine+'</p>'
+    +'<p class="ly-zh-p nm-center nm-dim nm-shu-line">数理对照　'+shuLine+'</p>'
+    +'<p class="sub-note nm-center">五行分布：'+distTxt+'</p>'
+    +'</div></section>'
+    +matchHtml;
+  renderRefTable([zg.num]);
+  saveHistory('long', stripped, '');
+  var refWrap=document.getElementById('nmRefWrap');
+  refWrap.classList.remove('nm-hide');
+  refWrap.open=false; /* 81 表内容长，保持折叠 */
+  nmApplyModState();
+}
+/* 刷新重出：输入与出生地级联已由全站顶层机制回填完毕，changed 为本次实际改动的控件；
+   无实际回填（首次进入、快照与当前值全同）即不动，免得白重出一次；
+   推荐名单的候选池随之新建、页码自首屏起算。
+   栈未到齐即挂起，到齐后按回填好的输入重出，与栈早已就位时同一结果 */
+window.xjRefreshHook=function(changed){
+  if(!changed||!changed.length) return;
+  nmStackReady(function(){ try{ switchMode(); query(); }catch(e){} });
+};
+/* 折叠件切换：结果区模块由 section.mod 承载，题头点击在结果区上一次委托，不逐块内联 onclick。
+   全页折叠块由 details 承载，开合在文档上一次捕获委托。存的是展开与否的布尔，
+   重出后按存值逐件复位；初始化完成前不写，免得首屏默认态盖掉已存偏好 */
+function nmReadModState(){
+  try{
+    var raw=localStorage.getItem('nmModState');
+    if(!raw) raw=sessionStorage.getItem('nmModState');
+    var s=JSON.parse(raw||'{}');
+    return (s&&typeof s==='object')?s:{};
+  }catch(e){ return {}; }
+}
+function nmSaveModState(){
+  if(!window.__nmInitDone) return;
+  try{
+    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
+       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
+    var o=nmReadModState();
+    document.querySelectorAll('#out section.mod[id]').forEach(function(m){ o[m.id]=!m.classList.contains('collapsed'); });
+    document.querySelectorAll('details[id]').forEach(function(d){ o[d.id]=d.open; });
+    var v=JSON.stringify(o);
+    try{ localStorage.setItem('nmModState', v); }catch(e){}
+    try{ sessionStorage.setItem('nmModState', v); }catch(e){}
+  }catch(e){}
+}
+function nmApplyModState(){
+  var s=nmReadModState();
+  document.querySelectorAll('#out section.mod[id]').forEach(function(m){ if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
+  document.querySelectorAll('details[id]').forEach(function(d){ if(d.id in s) d.open=!!s[d.id]; });
+  nmSyncFoldBodies();
+}
+/* 折叠体随 details 开合显隐：浏览器对闭合 details 仍做布局，收起态的正文容器带 hidden，
+   展开时去掉，避免被首屏取字与判据计成可见文字。 */
+function nmSyncFoldBodies(){
+  document.querySelectorAll('details').forEach(function(d){
+    var b=d.querySelector('.nm-fold-body');
+    if(b) b.hidden=!d.open;
+  });
+}
+/* 计算栈到齐：出生生辰控件挂上喜用重算，页内喜用与首屏演示盘一次跑出。
+   喜用重算取八字计算链，随计算栈一同挂载；快照回填派发的变更事件由 nmBoot 统一补算，
+   与逐项变更同结果。初始化标记随演示盘一同置起，使折叠态自此刻起才允许写入，
+   免得首屏默认态盖掉已存偏好 */
+function nmBoot(){
+  ['nmBDate','nmBTime','nmBZi','nmBTrue','nmBLng','nmBTz','nmBLocalDst','nmSex','nmBProv','nmBCity','nmBDist'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener('change', nmXiCalc);
+  });
+  /* 结果区默认留空，点开始分析才出结果；改出生信息仍按新值重算喜用。 */
+  var nmLoader=window.NAME_ARCHIVE_LOADER;
+  var nmReady=(nmLoader&&nmLoader.ensure)?nmLoader.ensure(['semantic','jianfan-full']):Promise.resolve(true);
+  nmReady.then(function(){ window.__nmInitDone=true; });
+}
+/* 附加功能的取文：由 mountAI 调用，正文随结果区重画 */
+function nmAiText(){
+  if(!LAST) return '';
+  var L=[];
+  if(LAST.mode==='gen'){
+    var g=LAST.gen;
+    L.push('姓名学起名推荐');
+    L.push('姓氏：'+LAST.xing+'（'+g.xst.join('、')+' 画）　候选池 '+g.candidateCount+' 名');
+    if(LINK_XI.length||LINK_JI.length) L.push('八字联动：喜用【'+(LINK_XI.join('、')||'未明')+'】忌神【'+(LINK_JI.join('、')||'未明')+'】');
+    g.list.forEach(function(n,i){
+      L.push((i+1)+'. '+LAST.xing+n.name+'（'+n.pinyin+'）数理 '+n.shuli+' 分，'+n.gridNote+'，字义五行 '+n.charWx.join('')+'（数理对照 '+n.charWxShu.join('')+'）；'+n.sound.note+'；'+n.sem.note+(n.xi?'；'+n.xi.label:''));
+    });
+    L.push('口径：数理零否决（凶格计分沉底不除名）；喜用补益按义五行判（水字属水，姓不入补益），排序为 '+window.NAME_GENERATE.rankNote()+'；同首字、同末字、同义类搭配已做多样性限流。');
+    return L.join('\n');
+  }
+  if(LAST.mode==='long'){
+    var r=LAST.r;
+    L.push('姓名学长姓名模式（无汉姓结构，不排五格，仅参总格数理）');
+    L.push('全名：'+LAST.name+'（'+r.plans.length+' 字）　笔画：'+r.plans.map(function(p){return p.use+p.strokes;}).join(' '));
+    L.push('总格：全名合计 '+r.zongGe.raw+' 画，数理 '+r.zongGe.num+'（'+luckTxt(r.zongGe.luck)+'）'+r.zongGe.key);
+    L.push('各字义五行：'+r.charWx.join('')+'（数理对照：'+r.shuWx.join('')+'）');
+    if(r.match) L.push('八字联动：喜用【'+(LINK_XI.join('、')||'未明')+'】忌神【'+(LINK_JI.join('、')||'未明')+'】；匹配结论 '+r.match.label);
+    L.push('口径：音译长名无姓氏边界，五格剖象不适用，以上仅为笔画数理参考。');
+    return L.join('\n');
+  }
+  if(LAST.mode==='twin'){
+    var tw=LAST, kindTxt={any:'不限',brother:'兄弟',sister:'姐妹',mixed:'龙凤胎（男先）',mixedF:'龙凤胎（女先）'}[tw.kind]||'不限';
+    L=['姓名学联名推荐（'+TWIN_MNAME[tw.method]+'）',
+      '姓氏：'+tw.xing+'　适用对象：'+kindTxt+'　名之字数：'+(tw.len===1?'单字':'双字'),
+      '本批 '+tw.list.length+' 组，候选 '+(tw.meta?tw.meta.candidateCount:0)+' 组'];
+    tw.list.forEach(function(it,i){
+      var pair=it.names.map(function(n){ return tw.xing+n.name; }).join(' 与 ');
+      L.push((i+1)+'. '+pair+(it.idiom?('（出成语 '+it.idiom+'，'+it.def+'）'):''));
+    });
+    L.push('口径：联名只设计两名之间的呼应（合读成词、共用一字、同出一篇），不评判单名吉凶；单名吉凶须另用姓名分析或详排全析看五格。');
+    return L.join('\n');
+  }
+  var r=LAST.r, s=LAST.s;
+  L=[
+    '姓名学五格剖象（康熙笔画口径）',
+    '姓名：'+LAST.xs.join('')+LAST.ms.join('')+'　笔画：'+r.plans.map(function(p){return p.use+p.strokes;}).join(' '),
+    '五格：天格'+r.tian.raw+'（'+luckTxt(r.tian.luck)+'）人格'+r.ren.raw+'（'+luckTxt(r.ren.luck)+'）地格'+r.di.raw+'（'+luckTxt(r.di.luck)+'）外格'+r.wai.raw+'（'+luckTxt(r.wai.luck)+'）总格'+r.zong.raw+'（'+luckTxt(r.zong.luck)+'）',
+    '各格含义：天格'+r.tian.key+'；人格'+r.ren.key+'；地格'+r.di.key+'；外格'+r.wai.key+'；总格'+r.zong.key,
+    '三才配置：'+r.sancai.tian+r.sancai.ren+r.sancai.di+'（'+E.luckTxtWx(r.sancai.luck)+'）'+r.sancai.text,
+    '成功运：'+r.sanyun.chenggong.rel+'，'+r.sanyun.chenggong.text,
+    '基础运：'+r.sanyun.jichu.rel+'，'+r.sanyun.jichu.text,
+    '社交运：'+r.sanyun.shejiao.rel+'，'+r.sanyun.shejiao.text
+  ];
+  if(r.match){
+    L.push('八字联动：喜用【'+(LINK_XI.join('、')||'未明')+'】忌神【'+(LINK_JI.join('、')||'未明')+'】；匹配结论 '+r.match.label+'（各字义五行：'+r.match.charWx.join('')+'，数理对照：'+r.match.shuWx.join('')+'）');
+  }
+  L.push('综合评分：'+s.total+'/'+s.full+'（'+s.parts.map(function(p){return p.k+' '+p.v+'/'+p.full;}).join('，')+'）');
+  L.push('评分口径：以字义为体，分项满分即上列各项分母；数理配置为五格三才三运打包折算，凶格不除名，按低分沉底；未联动八字时喜用匹配、义五行、数理五行按中位计入。');
+  return L.join('\n');
+}
+
+
+/* 计算栈与字档分片在页载入期预取：defer 脚本执行时即注入，load 事件等其到齐，
+   点击只做计算与渲染；名人库等大件数据留到首屏结果之后按需取，不占点击带宽。 */
+(function(){
+  var STACK=[
+    'assets/lunar.js',
+    'assets/bazi-data.js',
+    'assets/bazi-rel.js',
+    'assets/bazi-shishen.js',
+    'assets/bazi-duanyu.js',
+    'assets/gua.js',
+    'assets/xuanji-lib.js',
+    'assets/wheel.js',
+    'assets/bazi-core.js',
+    'assets/bazi-app.js',
+    'assets/jianbi.js',
+    'assets/jianfan.js',
+    'assets/kangxi.js',
+    'assets/name-archive-core.js',
+    'assets/name-archive-jianfan.js',
+    'assets/name-archive-surname-reading.js',
+    'assets/name-archive-hand.js',
+    'assets/name-archive-zodiac.js',
+    'assets/name-archive-homophone.js',
+    'assets/name-archive-manifest.js',
+    'assets/name-archive-loader.js',
+    'assets/name-archive-semantic.js',
+    'assets/name-archive-jianfan-full.js',
+    'assets/name-jianfan-select.js',
+    'assets/name-zodiac.js',
+    'assets/name-hexagram.js',
+    'assets/name-phonetics.js',
+    'assets/name-data.js',
+    'assets/name-engine.js',
+    'assets/name-homophone.js',
+    'assets/name-chars.js',
+    'assets/name-generate.js',
+    'assets/name-yuyi.js',
+    'assets/name-etym.js',
+    'assets/name-words.js',
+    'assets/name-classics.js',
+    'assets/name-twin.js',
+    'assets/name-surnames.js',
+    'assets/name-heat.js'
+  ];
+  var DATA=[
+    'assets/name-celebs.js',
+    'assets/name-celebs-cbdb.js',
+    'assets/name-synonyms.js',
+    'assets/link-corpus.js',
+    'assets/name-idioms.js',
+    'assets/cezi-data.js'
+  ];
+  var left={s:STACK.length,d:DATA.length}, ok={s:false,d:false}, wait={s:[],d:[]};
+  var dataStarted=false;
+  function arrive(g){
+    if(--left[g]) return;
+    ok[g]=true;
+    var w=wait[g]; wait[g]=[];
+    for(var i=0;i<w.length;i++) w[i]();
+  }
+  function pull(src,g){
+    var s=document.createElement('script');
+    s.async=false;
+    s.src=src;
+    s.onload=function(){ arrive(g); };
+    s.onerror=function(){ arrive(g); };
+    (document.head||document.documentElement).appendChild(s);
+  }
+  function load(list,g){ for(var i=0;i<list.length;i++) pull(list[i],g); }
+  /* 计算栈就绪：未就绪即挂起，到齐后按挂起次序一次跑完 */
+  window.nmStackReady=function(fn){ ok.s?fn():wait.s.push(fn); };
+  /* 数据表就绪：到齐后按同一份输入补算一次 */
+  window.nmDataReady=function(fn){ ok.d?fn():wait.d.push(fn); };
+  /* 大件数据按需取：返回就绪 Promise，重复调用不重复注入 */
+  window.nmDataStart=function(){
+    var p=new Promise(function(res){ window.nmDataReady(function(){ res(true); }); });
+    if(!dataStarted){ dataStarted=true; load(DATA,'d'); }
+    return p;
+  };
+  load(STACK,'s');
+})();
+
+/* 页面骨架初始化不依赖计算栈：defer 脚本执行时即跑，首秒文本与最终态一致；
+   计算栈到齐后再挂喜用重算、典籍下拉与附加功能面板。 */
+(function nmInitPage(){
+  if (window.__nmLoadDone) return;
+  window.__nmLoadDone = true;
+  window.NM_CELEB_RK=(function(){
+      var rank={}, c=window.NM_CELEB_CHRON;
+      for(var i=0;i<c.length;i++) rank[c[i]]=i;
+      return function(d){ var v=rank[d]; return v===undefined?c.length:v; };
+    })();
+    renderChrome('xingming.html');
+    (function(){
+      var p=new URLSearchParams(location.search);
+      if(p.get('fromBazi')!=='1') return;
+      FROM_BAZI=true;
+      URL_BIRTH=!!(p.get('bDate')&&p.get('bTime'));
+      if(!URL_BIRTH){
+        /* 旧式联动：仅直传喜忌五行（无出生参数），直接采用不重算 */
+        LINK_XI=(p.get('xi')||'').split(',').filter(Boolean);
+        LINK_JI=(p.get('ji')||'').split(',').filter(Boolean);
+        nmXiRender();
+      }
+    })();
+    ['nmXing','nmSex','nmGenLen','nmAvoid','nmBeizi','nmBzPos',
+     'nmTwinKind','nmTwinMethod','nmTwinFix','nmTwinPos',
+     'nmWx0','nmWx1','nmWx2','nmWx3','nmWx4'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('input', nmSyncPool);
+      el.addEventListener('change', nmSyncPool);
+    });
+    document.getElementById('nmGenCnt').addEventListener('change', function(){
+      var out=document.getElementById('out'), m=document.getElementById('nmMode').value;
+      if(m==='gen'&&GEN_LIST.length){ GEN_PAGE=0; renderGen(out); }
+      else if(m==='twin'&&TWIN_LIST.length){ TWIN_PAGE=0; renderTwin(out); }
+    });
+    switchMode();
+    nmBirthInit();
+    nmBirthFromUrl();
+    document.addEventListener('toggle',function(e){
+      var t=e.target;
+      if(t && t.tagName==='DETAILS'){
+        var b=t.querySelector('.nm-fold-body');
+        if(b) b.hidden=!t.open;
+        if(t.id) nmSaveModState();
+      }
+    },true);
+    document.getElementById('out').addEventListener('click',function(e){
+      var h=e.target.closest?e.target.closest('.mod-head'):null;
+      if(h){ h.parentNode.classList.toggle('collapsed'); nmSaveModState(); }
+    });
+    switchMode();
+    renderHistory();
+    nmStackReady(nmBoot);
+    nmDataReady(nmRefresh);
+    /* 名源库随计算栈到货即填典籍出处下拉，与用户何时切到推荐模式无关 */
+    nmStackReady(nmFillClassicOpts);
+    mountAI(nmAiText, '姓名学', { share:{ page:"xingming", title:"姓名学在线测算", recast:function(){ query(); } } });
+})();

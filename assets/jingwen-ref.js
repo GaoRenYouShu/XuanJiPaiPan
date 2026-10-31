@@ -51,12 +51,17 @@
       '<div class="jw-grid">' + out + '</div></div>';
   }
 
+  /* 渲染与绑定分开：容器已有内容时不再重建，但仍补绑检索与展开事件。
+     绑定态记元素 expando，重复挂载不会叠加监听。 */
   function renderInto(host) {
-    if (!host || host.children.length) return;
-    host.innerHTML = buildHTML();
+    if (!host) return;
+    if (!host.children.length) host.innerHTML = buildHTML();
+    if (host.__jwBound) return;
     var input = host.querySelector('.jw-input');
     var count = host.querySelector('.jw-count');
     var items = [].slice.call(host.querySelectorAll('.jw-item'));
+    if (!input || !count) return;
+    host.__jwBound = true;
     function filter() {
       var k = (input.value || '').trim(), n = 0;
       items.forEach(function (it) {

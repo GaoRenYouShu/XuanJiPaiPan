@@ -1,0 +1,629 @@
+
+    const TB_TERMS = {
+    hua:{title:'化数',items:{
+    '太玄数':{short:'干支配数的口诀：甲己子午九、乙庚丑未八、丙辛寅申七、丁壬卯酉六、戊癸辰戌五、巳亥单四数。',detail:'太玄经数，铁板类数术最常用的入数元件，每柱干数加支数为柱数。'},
+    '柱数':{short:'一柱天干数加地支数，如甲子为 9+9=18。',detail:'四柱各有柱数，四柱柱数之和为化数总数。'},
+    '化数总数':{short:'四柱太玄数全加起来的和，是皇极总数的主体。',detail:'范围 36 至 72（单柱最小 9、最大 18），加刻分修正数后成皇极总数。'}
+    }},
+    helo:{title:'河洛理数',items:{
+    '天数地数':{short:'天数为四柱天干太玄数之和，地数为四柱地支太玄数之和。',detail:'河洛起卦的两个基数：天数定上卦、地数定下卦。本页取太玄数法，与河洛理数页的纳甲取数法为两套体系，各依本页所载之法。'},
+    '先天卦':{short:'天数配上卦、地数配下卦，按乾一兑二离三震四巽五坎六艮七坤八配卦。',detail:'邵雍先天数起卦法，载于《梅花易数》。'},
+    '元堂':{short:'全卦当权之爻，自下而上数，依皇极总数取之。',detail:'考刻改刻则皇极总数变，元堂随之变、爻辞随之变，此即刻改爻改；河洛理数本法以天地数与生时查元堂表，本页元堂取铁板口径，两法并列，详见河洛理数页。'},
+    '洛书数':{short:'后天八卦配洛书：坎一、坤二、震三、巽四、乾六、兑七、艮八、离九。',detail:'戴九履一、左三右七、二四为肩、六八为足，中五无卦。'},
+    '卦辞':{short:'六十四卦卦辞取《易经》原文，爻辞同源。',detail:'卦爻辞与全站易学诸页同出一部经文库，六十四卦逐条一致。'},
+    '京房世应':{short:'依京房八宫定卦之宫位与世应爻。',detail:'六爻纳甲体系的宫世框架，供深入研习者参照。'}
+    }},
+    ke:{title:'刻分',items:{
+    '八刻':{short:'一个时辰分八刻，每刻十五分钟，是比时辰更细的时间单位。',detail:'子时八刻自当日 23:00 顺推至次日 01:00，为一段连续时刻；晚子时八刻同日柱，早子时跨零点日柱随刻而变。'},
+    '先天八卦数':{short:'乾一、兑二、离三、震四、巽五、坎六、艮七、坤八。',detail:'刻序依次配八卦数：初刻乾一至七刻坤八，供页面标示刻位。'},
+    '刻分修正数':{short:'刻分序加一，使同一时辰一百二十档各得一数、互不重复。',detail:'刻分序为刻序乘十五加分金序，自 0 至 119；皇极总数 = 化数总数 + 刻分修正数。'},
+    '分金':{short:'一刻十五分金，每分金一分钟；分金序并入刻分序。',detail:'全时辰一百二十分金，为考刻最细档；所选分金为钟面档，太阳时开启后盘面分金按校正后分钟取，可能不同。'},
+    '真太阳时':{short:'按出生地经度与均时差校正后的太阳钟点。',detail:'开启后先校正钟点再归属时辰刻分，以校正后的时辰刻分起盘。'}
+    }},
+    kao:{title:'考刻',items:{
+    '六亲问卷':{short:'父母存亡、手足总数、婚姻状况三主问与子女参考问，用已知事实定正刻。',detail:'铁板考刻以六亲事实定刻分，答得越真，正刻越明；答卷仅存本机，清除答卷即删除。'},
+    '考刻数':{short:'三主问答案合成的定位数：父母态序×5 + 手足数×3 + 婚姻态序×7，对八取余。',detail:'考刻数落在 0 至 7，逐一对应出生时辰的八刻；本站以考刻数直配八刻，属便用式快速定位。'},
+    '正刻':{short:'考刻数定位的那一刻，必在出生时辰八刻之内，采用后条文随之重演。',detail:'子女为参考问，只定条文口径，不参与定位。'},
+    '传统验条法':{short:'传统考刻为逐刻验条：逐刻排条文与已知六亲事实比对，条条相合者定为真刻，不合则进退一刻再验。',detail:'《铁板神数》南派重日时干支、北派重月柱时辰，两家路径不同，皆以验条为准；本站考刻数法与验条法同源而异算。'}
+    }},
+    shu:{title:'总数与条文',items:{
+    '皇极总数':{short:'四柱化数总数加刻分修正数而成，为抽条文之纲。',detail:'皇极之名本于邵雍皇极经世之数；范围 37 至 192。'},
+    '条文抽演':{short:'按皇极总数取条文，演示条文按数抽演。',detail:'同盘同刻条文恒定，改刻即改条文；条文库为演示库，非秘传全本。'},
+    '条文序号':{short:'条文前的第 N 号为库内顺序号，仅便于指称条目。',detail:'序号供页面引用与查检之用。'},
+    '六亲取条':{short:'父母、兄弟、婚姻、子息四类条文按考刻结论取用，口径一致。',detail:'六亲相合，条文方验。'},
+    '真典断语':{short:'取《三命通会》《渊海子平》《滴天髓》等命经典籍断语，附原典出处。',detail:'依四柱十神、五行能量档与命主性别取用，与八字排盘同法同源。'}
+    }},
+    yun:{title:'岁运',items:{
+    '大运':{short:'十年一步的运程框架，从月柱顺逆排布。',detail:'阳年男、阴年女顺排，阴年男、阳年女逆排，十年一步共八步。'},
+    '起运':{short:'出生到第一步大运的折算年数，按节气距离折算。',detail:'两种折算口径：时辰折算按整日加时辰档，分钟折算按四千三百二十分折一年，可随流派选用。'},
+    '流年':{short:'当年的太岁干支，一年一条文。',detail:'流年条文看当年之用，与大运条文合参。'}
+    }}
+    };
+    function renderTermGloss(){
+    const el=document.getElementById('termGloss'); if(!el)return;
+    let h='<table class="tb-tb"><tbody>';
+    Object.keys(TB_TERMS).forEach(gid=>{
+    const g=TB_TERMS[gid];
+    h+='<tr><td class="tb-group" colspan="2">'+g.title+'</td></tr>';
+    Object.keys(g.items).forEach(k=>{
+      const it=g.items[k];
+      h+='<tr><td>'+k+'</td><td>'+it.short+(it.detail?('　<span class="tb-term-d">'+it.detail+'</span>'):'')+'</td></tr>';
+    });
+    });
+    h+='</tbody></table>';
+    el.innerHTML=h;
+    }
+/* ============ 刻分与分金选项 ============ */
+/* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+function rebuildKeOptions(){
+  const zhiH = parseInt(document.getElementById('hInput').value,10);
+  const sel = document.getElementById('kInput');
+  const prev = sel.value;
+  let html = '';
+  for(let k=0;k<8;k++){
+    const abs = Tieban.keAbsMin(zhiH, k);
+    const m1 = abs % 1440, m2 = (abs+15) % 1440;
+    const lab = Tieban.KE_NAMES[k]+'　'+pad2(Math.floor(m1/60))+':'+pad2(m1%60)+'-'+pad2(Math.floor(m2/60))+':'+pad2(m2%60);
+    html += '<option value="'+k+'">'+lab+'</option>';
+  }
+  sel.innerHTML = html;
+  if(prev !== null && prev !== '' && prev !== undefined) sel.value = prev;
+  if(sel.selectedIndex < 0) sel.value = '0';
+}
+const FENG_NAMES = ['初分金','一分金','二分金','三分金','四分金','五分金','六分金','七分金','八分金','九分金','十分金','十一分金','十二分金','十三分金','十四分金'];
+function rebuildFengOptions(){
+  const sel = document.getElementById('fInput');
+  let html = '';
+  for(let f=0;f<15;f++) html += '<option value="'+f+'">'+FENG_NAMES[f]+'</option>';
+  sel.innerHTML = html;
+  sel.value = '0';
+}
+function onHourChange(){ ADOPT = null; rebuildKeOptions(); if(LAST) query(); }
+/* ============ 时刻与流派口径（与八字排盘页同五项，取值真源同 xuanji-lib.js 与 bazi-data.js） ============ */
+function readZiMode(){ const v=(document.getElementById('ziInput')||{}).value; return v === 'early' ? 'early' : 'late'; }
+function readFeng(){ const f = parseInt(document.getElementById('fInput').value,10); return isNaN(f)?0:f; }
+function readSunMode(){ const v=(document.getElementById('sunInput')||{}).value; return (v==='true'||v==='mean')?v:'off'; }
+function readDstMode(){ const v=(document.getElementById('dstInput')||{}).value; return (v==='on'||v==='off')?v:'auto'; }
+function readYearAxis(){ const v=(document.getElementById('yearInput')||{}).value; return (v==='chunjie'||v==='dongzhi')?v:'lichun'; }
+function readQiYunSect(){ const v=(document.getElementById('qyInput')||{}).value; return v==='2'?2:1; }
+/* 起盘口径一次性取齐，供八刻表与主盘共用，免各调用点各拼一份 */
+function readOpts(){
+  const sunMode = readSunMode();
+  const _pto = placeTimeOptsOf({prov:'bProv',city:'bCity',lng:'bLng',tz:'bTzOff',dst:'bLocalDst'});
+  return {
+    sunMode: sunMode,
+    lng: sunMode === 'off' ? null : resolveLng(),
+    ziMode: readZiMode(), feng: readFeng(),
+    dst: _pto.overseas ? 'off' : readDstMode(), yearAxis: readYearAxis(), qiYunSect: readQiYunSect(),
+    baseLng: _pto.overseas ? _pto.baseLng : null, localDst: _pto.localDst
+  };
+}
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时、收起中国夏令时并写说明行；
+   境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
+function tbSyncOverseas(){
+  syncOverseasFields({prov:'bProv',city:'bCity',lng:'bLng',tz:'bTzOff',dst:'bLocalDst',
+    tzField:'bTzOffField',dstField:'bLocalDstField',note:'tbOverseasNote',chinaDstField:'bDstField'});
+}
+/* 境外时区或当地夏令时改动后重排，已出盘则按新口径重查 */
+function tbOverseasChange(){
+  tbSyncOverseas();
+  if(LAST) query();
+}
+/* 太阳时已开而未定出生地：校正是按经度算的，没有经度就无从校正，拦在起盘之前；
+   提示语同八字页 SUN_NO_PLACE_MSG 口径。 */
+const TB_NO_PLACE_MSG='太阳时校正已开，但未定出生地：请在出生地组选择省份与城市，或手动填写经度；若出生地无考，把太阳时改为不校正，按钟面标准时出盘。';
+/* ============ 状态 ============ */
+let LAST = null;
+let TB_PLACE = null;
+let ANS = {};
+let ADOPT = null;
+let KE_ROWS = [];
+let KE_YAN = null;
+/* ============ 问卷 ============ */
+function readAnswers(){
+  /* 问卷下拉在首次渲染后才存在；缺元素时保留上次答案，免太阳时拦断清空问卷 */
+  const gv = id => { const el=document.getElementById(id); return el ? el.value : null; };
+  const gn = id => { const el=document.getElementById(id); if(!el) return undefined; if(el.value==='') return null; const x=parseInt(el.value,10); return isNaN(x)?null:x; };
+  const fumu = gv('qFumu'); if(fumu !== null) ANS.fumu = fumu || null;
+  const sib = gn('qSib'); if(sib !== undefined) ANS.sib = sib;
+  const marry = gv('qMarry'); if(marry !== null) ANS.marry = marry || null;
+  const child = gn('qChild'); if(child !== undefined) ANS.child = child;
+  return ANS;
+}
+function saveAns(){
+  try{ localStorage.setItem('tbAns', JSON.stringify(ANS)); }catch(e){}
+}
+function loadAns(){
+  try{
+    const s = localStorage.getItem('tbAns');
+    if(!s) return;
+    const o = JSON.parse(s);
+    if(o && typeof o === 'object') ANS = Object.assign({}, ANS, o);
+  }catch(e){}
+}
+/* ============ 考刻模块 HTML（六亲定刻：三问定位八刻） ============ */
+function quizHTML(){
+  const fumuOpts = [['','未答'],['both','父母双全'],['father','先亡父'],['mother','先亡母'],['none','父母俱逝']];
+  const sibOpts = [['','未答'],[1,'1 人（独生）'],[2,'2 人'],[3,'3 人'],[4,'4 人'],[5,'5 人'],[6,'6 人'],[7,'7 人'],[8,'8 人及以上']];
+  const marryOpts = [['','未答'],['unmarried','未婚'],['married','已婚'],['divorced','离异'],['widowed','丧偶']];
+  const childOpts = [['','未答'],[0,'无或迟得'],[1,'1 个'],[2,'2 个'],[3,'3 个'],[4,'4 个'],[5,'5 个及以上']];
+  const opt = (arr,cur) => arr.map(o=>'<option value="'+o[0]+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+o[1]+'</option>').join('');
+  return '<div class="ke-quiz">'
+    +'<div class="field"><label for="qFumu">父母存亡</label><select id="qFumu" onchange="onAns()">'+opt(fumuOpts,ANS.fumu)+'</select></div>'
+    +'<div class="field"><label for="qSib">手足总数（含本人）</label><select id="qSib" onchange="onAns()">'+opt(sibOpts,ANS.sib)+'</select></div>'
+    +'<div class="field"><label for="qMarry">婚姻状况</label><select id="qMarry" onchange="onAns()">'+opt(marryOpts,ANS.marry)+'</select></div>'
+    +'<div class="field"><label for="qChild">子女数（参考）</label><select id="qChild" onchange="onAns()">'+opt(childOpts,ANS.child)+'</select></div>'
+    +'</div>';
+}
+/* 考刻视图：定刻卡 + 八刻表（正刻由三问考刻数定位，必在出生时辰内）
+   八刻表按钟面时辰逐刻起盘，同时列出该刻校正后的盘面刻与盘面钟点；
+   考刻正刻按钟面刻定位，四柱与皇极总数按校正后时刻取。 */
+function keTableHTML(){
+  if(!LAST) return '';
+  const answeredMain = ANS.fumu!=null && ANS.sib!=null && ANS.marry!=null;
+  const keStar = answeredMain ? Tieban.locateKe(Tieban.FUMU_KEYS.indexOf(ANS.fumu), ANS.sib, Tieban.MARRY_KEYS.indexOf(ANS.marry)) : null;
+  let h = '';
+  if(keStar!=null){
+    const adopted = (ADOPT!=null && ADOPT===keStar);
+    h += '<div class="ke-star">考得正刻：<span class="gold-b">'+LAST.clockZhiName+Tieban.KE_NAMES[keStar]+'</span>'
+      +'　<button class="btn gold ke-adopt" onclick="adoptKeStar('+keStar+')">'+(adopted?'已采，重采':'采用正刻')+'</button>'
+      +'</div>';
+  }else{
+    h += '<div class="sub-note tb-note">父母、手足、婚姻三问答齐即在出生时辰八刻内定位正刻；也可在下方八刻表中任选一刻采用。</div>';
+  }
+  const curZhiH = parseInt(document.getElementById('hInput').value,10);
+  const dt = document.getElementById('dInput').value.split('-').map(Number);
+  const sex = document.getElementById('sexInput').value;
+  const opts = readOpts();
+  KE_ROWS = [];
+  h += '<div class="ke-wrap"><table class="tb-tb"><thead><tr>'
+    +'<th>刻</th><th>操作</th><th>钟点</th><th>四柱</th><th>皇极总数</th><th>元堂</th><th>考刻</th>'
+    +'</tr></thead><tbody>';
+  for(let k=0;k<8;k++){
+    const R = Tieban.compute(dt[0], dt[1], dt[2], curZhiH, k, sex, Object.assign({}, opts, {light:true}));
+    KE_ROWS[k] = R;
+    const located = (keStar!=null && keStar===k);
+    const yk = (R.H % 6) || 6;
+    const cls = (ADOPT!=null && ADOPT===k) ? 'ke-best' : (located ? 'ke-best' : '');
+    const clockName = R.clockZhiName+R.clockKeName;
+    const panName = R.zhiName+R.keName;
+    const panSub = (clockName !== panName) ? ('<span class="ke-sub">盘面 '+panName+'　'+R.keRange+'</span>') : '';
+    const clockSub = (R.clockRange !== R.keRange) ? ('<span class="ke-sub">盘面 '+R.keRange+'</span>') : '';
+    h += '<tr class="'+cls+'">'
+      +'<td>'+clockName+(ADOPT!=null&&ADOPT===k?'（采用）':'')+panSub+'</td>'
+      +'<td><button class="btn soft ke-adopt" onclick="showYanTiao('+k+')">验条</button> <button class="btn gold ke-adopt" onclick="adoptKeStar('+k+')">采用</button></td>'
+      +'<td>'+R.clockRange+clockSub+'</td>'
+      +'<td>'+R.pillars.map(p=>gzColorSpan(p.gz)).join(' ')+'</td>'
+      +'<td>'+R.H+'</td>'
+      +'<td>'+YAO_NAME[yk-1]+'</td>'
+      +'<td>'+(located ? '<span class="hit-yes">考得正刻</span>' : '未考得')+'</td>'
+      +'</tr>';
+  }
+  h += '</tbody></table></div><div id="keYan" class="ke-yan"></div>';
+  return h;
+}
+/* 逐刻验条：按该刻皇极总数取父母、兄弟、婚姻三系条文，供与已知六亲事实比对。
+   答卷未答齐时按全库取条，不作六亲过滤。 */
+function showYanTiao(k){
+  const R = KE_ROWS[k];
+  const el = document.getElementById('keYan');
+  if(!R || !el) return;
+  KE_YAN = k;
+  const cats = [['fumu','父母'],['xiongdi','兄弟'],['hunyin','婚姻']];
+  let h = '<div class="ke-yan-h">第 '+R.clockZhiName+R.clockKeName+' 验条　皇极总数 '+R.H+'</div>';
+  cats.forEach(pair=>{
+    const one = Tieban.pickText(pair[0], R.H, keyFor(pair[0]), 1);
+    if(one) h += '<div class="ke-yan-row"><b>'+pair[1]+'</b>　第 '+one.no+' 条　'+one.t+'　'+one.b+'</div>';
+  });
+  h += '<div class="sub-note">逐刻验条：以已知六亲事实与此三系条文比对，条条相合者定为真刻；答卷未答齐时按全库取条，不作六亲过滤。</div>';
+  el.innerHTML = h;
+}
+function onAns(){ readAnswers(); saveAns(); if(LAST) query(); }
+function adoptKeStar(k){
+  ADOPT = k;
+  document.getElementById('kInput').value = String(k);
+  query();
+}
+/* ============ 真典断语层（命经典籍） ============
+ * 取条与判定全走八字页同一套真源：buildBaziState 装配 BZ、getAnalysis 出喜忌、
+ * matchDuanyu 按 when 全条件匹配（含 ten 十神计数、tenTier 五行能量档、element、sha、yy 等），
+ * 本页不自造计数与阈值，故与八字页断语口径一致。
+ * 入参用铁板侧已定的四柱与已校正时刻，装配走 date 模式，使人元司令与神煞同取真源。 */
+function _tbBaziState(R){
+  if(typeof window.buildBaziState !== 'function') return null;
+  const sex = document.getElementById('sexInput').value === '男' ? 1 : 0;
+  /* 传铁板侧已定的四柱时刻（R.Y/M/D/h/mi 已是校正后终值），
+     故太阳时、夏令时皆取不折算，子时算法随本盘口径，免在装配里再折一次。 */
+  const dateStr = R.Y+'-'+pad2(R.M)+'-'+pad2(R.D);
+  const timeStr = pad2(R.h)+':'+pad2(R.mi);
+  try{
+    return window.buildBaziState({
+      date: dateStr, time: timeStr, sex: sex,
+      ziMode: R.ziMode, sunMode: 'off', dst: 'off', kongAxis: 'day'
+    });
+  }catch(e){ return null; }
+}
+function zhenDianHTML(R){
+  if(typeof window.matchDuanyu !== 'function' || typeof window.getAnalysis !== 'function') return '';
+  const built = _tbBaziState(R);
+  if(!built || !built.BZ) return '';
+  const BZ = built.BZ;
+  const A = window.getAnalysis(BZ);
+  /* 全类目本命断语（不含步级条），按权重降序，同条件同出处去重后取前二 */
+  const cats = Object.keys(window.DUANYU || {});
+  let pool = [];
+  cats.forEach(cat=>{
+    let res = [];
+    try{ res = window.matchDuanyu(cat, BZ, A, {}) || []; }catch(e){ res = []; }
+    res.forEach(x=>{ if(x && x.say) pool.push({cat:cat, say:x.say, src:x.src, w:x.w||1, when:x.when}); });
+  });
+  if(!pool.length) return '';
+  pool.sort((a,b)=>(b.w-a.w));
+  const seen = {};
+  const uniq = [];
+  pool.forEach(x=>{
+    const rel = JSON.stringify(x.when||{}) + '|' + x.src;
+    if(rel in seen) return;
+    seen[rel] = true; uniq.push(x);
+  });
+  const picks = [];
+  for(let n=1; n<=2; n++){
+    const seed = ((R.H % 100003) * 7919 + n * 104729 + 20011) % 100003;
+    const it = uniq[seed % uniq.length];
+    if(it && !picks.some(p=>p.say===it.say)) picks.push(it);
+  }
+  let h = '<h3 class="rel-title">真典断语（命经典籍）</h3><table class="tb-tb tb-cite"><thead><tr><th>断语</th><th>出处</th></tr></thead><tbody>';
+  picks.forEach(p=>{
+    h += '<tr><td>'+p.say+'</td><td>'+p.src+'</td></tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+/* 真典断语表列宽：出处列按内容量取，断语列占余宽随文折行。
+   出处列至多占可用宽一半，使断语列在窄屏下保有主体宽度。 */
+function fitCiteCols(){
+  const t = document.querySelector('#out table.tb-cite');
+  if(!t) return;
+  const host = (t.parentNode && t.parentNode.clientWidth > 0) ? t.parentNode : t;
+  const avail = host.clientWidth;
+  if(!avail) return;
+  const ref = t.querySelector('tbody td:nth-child(2)') || t.querySelector('tr > th:nth-child(2)');
+  if(!ref) return;
+  /* 量字墨宽：探测 span 挂 body（挂表内会塌陷为 0 宽），nowrap 取整条单行，字体逐属性复制 */
+  const cs = getComputedStyle(ref);
+  const probe = document.createElement('span');
+  probe.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:-99999px;white-space:nowrap;'
+    + 'font-family:'+cs.fontFamily+';font-size:'+cs.fontSize+';font-weight:'+cs.fontWeight+';letter-spacing:'+(cs.letterSpacing||'normal')+';';
+  document.body.appendChild(probe);
+  let textW = 0;
+  t.querySelectorAll('tbody tr').forEach(r=>{
+    const c = r.cells && r.cells[1]; if(!c) return;
+    const s = (c.textContent||'').trim(); if(!s) return;
+    probe.textContent = s;
+    const w = probe.getBoundingClientRect().width;
+    if(w > textW) textW = w;
+  });
+  document.body.removeChild(probe);
+  if(!textW) return;
+  const padSum = (parseFloat(cs.paddingLeft)||0)+(parseFloat(cs.paddingRight)||0)
+               + (parseFloat(cs.borderLeftWidth)||0)+(parseFloat(cs.borderRightWidth)||0);
+  const colW = Math.min(Math.ceil(textW + padSum + 2), Math.round(avail * 0.5));
+  t.querySelectorAll('tr').forEach(r=>{
+    const c = r.cells && r.cells[1]; if(!c) return;
+    c.style.setProperty('width', colW+'px','important');
+    c.style.setProperty('min-width', colW+'px','important');
+    c.style.setProperty('max-width', colW+'px','important');
+  });
+}
+let _citeT = null;
+/* 手足答卷 1..8 转条文桶键：1 独生、2、3、4 至 5、6 至 7、8 以上 */
+function sibKeyOf(n){ if(n==null) return null; if(n<=1) return '0'; if(n===2) return '1'; if(n===3) return '2'; if(n<=5) return '3'; if(n<=7) return '4'; return '5p'; }
+/* 子女答卷 0..5+ 转条文桶键：0 无或迟得、1、2、3、4、5 以上 */
+function childKeyOf(n){ if(n==null) return null; if(n<=0) return '0'; if(n===1) return '1'; if(n===2) return '2'; if(n===3) return '3'; if(n===4) return '4'; return '5p'; }
+function keyFor(cat){
+  if(cat==='fumu') return ANS.fumu || null;
+  if(cat==='xiongdi') return sibKeyOf(ANS.sib);
+  if(cat==='hunyin') return ANS.marry || null;
+  if(cat==='zixi') return childKeyOf(ANS.child);
+  return null;
+}
+const TW_CATS = ['fumu','xiongdi','hunyin','zixi','tianzhai','caibo','guanlu','xingqing','jiankang','shouyuan'];
+function twCardsHTML(){
+  const T = window.TIEBAN_TIAOWEN;
+  return '<div class="tb-cap">条文抽演：以皇极总数为纲按类取条，同盘同刻条文恒定，改刻则条文随之而变'
+    +'<span class="tb-cap-note">演示条文库，据公开流传铁板类断语整理改编，非秘传全本；父母、兄弟、婚姻、子息、田宅、财帛、官禄、性情、健康、寿元十类，六亲类依考刻结论取用同类条文；两抽并见，取象互参；条文前序号仅便于指称条目</span></div>'
+    +'<div class="tw-grid">'+TW_CATS.map(cid=>{
+    const key = keyFor(cid);
+    const one = Tieban.pickText(cid, LAST.H, key, 1);
+    if(!one) return '';
+    const two = (cid==='hunyin'||cid==='caibo'||cid==='guanlu') ? Tieban.pickText(cid, LAST.H, key, 2) : null;
+    let v = '<span class="tw-no">第 '+one.no+' 条'+(key?'　口径：'+one.catName+'，'+keyLabelOf(cid,key):'')+'</span>'
+      +'<span class="tw-wen">'+one.t+'</span>'
+      +'<span class="tw-bai">'+one.b+'</span>';
+    if(two && two.idx!==one.idx){
+      v += '<span class="tw-no">又抽：第 '+two.no+' 条　两抽并见，取象互参</span>'
+        +'<span class="tw-wen">'+two.t+'</span><span class="tw-bai">'+two.b+'</span>';
+    }
+    return '<div class="tw-card"><span class="tw-k">'+T.cats[cid].name+'</span>'+v+'</div>';
+  }).join('')+'</div>';
+}
+function keyLabelOf(cid,key){
+  if(cid==='fumu') return Tieban.FUMU_LABEL[key]||'';
+  if(cid==='hunyin') return Tieban.MARRY_LABEL[key]||'';
+  if(cid==='xiongdi') return (ANS.sib!=null ? ANS.sib+' 人' : '');
+  if(cid==='zixi') return (ANS.child!=null ? Tieban.CHILD_LABEL[Math.min(5,Math.max(0,ANS.child))]||'' : '');
+  return '';
+}
+/* ============ 大运流年 ============ */
+function dyHTML(){
+  const d = LAST.dayun;
+  if(!d || !d.steps.length) return '<div class="info-box"><p>大运推演不可用'+(d&&d.err?'：'+d.err:'')+'。</p></div>';
+  const thisYear = xjNowDate().getFullYear();
+  const sectTxt = (d.sect===2) ? '以四千三百二十分折一年' : '以节气距离三日折一年';
+  let h = '<div class="sub-note">起运：'+(d.ageYears!=null ? d.ageYears+' 年 '+d.ageMonths+' 个月 '+d.ageDays+' 天' : '不可用')+'　'+(d.forward?'顺排（阳男阴女）':'逆排（阴男阳女）')+'　'+sectTxt+'。</div>';
+  h += '<div class="dy-grid">'+d.steps.map(s=>{
+    const cur = thisYear>=s.startYear && thisYear<=s.endYear;
+    const tx = Tieban.pickStepText('dayun', s.gz, s.startYear, 1, {age: s.startAge});
+    return '<div class="dy-card'+(cur?' cur':'')+'"><b>'+gzColorSpan(s.gz)+'</b>　'+s.startAge+'-'+s.endAge+' 岁　'+s.startYear+'-'+s.endYear+' 年'+(cur?'　（现行）':'')
+      +'<br><span class="dy-no">'+(tx?('运条 第 '+tx.no+' 条：'+tx.t+'。'+tx.b):'')+'</span></div>';
+  }).join('')+'</div>';
+  /* 流年：今年起八个，年条按虚岁与本命年过滤，并标出所行大运 */
+  let rows = '<table class="tb-tb"><thead><tr><th>流年</th><th>干支</th><th>所行大运</th><th>年条</th></tr></thead><tbody>';
+  for(let i=0;i<8;i++){
+    const y = thisYear + i;
+    const gz = Solar.fromYmd(y,6,1).getLunar().getYearInGanZhi();
+    const age = y - LAST.Y + 1;
+    const step = d.steps.find(s=>y>=s.startYear && y<=s.endYear);
+    const tx = Tieban.pickStepText('liunian', gz, y, 1, {age: age, birthGZ: LAST.yearGZ});
+    rows += '<tr'+(i===0?' class="ly-cur"':'')+'><td>'+y+' 年</td><td>'+gzColorSpan(gz)+'</td><td>'+(step?gzColorSpan(step.gz):'未入运')+'</td><td>'+(tx?(tx.t+'。'+tx.b):'')+'</td></tr>';
+  }
+  rows += '</tbody></table>';
+  return h + '<div class="tb-cap">未来八载流年条文</div>' + rows;
+}
+/* 卦辞单一真源：经文库 GUA_CI 优先，tieban-hegu 的 c 只作经文库未载时兜底 */
+function guaCiOf(gName){
+  if(typeof GUA_CI === 'object' && GUA_CI && GUA_CI[gName]) return GUA_CI[gName];
+  const hg = window.TIEBAN_HEGU && window.TIEBAN_HEGU.gua ? window.TIEBAN_HEGU.gua[gName] : null;
+  return hg ? hg.c : '';
+}
+/* 命局结构名取断语条件 when 的十神、格局、神煞诸名，不解析断语句 */
+function whenNames(w){
+  const out = [];
+  const add = v => { if(v && out.indexOf(v) < 0) out.push(v); };
+  if(!w) return out;
+  if(w.ge) add(w.ge);
+  if(w.pattern) w.pattern.forEach(add);
+  if(w.sha) w.sha.forEach(add);
+  if(w.ten) Object.keys(w.ten).forEach(add);
+  if(w.tenAny) Object.keys(w.tenAny).forEach(add);
+  if(w.yearTen) Object.keys(w.yearTen).forEach(add);
+  return out;
+}
+/* ============ 白话解读（把本盘各层结论译成一句话，不复述条文） ============
+ * 素材取本盘已定之数：刻分与皇极总数、河洛卦与元堂、真典断语的关系短语、
+ * 六亲答卷与考刻结论、现行大运。逐行只讲这一层说明了什么，不重抄条文原文。 */
+function _tbPlainRows(R){
+  const rows = [];
+  const answeredMain = ANS.fumu!=null && ANS.sib!=null && ANS.marry!=null;
+  const keStar = answeredMain ? Tieban.locateKe(Tieban.FUMU_KEYS.indexOf(ANS.fumu), ANS.sib, Tieban.MARRY_KEYS.indexOf(ANS.marry)) : null;
+
+  /* 一、时刻与刻分：讲清这一盘的时间落点与刻分档位 */
+  const timeBits = [];
+  timeBits.push('以公历 '+R.Y+'-'+pad2(R.M)+'-'+pad2(R.D)+' '+pad2(R.h)+':'+pad2(R.mi)+' 为盘面时刻，属'+R.zhiName+R.keName+'（'+R.keRange+'）。');
+  if(R.usedTrue) timeBits.push('该时刻已经太阳时校正'+(R.sunMode==='mean'?'（平太阳时，只计经度差）':'（真太阳时，均时差与经度差并计）')+'，校正量 '+R.adj+' 分钟，故盘面时刻与钟面读数不同。');
+  if(R.sunMode==='off') timeBits.push('本盘未作太阳时校正，盘面时刻即钟面读数。');
+  if(R.dstApplied) timeBits.push('钟面落在夏令时段，已按标准时折回一小时。');
+  timeBits.push('刻分为'+R.keName+FENG_NAMES[R.feng]+'，在此时辰一百二十档中列第 '+(R.keSeq+1)+' 档。');
+  rows.push(['时刻与刻分', timeBits.join('')]);
+
+  /* 二、入数：把四柱化数与刻分修正讲成一条可复算的算式 */
+  rows.push(['入数', '四柱 '+R.pillars.map(p=>p.gz).join(' ')+'，逐柱太玄数合计 '+R.total+'；加刻分修正数 '+R.keFix+'（'+R.bagua+'刻，分金序 '+R.feng+'），得皇极总数 '+R.H+'。此数即本盘取条之纲，改刻改分金则此数变、条文随之而变。']);
+
+  /* 三、卦象：讲河洛卦与元堂这一层给的是什么 */
+  if(typeof guaName === 'function' && window.TIEBAN_HEGU){
+    const HL = Tieban.heLuoPan(R.ganSum, R.zhiSum);
+    const gn = guaName(XT2NAME[HL.xianShang], XT2NAME[HL.xianXia]);
+    const yTie = (R.H % 6) || 6;
+    const ci = guaCiOf(gn);
+    rows.push(['卦象', '天干和 '+R.ganSum+' 定上卦、地支和 '+R.zhiSum+' 定下卦，得'+gn+'。此卦以皇极总数 '+R.H+' 取元堂，动在'+YAO_NAME[yTie-1]+'，故本盘之象以该爻为主；卦辞（'+ci.replace(/。$/,'')+'）是其总纲，元堂爻辞是其发用之处。']);
+  }
+
+  /* 四、真典断语：取断语条件 when 的结构名，讲命局结构，不重抄断语全文 */
+  const built = _tbBaziState(R);
+  if(built && built.BZ && typeof window.matchDuanyu === 'function' && typeof window.getAnalysis === 'function'){
+    try{
+      const A = window.getAnalysis(built.BZ);
+      const rels = [];
+      Object.keys(window.DUANYU||{}).forEach(cat=>{
+        (window.matchDuanyu(cat, built.BZ, A, {})||[]).forEach(x=>{
+          if(!x) return;
+          whenNames(x.when).forEach(n=>{ if(rels.indexOf(n) < 0) rels.push(n); });
+        });
+      });
+      if(rels.length) rows.push(['命局结构', '以八字同法看此四柱，命中结构见：'+rels.slice(0,6).join('、')+'。上文真典断语即自命中条中抽取，故断语讲的是结构，不是单看某一柱。']);
+    }catch(e){}
+  }
+
+  /* 五、考刻：讲六亲答卷如何收敛到正刻 */
+  if(answeredMain){
+    rows.push(['考刻', '父母、手足、婚姻三问合得考刻数，定位'+R.clockZhiName+Tieban.KE_NAMES[keStar]+'为正刻'+(ADOPT!=null&&ADOPT===keStar?'（已采用）':'（尚未采用）')+'。八刻同属一时辰而刻分不同，故三问是把八种可能收敛到一种，收敛之后六亲类条文方与事实相合。']);
+  }else{
+    rows.push(['考刻', '三主问尚未答齐，八刻皆有可能，条文只能按所选刻分取。答齐三问即收敛到正刻，六亲类条文随之重演。']);
+  }
+
+  /* 六、应运：讲现行大运这一层看什么 */
+  const curStep = R.dayun && R.dayun.steps ? R.dayun.steps.find(s=>xjNowDate().getFullYear()>=s.startYear&&xjNowDate().getFullYear()<=s.endYear) : null;
+  if(curStep){
+    rows.push(['应运', '现行'+curStep.gz+'运（'+curStep.startAge+'-'+curStep.endAge+' 岁，'+curStep.startYear+'-'+curStep.endYear+' 年）。大运看十年之体，流年看当年之用，运条年条须与本命结构合看，不可孤取一条定吉凶。']);
+  }else if(R.dayun && R.dayun.steps && R.dayun.steps.length){
+    rows.push(['应运', '现行年份不在已排八步大运之内，故只列运程框架，不指认当前一步。']);
+  }
+
+  return rows;
+}
+function plainHTML(){
+  if(!LAST) return '';
+  const rows = _tbPlainRows(LAST);
+  return '<h3 class="rel-title">白话解读</h3><table class="tb-tb tb-read"><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</tbody></table>';
+}
+/* ============ 河洛理数（邵雍先天数起卦，公开体系；卦辞爻辞易经真典） ============ */
+const YAO_NAME = ['初爻','二爻','三爻','四爻','五爻','上爻'];
+const YAO_POS = ['初','二','三','四','五','上'];
+function yaoCiOf(gName, yaoIdx){
+  /* 元堂爻辞真源：jingwen.js YAO_CI，键为卦名加初、二、三、四、五、上 */
+  if(typeof YAO_CI !== 'object' || !YAO_CI) return '';
+  return YAO_CI[gName + YAO_POS[yaoIdx-1]] || '';
+}
+function heLuoHTML(R){
+  if(typeof guaName !== 'function' || !window.TIEBAN_HEGU) return '';
+  const HL = Tieban.heLuoPan(R.ganSum, R.zhiSum);
+  const shangName = XT2NAME[HL.xianShang], xiaName = XT2NAME[HL.xianXia];
+  const gName = guaName(shangName, xiaName);
+  const hg = window.TIEBAN_HEGU.gua[gName] || {c:'', b:''};
+  const ci = guaCiOf(gName);
+  /* gua.js 约定：六爻 bits 自下而上，前三位为下卦、后三位为上卦 */
+  const bits6 = TRIGRAMS[xiaName].bits.concat(TRIGRAMS[shangName].bits);
+  const pi = typeof palaceInfo === 'function' ? palaceInfo(bits6) : null;
+  /* 双层元堂：铁板口径以皇极总数取爻（刻分参与，考刻改元堂改爻辞）；先天动爻为梅花法参考层 */
+  const yTie = (R.H % 6) || 6;
+  const yaoTie = yaoCiOf(gName, yTie);
+  const bitsT = bits6.slice(); bitsT[yTie-1] = bitsT[yTie-1] ? 0 : 1;
+  const gTie = guaName(trigramName(bitsT.slice(3,6)), trigramName(bitsT.slice(0,3)));
+  /* 先天动爻（梅花法）：卦数总数取爻 */
+  const bits2 = bits6.slice(); bits2[HL.dong-1] = bits2[HL.dong-1] ? 0 : 1;
+  const gName2 = guaName(trigramName(bits2.slice(3,6)), trigramName(bits2.slice(0,3)));
+  const guaFig = '<div class="gua-fig">'+bits6.map((b,i)=>{
+    const no = i+1;
+    const bars = b===1 ? '<span class="bar bar-yang"></span>' : '<span class="bar bar-yin"></span><span class="bar bar-yin"></span>';
+    return '<div class="gua-yao'+(no===yTie?' dong':'')+'">'+bars+'<span class="yao-lab">'+YAO_NAME[no-1]+'</span></div>';
+  }).reverse().join('')+'</div>';
+  let h = '<h3 class="rel-title">河洛理数（先天卦）</h3><table class="tb-tb"><tbody>';
+  h += '<tr><td>起数</td><td>天数（天干太玄和）'+HL.tian+'　地数（地支太玄和）'+HL.di+'　卦数总数 '+HL.total+'</td></tr>';
+  h += '<tr><td>先天卦</td><td>上卦 '+shangName+'（先天数 '+HL.xianShang+'，洛书数 '+HL.ls+'）　下卦 '+xiaName+'（先天数 '+HL.xianXia+'，洛书数 '+HL.lx+'）　得 <span class="gold-b">'+gName+'</span></td></tr>';
+  h += '<tr><td>卦象</td><td>'+guaFig+'</td></tr>';
+  h += '<tr><td>元堂爻辞</td><td>皇极总数 '+R.H+' 除六取余，元堂在'+YAO_NAME[yTie-1]+'，动而变之得变卦 '+gTie+'（'+guaCiOf(gTie).replace(/。$/,'')+'）'+(yaoTie?('　《易经》'+gName+YAO_POS[yTie-1]+'爻：'+yaoTie):'')+'</td></tr>';
+  h += '<tr><td>先天动爻</td><td>参考：梅花法以卦数总数 '+HL.total+' 除六取余，动爻在'+YAO_NAME[HL.dong-1]+'，动而变之得 '+gName2+'</td></tr>';
+  if(pi) h += '<tr><td>京房</td><td>'+pi.palace+'　'+pi.type+'卦　世在'+YAO_NAME[pi.world-1]+'、应在'+YAO_NAME[pi.ying-1]+'</td></tr>';
+  h += '<tr><td>卦辞</td><td>《易经》'+gName+'：'+ci+'　<span class="cite">白话整理：'+hg.b+'</span></td></tr>';
+  h += '</tbody></table>';
+  h += '<div class="sub-note">取数口径：本模块天数取四柱天干太玄和、地数取四柱地支太玄和，各除八取余直接配卦，不化简、不寄卦；河洛理数页另取纳甲之数并按奇偶分天数地数，以二十五、三十化简，两页为两套体系，各依本页所载之法，卦数不必相同。元堂取铁板口径以皇极总数除六取余；河洛理数本法以天地数与生时查元堂表，两法并列，详见河洛理数页。</div>';
+  return h;
+}
+/* ============ 渲染 ============ */
+function renderPan(){
+  const R = LAST;
+  const lunar = R.lunar;
+  const ly = lunar.getYearInChinese()+'年（'+lunar.getYearInGanZhi()+'）'+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()+'　生肖'+lunar.getYearShengXiao();
+  /* 基础信息 */
+  let h = '<div class="tb-lead"><h3 class="rel-title">基础信息</h3><table class="tb-tb"><tbody>';
+  h += '<tr><td>出生时刻</td><td><div class="tb-flow"><span>公历 '+R.Y+'-'+pad2(R.M)+'-'+pad2(R.D)+' '+pad2(R.h)+':'+pad2(R.mi)+'</span><span>'+ly+'</span><span>'+R.zhiName+R.keName+FENG_NAMES[R.feng]+'（'+R.keRange+'）</span></div></td></tr>';
+  h += '<tr><td>四柱</td><td><div class="tb-flow">'+R.pillars.map(p=>'<span><span class="gold-b">'+p.label+'</span> '+gzColorSpan(p.gz)+'　'+p.nayin+'</span>').join('')+'</div></td></tr>';
+  /* 钟面与盘面并示：钟面为用户所选时辰刻分，盘面为经折算与校正后的实际归属；
+     两者不同才出此两行，相同则只出钟面一行，免得读作两回事。 */
+  const clockSame = (R.clockZhiIdx===R.zhiIdx && R.clockKe===R.ke);
+  h += '<tr><td>钟面时刻</td><td>'+R.clockZhiName+R.clockKeName+'（'+R.clockRange+'）'+(R.clockFeng!==R.feng?('　分金 '+FENG_NAMES[R.clockFeng]):'')+'</td></tr>';
+  if(!clockSame) h += '<tr><td>盘面归属</td><td>'+R.zhiName+R.keName+'（'+R.keRange+'）　分金 '+FENG_NAMES[R.feng]+'　按折算与校正后的时刻所归</td></tr>';
+  if(R.dstNote) h += '<tr><td>夏令时</td><td>'+R.dstNote+'。</td></tr>';
+  if(R.usedTrue) h += '<tr><td>太阳时</td><td>按出生地经度 '+R.lng+' 校正 '+R.adj+' 分钟（均时差 '+R.adjE+'、经度差 '+R.adjLng+'），校正后 '+pad2(R.h)+':'+pad2(R.mi)+'，实际归属 '+R.zhiName+R.keName+'。'+(R.sunMode==='mean'?'（平太阳时口径，均时差未计）':'')+'</td></tr>';
+  if(R.ziNote) h += '<tr><td>子时口径</td><td>'+R.ziNote+'。</td></tr>';
+  if(R.yearNote) h += '<tr><td>年界口径</td><td>'+R.yearNote+'。</td></tr>';
+  h += '</tbody></table></div>';
+  /* 数理推演 */
+  h += '<h3 class="rel-title">数理推演</h3><table class="tb-tb"><tbody>';
+  R.pillars.forEach(p=>{
+    h += '<tr><td>'+p.label+'</td><td>'+gzColorSpan(p.gz)+'　干 '+p.gz.charAt(0)+'='+p.txGan+'、支 '+p.gz.charAt(1)+'='+p.txZhi+'，柱数 '+p.txSum+'，纳音 '+p.nayin+'</td></tr>';
+  });
+  h += '<tr><td>化数总数</td><td>天干和 '+R.ganSum+'　地支和 '+R.zhiSum+'　总计 '+R.total+'</td></tr>';
+  h += '<tr><td>刻分</td><td>'+R.zhiName+R.keName+FENG_NAMES[R.feng]+'　刻序 '+R.ke+'（'+R.bagua+'）乘十五加分金序 '+R.feng+'，得刻分序 '+R.keSeq+'</td></tr>';
+  h += '<tr><td>刻分修正数</td><td>'+R.keFix+'（刻分序加一，一刻十五分金、每分金一分钟，全时辰一百二十档自 1 至 120 各得一数）</td></tr>';
+  h += '<tr><td>皇极总数</td><td><span class="gold-b">'+R.H+'</span>　= 化数总数 '+R.total+' + 刻分修正数 '+R.keFix+'</td></tr>';
+  h += '</tbody></table>';
+  /* 河洛理数 */
+  h += heLuoHTML(R);
+  /* 真典断语（bazi-duanyu.js 真源复用） */
+  h += zhenDianHTML(R);
+  /* 考时定刻 */
+  h += '<h3 class="rel-title">考时定刻（六亲考刻）</h3>'+quizHTML()+keTableHTML();
+  /* 条文抽演 */
+  h += '<h3 class="rel-title">条文抽演</h3>'+twCardsHTML();
+  /* 大运流年 */
+  h += '<h3 class="rel-title">大运流年</h3>'+dyHTML();
+  /* 白话解读 */
+  h += plainHTML();
+  document.getElementById('out').innerHTML = h;
+  fitCiteCols();
+}
+/* ============ 起盘 ============ */
+function query(){
+  try{
+    KE_YAN = null; KE_ROWS = [];
+    const v = document.getElementById('dInput').value;
+    if(!v || !/^\d{4}-\d{1,2}-\d{1,2}$/.test(v)){ document.getElementById('out').innerHTML='<p class="notice">请先选择出生日期（公历）。铁板神数以刻分入数，时辰与刻分不可缺。</p>'; return; }
+    const parts = v.split('-').map(Number);
+    const y = parts[0], m = parts[1], d = parts[2];
+    if(!y || !m || !d){ document.getElementById('out').innerHTML='<p class="notice">日期格式不正确，请重新选择。</p>'; return; }
+    /* 太阳时开而未定出生地即拦在起盘之前（与八字、合婚、紫微三页同口径）：没有经度就无从校正，
+       免下拉标着真太阳时而出的是钟面时。 */
+    if(readSunMode()!=='off' && resolveLng()==null){ document.getElementById('out').innerHTML='<p class="notice">'+TB_NO_PLACE_MSG+'</p>'; return; }
+    const zhiH = parseInt(document.getElementById('hInput').value,10);
+    const keIn = parseInt(document.getElementById('kInput').value,10);
+    const sex = document.getElementById('sexInput').value;
+    const ke = (ADOPT!=null) ? ADOPT : keIn;
+    readAnswers();
+    const R = Tieban.compute(y, m, d, zhiH, ke, sex, readOpts());
+    LAST = R;
+    renderPan();
+  }catch(e){
+    document.getElementById('out').innerHTML = '<p class="notice">起盘出错：'+(e&&e.message?e.message:e)+'</p>';
+  }
+}
+/* ============ 出生地三级联动（经纬真源 latlng.js，模式与八字页一致） ============ */
+function buildPlace(){
+  const sp=document.getElementById('bProv'), sc=document.getElementById('bCity'), sd=document.getElementById('bDist');
+  const tzSel=document.getElementById('bTzOff');
+  if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
+  TB_PLACE = fillPlaceTrio(sp, sc, sd, ()=>{ tbSyncOverseas(); if(LAST) query(); });
+  sd.addEventListener('change', ()=>{ if(LAST) query(); });
+  tbSyncOverseas();
+}
+/* 经度取数：手动优先，其次出生地三级；两地皆未定则无经度可校，返回空。
+   不回退任一默认经度：按别人的经度折出来的校正量不著来历，与未校正是两回事。 */
+function resolveLng(){
+  const v = document.getElementById('bLng').value;
+  if(v.trim() !== '' && isFinite(Number(v))) return parseFloat(v);
+  return findLng(document.getElementById('bProv').value, document.getElementById('bCity').value, document.getElementById('bDist').value);
+}
+/* ============ 链接参数回填 ============ */
+function applyLinkParams(){
+  const p = new URLSearchParams(location.search);
+  if(p.get('fromBazi')!=='1') return false;
+  const bd = p.get('bDate')||'', bt = p.get('bTime')||'';
+  if(!/^\d{4}-\d{1,2}-\d{1,2}$/.test(bd)) return false;
+  document.getElementById('dInput').value = bd;
+  let hh = 12, mm = 0;
+  const mt = bt.match(/^(\d{1,2}):(\d{1,2})/);
+  if(mt){ hh = parseInt(mt[1],10); mm = parseInt(mt[2],10); }
+  const zk = Tieban.zhiKeOfAbsMin(hh*60+mm);
+  document.getElementById('hInput').value = String(zk.zhiH);
+  rebuildKeOptions();
+  document.getElementById('kInput').value = String(zk.ke);
+  const sx = p.get('sex'); if(sx==='男'||sx==='女') document.getElementById('sexInput').value = sx;
+  /* 出生地：省市区县逐级回填（latlng.js 真源），经度优先用联动直传值 */
+  const pv = p.get('bProv'), ct = p.get('bCity'), ds = p.get('bDist');
+  if(pv && TB_PLACE) TB_PLACE.set(pv, ct, ds);
+  const lng = p.get('bLng');
+  if(lng && isFinite(Number(lng))) document.getElementById('bLng').value = lng;
+  /* 时刻折算口径随八字页联动值回填；未带值者按本页缺省（不校正、自动夏令时、立春、晚子、时辰折算） */
+  const sun = p.get('bSun');
+  if(sun==='true'||sun==='mean'||sun==='off') document.getElementById('sunInput').value = sun;
+  else if(p.get('bTrue')==='0') document.getElementById('sunInput').value = 'off';
+  const dst = p.get('bDst');
+  if(dst==='auto'||dst==='on'||dst==='off') document.getElementById('dstInput').value = dst;
+  const yax = p.get('bYearAxis');
+  if(yax==='lichun'||yax==='chunjie'||yax==='dongzhi') document.getElementById('yearInput').value = yax;
+  const zim = p.get('bZi');
+  if(zim==='late'||zim==='early') document.getElementById('ziInput').value = zim;
+  const qys = p.get('bQiYun');
+  if(qys==='1'||qys==='2') document.getElementById('qyInput').value = qys;
+  return true;
+}

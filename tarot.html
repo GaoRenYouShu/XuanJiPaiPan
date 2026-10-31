@@ -26,19 +26,273 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/tarot.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/comp-mid.css">
-<link rel="stylesheet" href="assets/css/tarot.css">
+.xj-search-out:empty{display:none}
+
+.xj-only-has:empty{display:none}
+
+@media print{
+.data-export-hide{display:none !important}
+}
+
+body{--footer-ink:#3a2d6e}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+#out + *{margin-top:var(--sp-4)}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-tr .btn:not(.soft):not(.btn-ghost),.page-tr .btn.gold{background:var(--tr);border-color:var(--tr);color:#fff;box-shadow:none}
+
+.page-tr .cx-frame{--cxw:140px;display:grid;grid-template-columns:repeat(4,var(--cxw));grid-template-rows:repeat(4,auto);gap:var(--sp-3);justify-content:center}
+
+.page-tr .cx-crosser .tt-num,.page-tr .cx-crosser .tt-en,.page-tr .cx-crosser .tt-ori{display:none}
+
+#trMask{position:fixed;inset:0;background:rgba(20,12,32,.58);display:none;align-items:center;justify-content:center;z-index:99;padding:var(--sp-3)}
+
+@media(max-width:760px){
+.page-tr .cx-frame{--cxw:min(108px,calc((100vw - 80px)/3));grid-template-columns:repeat(3,var(--cxw));gap:var(--sp-2)}
+
+.page-tr .page > .form-row{gap:var(--sp-2)}
+
+.page-tr .page > .form-row .field{flex:1 1 100%;min-width:0;max-width:none}
+
+.page-tr .page > .form-row .field select,.page-tr .page > .form-row .field input{width:100%}
+
+.page-tr .page > .form-row .btn{flex:1 1 100%}
+
+.page-tr .page > .form-row .field:has(#spread){flex:0 1 auto;width:auto}
+
+.page-tr .page > .form-row .field:has(#spread) select{width:auto;max-width:100%}
+}
+
+@media print{
+#trMask{display:none!important}
+}
+
+.page-tr .page h1{color:var(--tr-deep);font-family:var(--tr-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-tr .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--tr-line);margin:0 auto var(--sp-3)}
+
+.page-tr .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--tr-line);margin:var(--sp-3) auto 0}
+
+.page-tr .page .lead::after{background:var(--tr-line)}
+
+.page-tr .page .lead{color:var(--tr-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-tr .page > .form-row .field label{color:var(--tr2);font-weight:400}
+
+.page-tr .page > .form-row .field input,.page-tr .page > .form-row .field select{border-color:var(--tr-line);transition:border-color .15s}
+
+.page-tr .page > .form-row .field input:focus,.page-tr .page > .form-row .field select:focus{border-color:var(--tr);outline:none}
+
+.page-tr .page > .form-row .btn.gold{background:var(--tr);border-color:var(--tr);box-shadow:none}
+
+.page-tr .page > .form-row .btn.gold:hover{background:var(--tr2);border-color:var(--tr2);box-shadow:none}
+
+.page-tr .ai-block{
+  border:0;border-top:1px solid var(--tr-line);border-bottom:1px solid var(--tr-line);border-radius:0;
+  background:transparent;color:var(--tr-ink);box-shadow:none;
+}
+
+.page-tr .ai-head{background:transparent;border-bottom-color:var(--tr-line)}
+
+.page-tr .ai-head h3{color:var(--tr2)}
+
+.page-tr .ai-block .btn{background:var(--tr);color:#fff}
+
+.page-tr .ai-block .btn:hover{background:var(--tr2)}
+
+.page-tr .ai-block .btn.gold,.page-tr .ai-block .btn.soft{background:var(--tr-tint);border-color:var(--tr-line);color:var(--tr-ink);box-shadow:none}
+
+.page-tr .ai-block .btn.gold:hover,.page-tr .ai-block .btn.soft:hover{background:var(--card);border-color:var(--tr-line);color:var(--tr2)}
+
+@media (prefers-color-scheme: dark){
+html .page-tr {
+    --tr:#6e5bba;
+    --tr2:#a99ae0;
+    --tr-deep:#d7d5e2;
+    --tr-ink:#cfcdd5;
+    --tr-starlight:#9a86c4;
+    --tr-line:#453e50;
+    --tr-tint:#241e2e;
+    --tr-ink2:#9f9cab;
+  }
+
+.page-tr .tr-name,.page-tr .tr-sym,.page-tr .tt-name {
+    color:#b9a8d8;
+  }
+}
+
+.page-tr{
+  --tr:#4a3a8a;          /* 玄紫主色 */
+  --tr2:#3a2d6e;         /* 深玄紫：hover与强调 */
+  --tr-deep:#241c4a;     /* 玄墨：大标题字色 */
+  --tr-ink:#37334a;      /* 玄灰墨：正文字色 */
+  --tr-starlight:#9a86c4;/* 星芒亮紫（装饰用） */
+  --tr-line:#ddd6e8;     /* 玄紫浅线 */
+  --tr-tint:#f3f0f9;     /* 玄紫淡底 */
+  --tr-ink2:#554f6d;  /* 次级字色：卷首说明、副注、标注 */
+  --tr-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  --gold2:var(--tr2); --gold:var(--tr); --gold-brown:var(--tr2); --gold-bg:var(--tr-tint);
+  --line:var(--tr-line);--ink:var(--tr-ink)
+}
+
+.dtm-tr{--tk:#4a3a8a;--tk2:#3a2d6e;--tk-ink:#37334a;--tk-line:#ddd6e8;--tk-tint:#f3f0f9}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/tarot-0.woff2) format("woff2");unicode-range:U+0020-007e, U+2026, U+3000, U+3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0e, U+4e11, U+4e19-4e1a, U+4e4b, U+4e50, U+4e59, U+4e5d, U+4e8b-4e8c, U+4e8f, U+4e94, U+4ea5, U+4ec5, U+4f53, U+4f9b, U+4fd7, U+4fe1, U+5148, U+5165, U+516b-516d, U+5171, U+5173, U+519c, U+51ac, U+51f8, U+5206, U+521d, U+529f-52a0, U+52ff, U+5316, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+539f, U+53bb, U+53c2, U+53d1, U+53d6, U+53ef, U+540c, U+547d, U+56db, U+56fe, U+5728, U+5854, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5973, U+5982, U+5a31, U+5b50, U+5b9a, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c45, U+5c55, U+5df1, U+5df3, U+5e74, U+5e93, U+5e9a, U+5ea7, U+5eff-5f00, U+5f0f, U+5f20, U+5f26, U+5f55, U+5f85, U+60ca, U+60f3, U+620a, U+620c, U+6210, U+6240, U+6279, U+62bd, U+62e9, U+636e, U+6392, U+63d0, U+6570, U+6587, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+6765, U+679c, U+6b63, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d17, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7248, U+724c, U+7279, U+7334, U+7384, U+73b0, U+7406, U+751f, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7709, U+770b, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+7a76, U+7acb, U+7b97, U+7cfb, U+7ed3, U+7f57, U+7f6e, U+7f8a, U+8003, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+86c7, U+86f0, U+86fe, U+8bbe, U+8be6, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fc7, U+8fd0-8fd1, U+8ff7, U+9009, U+9149, U+914d, U+9519, U+95ed-95ee, U+95f0, U+95f4, U+9635, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9762, U+97e6, U+9875, U+9996, U+9a6c, U+9e21, U+9ed8, U+9f99, U+ff08-ff09, U+ff0c, U+ff1a}
+
+body:has(.page-tr) .scroll-jump:not(.show){display:none}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/tarot-0.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/tarot.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/tarot.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -102,7 +356,7 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-tr">
+<div class="wrap page-tr" data-built="2026-10-30">
   <div class="page" data-xj-engine="tarot">
     <h1>塔罗牌</h1>
     <div class="lead">韦特体系 78 张塔罗原版牌图，默想所问之事选牌阵抽牌，点牌面看详批。</div>
@@ -121,367 +375,34 @@
       <button class="btn gold" onclick="draw()">洗牌抽牌</button>
     </div>
     <div id="out"></div>
-  </div>
+  <div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled>停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    </div>
+  </details></div></div>
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
 <div id="trMask" onclick="if(event.target===this)trClose()"><div class="tr-modal" id="trModalBox"></div></div>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/ai.js"></script>
-<script>
-/* 牌阵位次与位义：role 供位×牌合断（state 状态/past 过去/future 走向/block 阻碍/advice 建议/
-   under 潜层/env 外因/self 自身/other 对方/result 结果/guide 指引），cross 标记凯尔特十字专用布局类 */
-const POS={
-  '1':[{pos:'指引',role:'guide',desc:'当前最该留意的课题与指引'}],
-  '3':[{pos:'过去',role:'past',desc:'事情形成的来由、已经过去的影响'},{pos:'现在',role:'state',desc:'你当下的处境与能量状态'},{pos:'未来',role:'future',desc:'若顺其自然、不做改变可能走向的结果'}],
-  '3s':[{pos:'现状',role:'state',desc:'眼前的客观情形'},{pos:'阻碍',role:'block',desc:'当前挡在面前的困难或内在卡点'},{pos:'建议',role:'advice',desc:'牌面建议你采取的态度或行动'}],
-  '5':[{pos:'现状',role:'state',desc:'眼前的客观情形'},{pos:'挑战',role:'block',desc:'需要面对的考验'},{pos:'潜在',role:'under',desc:'尚未显现、正在酝酿的因素'},{pos:'外部影响',role:'env',desc:'来自外界、他人或环境的作用力'},{pos:'结果',role:'result',desc:'综合发展可能落到的结局'}],
-  'rel':[{pos:'我',role:'self',desc:'你在关系中的状态与姿态'},{pos:'对方',role:'other',desc:'对方在关系中的状态与姿态'},{pos:'关系',role:'state',desc:'两人之间的连接与互动基调'},{pos:'阻碍',role:'block',desc:'关系当前的难点与功课'},{pos:'走向',role:'future',desc:'若维持现状关系可能的走向'}],
-  '10':[{pos:'现状',role:'state',desc:'核心处境与问题本质',cls:'cx-mid'},{pos:'交汇',role:'block',desc:'横跨现状的直接影响或挑战',cls:'cx-crosser'},{pos:'根源',role:'under',desc:'潜意识根基，你所不知的底层因素',cls:'cx-below'},{pos:'过去',role:'past',desc:'正在退去的影响',cls:'cx-past'},{pos:'冠冕',role:'future',desc:'目标、理想或可达成的高度',cls:'cx-above'},{pos:'未来',role:'future',desc:'即将到来的发展',cls:'cx-future'},{pos:'自己',role:'self',desc:'你的态度与自我期许',staff:true},{pos:'环境',role:'env',desc:'他人与外部环境的氛围影响',staff:true},{pos:'期望恐惧',role:'under',desc:'内在的期望与恐惧',staff:true},{pos:'结果',role:'result',desc:'十张综合指向的最终走向',staff:true}]
-};
-/* 位×牌合断：位置角色 × 牌面吉凶基调（1 吉 0 中 -1 滞）组合成一句断语 */
-const COMBO={
-  guide:{1:'此牌为当前明确的通行信号，念起即动',0:'信号中性，宜观察一轮再动','-1':'此牌是叫停或转向的信号，宜缓'},
-  past:{1:'来处有光，旧日积累仍是本钱',0:'往事平叙，影响渐淡','-1':'旧事余波未平，宜先了结根源'},
-  state:{1:'现状与牌义相成，势头正可用',0:'现状平稳，牌义提示留意变量','-1':'现状承压，牌面照见症结所在'},
-  future:{1:'前景向明，顺流可期',0:'前路未定，走向随当下的选择而变','-1':'前景有阻，宜提前布局规避'},
-  block:{1:'阻碍中藏生机，此位得此牌反是转机',0:'卡点不重，属可协商的摩擦','-1':'卡点确实棘手，先解结再图进'},
-  advice:{1:'牌面赞成推进，宜果断执行',0:'宜观望评估，择机而动','-1':'宜收敛调整，勿沿旧路硬推'},
-  under:{1:'底层藏着尚未察觉的助力',0:'潜层信息未明，宜先自省','-1':'潜意识藏有隐忧或旧创，正待照见'},
-  env:{1:'外部环境于你有助，可借势',0:'环境影响中性，风向未定','-1':'外部压力不小，宜减少消耗'},
-  self:{1:'你的姿态与能量正处于佳位',0:'你的态度决定走向，先安顿自己','-1':'当下自我消耗较大，宜先照顾自己'},
-  other:{1:'对方姿态开放，互动可期',0:'对方态度含蓄，宜直接沟通','-1':'对方有所保留，或自顾不暇'},
-  result:{1:'结局偏顺，可安心收官',0:'结局平顺中有保留，落点取决于过程','-1':'结局偏滞涩，宜调整路径再收束'}
-};
-/* 跨位因果呼应：每个牌阵取关键位对，以两牌吉凶基调（1 吉 0 中 -1 滞）组合出对照断语 */
-const ECHO={
-  '3':[['过去','未来','因与果']],
-  '3s':[['现状','建议','处境与出路']],
-  '5':[['现状','结果','开局与结局'],['挑战','结果','卡点与结局']],
-  'rel':[['我','对方','两造之势'],['关系','走向','当下与走向']],
-  '10':[['根源','结果','潜因与结局'],['现状','未来','现状与走向'],['过去','未来','来处与去处']]
-};
-const ECHO_MAT={
-  '11':'两处同调向好，前因正滋养后果，事势相承，可乘势而行',
-  '10':'起处吉而落点未定，主动权仍在手中，宜明确目标再推进',
-  '1-1':'起处有光而落点受阻，提示中段变量，宜守成防回落',
-  '01':'起处未定而落点向好，方向渐明，宜稳中求进',
-  '00':'两处俱平，事态不受强力牵引，落点由当下作为而定',
-  '0-1':'起处平缓而落点走滞，宜提前布防，勿等事到临头',
-  '-11':'起处有滞而落点转明，先难后成之象，耐心化解可期',
-  '-10':'起处有阻而落点未定，需先了结旧结，方能腾出手来',
-  '-1-1':'两处皆滞，旧结未解又添新题，宜先断根源再图后进'
-};
-/* 元素成势语义表：按元素给出主导全局时的基调与提醒 */
-const EL_DOM={
-  火:'火势成局，行动、热情与冲劲主导全局，宜顺势急进，忌散乱无章',
-  水:'水势成局，情感、直觉与关系主导全局，宜以情驭事，忌沉溺犹疑',
-  风:'风势成局，思维、沟通与信息主导全局，宜谋定后动，忌空谈多变',
-  土:'土势成局，实务、资源与积累主导全局，宜稳扎稳打，忌保守迟滞'
-};
-/* 元素缺失语义表：四元素中全阵未出现者，其对应领域能量未被调动 */
-const EL_LACK={
-  火:'缺火：行动与热情未入局，事态偏于被动等待',
-  水:'缺水：情感与直觉未入局，宜防关系疏离或理智过刚',
-  风:'缺风：思维与沟通未入局，宜防闭门造车或信息不畅',
-  土:'缺土：实务与资源未入局，宜防计划落空或根基不稳'
-};
-/* 三牌连判语义表（黄金黎明 Book T）：中牌由紧邻两侧共判 */
-const TRIAD={
-  tri:'三张同气，中牌至强，此位能量贯注，其象最为鲜明',
-  strong:'两侧俱相生，中牌得双力夹持，此位能量显著增强，其显化最为直接',
-  weak:'两侧俱相冲，中牌陷双力相抵，此位能量显著削弱，宜缓行或借外力破局',
-  lone:'两侧彼此相斥，中牌不受牵引而独立自持，此位显的是事情本然之相',
-  link:'一侧相生一侧相冲，相生侧为连接之桥，中牌不失其用而略有倚重'
-};
-/* 中性异类对的规范写法：火土、风水在现代通行口径为中性，Book T 列为相友，此表仅用于流派标注去重 */
-const ALT_PAIR={'火土':'火土','土火':'火土','风水':'风水','水风':'风水'};
-/* 邻接关系：默认按牌阵位序相邻；凯尔特十字为十字加杖布局，相邻按几何对（中心四向加杖部线性） */
-const ADJ={'10':[[0,1],[0,2],[0,3],[0,4],[0,5],[6,7],[7,8],[8,9]]};
-/* 三牌连判的中间位索引：凯尔特十字仅杖部为线性叙事，故只判杖部 */
-const TRI_IDX={'10':[7,8]};
-/* 最近一次抽牌的完整状态（问题、牌阵、结果），分享与连判共用 */
-let LAST=null;
-/* 元素成势：满三张且为全阵唯一最多者为全局主导，至多一元素成局，不会双主并列 */
-function domLines(picks){
-  const cnt={火:0,水:0,风:0,土:0},n=picks.length;
-  picks.forEach(p=>{ if(p.card.el) cnt[p.card.el]++; });
-  const mx=Math.max(cnt.火,cnt.水,cnt.风,cnt.土);
-  const tops=['火','水','风','土'].filter(e=>cnt[e]===mx);
-  if(mx<3||tops.length!==1) return [];
-  const e=tops[0];
-  return [`${e}元素 ${cnt[e]} 张(${Math.round(cnt[e]/n*100)}%)，${EL_DOM[e]}`];
-}
-/* 跨位呼应断语：按角色取关键位对，两牌基调组合出对照句 */
-function echoLines(picks,sp){
-  const out=[];
-  (ECHO[sp]||[]).forEach(pr=>{
-    const a=picks.find(x=>x.pos===pr[0]),b=picks.find(x=>x.pos===pr[1]);
-    if(!a||!b) return;
-    const ta=a.rev?(a.card.toneR||0):(a.card.tone||0);
-    const tb=b.rev?(b.card.toneR||0):(b.card.tone||0);
-    const s=ECHO_MAT[''+ta+tb];
-    if(s) out.push(`${pr[2]}：${pr[0]}《${a.card.name}》对${pr[1]}《${b.card.name}》，${s}`);
-  });
-  return out;
-}
-/* Fisher-Yates 洗牌 */
-function shuffle(a){ return xjShuffle(a); }
-function draw(){
- try{
-  const sp=document.getElementById('spread').value;
-  const layout=POS[sp];
-  const majorOnly=(sp==='1');
-  const deck=shuffle(buildTarotDeck(majorOnly).slice());
-  const picks=layout.map(o=>({card:deck.pop(),rev:Math.random()<0.5,pos:o.pos,desc:o.desc,role:o.role||'state',cls:o.cls||'',staff:!!o.staff}));
-  renderSpread(picks,sp);
- }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
-}
-/* 最近一次抽牌：刷新与分享还原共用一份，牌序与正逆原样回填，不重洗 */
-const TAROT_LAST_KEY='tarot_last_v1';
-function tarotSaveLast(){
- if(!LAST) return;
- try{ localStorage.setItem(TAROT_LAST_KEY,JSON.stringify({sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))})); }catch(e){}
-}
-function tarotRestore(d){
- if(!d||!d.sp) return false;
- const layout=POS[d.sp]; if(!layout||!Array.isArray(d.picks)) return false;
- const sel=document.getElementById('spread'); if(sel) sel.value=d.sp;
- const q=document.getElementById('question'); if(q&&d.q) q.value=d.q;
- const deck=buildTarotDeck(false);
- const byId={}; deck.forEach(c=>byId[c.id]=c);
- const picks=d.picks.map((x,i)=>({card:byId[x.id],rev:x.rev==='1',pos:layout[i]?layout[i].pos:'',desc:layout[i]?layout[i].desc:'',role:layout[i]?(layout[i].role||'state'):'state',cls:layout[i]?(layout[i].cls||''):'',staff:layout[i]?!!layout[i].staff:false})).filter(p=>p.card);
- if(!picks.length) return false;
- renderSpread(picks,d.sp);
- return true;
-}
-/* 牌图加载失败兜底：回退为花色符号 */
-function trImgFallback(el,sym){ el.outerHTML='<span class="tr-sym">'+sym+'</span>'; }
-/* 位×牌合断一句 */
-function comboLine(p){
-  const t=p.rev?(p.card.toneR||0):(p.card.tone||0);
-  return (COMBO[p.role]&&COMBO[p.role][t])||'';
-}
-/* 是、否倾向由吉凶基调推导 */
-function ynOf(p){ const t=p.rev?(p.card.toneR||0):(p.card.tone||0); return t===1?'是否：偏是':t===-1?'是否：偏否':'是否：未定'; }
-function cardFace(p,idx){
- const c=p.card;
- const num=(c.num&&c.num!=='0')?`<div class="tr-num">${c.num}</div>`:'';
- const court=c.court?`<div class="tr-court">${c.court}</div>`:'';
- return `<div class="tr-card ${p.rev?'rev':''}" onclick="trOpen(${idx})">
-  <div class="tr-pos">${p.pos}</div>
-  <div class="tr-face">
-    <img class="tr-img" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" loading="lazy" onerror="trImgFallback(this,'${c.sym||'✦'}')">
-    ${num}${court}
-    <div class="tr-badge">${c.type}${c.el?('（'+c.el+'）'):''}</div>
-    <div class="tr-name">${c.name}</div>
-    <div class="tr-en">${c.en}</div>
-    <div class="tr-ori">${p.rev?'逆位 ▼':'正位 ▲'}</div>
-  </div>
-  <div class="tr-mean">
-    <div class="tr-combo">${comboLine(p)}</div>
-    <div class="tr-core">${p.rev?c.rev:c.up}</div>
-    <div class="tr-meta">${c.astro}，${p.rev?(c.timeR||c.time):c.time}，${ynOf(p)}</div>
-  </div>
- </div>`;
-}
-/* 凯尔特十字固定小牌：只含位次、牌图、牌名、正逆，牌义在详断表 */
-function tileFace(p,idx){
- const c=p.card;
- const num=(c.num&&c.num!=='0')?`<div class="tt-num">${c.num}</div>`:'';
- const court=c.court?`<div class="tt-court">${c.court}</div>`:'';
- return `<div class="tr-tile ${p.cls} ${p.rev?'rev':''}" onclick="trOpen(${idx})">
-  <div class="tt-pos">${p.pos}</div>
-  <div class="tt-face">${num}${court}<img class="tt-img" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" loading="lazy" onerror="trImgFallback(this,'${c.sym||'✦'}')"><div class="tt-name">${c.name}</div><div class="tt-en">${c.en}</div><div class="tt-ori">${p.rev?'逆 ▼':'正 ▲'}</div></div>
- </div>`;
-}
-/* 十张详断表：位次、牌、牌义与位义、合断 */
-function cxDetail(picks){
- const rows=picks.map((p,i)=>`<tr onclick="trOpen(${i})"><td class="cx-p">${p.pos}</td><td class="cx-c">${p.card.name}<span class="cx-o ${p.rev?'r':''}">${p.rev?'逆位':'正位'}</span><br><span class="cx-en">${p.card.en}</span></td><td>${p.rev?p.card.rev:p.card.up}<br><span class="cx-d">位义：${p.desc}</span><br><span class="cx-d">合断：${comboLine(p)}</span></td></tr>`).join('');
- return `<table class="cx-detail"><thead><tr><th>位次</th><th>牌</th><th>牌义与位义</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-function renderSpread(picks,sp){
- window._TR_PKS=picks;
- const layoutName=document.getElementById('spread').selectedOptions[0].text;
- const isCross=(sp==='10');
- let cardsHtml='';
- if(isCross){
-   const cross=picks.slice(0,6).map(tileFace).join('');
-   const staff=picks.slice(6,10).map(tileFace).join('');
-   cardsHtml=`<div class="cx-frame">${cross}<div class="cx-staff">${staff}</div></div>`+cxDetail(picks);
- }else{
-   cardsHtml=`<div class="tr-spread">${picks.map(cardFace).join('')}</div>`;
- }
- document.getElementById('out').innerHTML=`
-   ${cardsHtml}
-   ${tarotRead(picks,sp)}
-   <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图，取自 Wikimedia Commons。</div>`;
- LAST={q:document.getElementById('question').value,sp:layoutName,key:sp,picks};
- tarotSaveLast();
-}
-/* 元素尊贵：同气相强，火风、水土相生互旺，水火、土风相冲互削，余者（火土、风水）中性。
-   流派并列：黄金黎明 Book T 以火亲土、风亲水为相友而互强，现代通行作中性，此处以中性为主口径，断语处两说并列备参 */
-function elRel(a,b){
- if(a===b) return ['强','同气连枝，两牌效力彼此加强'];
- const k=[a,b].sort().join('');
- if(k==='火风'||k==='土水') return ['强','相生互旺，两牌效力叠加'];
- if(k==='水火'||k==='土风') return ['弱','相冲互削，两牌效力相抵'];
- return ['中','一攻一守，中性互补'];
-}
-/* 元素缺失：全阵未出现的元素，其对应领域能量未被调动，三张起报 */
-function lackLines(picks){
- if(picks.length<3) return [];
- const cnt={火:0,水:0,风:0,土:0};
- picks.forEach(p=>{ if(p.card.el) cnt[p.card.el]++; });
- return ['火','水','风','土'].filter(e=>cnt[e]===0).map(e=>EL_LACK[e]);
-}
-/* 三牌连判：按邻接序逐组取三张，中牌由两侧共判；两侧互斥则中牌独立自持，中性与单侧相斥不报。
-   中间位索引由调用方给定，缺省取全阵线性中间位（凯尔特十字仅杖部为线性叙事，故只判杖部） */
-function triadLines(picks,midIdx){
- const out=[];
- const idxs=midIdx||picks.map((_,i)=>i).slice(1,-1);
- for(const i of idxs){
-  const le=picks[i-1].card.el,ce=picks[i].card.el,re=picks[i+1].card.el;
-  if(!le||!ce||!re) continue;
-  let k=null;
-  if(le===ce&&ce===re) k='tri';
-  else if(elRel(le,re)[0]==='弱') k='lone';
-  else{
-   const cl=elRel(le,ce)[0],cr=elRel(re,ce)[0];
-   if(cl==='强'&&cr==='强') k='strong';
-   else if(cl==='弱'&&cr==='弱') k='weak';
-   else if(cl!=='中'&&cr!=='中') k='link';
-  }
-  if(k) out.push(`${picks[i].pos}《${picks[i].card.name}》${TRIAD[k]}`);
- }
- return out;
-}
-/* 牌面详批弹窗：关键词、总义、四领域牌义、占星、时间、是否与位次信息 */
-function trOpen(i){
- const p=(window._TR_PKS||[])[i]; if(!p) return;
- const c=p.card;
- const kw=p.rev?c.kwr:c.kw;
- document.getElementById('trModalBox').innerHTML=`
-  <div class="tm-close" onclick="trClose()">×</div>
-  <div class="tm-head">
-   <img class="tm-img ${p.rev?'rev':''}" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" onerror="this.style.display='none'">
-   <div class="tm-b">
-    <h3>${c.name} <span class="tm-en">${c.en}</span></h3>
-    <div class="tm-tags"><span>${c.type}${c.el?('（'+c.el+'）'):''}</span><span>占星：${c.astro}</span><span>${ynOf(p)}</span></div>
-    <p class="tm-time"><b>时间指引：</b>${p.rev?(c.timeR||c.time):c.time}</p>
-    <p class="tm-kw"><b>${p.rev?'逆位关键词':'正位关键词'}</b>：${kw.join('、')}</p>
-    <p class="tm-core"><b>${p.rev?'逆位总义':'正位总义'}</b>：${p.rev?c.rev:c.up}</p>
-   </div>
-  </div>
-  <div class="tm-grid">
-   <div class="tm-dom"><h4>恋爱</h4><p>${p.rev?c.loveR:c.love}</p></div>
-   <div class="tm-dom"><h4>事业</h4><p>${p.rev?c.workR:c.work}</p></div>
-   <div class="tm-dom"><h4>财运</h4><p>${p.rev?c.wealthR:c.wealth}</p></div>
-   <div class="tm-dom"><h4>健康</h4><p>${p.rev?c.healthR:c.health}</p></div>
-  </div>
-  <div class="tm-pos"><b>位次</b>：${p.pos}　${p.desc||''}</div>`;
- document.getElementById('trMask').classList.add('on');
-}
-function trClose(){ document.getElementById('trMask').classList.remove('on'); }
-/* 综合判断（表格版，对齐雷诺曼 ln-table 体例）：牌阵连贯、本阵统计、整体基调、元素尊贵、元素成势、跨位呼应、大阿卡纳提示与提醒逐行进表 */
-function tarotRead(picks,sp){
- let upN=0,revN=0,majorN=0;
- const elCnt={火:0,水:0,风:0,土:0}, suitCnt={};
- picks.forEach(p=>{
-   if(p.rev)revN++;else upN++;
-   if(p.card.type==='大阿卡纳')majorN++;
-   if(p.card.el)elCnt[p.card.el]++;
-   suitCnt[p.card.type]=(suitCnt[p.card.type]||0)+1;
- });
- const n=picks.length;
- const cue=p=>p.rev?'（逆位，宜内省调整）':'（正位，宜顺势而为）';
- const narr=picks.map(p=>`${p.pos}《${p.card.name}》${cue(p)}`).join('，');
- let tone;
- if(upN>revN) tone='正位牌居多，整体能量较为顺畅、事态向好，宜顺势而为。';
- else if(revN>upN) tone='逆位牌居多，提示某些环节受阻、能量内收，宜先梳理卡点、调整方向，不必急于强求。';
- else tone='正逆参半，吉凶相倚，关键在如何把逆位的提醒转化为正向行动。';
- /* 大小阿卡纳占比 */
- const majorPct=Math.round(majorN/n*100);
- let archTxt;
- if(majorN===0) archTxt='全为小阿卡纳：所问多属日常事务层面，在你能掌控与行动的范围之内。';
- else if(majorPct>=60) archTxt=`大阿卡纳 ${majorN} 张(${majorPct}%)：命运层面的课题为主，事态超出日常可控范围，宜顺势觉察、不可强求。`;
- else archTxt=`大阿卡纳 ${majorN} 张、小阿卡纳 ${n-majorN} 张：命运走向与日常应对交织，大阿卡纳处为关键节点。`;
- /* 元素分布：取占比最高者为当下主导能量 */
- const elOrder=['火','水','风','土'].sort((a,b)=>elCnt[b]-elCnt[a]);
- const elMain=elOrder[0];
- const EL_MEAN={火:'主导能量属火：行动、热情与决断为先，宜推进而非观望',水:'主导能量属水：情感、直觉与滋养为先，宜感受而非强断',风:'主导能量属风：思维、沟通与信息为先，宜明辨而非蛮干',土:'主导能量属土：物质、务实与积累为先，宜稳扎稳打'};
- const elTxt=elCnt[elMain]>0?`${EL_MEAN[elMain]}。`:'';
- const elDetail=elOrder.filter(e=>elCnt[e]>0).map(e=>`${e} ${elCnt[e]}`).join('、');
- /* 元素尊贵：相邻两张牌的元素互动 */
- const dgLines=[],altPairs=new Set();
- const adj=ADJ[sp]||Array.from({length:n-1},(_,i)=>[i,i+1]);
- adj.forEach(([i,j])=>{
-   const a=picks[i].card.el,b=picks[j].card.el;
-   if(!a||!b) return;
-   const r=elRel(a,b);
-   if(r[0]!=='中') dgLines.push(`${picks[i].pos}×${picks[j].pos}(${a}×${b})：${r[1]}`);
-   else if(ALT_PAIR[a+b]) altPairs.add(ALT_PAIR[a+b]);
- });
- const altTxt=[...altPairs].join('、');
- const dgTxt=(dgLines.length?dgLines.join('；')+'。':'相邻各牌无相生相冲，元素互动平缓。')+(altTxt?`另：本阵 ${altTxt} 相邻，黄金黎明 Book T 以火亲土、风亲水为相友互强，现代通行作中性，此处依中性，两说并存备参。`:'');
- const domTxt=domLines(picks),lackTxt=lackLines(picks),triTxt=triadLines(picks,TRI_IDX[sp]);
- const echoTxt=echoLines(picks,sp);
- const majorList=picks.filter(p=>p.card.type==='大阿卡纳').map(p=>`《${p.card.name}》（${p.pos}）`).join('、');
- const rows=[];
- rows.push(['牌阵连贯',narr+'。']);
- rows.push(['本阵统计',`共 ${n} 张；正位 ${upN}、逆位 ${revN}；大阿卡纳 ${majorN}；元素 ${elDetail||'无'}。`]);
- rows.push(['整体基调',tone+archTxt+elTxt]);
- rows.push(['元素尊贵',dgTxt]);
- const elPat=[...domTxt,...lackTxt];
- if(elPat.length) rows.push(['元素格局',elPat.join('；')+'。']);
- if(triTxt.length) rows.push(['三牌连判',triTxt.join('；')+'。']);
- if(echoTxt.length) rows.push(['跨位呼应',echoTxt.join('；')+'。']);
- if(majorList) rows.push(['大阿卡纳提示',majorList+' 为本阵命运层级的关键课题，宜优先参详。']);
- rows.push(['提醒','塔罗映照的是你当下的心境与能量流向，而非注定之命；请把它当作自我觉察的镜子，结合所问之事整体感受。']);
- const body=rows.map(r=>'<tr><td class="k">'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');
- return `<h3 class="rel-title">综合判断</h3><table class="tr-table"><thead><tr><th>项目</th><th>解读</th></tr></thead><tbody>${body}</tbody></table>`;
-}
-</script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    renderChrome('tarot.html');
-    /* 刷新钩子由本页抽牌按钮承担。 */
-    window.xjRefreshHook=function(){ };
-    document.addEventListener('keydown',e=>{ if(e.key==='Escape') trClose(); });
-    mountAI(function(){
-     if(!LAST) return '';
-     let s=`塔罗占卜\n牌阵：${LAST.sp}\n`;
-     if(LAST.q) s+=`所问：${LAST.q}\n`;
-     let upN=0,revN=0;
-     LAST.picks.forEach(p=>{
-       const c=p.card,up=!p.rev;
-       if(p.rev)revN++;else upN++;
-       s+=`【${p.pos}】${c.name}（${up?'正位':'逆位'}）：${up?c.up:c.rev}\n关键词：${(up?c.kw:c.kwr).join('/')}；占星：${c.astro}；时间：${up?c.time:(c.timeR||c.time)}\n恋爱：${up?c.love:c.loveR}；事业：${up?c.work:c.workR}；财运：${up?c.wealth:c.wealthR}；健康：${up?c.health:c.healthR}\n合断：${comboLine(p)}\n`;
-     });
-     const tone = upN>revN?'正位居多，能量顺畅、事态向好，宜顺势而为。':revN>upN?'逆位居多，提示受阻、宜先梳理卡点再行动。':'正逆参半，须转化逆位提醒为正向行动。';
-     const dg=[],pk=LAST.picks;
-     const adj=ADJ[LAST.key]||pk.map((_,i)=>i).slice(0,-1).map(i=>[i,i+1]);
-     adj.forEach(([i,j])=>{
-       const a=pk[i].card.el,b=pk[j].card.el; if(!a||!b) return;
-       const r=elRel(a,b); if(r[0]!=='中') dg.push(`${pk[i].pos}×${pk[j].pos}(${a}×${b})${r[1]}`);
-     });
-     const dom=domLines(pk),lack=lackLines(pk),tri=triadLines(pk,TRI_IDX[LAST.key]),echo=echoLines(pk,LAST.key);
-     const elPat=[...dom,...lack];
-     s+=`\n综合：正位 ${upN} 张、逆位 ${revN} 张，${tone}${dg.length?(' 元素互动：'+dg.join('；')):''}${elPat.length?(' 元素格局：'+elPat.join('；')):''}${tri.length?(' 三牌连判：'+tri.join('；')):''}${echo.length?(' 跨位呼应：'+echo.join('；')):''}`;
-     return s;
-    }, '塔罗牌', { share:{ page:"tarot", title:"在线塔罗牌占卜",
-     collect:function(){
-       if(!LAST) return {};
-       return {sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))};
-     },
-     restore:function(d){ tarotRestore(d); }
-    } });
-  }, 0);
-});
-</script>
+<script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/ai.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-tarot-03.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-tarot-04.js"></script>
 </body>
 </html>

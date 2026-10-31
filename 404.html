@@ -11,22 +11,118 @@
 <link rel="icon" type="image/svg+xml" href="assets/logo/xuanji-seal.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css" id="nf-font">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/404.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+#out + *{margin-top:var(--sp-4)}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+body.p404-page{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#faf9f6;font-family:var(--font);color:#1a1a1a}
+
+.nf{position:relative;width:min(640px,88vw);border:3px solid #1a1a1a;padding:3.75rem 2.5rem 3.375rem;text-align:center}
+
+.nf::after{content:"";position:absolute;inset:6px;border:1px solid rgba(26,26,26,.5);pointer-events:none}
+
+.nf-seal{width:88px;height:88px}
+
+.nf-code{margin:1.625rem 0 0;font-size:92px;font-weight:700;letter-spacing:.12em;line-height:1.1}
+
+.nf-rule{width:64px;height:4px;background:#b84a3a;margin:1.75rem auto}
+
+.nf-text{margin:0;font-size:19px;color:#52525a;letter-spacing:.1em}
+
+.nf-text .nf-gap{margin-left:1.1em}
+
+.nf-home{display:inline-block;margin-top:2rem;padding:0.625rem 2.25rem;border:1.5px solid #1a1a1a;color:#1a1a1a;text-decoration:none;font-size:18px;letter-spacing:.28em;transition:border-color .2s,color .2s}
+
+.nf-home:hover{border-color:#b84a3a;color:#b84a3a}
+
+@media (max-width:480px){
+.nf-code{font-size:72px}.nf-text{font-size:17px}
+}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/404-0.woff2) format("woff2");unicode-range:U+0020, U+3000, U+3007, U+4e8e, U+522b, U+5230, U+56db, U+56de, U+5904, U+5df2, U+6216, U+6392, U+6613, U+672a, U+673a, U+6b64, U+7384, U+76d8, U+8f7d, U+8fc1, U+9875, U+9996}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/404-0.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/404.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/404.css"></noscript>
 </head>
-<body class="p404-page">
+<body class="p404-page" data-prerendered="1">
 
 <main class="nf">
     <img id="nf-seal" class="nf-seal" src="assets/logo/xuanji-seal.svg" alt="玄机排盘">
     <div class="nf-code">四〇四</div>
     <div class="nf-rule"></div>
-    <p class="nf-text">此页未载于玄机　或已迁易别处</p>
+    <p class="nf-text">此页未载于玄机<span class="nf-gap">或已迁易别处</span></p>
     <a id="nf-home" class="nf-home" href="index.html">回到首页</a>
-  </main>
-  <script>
+  </main><script>
   
 
 window.addEventListener('load', function () {
@@ -36,12 +132,11 @@ window.addEventListener('load', function () {
         var dir = location.pathname.slice(0, location.pathname.lastIndexOf('/') + 1);
         document.getElementById('nf-home').href = dir + 'index.html';
         document.getElementById('nf-seal').src = dir + 'assets/logo/xuanji-seal.svg';
-        document.getElementById('nf-font').href = dir + 'assets/fonts/noto-serif-sc.css';
       })();
   }, 0);
 });
 </script>
 
-
+<script defer fetchpriority="low" src="assets/meta.js"></script>
 </body>
 </html>

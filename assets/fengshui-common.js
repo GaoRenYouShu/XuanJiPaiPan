@@ -8,10 +8,7 @@ function fsGeoCoord(){
   if(isFinite(lo)&&isFinite(la)) return {lng:lo, lat:la};
   const sp=document.getElementById('fsProv'); if(!sp||!sp.value) return null;
   const sc=document.getElementById('fsCity'), sd=document.getElementById('fsDist');
-  const lng=findLng(sp.value, sc&&sc.value, sd&&sd.value);
-  const lat=findLat(sp.value, sc&&sc.value, sd&&sd.value);
-  if(lng==null||lat==null) return null;
-  return {lng, lat};
+  return declCoord(sp.value, sc&&sc.value, sd&&sd.value);
 }
 
 function fsMagTrue(deg){

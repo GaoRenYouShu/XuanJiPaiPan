@@ -26,19 +26,347 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/qimen.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/dt.css">
-<link rel="stylesheet" href="assets/css/qimen.css">
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+body{--footer-ink:#213b45}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+#out + *{margin-top:var(--sp-4)}
+
+.opts .field{flex:0 0 auto;min-width:120px}
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
+  flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
+  border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+@media(max-width:600px){
+.form-row.r3 .field{flex:0 0 auto}
+
+.form-row.r3 .btn{flex:0 0 auto}
+}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+@media(max-width:640px){
+.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+
+.birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
+}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+.scroll-jump{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);background:var(--paper);
+  opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
+
+.sj-btn{font:inherit;font-size:16px;line-height:1;cursor:pointer;
+  border:0;border-radius:0;background:transparent;color:var(--gold2);
+  padding:var(--sp-2) var(--sp-1);outline:none;transition:color .15s}
+
+.sj-btn:hover{color:var(--gold)}
+
+.sj-btn:focus{outline:none}
+
+.sj-btn:disabled{opacity:.35;cursor:default}
+
+@media(max-width:640px){
+.sj-btn{font-size:13px;padding:var(--sp-1) 2px}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.modal.qi-gong-modal{max-width:460px;
+  --qm2:#213b45;--qm-ink:#33424a;--qm-line:#ccd9dc;--qm-ink2:#4f656d}
+
+.page-qm .form-row .field input[type="time"]{width:72px}
+
+.page-qm .form-row .field input.qi-w-gz{width:80px}
+
+.page-qm .qm-gloss-ref{border-color:var(--qm-line)}
+
+.page-qm .page > .form-row{margin-bottom:var(--sp-2)}
+
+.page-qm .opts{margin-top:var(--sp-3)}
+
+.page-qm .birth-group,.page-qm .birth-group.compact{padding-bottom:0}
+
+.page-qm .qm-tbl:has(tr>*:nth-child(3)){min-width:600px}
+
+.page-qm .page h1{color:var(--qm-deep);font-family:var(--qm-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-qm .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--qm-line);margin:0 auto var(--sp-3)}
+
+.page-qm .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--qm-line);margin:var(--sp-3) auto 0}
+
+.page-qm .page .lead::after{background:var(--qm-line)}
+
+.page-qm .page .lead{color:var(--qm-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-qm .field label{color:var(--qm2);font-weight:400}
+
+.page-qm .field input,.page-qm .field select{border-color:var(--qm-line);background:var(--card);color:var(--qm-deep);transition:border-color .15s,box-shadow .15s}
+
+.page-qm .field input:focus,.page-qm .field select:focus{border-color:var(--qm);outline:none}
+
+.page-qm #qBaShen{width:132px}
+
+.page-qm .group-label{color:var(--qm2)}
+
+.page-qm .btn:not(.soft):not(.btn-ghost){background:var(--qm);color:#fff;box-shadow:none}
+
+.page-qm .btn:not(.soft):not(.btn-ghost):hover{background:var(--qm2)}
+
+.page-qm .btn-ghost{background:var(--qm-tint);border:1px solid var(--qm-line);color:var(--qm-ink);box-shadow:none}
+
+.page-qm .btn-ghost:hover{background:var(--card);border-color:var(--qm-line);color:var(--qm2)}
+
+.page-qm .ai-block{border:0;border-top:1px solid var(--qm-line);border-bottom:1px solid var(--qm-line);border-radius:0;background:transparent;color:var(--qm-ink);box-shadow:none}
+
+.page-qm .ai-head{background:transparent;border-bottom-color:var(--qm-line)}
+
+.page-qm .ai-head h3{color:var(--qm2)}
+
+.page-qm .ai-head .ai-status{color:#5f7378}
+
+@media (prefers-color-scheme: dark){
+html .page-qm {
+    --qm:#487e93;
+    --qm2:#457c91;
+    --qm-deep:#d6dee1;
+    --qm-ink:#cdd2d5;
+    --qm-cinnabar:#d3705f;
+    --qm-line:#414b4d;
+    --qm-tint:#212a2b;
+    --qm-ink2:#9ca7ab;
+  }
+}
+
+.page-qm{
+  --qm:#2d4f5c;
+  --qm2:#213b45;
+  --qm-deep:#172d36;
+  --qm-ink:#33424a;
+  --qm-cinnabar:#a8402e;
+  --qm-line:#ccd9dc;
+  --qm-tint:#eef4f5;
+  --qm-ink2:#4f656d;  /* 次级字色：卷首说明、副注、标注 */
+  --qm-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  --gold2:var(--qm2);
+  --gold:var(--qm);
+  --gold-brown:var(--qm2);
+  --gold-bg:var(--qm-tint);
+  --line:var(--qm-line);--ink:var(--qm-ink)
+}
+
+.dtm-qm{--tk:#26424d;--tk2:#1b333c;--tk-ink:#33424a;--tk-line:#ccd9dc;--tk-tint:#eef4f5}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/qimen-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0d-4e0e, U+4e11, U+4e19, U+4e3b, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8e-4e8f, U+4e94, U+4ea5, U+4ec5, U+4ee4, U+4eea, U+4efd, U+4f20, U+4f9b, U+4fd7, U+4fdd, U+4fe1, U+5148, U+514b, U+5165, U+516b-516d, U+5171, U+5173, U+5185, U+519c, U+51ac, U+51f8, U+51fa, U+5206, U+5212, U+521d, U+529f-52a0, U+52a8, U+52ff, U+5316, U+533a, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+53bf, U+53c2, U+53d6, U+53ef, U+5408, U+540c, U+547d, U+56db, U+5730, U+5764, U+57ce, U+586b, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5929-592a, U+5947, U+5973, U+5982, U+5a31, U+5b50, U+5b58, U+5b9a, U+5bab, U+5bb5-5bb6, U+5bc4-5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c40, U+5c45, U+5df1, U+5df3, U+5e02, U+5e38, U+5e72, U+5e74, U+5e93-5e94, U+5e9a, U+5ea6-5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f52, U+5f55, U+5f85, U+60ca, U+620a, U+620c, U+6210, U+6298, U+62e9, U+636e, U+6392, U+63d0, U+653f, U+6570, U+6587, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+665a, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+679c, U+67e5, U+6807, U+6821, U+6a21, U+6b21, U+6b63, U+6b66, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d3e, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7334, U+7384, U+7406, U+751f, U+7528, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7701, U+7709, U+77e5, U+7814, U+786e, U+793a, U+795e, U+79bd, U+79cb, U+79cd, U+7a76, U+7acb, U+7b97, U+7ecf, U+7ed3, U+7edf, U+7efc, U+7f6e, U+7f8a, U+8003, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+864e, U+86c7, U+86f0, U+86fe, U+884c, U+89c4, U+8bbe, U+8bed, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8d77, U+8f6c, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8ff7, U+9009, U+901a, U+901f, U+9041, U+9149, U+914d, U+9519, U+95e8, U+95ed, U+95f0, U+95f4, U+9633, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9f99, U+ff08-ff09, U+ff0c, U+ff1a}
+
+.page-qm .qm-saved .form-row.r3 > .field:not(.qm-mode-field),
+.page-qm .qm-saved .form-row.r3 > .btn,
+.page-qm .qm-saved #qmOptsWrap,
+.page-qm .qm-saved #qmOverseasNote{display:none}
+
+.page-qm details:not([open]) > *:not(summary){display:none}
+
+@media(max-width:970px){
+.page-qm #qmDst{width:93px}
+
+.page-qm #qmZi{width:80px}
+
+.page-qm #qmSun{width:93px}
+}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/qimen-0.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/qimen.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/qimen.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -102,8 +430,8 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-qm">
-  <div class="page">
+<div class="wrap page-qm" data-built="2026-10-30">
+  <div class="page" data-built="2026-10-29">
     <h1>奇门遁甲</h1>
     <div class="lead">输入起局时间，排九宫盘，标三奇六仪、八门九星八神与十干克应。</div>
     <div class="form-row r3">
@@ -114,8 +442,8 @@
           <option value="saved">已存</option>
         </select>
       </div>
-      <div class="field q-mode-time"><label for="qDate">起局日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qDate"></div>
-      <div class="field q-mode-time"><label for="qTime">时间</label><input type="time" id="qTime" value="12:00"></div>
+      <div class="field q-mode-time"><label for="qDate">起局日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qDate" value="2026-10-29"></div>
+      <div class="field q-mode-time"><label for="qTime">时间</label><input type="time" id="qTime"></div>
       <div class="field q-mode-normal"><label for="qPurpose">用神</label>
         <select id="qPurpose">
           <option value="综合">综合</option>
@@ -178,10 +506,10 @@
       </div>
       <!-- 山向奇门专属字段 -->
       <div class="field q-mode-sx" hidden><label for="qShan">坐山</label>
-        <select id="qShan" onchange="qShanChange()"></select>
+        <select id="qShan" onchange="qShanChange()"><option value="壬">壬</option><option value="子">子</option><option value="癸">癸</option><option value="丑">丑</option><option value="艮">艮</option><option value="寅">寅</option><option value="甲">甲</option><option value="卯">卯</option><option value="乙">乙</option><option value="辰">辰</option><option value="巽">巽</option><option value="巳">巳</option><option value="丙">丙</option><option value="午">午</option><option value="丁">丁</option><option value="未">未</option><option value="坤">坤</option><option value="申">申</option><option value="庚">庚</option><option value="酉">酉</option><option value="辛">辛</option><option value="戌">戌</option><option value="乾">乾</option><option value="亥">亥</option></select>
       </div>
       <div class="field q-mode-sx" hidden><label for="qXiang">向山（对宫）</label>
-        <input id="qXiang" class="qi-in-ro" readonly></div>
+        <input id="qXiang" class="qi-in-ro" readonly=""></div>
       <div class="field q-mode-sx" hidden><label for="qDegree">度数（选填）</label>
         <input type="number" id="qDegree" class="qi-w-gz" step="0.1" min="0" max="360" placeholder="0-360" title="填后按度数定山与上中下元，向山取坐山对宫"></div>
       <div class="field q-mode-sx" hidden><label for="qYearGZ">用事年干支</label>
@@ -210,17 +538,17 @@
     <div class="opts" id="qmOptsWrap">
       <div class="birth-group compact" id="qmBirthGroup">
         <div class="group-label">出生地（用于经度校正，内置行政区划经度）</div>
-        <div class="field"><label for="qmProv">省份</label><select id="qmProv" aria-label="出生地省份"></select></div>
-        <div class="field"><label for="qmCity">城市</label><select id="qmCity" aria-label="出生地城市"></select></div>
-        <div class="field"><label for="qmDist">区县</label><select id="qmDist" aria-label="出生地区县"></select></div>
+        <div class="field"><label for="qmProv">省份</label><select id="qmProv" aria-label="出生地省份"><option value="未知地">未知地</option><option value="北京市">北京市</option><option value="天津市">天津市</option><option value="河北省">河北省</option><option value="山西省">山西省</option><option value="内蒙古自治区">内蒙古自治区</option><option value="辽宁省">辽宁省</option><option value="吉林省">吉林省</option><option value="黑龙江省">黑龙江省</option><option value="上海市">上海市</option><option value="江苏省">江苏省</option><option value="浙江省">浙江省</option><option value="安徽省">安徽省</option><option value="福建省">福建省</option><option value="江西省">江西省</option><option value="山东省">山东省</option><option value="河南省">河南省</option><option value="湖北省">湖北省</option><option value="湖南省">湖南省</option><option value="广东省">广东省</option><option value="广西壮族自治区">广西壮族自治区</option><option value="海南省">海南省</option><option value="重庆市">重庆市</option><option value="四川省">四川省</option><option value="贵州省">贵州省</option><option value="云南省">云南省</option><option value="西藏自治区">西藏自治区</option><option value="陕西省">陕西省</option><option value="甘肃省">甘肃省</option><option value="青海省">青海省</option><option value="宁夏回族自治区">宁夏回族自治区</option><option value="新疆维吾尔自治区">新疆维吾尔自治区</option><option value="台湾省">台湾省</option><option value="香港特别行政区">香港特别行政区</option><option value="澳门特别行政区">澳门特别行政区</option><optgroup label="境外 亚洲"><option value="阿联酋">阿联酋</option><option value="阿曼">阿曼</option><option value="巴基斯坦">巴基斯坦</option><option value="巴林">巴林</option><option value="朝鲜">朝鲜</option><option value="东帝汶">东帝汶</option><option value="菲律宾">菲律宾</option><option value="格鲁吉亚">格鲁吉亚</option><option value="哈萨克斯坦">哈萨克斯坦</option><option value="韩国">韩国</option><option value="吉尔吉斯斯坦">吉尔吉斯斯坦</option><option value="柬埔寨">柬埔寨</option><option value="卡塔尔">卡塔尔</option><option value="科威特">科威特</option><option value="老挝">老挝</option><option value="黎巴嫩">黎巴嫩</option><option value="马来西亚">马来西亚</option><option value="蒙古">蒙古</option><option value="孟加拉国">孟加拉国</option><option value="缅甸">缅甸</option><option value="尼泊尔">尼泊尔</option><option value="日本">日本</option><option value="沙特阿拉伯">沙特阿拉伯</option><option value="斯里兰卡">斯里兰卡</option><option value="塔吉克斯坦">塔吉克斯坦</option><option value="泰国">泰国</option><option value="土耳其">土耳其</option><option value="土库曼斯坦">土库曼斯坦</option><option value="文莱">文莱</option><option value="乌兹别克斯坦">乌兹别克斯坦</option><option value="新加坡">新加坡</option><option value="叙利亚">叙利亚</option><option value="亚美尼亚">亚美尼亚</option><option value="也门">也门</option><option value="伊拉克">伊拉克</option><option value="伊朗">伊朗</option><option value="以色列">以色列</option><option value="印度">印度</option><option value="印度尼西亚">印度尼西亚</option><option value="约旦">约旦</option><option value="越南">越南</option></optgroup><optgroup label="境外 欧洲"><option value="阿尔巴尼亚">阿尔巴尼亚</option><option value="爱尔兰">爱尔兰</option><option value="爱沙尼亚">爱沙尼亚</option><option value="奥地利">奥地利</option><option value="白俄罗斯">白俄罗斯</option><option value="保加利亚">保加利亚</option><option value="北马其顿">北马其顿</option><option value="比利时">比利时</option><option value="冰岛">冰岛</option><option value="波兰">波兰</option><option value="丹麦">丹麦</option><option value="德国">德国</option><option value="俄罗斯">俄罗斯</option><option value="法国">法国</option><option value="芬兰">芬兰</option><option value="荷兰">荷兰</option><option value="捷克">捷克</option><option value="克罗地亚">克罗地亚</option><option value="拉脱维亚">拉脱维亚</option><option value="立陶宛">立陶宛</option><option value="卢森堡">卢森堡</option><option value="罗马尼亚">罗马尼亚</option><option value="马耳他">马耳他</option><option value="摩尔多瓦">摩尔多瓦</option><option value="挪威">挪威</option><option value="葡萄牙">葡萄牙</option><option value="瑞典">瑞典</option><option value="瑞士">瑞士</option><option value="塞尔维亚">塞尔维亚</option><option value="塞浦路斯">塞浦路斯</option><option value="斯洛伐克">斯洛伐克</option><option value="斯洛文尼亚">斯洛文尼亚</option><option value="乌克兰">乌克兰</option><option value="西班牙">西班牙</option><option value="希腊">希腊</option><option value="匈牙利">匈牙利</option><option value="意大利">意大利</option><option value="英国">英国</option></optgroup><optgroup label="境外 非洲"><option value="阿尔及利亚">阿尔及利亚</option><option value="埃及">埃及</option><option value="埃塞俄比亚">埃塞俄比亚</option><option value="安哥拉">安哥拉</option><option value="博茨瓦纳">博茨瓦纳</option><option value="加纳">加纳</option><option value="津巴布韦">津巴布韦</option><option value="喀麦隆">喀麦隆</option><option value="科特迪瓦">科特迪瓦</option><option value="肯尼亚">肯尼亚</option><option value="马达加斯加">马达加斯加</option><option value="毛里求斯">毛里求斯</option><option value="摩洛哥">摩洛哥</option><option value="莫桑比克">莫桑比克</option><option value="纳米比亚">纳米比亚</option><option value="南非">南非</option><option value="尼日利亚">尼日利亚</option><option value="塞内加尔">塞内加尔</option><option value="苏丹">苏丹</option><option value="坦桑尼亚">坦桑尼亚</option><option value="突尼斯">突尼斯</option><option value="乌干达">乌干达</option><option value="赞比亚">赞比亚</option></optgroup><optgroup label="境外 北美洲"><option value="巴拿马">巴拿马</option><option value="多米尼加">多米尼加</option><option value="哥斯达黎加">哥斯达黎加</option><option value="古巴">古巴</option><option value="海地">海地</option><option value="洪都拉斯">洪都拉斯</option><option value="加拿大">加拿大</option><option value="美国">美国</option><option value="墨西哥">墨西哥</option><option value="尼加拉瓜">尼加拉瓜</option><option value="萨尔瓦多">萨尔瓦多</option><option value="特立尼达和多巴哥">特立尼达和多巴哥</option><option value="危地马拉">危地马拉</option><option value="牙买加">牙买加</option></optgroup><optgroup label="境外 南美洲"><option value="阿根廷">阿根廷</option><option value="巴拉圭">巴拉圭</option><option value="巴西">巴西</option><option value="玻利维亚">玻利维亚</option><option value="厄瓜多尔">厄瓜多尔</option><option value="哥伦比亚">哥伦比亚</option><option value="圭亚那">圭亚那</option><option value="秘鲁">秘鲁</option><option value="苏里南">苏里南</option><option value="委内瑞拉">委内瑞拉</option><option value="乌拉圭">乌拉圭</option><option value="智利">智利</option></optgroup><optgroup label="境外 大洋洲"><option value="澳大利亚">澳大利亚</option><option value="巴布亚新几内亚">巴布亚新几内亚</option><option value="斐济">斐济</option><option value="基里巴斯">基里巴斯</option><option value="马绍尔群岛">马绍尔群岛</option><option value="密克罗尼西亚">密克罗尼西亚</option><option value="瑙鲁">瑙鲁</option><option value="帕劳">帕劳</option><option value="萨摩亚">萨摩亚</option><option value="所罗门群岛">所罗门群岛</option><option value="汤加">汤加</option><option value="图瓦卢">图瓦卢</option><option value="瓦努阿图">瓦努阿图</option><option value="新西兰">新西兰</option></optgroup></select></div>
+        <div class="field"><label for="qmCity">城市</label><select id="qmCity" aria-label="出生地城市"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="qmDist">区县</label><select id="qmDist" aria-label="出生地区县"><option value="未知地">未知地</option></select></div>
         <div class="field hh-lng"><label for="qmLng">经度（可选）</label><input type="number" id="qmLng" step="0.01" placeholder="出生地" aria-label="手动经度东经度数"></div>
       </div>
       <div class="opts-row" id="qmOptsRow">
         <div class="group-label">时间折算与流派</div>
         <div class="field" id="qmDstField"><label for="qmDst">夏令时</label><select id="qmDst" aria-label="选择夏令时折算口径"><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option><option value="off">不折算（钟面即标准时）</option></select></div>
         <div class="field"><label for="qmZi">子时算法</label><select id="qmZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
-        <div class="field"><label for="qmSun">太阳时</label><select id="qmSun" aria-label="选择太阳时口径"><option value="off">不校正</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
-        <div class="field" id="qmTzOffField" hidden><label for="qmTzOff">时区偏移</label><select id="qmTzOff" aria-label="选择境外出生地标准时区偏移" onchange="qmOverseasChange()"></select></div>
+        <div class="field"><label for="qmSun">太阳时</label><select id="qmSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+        <div class="field" id="qmTzOffField" hidden><label for="qmTzOff">时区偏移</label><select id="qmTzOff" aria-label="选择境外出生地标准时区偏移" onchange="qmOverseasChange()"><option value="-12">UTC-12</option><option value="-11.75">UTC-11.75</option><option value="-11.5">UTC-11.5</option><option value="-11.25">UTC-11.25</option><option value="-11">UTC-11</option><option value="-10.75">UTC-10.75</option><option value="-10.5">UTC-10.5</option><option value="-10.25">UTC-10.25</option><option value="-10">UTC-10</option><option value="-9.75">UTC-9.75</option><option value="-9.5">UTC-9.5</option><option value="-9.25">UTC-9.25</option><option value="-9">UTC-9</option><option value="-8.75">UTC-8.75</option><option value="-8.5">UTC-8.5</option><option value="-8.25">UTC-8.25</option><option value="-8">UTC-8</option><option value="-7.75">UTC-7.75</option><option value="-7.5">UTC-7.5</option><option value="-7.25">UTC-7.25</option><option value="-7">UTC-7</option><option value="-6.75">UTC-6.75</option><option value="-6.5">UTC-6.5</option><option value="-6.25">UTC-6.25</option><option value="-6">UTC-6</option><option value="-5.75">UTC-5.75</option><option value="-5.5">UTC-5.5</option><option value="-5.25">UTC-5.25</option><option value="-5">UTC-5</option><option value="-4.75">UTC-4.75</option><option value="-4.5">UTC-4.5</option><option value="-4.25">UTC-4.25</option><option value="-4">UTC-4</option><option value="-3.75">UTC-3.75</option><option value="-3.5">UTC-3.5</option><option value="-3.25">UTC-3.25</option><option value="-3">UTC-3</option><option value="-2.75">UTC-2.75</option><option value="-2.5">UTC-2.5</option><option value="-2.25">UTC-2.25</option><option value="-2">UTC-2</option><option value="-1.75">UTC-1.75</option><option value="-1.5">UTC-1.5</option><option value="-1.25">UTC-1.25</option><option value="-1">UTC-1</option><option value="-0.75">UTC-0.75</option><option value="-0.5">UTC-0.5</option><option value="-0.25">UTC-0.25</option><option value="0">UTC+0</option><option value="0.25">UTC+0.25</option><option value="0.5">UTC+0.5</option><option value="0.75">UTC+0.75</option><option value="1">UTC+1</option><option value="1.25">UTC+1.25</option><option value="1.5">UTC+1.5</option><option value="1.75">UTC+1.75</option><option value="2">UTC+2</option><option value="2.25">UTC+2.25</option><option value="2.5">UTC+2.5</option><option value="2.75">UTC+2.75</option><option value="3">UTC+3</option><option value="3.25">UTC+3.25</option><option value="3.5">UTC+3.5</option><option value="3.75">UTC+3.75</option><option value="4">UTC+4</option><option value="4.25">UTC+4.25</option><option value="4.5">UTC+4.5</option><option value="4.75">UTC+4.75</option><option value="5">UTC+5</option><option value="5.25">UTC+5.25</option><option value="5.5">UTC+5.5</option><option value="5.75">UTC+5.75</option><option value="6">UTC+6</option><option value="6.25">UTC+6.25</option><option value="6.5">UTC+6.5</option><option value="6.75">UTC+6.75</option><option value="7">UTC+7</option><option value="7.25">UTC+7.25</option><option value="7.5">UTC+7.5</option><option value="7.75">UTC+7.75</option><option value="8">UTC+8</option><option value="8.25">UTC+8.25</option><option value="8.5">UTC+8.5</option><option value="8.75">UTC+8.75</option><option value="9">UTC+9</option><option value="9.25">UTC+9.25</option><option value="9.5">UTC+9.5</option><option value="9.75">UTC+9.75</option><option value="10">UTC+10</option><option value="10.25">UTC+10.25</option><option value="10.5">UTC+10.5</option><option value="10.75">UTC+10.75</option><option value="11">UTC+11</option><option value="11.25">UTC+11.25</option><option value="11.5">UTC+11.5</option><option value="11.75">UTC+11.75</option><option value="12">UTC+12</option><option value="12.25">UTC+12.25</option><option value="12.5">UTC+12.5</option><option value="12.75">UTC+12.75</option><option value="13">UTC+13</option><option value="13.25">UTC+13.25</option><option value="13.5">UTC+13.5</option><option value="13.75">UTC+13.75</option><option value="14">UTC+14</option></select></div>
         <div class="field chk" id="qmLocalDstField" hidden><input type="checkbox" id="qmLocalDst" onchange="qmOverseasChange()"><label for="qmLocalDst">当地夏令时（钟面减1小时）</label></div>
       </div>
     </div>
@@ -251,812 +579,41 @@
     </tbody></table>
     </details>
 
-  </div>
+  <div class="stage2-late">
+<div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled="">停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    </div>
+  </details></div></div>
 </div>
+</div><div class="scroll-jump" id="scrollJump" style="--gold: #2d4f5c; --gold2: #213b45; --paper: #ffffff;"><button type="button" class="sj-btn" data-to="top" title="回到顶部" aria-label="回到顶部" disabled="">▴</button><button type="button" class="sj-btn" data-to="bottom" title="到页面底部" aria-label="到页面底部" disabled="">▾</button></div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script defer src="assets/lunar.js"></script>
-<script defer src="assets/xuanji-lib.js"></script>
-<script defer src="assets/latlng.js"></script>
-<script defer src="assets/qimen-engine.js"></script>
-<script defer src="assets/qimen-extra.js"></script>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/ai.js"></script>
-<script>
-let __qm=null;
-/* 奇门 AI 附加功能：五派断局与五法应期的专用口径，供附加功能面板按派逐段解读 */
-const QIMEN_AI_SCHOOLS = [
-  { key:'gongQi', name:'宫气派', brief:'以宫气旺衰、门迫门制、星旺、门星神合判、空亡驿马为断，重宫气与门宫关系。' },
-  { key:'yongShen', name:'用神派', brief:'以主用神与辅用神、日干、时干、年命的生克及原神、忌神、仇神为断，重事与人的关系。' },
-  { key:'changSheng', name:'长生派', brief:'以天盘干在宫支的十二长生为断，重气之始终。' },
-  { key:'zhiFu', name:'值符派', brief:'以值符宫、值使门与用神宫的关系为断，重主事者与执行。' },
-  { key:'geju', name:'格局派', brief:'以吉格凶格为断，兼看用神宫气与星旺，重格局成阻。' }
-];
-const QIMEN_AI_PROMPT = '本盘为奇门遁甲。请严格依据盘面“综合断语、多派断局、断局特征、应期参考”作答：先引综合断语，写明主判、次判、分歧与取用；按所选流派逐派成段，只用该派权重所取的层，引用该派关键证据与出处；五派成段后总收共识与分歧，并说明取舍；应期按五法并列，逐法给推算与应期，不合成单一日期；所有结论须在盘面证据中有对应项，证据不足时明说，不得自造格局、克应或断语；末尾提示仅供参考。';
-/* 九宫洛书显示顺序：4巽 9离 2坤、3震 5中 7兑、8艮 1坎 6乾 */
-const GRID=['4','9','2','3','5','7','8','1','6'];
-const GONG_NAME={'1':'坎','2':'坤','3':'震','4':'巽','5':'中','6':'乾','7':'兑','8':'艮','9':'离'};
-const GONG_DIR={'1':'正北','2':'西南','3':'正东','4':'东南','5':'中央','6':'西北','7':'正西','8':'东北','9':'正南'};
-function menJxOf(men){ return (typeof Qimen!=='undefined'&&Qimen.MEN_JX&&Qimen.MEN_JX[men])||'平'; }
-function shenJxOf(shen){ return (typeof Qimen!=='undefined'&&Qimen.SHEN_JX&&Qimen.SHEN_JX[shen])||'平'; }
-function menClsOf(men){ const j=menJxOf(men); return j==='凶'?'men-xiong':(j==='平'?'men-ping':'men-ji'); }
-function shenClsOf(shen){ const j=shenJxOf(shen); return j==='凶'?'shen-xiong':(j==='平'?'shen-ping':'shen-ji'); }
-const JX_TEXT={'da_ji':'大吉','xiao_ji':'小吉','ping':'平','xiao_xiong':'小凶','da_xiong':'大凶'};
-/* 宫位吉凶徽章映射：引擎 jx 值为 吉、凶、平，映射到 JX_TEXT 键（da_ji/da_xiong/ping） */
-const JX_KEY={'吉':'da_ji','凶':'da_xiong','平':'ping'};
-/* 图例说明（置于排盘表底部） */
-const QI_LEGEND='天盘干（红，大字），地盘、暗干（灰），值符（红角），值使（绿角），空亡（黑角），驿马（蓝角）。点击任意宫可看本宫详情。';
-/* 综合判断、格局建议转表格 */
-/* 九星、八门、八神、九宫 通俗释义（用于悬停 tooltip 和白话解读） */
-const XING_MEAN = {'天蓬':'凶星，主胆大冒险、易惹是非，宜静守','天芮':'凶星，主疾病问题、师生交流，遇吉门可解','天冲':'吉星，主冲锋行动、快速见效，利武事',
-  '天辅':'吉星，主辅助文教、温和稳重，利学业','天禽':'吉星，主居中协调、稳重有成，百事可为','天心':'吉星，主谋略管理、计划周密，利策划',
-  '天柱':'凶星，主口舌破坏、中伤毁谤，宜防守','天任':'吉星，主担当承受、厚德载物，利农事','天英':'平星，主表象英华、虚有其表，宜观望'};
-const MEN_MEAN = {'休门':'大吉，主婚姻休养、安定团结，北行大利','生门':'大吉，主财源生长、求财得利，东北方吉','伤门':'大凶，主伤灾破损、出行不利，宜捕猎',
-  '杜门':'大凶，主闭塞不通、隐藏埋伏，宜防守','景门':'小吉，主文书消息、名声远扬，宜献策','死门':'大凶，主死亡争斗、了结之事，行刑可用',
-  '惊门':'小凶，主惊恐不安、官非口舌，宜埋伏','开门':'大吉，主事业开创、万事通达，西北方吉'};
-const SHEN_MEAN = {'值符':'吉神，主贵人相助、首脑坐镇，百恶消散','螣蛇':'凶神，主虚惊怪异、缠绕不安，事多反复','太阴':'吉神，主暗中辅助、福荫庇护，宜密谋',
-  '六合':'吉神，主合作和合、婚姻中介，利合伙','白虎':'凶神，主凶险争斗、血光刑伤，急事刚烈','玄武':'凶神，主盗贼暗昧、小人欺诈，防丢失',
-  '九地':'吉神，主稳定伏藏、积蓄力量，宜固守','九天':'吉神，主高远进取、扬兵布阵，利进攻',
-  '勾陈':'凶神，主勾连牵连、田土争讼','朱雀':'凶神，主口舌文书、是非信息'};
-const GONG_MEAN = {'1':'坎宫 正北 五行属水，主险阻、智慧、流动之事','2':'坤宫 西南 五行属土，主包容、母亲、田地房产','3':'震宫 正东 五行属木，主行动、长子、事业变动',
-  '4':'巽宫 东南 五行属木，主文书、长女、入仕进官','5':'中宫 中央 五行属土，主枢纽、协调、居中调度','6':'乾宫 西北 五行属金，主权威、父亲、领导能力','7':'兑宫 正西 五行属金，主口舌、少女、表达沟通',
-  '8':'艮宫 东北 五行属土，主停止、少男、积蓄等待','9':'离宫 正南 五行属火，主光明、中女、事业成就'};
-const XING_MEAN_SHORT = {'天蓬':'凶星，主胆大冒险','天芮':'凶星，主疾病问题','天冲':'吉星，主冲锋行动','天辅':'吉星，主辅助文教',
-  '天禽':'吉星，主居中协调','天心':'吉星，主谋略管理','天柱':'凶星，主口舌破坏','天任':'吉星，主担当承受','天英':'平星，主表象英华'};
-const MEN_MEAN_SHORT = {'休门':'大吉，主婚姻休养','生门':'大吉，主财源生长','伤门':'大凶，主伤灾破损','杜门':'大凶，主闭塞不通',
-  '景门':'小吉，主文书消息','死门':'大凶，主死亡争斗','惊门':'小凶，主惊恐不安','开门':'大吉，主事业开创'};
-const SHEN_MEAN_SHORT = {'值符':'吉神，主贵人相助','螣蛇':'凶神，主虚惊怪异','太阴':'吉神，主暗中辅助','六合':'吉神，主合作和合',
-  '白虎':'凶神，主凶险争斗','玄武':'凶神，主盗贼暗昧','九地':'吉神，主稳定伏藏','九天':'吉神，主高远进取',
-  '勾陈':'凶神，主勾连牵连','朱雀':'凶神，主口舌文书'};
-const GONG_MEAN_SHORT = {'1':'主险阻、智慧、流动之事','2':'主包容、母亲、田地房产','3':'主行动、长子、事业变动','4':'主文书、长女、入仕进官',
-  '5':'主枢纽、协调、居中调度','6':'主权威、父亲、领导能力','7':'主口舌、少女、表达沟通','8':'主停止、少男、积蓄等待','9':'主光明、中女、事业成就'};
-function qiTr(label, val, cls){ return `<tr${cls?(' class="'+cls+'"'):''}><th>${label}</th><td>${val||'无'}</td></tr>`; }
-let qiHtml='';
-function buildCells(pan){
-  const kw = pan.kongWangGong||[], ymG = (pan.maStar&&pan.maStar.gong)||'';
-  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
-  let cells='';
-  GRID.forEach(g=>{
-    const xing=(pan.jiuXing||{})[g]||'', men=(pan.baMen||{})[g]||'', shen=(pan.baShen||{})[g]||'';
-    const tian=(pan.tianPan||{})[g]||'', di=(pan.diPan||{})[g]||'', an=(pan.anGan||{})[g]||'';
-    const a=((pan.jiuGongAnalysis||{})[g])||{};
-    const badges=[];
-    if(g===zf) badges.push('<span class="b-zf">值符</span>');
-    if(g===zs) badges.push('<span class="b-zs">值使</span>');
-    if(kw.includes(g)) badges.push('<span class="b-kw">空亡</span>');
-    if(ymG===g) badges.push('<span class="b-ym">驿马</span>');
-    const jxKey = a.jiXiong && JX_KEY[a.jiXiong] ? JX_KEY[a.jiXiong] : '';
-    const jxTxt = jxKey ? (jxKey==='da_ji'?'吉':jxKey==='da_xiong'?'凶':jxKey==='ping'?'平':JX_TEXT[jxKey]||'') : '';
-    const jx = jxTxt ? `<div class="qi-jx-txt ${jxKey}">${jxTxt}</div>` : '';
-    const menCls = men?menClsOf(men):'';
-    const shenCls = shen?shenClsOf(shen):'';
-    const keYingLine = (a.keYing)?`<div class="ky">克应 ${a.keYing}</div>`:'';
-    const tpCls = tian && GAN_WX[tian] ? (' wx-'+(GAN_WX[tian]==='木'?'mu':GAN_WX[tian]==='火'?'huo':GAN_WX[tian]==='土'?'tu':GAN_WX[tian]==='金'?'jin':'shui')) : '';
-    const cellCls = 'qi-cell' + (g===zf?' cell-zf':'') + (g===zs?' cell-zs':'');
-    const aria=`${GONG_NAME[g]}宫${GONG_DIR[g]}，星${xing||'无'}，门${men||'无'}，神${shen||'无'}`;
-    cells+=`<div class="${cellCls}" data-g="${g}" role="button" tabindex="0" aria-label="${aria}">
-      <div class="gname">${GONG_NAME[g]}宫<span class="gdir">${GONG_DIR[g]}</span></div>
-      <div class="tp${tpCls}">${tian||'无'}</div>
-      <div class="dp">地 ${di||'无'}${an?' 暗 '+an:''}</div>
-      <div class="row"><span class="k">星</span><span class="xing">${xing||'无'}</span></div>
-      <div class="row"><span class="k">门</span><span class="${menCls}">${men||'无'}</span></div>
-      <div class="row"><span class="k">神</span><span class="${shenCls}">${shen||'无'}</span></div>
-      ${keYingLine}
-      ${badges.length?`<div class="qi-badge">${badges.join('')}</div>`:''}
-      ${jx}
-    </div>`;
-  });
-  return cells;
-}
-function renderQiOutput(pan, cells, baseInfo, purpose){
-  const an=pan.analysis||{};
-  /* 基础信息表 */
-  const infoRows=(baseInfo||[]).map(r=>qiTr(r[0],r[1])).join('');
-  /* 格局表：名称、吉凶、断语、出处 逐项列出，缺项写无与未载；列宽按内容最大宽自适应 */
-  const gjs=pan.geju||[];
-  let gejuHtml;
-  if(gjs.length){
-    gejuHtml='<table class="qm-tbl geju"><thead><tr><th class="col-ge">格局</th><th class="col-jx">吉凶</th><th class="col-cy">断语</th><th class="col-sc">出处</th></tr></thead><tbody>'+
-      gjs.map(g=>{
-        const jx=g.jiXiong==='ji'?'吉':(g.jiXiong==='xiong'?'凶':'平');
-        return `<tr><th class="col-ge">${g.name}</th><td class="col-jx ${g.jiXiong==='ji'?'qi-ji':(g.jiXiong==='xiong'?'qi-xiong':'')}">${jx}</td><td class="col-cy">${g.explain||'无'}</td><td class="col-sc qm-src">${g.src||'未载'}</td></tr>`;
-      }).join('')+'</tbody></table>';
-  } else {
-    gejuHtml='<table class="qm-tbl geju"><tbody>'+qiTr('格局','无明显格局')+'</tbody></table>';
-  }
-  /* 综合判断表：综合断语 + 取用 + 各分类建议 */
-  const zhCats={};
-  (an.suggestions||[]).forEach(s=>{ const c=(s&&s.cat)||'其他'; (zhCats[c]=zhCats[c]||[]).push(s.text); });
-  let zhRows='';
-  /* 首行取多派综合断语：共识与裁断次序出主判，分歧照实；逐派明细见断局特征 */
-  const jd=an.judgments||{}, syn=jd.synthesis||{}, schools=jd.schools||[];
-  if(syn.headline){
-    const conflictText=syn.conflicts.length?`分歧见${syn.conflicts.map(c=>c.name+'判'+c.grade).join('、')}。`:'五派同向。';
-    zhRows+=qiTr('综合断语', `${syn.headline}。${conflictText}取用与依据见断局特征。`);
-  } else if(an.overallJiXiongText){
-    zhRows+=qiTr('总体', an.overallJiXiongText);
-  }
-  if(schools.length){
-    const badges=schools.map(s=>{
-      const cls=(s.grade==='吉'||s.grade==='大吉')?'qi-ji':((s.grade==='凶'||s.grade==='大凶')?'qi-xiong':'');
-      return `<span class="${cls}">${s.name}${s.grade}（${s.score}）</span>`;
-    }).join('、');
-    zhRows+=qiTr('多派断局', badges+'。各派明细与证据见断局特征。');
-  }
-  const ug=an.useGong;
-  if(ug){
-    const ugXing=pan.jiuXing[ug]||'', ugMen=pan.baMen[ug]||'', ugShen=pan.baShen[ug]||'';
-    const parts=[];
-    const gm=GONG_MEAN_SHORT[ug]||'';
-    if(gm) parts.push(`${GONG_NAME[ug]}宫（${GONG_DIR[ug]}，${gm}）`);
-    if(ugXing) parts.push(`星${ugXing}（${XING_MEAN_SHORT[ugXing]||'无'}）`);
-    if(ugMen) parts.push(`门${ugMen}（${MEN_MEAN_SHORT[ugMen]||'无'}）`);
-    if(ugShen) parts.push(`神${ugShen}（${SHEN_MEAN_SHORT[ugShen]||'无'}）`);
-    if(parts.length) zhRows+=qiTr('用神宫象义', parts.join('；')+'。');
-  }
-  Object.keys(zhCats).forEach(c=>{ zhRows+=qiTr(c, zhCats[c].map(t=>t.replace(/[。；，]+$/,'')).join('；')); });
-  if(gjs.length){
-    const ji=gjs.filter(g=>g.jiXiong==='ji').map(g=>g.name);
-    const xiong=gjs.filter(g=>g.jiXiong==='xiong').map(g=>g.name);
-    zhRows+=qiTr('格局', `吉格：${ji.join('、')||'无'}；凶格：${xiong.join('、')||'无'}。`);
-  }
-  if(!zhRows) zhRows=qiTr('综合判断','暂无断语');
-  /* 九宫盘（图例在盘下方） */
-  /* 宫位要览：各宫门迫、门制、星旺、十干克应 一览表（九宫盘下方更显专业） */
-  const gongOverviewRows = GRID.map(g=>{
-    const a = (pan.jiuGongAnalysis||{})[g]||{};
-    const menRel = a.menRel ? `<span class="${a.menRel==='门迫'?'qm-rel-xiong':'qm-rel-ji'}">${a.menRel}</span>` : '无';
-    const xingW = a.xingWang ? `<span class="${a.xingWang==='旺'||a.xingWang==='相'?'qm-wx-wang':(a.xingWang==='囚'||a.xingWang==='废'?'qm-wx-ruo':'qm-wx-ping')}">${a.xingWang}</span>` : '无';
-    const ky = a.keYing ? a.keYing : '无';
-    return `<tr><td>${GONG_NAME[g]}宫</td><td>${pan.jiuXing[g]||'无'}</td><td>${pan.baMen[g]||'无'}</td><td>${pan.baShen[g]||'无'}</td><td>${menRel}</td><td>${xingW}</td><td>${ky}</td></tr>`;
-  }).join('');
-  const yq=an.yingQi||{};
-  const yqSchools=yq.schools||[];
-  const yqRows=yqSchools.map(m=>`<tr><th class="col-yq">${m.name}</th><td>${m.method}</td><td class="col-yqr">${m.result}</td><td class="col-yqn">${m.note||'无'}</td><td class="col-yqs qm-src">${m.src||'未载'}</td></tr>`).join('');
-  const yqHtml=`<table class="qm-tbl yq-tbl"><thead><tr><th class="col-yq">取期法</th><th>推算</th><th class="col-yqr">应期</th><th class="col-yqn">说明</th><th class="col-yqs">出处</th></tr></thead><tbody>${yqRows||'<tr><td colspan="5">暂无应期取法</td></tr>'}</tbody></table><div class="qm-note">应期为多家取法：五法为取期方法，与断局五派分属两轴，不一一对应；本站并列，不合成单一日期。近事以日计、远事以月计，诸法所取日期不同，按事之远近与所问侧重取舍。</div>`;
-  /* 断局特征：宫气与十二长生、用神网络、多派断局三表，附证据出处 */
-  const ft=an.features||{};
-  const GONG8=['1','2','3','4','6','7','8','9'];
-  const gq=ft.gongQi||{};
-  const gqRows=GONG8.map(g=>{
-    const q=gq[g]||{};
-    const ws=q.wangShuai?`<span class="${q.wangShuai==='旺'||q.wangShuai==='相'?'qm-wx-wang':(q.wangShuai==='囚'||q.wangShuai==='废'?'qm-wx-ruo':'qm-wx-ping')}">${q.wangShuai}</span>`:'无';
-    const cs=(q.changSheng||[]).map(x=>x.zhi+x.stage).join('、')||'无';
-    const isUse=ft.yongShen&&ft.yongShen.gong===g;
-    return `<tr><td>${GONG_NAME[g]}宫${isUse?'（用神）':''}</td><td>${q.wx||'无'}</td><td>${ws}</td><td>${(q.nums||[]).join('、')||'无'}</td><td>${q.tian||'无'}</td><td>${cs}</td></tr>`;
-  }).join('');
-  const gqHtml=`<table class="qm-tbl"><thead><tr><th>宫</th><th>五行</th><th>宫气</th><th>生数成数</th><th>天盘干</th><th>十二长生</th></tr></thead><tbody>${gqRows}</tbody></table><div class="qm-note">宫气按节气月令五行定旺相休囚废；十二长生取天盘干在本宫地支之位，一宫两支者两支并看。中五无位，寄坤二、艮八。</div>`;
-  const pairs=ft.pairs||[];
-  const pairOf=l=>pairs.find(p=>p.labelB===l);
-  const relWord=p=>{
-    if(!p) return '无';
-    const base=p.rel==='生'?'用神生':(p.rel==='克'?'用神克':(p.rel==='被生'?'生用神':(p.rel==='被克'?'克用神':'比和')));
-    const ext=[];
-    if(p.chong) ext.push('相冲');
-    if(p.kongA||p.kongB) ext.push('逢空');
-    if(p.maA||p.maB) ext.push('临马');
-    return base+(ext.length?'（'+ext.join('、')+'）':'');
-  };
-  const gongCell=g=>`${GONG_NAME[g]}宫（${(gq[g]||{}).wangShuai||'无'}）`;
-  const netRows=[];
-  if(ft.yongShenSet&&ft.yongShenSet.length){
-    ft.yongShenSet.forEach(x=>{
-      const mark=[x.role];
-      if(x.kong) mark.push('空亡');
-      if(x.ma) mark.push('驿马');
-      netRows.push(`<tr><td>${x.role}：${x.label}</td><td>${gongCell(x.gong)}</td><td>${x.wx||'无'}</td><td>${x.role==='主用神'?'本宫':'同参'}</td></tr>`);
-    });
-  } else if(ft.yongShen){
-    const yMark=['本宫'];
-    if(ft.yongShen.kong) yMark.push('空亡');
-    if(ft.yongShen.ma) yMark.push('驿马');
-    netRows.push(`<tr><td>用神：${ft.yongShen.label}</td><td>${gongCell(ft.yongShen.gong)}</td><td>${ft.yongShen.wx||'无'}</td><td>${yMark.join('，')}</td></tr>`);
-  }
-  if(ft.qiuCe&&ft.qiuCe.day) netRows.push(`<tr><td>日干（求测人）</td><td>${gongCell(ft.qiuCe.day.gong)}</td><td>${ft.qiuCe.day.wx||'无'}</td><td>${relWord(pairOf('日干'))}</td></tr>`);
-  if(ft.qiuCe&&ft.qiuCe.time) netRows.push(`<tr><td>时干（事体）</td><td>${gongCell(ft.qiuCe.time.gong)}</td><td>${ft.qiuCe.time.wx||'无'}</td><td>${relWord(pairOf('时干'))}</td></tr>`);
-  if(ft.qiuCe&&ft.qiuCe.year) netRows.push(`<tr><td>年命（命元）</td><td>${gongCell(ft.qiuCe.year.gong)}</td><td>${ft.qiuCe.year.wx||'无'}</td><td>${relWord(pairOf('年命'))}</td></tr>`);
-  const wxRow=(label,obj,relTxt)=>{
-    if(!obj||!obj.gongs||!obj.gongs.length) return '';
-    return `<tr><td>${label}</td><td>${obj.gongs.map(gongCell).join('、')}</td><td>${obj.wx||'无'}</td><td>${relTxt}</td></tr>`;
-  };
-  netRows.push(wxRow('原神',ft.yuan,'生用神'));
-  netRows.push(wxRow('忌神',ft.ji,'克用神'));
-  netRows.push(wxRow('仇神',ft.chou,'生忌神'));
-  const netHtml=`<table class="qm-tbl"><thead><tr><th>项</th><th>落宫（宫气）</th><th>五行</th><th>与用神关系</th></tr></thead><tbody>${netRows.join('')}</tbody></table><div class="qm-note">原神、忌神、仇神按主用神五行推得：生用神为原神，克用神为忌神，生忌神为仇神；旺相者力显，休囚者力弱。主用神之外按所问加辅用神，辅用神只作同参。日干为求测人，时干为事体，年命为本人命元。</div>`;
-  const djSchools=jd.schools||[];
-  const schoolRows=djSchools.map(s=>{
-    const gcls=(s.grade==='吉'||s.grade==='大吉')?'qm-rel-ji':((s.grade==='凶'||s.grade==='大凶')?'qm-rel-xiong':'');
-    return `<tr><th class="col-pai">${s.name}</th><td class="col-qu">${s.note||''}</td><td class="col-wt">${s.weightText||''}</td><td class="col-fen">${s.score}</td><td class="col-pan ${gcls}">${s.grade}</td><td class="col-ju">${(s.topItems||[]).map(i=>i.text).join('；')||'无成项'}</td></tr>`;
-  }).join('');
-  const synHtml=syn.headline?`
-    <div class="duju-synth">
-      <div class="synth-top">综合断语：${syn.headline}。</div>
-      <div class="sub-note">主判依据为${syn.basis}；${syn.primary.name}权重最高的证据是“${syn.primary.reason}”。</div>
-      ${syn.secondary?`<div class="sub-note">次判为${syn.secondary.name}${syn.secondary.grade}（${syn.secondary.score}）${syn.secondary.opposed?'（与主判相左）':''}，${syn.secondary.reason}</div>`:''}
-      ${syn.conflicts.length?`<div class="synth-conflict">分歧见${syn.conflicts.map(c=>`${c.name}判${c.grade}（${c.score}），${c.reason}`).join('；')}。</div>`:''}
-      <div class="sub-note">取用为${syn.advice}</div>
-    </div>`:'';
-  const synCritRows=(syn.criterion||[]).map(c=>`<tr><td class="col-crit">${c.key}</td><td>${c.basis}</td><td>${c.result}</td></tr>`).join('');
-  const djSrcRows=djSchools.map(s=>s.items.map((i,k)=>`<tr><td class="col-pai">${k===0?s.name:''}</td><td class="col-layer">${i.layerName||i.layer}</td><td class="col-ev">${i.text}</td><td class="col-src qm-src">${i.src}</td></tr>`).join('')).join('');
-  const djHtml=`
-    <h3 class="rel-title">宫气与十二长生</h3>
-    ${gqHtml}
-    <h3 class="rel-title">用神网络</h3>
-    ${netHtml}
-    <h3 class="rel-title">多派断局</h3>
-    ${synHtml}
-    <table class="qm-tbl duju"><thead><tr><th class="col-pai">派别</th><th class="col-qu">取用</th><th class="col-wt">权重</th><th class="col-fen">得分</th><th class="col-pan">判名</th><th class="col-ju">关键证据</th></tr></thead><tbody>${schoolRows||'<tr><td colspan="6">暂无判项</td></tr>'}</tbody></table>
-    <div class="qm-note">五派并列，各派按权重取层计分；综合断语按共识与裁断次序出，分歧照实。权重为本站归纳，待核。</div>
-    <details class="mh-ref qm-gloss-ref" id="qmSynCritRef"><summary>综合断语依据</summary><table class="qm-tbl crit-tbl"><thead><tr><th class="col-crit">项</th><th>判据</th><th>结果</th></tr></thead><tbody>${synCritRows||'<tr><td>无</td><td>无</td><td>未载</td></tr>'}</tbody></table></details>
-    <details class="mh-ref qm-gloss-ref" id="qmEvidRef"><summary>断局证据与出处</summary><table class="qm-tbl evi-tbl"><thead><tr><th class="col-pai">派别</th><th class="col-layer">层</th><th class="col-ev">证据</th><th class="col-src">出处</th></tr></thead><tbody>${djSrcRows||'<tr><td>无</td><td>无</td><td>无</td><td>未载</td></tr>'}</tbody></table></details>`;
-  qiHtml=`
-    <section class="mod" id="qmModBase"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">基础信息</span><span class="mod-sub">四柱 局数 九宫格</span></div><div class="mod-body">
-     <table class="qm-tbl base-info"><tbody>${infoRows}</tbody></table>
-     <div class="qi-board">${cells}</div>
-     <div class="qi-legend">${QI_LEGEND}</div>
-    </div></section>
-    <section class="mod" id="qmModGong"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
-     <table class="qm-tbl qm-tbl-sm"><thead><tr><th>宫</th><th>九星</th><th>八门</th><th>八神</th><th>门宫关系</th><th>星之旺衰</th><th>十干克应</th></tr></thead>
-     <tbody>${gongOverviewRows}</tbody></table>
-     <div class="qm-note">门迫（门克宫，事受制）<span class="qm-rel-xiong">红字</span>；门制（宫克门，力有牵制）<span class="qm-rel-ji">金字</span>。星旺衰：旺相<span class="qm-wx-wang">绿</span>、囚废<span class="qm-wx-ruo">红</span>、休平<span class="qm-wx-ping">灰</span>。</div>
-    </div></section>
-    <section class="mod" id="qmModGeju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="gua-ico">✦</span><span class="mod-title">格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}${pan.family!=='时家'?'<div class="qm-note">非时家局：格局按盘面通用项列出。</div>':''}</div></section>
-    <section class="mod" id="qmModDuanju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModDuanju')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">断局特征</span><span class="mod-sub">宫气 用神网络 多派</span></div><div class="mod-body">
-     ${djHtml}
-    </div></section>
-    <section class="mod" id="qmModSynth"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">综合判断</span><span class="mod-sub">多派 用神 格局</span></div><div class="mod-body">
-     <table class="qm-tbl zh-tbl"><tbody>${zhRows}</tbody></table>
-    </div></section>
-    <section class="mod" id="qmModYingQi"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModYingQi')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">应期参考</span><span class="mod-sub">宫数 值使 空马 旺衰</span></div><div class="mod-body">
-     ${yqHtml}
-    </div></section>`;
-}/* 构建 AI 文本导出（__qm） */
-function buildQmText(pan, purpose, family, method, school, extraLines){
-  const gongLines=GRID.map(g=>{
-    const xing=(pan.jiuXing||{})[g]||'无', men=(pan.baMen||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
-    const tian=(pan.tianPan||{})[g]||'无', di=(pan.diPan||{})[g]||'无';
-    return `${GONG_NAME[g]}宫（${GONG_DIR[g]}）：天${tian}、地${di} 星${xing} 门${men} 神${shen}`;
-  }).join('\n');
-  const gj=(pan.geju||[]).map(g=>g.name).join('、')||'无明显格局';
-  const an=pan.analysis||{};
-  const ft=an.features||{}, jd=an.judgments||{};
-  const gq=ft.gongQi||{};
-  const ftLine=(()=>{
-    if(!ft.yongShen) return '';
-    const parts=[`用神【${ft.yongShen.label}】落${GONG_NAME[ft.yongShen.gong]}宫，宫气${ft.yongShen.wangShuai||'无'}${ft.yongShen.kong?'，空亡':''}${ft.yongShen.ma?'，驿马':''}`];
-    const q=ft.qiuCe||{};
-    if(q.day) parts.push(`日干宫${GONG_NAME[q.day.gong]}（${q.day.wangShuai||'无'}）`);
-    if(q.time) parts.push(`时干宫${GONG_NAME[q.time.gong]}（${q.time.wangShuai||'无'}）`);
-    if(q.year) parts.push(`年命宫${GONG_NAME[q.year.gong]}（${q.year.wangShuai||'无'}）`);
-    if(ft.yuan&&ft.yuan.gongs.length) parts.push(`原神${ft.yuan.wx}在${ft.yuan.gongs.map(g=>GONG_NAME[g]+'宫'+(gq[g]?gq[g].wangShuai:'')).join('、')}`);
-    if(ft.ji&&ft.ji.gongs.length) parts.push(`忌神${ft.ji.wx}在${ft.ji.gongs.map(g=>GONG_NAME[g]+'宫'+(gq[g]?gq[g].wangShuai:'')).join('、')}`);
-    if(ft.chou&&ft.chou.gongs.length) parts.push(`仇神${ft.chou.wx}在${ft.chou.gongs.map(g=>GONG_NAME[g]+'宫'+(gq[g]?gq[g].wangShuai:'')).join('、')}`);
-    return `断局特征：${parts.join('；')}。\n`;
-  })();
-  let zonghe='';
-  const syn=jd.synthesis||{};
-  if(syn.headline){
-    zonghe='综合断语：'+syn.headline+'。\n'+syn.basis+'。\n'+
-      '主判依据为'+syn.primary.name+'权重最高的证据是'+syn.primary.reason+'。\n'+
-      (syn.secondary?'次判为'+syn.secondary.name+syn.secondary.grade+'（'+syn.secondary.score+'）'+(syn.secondary.opposed?'（与主判相左）':'')+'，'+syn.secondary.reason+'\n':'')+
-      (syn.conflicts.length?'分歧见'+syn.conflicts.map(c=>c.name+'判'+c.grade+'，'+c.reason).join('；')+'。\n':'五派同向。\n')+
-      '取用为'+syn.advice+'\n'+
-      '裁断次序为用神派为先，值符派为次，宫气派为体，长生派为用，格局派为证。\n'+
-      '引用时须指明派别与出处，不得自造断语。\n'+
-      (an.suggestions||[]).map(s=>`【${(s&&s.cat)||'其他'}】${s.text}`).join('\n')+
-      '\n多派明细如下\n'+
-      jd.schools.map(s=>`${s.name}（${s.note}；权重${s.weightText}）得分${s.score}，判${s.grade}；依据为`+(s.items.map(i=>i.text+'（'+i.src+'）').join('；')||'无成项')).join('\n');
-  } else if(jd.schools&&jd.schools.length){
-    zonghe='多派断局（五派并列，各派按权重取层计分）：\n'+
-      jd.schools.map(s=>`${s.name}（${s.note}；权重${s.weightText}）得分${s.score}，判${s.grade}；依据为`+(s.items.map(i=>i.text+'（'+i.src+'）').join('；')||'无成项')).join('\n')+
-      '\n引用时须指明派别与出处，不得自造断语。\n'+
-      (an.suggestions||[]).map(s=>`【${(s&&s.cat)||'其他'}】${s.text}`).join('\n');
-  } else if(an.overallJiXiongText){
-    zonghe=`综合判断：${an.overallJiXiongText}\n` + (an.suggestions||[]).map(s=>`【${(s&&s.cat)||'其他'}】${s.text}`).join('\n');
-  }
-  const yq=an.yingQi;
-  const yqTxt=(yq&&yq.schools&&yq.schools.length)
-    ? `\n应期参考（五法并列，不合成单一日期）：\n`+yq.schools.map(m=>`${m.name}：${m.method}；${m.result}（${m.src}）`).join('\n')
-    : '';
-  const siZhuLine = pan.family==='山向'
-    ? `山向：${pan.shanXiang?pan.shanXiang.shan+'山'+pan.shanXiang.xiang+'向':''}，用事年 ${pan.siZhu.year}`
-    : `四柱：${pan.siZhu.year}年${pan.siZhu.month}月${pan.siZhu.day}日${pan.siZhu.time}时`;
-  const juLine = pan.juShu.juMeta&&pan.juShu.juMeta.manual
-    ? `手动定局：${pan.juShu.fullName}`
-    : `节气局数：${pan.juShu.jieQiName}（${pan.juShu.yuan}）${pan.juShu.fullName}`;
-  return (extraLines||'')+`\n${siZhuLine}\n${juLine}\n旬首${pan.xunShou} 落宫干${pan.luoGongGan}\n值符宫为${GONG_NAME[pan.zhiFuGong]||pan.zhiFuGong}（${pan.zhiFuXing}）值使门为${pan.zhiShiMen}\n空亡为${pan.kongWangZhi.join('、')||'无'} 驿马为${pan.maStar?pan.maStar.zhi:'无'}\n格局：${gj}\n九宫：\n${gongLines}${yqTxt}\n${ftLine}${zonghe?('\n'+zonghe):''}`;
-}
-/* 起局模式切换：常规 vs 山向奇门 */
-/* 折叠态属交互态：结果区模块与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function qmToggleMod(id){
-  const el = document.getElementById(id);
-  if(el) el.classList.toggle('collapsed');
-  xjSaveModState('qmModState','details[id]','__qmInitDone');
-}
-function qModeChange(){
-  const mode=document.getElementById('qMode').value;
-  const isSaved = mode==='saved';
-  const isSx = mode==='shanxiang';
-  const page=document.querySelector('.page');
-  if(page) page.classList.toggle('qm-saved', isSaved);
-  const panel=document.getElementById('qmSavedPanel');
-  if(panel) panel.hidden=!isSaved;
-  if(isSaved){ renderQimenSaved(); return; }
-  document.querySelectorAll('.q-mode-time,.q-mode-normal').forEach(x=>{ x.hidden=isSx; });
-  document.querySelectorAll('.q-mode-sx').forEach(x=>{ x.hidden=!isSx; });
-  const bg=document.getElementById('qmBirthGroup'), or=document.getElementById('qmOptsRow'), note=document.getElementById('qmOverseasNote');
-  if(bg) bg.hidden=isSx;
-  if(or) or.hidden=isSx;
-  if(note && isSx) note.hidden=true;
-  if(!isSx){ qmSyncOverseas(); qFamilyChange(); }
-  if(window.__qmInitDone){
-    const out=document.getElementById('out');
-    if(out) out.innerHTML='';
-  }
-}
-/* 首屏前按顶层刷新快照回填奇门关键字段：初始化早于顶层恢复，先取同一份快照，
-   首次 paiju 即按恢复后的模式与时间出盘，避免先出常规盘再被覆盖。 */
-function qmRestoreSnapshotBeforeRender(){
-  let o=null;
-  try{
-    const page=(location.pathname.split('/').pop()||'index').replace(/\.html$/,'');
-    const raw=sessionStorage.getItem('xj:form:'+page);
-    o=raw?JSON.parse(raw):null;
-  }catch(e){ return false; }
-  if(!o) return false;
-  const ids=['qMode','qDate','qTime','qPurpose','qFamily','qMethod','qSchool','qQinGong','qBaShen','qManualJu','qBirthGZ','qShan','qDegree','qYearGZ','qYuan','qSxSchool','qSxPurpose'];
-  ids.forEach(id=>{
-    if(!(id in o)) return;
-    const el=document.getElementById(id); if(!el) return;
-    const v=String(o[id]);
-    if(el.tagName==='SELECT'){
-      const has=Array.prototype.some.call(el.options,op=>op.value===v);
-      if(has) el.value=v;
-    } else {
-      el.value=v;
-    }
-  });
-  qModeChange();
-  return true;
-}
-/* 已存局：本地双存储，按当前起局参数保存与回填 */
-const QIMEN_SAVED_KEY='qimen_saved_v1';
-const QIMEN_SAVED_MAX=30;
-function getQimenSaved(){
-  try{ const raw=localStorage.getItem(QIMEN_SAVED_KEY)||sessionStorage.getItem(QIMEN_SAVED_KEY); return raw?JSON.parse(raw):[]; }catch(e){ return []; }
-}
-function setQimenSaved(list){
-  try{ const raw=JSON.stringify(list); localStorage.setItem(QIMEN_SAVED_KEY,raw); sessionStorage.setItem(QIMEN_SAVED_KEY,raw); }catch(e){}
-}
-function qimenEntryKey(e){
-  return [e.mode,e.date,e.time,e.purpose,e.family,e.method,e.school,e.qinGong,e.baShen,e.manualJu,e.birthGZ,e.shan,e.degree,e.yearGZ,e.yuan,e.sxSchool,e.sxPurpose,e.prov,e.city,e.dist,e.lng,e.dst,e.zi,e.sun,e.tz,e.localDst].join('');
-}
-function saveQimenEntry(){
-  const mode=document.getElementById('qMode').value;
-  if(mode==='saved'){ alert('请先切回常规或山向再保存'); return; }
-  const e={
-    mode:mode, date:document.getElementById('qDate').value, time:document.getElementById('qTime').value,
-    purpose:document.getElementById('qPurpose').value, family:document.getElementById('qFamily').value,
-    method:document.getElementById('qMethod').value, school:document.getElementById('qSchool').value,
-    qinGong:document.getElementById('qQinGong').value, baShen:document.getElementById('qBaShen').value,
-    manualJu:document.getElementById('qManualJu').value, birthGZ:document.getElementById('qBirthGZ').value,
-    shan:document.getElementById('qShan').value, degree:document.getElementById('qDegree').value,
-    yearGZ:document.getElementById('qYearGZ').value, yuan:document.getElementById('qYuan').value,
-    sxSchool:document.getElementById('qSxSchool').value, sxPurpose:document.getElementById('qSxPurpose').value,
-    prov:document.getElementById('qmProv').value, city:document.getElementById('qmCity').value,
-    dist:document.getElementById('qmDist').value, lng:document.getElementById('qmLng').value,
-    dst:document.getElementById('qmDst').value, zi:document.getElementById('qmZi').value,
-    sun:document.getElementById('qmSun').value, tz:document.getElementById('qmTzOff').value,
-    localDst:document.getElementById('qmLocalDst').checked
-  };
-  if(mode==='normal' && !e.date){ alert('请先填写起局日期再保存'); return; }
-  const list=getQimenSaved();
-  const key=qimenEntryKey(e);
-  const i=list.findIndex(x=>qimenEntryKey(x)===key);
-  if(i>=0) list[i]=e; else list.push(e);
-  while(list.length>QIMEN_SAVED_MAX) list.shift();
-  setQimenSaved(list);
-  renderQimenSaved();
-  const btn=document.querySelector('button[onclick="saveQimenEntry()"]');
-  if(btn){ const old=btn.textContent; btn.textContent='已保存 ✓'; setTimeout(()=>{ if(btn.textContent==='已保存 ✓') btn.textContent=old; },1200); }
-}
-function renderQimenSaved(){
-  const host=document.getElementById('qmSavedList'); if(!host) return;
-  const list=getQimenSaved();
-  const tip=document.getElementById('qmSavedTip');
-  if(!list.length){ host.innerHTML='<tr><td colspan="5">暂无已存局。在常规或山向模式下填好参数，点“保存”即可记录。</td></tr>'; if(tip) tip.textContent=''; return; }
-  host.innerHTML=list.map((e,i)=>{
-    const modeTxt=e.mode==='shanxiang'?'山向':'常规';
-    const when=e.mode==='shanxiang'?`${e.shan||''}山 ${e.yearGZ||''}`:`${e.date||''} ${e.time||''}`;
-    const purpose=e.mode==='shanxiang'?(e.sxPurpose||'综合'):(e.purpose||'综合');
-    const fam=e.mode==='shanxiang'?'山向':`${e.family||'时家'} ${e.method||'转盘'} ${e.school||'传统'}`;
-    return `<tr><td>${modeTxt}</td><td>${when}</td><td>${purpose}</td><td>${fam}</td><td><button class="btn soft" type="button" onclick="loadQimenEntry(${i})">起局</button> <button class="btn soft" type="button" onclick="deleteQimenEntry(${i})">删除</button></td></tr>`;
-  }).join('');
-  if(tip) tip.textContent='共 '+list.length+' 条';
-}
-function setQimenSel(id,val){
-  const el=document.getElementById(id); if(!el) return;
-  el.value=val; el.dispatchEvent(new Event('change',{bubbles:true}));
-}
-function loadQimenEntry(i){
-  const list=getQimenSaved(); const e=list[i]; if(!e) return;
-  document.getElementById('qMode').value=e.mode; qModeChange();
-  document.getElementById('qDate').value=e.date||'';
-  document.getElementById('qTime').value=e.time||'12:00';
-  setQimenSel('qPurpose',e.purpose||'综合');
-  setQimenSel('qFamily',e.family||'时家');
-  setQimenSel('qMethod',e.method||'转盘');
-  setQimenSel('qSchool',e.school||'传统');
-  setQimenSel('qQinGong',e.qinGong||'坤二');
-  setQimenSel('qBaShen',e.baShen||'baihu');
-  setQimenSel('qManualJu',e.manualJu||'auto');
-  document.getElementById('qBirthGZ').value=e.birthGZ||'';
-  setQimenSel('qShan',e.shan||'子');
-  document.getElementById('qDegree').value=e.degree||'';
-  document.getElementById('qYearGZ').value=e.yearGZ||'';
-  setQimenSel('qYuan',e.yuan||'-1');
-  setQimenSel('qSxSchool',e.sxSchool||'阴盘');
-  setQimenSel('qSxPurpose',e.sxPurpose||'综合');
-  setQimenSel('qmProv',e.prov||'未知地');
-  setQimenSel('qmCity',e.city||'未知地');
-  setQimenSel('qmDist',e.dist||'未知地');
-  document.getElementById('qmLng').value=e.lng||'';
-  setQimenSel('qmDst',e.dst||'auto');
-  setQimenSel('qmZi',e.zi||'late');
-  setQimenSel('qmSun',e.sun||'off');
-  setQimenSel('qmTzOff',e.tz||'-12');
-  document.getElementById('qmLocalDst').checked=!!e.localDst;
-  qmSyncOverseas();
-  paiju();
-}
-function deleteQimenEntry(i){
-  const list=getQimenSaved(); list.splice(i,1); setQimenSaved(list); renderQimenSaved();
-}
-/* 定局手动项只对时家、刻家开放 */
-function qFamilyChange(){
-  const fam=(document.getElementById('qFamily')||{}).value||'时家';
-  const f=document.getElementById('qManualField');
-  if(f) f.hidden=!(fam==='时家'||fam==='刻家');
-}
-/* 填充二十四山坐山下拉（SHAN_ORDER 由引擎导出） */
-function fillShan(){
-  const el=document.getElementById('qShan');
-  if(!el||el.options.length) return;
-  const order=(Qimen&&Qimen.SHAN_ORDER)?Qimen.SHAN_ORDER:['子','午'];
-  el.innerHTML=order.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
-  qShanChange();
-}
-/* 坐山变化 → 自动对宫为向山 */
-function qShanChange(){
-  const shan=document.getElementById('qShan').value;
-  const opp=Qimen.shanOpposite?Qimen.shanOpposite(shan):'';
-  const xiang=document.getElementById('qXiang');
-  if(xiang) xiang.value=opp;
-}
-/* 出生地经度：手动经度优先，其次省市区三级经度真源；两处皆未定返回空，不按他地兜底 */
-function qmBirthLng(){
-  const v=document.getElementById('qmLng').value;
-  if(String(v||'').trim()!==''&&isFinite(Number(v))) return parseFloat(v);
-  if(typeof findLng==='function') return findLng(document.getElementById('qmProv').value,document.getElementById('qmCity').value,document.getElementById('qmDist').value);
-  return null;
-}
-function qmTimeOpts(){
-  if(typeof placeTimeOptsOf==='function') return placeTimeOptsOf({prov:'qmProv',city:'qmCity',lng:'qmLng',tz:'qmTzOff',dst:'qmLocalDst'});
-  return {overseas:false,baseLng:120,localDst:false,lng:null};
-}
-function qmFmtClock(y,mo,d,h,mi){ return y+'年'+mo+'月'+d+'日 '+('0'+h).slice(-2)+':'+('0'+mi).slice(-2); }
-function qmSyncOverseas(){
-  const mode=(document.getElementById('qMode')||{}).value||'normal';
-  if(typeof syncOverseasFields==='function'){
-    syncOverseasFields({prov:'qmProv',city:'qmCity',lng:'qmLng',tz:'qmTzOff',dst:'qmLocalDst',
-      tzField:'qmTzOffField',dstField:'qmLocalDstField',note:'qmOverseasNote',chinaDstField:'qmDstField'},
-      {enabled:mode!=='shanxiang', chinaDst:true});
-  }
-}
-function qmOverseasChange(){ qmSyncOverseas(); }
-function paiju(){
-  const mode=document.getElementById('qMode')?document.getElementById('qMode').value:'normal';
-  /* 已存模式只出列表，不按常规盘重排 */
-  if(mode==='saved') return;
-  /* 山向奇门：空间起局，不依赖日期时间 */
-  if(mode==='shanxiang'){
-    return paijuShanXiang();
-  }
-  const dv=document.getElementById('qDate').value,tv=document.getElementById('qTime').value;
-  if(!dv||!tv){alert('请选择日期和时间');return;}
-  let [y,m,d]=dv.split('-').map(Number); let [h,mi]=tv.split(':').map(Number);
-  const purpose=document.getElementById('qPurpose').value;
-  const family=document.getElementById('qFamily').value;
-  const method=document.getElementById('qMethod').value;
-  const school=document.getElementById('qSchool').value;
-  const qinGong=(document.getElementById('qQinGong')||{}).value||'坤二';
-  const baShenSect=(document.getElementById('qBaShen')||{}).value||'baihu';
-  const manualJu=(document.getElementById('qManualJu')||{}).value||'auto';
-  const birthGZ=(document.getElementById('qBirthGZ')||{}).value?document.getElementById('qBirthGZ').value.trim():'';
-  const dstMode=(document.getElementById('qmDst')||{}).value||'auto';
-  const ziMode=(document.getElementById('qmZi')||{}).value||'late';
-  const sunMode=(document.getElementById('qmSun')||{}).value||'off';
-  const lng=qmBirthLng();
-  if(sunMode!=='off'&&lng==null){ alert('太阳时校正已开，但未定出生地：请选择省市区或填写经度；若出生地无考，把太阳时改为不校正'); return; }
-  const pto=qmTimeOpts();
-  const clockTxt=qmFmtClock(y,m,d,h,mi);
-  let timeNote='';
-  if(!pto.overseas && typeof applyDstCorrection==='function'){
-    const ds=applyDstCorrection(y,m,d,h,mi,dstMode);
-    if(ds.applied){ y=ds.y; m=ds.m; d=ds.d; h=ds.h; mi=ds.mi; timeNote=ds.note||''; }
-  } else if(pto.overseas && pto.localDst && typeof shiftClockDay==='function'){
-    const ld=shiftClockDay(y,m,d,h,mi,-60);
-    timeNote='当地夏令时：钟面 '+('0'+h).slice(-2)+':'+('0'+mi).slice(-2)+' 折为标准时 '+('0'+ld.h).slice(-2)+':'+('0'+ld.mi).slice(-2);
-    y=ld.y; m=ld.m; d=ld.d; h=ld.h; mi=ld.mi;
-  }
-  if(sunMode!=='off'&&lng!=null&&typeof trueSolarTime==='function'){
-    const ts=trueSolarTime(y,m,d,h,mi,lng,sunMode,pto.baseLng==null?120:pto.baseLng);
-    timeNote=(timeNote?timeNote+'；':'')+(sunMode==='mean'?'平太阳时':'真太阳时')+'：钟面 '+('0'+h).slice(-2)+':'+('0'+mi).slice(-2)+' 校正 '+ts.totalAdj+' 分，得 '+('0'+ts.h).slice(-2)+':'+('0'+ts.mi).slice(-2);
-    y=ts.y; m=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
-  }
-  const ziNote = h===23 ? (ziMode==='late'?'晚子时：23时后归次日，日柱按时干遁':'早子时：23时仍归当日，日柱不变') : '';
-  if(ziNote) timeNote=(timeNote?timeNote+'；':'')+ziNote;
-  let pan;
-  try{
-    pan=QimenX.calculate(safeDate(y,m,d,h,mi,0), {family, method, school, purpose, birthGZ, qinGong, ziMode, manualJu, baShenSect});
-  }catch(e){ console.error('[排盘]', e); document.getElementById('out').innerHTML='<p class="notice">排盘失败，请核对输入后重试。</p>'; return; }
-  if(pan.error){ document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+pan.message+'</p>'; return; }
-  const cells = buildCells(pan);
-  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
-  /* 基础信息表：排盘参数 + 四柱、节气局数、值符值使、空亡驿马 */
-  const familyNote = (pan.family==='日家') ? '（日家九星：太乙、摄提、轩辕、招摇、天符、青龙、咸池、太阴、天乙）' : '';
-  const familyLabel = pan.family==='日家'?'日干':(pan.family==='月家'?'月干':(pan.family==='年家'?'年干':(pan.family==='刻家'?'刻干':'时干')));
-  const baseInfo=[
-    ['排盘参数', `${pan.family} ${pan.method} ${pan.school} 天禽寄${pan.qinGong||'坤二'} 用神【${purpose}】${manualJu!=='auto'?' 手动定局':''}${birthGZ?' 年命'+birthGZ:''}`],
-    ['四柱', `${pan.siZhu.year}年${pan.siZhu.month}月${pan.siZhu.day}日${pan.siZhu.time}时`],
-    ...(pan.family==='刻家'?[['刻柱', pan.keZhu||'无']]:[]),
-    ['节气局数', pan.juShu.juMeta&&pan.juShu.juMeta.manual ? ('手动定局：'+pan.juShu.fullName) : `${pan.juShu.jieQiName}，${pan.juShu.fullName}${pan.juShu.fuTou?('，符头 '+pan.juShu.fuTou):''}${pan.juShu.jiaoJie?('，交节 '+pan.juShu.jiaoJie):''}${pan.juShu.juMeta&&pan.juShu.juMeta.note?('，'+pan.juShu.juMeta.note):''}`],
-    ['旬首六仪', `${pan.xunShou}，${familyLabel} ${pan.luoGongGan}`],
-    ['值符值使', `值符 ${GONG_NAME[zf]||zf}宫（${pan.zhiFuXing}），值使 ${GONG_NAME[zs]||zs}宫（${pan.zhiShiMen}）`],
-    ['空亡驿马', `空亡 ${pan.kongWangZhi.join('、')||'无'}（${(pan.kongWangGong||[]).map(g=>GONG_NAME[g]+'宫').join('、')}），驿马 ${pan.maStar?pan.maStar.zhi+'（'+(GONG_NAME[pan.maStar.gong]||'')+'宫，'+(pan.maStar.from||'')+'马）':'无'}`],
-    ['时间折算', timeNote || ('钟面 '+clockTxt+'，未校正；子时算法 '+(ziMode==='late'?'晚子时':'早子时'))],
-    ['星系统', pan.xingSystem||'时家九星（天蓬、天芮、天冲、天辅、天禽、天心、天柱、天任、天英）'+familyNote]
-  ];
-  renderQiOutput(pan, cells, baseInfo, purpose);
-  document.getElementById('out').innerHTML = qiHtml;
-  xjApplyModState('qmModState','details[id]');
-  window.__qmInitDone = true;
-  try{ renderBaziLink(pan, qiHtml); }catch(e){}
-  const sysLabel = family==='日家'
-    ? '\n九星系统：太乙九星（日家专用：太乙、摄提、轩辕、招摇、天符、青龙、咸池、太阴、天乙），非时家蓬任冲辅英芮柱心禽；八门：休门落宫本系统'
-    : '';
-  __qm=buildQmText(pan, purpose, family, method, school, `用神：${purpose}\n家数、排法、门派：${family} ${method} ${school} 天禽寄${pan.qinGong||'坤二'}${sysLabel}\n时间折算：${timeNote||'未校正'}\n`);
-  window.__qmPan = pan;
-}
-/* 山向奇门专用排盘 */
-function paijuShanXiang(){
-  const shan=document.getElementById('qShan').value;
-  const xiang=document.getElementById('qXiang').value;
-  const yearGZ=document.getElementById('qYearGZ').value.trim();
-  const yuanIdx=parseInt(document.getElementById('qYuan').value);
-  const degreeRaw=document.getElementById('qDegree').value;
-  const degree=(degreeRaw!==''&&isFinite(Number(degreeRaw)))?Number(degreeRaw):undefined;
-  const purpose=document.getElementById('qSxPurpose').value;
-  if(!yearGZ){
-    document.getElementById('out').innerHTML='<p class="notice">山向奇门：请填写用事年干支后再起局。</p>';
-    window.__qmPan=null;
-    return;
-  }
-  if(!Qimen||!Qimen.calculateShanXiang){alert('山向奇门引擎未加载');return;}
-  let pan;
-  try{
-    pan=Qimen.calculateShanXiang({shan,xiang,yearGZ,yuanIdx,purpose,degree});
-  }catch(e){ console.error('[排盘]', e); document.getElementById('out').innerHTML='<p class="notice">排盘失败，请核对输入后重试。</p>'; return; }
-  if(pan.error){ document.getElementById('out').innerHTML='<p class="notice">排盘失败：'+pan.message+'</p>'; return; }
-  const cells = buildCells(pan);
-  const zf=pan.zhiFuGong, zs=pan.zhiShiGong;
-  const sx=pan.shanXiang||{shan,xiang};
-  const degTxt=(sx.degree!=null?('，度数 '+sx.degree+'°'):'');
-  const baseInfo=[
-    ['山向', `${sx.shan}山${sx.xiang}向，用事年 ${yearGZ}${degTxt}`],
-    ['局数', pan.juShu.fullName],
-    ['旬首六仪', `${pan.xunShou}，时干 ${pan.luoGongGan}`],
-    ['值符值使', `值符 ${GONG_NAME[zf]||zf}宫（${pan.zhiFuXing}），值使 ${GONG_NAME[zs]||zs}宫（${pan.zhiShiMen}）`],
-    ['空亡驿马', `空亡 ${pan.kongWangZhi.join('、')||'无'}，驿马 ${pan.maStar?pan.maStar.zhi+'（'+(GONG_NAME[pan.maStar.gong]||'')+'宫）':'无'}`]
-  ];
-  renderQiOutput(pan, cells, baseInfo, purpose);
-  document.getElementById('out').innerHTML = qiHtml;
-  xjApplyModState('qmModState','details[id]');
-  window.__qmInitDone = true;
-  try{ renderBaziLink(pan); }catch(e){}
-  __qm=buildQmText(pan, purpose, '山向', '转盘', '阴盘', `山向奇门：${sx.shan}山${sx.xiang}向\n用事年：${yearGZ}  局数：${pan.juShu.fullName}\n`);
-  window.__qmPan = pan;
-}
-/* 宫位详情弹层：点击九宫某宫弹出该宫完整分析（含白话释义） */
-function showGongDetail(g){
-  const pan=window.__qmPan; if(!pan) return;
-  const xing=(pan.jiuXing||{})[g]||'无', men=(pan.baMen||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
-  const tian=(pan.tianPan||{})[g]||'无', di=(pan.diPan||{})[g]||'无', an=(pan.anGan||{})[g]||'无';
-  const a=((pan.jiuGongAnalysis||{})[g])||{};
-  const gfeat=((pan.analysis||{}).features||{}).gongQi||{};
-  const gq=gfeat[g]||{};
-  const gwx=gq.wx||'';
-  const marks=[];
-  if(g===pan.zhiFuGong) marks.push('<span class="b-zf">值符</span>');
-  if(g===pan.zhiShiGong) marks.push('<span class="b-zs">值使</span>');
-  if((pan.kongWangGong||[]).includes(g)) marks.push('<span class="b-kw">空亡</span>');
-  if(pan.maStar&&pan.maStar.gong===g) marks.push('<span class="b-ym">驿马</span>');
-  const jxText = (a.jiXiong && JX_KEY[a.jiXiong] ? JX_TEXT[JX_KEY[a.jiXiong]] : '') || '';
-  const menCls=men?menClsOf(men):'';
-  const shenCls=shen?shenClsOf(shen):'';
-  /* 白话释义只解释九星、八门、八神；宫位信息由宫位行展示 */
-  const xPlain=xing!=='无'?(XING_MEAN[xing]||''):'';
-  const mPlain=men!=='无'?(MEN_MEAN[men]||''):'';
-  const sPlain=shen!=='无'?(SHEN_MEAN[shen]||''):'';
-  const plainParts=[];
-  if(xPlain) plainParts.push(`九星“${xing}”：${xPlain}`);
-  if(mPlain) plainParts.push(`八门“${men}”：${mPlain}`);
-  if(sPlain) plainParts.push(`八神“${shen}”：${sPlain}`);
-  const plainText = plainParts.length ? plainParts.join('；')+'。' : '本宫九星、八门、八神释义暂无补充。';
-  /* 分组：本宫要素（宫位已在头部，此处只列干星门神）、关系判断、白话解读 */
-  const baseRows=[
-    ['宫位含义', GONG_MEAN_SHORT[g]||'无'],
-    ['天盘干', tian],
-    ['地盘干', di+(an&&an!=='无'?'；暗干 '+an:'')],
-    ['九星', xing],
-    ['八门', `<span class="${menCls}">${men}</span>`],
-    ['八神', `<span class="${shenCls}">${shen}</span>`]
-  ];
-  const relRows=[['宫位吉凶', jxText||'平']];
-  if(gq.wangShuai) relRows.push(['宫气旺衰', gq.wangShuai]);
-  const cs=(gq.changSheng||[]).map(x=>x.zhi+x.stage).join('、');
-  if(cs) relRows.push(['十二长生', cs]);
-  if(a.menRel) relRows.push(['门宫关系', a.menRel==='门迫'?'门迫（门克宫，事受制）':'门制（宫克门，力有牵制）']);
-  if(a.xingWang) relRows.push(['星之旺衰', a.xingWang]);
-  if(a.keYing) relRows.push(['十干克应', a.keYing+(a.keYingSrc?` <span class="qi-mp-src">${a.keYingSrc}</span>`:'')]);
-  const kv=arr=>arr.map(r=>`<div class="mk">${r[0]}</div><div>${r[1]}</div>`).join('');
-  const sec=(t,inner)=>`<div class="qi-g-sec"><div class="qi-g-sec-t">${t}</div>${inner}</div>`;
-  const bodyHtml=
-    sec('本宫要素', `<div class="qi-mp-grid">${kv(baseRows)}</div>`)+
-    sec('关系判断', `<div class="qi-mp-grid">${kv(relRows)}</div>`)+
-    sec('白话解读', `<div class="qi-g-plain">${plainText}</div>`);
-  const mask=document.createElement('div');
-  mask.className='modal-mask';
-  mask.setAttribute('tabindex','-1');
-  mask.innerHTML=`<div class="modal qi-gong-modal" role="dialog" aria-modal="true" aria-label="宫位详情"><span class="close" role="button" tabindex="0" aria-label="关闭">×</span>
-    <div class="qi-modal-head"><span class="qi-g-name">${GONG_NAME[g]}宫</span><span class="qi-g-sub">${GONG_DIR[g]}（五行${gwx}）</span>${marks.length?`<span class="qm-badge-row">${marks.join('')}</span>`:''}</div>
-    ${bodyHtml}
-    <div class="qi-mp-note">本宫聚合：${tian}（天），${di}（地），${xing}（星），${men}（门），${shen}（神），${jxText||'平'}。断事以用神落宫为主，兼看生克旺衰与十干克应。空亡宫吉凶减半，驿马主动，门迫事制。</div>
-  </div>`;
-  mask.addEventListener('click',function(e){ if(e.target===mask){ clearGongHighlight(); mask.remove(); } });
-  mask.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){ clearGongHighlight(); mask.remove(); }
-    if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.classList&&e.target.classList.contains('close')){ e.preventDefault(); clearGongHighlight(); mask.remove(); }
-  });
-  mask.querySelector('.close').addEventListener('click',function(){ clearGongHighlight(); mask.remove(); });
-  document.body.appendChild(mask);
-  mask.classList.add('show');
-  mask.focus();
-}
-/* 对宫映射（洛书相隔180°）：1坎↔9离 2坤↔8艮 3震↔7兑 4巽↔6乾 中5无对宫 */
-const DUI_GONG={'1':'9','9':'1','2':'8','8':'2','3':'7','7':'3','4':'6','6':'4','5':''};
-function highlightGong(g){
-  const cells=document.querySelectorAll('.qi-cell');
-  const rel=DUI_GONG[g]||'';
-  cells.forEach(c=>{
-    const gv=c.getAttribute('data-g');
-    c.classList.remove('qi-sel','qi-dim');
-    if(gv===g) c.classList.add('qi-sel');
-    else c.classList.add('qi-dim');
-  });
-}
-/* 关闭弹层时清除宫格高亮类，恢复未点击原状 */
-function clearGongHighlight(){
-  document.querySelectorAll('.qi-cell').forEach(c=>c.classList.remove('qi-sel','qi-dim'));
-}
-/* ============ 八字 × 奇门联动解读：读 URL 参数（fromBazi/dayGan/yearGZ/sex/xi/ji）============
- * 思路：八字喜用神五行 → 九宫方位（水坎1、木震3巽4、火离9、土坤2艮8、金乾6兑7），
- *      看对应宫的门、星、神、宫吉凶是否得地；忌神五行宫则作回避提示；最后四档综合。 */
-function renderBaziLink(pan){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('fromBazi')!=='1'||!pan) return;
-  const dayGan=p.get('dayGan')||'';
-  const yearGZ=p.get('yearGZ')||'';
-  const sex=p.get('sex')||'';
-  const xi=(p.get('xi')||'').split(',').filter(Boolean);
-  const ji=(p.get('ji')||'').split(',').filter(Boolean);
-  if(!xi.length&&!ji.length) return;
-  const WX_PALACE={水:['1'],木:['3','4'],火:['9'],土:['2','8'],金:['6','7']};
-  const MEN_JX=(typeof Qimen!=='undefined'&&Qimen.MEN_JX)||{};
-  const XING_JX=(typeof Qimen!=='undefined'&&Qimen.XING_JX)||{};
-  const SHEN_JX=(typeof Qimen!=='undefined'&&Qimen.SHEN_JX)||{};
-  const gongJX=(g)=>{ const a=(pan.jiuGongAnalysis||{})[g]||{}; return a.jiXiong||'平'; };
-  const cellHtml=(wx,g,kind)=>{
-    const jx=gongJX(g);
-    const men=(pan.baMen||{})[g]||'无', xing=(pan.jiuXing||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
-    const mJX=MEN_JX[men]||'平';
-    const xJX=XING_JX[xing]||'平';
-    const sJX=SHEN_JX[shen]||'平';
-    const jxTxt=JX_KEY&&JX_KEY[jx]?JX_TEXT[JX_KEY[jx]]:jx;
-    return `<tr><th>${wx} ${kind}</th><td>${GONG_NAME[g]}宫 ${GONG_DIR[g]}　${jxTxt}　门${men}（${mJX}） 星${xing}（${xJX}） 神${shen}（${sJX}）</td></tr>`;
-  };
-  let rows='';
-  xi.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{ rows+=cellHtml(wx,g,'喜用'); }); });
-  ji.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{ rows+=cellHtml(wx,g,'忌神'); }); });
-  /* 四档综合：喜用宫得吉门、吉星、吉神 计数 vs 忌神宫凶门计数 */
-  let good=0,bad=0;
-  xi.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{
-    const men=(pan.baMen||{})[g]||'无', xing=(pan.jiuXing||{})[g]||'无', shen=(pan.baShen||{})[g]||'无';
-    const mJX=MEN_JX[men]==='吉', xJX=XING_JX[xing]==='吉', sJX=SHEN_JX[shen]==='吉';
-    if(mJX&&(xJX||sJX)) good++; else if(gongJX(g)==='凶'||MEN_JX[men]==='凶') bad++;
-  }); });
-  ji.forEach(wx=>{ (WX_PALACE[wx]||[]).forEach(g=>{
-    const men=(pan.baMen||{})[g]||'无';
-    if(MEN_JX[men]==='凶'||gongJX(g)==='凶') bad++;
-  }); });
-  let verdict, vcolor, vlabel;
-  if(good>bad&&good>0){ vlabel='吉'; verdict='吉：八字喜用方位在当前时空得地、门星神多吉，宜乘势而为、主动推进。'; vcolor='#2e8b57'; }
-  else if(good===bad&&good>0){ vlabel='平'; verdict='平：喜用方位有得有失，门星神吉凶相半，宜审慎行动、留有余地。'; vcolor='#8a6d3b'; }
-  else if(good<bad&&good>0){ vlabel='凶多于吉'; verdict='凶多于吉：喜用方位受阻、忌神方位逢凶，此时机不宜硬闯，宜另择吉时再验。'; vcolor='#c0392b'; }
-  else if(good===0&&bad===0){ vlabel='平'; verdict='平：喜用方位门星神皆平，无大碍亦无强助，顺其自然、按常行事。'; vcolor='#8a6d3b'; }
-  else { vlabel='凶'; verdict='凶：喜用方位不得地、忌神方位逢凶，当前时空不利此命推进，宜静守待时、择日再验。'; vcolor='#a93226'; }
-  const head=`<span class="qm-lh-it">日主 ${dayGan||'无'}</span><span class="qm-lh-it">年命 ${yearGZ||'无'}</span>${sex?`<span class="qm-lh-it">性别 ${sex}</span>`:''}<span class="qm-lh-it">喜用 ${xi.join('、')||'未明'}</span><span class="qm-lh-it">忌神 ${ji.join('、')||'未明'}</span>`;
-  const html=`<h3 class="rel-title">八字命盘联动解读</h3>
-  <table class="qm-tbl zh-tbl link-th"><tbody>
-    <tr><th>联动命盘</th><td><div class="qm-link-head">${head}</div></td></tr>
-    ${rows}
-    <tr><th>综合判断</th><td><span class="qm-badge" style="background:${vcolor}">${vlabel}</span>${verdict}</td></tr>
-  </tbody></table>`;
-  const out=document.getElementById('out');
-  if(out) out.insertAdjacentHTML('beforeend', html);
-}
-</script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    renderChrome('qimen.html');
-    document.addEventListener('toggle', function(e){
-      const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id) xjSaveModState('qmModState','details[id]','__qmInitDone');
-    }, true);
-    document.addEventListener('click',function(e){
-      const cell=e.target.closest?e.target.closest('.qi-cell'):null;
-      if(cell&&cell.getAttribute('data-g')){ const g=cell.getAttribute('data-g'); highlightGong(g); showGongDetail(g); }
-    });
-    document.addEventListener('keydown',function(e){
-      if((e.key==='Enter'||e.key===' ')){
-        const t=e.target;
-        if(t&&t.classList&&t.classList.contains('qi-cell')&&t.getAttribute('data-g')){ e.preventDefault(); const g=t.getAttribute('data-g'); highlightGong(g); showGongDetail(g); }
-      }
-    });
-    document.addEventListener('keydown',function(e){
-      if(e.key==='Enter'||e.key===' '){
-        const h=e.target.closest?e.target.closest('.mod-head'):null;
-        if(h){ e.preventDefault(); h.click(); }
-      }
-    });
-    if(Qimen&&Qimen.SHAN_ORDER){ fillShan(); };
-    qFamilyChange();
-    const tzSel=document.getElementById('qmTzOff');
-    if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
-    if(typeof fillPlaceTrio==='function'){
-      fillPlaceTrio(document.getElementById('qmProv'),document.getElementById('qmCity'),document.getElementById('qmDist'),function(){ qmSyncOverseas(); });
-    }
-    qmSyncOverseas();
-    if(!qmRestoreSnapshotBeforeRender()){
-      const n=new Date();
-      document.getElementById('qDate').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
-      document.getElementById('qTime').value=`${pad2(n.getHours())}:${pad2(n.getMinutes())}`;
-    }
-    mountAI(function(){ return __qm||''; }, '奇门遁甲', {
-      systemPrompt: QIMEN_AI_PROMPT,
-      temperature: 0.3,
-      schools: QIMEN_AI_SCHOOLS,
-      schoolLabel: '断局流派',
-      schoolClosing: '每派段末写明本派判名、得分与关键证据，证据须带出处，不混入他派口径。',
-      schoolSummary: '五派成段后另起一段总收，先列共识、再列分歧，并写明主判、次判与取用；不得把五派混成一句。',
-      share:{ page:"qimen", title:"奇门遁甲在线排盘", recast:function(){ try{ paiju(); }catch(e){} } }
-    });
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-qimen-now.js"></script>
+<script defer fetchpriority="low" src="assets/lunar.js"></script>
+<script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
+<script defer fetchpriority="low" src="assets/latlng.js"></script>
+<script defer fetchpriority="low" src="assets/qimen-engine.js"></script>
+<script defer fetchpriority="low" src="assets/qimen-extra.js"></script>
+<script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/ai.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-qimen-07.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-qimen-08.js"></script>
 </body>
 </html>

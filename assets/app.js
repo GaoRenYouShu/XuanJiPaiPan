@@ -100,66 +100,49 @@ function renderChrome(active){
     }
   });
 
-  /* 顶栏已静态写入各页；只有旧页仍留空占位时才注入，避免覆盖静态块并重复绑定。 */
-  const topbarHost = document.getElementById('topbar');
-  if (topbarHost && !topbarHost.querySelector('.topbar')) {
-    topbarHost.innerHTML = `
-  <div class="topbar"><div class="wrap">
-    <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-      <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
-      <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
-    </a>
-    <nav class="nav" id="nav">${navHtml}<!-- 外部链接：fork 者改 href 指向自己的仓库与账号 --><span class="nav-tools"><button class="ai-gear" id="aiGear" title="AI 解析配置" onclick="if(window.openAiConfig)openAiConfig()">⚙AI</button><a class="ext-link" href="https://github.com/GaoRenYouShu/XuanJiPaiPan" target="_blank" rel="noopener" title="GitHub 仓库" aria-label="GitHub"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a><a class="ext-link" href="https://t.me/gaoren" target="_blank" rel="noopener" title="Telegram" aria-label="Telegram"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a></span></nav>
-    <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
-  </div></div>`;
-  }
-
-  const f = document.getElementById('footer');
-  if(f){
-    f.innerHTML = `<div class="wrap">
-    <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
-  </div>`;
-    /* 页脚在主题容器之外，把本页主色令牌接到页脚，注记文字与页面同色 */
-    const pg = document.querySelector('.page');
-    if(pg){
-      const cs = getComputedStyle(pg);
-      ['--foot-ink','--gold2','--red'].forEach(k=>{
-        const v = cs.getPropertyValue(k).trim();
-        if(v) f.style.setProperty(k,v);
-      });
-    }
-  }
-
   injectSkeleton();
   defaultToday();
   initPickers();
   injectBaziLinkBanner();
   injectScrollJump();
+  bridgeFooterInk();
+}
+
+/* 页脚在页容器之外，取不到页面墨色；把页面 --ink 抄到页脚，
+   免责声明与 IP 归属地随本页正文同色，亮暗主题切换时重抄。 */
+function bridgeFooterInk(){
+  const f = document.getElementById('footer');
+  if(!f) return;
+  const pg = document.querySelector('.page') || document.body;
+  const v = getComputedStyle(pg).getPropertyValue('--ink').trim();
+  if(v) f.style.setProperty('--footer-ink', v);
+  if(!bridgeFooterInk.bound && window.matchMedia){
+    bridgeFooterInk.bound = true;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if(mq.addEventListener) mq.addEventListener('change', bridgeFooterInk);
+  }
 }
 
 /* 到顶与到底：右侧边缘吸附的翻页指示。
    页面不足一屏或尚在首屏时不出现，避免首屏多一个控件；到达顶端或底端时对应那枚淡出。
    控件挂在 body 下，取不到页容器上的主题变量，故按页把主色令牌抄到自身（与页脚注记同法）；
-   无 .page 容器的页面回退取 body，页面令牌块仍须把全站强调令牌族落到本页色族 */
+   无 .page 容器的页面回退取 body，页面令牌块仍须把全站强调令牌族落到本页色族。
+   壳层脚本与页面脚本都可能调用，故按幂等办：已有控件即复用，令牌每次重抄、监听只绑一次、同步立即跑。 */
 function injectScrollJump(){
-  if(document.getElementById('scrollJump')) return;
+  let el = document.getElementById('scrollJump');
+  if(!el){
+    el = document.createElement('div');
+    el.className = 'scroll-jump';
+    el.id = 'scrollJump';
+    el.innerHTML = '<button type="button" class="sj-btn" data-to="top" title="回到顶部" aria-label="回到顶部">▴</button>'
+                 + '<button type="button" class="sj-btn" data-to="bottom" title="到页面底部" aria-label="到页面底部">▾</button>';
+    document.body.appendChild(el);
+  }
   const pg = document.querySelector('.page') || document.body;
-  const el = document.createElement('div');
-  el.className = 'scroll-jump';
-  el.id = 'scrollJump';
-  el.innerHTML = '<button type="button" class="sj-btn" data-to="top" title="回到顶部" aria-label="回到顶部">▴</button>'
-               + '<button type="button" class="sj-btn" data-to="bottom" title="到页面底部" aria-label="到页面底部">▾</button>';
-  document.body.appendChild(el);
   const cs = getComputedStyle(pg);
   ['--gold','--gold2','--paper'].forEach(k=>{
     const v = cs.getPropertyValue(k).trim();
     if(v) el.style.setProperty(k, v);
-  });
-  el.addEventListener('click', function(e){
-    const b = e.target.closest('.sj-btn');
-    if(!b) return;
-    const toEnd = b.dataset.to === 'bottom';
-    window.scrollTo({top: toEnd ? document.documentElement.scrollHeight : 0, behavior:'smooth'});
   });
   function sync(){
     const doc = document.documentElement;
@@ -169,8 +152,18 @@ function injectScrollJump(){
     el.querySelector('[data-to="top"]').disabled = y <= 8;
     el.querySelector('[data-to="bottom"]').disabled = y >= max - 8;
   }
-  window.addEventListener('scroll', sync, {passive:true});
-  window.addEventListener('resize', sync);
+  /* 绑定态只记元素 expando，静态页不会把它序列化进 HTML，重复调用不叠加监听 */
+  if(!el.__sjBound){
+    el.__sjBound = true;
+    el.addEventListener('click', function(e){
+      const b = e.target.closest('.sj-btn');
+      if(!b) return;
+      const toEnd = b.dataset.to === 'bottom';
+      window.scrollTo({top: toEnd ? document.documentElement.scrollHeight : 0, behavior:'smooth'});
+    });
+    window.addEventListener('scroll', sync, {passive:true});
+    window.addEventListener('resize', sync);
+  }
   sync();
 }
 
@@ -254,15 +247,54 @@ function xjShareCollect(){
 function xjShareRestore(d){
   window.__xjAnchor = (d && d.xjAnchor) ? d.xjAnchor : null;
   shareDefaultRestore(d);
+  /* 分享数据带回的日期可能非法，还原后按同一判据再核一次，输入框与盘面才一致 */
+  if (window.xjSweepInvalidDates) window.xjSweepInvalidDates();
 }
 function xjShareRecast(recast){
   try { recast(); } catch (e) {}
   window.__xjAnchor = null;
 }
 
+/* ===== 日期与时辰默认当下（全站唯一初始值真源） =====
+   本件以 defer 装载，解析完成即执行，早于首次绘制，故本段在顶层直接调用。
+   只在载入时写一次：不绑 input 与 change，不设定时器，用户改值后不再回写。
+   日期：type=date、dt-input 文本框，以及占位、id 或无障碍标签语义为日期的文本框。
+   时辰：type=time 与十二时辰下拉，下拉按选项文字首字定位，兼容各页取值口径。
+   带 data-keep 的字段是派生值，例如择日结束日期等于起始加六十日，一律跳过，
+   其取值由所在页按各自规则在载入时派生。 */
+function xjApplyNowDefaults(){
+  const n = new Date();
+  const ymd = n.getFullYear()+'-'+pad2(n.getMonth()+1)+'-'+pad2(n.getDate());
+  const hm = pad2(n.getHours())+':'+pad2(n.getMinutes());
+  const zhi = '子丑寅卯辰巳午未申酉戌亥'[Math.floor(((n.getHours()+1)%24)/2)];
+  function kept(el){ return el.hasAttribute('data-keep'); }
+  function isDateBox(el){
+    if(el.tagName!=='INPUT' || kept(el)) return false;
+    if(el.type==='date') return true;
+    if(el.type!=='text' || !el.classList.contains('dt-input')) return false;
+    if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(el.value||'')) return true;
+    if(/^(?:\d{4}-\d{2}-\d{2}|YYYY-MM-DD)$/i.test(el.getAttribute('placeholder')||'')) return true;
+    if(/date/i.test(el.id||'')) return true;
+    return /日期|生日/.test(el.getAttribute('aria-label')||'');
+  }
+  document.querySelectorAll('input').forEach(function(el){
+    if(isDateBox(el)){ el.value = ymd; return; }
+    if(el.type==='time' && !kept(el)) el.value = hm;
+  });
+  /* 十二时辰下拉：选项文字以地支领起且带时段说明，按当下地支选中 */
+  document.querySelectorAll('select').forEach(function(sel){
+    if(kept(sel) || sel.options.length < 12) return;
+    const opt = Array.prototype.find.call(sel.options, function(o){
+      const t = (o.textContent||'').trim();
+      return t.charAt(0)===zhi && /[（(]/.test(t);
+    });
+    if(opt) sel.value = opt.value;
+  });
+}
+xjApplyNowDefaults();
+
 /* ===== 共享自定义日期、时间选择器 =====
-   Chrome DevTools 响应式模式下原生日期时间选择器无法弹出，此处自建弹层。
-   同时把所有"空"的日期、时间输入默认值设为当天、当前时间。 */
+   Chrome DevTools 响应式模式下原生日期时间选择器无法弹出，此处自建弹层。 */
 (function(){
   let mask, body;
 
@@ -436,35 +468,29 @@ function xjShareRecast(recast){
     }));
   }
 
-  /* 调用当天：把空的日期、时间输入设为今天、当前时间 */
-  window.defaultToday = function(){
-    document.querySelectorAll('input[type="text"].dt-input').forEach(inp=>{ if(!inp.value) inp.value = todayStr(); });
-    document.querySelectorAll('input[type="time"]').forEach(inp=>{
-      if(!inp.value){ const n=new Date(); inp.value = `${pad2(n.getHours())}:${pad2(n.getMinutes())}`; }
-    });
-  };
+  /* 调用当天：与载入初值同一真源 */
+  window.defaultToday = function(){ xjApplyNowDefaults(); };
 
-  /* 为每个原生 date/time 输入追加外部弹出图标，并将输入置为只读（禁用原生日历，仅通过自建弹层修改） */
+  /* 为每个日期与时间输入挂上自建弹层：点输入框即开，页内不设图标。
+     绑定态记在元素属性之外（静态页会把 data-* 一并写进 HTML），每次加载都重新挂事件。 */
   window.initPickers = function(){
     document.querySelectorAll('input[type="text"].dt-input,input[type="time"]').forEach(inp=>{
-      if(inp.dataset.pk) return;
-      inp.dataset.pk = '1';
+      if(inp.__pkBound) return;
+      inp.__pkBound = true;
+      /* 扫描态只存元素 expando，静态页不会把它序列化进 HTML */
+      inp.removeAttribute('data-dt-swept');
       inp.classList.add('dt-input');
       inp.readOnly = true;
-      const wrap = document.createElement('span');
-      const t = pageThemeSuffix();
-      wrap.className = 'dt-wrap' + (t ? ' dtm-'+t : '');
-      inp.parentNode.insertBefore(wrap, inp);
-      wrap.appendChild(inp);
-      const ic = document.createElement('span');
-      ic.className = 'dt-ic';
+      let wrap = inp.parentElement;
+      if(!wrap || !wrap.classList.contains('dt-wrap')){
+        wrap = document.createElement('span');
+        const t = pageThemeSuffix();
+        wrap.className = 'dt-wrap' + (t ? ' dtm-'+t : '');
+        inp.parentNode.insertBefore(wrap, inp);
+        wrap.appendChild(inp);
+      }
       const isTime = inp.type==='time';
-      ic.textContent = isTime ? '🕐' : '📅';
-      ic.setAttribute('role','button');
-      ic.setAttribute('aria-label', isTime ? '选择时间' : '选择日期');
-      wrap.appendChild(ic);
       const open = ()=>{ if(isTime) openTimePicker(inp); else openDatePicker(inp); };
-      ic.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); open(); });
       inp.addEventListener('click', e=>{ e.preventDefault(); open(); });
       /* 日期框落盘前先过合法性判据：非法串（URL 参数或旧存档带来的 2 月 31 日一类）
          归位到今日，并派发 change 令本页按合法值重排。挂在初始化这一层，则各页无需各写一遍，
@@ -474,18 +500,23 @@ function xjShareRecast(recast){
   };
 
   /* 存量非法日期兜底：initPickers 只扫 dt-input，其余日期型输入（如各页自定的文本框）
-     由本件在加载后统一扫一遍。页面脚本多在自己 load 回调里读值，故本件排在它们之前。 */
+     由本件在加载后统一扫一遍。页面脚本多在自己 load 回调里读值，故本件排在它们之前。
+     扫描态只记元素 expando 且按所扫值记，页面重填后下一轮照旧复核；静态页不会把它写进 HTML。 */
   function sweepInvalidDates(){
     document.querySelectorAll('input[type="text"]').forEach(inp=>{
-      if(!inp.value || inp.dataset.dtSwept) return;
+      inp.removeAttribute('data-dt-swept');
+      if(!inp.value) return;
       if(!/^\d{1,5}-\d{1,2}-\d{1,2}$/.test(inp.value)) return;
-      inp.dataset.dtSwept = '1';
+      if(inp.__dtSwept === inp.value) return;
       if(!xjValidDate(inp.value)) inp.value = todayStr();
+      inp.__dtSwept = inp.value;
     });
   }
+  window.xjSweepInvalidDates = sweepInvalidDates;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', sweepInvalidDates);
   else sweepInvalidDates();
-  window.addEventListener('load', sweepInvalidDates);
+  /* 页面在各自 load 回调里写回的 URL 参数晚于上一次扫描，load 后再补扫一轮 */
+  window.addEventListener('load', function(){ sweepInvalidDates(); setTimeout(sweepInvalidDates, 0); });
 
   /* 骨架屏：日历网格加载占位（JS 渲染前显示，render() 自动替换） */
   window.injectSkeleton = function(){
@@ -982,8 +1013,25 @@ window.xjShuffle = xjShuffle;
   window.addEventListener('load', schedule);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule);
   else schedule();
+  /* 只对可能改变表宽的变动重排：页脚、提示条等非表区域的晚到插入不触发全表重排。
+     判据取变动目标在表内，或增删节点自身为表或含表；不含表者交给浏览器正常布局。 */
+  function touchesTable(rs){
+    for(var i = 0; i < rs.length; i++){
+      var r = rs[i], t = r.target;
+      if(t && t.nodeType === 1 && t.closest && t.closest('table')) return true;
+      var lists = [r.addedNodes, r.removedNodes];
+      for(var j = 0; j < 2; j++){
+        var ns = lists[j];
+        for(var k = 0; k < ns.length; k++){
+          var n = ns[k];
+          if(n.nodeType === 1 && (n.tagName === 'TABLE' || (n.querySelector && n.querySelector('table')))) return true;
+        }
+      }
+    }
+    return false;
+  }
   if(window.MutationObserver){
-    mo = new MutationObserver(schedule);
+    mo = new MutationObserver(function(rs){ if(touchesTable(rs)) schedule(); });
     mo.observe(document.documentElement, {childList: true, subtree: true});
   }
 })();
@@ -1305,16 +1353,19 @@ window.xjShuffle = xjShuffle;
     if(state[page] === 'loading'){ (queue[page] = queue[page] || []).push(cb); return; }
     state[page] = 'loading';
     queue[page] = cb ? [cb] : [];
-    var i = 0;
-    (function next(){
-      if(i >= list.length){ finish(page); return; }
+    /* 清单一次性全插：async=false 保证执行按插入次序，下载则并行。
+       逐件等 onload 再插下一件等于把九个文件的往返延迟串起来，点击后首屏全耗在等网络上。 */
+    var left = list.length, failed = false;
+    list.forEach(function(src){
       var s = document.createElement('script');
-      s.src = list[i++];
+      s.src = src;
       s.async = false;
-      s.onload = next;
-      s.onerror = function(){ finish(page, true); };
+      s.onload = s.onerror = function(e){
+        if(e && e.type === 'error') failed = true;
+        if(--left === 0) finish(page, failed);
+      };
       document.head.appendChild(s);
-    })();
+    });
   };
 
   window.xjEngineReady = function(page){ return state[page] === 'ready'; };

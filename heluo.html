@@ -26,20 +26,393 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/heluo.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/comp-mid.css">
-<link rel="stylesheet" href="assets/css/dt.css">
-<link rel="stylesheet" href="assets/css/heluo.css">
+.xj-search-out:empty{display:none}
+
+.xj-only-has:empty{display:none}
+
+@media print{
+.data-export-hide{display:none !important}
+}
+
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+body{--footer-ink:#214544}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+#out + *{margin-top:var(--sp-4)}
+
+.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
+  flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
+  border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+@media(max-width:640px){
+.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+
+.birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
+}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+.scroll-jump{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);background:var(--paper);
+  opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
+
+.sj-btn{font:inherit;font-size:16px;line-height:1;cursor:pointer;
+  border:0;border-radius:0;background:transparent;color:var(--gold2);
+  padding:var(--sp-2) var(--sp-1);outline:none;transition:color .15s}
+
+.sj-btn:hover{color:var(--gold)}
+
+.sj-btn:focus{outline:none}
+
+.sj-btn:disabled{opacity:.35;cursor:default}
+
+@media(max-width:640px){
+.sj-btn{font-size:13px;padding:var(--sp-1) 2px}
+}
+
+.mod-head{display:flex;align-items:center;justify-content:flex-start;gap:var(--sp-2);cursor:pointer;user-select:none;
+  background:transparent;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;
+  box-shadow:none;padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-3);transition:.15s}
+
+@media (hover:hover) and (pointer:fine){
+.mod-head:hover{background:var(--gold-bg);box-shadow:none}
+}
+
+.mod-caret{display:inline-block;color:var(--gold);font-size:13px;line-height:1;transition:transform .2s ease}
+
+.mod.collapsed .mod-caret{transform:rotate(-90deg)}
+
+.mod-title{font-size:var(--tier1);font-weight:400;color:var(--ink);letter-spacing:.6px}
+
+.mod-sub{font-size:12px;color:var(--ink2);margin-left:var(--sp-1)}
+
+.mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
+
+.mod:last-child{margin-bottom:0}
+
+@media screen{
+section.mod{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none}
+}
+
+@media(max-width:640px){
+.mod-head{padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-2);flex-wrap:wrap}
+
+.mod-title{flex-shrink:0;white-space:nowrap;letter-spacing:.3px}
+
+.mod-sub{flex:1 0 100%;margin-left:0;margin-top:var(--sp-1);font-size:11px;line-height:1.45}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-hl .page h1{color:var(--hl-deep);font-family:var(--hl-serif);font-size:23px;
+  letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-hl .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--hl-line);margin:0 auto var(--sp-3)}
+
+.page-hl .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--hl-line);margin:var(--sp-3) auto 0}
+
+.page-hl .page .lead{color:var(--hl-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-hl .page .lead::after{background:var(--hl-line)}
+
+.page-hl .sub-note{color:var(--hl-ink2)}
+
+.page-hl .hl-form .opts-row{margin-top:0}
+
+.page-hl .field input,.page-hl .field select{border-color:var(--hl-line);background:var(--card);color:var(--hl-deep)}
+
+.page-hl .field input:focus,.page-hl .field select:focus{border-color:var(--hl);outline:none}
+
+.page-hl .field label{color:var(--hl2);font-weight:400}
+
+.page-hl .mod-head{border-top-color:var(--hl-line);border-bottom-color:var(--hl-line)}
+
+.page-hl .mod-title{color:var(--hl2)}
+
+.page-hl .mod-head .mod-sub{color:var(--hl-ink2)}
+
+.page-hl .mod-caret{color:var(--hl)}
+
+.page-hl .btn:not(.soft):not(.btn-ghost),.page-hl .btn.gold{background:var(--hl);border-color:var(--hl);color:#fff;box-shadow:none}
+
+.page-hl .btn:not(.soft):not(.btn-ghost):hover,.page-hl .btn.gold:hover{background:var(--hl2);border-color:var(--hl2);color:#fff}
+
+.page-hl .hl-form .form-row .btn.gold{border-radius:0;padding:0 var(--sp-4);margin-bottom:0}
+
+.page-hl .mh-ref{border-color:var(--hl-line)}
+
+.page-hl .mh-ref>summary{color:var(--hl2)}
+
+.page-hl .ai-block{border:0;border-top:1px solid var(--hl-line);border-bottom:1px solid var(--hl-line);
+  border-radius:0;background:transparent;color:var(--hl-ink);box-shadow:none}
+
+.page-hl .ai-head{background:transparent;border-bottom-color:var(--hl-line)}
+
+.page-hl .ai-head h3{color:var(--hl2);font-family:var(--hl-serif);font-weight:400}
+
+.page-hl .ai-head .ai-status{color:var(--hl-ink2)}
+
+.page-hl .ai-block .btn{border-radius:0}
+
+.page-hl .ai-block .btn.gold,.page-hl .ai-block .btn.soft{background:var(--hl-tint);border-color:var(--hl-line);color:var(--hl-ink)}
+
+.page-hl .ai-block .btn.gold:hover,.page-hl .ai-block .btn.soft:hover{background:var(--card);border-color:var(--hl-line);color:var(--hl2)}
+
+@media (prefers-color-scheme: dark){
+html .page-hl {
+    --hl:#479693;
+    --hl2:#45918f;
+    --hl-deep:#d6e0e0;
+    --hl-ink:#ced4d3;
+    --hl-ink2:#9cabaa;
+    --hl-brass:#d2a331;
+    --hl-line:#424d4b;
+    --hl-tint:#222a29;
+    --hl-hl:#262e2d;
+  }
+}
+
+.page-hl{
+  --hl:#2d5f5d;          /* 墨青主色：按钮实底、选中态 */
+  --hl2:#214544;         /* 深墨青：hover 与强调 */
+  --hl-deep:#1c3b3a;     /* 墨玉：大标题与表头字色 */
+  --hl-ink:#31403f;      /* 青灰墨：正文字色 */
+  --hl-ink2:#4f6d6c;     /* 次级字色：卷首说明、副注、子注 */
+  --hl-brass:#8a6a1e;    /* 古铜金：元堂徽标与当前行强调 */
+  --hl-line:#d3e0de;     /* 墨青浅线 */
+  --hl-tint:#eef4f3;     /* 墨青淡底 */
+  --hl-hl:#f6fafa;       /* 墨青提示淡底：表内当前行，比淡底更浅一档 */
+  --hl-serif:var(--font-serif);
+
+  /* 全站强调令牌在本页一律落到墨青族：表格加粗、折叠框标题、经文检索与 AI 面板
+     一类共享件由此一次对齐，不必逐条覆写，也不会漏出全站鎏金 */
+  --gold:var(--hl);
+  --gold2:var(--hl2);
+  --gold-brown:var(--hl2);
+  --gold-bg:var(--hl-tint);
+  --ink2:var(--hl-ink2);
+
+  --line:var(--hl-line);--ink:var(--hl-ink)
+}
+
+.dtm-hl{--tk:#2d5f5d;--tk2:#214544;--tk-ink:#31403f;--tk-line:#d3e0de;--tk-tint:#eef4f3}
+
+.page-hl .opts-row .field select{width:93px}
+
+.page-hl .opts-row .field select#hlZi{width:80px}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/heluo-0.woff2) format("woff2");unicode-range:U+0022, U+0024, U+0029, U+002e, U+0030-0031, U+0033, U+0035-0036, U+0038, U+003c-003d, U+0041-0042, U+004a-004b, U+004f, U+0051, U+0054-0055, U+0057-0058, U+005c-005e, U+0062-0063, U+0066-006a, U+006c-006e, U+0070-0076, U+007c-007e, U+3000-3001, U+4e00, U+4e03, U+4e0a-4e0b, U+4e5d, U+4e8b-4e8c, U+4e8f, U+4e94, U+4ea5, U+4ee4, U+4efd, U+4fd7, U+5143, U+5148, U+5165, U+5168, U+516c-516d, U+5176-5177, U+5185, U+51fa, U+5212, U+521d, U+5224, U+52a0, U+5316, U+5357, U+535c, U+5386, U+53bf, U+53c2, U+53d8, U+53ef, U+540e, U+5411, U+56fe, U+5728, U+5730, U+57ce, U+58ec, U+5904, U+590f, U+5915, U+5927, U+5929, U+5973, U+5b57, U+5bd2, U+5c45, U+5df3, U+5e74, U+5ea7, U+5eb7, U+5f26, U+5f52, U+5f8b, U+620c, U+6210, U+6240, U+6298, U+6392, U+63d0, U+653f, U+6570, U+6587, U+65e0, U+65e2, U+65f6, U+660e, U+661f, U+6653, U+665a, U+6682, U+66f4, U+6714, U+671b, U+671f, U+672f, U+673a, U+679c, U+67e5, U+67f1, U+6821, U+68c0, U+6b21, U+6b63, U+6c14, U+6cb3, U+6cd5, U+6e05, U+6e10, U+6ee1, U+751f, U+7528, U+7678, U+767d, U+7684, U+76d8, U+7709, U+7740, U+77e5, U+786e, U+7a0b, U+7b97, U+7d22, U+7ecf, U+7f6e, U+8109, U+814a, U+81ea, U+81f3, U+86c7, U+884c, U+8bba, U+8d25, U+8d77, U+8f9b, U+8fb0, U+9009, U+90b5, U+914d, U+95ed, U+95f0, U+95f4, U+9633, U+9644, U+96ea, U+9732, U+9e21, U+9f99, U+ff08, U+ff1a-ff1b}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/heluo-1.woff2) format("woff2");unicode-range:U+0020-0021, U+0023, U+0025-0028, U+002a-002d, U+002f, U+0032, U+0034, U+0037, U+0039-003b, U+003e-0040, U+0043-0049, U+004c-004e, U+0050, U+0052-0053, U+0056, U+0059-005b, U+005f-0061, U+0064-0065, U+006b, U+006f, U+0077-007b, U+3002, U+4e01, U+4e09, U+4e0d-4e0e, U+4e11, U+4e19, U+4e3a, U+4e59, U+4e8e, U+4ef6, U+4f20, U+4f53, U+504f, U+516b, U+5173, U+519c, U+51ac, U+51b3, U+51f8, U+5206, U+5217, U+522b, U+529b, U+52a8, U+533a, U+5341, U+5348, U+5360, U+5366, U+536f, U+53d6, U+53e0, U+5408, U+540c, U+547d, U+56db, U+5802, U+591c, U+592a, U+5b50, U+5b9a, U+5b9c, U+5bb5, U+5bc5, U+5bdd, U+5c0f, U+5c42, U+5c81, U+5de5, U+5df1, U+5e02, U+5e94, U+5e9a, U+5ea6, U+5eff, U+5f0f, U+5f55, U+5f85, U+5f97, U+5faa, U+5fcc, U+6027, U+60ca, U+620a, U+62e9, U+636e, U+63a8, U+65b0, U+65e5, U+6625, U+662f, U+6666, U+6691, U+6708-6709, U+672a, U+67d0, U+6b8b, U+6bb5, U+6c11, U+6c34, U+6d1b, U+6d3e, U+6d41, U+6d88, U+70b9, U+723b, U+7334, U+7384, U+7406, U+7532-7533, U+7537, U+76c8, U+76f8, U+7701, U+770b, U+793a, U+7980, U+79cb, U+79cd, U+7acb, U+7ed3, U+7f8a, U+8282, U+8292, U+86f0, U+86fe, U+8bbe, U+8be2, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8d4b, U+8f7d, U+8f93, U+8fd0, U+9010, U+9149, U+9519, U+9634, U+9648, U+964d, U+96e8, U+971c, U+9875, U+9996, U+9a6c, U+ff09, U+ff0c}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/heluo-0.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/heluo-1.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/heluo.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/heluo.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -103,35 +476,35 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-hl">
+<div class="wrap page-hl" data-built="2026-10-30">
 <main class="page">
   <h1>河洛理数</h1>
   <p class="lead">传为陈图南、邵康节一脉：八字化数起先天命卦，变元堂得后天卦，推大运流年。</p>
   <div class="hl-form">
     <div class="form-row">
-      <div class="field"><label for="hlDate">公历生日</label><input type="text" class="dt-input" id="hlDate" aria-label="公历生日" placeholder="2026-09-08"></div>
-      <div class="field"><label for="hlTime">出生时间</label><input type="time" id="hlTime" aria-label="出生时间" value="12:00" required></div>
+      <div class="field" data-built="2026-10-29"><label for="hlDate">公历生日</label><span class="dt-wrap dtm-hl"><input type="text" class="dt-input" id="hlDate" aria-label="公历生日" placeholder="2026-09-08" value="2026-10-29"></span></div>
+      <div class="field"><label for="hlTime">出生时间</label><span class="dt-wrap dtm-hl"><input type="time" id="hlTime" aria-label="出生时间" value="12:00" required></span></div>
       <div class="field"><label for="hlSex">性别</label><select id="hlSex" aria-label="性别"><option value="1">男</option><option value="2">女</option></select></div>
       <button id="hlBtn" class="btn gold" type="button">排命卦</button>
     </div>
     <div class="birth-group compact">
       <div class="group-label">出生地（用于经度校正，内置行政区划经度）</div>
-      <div class="field"><label for="hlProv">省份</label><select id="hlProv" aria-label="出生地省份"></select></div>
-      <div class="field"><label for="hlCity">城市</label><select id="hlCity" aria-label="出生地城市"></select></div>
-      <div class="field"><label for="hlDist">区县</label><select id="hlDist" aria-label="出生地区县"></select></div>
+      <div class="field"><label for="hlProv">省份</label><select id="hlProv" aria-label="出生地省份"><option value="未知地">未知地</option></select></div>
+      <div class="field"><label for="hlCity">城市</label><select id="hlCity" aria-label="出生地城市"><option value="未知地">未知地</option></select></div>
+      <div class="field"><label for="hlDist">区县</label><select id="hlDist" aria-label="出生地区县"><option value="未知地">未知地</option></select></div>
       <div class="field hh-lng"><label for="hlLng">经度（可选）</label><input type="number" id="hlLng" step="0.01" placeholder="出生地" aria-label="手动经度"></div>
     </div>
     <div class="opts-row">
       <div class="group-label">时间折算与流派</div>
       <div class="field" id="hlDstField"><label for="hlDst">夏令时</label><select id="hlDst" aria-label="选择夏令时折算口径"><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option><option value="off">不折算（钟面即标准时）</option></select></div>
       <div class="field"><label for="hlZi">子时算法</label><select id="hlZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
-      <div class="field"><label for="hlSun">太阳时</label><select id="hlSun" aria-label="选择太阳时口径"><option value="off">不校正</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+      <div class="field"><label for="hlSun">太阳时</label><select id="hlSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
       <div class="field" id="hlTzOffField" hidden><label for="hlTzOff">时区偏移</label><select id="hlTzOff" aria-label="选择境外出生地标准时区偏移" onchange="hlOverseasChange()"></select></div>
       <div class="field chk" id="hlLocalDstField" hidden><input type="checkbox" id="hlLocalDst" onchange="hlOverseasChange()"><label for="hlLocalDst">当地夏令时（钟面减1小时）</label></div>
     </div>
     <p class="sub-note" id="hlOverseasNote" hidden></p>
     <div class="form-row">
-      <div class="field"><label for="hlQDate">查询日期（公历）</label><input type="text" class="dt-input" id="hlQDate" aria-label="查询日期" placeholder="2026-09-08"></div>
+      <div class="field" data-built="2026-10-29"><label for="hlQDate">查询日期（公历）</label><span class="dt-wrap dtm-hl"><input type="text" class="dt-input" id="hlQDate" aria-label="查询日期" placeholder="2026-09-08" value="2026-10-29"></span></div>
       <div class="field"><label for="hlRiHour">流时（时辰）</label><select id="hlRiHour" aria-label="流时时辰"><option value="">全日十二时</option><option value="00:00">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
       <button id="hlNianBtn" class="btn gold" type="button">查运程</button>
     </div>
@@ -148,7 +521,8 @@
     <div id="hlDyOut"></div>
     </div>
   </section>
-  <section class="mod collapsed" id="hlmod-nian">
+  <div class="stage2-late">
+<section class="mod collapsed" id="hlmod-nian">
     <div class="mod-head" onclick="toggleMod('hlmod-nian')"><span class="mod-caret">▾</span><span class="mod-title">运程四层</span><span class="mod-sub">流年流月流日流时逐层变爻、一次同查</span></div>
     <div class="mod-body">
     <div id="hlNianOut"></div>
@@ -169,30 +543,44 @@
     <div id="hlJwBody"></div>
   </details>
   <p class="sub-note">河洛理数所排，是一生禀赋与某段岁月的气数偏向，可循大运、流年、流月、流日、流时逐层变爻，看气的节律与着力处；具体事件的成败与应期不在其列，不是事件的判决。</p>
+<div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled="">停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    </div>
+  </details></div>
 </main>
+</div>
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/ai.js"></script>
-<script defer src="assets/lunar.js"></script>
-<script defer src="assets/latlng.js"></script>
-<script defer src="assets/xuanji-lib.js"></script>
-<script defer src="assets/gua.js"></script>
-<script defer src="assets/jingwen.js"></script>
-<script defer src="assets/jingwen-ref.js"></script>
-<script defer src="assets/heluo-data.js"></script>
-<script defer src="assets/heluo-terms.js"></script>
-<script defer src="assets/heluo.js"></script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    renderChrome('heluo.html');
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-heluo-now.js"></script>
+<script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/ai.js"></script>
+<script defer fetchpriority="low" src="assets/lunar.js"></script>
+<script defer fetchpriority="low" src="assets/latlng.js"></script>
+<script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
+<script defer fetchpriority="low" src="assets/gua.js"></script>
+<script defer fetchpriority="low" src="assets/jingwen.js"></script>
+<script defer fetchpriority="low" src="assets/jingwen-ref.js"></script>
+<script defer fetchpriority="low" src="assets/heluo-data.js"></script>
+<script defer fetchpriority="low" src="assets/heluo-terms.js"></script>
+<script defer fetchpriority="low" src="assets/heluo.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-heluo-11.js"></script>
 </body>
 </html>

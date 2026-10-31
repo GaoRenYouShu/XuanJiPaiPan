@@ -1,0 +1,531 @@
+
+let cur = new Date();
+let xjq = null;
+let school = 'phugpa';
+let lastKey = '';
+/* 日期范围下限：饶迥纪年以公元 1027 年为第一饶迥元年，该年之前藏地未行此纪年 */
+const ZL_YMIN = 1027;
+const ZL_DAY_CN = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+  '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+  '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+const ZL_GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const ZL_ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+/* 藏历年名：饶迥年的甲子序号推五行（金称铁）阴阳与生肖 */
+function zlYearName(gyear){
+  const idx = ((gyear - 4) % 60 + 60) % 60;
+  const gan = ZL_GAN[idx % 10], zhi = ZL_ZHI[idx % 12];
+  const wx = ZL_WX[gan];
+  return { 'text':wx[1] + wx[0] + ZL_SX[zhi] + '年', 'ganzhi':gan + zhi, 'wx':wx[0], 'yx':wx[1], 'sx':ZL_SX[zhi] };
+}
+function zlMonthName(m, leap){
+  const y = ZL_YUE[(m - 1) % 12];
+  return (leap ? '闰' : '') + y.name + (y.alt && !leap ? '（' + y.alt + '）' : '');
+}
+/* 月名异名包可点：释义表收神变月、萨嘎月、氐宿月、明净月、箕宿月、天降月、娄宿月七条 */
+function zlMonthNameTip(m, leap){
+  const s = zlMonthName(m, leap), y = ZL_YUE[(m - 1) % 12];
+  if(leap || !y.alt) return s;
+  return s.replace(y.alt, y.alt.split('、').map(function(n){ return zlTip(n); }).join('、'));
+}
+function zlDayText(t){
+  return ZL_DAY_CN[t.day - 1] + (t.leapDay ? '（闰日）' : '');
+}
+function zlWeekName(week){ return ZL_GZA[(week + 6) % 7]; }
+/* 节日观测日：按 Janson 第 11 节与 Remark 17。洛萨取岁首，闰正月仍出；
+   余节不入闰月，遇缺日移前一日，遇重日取重复对中的第一日。按年建表，逐格与检索共用一份。 */
+var ZL_FEST_YEAR = { key:'', map:null };
+function zlFestYear(gyear){
+  const key = school + ':' + gyear;
+  if(ZL_FEST_YEAR.key === key) return ZL_FEST_YEAR.map;
+  const map = {};
+  const add = function(jdn, f){ (map[jdn] = map[jdn] || []).push(f); };
+  ZL_FEST.forEach(function(f){
+    if(f.leapOk){
+      [gyear, gyear + 1].forEach(function(y){
+        const r = zlLosar(school, y);
+        add(r.jdn, f);
+      });
+      return;
+    }
+    const rows = zlMonthDays(school, gyear, f.m, false);
+    let row = null;
+    for(let i = rows.length - 1; i >= 0; i--){
+      if(rows[i].day <= f.d){ row = rows[i]; break; }
+    }
+    if(!row) return;
+    if(row.day === f.d){
+      const first = rows.filter(function(r){ return r.day === f.d; })[0];
+      if(first) row = first;
+    }
+    add(zlGregToJdn(row.y, row.m, row.d), f);
+  });
+  ZL_FEST_YEAR.key = key;
+  ZL_FEST_YEAR.map = map;
+  return map;
+}
+function zlFestOf(t){
+  if(!t) return [];
+  return zlFestYear(t.gyear)[t.jdn] || [];
+}
+function zlFestLabel(f){
+  if(f.leapOk) return zlTip(f.name, '洛萨');
+  if(f.name === '驱鬼节') return zlTip(f.name, '古突');
+  return f.name;
+}
+function zlDescTip(s){
+  return String(s).replace('十斋日', zlTip('十斋日')).replace('布萨', zlTip('布萨'));
+}
+function zlIsFlyFlag(t){
+  if(t.leapMonth) return false;
+  return ZL_FLYFLAG.some(function(g){ return g.months.indexOf(t.month) >= 0 && g.days.indexOf(t.day) >= 0; });
+}
+/* 术语可点 span：术语在释义表（zangli-terms.js）内即可点，未收者与"无"原样输出（不误导）。
+   标签文字与释义表键不同者另传键，如藏历纪年取饶迥条、本年闰月取闰月条 */
+function zlTip(label, key){
+  const k = key || label;
+  if(!label || label === '无') return label;
+  if(typeof ZL_DICT === 'undefined' || !ZL_DICT[k]) return label;
+  return '<span class="tip" onclick="showZlTip(\'' + k + '\')">' + label + '</span>';
+}
+/* 弹窗：站内 .modal-mask/.modal 全局样式，app.js 自动主题化；
+   点遮罩或右上角关闭，ESC 亦可关（与老黄历、佛历、道历弹窗同制式，各页自成一份、不跨页共用） */
+function closeZlTip(){ const m = document.getElementById('zlMask'); if(m) m.classList.remove('show'); }
+function _zlShow(title, body){
+  xjTipMask('zlMask','zlTipBody','closeZlTip');
+  document.getElementById('zlTipBody').innerHTML = '<h3 class="tip-title">' + title + '</h3><div class="tip-body">' + body + '</div>';
+  document.getElementById('zlMask').classList.add('show');
+}
+function showZlTip(name){
+  const o = (typeof zlMean === 'function') ? zlMean(name) : null;
+  if(!o){ _zlShow(name, '（暂无说明）'); return; }
+  _zlShow(o.t, o.d);
+}
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeZlTip(); });
+
+/* ===== 殊胜日盘、重日缺日盘 =====
+   两盘同取一份日序档 ZL_SLOTS（逐日排布取自 zlMonthDays 真源：重日出两格、缺日留空位），
+   盘面分工在语义层：殊胜日盘标宗教内容（外圈“殊”、内圈藏历日名），
+   重日缺日盘标历法机制（外圈“闰”“重”“缺”、内圈公历日期）。
+   🔴 两盘都有当前态：所查之日落在哪一格，锚点弧就钉哪一格，不随点选移动；
+   选中弧随点选走。初排两者重合，点选别格后仍认得出查的是哪一天。 */
+var ZW_C,ZW_ARC,ZW_OUT,ZW_IN,ZW_CORE,ZW_LAB_OUT,ZW_LAB_IN,ZW_HIT1,ZW_TICK0,ZW_TICK1,ZW_P0,ZW_P1;
+const ZW_SS_IDS={arc:'zlSsArc',needle:'zlSsNeedle',dot:'zlSsDot'};
+const ZW_SK_IDS={arc:'zlSkArc',needle:'zlSkNeedle',dot:'zlSkDot'};
+let ZL_SLOTS=[], ZL_MONTH_LABEL='', ZL_SS_CUR=0, ZL_SK_CUR=0, ZL_SS_SEL=0, ZL_SK_SEL=0;
+/* 第 i 格在环上的角度区间：自正上 0 度起顺时针均分（格数随月长而变，故均分值按次传入） */
+function zwSpan(i,n){ const w=360/n; return [i*w,(i+1)*w]; }
+function zwMid(i,n){ const w=360/n; return (i+0.5)*w; }
+/* 逐日排布：日序 1 至 30，重日出两格（闰日在前、正日在后），缺日留空位 */
+function zlSlots(){
+  const p = lastKey.split('-').map(Number);
+  const t = zlFromGregorian(school, p[0], p[1], p[2]);
+  const rows = zlMonthDays(school, t.gyear, t.month, t.leapMonth);
+  const byDay = {};
+  rows.forEach(function(r){ (byDay[r.day] = byDay[r.day] || []).push(r); });
+  /* 藏历月恒有三十个日序，末日三十可缺，故不取末行日序 */
+  const maxOrder = 30;
+  const out = [];
+  for(let d = 1; d <= maxOrder; d++){
+    const g = byDay[d], ss = ZL_SHUSHENG[d] || null;
+    if(!g){ out.push({ 'day':d, 'skip':true, 'ss':ss }); continue; }
+    g.forEach(function(r){
+      out.push({ 'day':d, 'greg':r.m + '月' + r.d + '日', 'leap':!!r.leapDay, 'rept':!r.leapDay && !!r.repeated, 'ss':ss });
+    });
+  }
+  ZL_MONTH_LABEL = zlMonthName(t.month, t.leapMonth);
+  return out;
+}
+/* 默认选中：选中日所在的那一格（按公历日期对号，重日两格各对应自己的太阳日） */
+function zlSelSlot(){
+  const p = lastKey.split('-').map(Number);
+  const g = p[1] + '月' + p[2] + '日';
+  const t = zlFromGregorian(school, p[0], p[1], p[2]);
+  let byDay = -1;
+  for(let i = 0; i < ZL_SLOTS.length; i++){
+    if(ZL_SLOTS[i].greg === g) return i;
+    if(byDay < 0 && ZL_SLOTS[i].day === t.day) byDay = i;
+  }
+  return byDay < 0 ? 0 : byDay;
+}
+/* 加粗弧、指针、圆点三件随选中走的公共改写（与他页 wheelSpot 同法，各页自成一份，不跨页共用） */
+function zwSpot(ids,dg,a0,a1){ return xjWheelSpot(ids,dg,a0,a1,{arc:ZW_ARC,p0:ZW_P0,p1:ZW_P1}); }
+function zlSsC3(x){
+  if(!x.ss) return x.greg || '该日序无对应太阳日';
+  return (x.ss.mult && x.ss.mult !== '无') ? '功德' + x.ss.mult : '诸本未列倍数';
+}
+/* 盘面骨架走 WHEEL.render；本函数只给格数、取角、标签与盘心三行。 */
+function zlSsWheel(){
+  const n = ZL_SLOTS.length, cur = ZL_SLOTS[ZL_SS_SEL];
+  return WHEEL.render({
+    id:'zlSsWheel', aria:'殊胜日盘', n:n,
+    span:function(i){ return zwSpan(i,n); },
+    mid:function(i){ return zwMid(i,n); },
+    arc:ZW_ARC, rIn:ZW_IN, hit1:ZW_HIT1, tick0:ZW_TICK0, tick1:ZW_TICK1,
+    p0:ZW_P0, p1:ZW_P1, out:ZW_OUT, core:ZW_CORE,
+    sel:ZL_SS_SEL, cur:ZL_SS_CUR,
+    selId:'zlSsArc', anchorId:'zlSsArcFix', needleId:'zlSsNeedle', dotId:'zlSsDot',
+    onclick:'zlPickSs',
+    labelsOut:function(i,dg){
+      if(!ZL_SLOTS[i].ss) return '';
+      const tp = WHEEL.px(ZW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===ZL_SS_SEL?' w-lab-cur':''}"`
+        + ` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">殊</text>`;
+    },
+    labelsIn:function(i,dg){
+      const tp = WHEEL.px(ZW_LAB_IN,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===ZL_SS_SEL?' w-lab-cur':''}"`
+        + ` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${ZL_DAY_CN[ZL_SLOTS[i].day-1]}</text>`;
+    },
+    center:[
+      {y:ZW_C-16, cls:'w-c1', id:'zlSsC1', text:ZL_DAY_CN[cur.day-1]},
+      {y:ZW_C+14, cls:'w-c2', id:'zlSsC2', text:cur.ss?cur.ss.short:'非殊胜日', fill:cur.ss?'var(--wheel-cur)':null},
+      {y:ZW_C+34, cls:'w-c3', id:'zlSsC3', text:zlSsC3(cur)}
+    ]
+  });
+}
+/* 重缺状态字：闰日为重日两日之首，重日为其次日，缺日则该日序无对应太阳日 */
+function zlSkipState(x){
+  if(x.skip) return '缺日';
+  if(x.leap) return '闰日';
+  if(x.rept) return '重日';
+  return '常日';
+}
+/* 盘面骨架走 WHEEL.render；本函数只给格数、取角、标签与盘心三行。 */
+function zlSkipWheel(){
+  const n = ZL_SLOTS.length, cur = ZL_SLOTS[ZL_SK_SEL];
+  const st = zlSkipState(cur), odd = st !== '常日';
+  return WHEEL.render({
+    id:'zlSkWheel', aria:'重日缺日盘', n:n,
+    span:function(i){ return zwSpan(i,n); },
+    mid:function(i){ return zwMid(i,n); },
+    arc:ZW_ARC, rIn:ZW_IN, hit1:ZW_HIT1, tick0:ZW_TICK0, tick1:ZW_TICK1,
+    p0:ZW_P0, p1:ZW_P1, out:ZW_OUT, core:ZW_CORE,
+    sel:ZL_SK_SEL, cur:ZL_SK_CUR,
+    selId:'zlSkArc', anchorId:'zlSkArcFix', needleId:'zlSkNeedle', dotId:'zlSkDot',
+    onclick:'zlPickSk',
+    labelsOut:function(i,dg){
+      const x = ZL_SLOTS[i];
+      const mk = x.skip ? '缺' : (x.leap ? '闰' : (x.rept ? '重' : ''));
+      if(!mk) return '';
+      const tp = WHEEL.px(ZW_LAB_OUT,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab w-lab-xl${i===ZL_SK_SEL?' w-lab-cur':''}"`
+        + ` data-i="${i}" transform="rotate(${WHEEL.ring(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${mk}</text>`;
+    },
+    labelsIn:function(i,dg){
+      const x = ZL_SLOTS[i];
+      if(!x.greg) return '';
+      const tp = WHEEL.px(ZW_LAB_IN,dg);
+      return `<text x="${WHEEL.n(tp[0])}" y="${WHEEL.n(tp[1])}" class="w-lab${i===ZL_SK_SEL?' w-lab-cur':''}"`
+        + ` data-i="${i}" transform="rotate(${WHEEL.radial(dg)} ${WHEEL.n(tp[0])} ${WHEEL.n(tp[1])})">${x.greg}</text>`;
+    },
+    center:[
+      {y:ZW_C-16, cls:'w-c1', id:'zlSkC1', text:ZL_DAY_CN[cur.day-1]},
+      {y:ZW_C+14, cls:'w-c2', id:'zlSkC2', text:st, fill:odd?'var(--wheel-cur)':null},
+      {y:ZW_C+34, cls:'w-c3', id:'zlSkC3', text:cur.greg || '历表跳过'}
+    ]
+  });
+}
+/* 盘下详情条：殊胜日盘给该日的名、释义与功德倍数（诸本异说随文出校）；
+   非殊胜日给下一个，好顺着盘找下去 */
+function zlSsDetailHTML(i){
+  const x = ZL_SLOTS[i]; if(!x) return '';
+  const nm = ZL_MONTH_LABEL + ZL_DAY_CN[x.day-1];
+  const gg = x.greg ? '（公历' + x.greg + '）' : '';
+  /* 缺日无对应太阳日：殊胜日仍依太阴日序在本月之列，须点明免生疑惑 */
+  const sk = x.skip ? '<span class="wd-br"></span>本月此日序为缺日，无对应太阳日，公历上不出现此日。' : '';
+  if(x.ss){
+    const t = x.ss;
+    return '藏历' + nm + gg + '，逢' + t.name + '。<span class="wd-br"></span>' + zlDescTip(t.desc) + '。'
+      + (t.mult !== '无' ? '<span class="wd-br"></span>藏传传统所说，此日作何善恶成' + t.mult + '。' : '')
+      + (t.note ? '<span class="wd-br"></span>出校：' + t.note + '。' : '') + sk;
+  }
+  const nx = ZL_SLOTS.slice(i+1).filter(function(y){ return y.ss; })[0];
+  return '藏历' + nm + gg + '，非每月固定' + zlTip('殊胜日') + '。'
+    + (nx ? '<span class="wd-br"></span>下一个殊胜日：' + ZL_DAY_CN[nx.day-1] + ' ' + nx.ss.short : '') + sk;
+}
+/* 本月重日、缺日统计：重日两格只算一次，取闰日那一格 */
+function zlSkipStat(){
+  const leap = [], skip = [];
+  ZL_SLOTS.forEach(function(x){
+    if(x.skip) skip.push(ZL_DAY_CN[x.day-1]);
+    else if(x.leap) leap.push(ZL_DAY_CN[x.day-1]);
+  });
+  return { 'leap':leap, 'skip':skip };
+}
+function zlSkipDetailHTML(i){
+  const x = ZL_SLOTS[i]; if(!x) return '';
+  const nm = ZL_MONTH_LABEL + ZL_DAY_CN[x.day-1];
+  let body;
+  if(x.skip) body = zlTip('缺日') + '：该日序无对应太阳日，历表中跳过。';
+  else if(x.leap) body = zlTip('闰日') + '：此日序占两个太阳日，此为其首日（公历' + x.greg + '），次日仍作' + ZL_DAY_CN[x.day-1] + '。';
+  else if(x.rept) body = zlTip('重日') + '：此日序占两个太阳日，此为其次日（公历' + x.greg + '）。';
+  else body = '常日：一个日序对一个太阳日（公历' + x.greg + '）。';
+  const st = zlSkipStat(), tail = [];
+  if(st.leap.length) tail.push('本月重日：' + st.leap.join('、'));
+  if(st.skip.length) tail.push('本月缺日：' + st.skip.join('、'));
+  return '藏历' + nm + '，' + body
+    + (tail.length ? '<span class="wd-br"></span>' + tail.join('<span class="wd-br"></span>') : '');
+}
+function zlPickSs(i){
+  if(!ZL_SLOTS[i]) return;
+  ZL_SS_SEL = i;
+  const x = ZL_SLOTS[i], n = ZL_SLOTS.length, sp = zwSpan(i,n);
+  WHEEL.pick('zlSsWheel', i);
+  WHEEL.lab('zlSsWheel', i);
+  zwSpot(ZW_SS_IDS, zwMid(i,n), sp[0], sp[1]);
+  WHEEL.text('zlSsC1', ZL_DAY_CN[x.day-1]);
+  WHEEL.text('zlSsC2', x.ss ? x.ss.short : '非殊胜日', x.ss ? 'var(--wheel-cur)' : 'var(--wheel-ink2)');
+  WHEEL.text('zlSsC3', zlSsC3(x));
+  const d = document.getElementById('zlSsDetail'); if(d) d.innerHTML = zlSsDetailHTML(i);
+}
+function zlPickSk(i){
+  if(!ZL_SLOTS[i]) return;
+  ZL_SK_SEL = i;
+  const x = ZL_SLOTS[i], n = ZL_SLOTS.length, sp = zwSpan(i,n);
+  WHEEL.pick('zlSkWheel', i);
+  WHEEL.lab('zlSkWheel', i);
+  zwSpot(ZW_SK_IDS, zwMid(i,n), sp[0], sp[1]);
+  const st = zlSkipState(x);
+  WHEEL.text('zlSkC1', ZL_DAY_CN[x.day-1]);
+  WHEEL.text('zlSkC2', st, st !== '常日' ? 'var(--wheel-cur)' : 'var(--wheel-ink2)');
+  WHEEL.text('zlSkC3', x.greg || '历表跳过');
+  const d = document.getElementById('zlSkipDetail'); if(d) d.innerHTML = zlSkipDetailHTML(i);
+}
+function render(){
+  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件；藏历日逐格带出前一格，
+     重日与缺日须与前一格比对才能判出，故在此包一层取数再交给一格一貌的 cell */
+  let prev = null;
+  xjCalGrid.render(cur.getFullYear(), cur.getMonth() + 1, {
+    today: new Date(),
+    cell: function(d, other, todayStr){
+      const t = zlFromGregorian(school, d.getFullYear(), d.getMonth() + 1, d.getDate());
+      const prevT = prev ? zlFromGregorian(school, prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
+        : zlPrevT(d.getFullYear(), d.getMonth() + 1, d.getDate());
+      const html = cell(d, other, todayStr, t, prevT);
+      prev = d;
+      return html;
+    }
+  });
+  if(xjq) xjq.apply();
+  const lb = document.getElementById('zlLosarBody');
+  if(lb) lb.innerHTML = zlLosarRows();
+}
+/* 格内藏历日只写日序，重、缺、闰三态走角标：日序行窄屏仅容三字，加字即截断。
+   重日两格同标重、缺日之后一格标缺、闰月首日标闰 */
+function zlCellMarks(t, prevT){
+  if(!prevT) return { 'd':'', 'l': (t.day === 1 && t.leapMonth) ? '闰' : '' };
+  const same = prevT.month === t.month && prevT.leapMonth === t.leapMonth;
+  const rep = t.leapDay || (same && t.day === prevT.day && prevT.leapDay);
+  /* 同月看日序差；跨月看两向：新月首格日序大于一即初一缺，前月末格日序小于三十即三十缺 */
+  const skip = same ? (t.day - prevT.day) >= 2 : (t.day >= 2 || prevT.day < 30);
+  const l = t.leapMonth && !same ? '闰' : '';
+  return { 'd': rep ? '重' : (skip ? '缺' : ''), 'l': l };
+}
+function zlPrevT(y,m,d){
+  const p = new Date(y, m - 1, d - 1);
+  return zlFromGregorian(school, p.getFullYear(), p.getMonth() + 1, p.getDate());
+}
+function zlDayFlags(y,m,d){
+  const t = zlFromGregorian(school, y, m, d);
+  if(!t) return { t:null, cm:{} };
+  return { t:t, cm:zlCellMarks(t, zlPrevT(y,m,d)) };
+}
+function cell(d, other, todayStr, t, prevT){
+  const ss = ZL_SHUSHENG[t.day];
+  const fs = zlFestOf(t);
+  const isToday = d.toDateString() === todayStr;
+  const wd = d.getDay();
+  const key = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  const wk = (wd === 0 || wd === 6) ? 'weekend' : '';
+  /* 角标：殊（每月固定殊胜日）左上、节（年内固定节日）右上、重与缺左下、闰右下，只给字色不给底色 */
+  const cm = zlCellMarks(t, prevT);
+  const mk = (ss ? '<span class="mk mk-s">殊</span>' : '') + (fs.length ? '<span class="mk mk-f">节</span>' : '')
+    + (cm.d ? '<span class="mk mk-' + (cm.d === '重' ? 'c' : 'q') + '">' + cm.d + '</span>' : '')
+    + (cm.l ? '<span class="mk mk-r">' + cm.l + '</span>' : '');
+  const tag = fs.length ? fs[0].name : (ss ? ss.short : '');
+  return '<div class="cal-cell ' + (other ? 'other' : '') + ' ' + (isToday ? 'today' : '') + ' ' + wk + '" data-date="' + key + '"'
+    + ' onclick="pickDate(\'' + key + '\')">'
+    + mk
+    + '<div class="sd"><span class="sd-num">' + d.getDate() + '</span></div>'
+    + (tag ? '<div class="festival">' + tag + '</div>' : '')
+    + '<div class="ld">藏' + ZL_DAY_CN[t.day - 1] + '</div></div>';
+}
+/* 当月殊胜日与节日一览：不复刻到页面（与殊胜日盘重复），只留给 AI 提词的当月小节 */
+function monthFestList(y, m){
+  const dim = new Date(y, m, 0).getDate();
+  const groups = {}, seen = {};
+  for(let d = 1; d <= dim; d++){
+    const t = zlFromGregorian(school, y, m, d);
+    const mk = (t.leapMonth ? '闰' : '') + t.month;
+    if(!groups[mk]) groups[mk] = { 'label':zlMonthName(t.month, t.leapMonth), 'items':[] };
+    const ss = ZL_SHUSHENG[t.day];
+    const greg = ZL_DAY_CN[t.day - 1] + (t.leapDay ? '（闰日）' : '') + '（公历' + m + '月' + d + '日）';
+    if(ss){
+      const k = mk + '-' + t.day;
+      if(!seen[k]){ seen[k] = 1; groups[mk].items.push(greg + '：' + ss.name + '，' + ss.desc + (ss.mult !== '无' ? '，传统所说作何善恶成' + ss.mult : '') + (ss.note ? '（' + ss.note + '）' : '')); }
+    }
+    zlFestOf(t).forEach(function(f){
+      const k = 'F' + mk + '-' + t.day + f.name;
+      if(!seen[k]){ seen[k] = 1; groups[mk].items.push(greg + '：' + f.name + '，' + f.desc + (f.note ? '（' + f.note + '）' : '')); }
+    });
+  }
+  return Object.keys(groups).map(function(k){ return groups[k]; }).filter(function(g){ return g.items.length; });
+}
+function showDay(str, el){
+  const key = str.split('-').map(Number).join('-');
+  lastKey = key;
+  const p = key.split('-').map(Number);
+  document.querySelectorAll('.cal-cell.selected').forEach(function(c){ c.classList.remove('selected'); });
+  const target = el || document.querySelector('.cal-cell[data-date="' + key + '"]');
+  if(target) target.classList.add('selected');
+  const solar = Solar.fromYmd(p[0], p[1], p[2]), lunar = solar.getLunar();
+  const t = zlFromGregorian(school, p[0], p[1], p[2]);
+  const yn = zlYearName(t.jyear);
+  const cy = zlCycleYearOf(t.jyear);
+  const fs = zlFestOf(t);
+  const fly = zlIsFlyFlag(t);
+  /* 五要素后三项：星宿、会合、作用，入参取本日的真月计数与太阴日序 */
+  const ex = zlFiveExtra(school, t.count, t.day);
+  const xi = ZL_XIU27[ex.xiu], yo = ZL_YOGA27[ex.yoga], ka = ZL_KARANA11[ex.karana];
+  /* 本年闰月与日月食两行：有内容才出，无闰、无食与范围外整行不渲染 */
+  const leapText = zlYearLeapText(t.jyear);
+  const eclText = zlEclipseText(p);
+  const eclShow = eclText !== '无' && eclText.indexOf('未载') !== 0;
+  const schName = ZL_SCHOOLS[school].name;
+  ZL_SLOTS = zlSlots();
+  ZL_SS_CUR = ZL_SK_CUR = zlSelSlot();
+  ZL_SK_SEL = ZL_SS_SEL = ZL_SS_CUR;
+  const festHtml = fs.length
+    ? fs.map(function(f){ return zlFestLabel(f) + '：' + f.desc + (f.note ? '（' + f.note + '）' : ''); }).join('<span class="zl-br"></span>')
+    : '本日无年内固定节日';
+  const flyHtml = fly
+    ? '<span class="ji">飞幡日</span>，依藏历此日不宜悬挂风马旗、经幡。'
+    : '<span class="yi">非飞幡日</span>，此日可如常悬挂风马旗、经幡。';
+  document.getElementById('dayDetail').innerHTML = '<div class="today-card"><div class="today-top">'
+    + '<div class="big-date"><div class="d">' + p[2] + '</div>'
+    + '<div class="ym">' + p[0] + '年' + p[1] + '月 星期' + '日一二三四五六'[solar.getWeek()] + '</div></div>'
+    + '<div class="lunar-info">'
+    + '<div class="ln">藏历 ' + zlMonthName(t.month, t.leapMonth) + zlDayText(t) + '</div>'
+    + '<div class="zodiac">农历 ' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese() + ' ' + lunar.getYearInGanZhi() + '年 ' + lunar.getMonthInGanZhi() + '月 ' + lunar.getDayInGanZhi() + '日</div>'
+    + '<div class="zodiac">历算派别 ' + schName + (school === 'jungtsi' ? '，只改年界定义，日期推算同浦派' : '') + '</div>'
+    + '</div></div></div>'
+    + '<h3 class="rel-title">基础信息</h3>'
+    + '<div class="zl-info">'
+    + '<div class="zl-i zl-oneline"><span class="k">' + zlTip('藏历纪年', '饶迥') + '</span><span class="v"><span class="zl-s">第' + cy.cycle + '饶迥第' + cy.year + '年</span><span class="zl-br"></span><span class="zl-s">干支 ' + yn.ganzhi + '</span><span class="zl-br"></span><span class="zl-s">' + zlTip('五行', '五行生肖') + ' ' + yn.wx + '（' + yn.yx + '） ' + zlTip('生肖', '五行生肖') + ' ' + yn.sx + '</span></span></div>'
+    + '<div class="zl-i zl-oneline"><span class="k">藏历月日</span><span class="v">' + zlMonthNameTip(t.month, t.leapMonth) + zlDayText(t) + '<span class="zl-br"></span>' + zlTip(zlWeekName(solar.getWeek()), '七曜') + '</span></div>'
+    + '<div class="zl-i zl-oneline"><span class="k">' + zlTip('星宿') + '</span><span class="v">' + xi.n + '宿(' + xi.sa + ')</span></div>'
+    + '<div class="zl-i zl-oneline"><span class="k">' + zlTip('会合') + '</span><span class="v">' + yo.cn + '(' + yo.sa + ')</span></div>'
+    + '<div class="zl-i zl-oneline"><span class="k">' + zlTip('作用') + '</span><span class="v">' + ka.cn + '(' + ka.sa + ')</span></div>'
+    + (leapText === '无' ? '' : '<div class="zl-i zl-oneline"><span class="k">' + zlTip('本年闰月', '闰月') + '</span><span class="v">' + leapText + '</span></div>')
+    + '<div class="zl-i"><span class="k">年内节日</span><span class="v">' + festHtml + '</span></div>'
+    + '<div class="zl-i"><span class="k">' + zlTip('飞幡日') + '</span><span class="v' + (fly ? ' ji' : ' yi') + '">' + flyHtml + '</span></div>'
+    + (eclShow ? '<div class="zl-i"><span class="k">' + zlTip('日月食') + '</span><span class="v">' + eclText + '</span></div>' : '')
+    + '</div>'
+    + '<div class="wheel-wheels">'
+    + '<div class="wheel-block"><h4>殊胜日盘</h4>' + zlSsWheel() + '<div class="wheel-detail" id="zlSsDetail">' + zlSsDetailHTML(ZL_SS_SEL) + '</div></div>'
+    + '<div class="wheel-block"><h4>重日缺日盘</h4>' + zlSkipWheel() + '<div class="wheel-detail" id="zlSkipDetail">' + zlSkipDetailHTML(ZL_SK_SEL) + '</div></div>'
+    + '</div>';
+  /* 两盘详情条按本月全部可选段落的最大高度预留，点选只换字不改高；换月与窗口缩放时重算 */
+  WHEEL.lockDetail(document.getElementById('zlSsDetail'), ZL_SLOTS.length, zlSsDetailHTML);
+  WHEEL.lockDetail(document.getElementById('zlSkipDetail'), ZL_SLOTS.length, zlSkipDetailHTML);
+}
+/* 岁首对照：四派各依本派历元实算，取当前公历年前后五年 */
+function zlLosarRows(){
+  const y0 = cur.getFullYear() - 1, out = [];
+  for(let y = y0; y <= y0 + 4; y++){
+    out.push('<tr><td>' + y + '年</td>' + ['phugpa', 'tsurphu', 'bhutan', 'jungtsi'].map(function(k){
+      const r = zlLosar(k, y);
+      return '<td>' + r.y + '-' + String(r.m).padStart(2, '0') + '-' + String(r.d).padStart(2, '0') + '</td>';
+    }).join('') + '</tr>');
+  }
+  return out.join('');
+}
+/* 本年闰月：藏历年内的闰月名，无闰则写无 */
+function zlYearLeapText(jyear){
+  const nym = ZL_SCHOOLS[school].newYearMonth || 1;
+  const out = [];
+  const add = function(y, m){ if(zlIsLeapMonth(school, y, m)) out.push(zlMonthName(m, true)); };
+  if(nym === 1){
+    for(let m = 1; m <= 12; m++) add(jyear, m);
+  } else {
+    for(let m = nym; m <= 12; m++) add(jyear - 1, m);
+    for(let m = 1; m < nym; m++) add(jyear, m);
+  }
+  return out.length ? out.join('、') : '无';
+}
+/* 本日日月食：按北京时间取日，食甚时刻换算为北京时间；本表范围 1951 至 2060，范围外写未载 */
+function zlEclipseOne(e){
+  const hm = function(ms){ const d = new Date(ms + 8 * 3600000);
+    return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+  let s = ZL_ECLIPSE_TYPE[e[1]] + '，食甚 ' + hm(e[0]);
+  if(e.length > 2) s += '，初亏 ' + hm(e[2]) + '，复圆 ' + hm(e[3]);
+  return s;
+}
+function zlEclipseText(p){
+  const t0 = Date.UTC(p[0], p[1] - 1, p[2]) - 8 * 3600000;
+  const last = ZL_ECLIPSE[ZL_ECLIPSE.length - 1][0];
+  if(t0 > last || t0 + 86400000 <= ZL_ECLIPSE[0][0]) return '未载，本表 1951 至 2060';
+  const list = zlEclipseOf(p[0], p[1], p[2]);
+  return list.length ? list.map(zlEclipseOne).join('<span class="zl-br"></span>') : '无';
+}
+function renderDoc(){
+  const rows = ZL_SCHOOL_DOC.map(function(s){
+    const tag = { 'A':'主算', 'B':'附算', 'C':'岁首切换', 'D':'待评估', 'E':'仅说明' }[s.calc];
+    return '<tr><td>' + zlTip(s.name) + '</td><td>' + s.level + '</td><td>' + s.desc + '</td><td>' + tag + '</td></tr>';
+  }).join('');
+  const yy = ZL_YANLAG.map(function(x){ return '<tr><td>' + zlTip(x.name) + '</td><td>' + x.desc + '</td></tr>'; }).join('');
+  document.getElementById('zlDocBody').innerHTML =
+    '<h4 class="zl-sub-h">历法原理</h4>'
+    + '<p class="sub-note">时轮历以三种日计量：' + zlTip('太阳日') + '（天明至次日天明）、' + zlTip('太阴日') + '（太阴月的三十分之一，约零点九八四太阳日）、' + zlTip('宫日') + '（太阳行经一宫的三十分之一，约一点零一四六太阳日）。太阴日短于太阳日，故某一太阴日若跨越两个日出则被跳过，是为缺日；若两个日出同属一个太阴日则该日序重复，是为重日。此为藏历与农历在日期层的根本差异。</p>'
+    + '<p class="sub-note">置闰用六十五宫月等于六十七太阴月之率，即六十五年置二十四闰，闰月作重复整月，与汉历无中气置闰不同。重复的两月同号，何者为闰诸本所记不一，异说见术语表闰月条。纪年用饶迥六十年循环，以公元一零二七年为第一饶迥第一年（火兔年），配五行生肖。</p>'
+    + '<h4 class="zl-sub-h">' + zlTip('五要素') + '</h4>'
+    + '<div class="zl-tbl-wrap"><table class="zl-tbl zl-yanlag-tbl"><thead><tr><th>要素</th><th>说明</th></tr></thead><tbody>' + yy + '</tbody></table></div>'
+    + '<h4 class="zl-sub-h">流派谱系与差异</h4>'
+    + '<p class="sub-note">派别为两层结构：第一层是印度时轮历的体系派与作用派，二者计算原理和方法几乎一致，仅基本数据不同；第二层是藏地传承诸派，均属体系派。差异性质分三类：算法差异（浦派与楚尔派的重缺日不同）、年界差异（迥孜岁首取虎月）、参数差异（蒙古、不丹周期起算点不同）。</p>'
+    + '<div class="zl-tbl-wrap"><table class="zl-tbl zl-doc-tbl"><thead><tr><th>派别</th><th>层次</th><th>说明</th><th>本页</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+    + '<h4 class="zl-sub-h">岁首对照（' + zlTip('洛萨') + '）</h4>'
+    + '<div class="zl-tbl-wrap"><table class="zl-tbl zl-losar-tbl"><thead><tr><th>年</th><th>浦派</th><th>楚尔派</th><th>不丹</th><th>迥孜</th></tr></thead><tbody id="zlLosarBody">' + zlLosarRows() + '</tbody></table></div>'
+    + '<p class="sub-note">迥孜为元素占星的年界定义，岁首取虎月（藏历十一月、冬至前后），与浦派岁首龙月（正月）相差近一月，故常落在上一公历年末，此非算法差异，乃一年自何日算起的定义差异。蒙古新甘丹岁首多同楚尔派，故不单列。</p>'
+    + '<h4 class="zl-sub-h">天文误差声明</h4>'
+    + '<p class="sub-note">浦派平太阳黄经的累积误差约三十六度（约三十七日），楚尔派约三十一度（约三十二日），为历史累积结果，两派历算体系均未修正。故藏历历书所载节气与实测天象存在上述量级的系统偏差，属体系固有，非计算错误。本页日期为传统历算结果，不作天文实测校验。</p>';
+}
+function changeSchool(v){ school = v; render(); if(lastKey) showDay(lastKey); }
+/* 日期钳到范围下限：第一饶迥元年自该派 1027 年洛萨起，早于岁首者归到岁首 */
+function zlFloorDate(y, m, d){
+  const los = zlLosar(school, ZL_YMIN);
+  const cur = y * 10000 + m * 100 + (d || 1);
+  if(cur < los.y * 10000 + los.m * 100 + los.d) return [los.y, los.m, los.d];
+  return [y, m, d];
+}
+/* 日期导航三件（今天、翻月翻年、点格带入）走 assets/xuanji-lib.js 的 xjCalNav 共享件：
+   共享件算出目标日期串，本页在 onQuery 钩子里经 jumpToDate 刷新月历与详情；
+   日期下限由 jumpToDate 的 zlFloorDate 钳住，翻到 1027 年之前即归该派 1027 年洛萨。 */
+function setToday(){ xjNavToday(); }
+function moveMonth(n){ xjNavMonth(n); }
+function moveYear(n){ xjNavYear(n); }
+function pickDate(key){ xjNavPick(key); }
+function jumpToDate(v){
+  if(!v) return;
+  const p = v.split('-').map(Number);
+  if(!p[0] || !p[1]) return;
+  const c = zlFloorDate(p[0], p[1], p[2] || 1);
+  document.getElementById('dInput').value = c[0] + '-' + String(c[1]).padStart(2, '0') + '-' + String(c[2]).padStart(2, '0');
+  cur = safeDate(c[0], c[1], c[2]); render(); showDay(c[0] + '-' + c[1] + '-' + c[2]);
+}
+/* 默认月与当日详情已是页面终值，data-built 记该日月度。
+   加载只补日期框值、选中日、盘格状态与检索区取数；所记日期与今日不同才整页换月。
+   两盘的点选读 ZL_SLOTS 与选中序号，静态盘面须补齐这份模块状态才可点选。 */
+function initDefault(){
+  const now = xjNowDate();
+  const key = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  const input = document.getElementById('dInput');
+  if (input) input.value = key;
+  const grid = document.getElementById('calGrid');
+  if (!grid || grid.getAttribute('data-built') !== key) { setToday(); return; }
+  cur = safeDate(now.getFullYear(), now.getMonth()+1, now.getDate());
+  lastKey = key;
+  ZL_SLOTS = zlSlots();
+  ZL_SS_CUR = ZL_SK_CUR = zlSelSlot();
+  ZL_SK_SEL = ZL_SS_SEL = ZL_SS_CUR;
+  if (xjq) xjq.apply();
+}

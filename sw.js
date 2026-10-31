@@ -1,29 +1,28 @@
-/* 玄机排盘 Service Worker：构建哈希资源缓存优先，HTML 网络优先
+/* 玄机排盘 Service Worker：稳定路径按版本取，HTML 网络优先
    策略：
    - HTML 导航：网络优先，在线取当前版本并回写；断网回落同 URL 缓存，再回落首页壳；
-   - 构建哈希资源：文件名含内容哈希者缓存优先，命中即出，不回源；
-   - 未哈希静态资源：先出缓存，后台按 ETag 重验证并回写；
+   - 版本化资源（文件名或查询串带内容哈希）：缓存优先，命中即出；
+   - 稳定路径资源：先出版本仓缓存，后台按 ETag 重验证并回写；版本换代即重新取；
    - 跨域请求与 Range 请求不拦截，直连网络；
-   - 预缓存壳清单与构建清单所列哈希资源，单项失败不阻断安装。
-   版本：BUILD 由构建入口按内容哈希写入，随清单同批生成。
+   - 预缓存壳清单与构建清单所列稳定资源，单项失败不阻断安装。
+   版本：BUILD 由构建入口按内容哈希写入，随清单同批生成；稳定资源按 BUILD 分桶缓存。
    缓存：壳仓随 BUILD 换代清理，哈希资源仓按内容寻址、跨版本保留。 */
-const BUILD = 'ddcffecebbee';
+const BUILD = 'bb8c79631b47';
 const CACHE_SHELL = 'xj-shell-' + BUILD;
 const CACHE_IMMUTABLE = 'xj-immutable-v1';
 const MANIFEST_URL = './assets/build-manifest.json';
 const OFFLINE_URL = './index.html';
 const HASHED_RE = /\.[0-9a-f]{8,}\.(?:js|css|woff2?|ttf|otf|svg|png|jpe?g|webp|avif|ico|json)$/i;
+const QUERY_HASH_RE = /[?&]h=[0-9a-f]{8,}(?:&|$)/i;
 const BUILD_RE = /^[0-9a-f]{8,16}$/;
 
-/* 壳只预缓存打开就能看的最小集；构建哈希资源由构建清单补齐。
-   哈希文件名与 SHELL、BUILD 是同一套构建口径，三者同笔维护。 */
+/* 壳只预缓存打开就能看的最小集；构建清单所列稳定资源随壳仓同版本预缓存，
+   换代即随壳仓重建；带内容哈希的旧路径仍进按内容寻址的长期仓。 */
 const SHELL = [
   './',
   './index.html',
   './404.html',
   './manifest.webmanifest',
-  './assets/meta.js',
-  './assets/app.js',
   './assets/fonts/noto-serif-sc.css',
   './assets/fonts/nssc-chrome.woff2',
   './assets/fonts/site-sym.css',
@@ -31,10 +30,13 @@ const SHELL = [
 ];
 
 function isHashed(pathname) {
-  return HASHED_RE.test(pathname);
+  return HASHED_RE.test(String(pathname).split('?')[0]);
+}
+function isVersioned(u) {
+  return isHashed(u) || QUERY_HASH_RE.test(String(u));
 }
 
-/* 构建清单可缺省：未产出时只预缓存壳，哈希资源在首次访问时进缓存。 */
+/* 构建清单可缺省：未产出时只预缓存壳，稳定资源在首次访问时进版本仓。 */
 function readManifest() {
   return fetch(MANIFEST_URL, { cache: 'no-cache' }).then(function (res) {
     if (!res.ok) return { build: '', assets: [] };
@@ -45,7 +47,7 @@ function readManifest() {
         build: data && typeof data.build === 'string' && BUILD_RE.test(data.build) ? data.build : '',
         assets: pre.filter(function (u) {
           return typeof u === 'string' && u.charAt(0) !== '/' && u.indexOf('..') < 0 &&
-            !/^[a-z]+:/i.test(u) && isHashed(u);
+            !/^[a-z]+:/i.test(u) && u.indexOf('assets/') === 0;
         })
       };
     });
@@ -64,8 +66,11 @@ self.addEventListener('install', function (e) {
       ]).then(function (opened) {
         const shell = opened[0];
         const immutable = opened[1];
+        const stable = m.assets.filter(function (u) { return !isHashed(u); });
+        const hashed = m.assets.filter(function (u) { return isHashed(u); });
         const jobs = SHELL.map(function (u) { return shell.add(u); })
-          .concat(m.assets.map(function (u) { return immutable.add(u); }));
+          .concat(stable.map(function (u) { return shell.add(u); }))
+          .concat(hashed.map(function (u) { return immutable.add(u); }));
         return Promise.allSettled(jobs);
       });
     }).then(function () { return self.skipWaiting(); })
@@ -148,7 +153,7 @@ self.addEventListener('fetch', function (e) {
     e.respondWith(networkFirst(req));
     return;
   }
-  if (isHashed(url.pathname)) {
+  if (isVersioned(url.pathname + url.search)) {
     e.respondWith(cacheFirst(req));
     return;
   }

@@ -26,18 +26,312 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/zhougong.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/zhougong.css">
+body{--footer-ink:#26394c}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
+#out + *{margin-top:var(--sp-4)}
+
+.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.cal-cell .slot{display:none}
+}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+.scroll-jump{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);background:var(--paper);
+  opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
+
+.sj-btn{font:inherit;font-size:16px;line-height:1;cursor:pointer;
+  border:0;border-radius:0;background:transparent;color:var(--gold2);
+  padding:var(--sp-2) var(--sp-1);outline:none;transition:color .15s}
+
+.sj-btn:hover{color:var(--gold)}
+
+.sj-btn:focus{outline:none}
+
+.sj-btn:disabled{opacity:.35;cursor:default}
+
+@media(max-width:640px){
+.sj-btn{font-size:13px;padding:var(--sp-1) 2px}
+}
+
+.mod-title{font-size:var(--tier1);font-weight:400;color:var(--ink);letter-spacing:.6px}
+
+.mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
+
+.mod:last-child{margin-bottom:0}
+
+@media screen{
+section.mod{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none}
+}
+
+@media(max-width:640px){
+.mod-title{flex-shrink:0;white-space:nowrap;letter-spacing:.3px}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-zg .page h1{color:var(--zg-deep);font-family:var(--zg-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-zg .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--zg-line);margin:0 auto var(--sp-3)}
+
+.page-zg .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--zg-line);margin:var(--sp-3) auto 0}
+
+.page-zg .page .lead{color:var(--zg-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3);line-height:1.7}
+
+.page-zg .page .lead::after{background:var(--zg-line)}
+
+.page-zg .sub-note{color:var(--zg-ink2)}
+
+.page-zg .btn:not(.soft):not(.btn-ghost){background:var(--zg);border-color:var(--zg);color:#fff;box-shadow:none}
+
+.page-zg .btn:not(.soft):not(.btn-ghost):hover{background:var(--zg2);border-color:var(--zg2);color:#fff;box-shadow:none}
+
+.page-zg .btn.soft{background:var(--zg-tint);border-color:var(--zg-line);color:var(--zg-ink)}
+
+.page-zg .btn.soft:hover{background:var(--card);border-color:var(--zg-line);color:var(--zg2)}
+
+.page-zg .ai-block{
+  border:0;border-top:1px solid var(--zg-line);border-bottom:1px solid var(--zg-line);border-radius:0;
+  background:transparent;color:var(--zg-ink);box-shadow:none;
+}
+
+.page-zg .ai-head{background:transparent;border-bottom-color:var(--zg-line)}
+
+.page-zg .ai-block .btn,.page-zg .ai-block .btn.gold{box-shadow:none}
+
+.page-zg .ai-block .btn{background:var(--zg);color:#fff}
+
+.page-zg .ai-block .btn:hover{background:var(--zg2)}
+
+.page-zg .ai-block .btn.gold,.page-zg .ai-block .btn.soft{background:var(--zg-tint);border-color:var(--zg-line);color:var(--zg-ink);box-shadow:none}
+
+.page-zg .ai-block .btn.gold:hover,.page-zg .ai-block .btn.soft:hover{background:var(--card);border-color:var(--zg-line);color:var(--zg2)}
+
+.page-zg .ai-head h3{color:var(--zg2)}
+
+.page-zg .ai-head .ai-status{color:var(--zg-ink2)}
+
+.zg-poem{font-family:var(--font);font-size:var(--tier2);line-height:1.9;text-align:center;color:var(--zg2);background:transparent;border:0;border-top:1px solid var(--zg-line);border-radius:0;box-shadow:none;padding:var(--sp-3) 0;margin:var(--sp-4) 0 var(--sp-3)}
+
+.zg-search{display:flex;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-2)}
+
+.page-zg .zg-search input{flex:1;min-width:0;height:30px;font-family:var(--font);padding:0 12px;font-size:var(--tier4);line-height:1.35;box-sizing:border-box;border-width:1px;border-style:solid;border-radius:0;background:var(--card);color:var(--zg-deep);transition:border-color .15s}
+
+.page-zg input,.page-zg select,.page-zg textarea{border-color:var(--zg-line)}
+
+.page-zg .zg-search input:focus{outline:none;border-color:var(--zg)}
+
+.zg-nav{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-3)}
+
+.zg-chip{font:inherit;font-size:var(--tier4);height:30px;border:1px solid var(--zg-line);border-radius:0;background:transparent;padding:0 var(--sp-3);color:var(--zg-ink);cursor:pointer;transition:background .15s}
+
+.zg-chip:hover{background:var(--cal-hover)}
+
+.zg-chip b{color:var(--zg2);font-weight:700;margin-left:var(--sp-1)}
+
+.zg-stats{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-1) 0 var(--sp-3)}
+
+.page-zg .zg-stat{background:transparent;border:0;border-top:1px solid var(--zg-line);border-radius:0;box-shadow:none;padding:var(--sp-2) 0;font-size:var(--tier4);color:var(--zg-ink2)}
+
+.zg-stat b{font-size:20px;font-weight:700;margin-right:var(--sp-1)}
+
+.zg-stat.zg-sj b{color:#154021}
+
+.zg-stat.zg-sx b{color:#70251c}
+
+.zg-stat.zg-sjian b{color:var(--zg2)}
+
+.page-zg .mh-ref{background:transparent}
+
+.page-zg .mh-ref th{text-align:center}
+
+.page-zg .mh-ref td:first-child{text-align:center}
+
+.page-zg .mh-ref td:not(:first-child){text-align:left}
+
+@media(min-width:641px){
+.page-zg .mh-ref td:first-child{white-space:nowrap}
+}
+
+.page-zg details.mh-ref{overflow-x:auto}
+
+.page-zg .mod-title{color:var(--zg2)}
+
+@media (max-width:640px){
+.zg-chip{font-size:12.5px}
+}
+
+@media (prefers-color-scheme: dark){
+html .page-zg {
+    --zg:#5a83a8;
+    --zg2:#4b7197;
+    --zg-deep:#d7dbe0;
+    --zg-ink:#cdd1d5;
+    --zg-ink2:#9ca3aa;
+    --zg-line:#3f4850;
+    --zg-tint:#1f262d;
+  }
+}
+
+.page-zg{
+  --zg:#3d5a74;        /* 月夜青主色：按钮、强调 */
+  --zg2:#26394c;       /* 深夜青：hover、小标题（对白底 5.4:1 达 AA，修小字发虚） */
+  --zg-deep:#1f2d3b;   /* 夜墨：大标题字色 */
+  --zg-ink:#2f3a45;    /* 墨灰：正文字色（对白底 4.9:1 达 AA） */
+  --zg-ink2:#4f5d6b;   /* 次级字色：卷首说明、副注、标注 */
+  --zg-line:#d4dee6;   /* 月晕浅线 */
+  --zg-tint:#f0f4f8;   /* 月晕淡底 */
+  --zg-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  --gold:var(--zg);
+  --gold2:var(--zg2);
+  --gold-bg:var(--zg-tint);
+  --gold-brown:var(--zg2);
+  --line:var(--zg-line);--ink:var(--zg-ink)
+}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/zhougong-0.woff2) format("woff2");unicode-range:U+0022-0024, U+0026-0027, U+002b, U+002f, U+0033-0034, U+0036-0037, U+0040, U+0043, U+0047-0048, U+004a-004b, U+004f, U+0053, U+0055, U+005d-005f, U+0061, U+0063, U+0069, U+006b, U+0075-0076, U+007a, U+007d, U+3000, U+3002, U+300b, U+4e0b, U+4e0e, U+4e11, U+4e19, U+4e49, U+4e4b, U+4e94, U+4ea5, U+4ed3, U+4ef7, U+4f5c, U+4fd7, U+50e7, U+516c, U+5173, U+5175-5176, U+517d, U+51a2, U+51ac, U+51cc, U+51e1, U+51f6, U+51f8, U+5229, U+5251, U+52a0, U+5319, U+5341, U+5360, U+536f, U+53c2, U+53d6, U+5531, U+5668, U+56db, U+5893, U+5915, U+591a, U+591c, U+5929, U+5931, U+5b50, U+5b55, U+5ba4, U+5bab, U+5bb3, U+5bc5, U+5bdd, U+5bf9, U+5c3c-5c3d, U+5e02, U+5e10, U+5e1d, U+5e8a, U+5e9a, U+5ea7, U+5eff, U+5f0f, U+5fc3, U+5fc5, U+60ca, U+620a, U+6251, U+62e9, U+636e, U+652f, U+6545, U+6597, U+65b0, U+65cc, U+660e, U+661f, U+6666, U+6682, U+6691, U+6709, U+671f, U+673a, U+6761, U+677e, U+679c, U+68a6, U+68b3, U+68c0, U+690d, U+6a21, U+6b32, U+6b64, U+6b66, U+6c11, U+6c14, U+6cd5, U+6d4f, U+706f, U+718a, U+7269, U+7334, U+7389, U+73af, U+73cd, U+7530, U+767d, U+795e, U+79b3, U+79cb, U+79cd, U+7a77, U+7d22, U+7eb7, U+8206, U+8282, U+8354, U+865a, U+867e, U+86c7, U+8776, U+8bba, U+8bbe, U+8bcd, U+8bd7, U+8bf7, U+8c37, U+8f66, U+8f83, U+8f9b, U+8f9e, U+8fce, U+91ca, U+948f, U+9497, U+94f6, U+95ed, U+9644, U+9875, U+98de-98df, U+9970, U+9986, U+9a82, U+9b42, U+9f99, U+ff09, U+ff0c}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/zhougong-1.woff2) format("woff2");unicode-range:U+0025, U+0028, U+002a, U+002e, U+0030-0031, U+0035, U+0038, U+003c-003d, U+0041, U+004e, U+0050-0052, U+0054, U+0057-005a, U+0060, U+0065, U+006c, U+006f, U+0072-0073, U+0077, U+0079, U+007c, U+201c, U+4e00, U+4e03, U+4e09-4e0a, U+4e0d, U+4e3b, U+4e50, U+4e66, U+4e8c, U+4e95, U+4ea4, U+4ea7, U+4eba, U+4ef6, U+4f24, U+4f26, U+4f8b, U+5148, U+516b, U+5206, U+5224, U+5348, U+5361, U+539f, U+53a8, U+53ca, U+53cd, U+53d1, U+53e5, U+5409, U+540c-540d, U+547c, U+56fa, U+5728, U+5730, U+5757, U+57a2, U+58a8, U+5904, U+5973, U+5982, U+5bb5, U+5bd2, U+5c0f, U+5df1, U+5e1b, U+5e38, U+5e74, U+5e95, U+5f02, U+5f55, U+5f62, U+5f97, U+6253, U+6389, U+63d0, U+65ad, U+65e0, U+65e5, U+65e7-65e8, U+65f6, U+6606, U+6653, U+66f0, U+6708, U+6714, U+6728, U+672a, U+672c, U+679d, U+6811, U+6865, U+6b8b, U+6be1, U+6c34, U+6d77, U+6ee1, U+706b, U+70db, U+70ed, U+7259, U+725b, U+72f1, U+732a, U+7384, U+73e0, U+7537, U+75c5, U+767e, U+76c8, U+76ee, U+76f8, U+7709, U+77f3, U+786e, U+7977, U+7981, U+79bd, U+79d8, U+7b49, U+7b4b, U+7c7b, U+7cb1, U+7ec4, U+7ee2, U+7f5a, U+7f8a, U+8005, U+800c, U+8015, U+806a, U+8089, U+8292, U+83ab, U+86fe, U+8863, U+89c8, U+89e3, U+8be6, U+8bef, U+8c61, U+8d35, U+8def, U+8f93, U+8fb0-8fb1, U+8fd0, U+9009, U+901a, U+90ed, U+9149, U+914d, U+9152, U+952e, U+955c, U+96c6, U+96e8, U+9732, U+975e, U+9762, U+9884, U+996e, U+9996, U+9f7f, U+ff1a-ff1b}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/zhougong-2.woff2) format("woff2");unicode-range:U+0020-0021, U+0029, U+002c-002d, U+0032, U+0039-003b, U+003e-003f, U+0042, U+0044-0046, U+0049, U+004c-004d, U+0056, U+005b-005c, U+0062, U+0064, U+0066-0068, U+006a, U+006d-006e, U+0070-0071, U+0074, U+0078, U+007b, U+007e, U+201d, U+3001, U+300a, U+4e01, U+4e24, U+4e2d, U+4e59, U+4e5d, U+4e8b, U+4e8f, U+4f53, U+4f5b, U+5146, U+5165, U+516d, U+5177, U+519c, U+51a0, U+5200, U+5211, U+5217, U+521d, U+5220, U+52a8, U+5316, U+535c, U+5386, U+5395, U+53ec, U+5404, U+5415, U+5468, U+547d, U+54c0, U+56ed, U+58ec, U+590f, U+5927, U+592b, U+59bb, U+5b87, U+5b9a, U+5b9d, U+5c45, U+5c4b, U+5c71, U+5ce1, U+5deb, U+5df3, U+5e26, U+5e76, U+5e84, U+5e93, U+5f26, U+5f85, U+5fbd, U+620c, U+6216, U+6237, U+6309, U+6392, U+6570, U+6587, U+65e2, U+6625, U+66f4, U+670d, U+671b, U+672f, U+6740, U+6807, U+6881, U+6b22, U+6b4c, U+6b63, U+6b7b, U+6c5f, U+6c61, U+6c90, U+6ce8, U+6d74, U+6d88, U+6e05, U+6e10, U+6e38, U+7076, U+70b9, U+7167, U+7247, U+738b, U+7406, U+74dc, U+751f, U+7532-7533, U+755c, U+7678, U+7684, U+76d7-76d8, U+793a, U+7acb, U+7b14, U+7ed3, U+7f3a, U+7f6e, U+8003, U+80fd, U+814a, U+81f3, U+8239, U+82b1, U+84d6, U+866b, U+86f0, U+884c, U+889c, U+89c1, U+8bf4, U+8d3c, U+8eab, U+8f7d, U+9001, U+9053, U+91d1, U+949f, U+9519, U+95e8, U+95f0, U+964d, U+968f, U+96ea, U+971c, U+978b, U+9898, U+9a6c, U+9b3c, U+9c7c, U+9cd6, U+9e21, U+9ec4, U+9f13, U+9f9f, U+ff08}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/zhougong-0.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/zhougong-1.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/zhougong-2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/zhougong.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/zhougong.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -101,13 +395,13 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-zg">
+<div class="wrap page-zg" data-built="2026-10-29">
 <main class="page">
   <h1>周公解梦</h1>
   <p class="lead">输入梦象，得《周公解梦》与《断梦秘书》占辞原文及异文对照。</p>
   <section class="mod collapsed">
     <h2 class="mod-title">原文检索</h2>
-    <div class="zg-poem" id="zgPoem"></div>
+    <div class="zg-poem" id="zgPoem">诗曰：夜有纷纷梦，神魂预吉凶。庄周虚化蝶，吕望兆飞熊。丁固生松贵，江海得笔聪。黄粱巫峡事，非此莫能穷。<br></div>
     <div class="zg-search">
       <input id="zgQ" type="text" placeholder="输入梦象或占辞关键词，如：蛇、掉牙、贵人" autocomplete="off">
       <button id="zgBtn" class="btn gold" type="button">检索</button>
@@ -116,13 +410,14 @@
   </section>
   <section class="mod collapsed">
     <h2 class="mod-title">分类浏览</h2>
-    <div id="zgCats" class="zg-nav"></div>
+    <div id="zgCats" class="zg-nav"><button type="button" class="zg-chip" data-cat="1">天地日月星辰 <b>64</b></button><button type="button" class="zg-chip" data-cat="2">地理山石树木 <b>52</b></button><button type="button" class="zg-chip" data-cat="3">身体面目齿发 <b>30</b></button><button type="button" class="zg-chip" data-cat="4">冠带衣服鞋袜 <b>50</b></button><button type="button" class="zg-chip" data-cat="5">刀剑旌节钟鼓 <b>40</b></button><button type="button" class="zg-chip" data-cat="6">帝王文武呼召 <b>23</b></button><button type="button" class="zg-chip" data-cat="7">宫室屋宇仓库 <b>52</b></button><button type="button" class="zg-chip" data-cat="8">门户井灶厨厕 <b>52</b></button><button type="button" class="zg-chip" data-cat="9">金银珠玉绢帛 <b>28</b></button><button type="button" class="zg-chip" data-cat="10">镜环钗钏梳蓖 <b>24</b></button><button type="button" class="zg-chip" data-cat="11">床帐毡祷匙筋 <b>58</b></button><button type="button" class="zg-chip" data-cat="12">船车游行物价 <b>32</b></button><button type="button" class="zg-chip" data-cat="13">道路桥梁集市 <b>16</b></button><button type="button" class="zg-chip" data-cat="14">夫妻产孕交欢 <b>20</b></button><button type="button" class="zg-chip" data-cat="15">饮食酒肉瓜果 <b>40</b></button><button type="button" class="zg-chip" data-cat="16">冢墓馆郭迎送 <b>14</b></button><button type="button" class="zg-chip" data-cat="17">文书笔墨兵器 <b>38</b></button><button type="button" class="zg-chip" data-cat="18">哀乐病死歌唱 <b>30</b></button><button type="button" class="zg-chip" data-cat="19">佛道僧尼鬼神 <b>22</b></button><button type="button" class="zg-chip" data-cat="20">杀害斗伤打骂 <b>28</b></button><button type="button" class="zg-chip" data-cat="21">扑禁刑罚狱具 <b>28</b></button><button type="button" class="zg-chip" data-cat="22">田园五谷耕种 <b>32</b></button><button type="button" class="zg-chip" data-cat="23">水火盗贼灯烛 <b>28</b></button><button type="button" class="zg-chip" data-cat="24">污垢沐浴凌辱 <b>16</b></button><button type="button" class="zg-chip" data-cat="25">龙蛇禽兽等类 <b>68</b></button><button type="button" class="zg-chip" data-cat="26">牛马猪羊六畜 <b>32</b></button><button type="button" class="zg-chip" data-cat="27">龟鳖鱼虾昆虫 <b>34</b></button></div>
     <div id="zgBrowse"></div>
   </section>
-  <section class="mod collapsed">
+  <div class="stage2-late">
+<section class="mod collapsed">
     <h2 class="mod-title">断梦秘书</h2>
     <p class="sub-note">旧题《断梦秘书》按十二地支分类，释义较通行本详尽。本页录得子至申九类九百二十九条，酉饮食、戌器物、亥珍宝三类暂缺。点选地支类浏览，释义按原书小节分组。原书释义多作条件句而随人异断，如“贵人梦之大吉大利，常人梦之主得心火身热之病”，一词断吉凶必失其旨，故本模块不设吉凶徽标；欲判吉凶，请参同名梦象在通行本中的占辞。原书同象两见者（如梦荔枝、梦迎春花）并列不删，卡片各加标注。</p>
-    <div id="zgDmCats" class="zg-nav"></div>
+    <div id="zgDmCats" class="zg-nav"><button type="button" class="zg-chip zd-chip" data-dmcat="1">子 天文类 <b>114</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="2">丑 地舆类 <b>78</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="3">寅 伦常类 <b>69</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="4">卯 人事类 <b>111</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="5">辰 形体类 <b>74</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="6">巳 释道类 <b>55</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="7">午 动植类 <b>304</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="8">未 服饰类 <b>40</b></button><button type="button" class="zg-chip zd-chip" data-dmcat="9">申 居处类 <b>84</b></button></div>
     <div id="zgDmBrowse"></div>
   </section>
   <section class="mod collapsed">
@@ -181,341 +476,21 @@
       </table>
     </details>
   </section>
+  <div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+  </details></div>
 </main>
+</div>
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/ai.js"></script>
-<script defer src="assets/zhougong-data.js"></script>
-<script defer src="assets/zhougong-duanm.js"></script>
-<script defer src="assets/zhougong.js"></script>
-<script>
-/* 折叠态属交互态：页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-var zgBadge = { 1:'吉', '-1':'凶', 0:'兼' };
-var ZG_ON_CAT = 0;
-function zgLuckBadge(luck){
-  var cls = luck === 1 ? 'zg-j' : (luck === -1 ? 'zg-x' : 'zg-jian');
-  return '<i class="zg-badge ' + cls + '">' + zgBadge[String(luck)] + '</i>';
-}
-function zgCard(r){
-  return '<div class="zg-card">' +
-    '<div class="zg-card-top"><span class="zg-cat-chip">' + r.catName + '：' + r.sub + '</span>' + zgLuckBadge(r.luck) + '</div>' +
-    '<div class="zg-entry"><span class="zg-img">' + r.img + '</span>' +
-    (r.omen ? '<span class="zg-omen">' + r.omen + '</span>' : '') + '</div>' +
-    '</div>';
-}
-/* 断梦秘书：同名梦象索引（去"梦"字头后与通行本梦象比对），键为规范化梦象 */
-var ZG_DM_DUI = {};
-var ZG_DM_NORM = {};
-/* 断梦秘书同象两见索引：同一梦象在书中出现两次以上者，卡片标注并存不删 */
-var ZG_DM_DUP = {};
-/* 原书两见标注：释文详略或占断不同，各存其真 */
-function zgDmDupHtml(img){
-  if ((ZG_DM_DUP[img] || 0) < 2) return '';
-  return '<div class="zd-dup">此象原书两见，前后释文详略有别，各存其真，未加删并。</div>';
-}
-/* 断梦条目卡：占辞为释义原文，无吉凶标签，小节名随卡显示；两书同名梦象时附通行本对照行 */
-function zgDmCard(r){
-  return '<div class="zg-card">' +
-    '<div class="zg-card-top"><span class="zg-cat-chip">' + ZG_DM_CATS[r[0] * 2 - 1] + '：' + r[1].replace(/^梦/, '') + '</span></div>' +
-    '<div class="zg-entry"><span class="zg-img">' + r[2] + '</span>' +
-    '<span class="zg-omen">' + r[3] + '</span></div>' +
-    zgDmDupHtml(r[2]) +
-    zgDmDuiHtml(r[2]) +
-    '</div>';
-}
-/* 通行本同名条目占辞对照行：以断梦本梦象去"梦"字头在通行本条目中精确匹配 */
-function zgDmDuiHtml(img){
-  var bare = img.replace(/^梦/, '');
-  var list = ZG_ROWS.filter(function(x){ return x.img === bare; });
-  if (!list.length) return '';
-  return '<div class="zd-dui"><b>通行本对照</b>：' + list.map(function(x){
-    return x.catName + '：' + x.img + '，' + x.omen;
-  }).join('；') + '</div>';
-}
-/* 断梦秘书对照行：检索通行本命中条目时，查同名梦象的断梦占辞并列 */
-function zgDuiReverseHtml(img){
-  var dm = ZG_DM_DUI[img];
-  if (!dm || !dm.length) return '';
-  return '<div class="zd-dui"><b>断梦秘书对照</b>：' + dm.map(function(r){
-    return ZG_DM_CATS[r[0] * 2 - 1] + '：' + r[2] + '，' + r[3];
-  }).join('；') + '</div>';
-}
-/* 通行本卡（含断梦对照）：结构与 zgCard 同形，对照行收在卡片内 */
-function zgCardDui(r){
-  return '<div class="zg-card">' +
-    '<div class="zg-card-top"><span class="zg-cat-chip">' + r.catName + '：' + r.sub + '</span>' + zgLuckBadge(r.luck) + '</div>' +
-    '<div class="zg-entry"><span class="zg-img">' + r.img + '</span>' +
-    (r.omen ? '<span class="zg-omen">' + r.omen + '</span>' : '') + '</div>' +
-    zgDuiReverseHtml(r.img) +
-    '</div>';
-}
-function zgRenderSearch(){
-  var q = document.getElementById('zgQ').value;
-  var out = document.getElementById('zgOut');
-  var list = zgSearch(q);
-  if (!q) { out.innerHTML = ''; return; }
-  if (!list.length) {
-    var kRaw = q.replace(/^梦(见|到|了)?/, '').replace(/^\s+|\s+$/g, '');
-    var k = escapeHtml(kRaw);
-    var near = zgNeighbors(q);
-    var mg = zgModernMatch(kRaw);
-    var html = '<div class="zg-empty"><b>底本无“' + k + '”之象。</b></div>';
-    if (mg) {
-      html += '<div class="zg-empty zg-mtip">可参古象：'
-        + mg.terms.map(function(t){ return '<button type="button" class="zg-tip-q" data-q="' + t + '">' + t + '</button>'; }).join('、')
-        + '。' + mg.why + '（今人推类，非底本文；检得者为古象本占，非“' + k + '”之占）</div>';
-    }
-    if (near.length) {
-      html += '<div class="zg-loose">以下条目仅与所问字面相关（文字重合），并非“' + k + '”之占；'
-        + '吉凶徽标属该条目本身，与所问无涉，不可据以断所问之吉凶。</div>' + near.map(zgCard).join('');
-    }
-    out.innerHTML = html;
-    return;
-  }
-  var shown = Math.min(list.length, 60);
-  var head = '检得 ' + list.length + ' 条';
-  if (list.length > shown) head += '，显示前 ' + shown + ' 条';
-  out.innerHTML = '<div class="zg-count">' + head + '</div>' + list.map(zgCardDui).join('');
-}
-function zgRenderCats(){
-  var counts = zgCatCounts();
-  var html = '';
-  ZG_CATS.forEach(function(name, i){
-    html += '<button type="button" class="zg-chip" data-cat="' + (i + 1) + '">' + name + ' <b>' + counts[i + 1] + '</b></button>';
-  });
-  document.getElementById('zgCats').innerHTML = html;
-}
-function zgRenderCat(cat){
-  var groups = zgCatGroups(cat);
-  var html = '<h3 class="zg-cat-h">' + ZG_CATS[cat - 1] + '（第' + ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四','二十五','二十六','二十七'][cat - 1] + '类）</h3>';
-  html += groups.map(function(g){
-    return '<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + g.items.length + '）</div>' +
-      g.items.map(zgCard).join('') + '</div>';
-  }).join('');
-  document.getElementById('zgBrowse').innerHTML = html;
-}
-function zgRenderStats(){
-  var s = zgStats();
-  var dmTotal = ZG_DM_SETS.length;
-  document.getElementById('zgStats').innerHTML =
-    '<span class="zg-stat"><b>' + s.cats + '</b>门类</span>' +
-    '<span class="zg-stat"><b>' + s.total + '</b>句占辞</span>' +
-    '<span class="zg-stat zg-sj"><b>' + s.ji + '</b>吉</span>' +
-    '<span class="zg-stat zg-sx"><b>' + s.xiong + '</b>凶</span>' +
-    '<span class="zg-stat zg-sjian"><b>' + s.jian + '</b>吉凶兼</span>' +
-    '<span class="zg-stat"><b>' + dmTotal + '</b>断梦秘书条</span>' +
-    '<span class="zg-stat"><b>' + ZG_DM_DUI_COUNT + '</b>同名异文</span>';
-}
-
-function zgRenderNotes(){
-  var tb = document.querySelector('#zgNotes tbody');
-  tb.innerHTML = ZG_NOTES.map(function(n){
-    return '<tr><td>' + n[0] + '</td><td>' + n[1] + '</td></tr>';
-  }).join('');
-  document.getElementById('zgNotesSum').textContent = '底本用字说明（' + ZG_NOTES.length + ' 条）';
-}
-/* 断梦秘书：地支类 chip 渲染、某类按小节分组浏览 */
-var ZG_DM_ON_CAT = 0;
-var ZG_DM_CAT_ORDER = ['子','丑','寅','卯','辰','巳','午','未','申'];
-function zgDmRenderCats(){
-  var counts = {};
-  ZG_DM_SETS.forEach(function(r){ counts[r[0]] = (counts[r[0]] || 0) + 1; });
-  var html = '';
-  ZG_DM_CAT_ORDER.forEach(function(zhi, i){
-    html += '<button type="button" class="zg-chip zd-chip" data-dmcat="' + (i + 1) + '">' + zhi + ' ' + ZG_DM_CATS[i * 2 + 1] + ' <b>' + (counts[i + 1] || 0) + '</b></button>';
-  });
-  document.getElementById('zgDmCats').innerHTML = html;
-}
-function zgDmRenderCat(cat){
-  var rows = ZG_DM_SETS.filter(function(r){ return r[0] === cat; });
-  var groups = [], idx = {};
-  rows.forEach(function(r){
-    if (!idx[r[1]]) { idx[r[1]] = { sub: r[1], items: [] }; groups.push(idx[r[1]]); }
-    idx[r[1]].items.push(r);
-  });
-  var zhi = ZG_DM_CAT_ORDER[cat - 1];
-  var html = '<h3 class="zg-cat-h">' + zhi + ' ' + ZG_DM_CATS[cat * 2 - 1] + '（' + rows.length + ' 条）</h3>';
-  html += groups.map(function(g){
-    return '<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + g.items.length + '）</div>' +
-      g.items.map(zgDmCard).join('') + '</div>';
-  }).join('');
-  document.getElementById('zgDmBrowse').innerHTML = html;
-}
-function zgAiContext(){
-  var luckName = { '1':'吉', '-1':'凶', '0':'吉凶兼' };
-  var s = '周公解梦（通行本《周公解梦》二十七类九百五十一句占辞，托名周公旦，隋唐以降民间占梦材料辑录）\n';
-  if (ZG_DM_ON_CAT){
-    var dmRows = ZG_DM_SETS.filter(function(r){ return r[0] === ZG_DM_ON_CAT; });
-    s += '另附《断梦秘书》当前浏览类别：' + ZG_DM_CAT_ORDER[ZG_DM_ON_CAT - 1] + ' '
-      + ZG_DM_CATS[ZG_DM_ON_CAT * 2 - 1] + '（全类 ' + dmRows.length + ' 条）\n';
-    var dmLim = 4000, dmUsed = 0, dmCut = false;
-    for (var di = 0; di < dmRows.length; di++){
-      var dmLine = dmRows[di][2] + '：' + dmRows[di][3] + '\n';
-      if (dmUsed + dmLine.length > dmLim) { dmCut = true; break; }
-      s += dmLine; dmUsed += dmLine.length;
-    }
-    if (dmCut) s += '（以上为节选，已按字数截断；全类共 ' + dmRows.length
-      + ' 条，如需其余条目，请提示用户输入具体梦象关键词检索，勿臆造未列出的条目）\n';
-    return s;
-  }
-  if (ZG_ON_CAT){
-    s += '当前浏览类别：' + ZG_CATS[ZG_ON_CAT - 1] + '\n';
-    zgCatGroups(ZG_ON_CAT).forEach(function(g){
-      s += '\n【' + g.sub + '】\n' + g.items.map(function(r){ return r.img + '：' + (r.omen || ''); }).join('\n');
-    });
-    return s;
-  }
-  var q = document.getElementById('zgQ').value;
-  if (q){
-    var list = zgSearch(q);
-    if (list.length){
-      s += '检索梦象：' + q + '\n检得条目（括注为吉凶判读）：\n' + list.map(function(r){
-        return r.catName + '：' + r.img + '，' + (r.omen || '') + '（' + luckName[String(r.luck)] + '）';
-      }).join('\n');
-    } else {
-      s += '检索梦象：' + q + '，底本无此象。以下仅为字面相关条目（文字重合），非此象占辞，'
-        + '严禁据此推断所问梦象的吉凶，须明确告知用户底本无文：\n' + zgNeighbors(q).map(function(r){
-        return r.catName + '：' + r.img + '，' + (r.omen || '');
-      }).join('\n');
-      var mg = zgModernMatch(q);
-      if (mg) s += '\n古象推类线索（今人推类，非底本文）：可参' + mg.terms.join('、') + '，' + mg.why;
-    }
-    return s;
-  }
-  return s + '当前未检索或未选择类别，请提示用户输入梦象关键词（如蛇、掉牙、河水），或点选分类浏览某一类。';
-}
-function zgRenderPoem(){
-  /* 按句号切分、每行四句：硬切 16 字会把"庄周虚化蝶"从短语中间断开 */
-  var parts = ZG_POEM.match(/[^。]+。/g) || [ZG_POEM];
-  var line1 = parts.slice(0, 4).join('');
-  var line2 = parts.slice(4).join('');
-  document.getElementById('zgPoem').innerHTML = '诗曰：' + line1 + '<br>' + line2;
-}
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('zgFoldState','details[id]');
-    },true);
-    renderChrome('zhougong.html');
-    xjApplyFold('zgFoldState','details[id]');
-    ZG_DM_SETS.forEach(function(r){
-      var bare = r[2].replace(/^梦/, '');
-      if (!ZG_DM_DUI.hasOwnProperty(bare)) { ZG_DM_DUI[bare] = []; ZG_DM_NORM[bare] = r[2]; }
-      ZG_DM_DUI[bare].push(r);
-    });
-    ZG_DM_SETS.forEach(function(r){ ZG_DM_DUP[r[2]] = (ZG_DM_DUP[r[2]] || 0) + 1; });
-    (function(){
-      var ZG_DM_DUI_COUNT = (function(){
-      var imgs = {};
-      ZG_ROWS.forEach(function(x){ imgs[x.img] = 1; });
-      var seen = {};
-      ZG_DM_SETS.forEach(function(r){
-        var b = r[2].replace(/^梦/, '');
-        if (imgs[b] && !seen[b]) { seen[b] = 1; }
-      });
-      return Object.keys(seen).length;
-    })();
-      window.ZG_DM_DUI_COUNT = ZG_DM_DUI_COUNT;
-    })();
-    document.getElementById('zgDmCats').addEventListener('click', function(e){
-      var btn = e.target.closest('.zd-chip');
-      if (!btn) return;
-      var cat = +btn.getAttribute('data-dmcat');
-      var browse = document.getElementById('zgDmBrowse');
-      if (btn.classList.contains('on')) {
-        btn.classList.remove('on');
-        ZG_DM_ON_CAT = 0;
-        browse.innerHTML = '';
-        return;
-      }
-      document.querySelectorAll('.zd-chip').forEach(function(c){ c.classList.remove('on'); });
-      btn.classList.add('on');
-      ZG_DM_ON_CAT = cat;
-      zgDmRenderCat(cat);
-      if (browse.scrollIntoView) browse.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
-    document.getElementById('zgBtn').addEventListener('click', zgRenderSearch);
-    document.getElementById('zgQ').addEventListener('keydown', function(e){
-      if (e.key === 'Enter') zgRenderSearch();
-    });
-    document.getElementById('zgOut').addEventListener('click', function(e){
-      var b = e.target.closest('.zg-tip-q');
-      if (!b) return;
-      document.getElementById('zgQ').value = b.getAttribute('data-q');
-      zgRenderSearch();
-    });
-    document.getElementById('zgCats').addEventListener('click', function(e){
-      var btn = e.target.closest('.zg-chip');
-      if (!btn) return;
-      var cat = +btn.getAttribute('data-cat');
-      var browse = document.getElementById('zgBrowse');
-      if (btn.classList.contains('on')) {
-        btn.classList.remove('on');
-        ZG_ON_CAT = 0;
-        browse.innerHTML = '';
-        return;
-      }
-      document.querySelectorAll('.zg-chip').forEach(function(c){ c.classList.remove('on'); });
-      btn.classList.add('on');
-      ZG_ON_CAT = cat;
-      zgRenderCat(cat);
-      if (browse.scrollIntoView) browse.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
-    zgRenderPoem();
-    zgRenderCats();
-    zgRenderStats();
-    zgRenderNotes();
-    zgDmRenderCats();
-    mountAI(zgAiContext, '周公解梦', { share:{
-      page: 'zhougong',
-      title: '周公解梦在线查询', result: '#zgOut',
-      collect: function(){
-        var d = shareDefaultCollect();
-        d.__zgCat = ZG_ON_CAT ? String(ZG_ON_CAT) : '';
-        d.__zgDmCat = ZG_DM_ON_CAT ? String(ZG_DM_ON_CAT) : '';
-        return d;
-      },
-      restore: function(d){
-        ZG_ON_CAT = 0;
-        ZG_DM_ON_CAT = 0;
-        document.querySelectorAll('.zg-chip').forEach(function(c){ c.classList.remove('on'); });
-        document.querySelectorAll('.zd-chip').forEach(function(c){ c.classList.remove('on'); });
-        document.getElementById('zgBrowse').innerHTML = '';
-        document.getElementById('zgDmBrowse').innerHTML = '';
-        shareDefaultRestore(d);
-        if (d && d.__zgDmCat){
-          var dmcat = +d.__zgDmCat;
-          if (dmcat >= 1 && dmcat <= 9){
-            ZG_DM_ON_CAT = dmcat;
-            var db = document.querySelector('.zd-chip[data-dmcat="' + dmcat + '"]');
-            if (db) db.classList.add('on');
-            zgDmRenderCat(dmcat);
-            return;
-          }
-        }
-        if (d && d.__zgCat){
-          var cat = +d.__zgCat;
-          if (cat >= 1 && cat <= 27){
-            ZG_ON_CAT = cat;
-            var b = document.querySelector('.zg-chip[data-cat="' + cat + '"]');
-            if (b) b.classList.add('on');
-            zgRenderCat(cat);
-            return;
-          }
-        }
-        if (document.getElementById('zgQ').value) zgRenderSearch();
-      },
-      /* 刷新重出：全站顶层机制回填输入后按此钩子重排结果，无关键词则不动 */
-      recast:function(){ if (document.getElementById('zgQ').value) zgRenderSearch(); }
-    } });
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/zhougong.seg1.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-zhougong-data.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/zhougong.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-zhougong-00.js"></script>
 </body>
 </html>

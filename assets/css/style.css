@@ -32,8 +32,8 @@
   --special-bg:#f3e7d3;     /* sd-special背景 */
   --special-text:#8a5a00;   /* sd-special文字 */
   --special-border:#d8b46a; /* sd-special边框 */
-  --font:'Noto Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 全站主字体：思源宋体自托管分片＋符号补全子集，见 assets/fonts/，随站交付不依赖访客系统 */
-  --font-serif:'Noto Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 经典衬线真源，与主字体同族 */
+  --font:'Xuanji Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 全站主字体：思源宋体自托管分片＋符号补全子集，见 assets/fonts/，随站交付不依赖访客系统 */
+  --font-serif:'Xuanji Serif SC','Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;  /* 经典衬线真源，与主字体同族 */
 }
 /* 🔴 轻触高亮全站一律不借：纸本文档的按下反馈只由控件自出（盘上是加粗弧与加粗字）， */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -45,6 +45,7 @@ body{
   line-height:1.7;
   -webkit-font-smoothing:auto;
   text-rendering:optimizeLegibility;
+  font-synthesis-weight:none;
 }
 a{color:inherit;text-decoration:none}
 /* 下拉：闭合态不改、不包壳 ， 各页 .field select、.ai-form select、.dt-month 等各有 */
@@ -428,12 +429,10 @@ a.btn{display:inline-flex;align-items:center}
 }
 
 footer{text-align:center;color:var(--ink2);font-size:12px;padding:var(--sp-4) 0 var(--sp-5)}
-footer .dis{color:var(--foot-ink,var(--gold2));font-size:12px;margin-top:0}
-footer .os-link{color:var(--foot-ink,var(--gold2));text-decoration:none;border-bottom:1px dotted currentColor;cursor:pointer}
-footer .os-link:hover{color:var(--red)}
-footer .ref{margin-top:var(--sp-2);color:var(--foot-ink,var(--gold2));font-size:12px;line-height:1.8}
-footer .ref a{color:var(--foot-ink,var(--gold2));text-decoration:none;border-bottom:1px dotted currentColor}
-footer .ref a:hover{color:var(--red)}
+footer .dis{color:var(--footer-ink,var(--ink));font-size:12px;margin-top:0}
+footer .os-link{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor;cursor:pointer}
+footer .ref{margin-top:var(--sp-2);color:inherit;font-size:12px;line-height:1.8}
+footer .ref a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}
 
 /* ===== 八字增强 UI ===== */
 .tip{cursor:pointer;color:var(--red2)}
@@ -822,9 +821,9 @@ table.yun-tbl.rel-matrix td .rel{margin-right:0}
 .ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
 .ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
 .ai-head .ai-status.is-configured{color:var(--green)}
-/* 访问者地理位置（IP 定位）：置于页脚免责声明之下，居中。未取到时保持隐藏， */
-footer .geo-foot{display:none;align-items:center;justify-content:center;gap:var(--sp-1);margin-top:var(--sp-2);font-size:12px;color:var(--foot-ink,var(--gold2));max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-footer .geo-foot.on{display:flex}
+/* 访问者地理位置（IP 定位）：置于页脚免责声明之下，居中。占位常驻，取到后只显字，不推页脚高度。 */
+footer .geo-foot{display:flex;min-height:20px;align-items:center;justify-content:center;gap:var(--sp-1);margin-top:var(--sp-2);font-size:12px;color:var(--footer-ink,var(--ink));max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;visibility:hidden}
+footer .geo-foot.on{visibility:visible}
 footer .geo-foot svg{flex:none;width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}
 .ai-body{padding:var(--sp-3) var(--sp-4)}
 .ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}

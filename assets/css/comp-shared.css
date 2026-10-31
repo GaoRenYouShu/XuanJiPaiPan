@@ -99,6 +99,10 @@
 
 .gz-g,.gz-z{padding:var(--sp-1) 2px}
 
+/* 折叠线以下区块：首绘前不布局、不触发字体请求，stage2 标记落定即恢复 */
+.stage2-late{content-visibility:auto;contain-intrinsic-size:auto 1200px}
+html.stage2 .stage2-late{content-visibility:visible}
+
 @media(max-width:640px){
   .hh-adv{padding:var(--sp-3) 0}
   .hh-adv-tbl th{width:92px;padding:8px 10px}

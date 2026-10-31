@@ -48,6 +48,14 @@ function findLat(prov, city, dist){
 }
 function coordOf(prov, city, dist){ return {lng: findLng(prov,city,dist), lat: findLat(prov,city,dist)}; }
 function provCenter(prov){ const v = PROV_CENTER[prov]; return v? {lng:v[0], lat:v[1]} : null; }
+/* 磁偏角定地：市未定或未收时回落省政府驻地坐标，只供磁偏角折算；
+   出生地取数仍走 findLng 与 findLat，不改其市未定即无坐标的语义。 */
+function declCoord(prov, city, dist){
+  if(!prov || prov===UNKNOWN_PLACE) return null;
+  const c = coordOf(prov, city, dist);
+  if(c.lng!=null && c.lat!=null) return c;
+  return provCenter(prov);
+}
 /* 境外主要城市库：国家（即境外档的省级）下辖城市，城市项为 [城市名, 经度, 标准时区偏移小时, 纬度]。
    经度按地理惯例东经为正、西经为负；纬度北纬为正、南纬为负；时区偏移取当地标准时
    （含半时区，如印度 5.5、尼泊尔 5.75），夏令时不由本库推算，由用户按出生地当年实况自判。
@@ -454,11 +462,11 @@ function nameSame(a, b){
   if(ca === cb) return true;
   return ca.indexOf(cb) === 0 || cb.indexOf(ca) === 0;
 }
-/* 省名归位：英文名唯一直译，中文名按去后缀与包含比对，皆不中则返回空。 */
+/* 省名归位：英文名唯一直译，中文名先剥国名前缀，再按去后缀与包含比对，皆不中则返回空。 */
 function matchProv(region){
   const keys = Object.keys(PROV);
   if(!region) return null;
-  const s = String(region).trim();
+  const s = String(region).trim().replace(/^(?:中国|中华人民共和国|China)\s*/i, '').trim();
   const en = PROV_EN[s] || PROV_EN[Object.keys(PROV_EN).find(k => k.toLowerCase() === s.toLowerCase()) || ''];
   if(en && PROV[en]) return en;
   return keys.find(k => nameSame(k, s)) || null;
@@ -496,34 +504,13 @@ function placeOf(region, city){
   return matchCity(city, p);
 }
 /* 所在地 IP 反查预填：取到归属地即经 placeOf 归位填入三级下拉并触发回调，各页所在地组共用一份。
-   仅当用户从未手选（manualKey 未置 1）且三项仍停在未知地时才填：手选须有用户手势在先
-   （按下或键入）再出变更，程序派发的变更（存档恢复、分享还原）不算手选，勾选类开关
-   （真太阳时校正）不属选地亦不记；已由他途落定的地不覆盖。每次进页都重取：IP 归属地会随
-   网络而变，早先一次填错不该被记住而不复校。失败静默：离线、源不可达、归不了位，皆留待自填。 */
+   每次进页只要省市仍停在未知地即自动预填；同页手选后三项已定，in-flight 结果不覆盖。
+   已由他途落定的地不覆盖；失败静默：离线、源不可达、归不了位，皆留待自填。 */
 function placeIpPrefill(o){
-  var manual=false;
-  try{ manual=localStorage.getItem(o.manualKey)==='1'; }catch(e){}
-  if(manual) return;
   if(typeof window.aiGeoLookup!=='function') return;
   if(!o.trio) return;
-  var armed=false;
-  function isPlace(t){
-    if(!t || !t.tagName) return false;
-    if(t.tagName==='SELECT') return true;
-    return t.tagName==='INPUT' && t.type==='number';
-  }
-  if(o.group){
-    o.group.addEventListener('pointerdown', function(e){ if(isPlace(e.target)) armed=true; }, true);
-    o.group.addEventListener('keydown', function(e){ if(isPlace(e.target)) armed=true; }, true);
-    o.group.addEventListener('change', function(e){
-      var was=armed; armed=false;
-      if(!was || !isPlace(e.target)) return;
-      try{ localStorage.setItem(o.manualKey,'1'); }catch(err){}
-    });
-  }
   window.aiGeoLookup().then(function(g){
     if(!g) return;
-    try{ if(localStorage.getItem(o.manualKey)==='1') return; }catch(e){ return; }
     var cur=o.trio.get();
     if(!placeUnset(cur.prov, cur.city)) return;
     var pl=placeOf(g.region, g.city);

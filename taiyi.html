@@ -26,19 +26,311 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/dist/css/base.css">
+<style data-critical>/* 本页首屏样式。 */
 
-<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/nssc-chrome.woff2">
-<link rel="stylesheet" href="assets/fonts/noto-serif-sc.css">
-<link rel="stylesheet" href="assets/fonts/site-sym.css">
-<link rel="stylesheet" href="assets/pages/taiyi.css">
-<link rel="stylesheet" href="assets/css/comp-dark.css">
-<link rel="stylesheet" href="assets/css/dt.css">
-<link rel="stylesheet" href="assets/css/taiyi.css">
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
+body{--footer-ink:#303d63}
+
+body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  -webkit-font-smoothing:auto;
+  text-rendering:optimizeLegibility;
+}
+
+.page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
+
+.page h1{font-size:23px;margin-bottom:var(--sp-1);font-weight:400}
+
+.page .lead{color:var(--ink2);font-size:14px;margin-bottom:var(--sp-4);padding-bottom:var(--sp-4);position:relative}
+
+.page .lead::after{content:'';display:block;width:1px;height:26px;margin:var(--sp-3) auto 0;background:var(--line)}
+
+.page .lead::before{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
+
+html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
+
+#nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
+
+.btn{
+  height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
+  background:var(--red);color:#fff;font-size:13px;font-weight:400;
+  font-family:inherit;transition:.2s;max-width:100%;box-sizing:border-box;line-height:1.35;
+}
+
+.btn:hover{background:var(--red2)}
+
+.btn.gold{background:var(--red)}
+
+.btn.gold:hover{background:var(--red2)}
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
+#out + *{margin-top:var(--sp-4)}
+
+.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+
+#yunHit{touch-action:pan-x pan-y}
+
+#yunChartWrap{position:relative}
+
+@media(max-width:540px){
+.sk-block .rel-sep{display:none}
+}
+
+.ai-block{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;overflow:hidden}
+
+.ai-head{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:transparent;font-size:12px;cursor:pointer;list-style:none}
+
+.ai-head::after{content:'▾';font-size:12px;line-height:1;transition:transform .15s}
+
+.ai-block:not([open]) .ai-head::after{transform:rotate(-90deg)}
+
+.ai-block .ai-head h3{font-size:12px;font-weight:400;color:var(--gold2);font-family:var(--font-serif);letter-spacing:.1em;margin:0}
+
+.ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
+
+.ai-body{padding:var(--sp-3) var(--sp-4)}
+
+.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+
+.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
+
+.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+.btn.soft:hover{background:var(--card);border-color:var(--line)}
+
+.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
+
+.modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
+  max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
+  box-shadow:0 24px 64px rgba(28,26,23,.28)}
+
+#aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+@media(max-width:640px){
+.page{padding:var(--sp-4) var(--sp-4) 0}
+
+#lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
+
+.cal-cell .slot{display:none}
+}
+
+.mh-ref .sub-note{margin:var(--sp-1) 0}
+
+@media(max-width:1080px){
+.nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
+    width:min(calc(100% - var(--sp-4) * 2),420px);
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-1) var(--sp-1);
+    padding:var(--sp-2);background:#25221e;border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 14px 32px rgba(0,0,0,.45);z-index:30;
+    max-height:calc(100vh - 74px);overflow-y:auto;overscroll-behavior:contain}
+
+.nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
+    background:transparent;border:0;box-shadow:none}
+
+.nav-group:hover .nav-menu{display:none}
+
+.menu-btn{display:inline-flex;margin-left:auto}
+}
+
+#shan,#laiLong{min-width:115px;width:115px}
+
+@media (prefers-color-scheme:dark){
+body.p404-page{background:#17171a;color:#e6e1d6}
+
+.nf{border-color:#e6e1d6}
+
+.nf::after{border-color:rgba(230,225,214,.5)}
+
+.nf-text{color:#a39e93}
+
+.nf-home{border-color:#e6e1d6;color:#e6e1d6}
+
+.nf-home:hover{border-color:#c65a48;color:#c65a48}
+}
+
+.page-ty .mh-ref{border-color:var(--ty-line)}
+
+.page-ty .ty-np{width:100%;border-collapse:collapse;margin-top:var(--sp-2);font-size:13px}
+
+.page-ty .ty-np th,.page-ty .ty-np td{border:1px solid var(--line);padding:5px 8px;text-align:left;line-height:1.6}
+
+.page-ty .ty-np td:first-child,.page-ty .ty-np th:first-child{white-space:nowrap;width:1%}
+
+.page-ty .ty-np td{color:var(--ink);border-color:var(--ty-line,#ccd2e0);background:transparent}
+
+.page-ty .mh-ref table th{white-space:nowrap}
+
+.page-ty .mh-ref table td{text-align:left;line-height:1.6}
+
+.page-ty .mh-ref table td:first-child,.page-ty .mh-ref table th:first-child{white-space:nowrap}
+
+.page-ty details.ty-ref{background:transparent}
+
+.page-ty details.ty-ref table th{background:transparent}
+
+@media(max-width:640px){
+.page-ty .form-row{gap:var(--sp-2)}
+
+.page-ty .ty-np th,.page-ty .ty-np td{padding:4px 5px}
+
+.page-ty .ty-np td{word-break:keep-all}
+}
+
+.page-ty .page > .form-row{margin-bottom:var(--sp-2)}
+
+.page-ty .page h1{color:var(--ty-deep);font-family:var(--ty-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+
+.page-ty .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--ty-line);margin:0 auto var(--sp-3)}
+
+.page-ty .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--ty-line);margin:var(--sp-3) auto 0}
+
+.page-ty .page .lead::after{background:var(--ty-line)}
+
+.page-ty .page .lead{color:var(--ty-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+
+.page-ty .sub-note{color:var(--ty-ink2)}
+
+.page-ty .field label{color:var(--ty2);font-weight:400}
+
+.page-ty .field input,.page-ty .field select{border-color:var(--ty-line);background:var(--card);color:var(--ty-deep)}
+
+.page-ty .field input:focus,.page-ty .field select:focus{border-color:var(--ty);outline:none}
+
+.page-ty .btn:not(.soft):not(.btn-ghost){background:var(--ty);color:#fff}
+
+.page-ty .btn:not(.soft):not(.btn-ghost):hover{background:var(--ty2)}
+
+.page-ty .ai-block{border:0;border-top:1px solid var(--ty-line);border-bottom:1px solid var(--ty-line);border-radius:0;background:transparent;color:var(--ty-ink);box-shadow:none}
+
+.page-ty .ai-head{background:transparent;border-bottom-color:var(--ty-line)}
+
+.page-ty .ai-head h3{color:var(--ty2)}
+
+.page-ty .ai-block .btn{background:var(--ty);color:#fff}
+
+.page-ty .ai-block .btn:hover{background:var(--ty2)}
+
+.page-ty .ai-block .btn.gold,.page-ty .ai-block .btn.soft{background:var(--ty-tint);border-color:var(--ty-line);color:var(--ty-ink);box-shadow:none}
+
+.page-ty .ai-block .btn.gold:hover,.page-ty .ai-block .btn.soft:hover{background:var(--card);border-color:var(--ty-line);color:var(--ty2)}
+
+.page-ty .ty-np .ty-g-split{background:var(--paper);color:var(--gold2)}
+
+.page-ty .ty-np .ty-g-key{white-space:nowrap;width:1%}
+
+@media (prefers-color-scheme: dark){
+html .page-ty {
+    --ty:#5b71ad;
+    --ty2:#566cad;
+    --ty-deep:#d6d9e1;
+    --ty-ink:#cecfd4;
+    --ty-silver:#8e9aad;
+    --ty-line:#40444f;
+    --ty-tint:#1f242d;
+    --ty-ink2:#9ca0ab;
+  }
+}
+
+.page-ty{
+  --ty:#3d4d7a;
+  --ty2:#303d63;
+  --ty-deep:#212b47;
+  --ty-ink:#383d4d;
+  --ty-silver:#8e9aad;
+  --ty-line:#ccd2e0;
+  --ty-tint:#eef1f7;
+  --ty-ink2:#4f576d;  /* 次级字色：卷首说明、副注、标注 */
+  --ty-serif:var(--font-serif);  /* 卷首宋体：页头与题名 */
+  --ink:var(--ty-ink);
+  --ink2:var(--ty-ink2);
+  --gold2:var(--ty2);
+  --gold:var(--ty);
+  --gold-brown:var(--ty2);
+  --gold-bg:var(--ty-tint);
+  --line:var(--ty-line)
+}
+
+.dtm-ty{--tk:#3d4d7a;--tk2:#303d63;--tk-ink:#3b4152;--tk-line:#ccd2e0;--tk-tint:#eef1f7}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/taiyi-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0e, U+4e11, U+4e19, U+4e3b, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4ec5, U+4f53, U+4f9b, U+4fd7, U+4fe1, U+5148, U+5165, U+516b-516d, U+5171, U+5173, U+519c, U+51ac, U+51f8, U+51fb, U+5206, U+521d, U+529f-52a0, U+52ff, U+5316, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+53c2, U+53d6, U+540c, U+547d, U+56da-56db, U+585e, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+592a, U+5973, U+5a31, U+5b50, U+5b97, U+5b9a, U+5ba2, U+5bab, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5bf9, U+5c06, U+5c0f, U+5c40, U+5c45, U+5c81, U+5df1, U+5df3, U+5e74, U+5e93, U+5e9a, U+5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f55, U+5f85, U+60ca, U+620a, U+620c, U+6210, U+6240, U+62e9, U+6309, U+631f, U+636e, U+6392, U+63a8-63a9, U+63d0, U+6570, U+6587, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+675c, U+679c, U+67e5, U+683c, U+6b63, U+6b8b, U+6bb5, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+6f14, U+70b9, U+7248, U+7334, U+7384, U+7406, U+751f, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7709, U+7814, U+786e, U+793a, U+795e, U+79cb, U+79cd, U+79ef, U+7a76, U+7acb, U+7b97, U+7cfb, U+7ed3, U+7edf, U+7f6e, U+7f8a, U+8003, U+80dc, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+86c7, U+86f0, U+86fe, U+89e3, U+8ba1, U+8bba, U+8bbe, U+8bdd, U+8be6, U+8bed, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8d1f, U+8d77, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8feb, U+8ff7, U+9009, U+901f, U+9149, U+914d, U+9519, U+95ed, U+95f0, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9f99, U+ff08-ff09, U+ff0c}
+
+body:has(.page-ty) .scroll-jump:not(.show){display:none}
+
+@media(max-width:640px){
+.page-ty #hInput{width:92px}
+
+.page-ty .form-row .field label{white-space:nowrap}
+}</style>
+<link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/taiyi-0.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
+<link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
+<link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
+<link rel="stage2-css" href="assets/dist/fonts/fonts.css">
+<noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
+<link rel="stage2-css" href="assets/dist/css/taiyi.css">
+<noscript><link rel="stylesheet" href="assets/dist/css/taiyi.css"></noscript>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
-    <span class="seal" aria-hidden="true"><img src="assets/logo/xuanji-seal.svg" alt=""></span>
+    <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
     <span class="wordmark"><b>玄机排盘</b><i>XUANJI&nbsp;PAIPAN</i></span>
   </a>
   <nav class="nav" id="nav">
@@ -102,13 +394,13 @@
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-ty">
+<div class="wrap page-ty" data-built="2026-10-30">
   <div class="page">
     <h1>太乙神数</h1>
     <div class="lead">输入推演时段，按岁计、月计、日计排太乙十六宫盘，参主客算论胜负。</div>
 
     <div class="form-row">
-      <div class="field"><label for="dInput">推算日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="推算日期"></div>
+      <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">推算日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="推算日期" value="2026-10-29"></div>
       <div class="field"><label for="hInput">时辰（推时计）</label><select id="hInput" aria-label="时辰" onchange="query()">
         <option value="-1">不计时计</option>
         <option value="23">子(23-01)</option><option value="1">丑(01-03)</option><option value="3">寅(03-05)</option>
@@ -187,370 +479,38 @@
     <div class="sub-note">速查表按分类列出全页术语的一句话白话；同一格局一局可同时出现多种。更系统的考证见上方神将详解、格局详解与主客算说明。</div>
     </details>
 
+  <div id="aiMount"><details class="ai-block" id="aiBlock">
+    <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled>停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    </div>
+  </details></div>
   </div>
 </div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
+  <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
-<script defer src="assets/lunar.js"></script>
-<script defer src="assets/app.js"></script>
-<script defer src="assets/xuanji-lib.js"></script>
-<script defer src="assets/ai.js"></script>
-<script defer src="assets/taiyi-engine.js"></script>
-<script>
-const SIXTEEN = '子丑艮寅卯辰巽巳午未坤申酉戌乾亥'.split('');
-const GONG_NAME = {子:'子',丑:'丑',艮:'艮',寅:'寅',卯:'卯',辰:'辰',巽:'巽',巳:'巳',午:'午',未:'未',坤:'坤',申:'申',酉:'酉',戌:'戌',乾:'乾',亥:'亥',中:'中'};
-/* 十六宫名→九宫卦名：太乙落宫用子、卯、午、酉，九宫分野表用坎、震、离、兑，查表前先换算 */
-const G2NINE = {子:'坎',卯:'震',午:'离',酉:'兑'};
-const numdict={1:'杂阴',2:'纯阴',3:'纯阳',4:'杂阳',5:'孤阳',6:'纯阴',7:'杂阴',8:'杂阳',9:'纯阳',10:'和数',11:'阴中重阳',12:'下和',13:'杂重阳',14:'上和',15:'孤阳',16:'下和',17:'阴中重阳',18:'上和',19:'杂重阳',20:'和数',21:'杂重阳',22:'纯阴',23:'次和',24:'杂重阴',25:'孤阳',26:'纯阴',27:'下和',28:'杂重阴',29:'次和',30:'和数',31:'杂重阳',32:'次和',33:'纯阳',34:'下和',35:'孤阳',36:'纯阴',37:'杂重阳',38:'下和',39:'纯阳',40:'和数'};
-function calDes(num){if(num===0)return ['算数为零，无算可据，势失而无所依，宜静守待时'];const t=[];const noT=num<10,noD=num%10<5,noP=num%10===0;if(noT)t.push('无天：二曜虚蚀、五纬失度、彗孛飞流、霜雹为害');if(noD)t.push('无地：崩地震、川竭蝗蝻之象');if(noP)t.push('无人：口舌妖言、疾疫迁移流亡');if(!noT&&!noD&&!noP)t.push('三才足数');const d=numdict[num];if(d)t.push(d);else if(num<40)t.push(num%2?'阳数（奇数）':'阴数（偶数）');return t;}
-const GONG_FANG={乾:'西北',午:'正南',艮:'东北',卯:'正东',巽:'东南',坤:'西南',酉:'正西',子:'正北',中:'中宫'};
-const NUM2GONG={1:'乾',2:'午',3:'艮',4:'卯',5:'中',6:'酉',7:'坤',8:'子',9:'巽'};
-/* ============ 术语字典（单一数据源：悬停读 short，速查表渲染全部，白话解读引用） ============ */
-const TAIYI_TERMS={
-  core:{title:'核心概念',items:{
-    '太乙':{short:'全盘核心之神，代表大势与天时所归，太乙落哪宫、大势重心就在哪边。',detail:'天之贵神，统主一局之气数，定旺衰吉凶；太乙所临之宫即为该计之主宫。'},
-    '文昌（天目）':{short:'佐助主方的观察之星，代表本方的智谋与文运，用它数出主算。',detail:'定主算之数，主文华、智谋、荐贤；居间辰或四维定主算起数点。'},
-    '始击（客目）':{short:'与主方对立之星，代表外来一方的竞争与冲击，用它数出客算。',detail:'定客算之数，主侵伐、客争、兵革；始击所临定客方之局势。'},
-    '计神':{short:'出谋划策之神，主暗中较量，佐助客方。',detail:'主计谋、暗算，佐客方；以十二辰逆推，自寅（阳遁）起按太岁定之。'},
-    '合神':{short:'与太岁相合的辰位，推定算用的辅助点。',detail:'与太岁相合之辰，用于定计（以合神加太岁，取文昌临处为定目）。'},
-    '主算':{short:'本方实力的分数，数越大本方越强。',detail:'自文昌所在宫数至太乙，九宫数之和；越大主方越盛。'},
-    '客算':{short:'外方实力的分数，数越大外方越强。',detail:'自始击所在宫数至太乙，九宫数之和；越大客方越盛。'},
-    '定算':{short:'第三重参考分，偏向助外方。',detail:'以合神加太岁、取文昌临处依主算法推得，偏助客方。'},
-    '阳遁':{short:'起局的运行方向之一；本页年、月、日、时计恒为阳遁。',detail:'阳遁主外放进取，阴遁主静守内敛；年月日计恒为阳遁，时计亦以阳遁推。'},
-    '阴遁':{short:'与阳遁相对的运行方向；本页四计恒为阳遁，盘面不现阴遁。',detail:'阴遁主静守内敛；仅特定体系与冬至后阴遁局使用。'}
-  }},
-  siji:{title:'四计（时间尺度）',items:{
-    '岁计':{short:'以一整年为单位起的局，看全年大势基调。',detail:'岁计值年太乙，定一年之灾祥大势。'},
-    '月计':{short:'以一个月为单位起的局，看当月走势。',detail:'月计值月太乙，定一月之吉凶走势。'},
-    '日计':{short:'以一天为单位起的局，看当日吉凶宜忌。',detail:'日计值日太乙，定一日之休咎。'},
-    '时计':{short:'以一个时辰为单位起的局，看眼下时辰的局势。',detail:'时计值时太乙，定一个时辰内之局势，须选定时辰方起。'}
-  }},
-  suanshu:{title:'主客算（双方实力分）',items:{
-    '主算':{short:'本方实力分：自文昌所在宫位数到太乙，数大者强。',detail:'自文昌所在十六宫依规则数至太乙，九宫数之和；一至九为无天，个位一至四为无地，个位零为无人。'},
-    '客算':{short:'外方实力分：自始击所在宫位数到太乙，数大者强。',detail:'自始击所在宫数至太乙，九宫数之和；断法同主算。'},
-    '定算':{short:'第三重参考分，偏助外方。',detail:'以合神加太岁、取文昌临处依主算法推得，偏助客方，为主客之外的第三重参考。'},
-    '长短数':{short:'算数满十六为长数（底气足），不满为短数（底气弱）。',detail:'算数≥16为长数，<16为短数；长数而将吏兵俱备为和，宜举百事，短数总为不和。'}
-  }},
-  geju:{title:'格局（吉凶障碍之象）',items:{
-    '囚':{short:'太乙与文昌同宫，大势受困、施展不开，宜静待时机。',detail:'太乙与文昌同宫，君臣同处，主被困受制。'},
-    '掩':{short:'外来因素盖过本方，谨防被抢主导权。',detail:'始击与太乙同宫，客方掩主，主方受制。'},
-    '挟':{short:'两头受制、左右为难，宜先解困再图进。',detail:'文昌与始击夹太乙，主方受制或客方得势。'},
-    '迫':{short:'受逼迫催赶、节奏易乱，宜按住性子稳步走。',detail:'文昌或始击逼近太乙所居之宫，分内迫、外迫、辰迫、宫迫。'},
-    '击':{short:'外来冲击明显，防突发之事。',detail:'始击以辰位或宫位击太乙所居之宫。'},
-    '关':{short:'是非纠缠、关系交关，宜划清界限。',detail:'客目与主目对宫相冲，分关主、关客。'},
-    '对':{short:'两方对峙、僵持不下，宜和谈不宜硬顶。',detail:'文昌与始击对宫相望，主客对峙，势均力敌。'},
-    '格':{short:'正面冲突难免，宜避其锋芒。',detail:'文昌与太乙对宫相格，格斗之象。'},
-    '杜塞':{short:'力量受困、门路闭塞，事情推动费力，宜另寻路径。',detail:'主大将或客大将入中宫，八门杜塞、无门可出。'}
-  }},
-  bamen:{title:'八门（方位吉凶）',items:{
-    '八门':{short:'八个方位的吉凶门户，出行动事可据此择方向。',detail:'八门按方位布列，开、休、生三门大吉，景门小吉，惊门小凶，死、伤、杜三门大凶。'},
-    '值使':{short:'当前当值的门，三十年轮换一次，定门气基调。',detail:'八门值使三十年一易，以太乙积年对二百四十取余定之。'},
-    '开门':{short:'大吉之门，宜启动新事、开张出行。',detail:'开门大吉，宜见贵、开张、出行。'},
-    '休门':{short:'大吉之门，宜休养、和谈、见贵。',detail:'休门大吉，宜和谈、休养、谒见。'},
-    '生门':{short:'大吉之门，宜求财、营造、生长之事。',detail:'生门大吉，宜求财、营造、种植。'},
-    '景门':{short:'小吉之门，宜文书考试、公开露面。',detail:'景门小吉，宜文书、考学、公开之事。'},
-    '惊门':{short:'小凶之门，防口舌惊扰，谨言慎行。',detail:'惊门小凶，主惊恐口舌。'},
-    '伤门':{short:'大凶之门，不宜出行谋事。',detail:'伤门大凶，主伤害，不宜出行。'},
-    '死门':{short:'大凶之门，诸事不宜。',detail:'死门大凶，主死丧，古仅用于吊丧猎捕。'},
-    '杜门':{short:'凶门，闭塞不通，宜潜藏不宜妄动。',detail:'杜门大凶，主闭塞，宜藏不宜出。'}
-  }},
-  shenjiang:{title:'神将（参看之星）',items:{
-    '太岁':{short:'当年的值年之神，定计的基准。',detail:'值年之神，主岁运之吉凶，为定计之基准。'},
-    '君基':{short:'大局政策之星，看大方向、掌权层。',detail:'人君之基，主君王之位、国家大政，在午宫起算。'},
-    '臣基':{short:'执行辅佐之星，看政令推行、执行层。',detail:'臣辅之基，主大臣辅弼、政令执行，以局数起算。'},
-    '民基':{short:'民生经济之星，看民情、景气。',detail:'万民之基，主民情风俗、百姓安乐，在申宫起算。'},
-    '四神':{short:'外围边防之星，看外部摩擦、边塞动静。',detail:'四方之神，主四方兵革、边塞动静，在乾宫起算。'},
-    '天乙':{short:'吉庆祥瑞之星，得天之助。',detail:'天之贵神，主吉庆、祥瑞、天时。'},
-    '地乙':{short:'田土收成之星，看地产、农业。',detail:'地之贵神，主田土、稼穑、地道。'},
-    '直符':{short:'应期契机之星，主事情爆发、到点应事。',detail:'值事之神，主事体之爆发、应期之契机。'},
-    '飞符':{short:'意外变数之星，主变动流移。',detail:'流走之神，主变动、流移、意外之事。'},
-    '五福':{short:'福庆太平之星，四十五年移一宫。',detail:'太乙五福，四十五年一宫，主福泽、太平、祥瑞。'},
-    '主大将':{short:'本方统帅，本方的行动力；入中宫则受困。',detail:'由主算数定之，主阵之指挥；入中宫则杜塞无门。'},
-    '主参将':{short:'本方副将，佐主大将。',detail:'由主大将之数乘三取个位得之。'},
-    '客大将':{short:'外方统帅，外方的行动力；入中宫则受困。',detail:'由客算数定之，客阵之指挥；入中宫则杜塞无门。'},
-    '客参将':{short:'外方副将，佐客大将。',detail:'由客大将之数乘三取个位得之。'},
-    '大游太乙':{short:'三十六年走一宫的巡行之神，考长周期大势灾祥。',detail:'大游太乙天地凶神，三十六载一宫，起七宫顺行八宫考治天下，二百八十八年一周。'},
-    '小游太乙':{short:'三年走一宫的巡行之神，考民间水旱波动。',detail:'小游太乙三年一移，起一宫顺行八宫，考治下土，二十四年一周，主饥馑兵革水旱。'}
-  }},
-  famen:{title:'方法（怎么读这张盘）',items:{
-    '主客':{short:'一对基本立场：主＝本方、先到者；客＝对方、外来者。',detail:'太乙以主客为纲：太乙为主、始击为客、文昌佐主，三方定主客之争。'},
-    '阴阳和数':{short:'算数的奇偶组合，细化吉凶层次。',detail:'算数奇偶分阴阳，十、二十、三十、四十为和数，各主吉凶深浅。'}
-  }}
-};
-const DOOR_LAYOUT=[['巽','午','坤'],['卯','中','酉'],['艮','子','乾']];
-    /* ============ 术语速查表（第三层）：按分类渲染全量术语一句话白话 ============ */
-    function renderTermGloss(){
-    const el=document.getElementById('termGloss'); if(!el)return;
-    let h='<table class="ty-np"><tbody>';
-    Object.keys(TAIYI_TERMS).forEach(gid=>{
-    const g=TAIYI_TERMS[gid];
-    h+='<tr><td colspan="2" class="ty-g-split">'+g.title+'</td></tr>';
-    Object.keys(g.items).forEach(k=>{ h+='<tr><td class="ty-g-key">'+k+'</td><td>'+g.items[k].short+'</td></tr>'; });
-    });
-    h+='</tbody></table>';
-    el.innerHTML=h;
-    }
-
-/* ============ 白话解读（对齐奇门：普通小节，置于全部专业术语之后） ============ */
-function genPlainReading(R,Rshi){
-  const GP={子:'坎水冬藏之位，大势沉静内敛，宜谋定后动',艮:'山门之位，主稳重守成，宜固本培元',卯:'震雷春生之位，大势动中生发，宜开新局',巽:'风门之位，主机变通达，宜借势而行',午:'离火夏长之位，大势光明进取，气机正盛',坤:'地门之位，主包容厚载，宜稳中求进',酉:'兑泽秋收之位，主决断收敛，宜整理成果',乾:'天门之位，主开创尊贵，宜谋大事',中:'枢轴之位，主居中调控，宜协调四方'};
-  const GE=['囚','掩','挟','迫','击','关','对','格','杜塞'];
-  const row=(s,lab,scale)=>{
-    const cmp=s.homeCal>s.awayCal?`本方占优（主算${s.homeCal}高于客算${s.awayCal}），环境利于主动推进、占得先机`
-      :(s.homeCal<s.awayCal?`外方占优（客算${s.awayCal}高于主算${s.homeCal}），环境偏向外力驱动，宜借势而为、避免硬碰`
-      :`两方力量相当（主算${s.homeCal}、客算${s.awayCal}），成败取决于临机应变`);
-    const di=s.homeCal>=16&&s.awayCal>=16?'双方算数均为长数，底气充足':(s.homeCal>=16?'本方算数为长数、底气足':(s.awayCal>=16?'外方算数为长数、来势不小':'双方算数均为短数，底气俱弱，凡事宜留余地'));
-    const ob=[];
-    if(s.pattern){ const hit=GE.filter(k=>s.pattern.indexOf(k)>=0).map(k=>k+'（'+TAIYI_TERMS.geju.items[k].short+'）'); ob.push(hit.length?('格局提示：'+hit.join('；')):('格局“'+s.pattern+'”。')); }
-    if(s.homeGen===5||s.awayGen===5) ob.push('有杜塞之象：主客大将落入中宫、无门可出，力量受困，推动事情费力，宜另寻路径。');
-    if(!ob.length) ob.push('无重大阻碍之象，局面平稳。');
-    let dv='';
-    if(s.doorZhiShi){
-      const zi=Taiyi.DOOR_INFO[s.doorZhiShi]||{};
-      const three=['开','休','生'].map(d=>{const gg=Object.keys(s.doors).find(k=>s.doors[k]===d);return gg?(d+'门在'+gg+'宫（'+(GONG_FANG[gg]||'')+'）'):'';}).filter(Boolean);
-      dv='八门当值为'+s.doorZhiShi+'门（'+(zi.吉凶||'')+'）；'+(three.length?('出门办事可优先取'+three.join('、')+'；'):'')+'避开死、伤、杜三门所临方位。';
-    }
-    const lines=['大势：太乙落'+GONG_NAME[s.tyGong]+'宫，'+(GP[s.tyGong]||'当前局势的重心所在')+'。','强弱：'+cmp+'；'+di+'。','阻碍：'+ob.join(' ')];
-    if(dv)lines.push('方位：'+dv);
-    lines.push('参照：大局方向看君基（落'+s.shen.君基+'宫）、民生景气看民基（落'+s.shen.民基+'宫）、意外变数看飞符（落'+s.shen.飞符+'宫）。');
-    return `<tr><td class="ty-lu-name">${lab}<br><span class="ty-lu-scale">${scale}<br>${s.wen}</span></td><td class="ty-lu-det">${lines.join('<br>')}</td></tr>`;
-  };
-  let rows=row(R.year,'岁计','全年基调')+row(R.month,'月计','当月走势')+row(R.day,'日计','当日吉凶');
-  if(Rshi)rows+=row(Rshi,'时计','眼下时辰');
-  return `<details class="mh-ref ty-ref" id="tyBaihuaRef"><summary>白话解读（按年、月、日、时四尺度）</summary><table class="ty-np ty-np-scale"><thead><tr><th>尺度</th><th>白话解读</th></tr></thead><tbody>${rows}</tbody></table></details>`;
-}
-const DOOR_JJ={'大吉':'jj3','小吉':'jj2','小凶':'xj2','大凶':'xj3'};
-/* 今天钮走 assets/xuanji-lib.js 的 xjCalNav 共享件：dInput 由共享件填当日，
-   时辰输入 hInput 属本页私有面，经 xjNavAfter 按当下钟点回填当辰后一并 query。 */
-function setToday(){ xjNavToday(); }
-let LAST=null;
-/* 折叠态属交互态：结果区模块与全页折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
-function tyToggleMod(id){
-  const el = document.getElementById(id);
-  if(el) el.classList.toggle('collapsed');
-  xjSaveModState('tyModState','details[id]','__tyInitDone');
-}
-function query(){
- try{
-  const v=document.getElementById('dInput').value; if(!v)return;
-  const [y,m,d]=v.split('-').map(Number);
-  const hSel=document.getElementById('hInput'); const hh=parseInt(hSel.value);
-  const tSel=document.getElementById('tahunInput'); const tahun=parseInt(tSel.value);
-  const solar=hh>=0?Solar.fromYmdHms(y,m,d,hh,0,0):Solar.fromYmd(y,m,d);
-  const lunar=solar.getLunar();
-  const R=Taiyi.compute(y,m,d,lunar,tahun);
-  const Rshi=hh>=0?Taiyi.computeShi(y,m,d,hh,0,lunar,tahun):null;
-  const ly=`${lunar.getYearInChinese()}年（${lunar.getYearInGanZhi()}）${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
-  document.getElementById('infoLine').textContent=`${ly}　年计、月计、日计皆阳遁（${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}体系）　太岁${lunar.getYearInGanZhi()[1]}`;
-  // 十六宫神将盘（每计一张）
-  const SHEN_COLOR = { 太乙: '#8f6a2d', 文昌: '#2b6cb0', 始击: '#c0392b', 计神: '#6b4fa0', 合神: '#6b4fa0', 太岁: '#55504a',
-    君基: '#a07040', 臣基: '#a07040', 民基: '#a07040', 四神: '#a07040', 天乙: '#a07040', 地乙: '#a07040', 直符: '#a07040', 飞符: '#a07040', 五福: '#8f6a2d',
-    主大: '#3a7a5a', 主参: '#3a7a5a', 客大: '#7a5a3a', 客参: '#7a5a3a' };
-  const TY_SHEN_NOTE={'太乙':'天之贵神，统主一局气数，所临即主宫','文昌':'佐主之神，主文华智谋、定主算','始击':'客方之神，主侵伐兵争、定客算','计神':'计度之神，佐客方，主计谋暗算','合神':'与太岁相合之辰，定计基准','太岁':'值年岁君，主岁运吉凶','君基':'人君之基，主大政大局','臣基':'臣辅之基，主臣属官事','民基':'万民之基，主民俗疾苦','四神':'四方之神，主水旱丰歉','天乙':'天之贵神，主灾祥应验','地乙':'地之贵神，主地形人事','直符':'值事之神，主当值之事','飞符':'流走之神，主变动流徙','五福':'福庆之神，所临主祥瑞','主大将':'主方统兵，定主方攻守','主参将':'主方副将，佐主大将','客大将':'客方统兵，定客方攻守','客参将':'客方副将，佐客大将','主大':'主方统兵，定主方攻守','主参':'主方副将，佐主大将','客大':'客方统兵，定客方攻守','客参':'客方副将，佐客大将'};
-function boardHTML(s){
-    const map={}; SIXTEEN.forEach(g=>map[g]=[]);
-    Object.keys(s.shen).forEach(k=>{ const g=s.shen[k]; if(map[g]) map[g].push(k); });
-    const cells=SIXTEEN.map(g=>{
-      const cls = g===s.tyGong?'ty16-cell ty':(g===s.wc?'ty16-cell wc':(g===s.sh?'ty16-cell sh':'ty16-cell'));
-      const sg=(map[g]||[]).map(k=>`<span class="ty-shen-c" style="color:${SHEN_COLOR[k]||'#55504a'}">${k}</span>`).join(' ');
-      const shens=map[g]||[];
-      const tip = shens.length ? shens.map(k=>k+'：'+(TY_SHEN_NOTE[k]||'')).join('；') : '此宫无神将临，气数平稳';
-      return `<div class="${cls}" title="${GONG_NAME[g]}宫　${tip}">${GONG_NAME[g]}宫<span class="sg">${sg}</span></div>`;
-    }).join('');
-    const luRows=SIXTEEN.map(g=>{
-      const shens=map[g]||[];
-      if(!shens.length) return '';
-      const det=shens.map(k=>`<b>${k}</b>：${TY_SHEN_NOTE[k]||''}`).join('<br>');
-      return `<tr><td>${GONG_NAME[g]}宫</td><td>${det}</td></tr>`;
-    }).join('');
-    return `<div class="ty16-card"><div class="ty16-head"><h4>${s.label}</h4><span class="ty-sub">${s.wen}　太乙居${GONG_NAME[s.tyGong]}宫</span></div>`+
-      `<div class="ty16-pair"><div class="ty16-gridbox"><div class="ty16-grid">${cells}</div></div>`+
-      `<div class="ty16-lutable"><table class="ty-np ty-np-gong"><thead><tr><th>宫</th><th>所临神将与所主</th></tr></thead><tbody>${luRows}</tbody></table></div></div></div>`;
-  }
-  // 太乙八门：九宫格按方位布列，值使三十年一易
-  function doorCard(s){
-    const zs=s.doorZhiShi, zi=Taiyi.DOOR_INFO[zs]||{};
-    const cells=[].concat(...DOOR_LAYOUT).map(g=>{
-      if(g==='中') return '<div class="ty-dcell mid"><span class="gp">中宫</span><span class="dn">无门</span><span class="jj">八门不临</span></div>';
-      const d=s.doors[g]||'';
-      const info=Taiyi.DOOR_INFO[d]||{};
-      const c=DOOR_JJ[info.吉凶]||'';
-      const here=(s.tyGong===g)?' tyhere':'';
-      return `<div class="ty-dcell g-${c}${here}"><span class="gp">${g}宫 ${GONG_FANG[g]}</span><span class="dn d-${c}">${d}</span><span class="jj">${info.吉凶||''}</span></div>`;
-    }).join('');
-    const hm=s.shen.主大==='中'?'':(s.doors[s.shen.主大]||'');
-    const am=s.shen.客大==='中'?'':(s.doors[s.shen.客大]||'');
-    const three=['开','休','生'].map(d=>{
-      const g=Object.keys(s.doors).find(k=>s.doors[k]===d);
-      return g?`${d}门在${g}宫${GONG_FANG[g]}`:'';
-    }).filter(Boolean).join('、');
-    const jjS=x=>{const c=DOOR_JJ[x];return x?'<span class="d-'+c+'">'+x+'</span>':'';};
-    return `<h4 class="ty-door-h">${s.label}</h4>
-    <div class="ty-door-pair">
-      <div class="ty-door-gridbox"><div class="ty-door-grid">${cells}</div></div>
-      <table class="ty-np ty-door-tb"><tbody>
-        <tr><td>值使</td><td>${zs}门（${zi.门名}　${zi.八风}　${jjS(zi.吉凶)}），${zi.所主}</td></tr>
-        <tr><td>行宫</td><td>八门值使三十年一易，以太乙积年对二百四十取余定之，自值使起依太乙行宫之序（乾、午、艮、卯、酉、坤、子、巽）顺布八宫，中宫不布门。</td></tr>
-        <tr><td>主大将</td><td>${s.shen.主大==='中'?'入中宫，八门杜塞、无门可出':'临'+s.shen.主大+'宫'+hm+'门（'+jjS((Taiyi.DOOR_INFO[hm]||{}).吉凶||'')+'）'}</td></tr>
-        <tr><td>客大将</td><td>${s.shen.客大==='中'?'入中宫，八门杜塞、无门可出':'临'+s.shen.客大+'宫'+am+'门（'+jjS((Taiyi.DOOR_INFO[am]||{}).吉凶||'')+'）'}</td></tr>
-        <tr><td>得门失门</td><td>${(()=>{const GOOD='开休生';if(hm&&am){if(GOOD.includes(hm)&&GOOD.includes(am))return '<span class="ty-j-jix">主客皆得吉门，宜和不宜战</span>';if(GOOD.includes(hm))return '<span class="ty-j-jix">主得门、客失门，利为主</span>';if(GOOD.includes(am))return '<span class="ty-j-xiong">客得门、主失门，利为客</span>';return '<span class="ty-j-xiong">主客皆不临吉门，宜固守</span>';}return '主客有入中宫者，八门杜塞、无门可出，不宜举动';})()}</td></tr>
-        <tr class="ty-three"><td>三门吉方</td><td>${three||'无'}${three?'。举事宜向此三方，出兵尤宜背凶门而向吉门。':''}</td></tr>
-      </tbody></table>
-    </div>`;
-  }
-  // 详细版推演卡片
-  function deriveCard(s){
-    const hd=calDes(s.homeCal), ad=calDes(s.awayCal);
-    const zs=s.doorZhiShi, zi=Taiyi.DOOR_INFO[zs]||{};
-    const dist=Taiyi.DOOR_ORDER.map(n=>{const g=NUM2GONG[n]; return g+(s.doors[g]||'')+'门';}).join('、');
-    const rows=[
-      ['阴阳遁', `${s.dun}遁（年、月、日计恒为阳遁）`],
-      ['太乙（主）', `居 ${GONG_NAME[s.tyGong]}宫`],
-      ['文昌（天目）', `居 ${GONG_NAME[s.wc]}宫`],
-      ['始击（客目）', `居 ${GONG_NAME[s.sh]}宫`],
-      ['计神', `${s.ji}　太岁 ${s.taishui}`],
-      ['主算', `${s.homeCal}　（${hd.join('；')}）`],
-      ['客算', `${s.awayCal}　（${ad.join('；')}）`],
-      ['定算', `${s.dingCal}　（以合神加太岁、文昌临处依主算法推得，偏助客方）`],
-      ['五行生克', (()=>{const w=Taiyi.wuxingShengFu(s);const cl=w.tag==='主胜'||w.tag==='主得助'?'ty-j-jix':(w.tag==='客克主'?'ty-j-xiong':'');return cl?'<span class="'+cl+'">'+w.text+'</span>':w.text;})()],
-      ['长短数', s.cd.text],
-      ['九宫分野', `太乙落${s.tyGong}宫（${(()=>{const p=Taiyi.ninePalace(G2NINE[s.tyGong]||s.tyGong);return p.州+'　'+p.所主+'　'+p.灾祥;})()}）`],
-      ['八门值使', `${zs}门（${zi.门名}　${zi.八风}　${zi.吉凶}）　三十年一易`],
-      ['八门分布', dist],
-      ['十神', `君基${s.shen.君基}　臣基${s.shen.臣基}　民基${s.shen.民基}　四神${s.shen.四神}<br>天乙${s.shen.天乙}　地乙${s.shen.地乙}　直符${s.shen.直符}　飞符${s.shen.飞符}　五福${s.shen.五福}`],
-      ['格局', `${s.pattern||'无显明囚杜塞迫击格对（平安之象）'}`]
-    ];
-    return `<div class="ty-derive"><h4>${s.label}　${s.wen}</h4>
-      <table class="ty-np"><tbody>${rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')}</tbody></table>
-    </div>`;
-  }
-  document.getElementById('out').innerHTML=`
-    <section class="mod" id="tyModBase"><div class="mod-head" onclick="tyToggleMod('tyModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">基础信息</span><span class="mod-sub">积年 局数 阳遁</span></div><div class="mod-body">
-    <table class="ty-np"><tbody>
-      <tr><td>推算信息</td><td><div class="ty-flow"><span>${ly}</span><span>太岁 ${lunar.getYearInGanZhi()[1]}</span><span>体系：${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}（阳遁）</span></div></td></tr>
-      <tr><td>岁计</td><td>值年太乙，${R.year.wen}，太乙居 ${GONG_NAME[R.year.tyGong]}宫</td></tr>
-      <tr><td>月计</td><td>值月太乙，${R.month.wen}，太乙居 ${GONG_NAME[R.month.tyGong]}宫</td></tr>
-      <tr><td>日计</td><td>值日太乙，${R.day.wen}，太乙居 ${GONG_NAME[R.day.tyGong]}宫</td></tr>
-      ${Rshi?`<tr><td>时计</td><td>值时太乙，${Rshi.wen}（${Rshi.时干支}时），太乙居 ${GONG_NAME[Rshi.tyGong]}宫</td></tr>`:''}
-      <tr><td>二十八宿</td><td>${(()=>{const song=(lunar.getXiuSong?lunar.getXiuSong():'').trim();const song2=song?(/[。！？]$/.test(song)?song:song+'。'):'';return '本日值宿 '+lunar.getXiu()+'（<span class="'+(lunar.getXiuLuck()==='凶'?'d-xj3':'d-jj3')+'">'+lunar.getXiuLuck()+'</span>）'+(lunar.getZheng?'，其曜为'+lunar.getZheng():'')+(lunar.getAnimal?'，宿主'+lunar.getAnimal():'')+(lunar.getGong?'，所在'+lunar.getGong():'')+'。星宿临日，主当日吉凶所应：'+song2;})()}</td></tr>
-    </tbody></table>
-    </div></section>
-    <section class="mod" id="tyModZhi"><div class="mod-head" onclick="tyToggleMod('tyModZhi')"><span class="mod-caret">▾</span><span class="gua-ico">☲</span><span class="mod-title">本局要旨与兵阵胜负</span><span class="mod-sub">主客 算与格 胜负</span></div><div class="mod-body">
-    <table class="ty-np"><tbody>${(()=>{
-      const c=(s,label)=>{
-        const gName=G2NINE[s.tyGong]||GONG_NAME[s.tyGong];
-        const cmp=s.homeCal>s.awayCal?'主算胜于客算，主占先':(s.homeCal<s.awayCal?'客算胜于主算，客占先':'主客算相等，势均力敌');
-        let txt=`太乙居${gName}宫。${cmp}（主算${s.homeCal}、客算${s.awayCal}）。`;
-        if(s.pattern) txt+=`格局：${s.pattern}。`;
-        if(s.homeGen===5||s.awayGen===5) txt+='（有杜塞之象）';
-        if(s.doorZhiShi){
-          const zi=Taiyi.DOOR_INFO[s.doorZhiShi]||{};
-          txt+=`八门：值使${s.doorZhiShi}门（${zi.吉凶||''}）。`;
-        }
-        return `<tr><td>${label}</td><td>${txt}</td></tr>`;
-      };
-      const parts=[c(R.year,'岁计'),c(R.month,'月计'),c(R.day,'日计')];
-      if(Rshi)parts.push(c(Rshi,'时计'));
-      return parts.join('');
-    })()}</tbody></table>
-    <h3 class="rel-title">兵阵胜负</h3>
-      <table class="ty-np"><thead><tr><th>计</th><th>主算阵形</th><th>主出军向</th><th>客算阵形</th><th>客出军向</th><th>奇兵伏兵</th></tr></thead>
-      <tbody>
-        ${['year','month','day'].map((k,i)=>{
-          const s=R[k], bz=s.bz;
-          return '<tr><td>'+['岁计','月计','日计'][i]+'</td><td>'+bz.主阵.阵形+'（'+bz.主阵.旗色+'、'+bz.主阵.方位+'）</td><td>'+bz.主出乡+'</td><td>'+bz.客阵.阵形+'（'+bz.客阵.旗色+'、'+bz.客阵.方位+'）</td><td>'+bz.客出乡+'</td><td>'+bz.主奇兵位+'；'+bz.客奇兵位+'</td></tr>';
-        }).join('')}${Rshi?(()=>{const bz=Rshi.bz;return '<tr><td>时计</td><td>'+bz.主阵.阵形+'（'+bz.主阵.旗色+'、'+bz.主阵.方位+'）</td><td>'+bz.主出乡+'</td><td>'+bz.客阵.阵形+'（'+bz.客阵.旗色+'、'+bz.客阵.方位+'）</td><td>'+bz.客出乡+'</td><td>'+bz.主奇兵位+'；'+bz.客奇兵位+'</td></tr>';})():''}
-      </tbody></table>
-      <div class="ty-note">日计五音：${R.day.bz.feng||'日支不定'}。据《太乙金镜式经》卷十五。</div>
-    </div></section>
-    <section class="mod" id="tyMod16"><div class="mod-head" onclick="tyToggleMod('tyMod16')"><span class="mod-caret">▾</span><span class="gua-ico">☷</span><span class="mod-title">十六宫神将盘与太乙八门</span><span class="mod-sub">神将 门值使</span></div><div class="mod-body">
-    <h3 class="rel-title">十六宫神将盘</h3>
-    <div class="ty16-wrap">${boardHTML(R.year)}${boardHTML(R.month)}${boardHTML(R.day)}${Rshi?boardHTML(Rshi):''}</div>
-    <div class="ty-note ty-legend">图例：<span class="lg-ty">金底</span>=太乙，<span class="lg-wc">蓝底</span>=文昌，<span class="lg-sh">红底</span>=始击，<span class="lg-js">紫</span>=计神、合神，<span class="lg-zhu">绿</span>=主大将、主参将，<span class="lg-ke">赭</span>=客大将、客参将，<span class="lg-shen">棕</span>=十神（君基、臣基、民基、四神、天乙、地乙、直符、飞符），<span class="lg-ty">金</span>=五福。</div>
-    <h3 class="rel-title">太乙八门</h3>
-    ${doorCard(R.year)}${doorCard(R.month)}${doorCard(R.day)}${Rshi?doorCard(Rshi):''}
-    <div class="ty-note ty-note-tight ty-legend">图例：<span class="lg-tj">金底</span>=太乙所临之宫。据《太乙统宗宝鉴》卷二《八门所主》、《太乙金镜式经》八门值事法。</div>
-    </div></section>
-    <section class="mod" id="tyModFen"><div class="mod-head" onclick="tyToggleMod('tyModFen')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">九宫分野与大游小游</span><span class="mod-sub">分野 游年行度</span></div><div class="mod-body">
-      <table class="ty-np"><thead><tr><th>宫</th><th>数</th><th>方位</th><th>分野</th><th>所主</th><th>灾祥所应</th></tr></thead>
-      <tbody>${(()=>{const hit=new Set([R.year.tyGong,R.month.tyGong,R.day.tyGong].concat(Rshi?[Rshi.tyGong]:[]).map(g=>G2NINE[g]||g));return Taiyi.NINE_PALACE.map(p=>'<tr'+(hit.has(p.宫)?' class="ty-hit"':'')+'><td>'+p.宫+'</td><td>'+p.n+'</td><td>'+p.方位+'</td><td>'+p.州+'</td><td>'+p.所主+'</td><td>'+p.灾祥+'</td></tr>').join('');})()}</tbody></table>
-      <div class="ty-note">金底行为本局太乙所落之宫（岁计${G2NINE[R.year.tyGong]||GONG_NAME[R.year.tyGong]}、月计${G2NINE[R.month.tyGong]||GONG_NAME[R.month.tyGong]}、日计${G2NINE[R.day.tyGong]||GONG_NAME[R.day.tyGong]}${Rshi?'、时计'+(G2NINE[Rshi.tyGong]||GONG_NAME[Rshi.tyGong]):''}）。</div>
-    <h3 class="rel-title">大游小游</h3>
-    <div class="info-box"><p>${(()=>{const d=Taiyi.dayouXiaoyou(R.day.acc);return '大游太乙居'+d.大游宫+'宫，入宫'+d.大游凶算.入宫年数+'年，凶算所主：'+d.大游凶算.凶算所主+'；大游天目'+d.大游天目.落辰+'辰，'+d.大游天目.本象+'。小游太乙居'+d.小游宫+'宫。';})()}</p></div>
-    </div></section>
-    <section class="mod" id="tyModXiang"><div class="mod-head" onclick="tyToggleMod('tyModXiang')"><span class="mod-caret">▾</span><span class="gua-ico">☶</span><span class="mod-title">详细版推演与占断总纲</span><span class="mod-sub">推演 总纲</span></div><div class="mod-body">
-    ${deriveCard(R.year)}${deriveCard(R.month)}${deriveCard(R.day)}${Rshi?deriveCard(Rshi):''}
-    ${Rshi?(()=>{const mf=Taiyi.mingFa(Rshi);if(!mf)return '';const YI=Taiyi._tables&&Taiyi._tables.GONG_MING_YI;const rows=[
-      ['太乙', '命宫', Rshi.tyGong],
-      ['文昌', '福德', Rshi.wc],
-      ['始击', '身宫', Rshi.sh],
-      ['主大将', '', Rshi.shen.主大],
-      ['主参将', '', Rshi.shen.主参],
-      ['客大将', '', Rshi.shen.客大],
-      ['客参将', '', Rshi.shen.客参],
-      ['计神', '', Rshi.ji]
-    ].map(r=>{const g=r[2];const gName=G2NINE[g]||GONG_NAME[g];const yi=YI&&YI[g]?YI[g]:'';const tag=r[1]?'（'+r[1]+'）':'';return '<tr><td>'+r[0]+'</td><td>'+tag+'落'+gName+'宫，'+yi+'</td></tr>';}).join('');
-    return '<h3 class="rel-title">太乙命法</h3><table class="ty-np"><tbody>'+rows+'</tbody></table>';})():''}
-    <h3 class="rel-title">占断总纲</h3>
-      <table class="ty-np"><tbody>
-        <tr><td>总纲</td><td>太乙神数以"主客"为纲：以太乙为"主"、始击为"客"、文昌（天目）佐主，三方定主客之争。本页依${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}体系推演。</td></tr>
-        <tr><td>起局</td><td>局数取积年对七十二取余而定，年计、月计、日计恒为阳遁，三计各自独立起局。</td></tr>
-        <tr><td>定盛衰</td><td>主算、客算定双方强弱，算之奇偶分阳和、阴和；主算胜则主占先，客算胜则客占先，相等则势均。又有定算：以合神加太岁、取文昌临处依主算法推之，偏助客方，为主客之外的第三重参考。</td></tr>
-        <tr><td>观格</td><td>囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫、击、掩、挟、关、对诸格，皆由局数经权威表查得，主静动与吉凶之机。</td></tr>
-        <tr><td>参神将</td><td>再参十神（君基、臣基、民基、四神、天乙、地乙、直符、飞符）与计神、五福，综论岁气灾祥、兵谋胜负、水旱丰歉。</td></tr>
-        <tr><td>审八门</td><td>八门值使三十年一易，以太乙积年对二百四十取余定之，自值使起依太乙行宫之序（子、艮、卯、巽、午、坤、酉、乾）顺布八宫，中宫不布门。开、休、生三门大吉，景门小吉，惊门小凶，死、伤、杜三门大凶。主客大将所临之门定主客得门失门，举事宜向开休生三方。</td></tr>
-        <tr><td>总参</td><td>岁、月、日三计须合参并论，不可偏废。</td></tr>
-      </tbody></table>
-      </div></section>
-    ${genPlainReading(R,Rshi)}`;
-  xjApplyModState('tyModState','details[id]');
-  window.__tyInitDone = true;
-  LAST={ly, R, Rshi, taishui:lunar.getYearInGanZhi()[1], tahun};
- }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起局出错：'+(e.message||e)+'</p>'; }
-}
-</script>
-<script>
-
-
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    renderChrome('taiyi.html');
-    /* xjCalNav 两钩子：onToday 回填本页时辰输入，onQuery 触发本页查询 */
-    xjCalNav.onToday = function(){ const h=new Date().getHours(); document.getElementById('hInput').value=String((h===0||h===23)?23:(h%2?h:h-1)); };
-    xjCalNav.onQuery = function(){ query(); };
-    renderTermGloss();
-    document.addEventListener('toggle', function(e){
-      const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id) xjSaveModState('tyModState','details[id]','__tyInitDone');
-    }, true);
-    xjCalNav.onToday();
-    mountAI(function(){
-      if(!LAST) return '';
-      const ct=(s,label)=>{
-        const hd=calDes(s.homeCal), ad=calDes(s.awayCal);
-        return `【${label}】${s.wen}
-    太乙（主）居${GONG_NAME[s.tyGong]}宫　文昌（天目）居${GONG_NAME[s.wc]}宫　始击（客目）居${GONG_NAME[s.sh]}宫
-    计神${s.ji}　太岁${s.taishui}
-    主算${s.homeCal}（${hd.join('；')}）　客算${s.awayCal}（${ad.join('；')}）　定算${s.dingCal}（偏助客）
-    八门值使${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　八门分布：${Taiyi.DOOR_ORDER.map(n=>NUM2GONG[n]+(s.doors[NUM2GONG[n]]||'')+'门').join('、')}
-    主大将${s.shen.主大}宫、主参将${s.shen.主参}宫　客大将${s.shen.客大}宫、客参将${s.shen.客参}宫
-    十神：君基${s.shen.君基} 臣基${s.shen.臣基} 民基${s.shen.民基} 四神${s.shen.四神} 天乙${s.shen.天乙} 地乙${s.shen.地乙} 直符${s.shen.直符} 飞符${s.shen.飞符} 五福${s.shen.五福}
-    格局：${s.pattern||'无显明囚杜塞迫击格对'}
-    五行生克：${Taiyi.wuxingShengFu(s).text}
-    八门值使：${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　主大将临${s.shen.主大==='中'?'中宫八门杜塞':s.shen.主大+'宫'+s.doors[s.shen.主大]+'门'}　客大将临${s.shen.客大==='中'?'中宫八门杜塞':s.shen.客大+'宫'+s.doors[s.shen.客大]+'门'}
-    占断：${s.tyGong===s.wc?'囚（太乙与文昌同宫，君臣被困，宜静守）；':''}主算${s.homeCal>s.awayCal?'盛、主占先':(s.homeCal<s.awayCal?'客算盛、客占先':'主客相埒')}；定算${s.dingCal}（偏助客）；主大将${s.shen.主大}宫、客大将${s.shen.客大}宫、计神${s.ji}。`;
-      };
-      return `太乙神数推演（${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}体系，年、月、日计阳遁）
-    【推算信息】${LAST.ly}　太岁${LAST.taishui}
-    ${ct(LAST.R.year,'岁计　值年太乙')}
-    ${ct(LAST.R.month,'月计　值月太乙')}
-    ${ct(LAST.R.day,'日计　值日太乙')}
-    ${LAST.Rshi?ct(LAST.Rshi,'时计　值时太乙'):''}
-    【占断总纲】太乙为主、始击为客，文昌佐主；依局数对七十二取余的权威表查得主客算、十神、格局；囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫击掩挟关对、计神所值，综合论岁气灾祥、兵谋胜负、水旱丰歉。太乙积年体系繁多，采${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}一系整理，供参考。`;
-    }, '太乙神数', { share:{ page:"taiyi", title:"太乙神数在线排盘", recast:function(){ try{ query(); }catch(e){} } } });
-  }, 0);
-});
-</script>
+<script defer src="assets/geo.js"></script>
+<script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-taiyi-now.js"></script>
+<script defer fetchpriority="low" src="assets/lunar.js"></script>
+<script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
+<script defer fetchpriority="low" src="assets/ai.js"></script>
+<script defer fetchpriority="low" src="assets/taiyi-engine.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-05.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-06.js"></script>
 </body>
 </html>
