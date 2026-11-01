@@ -18,16 +18,17 @@
     var hm = p2(n.getHours()) + ':' + p2(n.getMinutes());
     var zhi = '子丑寅卯辰巳午未申酉戌亥'[Math.floor(((n.getHours() + 1) % 24) / 2)];
     document.querySelectorAll('input').forEach(function (el) {
-      if (isDateBox(el)) { el.value = ymd; return; }
-      if (el.type === 'time' && !kept(el)) el.value = hm;
+      if (el.hasAttribute('data-user-set')) return;
+      if (isDateBox(el)) { el.value = ymd; el.setAttribute('data-autonow', '1'); return; }
+      if (el.type === 'time' && !kept(el)) { el.value = hm; el.setAttribute('data-autonow', '1'); }
     });
     document.querySelectorAll('select').forEach(function (sel) {
-      if (kept(sel) || sel.options.length < 12) return;
+      if (kept(sel) || sel.hasAttribute('data-user-set') || sel.options.length < 12) return;
       var opt = Array.prototype.find.call(sel.options, function (o) {
         var t = (o.textContent || '').trim();
         return t.charAt(0) === zhi && /[（(]/.test(t);
       });
-      if (opt) sel.value = opt.value;
+      if (opt) { sel.value = opt.value; sel.setAttribute('data-autonow', '1'); }
     });
     return ymd + ' ' + hm;
   }
@@ -36,5 +37,5 @@
     var k = apply();
     if (k === last) return;
     last = k;
-  }, 30000);
+  }, 1000);
 })();

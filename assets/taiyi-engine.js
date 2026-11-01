@@ -313,7 +313,7 @@ window.Taiyi = (function () {
     };
   }
 
-  // ===== 长短数与不和数（据《太乙金镜式经》卷五"明数长短占缓急术"）=====
+  // ===== 长短数与不和数（据《太乙金镜式经》卷六《推三才以占天地人》）=====
   // 算数>=16为长数，<16为短数；将吏兵备：算中含将(>=10或含0)、吏(含5)、兵(含1)则俱备。
   // 长数而将吏兵俱备为和，长而不备为不和；短数总为不和，百事皆忌。
   function jianBei(num) {
@@ -326,25 +326,32 @@ window.Taiyi = (function () {
     if (!hasLi) missing.push('无吏');
     if (!hasBing) missing.push('无兵');
     const full = !missing.length;
-    const length = n >= 16 ? '长' : '短';
+    const wu = n % 10 === 0;
+    const length = wu ? '无算' : (n >= 11 ? '长' : '短');
     let verdict;
-    if (n >= 16) {
+    if (wu) {
+      verdict = '箭得' + n + '为无人，' + (missing.join('、') || '将吏兵不具') + '，百事皆忌';
+    } else if (n >= 11) {
       verdict = full ? '箭长而和，将吏兵俱备，宜举百事' : '箭长而不和，' + missing.join('、') + '，不利兴师';
     } else {
       verdict = '箭短，' + (missing.join('、') || '将吏兵不具') + '，百事皆忌';
     }
     return { num: n, 长短: length, 和否: full ? '和' : '不和', 缺: missing, 断语: verdict };
   }
-  // 主客长短数比较：同长短则势均，主长利主，客长利客。
+  // 主客长短数比较：同长短则势均，主长利主，客长利客；无算者百事皆忌。
   function changDuanShu(s) {
     const h = jianBei(s.homeCal), a = jianBei(s.awayCal);
     let cmp;
-    if (h.长短 === a.长短) cmp = h.num === a.num ? '主客长短相当，旗鼓相当' : '算数长者胜';
+    if (h.长短 === '无算' && a.长短 === '无算') cmp = '主客皆无算，百事皆忌';
+    else if (h.长短 === '无算') cmp = '主算无算，客算' + a.长短 + '，利客';
+    else if (a.长短 === '无算') cmp = '客算无算，主算' + h.长短 + '，利主';
+    else if (h.长短 === a.长短) cmp = h.num === a.num ? '主客长短相当，旗鼓相当' : '算数长者胜';
     else if (h.长短 === '长') cmp = '主算长，利主';
     else cmp = '客算长，利客';
+    const lab = x => x === '无算' ? '无算' : x + '数';
     return {
       主算: h, 客算: a,
-      text: '主算' + s.homeCal + '为' + h.长短 + '数（' + h.断语 + '）；客算' + s.awayCal + '为' + a.长短 + '数（' + a.断语 + '）。综之，' + cmp + '。'
+      text: '主算' + s.homeCal + '为' + lab(h.长短) + '（' + h.断语 + '）；客算' + s.awayCal + '为' + lab(a.长短) + '（' + a.断语 + '）。综之，' + cmp + '。'
     };
   }
 
@@ -371,7 +378,15 @@ window.Taiyi = (function () {
   const GONG_WX = { 乾:'金', 兑:'金', 离:'火', 震:'木', 巽:'木', 坎:'水', 艮:'土', 坤:'土', 中:'土',
                     子:'水', 丑:'土', 寅:'木', 卯:'木', 辰:'土', 巳:'火', 午:'火', 未:'土', 申:'金', 酉:'金', 戌:'土', 亥:'水' };
   const WX_SHENG = { 木:'火', 火:'土', 土:'金', 金:'水', 水:'木' };
-  function wxCmp(a, b) { if (a === b) return '同'; if (WX_SHENG[a] === b) return '主生客'; if (WX_SHENG[b] === a) return '客生主'; return '主克客'; }
+  const WX_KE = { 木:'土', 土:'水', 水:'火', 火:'金', 金:'木' };
+  function wxCmp(a, b) {
+    if (a === b) return '同';
+    if (WX_SHENG[a] === b) return '主生客';
+    if (WX_SHENG[b] === a) return '客生主';
+    if (WX_KE[a] === b) return '主克客';
+    if (WX_KE[b] === a) return '客克主';
+    return '无';
+  }
   // 五行生克胜负：主目（天目）克客目（客目）主军赢；客目克主目主不利；同音三阵平。兼参主客大将宫五行。
   function wuxingShengFu(s) {
     const zhuWx = GONG_WX[s.wc] || '土', keWx = GONG_WX[s.sh] || '土';
@@ -381,6 +396,7 @@ window.Taiyi = (function () {
     if (v === '同') { say = `主客二目同临${zhuWx}气，同音相合，主客三阵势均力敌，和局之象`; tag = '平'; }
     else if (v === '主克客') { say = `主目（天目）${zhuWx}克客目（始击）${keWx}，主来克客，主军占胜势`; tag = '主胜'; }
     else if (v === '客生主') { say = `客目（始击）${keWx}生主目（天目）${zhuWx}，客气来生主，主方得助`; tag = '主得助'; }
+    else if (v === '主生客') { say = `主目（天目）${zhuWx}生客目（始击）${keWx}，主气泄于客，主方耗损`; tag = '主泄'; }
     else { say = `客目（始击）${keWx}克主目（天目）${zhuWx}，客来克主，主方不利`; tag = '客克主'; }
     const jv = wxCmp(zjWx, kjWx);
     let jsay = '';
@@ -388,6 +404,7 @@ window.Taiyi = (function () {
       if (jv === '同') jsay = `，主客大将同临${zjWx}气，将阵相当`;
       else if (jv === '主克客') jsay = `，主大将${zjWx}克客大将${kjWx}，主阵得胜`;
       else if (jv === '客生主') jsay = `，客大将${kjWx}生主大将${zjWx}，主阵得生助`;
+      else if (jv === '主生客') jsay = `，主大将${zjWx}生客大将${kjWx}，主阵泄气`;
       else jsay = `，客大将${kjWx}克主大将${zjWx}，主阵受制`;
     }
     return { tag, text: say + jsay + '。' };
@@ -407,17 +424,16 @@ window.Taiyi = (function () {
     惊: { 方位: '兑宫正西', 门名: '武雷惊门', 八风: '阖阖风', 所主: '主惊恐奔走，宜掩捕攻击伏兵，凡百举事忧祸随之', 吉凶: '小凶' }
   };
   function eightDoorZhiShi(acc) {
-    let a = acc % 240;
-    if (a === 0) a = 120;
-    let z = Math.floor(a / 30);
-    if (z % 30 !== 0) z += 1; else if (z === 0) z = 1;
+    const a = ((acc % 240) + 240) % 240;
+    const z = a === 0 ? 8 : Math.ceil(a / 30);
     return DOOR[z - 1] || DOOR[0];
   }
-  function eightDoors(tyValNum, acc) {
+  function eightDoors(tyValNum, acc, dun) {
     const zs = eightDoorZhiShi(acc);
     const doors = newList(DOOR.slice(), zs);
-    const i = num.indexOf(tyValNum);
-    const order = i < 0 ? num.slice() : num.slice(i).concat(num.slice(0, i));
+    const base = dun === '阴' ? num.slice().reverse() : num.slice();
+    const i = base.indexOf(tyValNum);
+    const order = i < 0 ? base : base.slice(i).concat(base.slice(0, i));
     const dist = {};
     order.forEach((n, k) => dist[num2gong(n)] = doors[k]);
     return { zhiShi: zs, dist: dist };
@@ -462,7 +478,7 @@ window.Taiyi = (function () {
       const homeG = homeGeneral(jiStyle, tahun, acc), awayG = awayGeneral(jiStyle, tahun, acc);
       const shen = sixteenGong(jiStyle, tahun, acc, taishui);
       const tyN = tyVal(jiStyle, tahun, acc);
-      const ed = eightDoors(tyN, acc);
+      const ed = eightDoors(tyN, acc, kk.dun);
       return {
         jiStyle, label: ['岁计　值年太乙', '月计　值月太乙', '日计　值日太乙'][jiStyle],
         k: kk.shu, dun: kk.dun, wen: kk.wen, acc: acc, taishui,
@@ -479,44 +495,48 @@ window.Taiyi = (function () {
   }
 
   // 时计（值时太乙）：据日计局数与时辰干支，依淘金歌五子元法定值时局数，再按主客推算。
-  // 仅输入 hour>=0 且提供时干支时启用；返回值含时计单卡。
+  // 时计阴阳遁依冬至夏至：冬至后至芒种为阳遁，夏至后至大雪为阴遁；年月日计恒为阳遁。
+  const YANG_JQ = ['冬至', '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种'];
+  function dunOf(lunar) {
+    try {
+      if (lunar && typeof lunar.getPrevJieQi === 'function') {
+        const p = lunar.getPrevJieQi(false);
+        const n = p && p.getName ? p.getName() : '';
+        if (n) return YANG_JQ.indexOf(n) >= 0 ? '阳' : '阴';
+      }
+    } catch (e) { /* 无节气表时按阳遁 */ }
+    return '阳';
+  }
   function computeShi(y, m, d, hour, minute, lunar, tahun) {
     if (hour < 0) return null;
     if (tahun === undefined) tahun = 0;
-    const solar = { getYear: () => y, getMonth: () => m, getDay: () => d };
     const accD = accnum(2, tahun, 0, 0, 0, y, m, d);
     const kkD = kook(2, tahun, accD);
     const dayJu = kkD.shu;
     const hourGz = lunar && lunar.getTimeInGanZhi ? lunar.getTimeInGanZhi() : '';
     const wzy = wuZiYuan(dayJu, hourGz);
     const shiJu = wzy.局数 % 72 || 72;
-    // 时计阴阳遁依冬至夏至：此处以日计阳遁推算
-    const shiKk = { wen: '阳' + num2cn(shiJu) + '局', shu: shiJu, dun: '阳', acc: shiJu };
-    const taiyi = (shiKk.dun === '阳' ? tyYang : tyYin)[shiJu - 1];
-    const wc = skyeyes_dict['阳'][shiJu - 1];
-    const sh = sf_list[shiJu - 1];
+    const dun = dunOf(lunar);
+    const jiStyle = dun === '阳' ? 0 : 3;
+    const acc = shiJu;
+    const kk = kook(jiStyle, tahun, acc);
     const taishui = (lunar ? lunar.getTimeZhi() : '') || '子';
-    const shen = { 太乙: taiyi_pai[shiJu - 1], 文昌: wc, 始击: sh, 计神: jigodMap[taishui] || '—', 合神: hegodMap[taishui] || '—',
-      太岁: taishui, 君基: kingbase(shiJu), 臣基: officerbase(shiJu), 民基: pplbase(shiJu),
-      四神: fgd(shiJu, shiJu), 天乙: skyyi(shiJu, shiJu), 地乙: earthyi(shiJu, shiJu), 直符: zhifu(shiJu, shiJu),
-      飞符: flyfu(shiJu), 主大: num2gong(homeGeneral(0, 0, shiJu)), 主参: num2gong(homeVgen(0, 0, shiJu)),
-      客大: num2gong(awayGeneral(0, 0, shiJu)), 客参: num2gong(awayVgen(0, 0, shiJu)),
-      五福: wufu(shiJu) };
-    const homeC = homeCalFrom(0, 0, shiJu, wc), awayC = awayCal(0, 0, shiJu);
-    const dingC = dingCal(0, 0, shiJu, taishui);
-    const tyN = shiJu;
-    const ed = eightDoors(tyN, shiJu);
+    const shen = sixteenGong(jiStyle, tahun, acc, taishui);
+    const homeC = homeCal(jiStyle, tahun, acc), awayC = awayCal(jiStyle, tahun, acc);
+    const dingC = dingCal(jiStyle, tahun, acc, taishui);
+    const tyN = tyVal(jiStyle, tahun, acc);
+    const ed = eightDoors(tyN, acc, kk.dun);
     return {
       jiStyle: 3, label: '时计　值时太乙', 时干支: hourGz, 五子: wzy.五子, 值日局: dayJu,
-      k: shiJu, dun: '阳', wen: shiKk.wen, acc: shiJu, taishui,
-      tyGong: shen.太乙, tyNum: tyN, wc, sh, ji: shen.计神, he: shen.合神,
+      k: shiJu, dun: kk.dun, wen: kk.wen, acc: shiJu, taishui,
+      tyGong: shen.太乙, tyNum: tyN, wc: shen.文昌, sh: shen.始击, ji: shen.计神, he: shen.合神,
       homeCal: homeC, awayCal: awayC, dingCal: dingC,
-      homeGen: homeGeneral(0, 0, shiJu), awayGen: awayGeneral(0, 0, shiJu),
-      homeVg: homeVgen(0, 0, shiJu), awayVg: awayVgen(0, 0, shiJu),
-      pattern: skyeyes_summary['阳'][shiJu - 1] || '', shen,
+      homeGen: homeGeneral(jiStyle, tahun, acc), awayGen: awayGeneral(jiStyle, tahun, acc),
+      homeVg: homeVgen(jiStyle, tahun, acc), awayVg: awayVgen(jiStyle, tahun, acc),
+      pattern: skyeyesDes(jiStyle, tahun, acc), shen,
       doorZhiShi: ed.zhiShi, doors: ed.dist,
       cd: changDuanShu({ homeCal: homeC, awayCal: awayC }),
-      bz: bingZhen({ homeCal: homeC, awayCal: awayC, wc, sh, jiStyle: 3, taishui, pattern: skyeyes_summary['阳'][shiJu - 1] || '' })
+      bz: bingZhen({ homeCal: homeC, awayCal: awayC, wc: shen.文昌, sh: shen.始击, jiStyle: 3, taishui, pattern: skyeyesDes(jiStyle, tahun, acc) })
     };
   }
 

@@ -45,6 +45,8 @@ input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
 input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 
 body{--footer-ink:#303d63}
@@ -116,7 +118,51 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 #out + *{margin-top:var(--sp-4)}
 
-.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+.opts .field{flex:0 0 auto;min-width:120px}
+
+.field.chk{flex-direction:row;align-items:center;gap:var(--sp-1);min-width:auto}
+
+.field.chk input{width:auto;height:auto;padding:0}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
+
+.page-ty .opts{margin-top:var(--sp-3)}
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -170,8 +216,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .cal-cell .slot{display:none}
 }
 
-.mh-ref .sub-note{margin:var(--sp-1) 0}
-
 @media(max-width:1080px){
 .nav{display:none;position:absolute;top:62px;left:auto;right:var(--sp-4);
     width:min(calc(100% - var(--sp-4) * 2),420px);
@@ -213,7 +257,11 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-ty .ty-np td:first-child,.page-ty .ty-np th:first-child{white-space:nowrap;width:1%}
 
+.page-ty .ty-np th{background:transparent;color:var(--gold2);border-color:var(--ty-line,#ccd2e0);font-weight:400;white-space:nowrap}
+
 .page-ty .ty-np td{color:var(--ink);border-color:var(--ty-line,#ccd2e0);background:transparent}
+
+.page-ty #tyShenRef table th:nth-child(2),.page-ty #tyShenRef table td:nth-child(2){white-space:nowrap}
 
 .page-ty .mh-ref table th{white-space:nowrap}
 
@@ -245,13 +293,13 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-ty .page .lead{color:var(--ty-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
 
-.page-ty .sub-note{color:var(--ty-ink2)}
-
 .page-ty .field label{color:var(--ty2);font-weight:400}
 
 .page-ty .field input,.page-ty .field select{border-color:var(--ty-line);background:var(--card);color:var(--ty-deep)}
 
 .page-ty .field input:focus,.page-ty .field select:focus{border-color:var(--ty);outline:none}
+
+.page-ty .group-label{color:var(--ty2)}
 
 .page-ty .btn:not(.soft):not(.btn-ghost){background:var(--ty);color:#fff}
 
@@ -397,39 +445,49 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
 <div class="wrap page-ty" data-built="2026-10-30">
   <div class="page">
     <h1>太乙神数</h1>
-    <div class="lead">输入推演时段，按岁计、月计、日计排太乙十六宫盘，参主客算论胜负。</div>
+    <div class="lead">输入推演时段，按岁计、月计、日计、时计排太乙十六宫盘，参主客算论胜负。</div>
 
     <div class="form-row">
-      <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">推算日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="推算日期" value="2026-10-29"></div>
-      <div class="field"><label for="hInput">时辰（推时计）</label><select id="hInput" aria-label="时辰" onchange="query()">
-        <option value="-1">不计时计</option>
-        <option value="23">子(23-01)</option><option value="1">丑(01-03)</option><option value="3">寅(03-05)</option>
-        <option value="5">卯(05-07)</option><option value="7">辰(07-09)</option><option value="9">巳(09-11)</option>
-        <option value="11">午(11-13)</option><option value="13">未(13-15)</option><option value="15">申(15-17)</option>
-        <option value="17">酉(17-19)</option><option value="19">戌(19-21)</option><option value="21">亥(21-23)</option>
-      </select></div>
+      <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">推算日期（公历）</label><span class="dt-wrap dtm-ty"><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="推算日期" value="2026-10-29"></span></div>
+      <div class="field"><label for="hInput">推算时刻</label><span class="dt-wrap dtm-ty"><input type="time" id="hInput" aria-label="推算时刻"></span></div>
       <div class="field"><label for="tahunInput">积年体系</label><select id="tahunInput" aria-label="积年体系" onchange="query()">
         <option value="0">太乙统宗</option>
         <option value="1">太乙金镜</option>
         <option value="2">太乙淘金歌</option>
         <option value="3">太乙局</option>
       </select></div>
+      <div class="field chk"><input type="checkbox" id="shiOn" checked><label for="shiOn">排时计</label></div>
       <button class="btn" onclick="query()">起局</button>
+    </div>
+    <div class="opts" id="tyOptsWrap">
+      <div class="birth-group compact" id="tyBirthGroup">
+        <div class="group-label">所在地（用于经度校正，内置行政区划经度）</div>
+        <div class="field"><label for="bProv">省份</label><select id="bProv" aria-label="所在地省份"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="bCity">城市</label><select id="bCity" aria-label="所在地城市"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="bDist">区县</label><select id="bDist" aria-label="所在地区县"><option value="未知地">未知地</option></select></div>
+        <div class="field hh-lng"><label for="bLng">经度（可选）</label><input type="number" id="bLng" step="0.01" placeholder="所在地" aria-label="手动经度东经度数"></div>
+      </div>
+      <div class="opts-row" id="tyOptsRow">
+        <div class="group-label">时间折算与流派</div>
+        <div class="field"><label for="tyDst">夏令时</label><select id="tyDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
+        <div class="field"><label for="tyZi">子时算法</label><select id="tyZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
+        <div class="field"><label for="tySun">太阳时</label><select id="tySun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+      </div>
     </div>
     <div class="sub-note" id="infoLine"></div>
     <div id="out"></div>
-    <details class="mh-ref ty-ref" id="tyShenRef"><summary>神将详解（十六神与十神所主）</summary>
-    <table><thead><tr><th>神将</th><th>定位</th><th>所主</th></tr></thead>
+    <details class="mh-ref ty-ref" id="tyShenRef"><summary>神将详解（神将、十六神与十神所主）</summary>
+    <table class="ty-np"><thead><tr><th>神将</th><th>定位</th><th>所主</th></tr></thead>
     <tbody>
     <tr><td>太乙</td><td>主神</td><td>天之贵神，统主一局之气数，定旺衰吉凶。太乙所临之宫即为该计之主宫。</td></tr>
     <tr><td>文昌（天目）</td><td>佐主之神</td><td>定主算之数，主文华、智谋、荐贤。文昌居丑寅辰巳未申戌亥为间辰，居巽艮坤乾为四维。</td></tr>
     <tr><td>始击（客目）</td><td>客方之神</td><td>定客算之数，主侵伐、客争、兵革。始击所临定客方之局势。</td></tr>
-    <tr><td>计神</td><td>计度之神</td><td>主计谋、暗算，佐客方。计神以十二辰逆推，自寅（阳遁）或酉（阴遁）起，按太岁定之。本页三计恒为阳遁，计神自寅起逆推。</td></tr>
+    <tr><td>计神</td><td>计度之神</td><td>主计谋、暗算，佐客方。计神以十二辰逆推，自寅（阳遁）或酉（阴遁）起，按太岁定之。年、月、日计恒为阳遁，时计冬至后阳遁、夏至后阴遁；阳遁计神自寅起逆推，阴遁自酉起逆推。</td></tr>
     <tr><td>合神</td><td>合辰之神</td><td>与太岁相合之辰，用于定计（以合神加太岁，取文昌临处为定目）。</td></tr>
     <tr><td>太岁</td><td>岁君</td><td>值年之神，主岁运之吉凶，为定计之基准。</td></tr>
-    <tr><td>君基</td><td>人君之基</td><td>主君王之位、国家大政，太乙积年定之，在午宫起算。</td></tr>
-    <tr><td>臣基</td><td>臣辅之基</td><td>主大臣辅弼、政令执行，以局数起算。</td></tr>
-    <tr><td>民基</td><td>万民之基</td><td>主民情风俗、百姓安乐，在申宫起算。</td></tr>
+    <tr><td>君基</td><td>人君之基</td><td>主君王之位、国家大政，太乙积年定之，在午宫起算，三十年一移。</td></tr>
+    <tr><td>臣基</td><td>臣辅之基</td><td>主大臣辅弼、政令执行，以积年起算，三年一移。</td></tr>
+    <tr><td>民基</td><td>万民之基</td><td>主民情风俗、百姓安乐，在戌宫起算，一年一移。</td></tr>
     <tr><td>四神</td><td>四方之神</td><td>主四方兵革、边塞动静，在乾宫起算。</td></tr>
     <tr><td>天乙</td><td>天之贵神</td><td>主吉庆、祥瑞、天时。</td></tr>
     <tr><td>地乙</td><td>地之贵神</td><td>主田土、稼穑、地道。</td></tr>
@@ -441,45 +499,67 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
     <tr><td>客大将</td><td>客方统兵</td><td>由客算数定之，客阵之指挥，大将入中宫则杜塞无门。</td></tr>
     <tr><td>客参将</td><td>客方副将</td><td>由客大将之数乘三取个位得之，佐客大将。</td></tr>
     </tbody></table>
-    <div class="sub-note">十神（八将）：君基、臣基、民基、四神、天乙、地乙、直符、飞符，古称八将；与计神、合神并列为十。另有五福为福庆之神。据《太乙金镜式经》《太乙统宗宝鉴》。</div>
+    <h4 class="det-h">十六宫神（十六神）</h4>
+    <table class="ty-np"><thead><tr><th>宫</th><th>神名</th><th>所主</th></tr></thead>
+    <tbody>
+    <tr><td>子</td><td>地主</td><td>建子之月阳气初发，万物阴生，故曰地主。</td></tr>
+    <tr><td>丑</td><td>阳德</td><td>建丑之月二阳用事，布育万物，故曰阳德。</td></tr>
+    <tr><td>艮</td><td>和德</td><td>冬春将交，阴阳气合，群物方生，故曰和德。</td></tr>
+    <tr><td>寅</td><td>吕申</td><td>建寅之月阳气大申，草木甲坼，故曰吕申。</td></tr>
+    <tr><td>卯</td><td>高丛</td><td>建卯之月万物皆出，自地丛生，故曰高丛。</td></tr>
+    <tr><td>辰</td><td>太阳</td><td>建辰之月雷出震势，阳气大盛，故曰太阳。</td></tr>
+    <tr><td>巽</td><td>太炅</td><td>春夏将交，盛暑方至，阳气炎酷，故曰太炅。</td></tr>
+    <tr><td>巳</td><td>太神</td><td>建巳之月少阴用事，阴阳不测，故曰太神。</td></tr>
+    <tr><td>午</td><td>大威</td><td>建午之月阳附阴生，刑暴始行，故曰大威。</td></tr>
+    <tr><td>未</td><td>天道</td><td>建未之月火能生土，土王于未，故曰天道。</td></tr>
+    <tr><td>坤</td><td>大武</td><td>夏秋将交，阴气施令，杀伤万物，故曰大武。</td></tr>
+    <tr><td>申</td><td>武德</td><td>建申之月万物欲死，荠麦将生，故曰武德。</td></tr>
+    <tr><td>酉</td><td>太蔟</td><td>建酉之月万物皆成，有大品蔟，故曰太蔟。</td></tr>
+    <tr><td>戌</td><td>阴主</td><td>建戌之月阳气不长，阴气用事，故曰阴主。</td></tr>
+    <tr><td>乾</td><td>阴德</td><td>秋冬将交，阴前生阳，大有其情，故曰阴德。</td></tr>
+    <tr><td>亥</td><td>大义</td><td>建亥之月万物怀垢，群阳欲尽，故曰大义。</td></tr>
+    </tbody></table>
+    <div class="sub-note">十六神据《太乙金镜式经》卷二《推十六神所主法》。</div>
+    <div class="sub-note">十神（八将）：君基、臣基、民基、四神、天乙、地乙、直符、飞符，古称八将；与计神、合神并列为十。另有五福为福庆之神。十神起宫：君基、臣基起午，民基起戌；《太乙金镜式经》卷五三基俱作起戌，本站盘面从通行本，两说并存。据《太乙金镜式经》《太乙统宗宝鉴》。</div>
     </details>
     <details class="mh-ref ty-ref" id="tyGejuRef"><summary>格局详解（囚杜塞迫击掩挟关对）</summary>
-    <table><thead><tr><th>格局</th><th>含义</th><th>吉凶</th></tr></thead>
+    <table class="ty-np"><thead><tr><th>格局</th><th>含义</th><th>吉凶</th></tr></thead>
     <tbody>
-    <tr><td>囚</td><td>太乙与文昌（天目）同宫。君臣同处，主被困、受制，宜静守待时。</td><td>凶</td></tr>
+    <tr><td>囚</td><td>文昌及主客大小四将俱与太乙同宫。君臣将佐同处，主被困、受制，宜静守待时。</td><td>凶</td></tr>
     <tr><td>杜塞</td><td>主大将或客大将入中宫。八门杜塞、无门可出，为闭塞不通之象。</td><td>凶</td></tr>
-    <tr><td>迫（内迫）</td><td>文昌（在内）或始击逼近太乙所居之宫。</td><td>凶</td></tr>
-    <tr><td>迫（外迫）</td><td>文昌（在外）或始击从外部逼近太乙。</td><td>凶</td></tr>
-    <tr><td>迫（辰迫）</td><td>以辰位（地支）相迫，廿四节气之辰迫。</td><td>凶</td></tr>
-    <tr><td>迫（宫迫）</td><td>以宫位（八卦）相迫，行宫次序之迫。</td><td>凶</td></tr>
-    <tr><td>击（辰击）</td><td>始击（客目）以辰位击太乙所居之宫。</td><td>凶</td></tr>
-    <tr><td>击（宫击）</td><td>始击以宫位击太乙。</td><td>凶</td></tr>
-    <tr><td>掩</td><td>始击与太乙同宫。始击掩太乙，客方掩主，主方受制。</td><td>凶</td></tr>
-    <tr><td>挟（主挟）</td><td>文昌与始击夹太乙，主方被夹，主方受制。</td><td>凶</td></tr>
-    <tr><td>挟（客挟）</td><td>文昌与始击夹太乙，客方得势，主方不利。</td><td>凶</td></tr>
-    <tr><td>关主</td><td>客目（始击）与主目（文昌）对宫相冲，关涉主方。</td><td>凶</td></tr>
-    <tr><td>关客</td><td>客目与主目对宫相冲，关涉客方。</td><td>凶</td></tr>
-    <tr><td>对</td><td>文昌与始击对宫相望，主客对峙，势均力敌。</td><td>平</td></tr>
-    <tr><td>格</td><td>文昌与太乙对宫（或始击与太乙对宫），格斗之象。</td><td>凶</td></tr>
+    <tr><td>迫（内迫）</td><td>文昌或始击在太乙后一辰，为内迫。</td><td>凶</td></tr>
+    <tr><td>迫（外迫）</td><td>文昌或始击在太乙前一辰，为外迫。</td><td>凶</td></tr>
+    <tr><td>迫（辰迫）</td><td>以辰位相迫，下目在前一辰为外辰迫，后一辰为内辰迫。</td><td>凶</td></tr>
+    <tr><td>迫（宫迫）</td><td>以宫位相迫，分内宫迫与外宫迫。</td><td>凶</td></tr>
+    <tr><td>击（辰击）</td><td>客目在太乙前一辰为前击，后一辰为后击。</td><td>凶</td></tr>
+    <tr><td>击（宫击）</td><td>客目在太乙前一宫为外宫击，后一宫为内宫击。</td><td>凶</td></tr>
+    <tr><td>掩</td><td>始击临太乙宫。客方掩主，主方受制。</td><td>凶</td></tr>
+    <tr><td>挟（主挟）</td><td>主客两将或一将共太乙挟主目或主将于正宫，为提挟；挟于间神为挟闭。</td><td>凶</td></tr>
+    <tr><td>挟（客挟）</td><td>主客两将或一将共太乙挟客目或客将于正宫，为提挟；挟于间神为挟闭。</td><td>凶</td></tr>
+    <tr><td>关主</td><td>主客大小将与目同宫数齐，关涉主方。</td><td>凶</td></tr>
+    <tr><td>关客</td><td>主客大小将与目同宫数齐，关涉客方。</td><td>凶</td></tr>
+    <tr><td>对</td><td>文昌与太乙对宫相冲而相当，两方对峙。</td><td>平</td></tr>
+    <tr><td>格</td><td>客目及大小将与太乙对宫，格斗之象。</td><td>凶</td></tr>
     </tbody></table>
-    <div class="sub-note">格局由局数查权威表而得，同一局中可能同时出现多种格局（如"掩、囚"、"主挟，辰迫"）。表据《太乙金镜式经》《太乙统宗宝鉴》整理，排法参照开源项目 kintaiyi。</div>
+    <div class="sub-note">格局由局数查表而得，同一局中可能同时出现多种格局（如"掩、囚"、"主挟，辰迫"）。表列阳遁与阴遁两系名目；年、月、日计恒阳遁，时计冬至后阳遁、夏至后阴遁，阴遁名目随时计启用。表据《太乙金镜式经》《太乙统宗宝鉴》整理。</div>
     </details>
     <details class="mh-ref ty-ref" id="tySuanRef"><summary>主客算与定算说明</summary>
-    <table><thead><tr><th>类别</th><th>推算法则</th><th>断法</th></tr></thead>
+    <table class="ty-np"><thead><tr><th>类别</th><th>推算法则</th><th>断法</th></tr></thead>
     <tbody>
     <tr><td>主算</td><td>自文昌（天目）所在十六宫，依间辰、四维、对宫等规则数至太乙所居八卦宫，九宫数之和为主算。</td><td>主算越大主方越盛；主算一至九为无天，主日月失度；个位一至四为无地，主崩地；个位零为无人，主口舌流亡。</td></tr>
     <tr><td>客算</td><td>自始击（客目）所在十六宫，依间辰、四维、对宫等规则数至太乙，九宫数之和为客算。</td><td>客算越大客方越盛；断法同主算。</td></tr>
     <tr><td>定算</td><td>以合神加太岁，取文昌（天目）临处为定目，依主算法数至太乙，得定算。</td><td>定算偏助客方，为主客之外的第三重参考，据《淘金歌》"主客定计"。</td></tr>
-    <tr><td>长短数</td><td>算数≥16为长数，<16为短数。</td><td>长数而将吏兵俱备为和，宜举百事；长而不备为不和，不利兴师；短数总为不和，百事皆忌。</td></tr>
+    <tr><td>长短数</td><td>算数十一以上为长数，单九以下为短数；一十、二十、三十、四十为无人，不在长短之列。</td><td>长数而将吏兵俱备为和，宜举百事；长而不备为不和，不利兴师；短数与无算总为不和，百事皆忌。</td></tr>
     <tr><td>阴阳和数</td><td>算数奇偶分阴阳，数十、二十、三十、四十为和数。</td><td>纯阳、杂阳、纯阴、杂阴、上和、下和、次和、阴中重阳、杂重阴、孤阳等，各主吉凶深浅。</td></tr>
     </tbody></table>
     </details>
-    <details class="mh-ref ty-ref" id="tyTermRef"><summary>术语速查（白话版）</summary>
+    <details class="mh-ref ty-ref" id="tyTermRef"><summary>术语速查</summary>
     <div id="termGloss"></div>
     <div class="sub-note">速查表按分类列出全页术语的一句话白话；同一格局一局可同时出现多种。更系统的考证见上方神将详解、格局详解与主客算说明。</div>
     </details>
 
-  <div id="aiMount"><details class="ai-block" id="aiBlock">
+  <div class="stage2-late">
+<div id="aiMount"><details class="ai-block" id="aiBlock">
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
     <div class="ai-body">
       <div class="ai-actions">
@@ -498,19 +578,61 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
   </details></div>
   </div>
 </div>
+</div>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
   <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
 <script defer src="assets/geo.js"></script>
 <script defer src="assets/ai-lazy.js"></script>
-<script data-sync="1" src="assets/dist/js/inline-taiyi-now.js"></script>
+<script data-sync="1">/* 日期与时辰默认值：解析期同步执行，首绘前即当天与当下；页面停留时按本机时间续算，
+   跨时辰、跨午夜、跨年自动改值。与 app.js 的同名校正同源同判，defer 那次只作兜底。 */
+(function () {
+  function p2(v) { return (v < 10 ? '0' : '') + v; }
+  function kept(el) { return el.hasAttribute('data-keep'); }
+  function isDateBox(el) {
+    if (el.tagName !== 'INPUT' || kept(el)) return false;
+    if (el.type === 'date') return true;
+    if (el.type !== 'text' || !el.classList.contains('dt-input')) return false;
+    if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(el.value || '')) return true;
+    if (/^(?:\d{4}-\d{2}-\d{2}|YYYY-MM-DD)$/i.test(el.getAttribute('placeholder') || '')) return true;
+    if (/date/i.test(el.id || '')) return true;
+    return /日期|生日/.test(el.getAttribute('aria-label') || '');
+  }
+  function apply() {
+    var n = new Date();
+    var ymd = n.getFullYear() + '-' + p2(n.getMonth() + 1) + '-' + p2(n.getDate());
+    var hm = p2(n.getHours()) + ':' + p2(n.getMinutes());
+    var zhi = '子丑寅卯辰巳午未申酉戌亥'[Math.floor(((n.getHours() + 1) % 24) / 2)];
+    document.querySelectorAll('input').forEach(function (el) {
+      if (el.hasAttribute('data-user-set')) return;
+      if (isDateBox(el)) { el.value = ymd; el.setAttribute('data-autonow', '1'); return; }
+      if (el.type === 'time' && !kept(el)) { el.value = hm; el.setAttribute('data-autonow', '1'); }
+    });
+    document.querySelectorAll('select').forEach(function (sel) {
+      if (kept(sel) || sel.hasAttribute('data-user-set') || sel.options.length < 12) return;
+      var opt = Array.prototype.find.call(sel.options, function (o) {
+        var t = (o.textContent || '').trim();
+        return t.charAt(0) === zhi && /[（(]/.test(t);
+      });
+      if (opt) { sel.value = opt.value; sel.setAttribute('data-autonow', '1'); }
+    });
+    return ymd + ' ' + hm;
+  }
+  var last = apply();
+  setInterval(function () {
+    var k = apply();
+    if (k === last) return;
+    last = k;
+  }, 1000);
+})();</script>
 <script defer fetchpriority="low" src="assets/lunar.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/latlng.js"></script>
 <script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
 <script defer fetchpriority="low" src="assets/taiyi-engine.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-05.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-06.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-07.js"></script>
 </body>
 </html>

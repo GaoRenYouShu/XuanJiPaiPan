@@ -55,6 +55,8 @@ input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
 input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 
 body{--footer-ink:#3c5a38}
@@ -69,6 +71,32 @@ body{
   -webkit-font-smoothing:auto;
   text-rendering:optimizeLegibility;
 }
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
 
 .page{background:transparent;padding:var(--sp-3) var(--sp-4) 0;margin:0;color:var(--ink)}
 
@@ -114,8 +142,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .wx-mu{color:#5DC336}.wx-huo{color:#F65352}.wx-tu{color:#A07040}
 
-.wx-jin{color:#D4A017}.wx-shui{color:#4190FA}
-
 .mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
 
 .mh-ref:not([open]){border-bottom:1px solid var(--line)}
@@ -129,6 +155,20 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .mh-ref th{background:var(--paper);color:var(--gold2)}
 
 #out + *{margin-top:var(--sp-4)}
+
+.opts .field{flex:0 0 auto;min-width:120px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-top:var(--sp-3);margin-bottom:var(--sp-2);flex-direction:column}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -272,12 +312,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-xlr .xlr-palm-nm{width:auto}
 
-.page-xlr .xlr-table th,.page-xlr .xlr-table td{padding:5px 4px}
-
-.page-xlr .xlr-table th{white-space:nowrap;min-width:3.2em}
-
-.page-xlr .xlr-table-wrap table{width:max-content;min-width:100%}
-
 .page-xlr .xlr-table-wrap{padding-bottom:var(--sp-4)}
 }
 
@@ -344,7 +378,13 @@ html .page-xlr {
 
 .dtm-xlr{--tk:#4f7047;--tk2:#3c5a38;--tk-ink:#3c4438;--tk-line:#dbe2cf;--tk-tint:#f1f5e9}
 
-@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/xiaoliuren-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0e, U+4e11, U+4e19, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4ec5, U+4ee5, U+4f9b, U+4fd7, U+4fe1, U+5148, U+5165, U+516b-516d, U+5171, U+5173, U+519c, U+51ac, U+51f6, U+51f8, U+5206, U+521d, U+524d, U+529f-52a0, U+52ff, U+5316, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+53c2, U+53c8, U+53d6, U+5409, U+540c-540d, U+547d, U+56db, U+56fe, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5973, U+5a31, U+5b50, U+5b9a, U+5bab, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c45, U+5df1, U+5df3, U+5e74, U+5e93, U+5e9a, U+5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f55, U+5f85, U+603b, U+60ca, U+620a, U+620c, U+6210, U+62e9, U+6307, U+636e, U+638c, U+6392, U+63d0, U+6570, U+6587, U+65ad, U+65b0, U+65b9, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+679c, U+6b63, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d3e, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7334, U+7384, U+7406, U+751f, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7709, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+7a76, U+7acb, U+7b97, U+7ed3, U+7f6e, U+7f8a, U+8003, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+843d, U+845b, U+86c7, U+86f0, U+86fe, U+89c8, U+8bbe, U+8bc0, U+8bef, U+8bf4, U+8bf7-8bf8, U+8bfe, U+8c37, U+8d77, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8ff7, U+9009, U+9149, U+914d, U+9519, U+95ed, U+95f0, U+95f4, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9f99, U+ff08-ff09, U+ff0c}
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+
+.birth-group,.birth-group.compact{padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+}
+
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(./assets/fonts/pages/xiaoliuren-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0d-4e0e, U+4e11, U+4e19, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8e-4e8f, U+4e94, U+4ea5, U+4ec5, U+4ee4-4ee5, U+4efd, U+4f9b, U+4fd7, U+4fe1, U+5148, U+5165, U+516b-516d, U+5171, U+5173, U+5185, U+519c, U+51ac, U+51c6, U+51f6, U+51f8, U+5206, U+5212, U+521d, U+523b, U+524d, U+529f-52a0, U+52ff, U+5316, U+533a, U+5341, U+5348, U+535c, U+5360, U+536f, U+5373, U+5386, U+53bf, U+53c2, U+53c8, U+53d6, U+53ef, U+5409, U+540c-540d, U+547d, U+56db, U+56fe, U+5728, U+5730, U+57ce, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+592a, U+5973, U+5a31, U+5b50, U+5b9a, U+5bab, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c45, U+5dee, U+5df1, U+5df3, U+5e02, U+5e74, U+5e93, U+5e9a, U+5ea6-5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f52, U+5f55, U+5f85, U+603b, U+60ca, U+620a, U+620c, U+6210, U+6240, U+6298, U+62e9, U+6307, U+636e, U+638c, U+6392, U+63d0, U+653f, U+6570, U+6587, U+65ad, U+65b0, U+65b9, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+665a, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+679c, U+6807, U+6821, U+6b21, U+6b63, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cd5, U+6d3e, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7334, U+7384, U+7406, U+751f, U+7528, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7701, U+7709, U+77e5, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+7a76, U+7acb, U+7b97, U+7ecf, U+7ed3, U+7f6e, U+7f8a, U+8003, U+80fd, U+814a, U+81ea, U+81f3, U+8292, U+843d, U+845b, U+86c7, U+86f0, U+86fe, U+884c, U+89c8, U+8bbe, U+8bc0, U+8bef, U+8bf4, U+8bf7-8bf8, U+8bfe, U+8c37, U+8d77, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8ff7, U+9009, U+9149, U+914d, U+949f, U+9519, U+95ed, U+95f0, U+95f4, U+9633, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9762, U+9875, U+9996, U+9a6c, U+9e21, U+9f99, U+ff08-ff09, U+ff0c}
 
 body:has(.page-xlr) .scroll-jump:not(.show){display:none}</style>
 <link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/xiaoliuren-0.woff2">
@@ -435,9 +475,7 @@ body:has(.page-xlr) .scroll-jump:not(.show){display:none}</style>
         <option value="char">汉字笔画</option>
       </select></div>
       <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" value="2026-10-29"></div>
-      <div class="field" id="fShi"><label for="shichen">时辰</label>
-        <select id="shichen"><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select>
-      </div>
+      <div class="field" id="fTime"><label for="tInput">时刻</label><input type="time" id="tInput" aria-label="起课时刻"></div>
       <div class="field" id="fNum1" style="display:none"><label for="qNum1">第一数（月）</label><input type="number" min="1" max="999" id="qNum1" class="dt-input xlr-num-input"></div>
       <div class="field" id="fNum2" style="display:none"><label for="qNum2">第二数（日）</label><input type="number" min="1" max="999" id="qNum2" class="dt-input xlr-num-input"></div>
       <div class="field" id="fNum3" style="display:none"><label for="qNum3">第三数（时）</label><input type="number" min="1" max="999" id="qNum3" class="dt-input xlr-num-input"></div>
@@ -445,9 +483,24 @@ body:has(.page-xlr) .scroll-jump:not(.show){display:none}</style>
       <div class="field"><label for="school">流派</label><select id="school"><option value="ma">诸葛马前课</option><option value="li">李淳风六壬时课</option><option value="dao">道家小六壬</option><option value="qm">奇门小六壬</option><option value="hua">华山小六壬</option><option value="jiang">江氏小六壬</option><option value="xian">仙家小六壬</option><option value="si">四盘小六壬</option></select></div>
       <button class="btn" onclick="query()">起课</button>
     </div>
+    <div class="opts" id="xlrOpts">
+      <div class="birth-group compact" id="xlrGeoGroup">
+        <div class="group-label">所在地（用于经度校正，内置行政区划经度）</div>
+        <div class="field"><label for="xlrProv">省份</label><select id="xlrProv" aria-label="所在地省份"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="xlrCity">城市</label><select id="xlrCity" aria-label="所在地城市"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="xlrDist">区县</label><select id="xlrDist" aria-label="所在地区县"><option value="未知地">未知地</option></select></div>
+        <div class="field hh-lng"><label for="xlrLng">经度（可选）</label><input type="number" id="xlrLng" step="0.01" placeholder="所在地" aria-label="手动经度东经度数"></div>
+      </div>
+      <div class="opts-row" id="xlrOptsRow">
+        <div class="group-label">时间折算与流派</div>
+        <div class="field"><label for="xlrDst">夏令时</label><select id="xlrDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时折算（钟面减1小时）</option></select></div>
+        <div class="field"><label for="xlrZi">子时算法</label><select id="xlrZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
+        <div class="field"><label for="xlrSun">太阳时</label><select id="xlrSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+      </div>
+    </div>
     <div class="sub-note xlr-line-note" id="lunarLine"></div>
     <div id="out"></div>
-    <div class="xlr-ref" id="xlrRef"><details class="mh-ref" id="xlrFold"><summary>掌诀指图 六宫总览</summary><div class="xlr-ref-grid"><div class="xlr-palm-wrap"><div class="xlr-palm" role="img" aria-label="小六壬掌诀图"><div class="xlr-palm-fingers"><div class="xlr-palm-col"><div class="xlr-palm-finger">食指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">2</div><div class="xlr-palm-nm luck-凶">留连</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">1</div><div class="xlr-palm-nm luck-吉">大安</div><div class="xlr-palm-seg">指根</div></div></div><div class="xlr-palm-col"><div class="xlr-palm-finger">中指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">3</div><div class="xlr-palm-nm luck-吉">速喜</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">6</div><div class="xlr-palm-nm luck-凶">空亡</div><div class="xlr-palm-seg">指根</div></div></div><div class="xlr-palm-col"><div class="xlr-palm-finger">无名指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">4</div><div class="xlr-palm-nm luck-凶">赤口</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">5</div><div class="xlr-palm-nm luck-吉">小吉</div><div class="xlr-palm-seg">指根</div></div></div></div><div class="xlr-palm-cap">大安起 1，顺数至 6 循环</div></div></div><div class="xlr-table-wrap"><table class="xlr-table xlr-hecan-tbl"><thead><tr><th>宫</th><th>序</th><th>五行</th><th>六神</th><th>方位</th><th>颜色</th><th>主数</th><th>应期</th><th>意象</th></tr></thead><tbody><tr><td class="luck-吉">大安</td><td>1</td><td><span class="wx-mu">木</span></td><td>青龙</td><td>东方</td><td>青</td><td>1、5、7</td><td>静迟稳</td><td>安稳、静止、守成</td></tr><tr><td class="luck-凶">留连</td><td>2</td><td><span class="wx-shui">水</span><br><small class="xlr-alt-note">水土两说</small></td><td>玄武<br><small class="xlr-alt-note">亦作腾蛇</small></td><td>北方</td><td>黑</td><td>2、8、10</td><td>缓迟反复</td><td>纠缠、拖延、犹豫</td></tr><tr><td class="luck-吉">速喜</td><td>3</td><td><span class="wx-huo">火</span></td><td>朱雀</td><td>南方</td><td>红</td><td>3、6、9</td><td>速近快</td><td>迅速、喜讯、通达</td></tr><tr><td class="luck-凶">赤口</td><td>4</td><td><span class="wx-jin">金</span></td><td>白虎</td><td>西方</td><td>白</td><td>4、7、10</td><td>急争凶</td><td>口舌、争讼、血光</td></tr><tr><td class="luck-吉">小吉</td><td>5</td><td><span class="wx-shui">水</span><br><small class="xlr-alt-note">木水两说</small></td><td>六合</td><td>东方</td><td>绿</td><td>1、5、7</td><td>和缓合</td><td>和合、顺利、双喜</td></tr><tr><td class="luck-凶">空亡</td><td>6</td><td><span class="wx-tu">土</span></td><td>勾陈</td><td>中央</td><td>灰</td><td>5、10<br><small class="xlr-alt-note">亦作1、5、7</small></td><td>空无远</td><td>落空、虚耗、无果</td></tr></tbody></table></div></div></details></div>
+    <div class="xlr-ref" id="xlrRef"><details class="mh-ref" id="xlrFold"><summary>掌诀指图 六宫总览</summary><div class="xlr-ref-grid"><div class="xlr-palm-wrap"><div class="xlr-palm" role="img" aria-label="小六壬掌诀图"><div class="xlr-palm-fingers"><div class="xlr-palm-col"><div class="xlr-palm-finger">食指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">2</div><div class="xlr-palm-nm luck-凶">留连</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">1</div><div class="xlr-palm-nm luck-吉">大安</div><div class="xlr-palm-seg">指根</div></div></div><div class="xlr-palm-col"><div class="xlr-palm-finger">中指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">3</div><div class="xlr-palm-nm luck-吉">速喜</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">6</div><div class="xlr-palm-nm luck-凶">空亡</div><div class="xlr-palm-seg">指根</div></div></div><div class="xlr-palm-col"><div class="xlr-palm-finger">无名指</div><div class="xlr-palm-cell"><div class="xlr-palm-num">4</div><div class="xlr-palm-nm luck-凶">赤口</div><div class="xlr-palm-seg">指尖</div></div><div class="xlr-palm-cell"><div class="xlr-palm-num">5</div><div class="xlr-palm-nm luck-吉">小吉</div><div class="xlr-palm-seg">指根</div></div></div></div><div class="xlr-palm-cap">大安起 1，顺数至 6 循环</div></div></div><div class="xlr-table-wrap"><table class="xlr-table xlr-hecan-tbl"><thead><tr><th>宫</th><th>序</th><th>五行</th><th>六神</th><th>方位</th><th>颜色</th><th>主数</th><th>应期</th><th>意象</th></tr></thead><tbody><tr><td class="luck-吉">大安</td><td>1</td><td><span class="wx-mu">木</span></td><td>青龙</td><td>东方</td><td>青</td><td>1、5、7</td><td>静迟稳</td><td>安稳、静止、守成</td></tr><tr><td class="luck-凶">留连</td><td>2</td><td><span class="wx-shui">水</span><br><small class="xlr-alt-note">水土两说</small></td><td>玄武<br><small class="xlr-alt-note">亦作螣蛇</small></td><td>北方</td><td>黑</td><td>2、8、10</td><td>缓迟反复</td><td>纠缠、拖延、犹豫</td></tr><tr><td class="luck-吉">速喜</td><td>3</td><td><span class="wx-huo">火</span></td><td>朱雀</td><td>南方</td><td>红</td><td>3、6、9</td><td>速近快</td><td>迅速、喜讯、通达</td></tr><tr><td class="luck-凶">赤口</td><td>4</td><td><span class="wx-jin">金</span></td><td>白虎</td><td>西方</td><td>白</td><td>4、7、10</td><td>急争凶</td><td>口舌、争讼、血光</td></tr><tr><td class="luck-吉">小吉</td><td>5</td><td><span class="wx-shui">水</span><br><small class="xlr-alt-note">木水两说</small></td><td>六合</td><td>东方</td><td>绿</td><td>1、5、7</td><td>和缓合</td><td>和合、顺利、双喜</td></tr><tr><td class="luck-凶">空亡</td><td>6</td><td><span class="wx-tu">土</span></td><td>勾陈</td><td>中央</td><td>灰</td><td>5、10<br><small class="xlr-alt-note">亦作1、5、7</small></td><td>空无远</td><td>落空、虚耗、无果</td></tr></tbody></table></div></div></details></div>
   <div id="aiMount"><details class="ai-block" id="aiBlock">
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
     <div class="ai-body">
@@ -475,12 +528,13 @@ body:has(.page-xlr) .scroll-jump:not(.show){display:none}</style>
 <script data-sync="1" src="assets/dist/js/inline-xiaoliuren-now.js"></script>
 <script defer fetchpriority="low" src="assets/lunar.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/latlng.js"></script>
 <script defer fetchpriority="low" src="assets/jianbi.js"></script>
 <script defer fetchpriority="low" src="assets/jianfan.js"></script>
 <script defer fetchpriority="low" src="assets/kangxi.js"></script>
 <script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-xiaoliuren-07.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-xiaoliuren-08.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-xiaoliuren-09.js"></script>
 </body>
 </html>

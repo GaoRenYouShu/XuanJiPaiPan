@@ -1,43 +1,354 @@
 
+const SIXTEEN = '子丑艮寅卯辰巽巳午未坤申酉戌乾亥'.split('');
+const GONG_NAME = {子:'子',丑:'丑',艮:'艮',寅:'寅',卯:'卯',辰:'辰',巽:'巽',巳:'巳',午:'午',未:'未',坤:'坤',申:'申',酉:'酉',戌:'戌',乾:'乾',亥:'亥',中:'中'};
+/* 十六宫名→九宫卦名：太乙落宫用子、卯、午、酉，九宫分野表用坎、震、离、兑，查表前先换算 */
+const G2NINE = {子:'坎',卯:'震',午:'离',酉:'兑'};
+const numdict={1:'杂阴',2:'纯阴',3:'纯阳',4:'杂阳',5:'孤阳',6:'纯阴',7:'杂阴',8:'杂阳',9:'纯阳',10:'和数',11:'阴中重阳',12:'下和',13:'杂重阳',14:'上和',15:'孤阳',16:'下和',17:'阴中重阳',18:'上和',19:'杂重阳',20:'和数',21:'杂重阳',22:'纯阴',23:'次和',24:'杂重阴',25:'孤阳',26:'纯阴',27:'下和',28:'杂重阴',29:'次和',30:'和数',31:'杂重阳',32:'次和',33:'纯阳',34:'下和',35:'孤阳',36:'纯阴',37:'杂重阳',38:'下和',39:'纯阳',40:'和数'};
+function calDes(num){if(num===0)return ['算数为零，无算可据，势失而无所依，宜静守待时'];const t=[];const noT=num<10,noD=num%10>=1&&num%10<=4,noP=num%10===0;if(noT)t.push('无天：二曜虚蚀、五纬失度、彗孛飞流、霜雹为害');if(noD)t.push('无地：崩地震、川竭蝗蝻之象');if(noP)t.push('无人：口舌妖言、疾疫迁移流亡');if(!noT&&!noD&&!noP)t.push('三才足数');const d=numdict[num];if(d)t.push(d);else if(num<40)t.push(num%2?'阳数（奇数）':'阴数（偶数）');return t;}
+const GONG_FANG={乾:'西北',午:'正南',艮:'东北',卯:'正东',巽:'东南',坤:'西南',酉:'正西',子:'正北',中:'中宫'};
+const NUM2GONG={1:'乾',2:'午',3:'艮',4:'卯',5:'中',6:'酉',7:'坤',8:'子',9:'巽'};
+/* ============ 术语字典（单一数据源：悬停读 short，速查表渲染全部，四尺度解读引用） ============ */
+const TAIYI_TERMS={
+  core:{title:'核心概念',items:{
+    '太乙':{short:'全盘核心之神，代表大势与天时所归，太乙落哪宫、大势重心就在哪边。',detail:'天之贵神，统主一局之气数，定旺衰吉凶；太乙所临之宫即为该计之主宫。'},
+    '文昌（天目）':{short:'佐助主方的观察之星，代表本方的智谋与文运，用它数出主算。',detail:'定主算之数，主文华、智谋、荐贤；居间辰或四维定主算起数点。'},
+    '始击（客目）':{short:'与主方对立之星，代表外来一方的竞争与冲击，用它数出客算。',detail:'定客算之数，主侵伐、客争、兵革；始击所临定客方之局势。'},
+    '计神':{short:'出谋划策之神，主暗中较量，佐助客方。',detail:'主计谋、暗算，佐客方；以十二辰逆推，自寅（阳遁）起按太岁定之。'},
+    '合神':{short:'与太岁相合的辰位，推定算用的辅助点。',detail:'与太岁相合之辰，用于定计（以合神加太岁，取文昌临处为定目）。'},
+    '主算':{short:'本方实力的分数，数越大本方越强。',detail:'自文昌所在宫数至太乙，九宫数之和；越大主方越盛。'},
+    '客算':{short:'外方实力的分数，数越大外方越强。',detail:'自始击所在宫数至太乙，九宫数之和；越大客方越盛。'},
+    '定算':{short:'第三重参考分，偏向助外方。',detail:'以合神加太岁、取文昌临处依主算法推得，偏助客方。'},
+    '阳遁':{short:'起局的运行方向之一；年、月、日计恒为阳遁。',detail:'阳遁主外放进取；年、月、日计恒为阳遁，时计自冬至后至芒种为阳遁。'},
+    '阴遁':{short:'与阳遁相对的运行方向；时计自夏至后至大雪为阴遁。',detail:'阴遁主静守内敛；时计自夏至后至大雪用阴遁，盘面随时计可见。'}
+  }},
+  siji:{title:'四计（时间尺度）',items:{
+    '岁计':{short:'以一整年为单位起的局，看全年大势基调。',detail:'岁计值年太乙，定一年之灾祥大势。'},
+    '月计':{short:'以一个月为单位起的局，看当月走势。',detail:'月计值月太乙，定一月之吉凶走势。'},
+    '日计':{short:'以一天为单位起的局，看当日吉凶宜忌。',detail:'日计值日太乙，定一日之休咎。'},
+    '时计':{short:'以一个时辰为单位起的局，看眼下时辰的局势。',detail:'时计值时太乙，定一个时辰内之局势，须选定时辰方起。'}
+  }},
+  suanshu:{title:'主客算（双方实力分）',items:{
+    '主算':{short:'本方实力分：自文昌所在宫位数到太乙，数大者强。',detail:'自文昌所在十六宫依规则数至太乙，九宫数之和；一至九为无天，个位一至四为无地，个位零为无人。'},
+    '客算':{short:'外方实力分：自始击所在宫位数到太乙，数大者强。',detail:'自始击所在宫数至太乙，九宫数之和；断法同主算。'},
+    '定算':{short:'第三重参考分，偏助外方。',detail:'以合神加太岁、取文昌临处依主算法推得，偏助客方，为主客之外的第三重参考。'},
+    '长短数':{short:'算数十一以上为长数（底气足），单九以下为短数（底气弱）；逢十为无算。',detail:'算数十一以上为长数，单九以下为短数；一十、二十、三十、四十为无人，不在长短之列；长数而将吏兵俱备为和，宜举百事，短数与无算总为不和。'}
+  }},
+  geju:{title:'格局（吉凶障碍之象）',items:{
+    '囚':{short:'文昌与主客四将俱同太乙之宫，大势受困、施展不开，宜静待时机。',detail:'文昌及主客大小四将俱与太乙同宫，总名曰囚；君臣将佐同处，主被困受制。'},
+    '掩':{short:'外来因素盖过本方，谨防被抢主导权。',detail:'始击临太乙宫，客方掩主，主方受制。'},
+    '挟':{short:'两头受制、左右为难，宜先解困再图进。',detail:'主客两将或一将共太乙挟主客目或大小将于正宫，为提挟；挟于间神为挟闭。'},
+    '迫':{short:'受逼迫催赶、节奏易乱，宜按住性子稳步走。',detail:'文昌或始击在太乙前后一辰为迫，分内迫、外迫、辰迫、宫迫。'},
+    '击':{short:'外来冲击明显，防突发之事。',detail:'客目在太乙前一辰为前击，后一辰为后击；前一宫为外宫击，后一宫为内宫击。'},
+    '关':{short:'是非纠缠、关系交关，宜划清界限。',detail:'主客大小将与目同宫数齐，为关；分关主、关客。'},
+    '对':{short:'两方对峙、僵持不下，宜和谈不宜硬顶。',detail:'文昌与太乙对宫相冲而相当，为对。'},
+    '格':{short:'正面冲突难免，宜避其锋芒。',detail:'客目及大小将与太乙对宫，为格。'},
+    '杜塞':{short:'力量受困、门路闭塞，事情推动费力，宜另寻路径。',detail:'主大将或客大将入中宫，八门杜塞、无门可出。'}
+  }},
+  bamen:{title:'八门（方位吉凶）',items:{
+    '八门':{short:'八个方位的吉凶门户，出行动事可据此择方向。',detail:'八门按方位布列，开、休、生三门大吉，景门小吉，惊门小凶，死、伤、杜三门大凶。'},
+    '值使':{short:'当前当值的门，三十年轮换一次，定门气基调。',detail:'八门值使三十年一易，以太乙积年对二百四十取余定之。'},
+    '开门':{short:'大吉之门，宜启动新事、开张出行。',detail:'开门大吉，宜见贵、开张、出行。'},
+    '休门':{short:'大吉之门，宜休养、和谈、见贵。',detail:'休门大吉，宜和谈、休养、谒见。'},
+    '生门':{short:'大吉之门，宜求财、营造、生长之事。',detail:'生门大吉，宜求财、营造、种植。'},
+    '景门':{short:'小吉之门，宜文书考试、公开露面。',detail:'景门小吉，宜文书、考学、公开之事。'},
+    '惊门':{short:'小凶之门，防口舌惊扰，谨言慎行。',detail:'惊门小凶，主惊恐口舌。'},
+    '伤门':{short:'大凶之门，不宜出行谋事。',detail:'伤门大凶，主伤害，不宜出行。'},
+    '死门':{short:'大凶之门，诸事不宜。',detail:'死门大凶，主死丧，古仅用于吊丧猎捕。'},
+    '杜门':{short:'凶门，闭塞不通，宜潜藏不宜妄动。',detail:'杜门大凶，主闭塞，宜藏不宜出。'}
+  }},
+  shenjiang:{title:'神将（参看之星）',items:{
+    '太岁':{short:'当年的值年之神，定计的基准。',detail:'值年之神，主岁运之吉凶，为定计之基准。'},
+    '君基':{short:'大局政策之星，看大方向、掌权层。',detail:'人君之基，主君王之位、国家大政，在午宫起算，三十年一移。'},
+    '臣基':{short:'执行辅佐之星，看政令推行、执行层。',detail:'臣辅之基，主大臣辅弼、政令执行，以积年起算，三年一移。'},
+    '民基':{short:'民生经济之星，看民情、景气。',detail:'万民之基，主民情风俗、百姓安乐，在戌宫起算，一年一移。'},
+    '四神':{short:'外围边防之星，看外部摩擦、边塞动静。',detail:'四方之神，主四方兵革、边塞动静，在乾宫起算。'},
+    '天乙':{short:'吉庆祥瑞之星，得天之助。',detail:'天之贵神，主吉庆、祥瑞、天时。'},
+    '地乙':{short:'田土收成之星，看地产、农业。',detail:'地之贵神，主田土、稼穑、地道。'},
+    '直符':{short:'应期契机之星，主事情爆发、到点应事。',detail:'值事之神，主事体之爆发、应期之契机。'},
+    '飞符':{short:'意外变数之星，主变动流移。',detail:'流走之神，主变动、流移、意外之事。'},
+    '五福':{short:'福庆太平之星，四十五年移一宫。',detail:'太乙五福，四十五年一宫，主福泽、太平、祥瑞。'},
+    '主大将':{short:'本方统帅，本方的行动力；入中宫则受困。',detail:'由主算数定之，主阵之指挥；入中宫则杜塞无门。'},
+    '主参将':{short:'本方副将，佐主大将。',detail:'由主大将之数乘三取个位得之。'},
+    '客大将':{short:'外方统帅，外方的行动力；入中宫则受困。',detail:'由客算数定之，客阵之指挥；入中宫则杜塞无门。'},
+    '客参将':{short:'外方副将，佐客大将。',detail:'由客大将之数乘三取个位得之。'},
+    '大游太乙':{short:'三十六年走一宫的巡行之神，考长周期大势灾祥。',detail:'大游太乙天地凶神，三十六载一宫，起七宫顺行八宫考治天下，二百八十八年一周。'},
+    '小游太乙':{short:'三年走一宫的巡行之神，考民间水旱波动。',detail:'小游太乙三年一移，起一宫顺行八宫，考治下土，二十四年一周，主饥馑兵革水旱。'}
+  }},
+  famen:{title:'方法（怎么读这张盘）',items:{
+    '主客':{short:'一对基本立场：主＝本方、先到者；客＝对方、外来者。',detail:'太乙以主客为纲：太乙为主、始击为客、文昌佐主，三方定主客之争。'},
+    '阴阳和数':{short:'算数的奇偶组合，细化吉凶层次。',detail:'算数奇偶分阴阳，十、二十、三十、四十为和数，各主吉凶深浅。'}
+  }}
+};
+const DOOR_LAYOUT=[['巽','午','坤'],['卯','中','酉'],['艮','子','乾']];
+    /* ============ 术语速查表（第三层）：按分类渲染全量术语一句话白话 ============ */
+    function renderTermGloss(){
+    const el=document.getElementById('termGloss'); if(!el)return;
+    let h='<table class="ty-np"><tbody>';
+    Object.keys(TAIYI_TERMS).forEach(gid=>{
+    const g=TAIYI_TERMS[gid];
+    h+='<tr><td colspan="2" class="ty-g-split">'+g.title+'</td></tr>';
+    Object.keys(g.items).forEach(k=>{ h+='<tr><td class="ty-g-key">'+k+'</td><td>'+g.items[k].short+'</td></tr>'; });
+    });
+    h+='</tbody></table>';
+    el.innerHTML=h;
+    }
 
-
-document.addEventListener('DOMContentLoaded', function () {
-  setTimeout(function () {
-    renderChrome('taiyi.html');
-    /* xjCalNav 两钩子：onToday 回填本页时辰输入，onQuery 触发本页查询 */
-    xjCalNav.onToday = function(){ const h=new Date().getHours(); document.getElementById('hInput').value=String((h===0||h===23)?23:(h%2?h:h-1)); };
-    xjCalNav.onQuery = function(){ query(); };
-    renderTermGloss();
-    document.addEventListener('toggle', function(e){
-      const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id) xjSaveModState('tyModState','details[id]','__tyInitDone');
-    }, true);
-    xjCalNav.onToday();
-    mountAI(function(){
-      if(!LAST) return '';
-      const ct=(s,label)=>{
-        const hd=calDes(s.homeCal), ad=calDes(s.awayCal);
-        return `【${label}】${s.wen}
-    太乙（主）居${GONG_NAME[s.tyGong]}宫　文昌（天目）居${GONG_NAME[s.wc]}宫　始击（客目）居${GONG_NAME[s.sh]}宫
-    计神${s.ji}　太岁${s.taishui}
-    主算${s.homeCal}（${hd.join('；')}）　客算${s.awayCal}（${ad.join('；')}）　定算${s.dingCal}（偏助客）
-    八门值使${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　八门分布：${Taiyi.DOOR_ORDER.map(n=>NUM2GONG[n]+(s.doors[NUM2GONG[n]]||'')+'门').join('、')}
-    主大将${s.shen.主大}宫、主参将${s.shen.主参}宫　客大将${s.shen.客大}宫、客参将${s.shen.客参}宫
-    十神：君基${s.shen.君基} 臣基${s.shen.臣基} 民基${s.shen.民基} 四神${s.shen.四神} 天乙${s.shen.天乙} 地乙${s.shen.地乙} 直符${s.shen.直符} 飞符${s.shen.飞符} 五福${s.shen.五福}
-    格局：${s.pattern||'无显明囚杜塞迫击格对'}
-    五行生克：${Taiyi.wuxingShengFu(s).text}
-    八门值使：${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　主大将临${s.shen.主大==='中'?'中宫八门杜塞':s.shen.主大+'宫'+s.doors[s.shen.主大]+'门'}　客大将临${s.shen.客大==='中'?'中宫八门杜塞':s.shen.客大+'宫'+s.doors[s.shen.客大]+'门'}
-    占断：${s.tyGong===s.wc?'囚（太乙与文昌同宫，君臣被困，宜静守）；':''}主算${s.homeCal>s.awayCal?'盛、主占先':(s.homeCal<s.awayCal?'客算盛、客占先':'主客相埒')}；定算${s.dingCal}（偏助客）；主大将${s.shen.主大}宫、客大将${s.shen.客大}宫、计神${s.ji}。`;
+/* ============ 四尺度解读（对齐奇门：普通小节，置于全部专业术语之后） ============ */
+function genPlainReading(R,Rshi){
+  const GP={子:'坎水冬藏之位，大势沉静内敛，宜谋定后动',艮:'山门之位，主稳重守成，宜固本培元',卯:'震雷春生之位，大势动中生发，宜开新局',巽:'风门之位，主机变通达，宜借势而行',午:'离火夏长之位，大势光明进取，气机正盛',坤:'地门之位，主包容厚载，宜稳中求进',酉:'兑泽秋收之位，主决断收敛，宜整理成果',乾:'天门之位，主开创尊贵，宜谋大事',中:'枢轴之位，主居中调控，宜协调四方'};
+  const GE=['囚','掩','挟','迫','击','关','对','格','杜塞'];
+  const row=(s,lab,scale)=>{
+    const cmp=s.homeCal===0&&s.awayCal===0?'主客皆无算（主算0、客算0），势失而无所依，宜静守待时'
+      :(s.homeCal===0?'主算无算（主算0），本方失据，外方占优，宜守不宜进'
+      :(s.awayCal===0?'客算无算（客算0），外方无力，本方占优，利于主动推进'
+      :(s.homeCal>s.awayCal?`本方占优（主算${s.homeCal}高于客算${s.awayCal}），环境利于主动推进、占得先机`
+      :(s.homeCal<s.awayCal?`外方占优（客算${s.awayCal}高于主算${s.homeCal}），环境偏向外力驱动，宜借势而为、避免硬碰`
+      :`两方力量相当（主算${s.homeCal}、客算${s.awayCal}），成败取决于临机应变`))));
+    const hl=s.cd.主算.长短, al=s.cd.客算.长短;
+    const di=(hl==='无算'||al==='无算')?'算数有无算者，底气不足，凡事宜留余地'
+      :(hl==='长'&&al==='长'?'双方算数均为长数，底气充足':(hl==='长'?'本方算数为长数、底气足':(al==='长'?'外方算数为长数、来势不小':'双方算数均为短数，底气俱弱，凡事宜留余地')));
+    const ob=[];
+    if(s.pattern){ const toks=String(s.pattern).split(/[，,、]/).map(x=>x.replace(/始击/g,'').trim()).filter(Boolean); const hit=GE.filter(k=>toks.some(t=>t.indexOf(k)>=0)).map(k=>k+'（'+TAIYI_TERMS.geju.items[k].short+'）'); ob.push(hit.length?('格局提示：'+hit.join('；')):('格局“'+s.pattern+'”。')); }
+    if(s.homeGen===5||s.awayGen===5) ob.push('有杜塞之象：主客大将落入中宫、无门可出，力量受困，推动事情费力，宜另寻路径。');
+    if(!ob.length) ob.push('无重大阻碍之象，局面平稳。');
+    let dv='';
+    if(s.doorZhiShi){
+      const zi=Taiyi.DOOR_INFO[s.doorZhiShi]||{};
+      const three=['开','休','生'].map(d=>{const gg=Object.keys(s.doors).find(k=>s.doors[k]===d);return gg?(d+'门在'+gg+'宫（'+(GONG_FANG[gg]||'')+'）'):'';}).filter(Boolean);
+      dv='八门当值为'+s.doorZhiShi+'门（'+(zi.吉凶||'')+'）；'+(three.length?('出门办事可优先取'+three.join('、')+'；'):'')+'避开死、伤、杜三门所临方位。';
+    }
+    const lines=['大势：太乙落'+GONG_NAME[s.tyGong]+'宫，'+(GP[s.tyGong]||'当前局势的重心所在')+'。','强弱：'+cmp+'；'+di+'。','阻碍：'+ob.join(' ')];
+    if(dv)lines.push('方位：'+dv);
+    lines.push('参照：大局方向看君基（落'+s.shen.君基+'宫）、民生景气看民基（落'+s.shen.民基+'宫）、意外变数看飞符（落'+s.shen.飞符+'宫）。');
+    return `<tr><td class="ty-lu-name">${lab}<br><span class="ty-lu-scale">${scale}<br>${s.wen}</span></td><td class="ty-lu-det">${lines.join('<br>')}</td></tr>`;
+  };
+  let rows=row(R.year,'岁计','全年基调')+row(R.month,'月计','当月走势')+row(R.day,'日计','当日吉凶');
+  if(Rshi)rows+=row(Rshi,'时计','眼下时辰');
+  return `<details class="mh-ref ty-ref" id="tyBaihuaRef"><summary>四尺度解读</summary><table class="ty-np ty-np-scale"><thead><tr><th>尺度</th><th>解读</th></tr></thead><tbody>${rows}</tbody></table></details>`;
+}
+const DOOR_JJ={'大吉':'jj3','小吉':'jj2','小凶':'xj2','大凶':'xj3'};
+let LAST=null;
+/* 折叠态属交互态：结果区模块与全页折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+function tyToggleMod(id){
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('collapsed');
+  xjSaveModState('tyModState','details[id]','__tyInitDone');
+}
+function query(){
+ try{
+  const v=document.getElementById('dInput').value; if(!v)return;
+  if(typeof tyCheckDateTime==='function'&&!tyCheckDateTime())return;
+  const [y0,m0,d0]=v.split('-').map(Number);
+  const shiOn=document.getElementById('shiOn')?document.getElementById('shiOn').checked:true;
+  const tSel=document.getElementById('tahunInput'); const tahun=parseInt(tSel.value);
+  let y=y0,m=m0,d=d0,h=0,mi=0,timeNote='';
+  if(shiOn){
+    const tv=document.getElementById('hInput').value;
+    if(!tv){ document.getElementById('infoLine').textContent='请填推算时刻，按 14:30 格式；不排时计可取消勾选。'; return; }
+    [h,mi]=tv.split(':').map(Number);
+    const dstMode=(document.getElementById('tyDst')||{}).value||'off';
+    const sunMode=(document.getElementById('tySun')||{}).value||'off';
+    const lng=typeof tyBirthLng==='function'?tyBirthLng():null;
+    if(sunMode!=='off'&&lng==null){ document.getElementById('infoLine').textContent='太阳时校正已开，但未定所在地：请选择省市区或填写经度；若所在地无考，把太阳时改为不校正。'; return; }
+    if(dstMode!=='off'&&typeof applyDstCorrection==='function'){
+      const ds=applyDstCorrection(y,m,d,h,mi,dstMode);
+      if(ds.applied){ y=ds.y; m=ds.m; d=ds.d; h=ds.h; mi=ds.mi; timeNote=ds.note||''; }
+    }
+    if(sunMode!=='off'&&lng!=null&&typeof trueSolarTime==='function'){
+      const ts=trueSolarTime(y,m,d,h,mi,lng,sunMode,120);
+      timeNote=(timeNote?timeNote+'；':'')+(sunMode==='mean'?'平太阳时':'真太阳时')+'：钟面 '+pad2(h)+':'+pad2(mi)+' 校正 '+ts.totalAdj+' 分，得 '+pad2(ts.h)+':'+pad2(ts.mi);
+      y=ts.y; m=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
+    }
+  }
+  let solar;
+  try{ solar=shiOn?Solar.fromYmdHms(y,m,d,h,mi,0):Solar.fromYmd(y,m,d); }
+  catch(e){ document.getElementById('infoLine').textContent='时刻超出可排范围，请核对年月日与时刻。'; return; }
+  const lunar=solar.getLunar();
+  const R=Taiyi.compute(y,m,d,lunar,tahun);
+  let Rshi=null;
+  if(shiOn){
+    const ziMode=(document.getElementById('tyZi')||{}).value||'late';
+    const shiIdx=Math.floor(((h+1)%24)/2)%12;
+    const shiZhi='子丑寅卯辰巳午未申酉戌亥'[shiIdx];
+    const dayGz=ziMode==='early'?lunar.getDayInGanZhiExact2():lunar.getDayInGanZhiExact();
+    const ganIdx='甲乙丙丁戊己庚辛壬癸'.indexOf(dayGz[0]);
+    const hourGz='甲乙丙丁戊己庚辛壬癸'[(ganIdx%5*2+shiIdx)%10]+shiZhi;
+    const lunarShi=Object.create(lunar);
+    lunarShi.getTimeInGanZhi=function(){ return hourGz; };
+    lunarShi.getTimeZhi=function(){ return shiZhi; };
+    Rshi=Taiyi.computeShi(y,m,d,h,mi,lunarShi,tahun);
+    if(h===23) timeNote=(timeNote?timeNote+'；':'')+(ziMode==='early'?'早子时：23时仍归当日':'晚子时：23时后日柱归次日');
+  }
+  const ly=`${lunar.getYearInChinese()}年（${lunar.getYearInGanZhi()}）${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
+  document.getElementById('infoLine').textContent=`${ly}　年计、月计、日计阳遁；时计${Rshi?Rshi.dun+'遁':'不计'}（${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}体系）　太岁${lunar.getYearInGanZhi()[1]}${timeNote?'　'+timeNote:''}`;
+  // 十六宫神将盘（每计一张）
+  const SHEN_COLOR = { 太乙: '#8f6a2d', 文昌: '#2b6cb0', 始击: '#c0392b', 计神: '#6b4fa0', 合神: '#6b4fa0', 太岁: '#55504a',
+    君基: '#a07040', 臣基: '#a07040', 民基: '#a07040', 四神: '#a07040', 天乙: '#a07040', 地乙: '#a07040', 直符: '#a07040', 飞符: '#a07040', 五福: '#8f6a2d',
+    主大: '#3a7a5a', 主参: '#3a7a5a', 客大: '#7a5a3a', 客参: '#7a5a3a' };
+  const TY_SHEN_NOTE={'太乙':'天之贵神，统主一局气数，所临即主宫','文昌':'佐主之神，主文华智谋、定主算','始击':'客方之神，主侵伐兵争、定客算','计神':'计度之神，佐客方，主计谋暗算','合神':'与太岁相合之辰，定计基准','太岁':'值年岁君，主岁运吉凶','君基':'人君之基，主大政大局','臣基':'臣辅之基，主臣属官事','民基':'万民之基，主民俗疾苦','四神':'四方之神，主水旱丰歉','天乙':'天之贵神，主灾祥应验','地乙':'地之贵神，主地形人事','直符':'值事之神，主当值之事','飞符':'流走之神，主变动流徙','五福':'福庆之神，所临主祥瑞','主大将':'主方统兵，定主方攻守','主参将':'主方副将，佐主大将','客大将':'客方统兵，定客方攻守','客参将':'客方副将，佐客大将','主大':'主方统兵，定主方攻守','主参':'主方副将，佐主大将','客大':'客方统兵，定客方攻守','客参':'客方副将，佐客大将'};
+function boardHTML(s){
+    const map={}; SIXTEEN.forEach(g=>map[g]=[]);
+    Object.keys(s.shen).forEach(k=>{ const g=s.shen[k]; if(map[g]) map[g].push(k); });
+    const cells=SIXTEEN.map(g=>{
+      const cls = g===s.tyGong?'ty16-cell ty':(g===s.wc?'ty16-cell wc':(g===s.sh?'ty16-cell sh':'ty16-cell'));
+      const sg=(map[g]||[]).map(k=>`<span class="ty-shen-c" style="color:${SHEN_COLOR[k]||'#55504a'}">${k}</span>`).join(' ');
+      const shens=map[g]||[];
+      const tip = shens.length ? shens.map(k=>k+'：'+(TY_SHEN_NOTE[k]||'')).join('；') : '此宫无神将临，气数平稳';
+      return `<div class="${cls}" title="${GONG_NAME[g]}宫　${tip}">${GONG_NAME[g]}宫<span class="sg">${sg}</span></div>`;
+    }).join('');
+    const luRows=SIXTEEN.map(g=>{
+      const shens=map[g]||[];
+      if(!shens.length) return '';
+      const det=shens.map(k=>`<b>${k}</b>：${TY_SHEN_NOTE[k]||''}`).join('<br>');
+      return `<tr><td>${GONG_NAME[g]}宫</td><td>${det}</td></tr>`;
+    }).join('');
+    return `<div class="ty16-card"><div class="ty16-head"><h4>${s.label}</h4><span class="ty-sub">${s.wen}　太乙居${GONG_NAME[s.tyGong]}宫</span></div>`+
+      `<div class="ty16-pair"><div class="ty16-gridbox"><div class="ty16-grid">${cells}</div></div>`+
+      `<div class="ty16-lutable"><table class="ty-np ty-np-gong"><thead><tr><th>宫</th><th>所临神将与所主</th></tr></thead><tbody>${luRows}</tbody></table></div></div></div>`;
+  }
+  // 太乙八门：九宫格按方位布列，值使三十年一易
+  function doorCard(s){
+    const zs=s.doorZhiShi, zi=Taiyi.DOOR_INFO[zs]||{};
+    const cells=[].concat(...DOOR_LAYOUT).map(g=>{
+      if(g==='中') return '<div class="ty-dcell mid"><span class="gp">中宫</span><span class="dn">无门</span><span class="jj">八门不临</span></div>';
+      const d=s.doors[g]||'';
+      const info=Taiyi.DOOR_INFO[d]||{};
+      const c=DOOR_JJ[info.吉凶]||'';
+      const here=(s.tyGong===g)?' tyhere':'';
+      return `<div class="ty-dcell g-${c}${here}"><span class="gp">${g}宫 ${GONG_FANG[g]}</span><span class="dn d-${c}">${d}</span><span class="jj">${info.吉凶||''}</span></div>`;
+    }).join('');
+    const hm=s.shen.主大==='中'?'':(s.doors[s.shen.主大]||'');
+    const am=s.shen.客大==='中'?'':(s.doors[s.shen.客大]||'');
+    const three=['开','休','生'].map(d=>{
+      const g=Object.keys(s.doors).find(k=>s.doors[k]===d);
+      return g?`${d}门在${g}宫${GONG_FANG[g]}`:'';
+    }).filter(Boolean).join('、');
+    const jjS=x=>{const c=DOOR_JJ[x];return x?'<span class="d-'+c+'">'+x+'</span>':'';};
+    return `<h4 class="ty-door-h">${s.label}</h4>
+    <div class="ty-door-pair">
+      <div class="ty-door-gridbox"><div class="ty-door-grid">${cells}</div></div>
+      <table class="ty-np ty-door-tb"><tbody>
+        <tr><td>值使</td><td>${zs}门（${zi.门名}　${zi.八风}　${jjS(zi.吉凶)}），${zi.所主}</td></tr>
+        <tr><td>行宫</td><td>八门值使三十年一易，${s.jiStyle===3?'时计以时局数':'以积年'}对二百四十取余定之，${s.dun==='阴'?'阴遁逆布':'阳遁顺布'}，自值使起依太乙行宫之序（${s.dun==='阴'?'乾、酉、坤、午、巽、卯、艮、子':'子、艮、卯、巽、午、坤、酉、乾'}）布八宫，中宫不布门。</td></tr>
+        <tr><td>主大将</td><td>${s.shen.主大==='中'?'入中宫，八门杜塞、无门可出':'临'+s.shen.主大+'宫'+hm+'门（'+jjS((Taiyi.DOOR_INFO[hm]||{}).吉凶||'')+'）'}</td></tr>
+        <tr><td>客大将</td><td>${s.shen.客大==='中'?'入中宫，八门杜塞、无门可出':'临'+s.shen.客大+'宫'+am+'门（'+jjS((Taiyi.DOOR_INFO[am]||{}).吉凶||'')+'）'}</td></tr>
+        <tr><td>得门失门</td><td>${(()=>{const GOOD='开休生';if(hm&&am){if(GOOD.includes(hm)&&GOOD.includes(am))return '<span class="ty-j-jix">主客皆得吉门，宜和不宜战</span>';if(GOOD.includes(hm))return '<span class="ty-j-jix">主得门、客失门，利为主</span>';if(GOOD.includes(am))return '<span class="ty-j-xiong">客得门、主失门，利为客</span>';return '<span class="ty-j-xiong">主客皆不临吉门，宜固守</span>';}return '主客有入中宫者，八门杜塞、无门可出，不宜举动';})()}</td></tr>
+        <tr class="ty-three"><td>三门吉方</td><td>${three||'无'}${three?'。举事宜向此三方，出兵尤宜背凶门而向吉门。':''}</td></tr>
+      </tbody></table>
+    </div>`;
+  }
+  // 详细版推演卡片
+  function deriveCard(s){
+    const hd=calDes(s.homeCal), ad=calDes(s.awayCal);
+    const zs=s.doorZhiShi, zi=Taiyi.DOOR_INFO[zs]||{};
+    const dist=Taiyi.DOOR_ORDER.map(n=>{const g=NUM2GONG[n]; return g+(s.doors[g]||'')+'门';}).join('、');
+    const rows=[
+      ['阴阳遁', `${s.dun}遁（${s.jiStyle===3?'时计按冬至夏至分遁':'年、月、日计恒为阳遁'}）`],
+      ['太乙（主）', `居 ${GONG_NAME[s.tyGong]}宫`],
+      ['文昌（天目）', `居 ${GONG_NAME[s.wc]}宫`],
+      ['始击（客目）', `居 ${GONG_NAME[s.sh]}宫`],
+      ['计神', `${s.ji}　太岁 ${s.taishui}`],
+      ['主算', `${s.homeCal}　（${hd.join('；')}）`],
+      ['客算', `${s.awayCal}　（${ad.join('；')}）`],
+      ['定算', `${s.dingCal}　（以合神加太岁、文昌临处依主算法推得，偏助客方）`],
+      ['五行生克', (()=>{const w=Taiyi.wuxingShengFu(s);const cl=w.tag==='主胜'||w.tag==='主得助'?'ty-j-jix':(w.tag==='客克主'||w.tag==='主泄'?'ty-j-xiong':'');return cl?'<span class="'+cl+'">'+w.text+'</span>':w.text;})()],
+      ['长短数', s.cd.text],
+      ['九宫分野', `太乙落${s.tyGong}宫（${(()=>{const p=Taiyi.ninePalace(G2NINE[s.tyGong]||s.tyGong);return p.州+'　'+p.所主+'　'+p.灾祥;})()}）`],
+      ['八门值使', `${zs}门（${zi.门名}　${zi.八风}　${zi.吉凶}）　三十年一易`],
+      ['八门分布', dist],
+      ['十神', `君基${s.shen.君基}　臣基${s.shen.臣基}　民基${s.shen.民基}　四神${s.shen.四神}<br>天乙${s.shen.天乙}　地乙${s.shen.地乙}　直符${s.shen.直符}　飞符${s.shen.飞符}　五福${s.shen.五福}`],
+      ['格局', `${s.pattern||'无显明囚杜塞迫击格对（平安之象）'}`]
+    ];
+    return `<div class="ty-derive"><h4>${s.label}　${s.wen}</h4>
+      <table class="ty-np"><tbody>${rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')}</tbody></table>
+    </div>`;
+  }
+  document.getElementById('out').innerHTML=`
+    <section class="mod" id="tyModBase"><div class="mod-head" onclick="tyToggleMod('tyModBase')"><span class="mod-caret">▾</span><span class="mod-title">基础信息</span><span class="mod-sub">积年 局数 阳遁</span></div><div class="mod-body">
+    <table class="ty-np"><tbody>
+      <tr><td>推算信息</td><td><div class="ty-flow"><span>${ly}</span><span>太岁 ${lunar.getYearInGanZhi()[1]}</span><span>体系：${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}（年、月、日计阳遁，时计分阴阳）</span></div></td></tr>
+      <tr><td>岁计</td><td>值年太乙，${R.year.wen}，太乙居 ${GONG_NAME[R.year.tyGong]}宫</td></tr>
+      <tr><td>月计</td><td>值月太乙，${R.month.wen}，太乙居 ${GONG_NAME[R.month.tyGong]}宫</td></tr>
+      <tr><td>日计</td><td>值日太乙，${R.day.wen}，太乙居 ${GONG_NAME[R.day.tyGong]}宫</td></tr>
+      ${Rshi?`<tr><td>时计</td><td>值时太乙，${Rshi.wen}（${Rshi.时干支}时），太乙居 ${GONG_NAME[Rshi.tyGong]}宫</td></tr>`:''}
+      <tr><td>二十八宿</td><td>${(()=>{const song=(lunar.getXiuSong?lunar.getXiuSong():'').trim();const song2=song?(/[。！？]$/.test(song)?song:song+'。'):'';return '本日值宿 '+lunar.getXiu()+'（<span class="'+(lunar.getXiuLuck()==='凶'?'d-xj3':'d-jj3')+'">'+lunar.getXiuLuck()+'</span>）'+(lunar.getZheng?'，其曜为'+lunar.getZheng():'')+(lunar.getAnimal?'，宿主'+lunar.getAnimal():'')+(lunar.getGong?'，所在'+lunar.getGong():'')+'。星宿临日，主当日吉凶所应：'+song2;})()}</td></tr>
+    </tbody></table>
+    </div></section>
+    <section class="mod" id="tyModZhi"><div class="mod-head" onclick="tyToggleMod('tyModZhi')"><span class="mod-caret">▾</span><span class="mod-title">本局要旨与兵阵胜负</span><span class="mod-sub">主客 算与格 胜负</span></div><div class="mod-body">
+    <table class="ty-np"><tbody>${(()=>{
+      const c=(s,label)=>{
+        const gName=G2NINE[s.tyGong]||GONG_NAME[s.tyGong];
+        const cmp=s.homeCal===0&&s.awayCal===0?'主客皆无算，势失无所依'
+          :(s.homeCal===0?'主算无算，本方失据，客占先'
+          :(s.awayCal===0?'客算无算，外方无力，主占先'
+          :(s.homeCal>s.awayCal?'主算胜于客算，主占先':(s.homeCal<s.awayCal?'客算胜于主算，客占先':'主客算相等，势均力敌'))));
+        let txt=`太乙居${gName}宫。${cmp}（主算${s.homeCal}、客算${s.awayCal}）。`;
+        if(s.pattern) txt+=`格局：${s.pattern}。`;
+        if(s.homeGen===5||s.awayGen===5) txt+='（有杜塞之象）';
+        if(s.doorZhiShi){
+          const zi=Taiyi.DOOR_INFO[s.doorZhiShi]||{};
+          txt+=`八门：值使${s.doorZhiShi}门（${zi.吉凶||''}）。`;
+        }
+        return `<tr><td>${label}</td><td>${txt}</td></tr>`;
       };
-      return `太乙神数推演（${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}体系，年、月、日计阳遁）
-    【推算信息】${LAST.ly}　太岁${LAST.taishui}
-    ${ct(LAST.R.year,'岁计　值年太乙')}
-    ${ct(LAST.R.month,'月计　值月太乙')}
-    ${ct(LAST.R.day,'日计　值日太乙')}
-    ${LAST.Rshi?ct(LAST.Rshi,'时计　值时太乙'):''}
-    【占断总纲】太乙为主、始击为客，文昌佐主；依局数对七十二取余的权威表查得主客算、十神、格局；囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫击掩挟关对、计神所值，综合论岁气灾祥、兵谋胜负、水旱丰歉。太乙积年体系繁多，采${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}一系整理，供参考。`;
-    }, '太乙神数', { share:{ page:"taiyi", title:"太乙神数在线排盘", recast:function(){ try{ query(); }catch(e){} } } });
-  }, 0);
-});
-
-/* 日期与时辰初值由全站统一函数在首绘前写入，本页不再各写一份。 */
+      const parts=[c(R.year,'岁计'),c(R.month,'月计'),c(R.day,'日计')];
+      if(Rshi)parts.push(c(Rshi,'时计'));
+      return parts.join('');
+    })()}</tbody></table>
+    <h3 class="rel-title">兵阵胜负</h3>
+      <table class="ty-np"><thead><tr><th>计</th><th>主算阵形</th><th>主出军向</th><th>客算阵形</th><th>客出军向</th><th>奇兵伏兵</th></tr></thead>
+      <tbody>
+        ${(()=>{
+          const zhen=(cal,z)=>cal===0?'无算，不布阵':z.阵形+'（'+z.旗色+'、'+z.方位+'）';
+          const xiang=(cal,dir)=>cal===0?'无':dir;
+          const tr=(label,s)=>{const bz=s.bz;return '<tr><td>'+label+'</td><td>'+zhen(s.homeCal,bz.主阵)+'</td><td>'+xiang(s.homeCal,bz.主出乡)+'</td><td>'+zhen(s.awayCal,bz.客阵)+'</td><td>'+xiang(s.awayCal,bz.客出乡)+'</td><td>'+bz.主奇兵位+'；'+bz.客奇兵位+'</td></tr>';};
+          return [tr('岁计',R.year),tr('月计',R.month),tr('日计',R.day)].join('')+(Rshi?tr('时计',Rshi):'');
+        })()}
+      </tbody></table>
+      <div class="ty-note">日计五音：${R.day.bz.feng||'日支不定'}。据《太乙金镜式经》卷十五。</div>
+    </div></section>
+    <section class="mod" id="tyMod16"><div class="mod-head" onclick="tyToggleMod('tyMod16')"><span class="mod-caret">▾</span><span class="mod-title">十六宫神将盘与太乙八门</span><span class="mod-sub">神将 门值使</span></div><div class="mod-body">
+    <h3 class="rel-title">十六宫神将盘</h3>
+    <div class="ty16-wrap">${boardHTML(R.year)}${boardHTML(R.month)}${boardHTML(R.day)}${Rshi?boardHTML(Rshi):''}</div>
+    <div class="ty-note ty-legend">图例：<span class="lg-ty">金底</span>=太乙，<span class="lg-wc">蓝底</span>=文昌，<span class="lg-sh">红底</span>=始击，<span class="lg-js">紫</span>=计神、合神，<span class="lg-zhu">绿</span>=主大将、主参将，<span class="lg-ke">赭</span>=客大将、客参将，<span class="lg-shen">棕</span>=十神（君基、臣基、民基、四神、天乙、地乙、直符、飞符），<span class="lg-ty">金</span>=五福。</div>
+    <h3 class="rel-title">太乙八门</h3>
+    ${doorCard(R.year)}${doorCard(R.month)}${doorCard(R.day)}${Rshi?doorCard(Rshi):''}
+    <div class="ty-note ty-note-tight ty-legend">图例：<span class="lg-tj">金底</span>=太乙所临之宫。据《太乙统宗宝鉴》卷二《八门所主》、《太乙金镜式经》八门值事法。</div>
+    </div></section>
+    <section class="mod" id="tyModFen"><div class="mod-head" onclick="tyToggleMod('tyModFen')"><span class="mod-caret">▾</span><span class="mod-title">九宫分野与大游小游</span><span class="mod-sub">分野 游年行度</span></div><div class="mod-body">
+      <table class="ty-np"><thead><tr><th>宫</th><th>数</th><th>方位</th><th>分野</th><th>所主</th><th>灾祥所应</th></tr></thead>
+      <tbody>${(()=>{const hit=new Set([R.year.tyGong,R.month.tyGong,R.day.tyGong].concat(Rshi?[Rshi.tyGong]:[]).map(g=>G2NINE[g]||g));return Taiyi.NINE_PALACE.map(p=>'<tr'+(hit.has(p.宫)?' class="ty-hit"':'')+'><td>'+p.宫+'</td><td>'+p.n+'</td><td>'+p.方位+'</td><td>'+p.州+'</td><td>'+p.所主+'</td><td>'+p.灾祥+'</td></tr>').join('');})()}</tbody></table>
+      <div class="ty-note">金底行为本局太乙所落之宫（岁计${G2NINE[R.year.tyGong]||GONG_NAME[R.year.tyGong]}、月计${G2NINE[R.month.tyGong]||GONG_NAME[R.month.tyGong]}、日计${G2NINE[R.day.tyGong]||GONG_NAME[R.day.tyGong]}${Rshi?'、时计'+(G2NINE[Rshi.tyGong]||GONG_NAME[Rshi.tyGong]):''}）。</div>
+    <h3 class="rel-title">大游小游</h3>
+    <div class="info-box"><p>${(()=>{const d=Taiyi.dayouXiaoyou(R.year.acc);return '大游太乙居'+d.大游宫+'宫，入宫'+d.大游凶算.入宫年数+'年，凶算所主：'+d.大游凶算.凶算所主+'；大游天目'+d.大游天目.落辰+'辰，'+d.大游天目.本象+'。小游太乙居'+d.小游宫+'宫。';})()}</p></div>
+    </div></section>
+    <section class="mod" id="tyModXiang"><div class="mod-head" onclick="tyToggleMod('tyModXiang')"><span class="mod-caret">▾</span><span class="mod-title">详细版推演与占断总纲</span><span class="mod-sub">推演 总纲</span></div><div class="mod-body">
+    ${deriveCard(R.year)}${deriveCard(R.month)}${deriveCard(R.day)}${Rshi?deriveCard(Rshi):''}
+    ${Rshi?(()=>{const mf=Taiyi.mingFa(Rshi);if(!mf)return '';const YI=Taiyi._tables&&Taiyi._tables.GONG_MING_YI;const rows=[
+      ['太乙', '命宫', Rshi.tyGong],
+      ['文昌', '福德', Rshi.wc],
+      ['始击', '身宫', Rshi.sh],
+      ['主大将', '', Rshi.shen.主大],
+      ['主参将', '', Rshi.shen.主参],
+      ['客大将', '', Rshi.shen.客大],
+      ['客参将', '', Rshi.shen.客参],
+      ['计神', '', Rshi.ji]
+    ].map(r=>{const g=r[2];const gName=G2NINE[g]||GONG_NAME[g];const yi=YI&&YI[g]?YI[g]:'';const tag=r[1]?'（'+r[1]+'）':'';return '<tr><td>'+r[0]+'</td><td>'+tag+'落'+gName+'宫，'+yi+'</td></tr>';}).join('');
+    return '<h3 class="rel-title">太乙命法</h3><table class="ty-np"><tbody>'+rows+'</tbody></table>';})():''}
+    <h3 class="rel-title">占断总纲</h3>
+      <table class="ty-np"><tbody>
+        <tr><td>总纲</td><td>太乙神数以"主客"为纲：以太乙为"主"、始击为"客"、文昌（天目）佐主，三方定主客之争。本页依${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}体系推演。</td></tr>
+        <tr><td>起局</td><td>局数取积年对七十二取余而定，年计、月计、日计恒为阳遁，三计各自独立起局；时计另按五子元定局，冬至后至芒种为阳遁、夏至后至大雪为阴遁。</td></tr>
+        <tr><td>定盛衰</td><td>主算、客算定双方强弱，算之奇偶分阳和、阴和；主算胜则主占先，客算胜则客占先，相等则势均。又有定算：以合神加太岁、取文昌临处依主算法推之，偏助客方，为主客之外的第三重参考。</td></tr>
+        <tr><td>观格</td><td>囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫、击、掩、挟、关、对诸格，皆由局数经权威表查得，主静动与吉凶之机。</td></tr>
+        <tr><td>参神将</td><td>再参十神（君基、臣基、民基、四神、天乙、地乙、直符、飞符）与计神、五福，综论岁气灾祥、兵谋胜负、水旱丰歉。</td></tr>
+        <tr><td>审八门</td><td>八门值使三十年一易，年、月、日计以积年对二百四十取余，时计以时局数对二百四十取余；阳遁顺布、阴遁逆布，自值使起依太乙行宫之序布八宫，中宫不布门。开、休、生三门大吉，景门小吉，惊门小凶，死、伤、杜三门大凶。主客大将所临之门定主客得门失门，举事宜向开休生三方。</td></tr>
+        <tr><td>总参</td><td>岁、月、日三计须合参并论，不可偏废；选排时计时四计合参。</td></tr>
+      </tbody></table>
+      </div></section>
+    ${genPlainReading(R,Rshi)}`;
+  xjApplyModState('tyModState','details[id]');
+  window.__tyInitDone = true;
+  LAST={ly, R, Rshi, taishui:lunar.getYearInGanZhi()[1], tahun};
+ }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起局出错：'+(e.message||e)+'</p>'; }
+}

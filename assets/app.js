@@ -205,6 +205,19 @@ const WX_CLASS = {'木':'wx-mu','火':'wx-huo','土':'wx-tu','金':'wx-jin','水
 const GAN_WX = {甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水'};
 const ZHI_WX = {子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
 
+/* 神煞共用表：三合局四行、月支、季，八字、择日与大六壬同读这一份 */
+const XJ_SHENSHA = {
+  XIANCHI:{水:'酉',火:'卯',金:'午',木:'子'},
+  HUAGAI:{水:'辰',火:'戌',金:'丑',木:'未'},
+  JIANGXING:{水:'子',火:'午',金:'酉',木:'卯'},
+  TIAN_SHE:{春:'戊寅',夏:'甲午',秋:'戊申',冬:'甲子'},
+  TIANDE:{寅:'丁',卯:'申',辰:'壬',巳:'辛',午:'亥',未:'甲',申:'癸',酉:'寅',戌:'丙',亥:'乙',子:'巳',丑:'庚'},
+  YUEDE_TG:{寅:'丙',午:'丙',戌:'丙',申:'壬',子:'壬',辰:'壬',巳:'庚',酉:'庚',丑:'庚',亥:'甲',卯:'甲',未:'甲'},
+  YUEYAN:['戌','酉','申','未','午','巳','辰','卯','寅','丑','子','亥'],
+  XUEZHI:{寅:'丑',卯:'寅',辰:'卯',巳:'辰',午:'巳',未:'午',申:'未',酉:'申',戌:'酉',亥:'戌',子:'亥',丑:'子'}
+};
+window.XJ_SHENSHA = XJ_SHENSHA;
+
 /* 上色引擎原语（wxOfChar / wxSpan / wxColorSpan / gzColorSpan / nayinWx / nayinColorSpan，
    及 gzAllColorSpan / WX_WORD_DENY 主体）由 assets/xuanji-lib.js 统一提供，全站统一调用；
    本文件仅保留框架级常量 WX_CLASS / GAN_WX / ZHI_WX。 */
@@ -262,12 +275,26 @@ function xjShareRecast(recast){
    时辰：type=time 与十二时辰下拉，下拉按选项文字首字定位，兼容各页取值口径。
    带 data-keep 的字段是派生值，例如择日结束日期等于起始加六十日，一律跳过，
    其取值由所在页按各自规则在载入时派生。 */
+function xjBindUserSet(el){
+  if(el.__xjUserBound) return;
+  el.__xjUserBound = true;
+  ['pointerdown','keydown','input','change'].forEach(function(name){
+    el.addEventListener(name,function(e){
+      if(e && e.isTrusted) el.setAttribute('data-user-set','1');
+    });
+  });
+}
+function xjMarkAuto(el){
+  xjBindUserSet(el);
+  el.setAttribute('data-autonow','1');
+}
 function xjApplyNowDefaults(){
   const n = new Date();
   const ymd = n.getFullYear()+'-'+pad2(n.getMonth()+1)+'-'+pad2(n.getDate());
   const hm = pad2(n.getHours())+':'+pad2(n.getMinutes());
   const zhi = '子丑寅卯辰巳午未申酉戌亥'[Math.floor(((n.getHours()+1)%24)/2)];
   function kept(el){ return el.hasAttribute('data-keep'); }
+  function userSet(el){ return el.hasAttribute('data-user-set'); }
   function isDateBox(el){
     if(el.tagName!=='INPUT' || kept(el)) return false;
     if(el.type==='date') return true;
@@ -278,20 +305,32 @@ function xjApplyNowDefaults(){
     return /日期|生日/.test(el.getAttribute('aria-label')||'');
   }
   document.querySelectorAll('input').forEach(function(el){
-    if(isDateBox(el)){ el.value = ymd; return; }
-    if(el.type==='time' && !kept(el)) el.value = hm;
+    xjBindUserSet(el);
+    if(userSet(el)) return;
+    if(isDateBox(el)){ el.value = ymd; xjMarkAuto(el); return; }
+    if(el.type==='time' && !kept(el)){ el.value = hm; xjMarkAuto(el); }
   });
   /* 十二时辰下拉：选项文字以地支领起且带时段说明，按当下地支选中 */
   document.querySelectorAll('select').forEach(function(sel){
-    if(kept(sel) || sel.options.length < 12) return;
+    xjBindUserSet(sel);
+    if(kept(sel) || userSet(sel) || sel.options.length < 12) return;
     const opt = Array.prototype.find.call(sel.options, function(o){
       const t = (o.textContent||'').trim();
       return t.charAt(0)===zhi && /[（(]/.test(t);
     });
-    if(opt) sel.value = opt.value;
+    if(opt){ sel.value = opt.value; xjMarkAuto(sel); }
   });
 }
 xjApplyNowDefaults();
+/* 默认值续算按下一分钟边界触发，避免固定轮询的相位把分钟显示拖后三十秒。 */
+function xjScheduleNowDefaults(){
+  var n = new Date();
+  setTimeout(function(){
+    xjApplyNowDefaults();
+    xjScheduleNowDefaults();
+  }, 60000 - (n.getSeconds() * 1000 + n.getMilliseconds()) + 50);
+}
+xjScheduleNowDefaults();
 
 /* ===== 共享自定义日期、时间选择器 =====
    Chrome DevTools 响应式模式下原生日期时间选择器无法弹出，此处自建弹层。 */
@@ -757,7 +796,10 @@ window.xjShuffle = xjShuffle;
     var ft=null;
     function saveForm(){
       var o={};
-      fields().forEach(function(el){ o[el.id]=val(el); });
+      fields().forEach(function(el){
+        o[el.id]=val(el);
+        if(el.hasAttribute('data-user-set')) o['__user:'+el.id]=1;
+      });
       wr(K_F,JSON.stringify(o));
     }
     document.addEventListener('input',function(){ clearTimeout(ft); ft=setTimeout(saveForm,250); },true);
@@ -790,6 +832,10 @@ window.xjShuffle = xjShuffle;
             var id=el0.id;
             if(!(id in o)) return;
             var el=document.getElementById(id)||el0;  /* 变更处理器可能已重建控件，按 id 重新取 */
+            var manual=!!o['__user:'+id];
+            if(manual) el.setAttribute('data-user-set','1');
+            /* 未手改的默认日期与时刻不恢复旧快照：刷新时保持 now.js 写入的当下。 */
+            if(el.hasAttribute('data-autonow') && !manual) return;
             var v=o[id];
             if(el.type==='checkbox'||el.type==='radio'){
               if(el.checked!==v){ el.checked=v; changed.push(el); if(!hook) fire(el); }

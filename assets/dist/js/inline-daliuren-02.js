@@ -1,5 +1,5 @@
 
-function dlFmtClock(y,mo,d,h,mi){ return y+'年'+mo+'月'+d+'日 '+('0'+h).slice(-2)+':'+('0'+mi).slice(-2); }
+function dlFmtClock(y,mo,d,h,mi){ return y+'年'+mo+'月'+d+'日 '+pad2(h)+':'+pad2(mi); }
 /* 所在地经度：手动经度优先，其次省市区三级经度真源；两处皆未定返回空，不按他地兜底 */
 function dlBirthLng(){
   return typeof xjLocalLng==='function'?xjLocalLng('dlLng','dlProv','dlCity','dlDist'):null;
@@ -21,10 +21,9 @@ function dlCheckDateTime(){
   const line=document.getElementById('infoLine');
   const dv=document.getElementById('dInput').value;
   if(dv){
-    const [y,m,d]=dv.split('-').map(Number);
+    const y=Number(String(dv).split('-')[0]);
     if(!(Number.isFinite(y)&&y>=1&&y<=9999)){ line.textContent='年份不合，请按 2026-10-31 填写。'; return false; }
-    const dim=(m>=1&&m<=12)?[31,(y%4===0&&(y%100!==0||y%400===0))?29:28,31,30,31,30,31,31,30,31,30,31][m-1]:0;
-    if(!(m>=1&&m<=12&&d>=1&&d<=dim)){ line.textContent='日期不存在，请核对年月日。'; return false; }
+    if(!xjValidDate(dv)){ line.textContent='日期不存在，请核对年月日。'; return false; }
   }
   const tv=document.getElementById('dTime').value;
   if(tv){
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fillDlSchool();
     dlrApplySchoolPreset();
     const tEl=document.getElementById('dTime');
-    if(tEl&&!tEl.value){ const n=new Date(); tEl.value=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2); }
+    if(tEl&&!tEl.value){ const n=new Date(); tEl.value=pad2(n.getHours())+':'+pad2(n.getMinutes()); }
     const tzSel=document.getElementById('dlTzOff');
     if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
     if(typeof fillPlaceTrio==='function'){
@@ -58,6 +57,12 @@ document.addEventListener('DOMContentLoaded', function () {
       const t = e.target;
       if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) xjSaveModState('dlrModState','#out details[id]','__dlrInitDone');
     }, true);
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Enter'||e.key===' '){
+        const h=e.target.closest?e.target.closest('.mod-head'):null;
+        if(h){ e.preventDefault(); h.click(); }
+      }
+    });
     window.__dlrInitDone=true;
     mountAI(function(){
       if(!LAST||!LAST.tian) return '';
@@ -73,11 +78,12 @@ document.addEventListener('DOMContentLoaded', function () {
       const tj=z=>LAST.jiangOnTian[z]||'';
       const wx=z=>ZHI_WX[z]||'';
       const chuan=`三传（${c.method}）：\n初传 ${c.chu} ${tj(c.chu)}（${wx(c.chu)}）\n中传 ${c.zhong} ${tj(c.zhong)}（${wx(c.zhong)}）\n末传 ${c.mo} ${tj(c.mo)}（${wx(c.mo)}）`;
+      const dun=LAST.o&&LAST.o.dun?`\n三传遁干：初传 ${LAST.o.dun.chu}、中传 ${LAST.o.dun.zhong}、末传 ${LAST.o.dun.mo}`:'';
       const read = LAST.o ? baihua(LAST.o).replace(/<br>/g,'\n').replace(/<\/p>/g,'\n').replace(/<[^>]+>/g,'').replace(/&[a-z]+;/g,'') : '';
       const sha=LAST.o&&LAST.o.sha?`\n神煞：驿马${LAST.o.sha.yima||'-'}，天马${LAST.o.sha.tianma||'-'}，天喜${LAST.o.sha.tianxi||'-'}，天医${LAST.o.sha.tianyi||'-'}，劫煞${LAST.o.sha.jiesha||'-'}，灾煞${LAST.o.sha.zaisha||'-'}，亡神${LAST.o.sha.wangshen||'-'}，破碎${LAST.o.sha.posui||'-'}`:'';
       const benLine = (LAST.o&&LAST.o.benMing&&LAST.o.xingNian)?`\n本命：${LAST.o.benMing.gan}${LAST.o.benMing.zhi}、${LAST.o.sex}、虚岁${LAST.o.xingNian.age}、行年${LAST.o.xingNian.zhi}`:'';
       const timeLine = (o.timeNote||o.clockTxt) ? `\n时间折算：${o.clockTxt||''}${o.timeNote?'；'+o.timeNote:''}` : '';
-      return `大六壬起课（流派：${sk}）\n日干支：${LAST.dgz}　占时：${LAST.shiZhi}　月将：${LAST.jiang}（${JIANG_NAME[ZHI.indexOf(LAST.jiang)]||''}，${o.jiangKey||''}）\n起贵口诀：${o.guiMode||''}　昼夜分界：${o.dayKey||''}（贵人${LAST.guiZhi}，${LAST.day?'昼占阳贵':'夜占阴贵'}；贵人临地盘${ZHI[o.guiDiIdx]||''}位，天将${LAST.o&&LAST.o.shun?'顺':'逆'}布）\n发用法则：${o.faYong==='shehai'?'涉害优先':'贼克比用'}${timeLine}\n${td}\n四课：\n${keStr}\n${chuan}${benLine}${sha}\n\n【综合判断】\n${read}`;
-    }, '大六壬', { share:{ page:"daliuren", title:"大六壬在线排盘", recast:function(){ try{ query(); }catch(e){} } } });
+      return `大六壬起课（流派：${sk}）\n日干支：${LAST.dgz}　占时：${LAST.shiZhi}　月将：${LAST.jiang}（${JIANG_NAME[ZHI.indexOf(LAST.jiang)]||''}，${o.jiangKey||''}）\n起贵口诀：${o.guiMode||''}　昼夜分界：${o.dayKey||''}（贵人${LAST.guiZhi}，${LAST.day?'昼占阳贵':'夜占阴贵'}；贵人临地盘${ZHI[o.guiDiIdx]||''}位，天将${LAST.o&&LAST.o.shun?'顺':'逆'}布）\n发用法则：${o.faYong==='shehai'?'涉害优先':'贼克比用'}${timeLine}\n${td}\n四课：\n${keStr}\n${chuan}${dun}${benLine}${sha}\n\n【综合判断】\n${read}`;
+    }, '大六壬', { share:{ page:"daliuren", title:"大六壬在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ try{ query(); }catch(e){} }); } } });
   }, 0);
 });

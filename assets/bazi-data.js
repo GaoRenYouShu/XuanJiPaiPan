@@ -417,9 +417,7 @@ const HONGYAN = {甲:'午',乙:'申',丙:'寅',丁:'未',戊:'辰',己:'辰',庚
 const JU = {水:['申','子','辰'],火:['寅','午','戌'],金:['巳','酉','丑'],木:['亥','卯','未']};
 const JU_OF = {}; Object.keys(JU).forEach(k=>JU[k].forEach(z=>JU_OF[z]=k));
 const YIMA={水:'寅',火:'申',金:'亥',木:'巳'};
-const TAOHUA={水:'酉',火:'卯',金:'午',木:'子'};
-const HUAGAI={水:'辰',火:'戌',金:'丑',木:'未'};
-const JIANGXING={水:'子',火:'午',金:'酉',木:'卯'};
+const TAOHUA=XJ_SHENSHA.XIANCHI, HUAGAI=XJ_SHENSHA.HUAGAI, JIANGXING=XJ_SHENSHA.JIANGXING;
 const JIESHA={水:'巳',火:'亥',金:'寅',木:'申'};
 const ZAISHA={水:'午',火:'子',金:'卯',木:'酉'};
 const WANGSHEN={水:'亥',火:'巳',金:'申',木:'寅'};
@@ -433,9 +431,9 @@ const DIAOKE={}; ZHI_ORDER.forEach((z,i)=> DIAOKE[z]=ZHI_ORDER[(i+10)%12]);
 /* 破碎煞（《三命通会·论破碎》：此煞三名吟呻、破碎、白衣）：子午卯酉见巳、寅申巳亥见酉、辰戌丑未见丑 */
 const POSUI={}; ZHI_ORDER.forEach(z=> POSUI[z]= (['子','午','卯','酉'].indexOf(z)>=0)?'巳':(['寅','申','巳','亥'].indexOf(z)>=0)?'酉':'丑');
 // 月德、天德（月柱）
-const YUEDE_TG={}; Object.keys(JU).forEach(k=>{ const tg={水:'壬',火:'丙',金:'庚',木:'甲'}[k]; JU[k].forEach(z=> YUEDE_TG[z]=tg); });
+const YUEDE_TG=XJ_SHENSHA.YUEDE_TG;
 const YUEDE_HE={丙:'辛',壬:'丁',甲:'己',庚:'乙'};
-const TIANDE={寅:'丁',卯:'申',辰:'壬',巳:'辛',午:'亥',未:'甲',申:'癸',酉:'寅',戌:'丙',亥:'乙',子:'巳',丑:'庚'};
+const TIANDE=XJ_SHENSHA.TIANDE;
 // 天德合（月支查，见参考歌诀）：寅壬、卯巳、辰丁、巳丙、午寅、未己、申戊、酉亥、戌辛、亥庚、子申、丑乙
 const TIANDE_HE={寅:'壬',卯:'巳',辰:'丁',巳:'丙',午:'寅',未:'己',申:'戊',酉:'亥',戌:'辛',亥:'庚',子:'申',丑:'乙'};
 // 披麻（年支后三位，即年支+9）：子酉、丑戌、寅亥、卯子、辰丑、巳寅、午卯、未辰、申巳、酉午、戌未、亥申
@@ -506,7 +504,7 @@ const GU_LUAN=['乙巳','丁巳','辛亥','戊申','壬寅','戊午','壬子','�
 const YIN_CHA_YANG=['丙子','丁丑','戊寅','辛卯','壬辰','癸巳','丙午','丁未','戊申','辛酉','壬戌','癸亥'];
 function seasonOf(mz){ if('寅卯辰'.indexOf(mz)>=0)return'春'; if('巳午未'.indexOf(mz)>=0)return'夏'; if('申酉戌'.indexOf(mz)>=0)return'秋'; return'冬'; }
 const SI_FEI={春:['庚申','辛酉'],夏:['壬子','癸亥'],秋:['甲寅','乙卯'],冬:['丙午','丁巳']};
-const TIAN_SHE={春:'戊寅',夏:'甲午',秋:'戊申',冬:'甲子'};
+const TIAN_SHE=XJ_SHENSHA.TIAN_SHE;
 /* 三奇贵人：甲戊庚、乙丙丁、壬癸辛三组，须按“年、月、日”柱序顺布（次序不可乱、不可隔位到时柱）。
    gans 传四柱天干数组 [年,月,日,时]，仅取前三柱按序匹配。 */
 function isSanQi(gans){

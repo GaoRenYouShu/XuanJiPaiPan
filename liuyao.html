@@ -116,9 +116,7 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 #out + *{margin-top:var(--sp-4)}
 
-.field.chk{flex-direction:row;align-items:center;gap:var(--sp-1);min-width:auto}
-
-.field.chk input{width:auto;height:auto;padding:0}
+.opts .field{flex:0 0 auto;min-width:120px}
 
 .birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
   flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
@@ -129,6 +127,20 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
 
 .birth-group .field.hh-lng{max-width:200px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -173,8 +185,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
 
 .birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
-
-.birth-group.compact .field.hh-true{flex:0 0 auto;min-width:auto;width:auto}
 
 .birth-group.compact .group-label{width:100%;margin:0}
 
@@ -221,17 +231,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .nav-group:hover .nav-menu{display:none}
 
 .menu-btn{display:inline-flex;margin-left:auto}
-}
-
-@media(max-width:640px){
-.xj-tc{min-width:3em;max-width:var(--xj-cap,min(70vw,22em))}
-
-.tbl-hs{width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-
-body .page .tbl-hs table:not(.tbl-kv){table-layout:auto;width:max-content;min-width:100%;max-width:none}
-
-body .page .tbl-hs table:not(.tbl-kv) th:nth-child(n),
-  body .page .tbl-hs table:not(.tbl-kv) td:nth-child(n){white-space:normal;word-break:normal;overflow-wrap:break-word;width:auto;min-width:0}
 }
 
 #shan,#laiLong{min-width:115px;width:115px}
@@ -285,21 +284,15 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-ly .form-row .ly-q-field input{width:220px;max-width:100%}
 
-.page-ly .ly-time-row{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);align-items:flex-end;padding:var(--sp-2) 0;background:transparent;border:0;border-top:1px solid var(--ly-line);border-radius:0;margin-top:var(--sp-1);min-width:0;box-sizing:border-box}
-
-.page-ly .ly-time-row .field{flex:0 0 auto;min-width:0;margin:0}
-
-.page-ly .ly-time-row .field input[type="time"]{width:72px}
-
-.page-ly .ly-time-row .ly-tf-btn .btn{font-size:var(--tier4);white-space:nowrap;width:auto;min-width:0;margin:0}
+.page-ly #lyTime{width:72px}
 
 .page-ly .ly-actions{display:flex;gap:var(--sp-2);align-items:flex-end;flex:1 1 auto;min-width:0;max-width:100%;flex-wrap:wrap}
 
 .page-ly .ly-actions .btn{flex:0 0 auto;width:auto;min-width:0;display:inline-flex;align-items:center;justify-content:center}
 
-.page-ly .page .ly-time-row .ly-tf-btn .btn,.page-ly .page .ly-actions .btn:not(#lyCastBtn),.page-ly .page #lyStepField .ly-num-row .btn{background:transparent;border:1px solid var(--line);color:var(--ink2)}
+.page-ly .page .ly-actions .btn:not(#lyCastBtn),.page-ly .page #lyStepField .ly-num-row .btn{background:transparent;border:1px solid var(--line);color:var(--ink2)}
 
-.page-ly .page .ly-time-row .ly-tf-btn .btn:hover,.page-ly .page .ly-actions .btn:not(#lyCastBtn):hover,.page-ly .page #lyStepField .ly-num-row .btn:hover{border-color:var(--gold);color:var(--ink);background:var(--gold-bg)}
+.page-ly .page .ly-actions .btn:not(#lyCastBtn):hover,.page-ly .page #lyStepField .ly-num-row .btn:hover{border-color:var(--gold);color:var(--ink);background:var(--gold-bg)}
 
 .page-ly .ly-bo-row{display:flex;flex-direction:column;gap:var(--sp-1);align-items:flex-start;min-width:0;align-self:flex-end}
 
@@ -332,9 +325,7 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-ly .form-row .ly-q-field input{width:170px;max-width:100%;min-width:0}
 
-.page-ly .ly-time-row{gap:var(--sp-1) var(--sp-2)}
-
-.page-ly .ly-time-row #lyDate{width:96px}
+.page-ly #lyDate{width:96px}
 
 .page-ly .ly-cat-tbl th,.page-ly .ly-cat-tbl td{padding:7px;line-height:1.55}
 
@@ -382,8 +373,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-ly .btn:not(.soft):not(.btn-ghost){background:var(--ly)}
 
 .page-ly .btn:not(.soft):not(.btn-ghost):hover{background:var(--ly2)}
-
-.page-ly .field.chk label{font-weight:400}
 
 .page-ly .ai-block{border:0;border-top:1px solid var(--ly-line);border-bottom:1px solid var(--ly-line);border-radius:0;background:transparent;color:var(--ly-ink);box-shadow:none}
 
@@ -517,6 +506,12 @@ body:has(.page-ly) .scroll-jump:not(.show){display:none}</style>
       <div class="field"><label for="lySex">求占性别</label><select id="lySex" aria-label="选择求占性别">
         <option value="m">男</option><option value="f">女</option>
       </select></div>
+      <div class="field" id="fDate" data-built="2026-10-29"><label for="lyDate">起卦日期</label>
+        <input type="text" class="dt-input" id="lyDate" aria-label="起卦日期" placeholder="2026-09-30" value="2026-10-29">
+      </div>
+      <div class="field"><label for="lyTime">起卦时刻</label>
+        <input type="time" id="lyTime" aria-label="起卦时刻" value="">
+      </div>
       <div class="field"><label for="lySchool">流派</label><select id="lySchool" aria-label="选择流派">
         <option value="jingfang">京房纳甲派</option>
         <option value="zengshan">增删卜易派</option>
@@ -559,42 +554,10 @@ body:has(.page-ly) .scroll-jump:not(.show){display:none}</style>
           <span class="ts-box ly-num-tip" id="stepTip">当前第 1 爻，点击摇一爻依次记录</span>
         </div>
       </div>
-      <div class="field ly-q-field"><label for="q">心中默念所占之事，可选</label><input id="q" placeholder="例如：近期求职是否顺利" aria-label="输入心中默念所占之事"></div>
+      <div class="field ly-q-field"><label for="q">心中默念所占之事（可选）</label><input id="q" placeholder="例如：近期求职是否顺利" aria-label="输入心中默念所占之事"></div>
       <div class="ly-bo-row">
         <label class="ly-bo"><input type="checkbox" id="lyBianSY" class="ly-chk-native" aria-label="变卦是否标注世应">变卦标世应（主流不标）</label>
         <label class="ly-bo"><input type="checkbox" id="lyBianQinGong" class="ly-chk-native" aria-label="变卦六亲取宫口径">变卦六亲按变卦宫（主流按本宫）</label>
-      </div>
-      <div class="birth-group compact" id="lyGeoGroup">
-        <div class="group-label">当地（用于真太阳时校正，内置行政区划经度）</div>
-        <div class="field"><label for="lyProv">省份</label>
-          <select id="lyProv" aria-label="选择省份"></select>
-        </div>
-        <div class="field"><label for="lyCity">城市</label>
-          <select id="lyCity" aria-label="选择城市"></select>
-        </div>
-        <div class="field"><label for="lyDist">区县</label>
-          <select id="lyDist" aria-label="选择区县"></select>
-        </div>
-        <div class="field hh-lng"><label for="lyLng">经度（可选）</label><input type="number" id="lyLng" aria-label="手动输入东经经度" step="0.01" placeholder="当地"></div>
-        <div class="field chk hh-true"><input type="checkbox" id="lyTrue" aria-label="是否启用真太阳时校正"><label for="lyTrue">真太阳时校正</label></div>
-        <div class="field" id="lyTzField" hidden><label for="lyTz">时区偏移</label><select id="lyTz" aria-label="选择境外所在地标准时区偏移" onchange="lySyncOverseas()"></select></div>
-        <div class="field chk" id="lyLocalDstField" hidden><input type="checkbox" id="lyLocalDst" onchange="lySyncOverseas()"><label for="lyLocalDst">当地夏令时（钟面减1小时）</label></div>
-      </div>
-      <p class="sub-note" id="lyOverseasNote" hidden></p>
-      <div class="ly-time-row">
-        <div class="field" id="fDate" data-built="2026-10-29"><label for="lyDate">起卦日期</label>
-          <input type="text" class="dt-input" id="lyDate" aria-label="起卦日期" placeholder="2026-09-30" value="2026-10-29">
-        </div>
-        <div class="field"><label for="lyTime">起卦时刻</label>
-          <input type="time" id="lyTime" aria-label="起卦时刻" value="">
-        </div>
-        <div class="field ly-tf-btn"><button type="button" class="btn" onclick="lyUseNow()">用当前时间</button></div>
-      <div class="field ly-zi-field"><label for="lyZi">子时算法</label>
-    <select id="lyZi" aria-label="选择子时算法" onchange="lyMethodChange()">
-    <option value="late">晚子时（23点归次日）</option>
-    <option value="early">早子时（23点归当日）</option>
-    </select>
-      </div>
       </div>
       <div class="ly-actions">
         <button class="btn" id="lyCastBtn" onclick="doCast()">摇卦起卦</button>
@@ -603,10 +566,39 @@ body:has(.page-ly) .scroll-jump:not(.show){display:none}</style>
         <button class="btn" onclick="showLyHistory()">历史记录</button>
       </div>
     </div>
+    <div class="opts" id="lyOptsWrap">
+      <div class="birth-group compact" id="lyGeoGroup">
+        <div class="group-label">所在地（用于经度校正，内置行政区划经度）</div>
+        <div class="field"><label for="lyProv">省份</label>
+          <select id="lyProv" aria-label="所在地省份"></select>
+        </div>
+        <div class="field"><label for="lyCity">城市</label>
+          <select id="lyCity" aria-label="所在地城市"></select>
+        </div>
+        <div class="field"><label for="lyDist">区县</label>
+          <select id="lyDist" aria-label="所在地区县"></select>
+        </div>
+        <div class="field hh-lng"><label for="lyLng">经度（可选）</label><input type="number" id="lyLng" aria-label="手动经度东经度数" step="0.01" placeholder="所在地"></div>
+      </div>
+      <div class="opts-row" id="lyOptsRow">
+        <div class="group-label">时间折算与流派</div>
+        <div class="field" id="lyDstField"><label for="lyDst">夏令时</label><select id="lyDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
+        <div class="field ly-zi-field"><label for="lyZi">子时算法</label>
+    <select id="lyZi" aria-label="子时算法" onchange="lyMethodChange()">
+    <option value="late">晚子时（23点归次日）</option>
+    <option value="early">早子时（23点归当日）</option>
+    </select>
+        </div>
+        <div class="field"><label for="lySun">太阳时</label><select id="lySun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+        <div class="field" id="lyTzField" hidden><label for="lyTz">时区偏移</label><select id="lyTz" aria-label="选择境外所在地标准时区偏移" onchange="lySyncOverseas()"></select></div>
+        <div class="field chk" id="lyLocalDstField" hidden><input type="checkbox" id="lyLocalDst" onchange="lySyncOverseas()"><label for="lyLocalDst">当地夏令时（钟面减1小时）</label></div>
+      </div>
+      <p class="sub-note" id="lyOverseasNote" hidden></p>
+    </div>
+    <div id="out"></div>
     <div class="stage2-late">
-<div id="out"></div>
-    <div id="lyMultiHost"></div>
-    <details class="mh-ref" id="lyGuide"><summary>断卦流程引导（初学者入门，七步看卦）</summary>
+<div id="lyMultiHost"></div>
+    <details class="mh-ref" id="lyGuide"><summary>断卦流程</summary>
       <table class="ly-cat-tbl ly-zh-tbl ly-guide-tbl"><tbody>
         <tr><th>步骤</th><th>说明</th></tr>
         <tr><td class="ly-g-step">定用神</td><td>按"占事类别"确定用神六亲（求财看妻财、问官看官鬼、占自身看世爻、婚姻男看妻财女看官鬼）；用神多现时取动爻，次取旺相，再取不空不破。对照盘面"用神"行与爻图金色高亮。</td></tr>
@@ -616,7 +608,6 @@ body:has(.page-ly) .scroll-jump:not(.show){display:none}</style>
         <tr><td class="ly-g-step">看三神</td><td>原神（生用神者）发动为吉，忌神（克用神者）发动为凶，仇神（生忌神者）发动助凶。对照"动爻"行三神句与下方五行生克图。</td></tr>
         <tr><td class="ly-g-step">看世应卦局</td><td>世为己、应为人，世旺应衰事由我做主；六合卦主成、六冲卦主散；三合局以生克用神定向背。对照"世应关系""卦局"行。</td></tr>
         <tr><td class="ly-g-step">定应期</td><td>动而旺者应速（近应日时），静而衰者应缓（远应月年）；空亡待出空、月破待填实、入墓待冲墓。对照"应期""太岁"两行。</td></tr>
-        <tr><td class="ly-g-step">初学口诀</td><td>一看用神、二看旺衰、三看日月动变、四看世应卦局、五定应期。术语含义见"综合判断"各行与六神、三神参考表。</td></tr>
       </tbody></table>
     </details>
     <details class="mh-ref" id="lyGuaRef"><summary>六十四卦经文检索</summary><div id="lyGuaGrid"></div></details>

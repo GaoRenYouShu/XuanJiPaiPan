@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const sigNo=LAST.sig==='m'?28:29;
       s+=(LAST.sig==='auto'?'指标牌：未指定，默认以女人牌为问卜者、男人牌为对方。':'指标牌：'+(sigNo===28?'男人':'女人')+'牌为问卜者。')+'\n';
       LAST.picks.forEach(p=>{ s+=`宫${p.house}（${LENO_HOUSE[p.house]}）：${p.card.no}.${p.card.n}［${p.card.kw.join('/')}，${LENO_TONE(p.card)}］\n`; });
-      const sigP=LAST.picks[sigNo-1];
+      const sigP=LAST.picks.find(p=>p.card.no===sigNo);
       s+=`\n指标牌落于宫${sigP.house}（${LENO_HOUSE[sigP.house]}）；四角：`+GT_CORNERS.map(([h,l])=>l+'='+LAST.picks[h-1].card.n).join('、')+'；中央四宫：'+GT_CENTER.map(h=>LAST.picks[h-1].card.n).join('、')+'；首尾呼应：宫1 '+LAST.picks[0].card.n+' 与宫36 '+LAST.picks[35].card.n+' 相扣。'+(()=>{const own=LAST.picks.filter(p=>p.card.no===p.house).map(p=>p.card.no+'.'+p.card.n);return own.length?('同宫强化（牌落本宫、义气加倍）：'+own.join('、')+'。'):'无牌落本宫。';})()+'\n请按大全景读法（四角、中央、指标牌宫位四邻马步、同宫强化、镜像、首尾、时区）综合成文。';
      }else{
       LAST.picks.forEach(p=>{ const c=p.card;

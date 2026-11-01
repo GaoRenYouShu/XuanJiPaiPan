@@ -364,7 +364,7 @@ const DATA=[
   link:'assets/ai-lazy.js',
   fn:'⚙AI 按钮的按需入口：未加载面板脚本时点击再取 ai.js，已加载则直接打开配置；首屏不下载整包。',
   note:'源码 ai-lazy.js。全站共享；AI 面板仍由 ai.js 提供。'},
- {name:'真太阳时( latlng.js )', type:'self', v:3, s:15.5,
+ {name:'真太阳时( latlng.js )', type:'self', v:3, s:16.0,
   link:'assets/latlng.js',
   fn:'国内省市区县经纬度库与境外一百四十余国城市库（经度、纬度、标准时区偏移，按洲域分组），出生地三级下拉全站共用一份：境内按区县取坐标，境外取库载坐标并以城市时区定真太阳时基准经线；取数与坐标查表函数供风水磁偏角与各页排盘共用。',
   note:'源码 latlng.js。'},

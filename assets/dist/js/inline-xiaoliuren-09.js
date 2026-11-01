@@ -5,7 +5,13 @@ document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
     renderChrome('xiaoliuren.html');
     fillSchool();
-    fillShichen();
+    /* 所在地三级：填充与取值走 latlng.js 的 fillPlaceTrio，起首停在未知地，未动表单即不校正 */
+    if(typeof fillPlaceTrio==='function'){
+      window.__xlrPlaceTrio=fillPlaceTrio(document.getElementById('xlrProv'),document.getElementById('xlrCity'),document.getElementById('xlrDist'),function(){});
+      if(typeof placeIpPrefill==='function'){
+        placeIpPrefill({manualKey:'xlr_geo_manual', group:document.getElementById('xlrGeoGroup'), trio:window.__xlrPlaceTrio, onDone:null});
+      }
+    }
     renderRef();
     xjApplyFold('xlrFoldState','details[id]');
     switchQiMode();
@@ -13,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const t=e.target;
       if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('xlrFoldState','details[id]');
     },true);
-    setNow();
     mountAI(function(){
       if(!LAST) return '';
       const fg=GONG[LAST.gTime];

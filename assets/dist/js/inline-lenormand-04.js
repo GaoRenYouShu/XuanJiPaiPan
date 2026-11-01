@@ -138,7 +138,7 @@ function gtRead(picks){
   const center=GT_CENTER.map(h=>nm(byH(h))+'（'+h+'宫，'+LENO_HOUSE[h]+'）').join('，');
   const sel=document.getElementById('sig');
   const sigNo=(sel&&sel.value)==='m'?28:29;
-  const sigPick=byH(sigNo);
+  const sigPick=picks.find(p=>p.card.no===sigNo);
   const r=Math.floor((sigPick.house-1)/6),c=(sigPick.house-1)%6;
   const around=[[r-1,c,'上'],[r+1,c,'下'],[r,c-1,'左'],[r,c+1,'右']];
   const nbrs=around.filter(([rr,cc])=>rr>=0&&rr<6&&cc>=0&&cc<6)
@@ -186,7 +186,6 @@ function lenoOpen(i){
      <div class="lm-tags"><span>${tl}</span><span>主题：${c.th}</span><span>扑克对应：${c.pc}</span><span>时间：${c.time}</span></div>
      <p class="lm-kw"><b>关键词</b>：${c.kw.join('、')}</p>
      <p class="lm-core"><b>总义</b>：${c.up}</p>
-     ${c.person?`<p class="lm-person"><b>人物所指</b>：${c.person}</p>`:''}
     </div>
    </div>
    <div class="lm-grid">

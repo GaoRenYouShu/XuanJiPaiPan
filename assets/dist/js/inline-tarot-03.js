@@ -107,12 +107,7 @@ function draw(){
   renderSpread(picks,sp);
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
 }
-/* 最近一次抽牌：刷新与分享还原共用一份，牌序与正逆原样回填，不重洗 */
-const TAROT_LAST_KEY='tarot_last_v1';
-function tarotSaveLast(){
- if(!LAST) return;
- try{ localStorage.setItem(TAROT_LAST_KEY,JSON.stringify({sp:LAST.key,q:LAST.q||'',picks:LAST.picks.map(p=>({id:p.card.id,rev:p.rev?'1':'0'}))})); }catch(e){}
-}
+/* 分享还原：牌序与正逆按牌 id 回填，不重洗；刷新回填由共用件 sessionStorage 的 xj:last 承担，本页不再另写本地档 */
 function tarotRestore(d){
  if(!d||!d.sp) return false;
  const layout=POS[d.sp]; if(!layout||!Array.isArray(d.picks)) return false;
@@ -187,7 +182,6 @@ function renderSpread(picks,sp){
    ${tarotRead(picks,sp)}
    <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图，取自 Wikimedia Commons。</div>`;
  LAST={q:document.getElementById('question').value,sp:layoutName,key:sp,picks};
- tarotSaveLast();
 }
 /* 元素尊贵：同气相强，火风、水土相生互旺，水火、土风相冲互削，余者（火土、风水）中性。
    流派并列：黄金黎明 Book T 以火亲土、风亲水为相友而互强，现代通行作中性，此处以中性为主口径，断语处两说并列备参 */
@@ -297,9 +291,14 @@ function tarotRead(picks,sp){
  const domTxt=domLines(picks),lackTxt=lackLines(picks),triTxt=triadLines(picks,TRI_IDX[sp]);
  const echoTxt=echoLines(picks,sp);
  const majorList=picks.filter(p=>p.card.type==='大阿卡纳').map(p=>`《${p.card.name}》（${p.pos}）`).join('、');
+ /* 四花色计数：小阿卡纳按花色归域（权杖行动、圣杯情感、宝剑思维、星币实务），全大阿卡纳阵不出花色行 */
+ const suitDetail=['权杖','圣杯','宝剑','星币'].map(su=>{
+   const k='小阿卡纳 '+su;
+   return suitCnt[k]?`${su} ${suitCnt[k]}`:'';
+ }).filter(Boolean).join('、');
  const rows=[];
  rows.push(['牌阵连贯',narr+'。']);
- rows.push(['本阵统计',`共 ${n} 张；正位 ${upN}、逆位 ${revN}；大阿卡纳 ${majorN}；元素 ${elDetail||'无'}。`]);
+ rows.push(['本阵统计',`共 ${n} 张；正位 ${upN}、逆位 ${revN}；大阿卡纳 ${majorN}；${suitDetail?('花色 '+suitDetail+'；'):''}元素 ${elDetail||'无'}。`]);
  rows.push(['整体基调',tone+archTxt+elTxt]);
  rows.push(['元素尊贵',dgTxt]);
  const elPat=[...domTxt,...lackTxt];

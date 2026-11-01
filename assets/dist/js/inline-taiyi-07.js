@@ -1,18 +1,45 @@
 
 
 
+function tyBirthLng(){
+  return typeof xjLocalLng==='function'?xjLocalLng('bLng','bProv','bCity','bDist'):null;
+}
+/* 日期与时刻离框即校验，起局仍按同一判据再核一次 */
+function tyCheckDateTime(){
+  const line=document.getElementById('infoLine');
+  const dv=document.getElementById('dInput').value;
+  if(dv){
+    const y=Number(String(dv).split('-')[0]);
+    if(!(Number.isFinite(y)&&y>=1&&y<=9999)){ line.textContent='年份不合，请按 2026-10-31 填写。'; return false; }
+    if(typeof xjValidDate==='function'&&!xjValidDate(dv)){ line.textContent='日期不存在，请核对年月日。'; return false; }
+  }
+  const tv=document.getElementById('hInput').value;
+  if(tv){
+    const p=tv.split(':').map(Number);
+    if(!(p[0]>=0&&p[0]<=23&&p[1]>=0&&p[1]<=59)){ line.textContent='时刻格式不合，请按 14:30 填写。'; return false; }
+  }
+  return true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
     renderChrome('taiyi.html');
-    /* xjCalNav 两钩子：onToday 回填本页时辰输入，onQuery 触发本页查询 */
-    xjCalNav.onToday = function(){ const h=new Date().getHours(); document.getElementById('hInput').value=String((h===0||h===23)?23:(h%2?h:h-1)); };
-    xjCalNav.onQuery = function(){ query(); };
     renderTermGloss();
+    const tEl=document.getElementById('hInput');
+    if(tEl&&!tEl.value){ const n=new Date(); tEl.value=pad2(n.getHours())+':'+pad2(n.getMinutes()); }
+    if(typeof fillPlaceTrio==='function'){
+      window.__tyPlaceTrio=fillPlaceTrio(document.getElementById('bProv'),document.getElementById('bCity'),document.getElementById('bDist'),function(){});
+      if(typeof placeIpPrefill==='function'){
+        placeIpPrefill({manualKey:'ty_geo_manual', group:document.getElementById('tyBirthGroup'), trio:window.__tyPlaceTrio, onDone:null});
+      }
+    }
+    ['dInput','hInput'].forEach(function(id){
+      const el=document.getElementById(id); if(el) el.addEventListener('blur', tyCheckDateTime);
+    });
     document.addEventListener('toggle', function(e){
       const t = e.target;
       if(t && t.tagName === 'DETAILS' && t.id) xjSaveModState('tyModState','details[id]','__tyInitDone');
     }, true);
-    xjCalNav.onToday();
     mountAI(function(){
       if(!LAST) return '';
       const ct=(s,label)=>{
@@ -29,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     八门值使：${s.doorZhiShi}门（${(Taiyi.DOOR_INFO[s.doorZhiShi]||{}).吉凶}）　主大将临${s.shen.主大==='中'?'中宫八门杜塞':s.shen.主大+'宫'+s.doors[s.shen.主大]+'门'}　客大将临${s.shen.客大==='中'?'中宫八门杜塞':s.shen.客大+'宫'+s.doors[s.shen.客大]+'门'}
     占断：${s.tyGong===s.wc?'囚（太乙与文昌同宫，君臣被困，宜静守）；':''}主算${s.homeCal>s.awayCal?'盛、主占先':(s.homeCal<s.awayCal?'客算盛、客占先':'主客相埒')}；定算${s.dingCal}（偏助客）；主大将${s.shen.主大}宫、客大将${s.shen.客大}宫、计神${s.ji}。`;
       };
-      return `太乙神数推演（${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}体系，年、月、日计阳遁）
+      return `太乙神数推演（${(LAST.tahun!==undefined?Taiyi.TAIYI_METHODS[LAST.tahun]:'太乙统宗')}体系，年、月、日、时计阳遁）
     【推算信息】${LAST.ly}　太岁${LAST.taishui}
     ${ct(LAST.R.year,'岁计　值年太乙')}
     ${ct(LAST.R.month,'月计　值月太乙')}
@@ -40,5 +67,4 @@ document.addEventListener('DOMContentLoaded', function () {
   }, 0);
 });
 
-/* 日期框默认取本机当日，时辰框取当前时辰段的偶时起点。 */
-(function(){var n=new Date(),z=function(v){return('0'+v).slice(-2)},d=document.getElementById('dInput'),h=document.getElementById('hInput'),H=n.getHours();if(d)d.value=n.getFullYear()+'-'+z(n.getMonth()+1)+'-'+z(n.getDate());if(h)h.value=String((H===0||H===23)?23:(H%2?H:H-1));})();
+/* 日期与时辰初值由全站统一函数在首绘前写入，本页不再各写一份。 */

@@ -29,6 +29,8 @@
 <link rel="stylesheet" href="assets/dist/css/base.css">
 <style data-critical>/* 本页首屏样式。 */
 
+.form-row .field input[type="text"].dt-input{width:96px}
+
 input[type="text"].dt-input::-webkit-calendar-picker-indicator,
 input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
 
@@ -102,10 +104,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 #out + *{margin-top:var(--sp-4)}
 
-.field.chk{flex-direction:row;align-items:center;gap:var(--sp-1);min-width:auto}
-
-.field.chk input{width:auto;height:auto;padding:0}
-
 .birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
   flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
   border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
@@ -115,6 +113,20 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
 
 .birth-group .field.hh-lng{max-width:200px}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+.opts-row .btn{flex:0 0 auto;align-self:flex-end}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -159,8 +171,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
 
 .birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
-
-.birth-group.compact .field.hh-true{flex:0 0 auto;min-width:auto;width:auto}
 
 .birth-group.compact .group-label{width:100%;margin:0}
 
@@ -250,16 +260,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-mh .mh-chk-native{width:auto;height:auto}
 
-.page-mh .ly-time-row{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);align-items:flex-end;padding:var(--sp-2) 0;background:transparent;border:0;border-bottom:1px solid var(--mh-line);border-radius:0;margin-top:var(--sp-1);min-width:0;box-sizing:border-box}
-
-.page-mh .ly-time-row .field{flex:0 0 auto;min-width:0;margin:0}
-
-.page-mh .ly-time-row .field input[type="time"]{width:72px}
-
-.page-mh .ly-time-row .field input[type="text"].dt-input{width:96px}
-
-.page-mh .ly-time-row .ly-tf-btn .btn{font-size:var(--tier4);white-space:nowrap;width:auto;min-width:0;margin:0}
-
 .page-mh .ly-actions{display:flex;gap:var(--sp-2);align-items:flex-end;flex:1 1 auto;min-width:0;max-width:100%;flex-wrap:wrap}
 
 .page-mh .ly-actions .btn{flex:0 0 auto;width:auto;min-width:0;display:inline-flex;align-items:center;justify-content:center}
@@ -269,10 +269,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-mh .page .ly-time-row .ly-tf-btn .btn:hover,.page-mh .page .ly-actions .btn:not(#mhCastBtn):hover{border-color:var(--gold);color:var(--ink);background:var(--gold-bg)}
 
 @media(max-width:640px){
-.page-mh .ly-time-row{gap:var(--sp-1) var(--sp-2)}
-
-.page-mh .ly-time-row #mDate{width:96px}
-
 .page-mh .ly-actions .btn{max-width:88px;white-space:nowrap;overflow:hidden}
 }
 
@@ -295,8 +291,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-mh .field input:focus,.page-mh .field select:focus{border-color:var(--mh);outline:none}
 
 .page-mh .group-label{color:var(--mh2)}
-
-.page-mh .field.chk label{font-weight:400}
 
 .page-mh .btn:not(.soft):not(.btn-ghost){background:var(--mh)}
 
@@ -417,32 +411,15 @@ body:has(.page-mh) .scroll-jump:not(.show){display:none}</style>
     <div class="form-row">
       <div class="field"><label for="mhCat">占事类别</label><select id="mhCat"><option>天时</option><option>人事</option><option>家宅</option><option>屋舍</option><option>婚姻</option><option>生产</option><option>饮食</option><option>求谋</option><option>求名</option><option>求财</option><option>交易</option><option>出行</option><option>行人</option><option>谒见</option><option>失物</option><option>疾病</option><option>官讼</option><option>坟墓</option><option>占人</option><option>考试</option><option>六畜</option></select></div>
       <div class="field"><label for="mhSex">求占性别</label><select id="mhSex"><option value="m">男</option><option value="f">女</option></select></div>
+      <div class="field" id="fDate" data-built="2026-11-01"><label for="mDate">起卦日期</label><span class="dt-wrap dtm-mh"><input type="text" class="dt-input" placeholder="2026-09-30" id="mDate" value="2026-11-01"></span></div>
+      <div class="field"><label for="mTime">起卦时刻</label><span class="dt-wrap dtm-mh"><input type="time" id="mTime"></span></div>
       <div class="field"><label for="mhSchool">流派</label><select id="mhSchool"><option>邵雍先天派</option><option>端法后天派</option><option>卦气旺衰派</option><option>三要灵应派</option><option>梅花心易派</option></select></div>
       <div class="field"><label for="mhMethod">起卦方式</label><select id="mhMethod" onchange="mhMethodChange()"><option value="time">时间起卦</option><option value="num">报数起卦</option><option value="char">字占（拆字）</option><option value="name">姓名起卦</option><option value="ying">外应起卦</option></select></div>
-      <div class="field mh-sel-field" id="mhNumField"><label>报数，三数定上卦下卦动爻</label><div class="ly-num-row"><div class="ly-num-inputs"><input id="mhNum1" class="dt-input mh-num-input" value="1" inputmode="numeric"><input id="mhNum2" class="dt-input mh-num-input" value="1" inputmode="numeric"><input id="mhNum3" class="dt-input mh-num-input" value="1" inputmode="numeric"></div></div></div>
-      <div class="field mh-sel-field" id="mhCharField"><label for="mhChar">字（1-2字）</label><input id="mhChar" class="dt-input mh-char-input" placeholder="如：占"></div>
+      <div class="field mh-sel-field" id="mhNumField"><label>报数（三数定上卦下卦动爻，两数时动爻取和）</label><div class="ly-num-row"><div class="ly-num-inputs"><input id="mhNum1" class="dt-input mh-num-input" value="1" inputmode="numeric"><input id="mhNum2" class="dt-input mh-num-input" value="1" inputmode="numeric"><input id="mhNum3" class="dt-input mh-num-input" value="1" inputmode="numeric"></div></div></div>
+      <div class="field mh-sel-field" id="mhCharField"><label for="mhChar">字（一字或多字）</label><input id="mhChar" class="dt-input mh-char-input" placeholder="如：占"></div>
       <div class="field mh-sel-field" id="mhNameField"><label for="mhName">姓名（康熙笔画）</label><input id="mhName" class="dt-input mh-name-input" placeholder="如：张三"></div>
       <div class="field mh-sel-field" id="mhYingField"><label for="mhYingVal">外应描述</label><input id="mhYingVal" class="mh-ying-input" placeholder="如：南方有火光、东方雷声、青气自南来"></div>
-      <div class="field ly-q-field"><label for="mhQ">心中默念所占之事，可选</label><input id="mhQ" placeholder="例如：近期求职是否顺利"></div>
-    </div>
-    <div class="birth-group compact mh-group-gap" id="mhGeoGroup">
-      <div class="group-label">当地（用于真太阳时校正，内置行政区划经度）</div>
-      <div class="field"><label for="mhProv">省份</label><select id="mhProv"></select></div>
-      <div class="field"><label for="mhCity">城市</label><select id="mhCity"></select></div>
-      <div class="field"><label for="mhDist">区县</label><select id="mhDist"></select></div>
-      <div class="field hh-lng"><label for="mhLng">经度（可选）</label><input type="number" id="mhLng" step="0.01" placeholder="当地"></div>
-      <div class="field chk hh-true"><input type="checkbox" id="mhTrue"><label for="mhTrue">真太阳时校正</label></div>
-      <div class="field" id="mhTzField" hidden><label for="mhTz">时区偏移</label><select id="mhTz" aria-label="选择境外所在地标准时区偏移" onchange="mhSyncOverseas()"></select></div>
-      <div class="field chk" id="mhLocalDstField" hidden><input type="checkbox" id="mhLocalDst" onchange="mhSyncOverseas()"><label for="mhLocalDst">当地夏令时（钟面减1小时）</label></div>
-    </div>
-    <p class="sub-note" id="mhOverseasNote" hidden></p>
-    <div class="ly-time-row mh-group-gap">
-      <div class="field" id="fDate" data-built="2026-10-29"><label for="mDate">起卦日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="mDate" value="2026-10-29"></div>
-      <div class="field"><label for="mTime">起卦时刻</label><input type="time" id="mTime"></div>
-      <div class="field ly-tf-btn"><button type="button" class="btn" onclick="mhUseNow()">用当前时间</button></div>
-      <div class="field mh-zi-field"><label for="mhZi">子时算法</label>
-        <select id="mhZi" aria-label="选择子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select>
-      </div>
+      <div class="field ly-q-field"><label for="mhQ">心中默念所占之事（可选）</label><input id="mhQ" placeholder="例如：近期求职是否顺利"></div>
     </div>
     <div class="ly-actions mh-group-gap">
       <button class="btn" id="mhCastBtn" onclick="qigua()">起卦</button>
@@ -450,6 +427,23 @@ body:has(.page-mh) .scroll-jump:not(.show){display:none}</style>
       <button class="btn" onclick="clearMhMulti()">清空连占</button>
       <button class="btn" onclick="showMhHistory()">历史记录</button>
     </div>
+    <div class="birth-group compact mh-group-gap" id="mhGeoGroup">
+      <div class="group-label">所在地（用于经度校正，内置行政区划经度）</div>
+      <div class="field"><label for="mhProv">省份</label><select id="mhProv" aria-label="所在地省份"></select></div>
+      <div class="field"><label for="mhCity">城市</label><select id="mhCity" aria-label="所在地城市"></select></div>
+      <div class="field"><label for="mhDist">区县</label><select id="mhDist" aria-label="所在地区县"></select></div>
+      <div class="field hh-lng"><label for="mhLng">经度（可选）</label><input type="number" id="mhLng" step="0.01" placeholder="所在地" aria-label="手动经度东经度数"></div>
+    </div>
+    <div class="opts-row mh-group-gap" id="mhOptsRow">
+      <div class="group-label">时间折算与流派</div>
+      <div class="field" id="mhDstField"><label for="mhDst">夏令时</label><select id="mhDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
+      <div class="field mh-zi-field"><label for="mhZi">子时算法</label><select id="mhZi" aria-label="选择子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
+      <div class="field"><label for="mhSun">太阳时</label><select id="mhSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+      <div class="field ly-tf-btn"><button type="button" class="btn" onclick="mhUseNow()">用当前时间</button></div>
+      <div class="field" id="mhTzField" hidden><label for="mhTz">时区偏移</label><select id="mhTz" aria-label="选择境外所在地标准时区偏移" onchange="mhSyncOverseas()"></select></div>
+      <div class="field chk" id="mhLocalDstField" hidden><input type="checkbox" id="mhLocalDst" onchange="mhSyncOverseas()"><label for="mhLocalDst">当地夏令时（钟面减1小时）</label></div>
+    </div>
+    <p class="sub-note" id="mhOverseasNote" hidden></p>
     <div id="out"></div>
     <div id="mhMultiHost"></div>
   <div id="aiMount"><details class="ai-block" id="aiBlock">
@@ -466,7 +460,7 @@ body:has(.page-mh) .scroll-jump:not(.show){display:none}</style>
         <button class="btn soft" onclick="printPage()">打印存为PDF</button>
       <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl">导出 JSON</button><button type="button" class="btn soft" data-xj="copy">复制 JSON</button><button type="button" class="btn soft" data-xj="imp">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
       <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
-      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点“配置模型”进行设置。</div></div>
     </div>
   </details></div></div>
 </div>

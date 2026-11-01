@@ -263,7 +263,27 @@ html .page-lq {
 
 @media (prefers-color-scheme: dark){
 .page-lq .btn.gold{color:#1a1a1a}
-}</style>
+}
+
+.lq-sr{margin-top:var(--sp-4);padding:var(--sp-3) 0;background:transparent;border:0;border-top:1px solid var(--lq-line);border-radius:0;text-align:left}
+
+.lq-sr:not([open]){border-bottom:1px solid var(--lq-line)}
+
+.lq-sr summary{cursor:pointer;font-family:var(--lq-serif);font-weight:400;color:var(--lq2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5;list-style:none}
+
+.lq-sr summary::-webkit-details-marker{display:none}
+
+.lq-sr summary::after{content:'▾';margin-left:var(--sp-1);display:inline-block;transition:transform .15s}
+
+.lq-sr:not([open]) summary::after{transform:rotate(-90deg)}
+
+.lq-sr-bar{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) 0}
+
+.lq-sr-bar input{flex:1;min-width:0;height:30px;padding:4px 12px;border:1px solid var(--lq-line);border-radius:0;background:var(--card);font-size:13px;font-family:inherit;color:var(--ink)}
+
+.lq-sr-bar input:focus{border-color:var(--lq);outline:none}
+
+.lq-sr-list{padding-bottom:var(--sp-2)}</style>
 <link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/lingqian-0.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
@@ -350,8 +370,14 @@ html .page-lq {
       <div class="field"><label for="question">所求之事（可选）</label><input id="question" placeholder="如：问事业、问姻缘、问出行…"></div>
       <button class="btn gold" onclick="draw()">🎋 摇签求签</button>
       <button class="btn" onclick="pickNo()">指定签号</button>
+      <button class="btn" onclick="showLqHistory()">历史记录</button>
     </div>
     <div id="out"></div>
+  <details class="lq-sr" id="lqSearchRef">
+    <summary>签文库检索</summary>
+    <div class="lq-sr-bar"><input id="lqSearchInput" placeholder="按签号、吉凶、典故、签诗、解曰、分项检索当前签本"><span id="lqSearchCount"></span></div>
+    <div id="lqSearchList" class="lq-sr-list"></div>
+  </details>
   <div id="aiMount"><details class="ai-block" id="aiBlock">
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
   </details></div>

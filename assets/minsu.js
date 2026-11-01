@@ -1,7 +1,7 @@
 /* ============================================================
  * minsu.js：民俗占法页逻辑（minsu.html 专用）
  * ------------------------------------------------------------
- * 四模块：称骨算命、犯月查询、本命佛、号码吉凶。
+ * 五法：称骨算命、犯月查询、本命佛、号码吉凶、三世书。
  * 真源约定（均只消费，不另写推法）：
  *   四柱与农历：window.buildBaziState（bazi-app.js，与八字页同源装配）。
  *   称骨骨重：bazi-rel.js chenguCore(BZ) 取年月日时骨重分项与总重、
@@ -13,7 +13,7 @@
  *     八十一数理折算取 NAME_ENGINE.n81（与姓名学同法，超 81 减 80 取模），
  *     吉凶关键词取 NAME_DATA.NAME81 与 LUCK_LABEL，数理五行取 WX_OF_NUM。
  * 时辰未知：称骨不计骨重按年月日估算并注明；犯月时柱未判、胎元只依月柱仍可判。
- * 页面结构：全站标准折叠模块（section.mod 四模块）+ 四参考 details（mh-ref）不动。
+ * 页面结构：全站标准折叠模块（section.mod 五法）+ 五参考 details（mh-ref）不动。
  * ============================================================ */
 (function () {
   'use strict';
@@ -290,6 +290,7 @@
   function renderBuddha() {
     var out = $('msBuddhaOut');
     var zhiSel = $('msBdZhi').value;
+    var hasDate = parseSolar($('msBdDate').value) != null;
     var zhi = '', from = '';
     if (zhiSel) { zhi = zhiSel; from = '直选生肖'; }
     else {
@@ -307,7 +308,8 @@
     var html = '<div class="ms-buddha">';
     html += '<div class="ms-buddha-name">' + esc(b.name) + '</div>';
     html += '<div class="ms-note">对应生肖：' + esc(b.animal) + '（本命支 ' + esc(b.zhis.join('、')) +
-      '），生肖来源：' + (zhiSel ? esc(from) : from) + '</div>';
+      '），生肖来源：' + (zhiSel ? esc(from) : from) +
+      (zhiSel && hasDate ? '；生日与直选同填时按直选生肖判' : '') + '</div>';
     html += '<div class="ms-buddha-mantra">经籍真言（唐密汉译通行音）：' + esc(b.jing) + '</div>';
     html += '<div class="ms-buddha-py">' + esc(b.jingPy) + '</div>';
     html += '<div class="ms-note">' + esc(b.jingNote) + '</div>';
@@ -358,11 +360,13 @@
     html += '<div class="ms-cards">';
     html += '<div class="ms-card"><div class="ms-card-k">取位号码</div><div class="ms-card-v">' + esc(taken) + '</div>' +
       '<div class="ms-card-s">' + (part === 'tail' ? '末八位' : '全号') +
-      (taken.length !== digits.length ? '（原号 ' + digits.length + ' 位）' : '') + '</div></div>';
+      (taken.length !== digits.length ? '（原号 ' + digits.length + ' 位）' : '') +
+      '，数理与八星皆按本卡取位判定</div></div>';
     html += '<div class="ms-card ms-card-gold"><div class="ms-card-k">八十一数理</div><div class="ms-card-v">' + m + ' 数</div>' +
-      '<div class="ms-card-s">各位相加折算，' + esc(luck) + '，数理五行' + esc(wx) + '</div></div>';
+      '<div class="ms-card-s">整号超 81 减 80 折算（姓名学同法），' + esc(luck) + '，数理五行' + esc(wx) + '</div></div>';
     html += '</div>';
     if (it) html += '<div class="ms-note">数理关键词：' + esc(it.key || '无') + '；定性：' + esc(it.tag || '无') + '。</div>';
+    if (BX.note) html += '<div class="ms-note">' + esc(BX.note) + '</div>';
 
     /* 八星：以 0、5 为界切段，段内相邻两位滑窗配对 */
     var P2S = pairIndex(), BX = window.NUMBER_BAGXING;
@@ -588,14 +592,15 @@
         (good ? '吉' : '凶') + '</span></td><td>' + esc(BX.pairs[st].join('、')) + '</td><td>' +
         esc(BX.verdicts[st] || '无') + '</td></tr>';
     }
+    if (BX.note) h += '<tr><td colspan="4">' + esc(BX.note) + '</td></tr>';
     $('msBxBody').innerHTML = h;
   }
 
   /* ===== 8. AI 上下文 ===== */
   function msAiContext() {
     var of = openFolds();
-    var name = of.length ? of.map(function (f) { return f.name; }).join('、') : '无（四框皆收起）';
-    var s = '【民俗占法页】当前展开：' + name + '。四模块均属民俗文化范畴，仅供文化了解，不作任何吉凶承诺。\n';
+    var name = of.length ? of.map(function (f) { return f.name; }).join('、') : '无（各模块皆收起）';
+    var s = '【民俗占法页】当前展开：' + name + '。五法均属民俗文化范畴，仅供文化了解，不作任何吉凶承诺。\n';
     if (LAST.chengu) {
       var c1 = LAST.chengu;
       s += '称骨：农历 ' + c1.y + ' 年' + (c1.leap ? '闰' : '') + CN_MONTH[c1.mo - 1] + '月' + CN_DAYS[c1.d - 1] +
@@ -658,7 +663,7 @@
     if (o.ssDate) $('msSsDate').value = o.ssDate;
     if (o.num) $('msNum').value = o.num;
     if (o.numPart) $('msNumPart').value = o.numPart;
-    /* 展开状态回填：四模块独立开合，按共享串记录的键重放（展开=去 collapsed） */
+    /* 展开状态回填：各模块独立开合，按共享串记录的键重放（展开=去 collapsed） */
     if (o.open) {
       for (var i = 0; i < FOLDS.length; i++) {
         var el = $(FOLDS[i].id);
