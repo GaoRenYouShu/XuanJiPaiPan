@@ -32,7 +32,7 @@
     });
     initDefault();
     mountAI(function(){
-      const str = lastSel || `${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`;
+      const str = lastSel || `${cur.getFullYear()}-${('0'+(cur.getMonth()+1)).slice(-2)}-${('0'+cur.getDate()).slice(-2)}`;
       const [y,m,d]=str.split('-').map(Number);
       const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
       const aiFp=festParts(solar,y,m,d);

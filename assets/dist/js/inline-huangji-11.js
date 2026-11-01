@@ -62,7 +62,7 @@ let directA=null;   /* 年份直达（支持公元前）：选日期、改口径
    加载只补日期框值；推演结果等点推演或改日期、改口径再出。 */
 function initDefault(){
   const now = xjNowDate();
-  const key = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  const key = `${now.getFullYear()}-${('0'+(now.getMonth()+1)).slice(-2)}-${('0'+now.getDate()).slice(-2)}`;
   const input = document.getElementById('dInput');
   if (input) { input.value = key; input.setAttribute('value', key); }
 }

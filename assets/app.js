@@ -1279,6 +1279,89 @@ window.xjShuffle = xjShuffle;
   window.addEventListener('resize', function(){ clearTimeout(timer); timer = setTimeout(run, 150); });
 })();
 
+/* ===== 时间折算与流派：选项表（全站唯一真源） =====
+   本行各项下拉的选项文案、顺序与缺省只此一处；页面静态选项只作无脚本兜底，
+   载入后由本件按现值集合认领并重写。存档值由表单恢复在 load 时回填，晚于本件，
+   故自定义选择不被缺省覆盖。改一张表，所有引用页随载入生效。 */
+(function(){
+  var DST = [
+    ['off', '不折算（钟面即标准时）'],
+    ['auto', '自动折算（1986至1991）'],
+    ['on', '按夏令时（钟面减1小时）']
+  ];
+  var ZI = [
+    ['late', '晚子时（23点归次日）'],
+    ['early', '早子时（23点归当日）']
+  ];
+  var SUN = [
+    ['off', '不校正（无时差经度差）'],
+    ['true', '真太阳时（均时差加经度）'],
+    ['mean', '平太阳时（仅经度差）']
+  ];
+  var YEAR = [
+    ['lichun', '立春换年（子平主流）'],
+    ['chunjie', '春节换年（正月初一）'],
+    ['dongzhi', '冬至换年（斗建口径）']
+  ];
+  var YEAR_ZW = [
+    ['normal', '春节换年（正月初一）'],
+    ['exact', '立春换年（四化派常用）']
+  ];
+  var KONG = [
+    ['day', '空亡日柱（六甲空亡）'],
+    ['year', '空亡年柱（十大空亡）']
+  ];
+  var QIYUN = [
+    ['1', '时辰折算（整日加时辰档）'],
+    ['2', '分钟折算（4320 分折年）']
+  ];
+  var CHANGSHENG = [
+    ['1', '火土同宫（子平主流）'],
+    ['2', '水土同宫（土长生申）']
+  ];
+  function values(s){
+    var out = [];
+    for(var i = 0; i < s.options.length; i++) out.push(s.options[i].value);
+    return out;
+  }
+  function has(vals, want){
+    for(var i = 0; i < want.length; i++) if(vals.indexOf(want[i]) < 0) return false;
+    return true;
+  }
+  function labelOf(s){
+    var prev = s.previousElementSibling;
+    return (prev && prev.tagName === 'LABEL') ? (prev.textContent || '') : '';
+  }
+  function tableFor(s){
+    var v = values(s), lab = labelOf(s);
+    if(has(v, ['auto', 'on', 'off'])) return DST;
+    if(has(v, ['late', 'early'])) return ZI;
+    if(has(v, ['off', 'true', 'mean'])) return SUN;
+    if(has(v, ['lichun', 'chunjie', 'dongzhi'])) return YEAR;
+    if(has(v, ['normal', 'exact'])) return YEAR_ZW;
+    if(has(v, ['day', 'year'])) return KONG;
+    if(has(v, ['1', '2']) && lab === '起运法') return QIYUN;
+    if(has(v, ['1', '2']) && lab === '长生土行') return CHANGSHENG;
+    return null;
+  }
+  function sync(){
+    var sels = document.querySelectorAll('select');
+    for(var i = 0; i < sels.length; i++){
+      var s = sels[i];
+      var list = tableFor(s);
+      if(!list) continue;
+      var html = '';
+      for(var k = 0; k < list.length; k++){
+        html += '<option value="' + list[k][0] + '">' + list[k][1] + '</option>';
+      }
+      s.innerHTML = html;
+      s.value = list[0][0];
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+  else sync();
+})();
+
 /* ===== 重计算引擎按需装载 =====
    页面首屏只载界面件；计算件在用户触发计算时按清单顺序加载。
    MAP 按页登记脚本清单，同一页只装一次，失败保留错误状态供下次重试。

@@ -55,6 +55,8 @@ input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
 input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 
 body{--footer-ink:#543c28}
@@ -113,6 +115,56 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .btn.gold:hover{background:var(--red2)}
 
 #out + *{margin-top:var(--sp-4)}
+
+.opts .field{flex:0 0 auto;min-width:120px}
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
+  flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
+  border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
+
+.page-dlr .opts{margin-top:var(--sp-3)}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+@media(max-width:640px){
+.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+
+.birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
+}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -222,6 +274,8 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-dlr .field input,.page-dlr .field select{border-color:var(--dlr-line);background:var(--card);color:var(--dlr-deep)}
 
 .page-dlr .field input:focus,.page-dlr .field select:focus{border-color:var(--dlr);outline:none}
+
+.page-dlr .group-label{color:var(--dlr2)}
 
 .page-dlr .btn:not(.soft):not(.btn-ghost){background:var(--dlr);color:#fff}
 
@@ -366,7 +420,7 @@ body:has(.page-dlr) .scroll-jump:not(.show){display:none}</style>
     <div class="lead">输入起课时间，布天地盘、立四课发三传，配神煞课体断吉凶应期。</div>
     <div class="form-row r2">
       <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">占测日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" value="2026-10-29"></div>
-      <div class="field"><label for="shichen">占时（时辰）</label><select id="shichen"><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
+      <div class="field"><label for="dTime">占测时刻</label><input type="time" id="dTime"></div>
       <div class="field"><label for="drnCat">占事类别</label><select id="drnCat">
         <option>自身人事</option><option>家宅求财</option><option>官讼</option><option>婚姻</option><option>疾病</option><option>失物</option><option>出行</option><option>天时</option><option>求财</option><option>合作</option><option>交易</option><option>考试</option><option>升迁</option><option>行人</option><option>生产</option><option>寻人</option>
       </select></div>
@@ -387,6 +441,24 @@ body:has(.page-dlr) .scroll-jump:not(.show){display:none}</style>
       </div>
       <button class="btn" onclick="query()">起课</button>
     </div>
+    <div class="opts" id="dlOptsWrap">
+      <div class="birth-group compact" id="dlBirthGroup">
+        <div class="group-label">所在地（用于经度校正，内置行政区划经度）</div>
+        <div class="field"><label for="dlProv">省份</label><select id="dlProv" aria-label="所在地省份"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="dlCity">城市</label><select id="dlCity" aria-label="所在地城市"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="dlDist">区县</label><select id="dlDist" aria-label="所在地区县"><option value="未知地">未知地</option></select></div>
+        <div class="field hh-lng"><label for="dlLng">经度（可选）</label><input type="number" id="dlLng" step="0.01" placeholder="所在地" aria-label="手动经度东经度数"></div>
+      </div>
+      <div class="opts-row" id="dlOptsRow">
+        <div class="group-label">时间折算与流派</div>
+        <div class="field" id="dlDstField"><label for="dlDst">夏令时</label><select id="dlDst" aria-label="选择夏令时折算口径"><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option><option value="off">不折算（钟面即标准时）</option></select></div>
+        <div class="field"><label for="dlZi">子时算法</label><select id="dlZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
+        <div class="field"><label for="dlSun">太阳时</label><select id="dlSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+        <div class="field" id="dlTzOffField" hidden><label for="dlTzOff">时区偏移</label><select id="dlTzOff" aria-label="选择境外所在地标准时区偏移" onchange="dlOverseasChange()"></select></div>
+        <div class="field chk" id="dlLocalDstField" hidden><input type="checkbox" id="dlLocalDst" onchange="dlOverseasChange()"><label for="dlLocalDst">当地夏令时（钟面减1小时）</label></div>
+      </div>
+    </div>
+    <p class="sub-note" id="dlOverseasNote" hidden></p>
     <div class="sub-note" id="infoLine"></div>
     <div id="out"></div>
   <div id="aiMount"><details class="ai-block" id="aiBlock">
@@ -416,8 +488,10 @@ body:has(.page-dlr) .scroll-jump:not(.show){display:none}</style>
 <script data-sync="1" src="assets/dist/js/inline-daliuren-now.js"></script>
 <script defer fetchpriority="low" src="assets/lunar.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
+<script defer fetchpriority="low" src="assets/latlng.js"></script>
+<script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-daliuren-03.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-daliuren-04.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-daliuren-05.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-daliuren-06.js"></script>
 </body>
 </html>

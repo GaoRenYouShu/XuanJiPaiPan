@@ -226,24 +226,24 @@ function renderQiOutput(pan, cells, baseInfo, purpose){
     <details class="mh-ref qm-gloss-ref" id="qmSynCritRef"><summary>综合断语依据</summary><table class="qm-tbl crit-tbl"><thead><tr><th class="col-crit">项</th><th>判据</th><th>结果</th></tr></thead><tbody>${synCritRows||'<tr><td>无</td><td>无</td><td>未载</td></tr>'}</tbody></table></details>
     <details class="mh-ref qm-gloss-ref" id="qmEvidRef"><summary>断局证据与出处</summary><table class="qm-tbl evi-tbl"><thead><tr><th class="col-pai">派别</th><th class="col-layer">层</th><th class="col-ev">证据</th><th class="col-src">出处</th></tr></thead><tbody>${djSrcRows||'<tr><td>无</td><td>无</td><td>无</td><td>未载</td></tr>'}</tbody></table></details>`;
   qiHtml=`
-    <section class="mod" id="qmModBase"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModBase')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">基础信息</span><span class="mod-sub">四柱 局数 九宫格</span></div><div class="mod-body">
+    <section class="mod" id="qmModBase"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModBase')"><span class="mod-caret">▾</span><span class="mod-title">基础信息</span><span class="mod-sub">四柱 局数 九宫格</span></div><div class="mod-body">
      <table class="qm-tbl base-info"><tbody>${infoRows}</tbody></table>
      <div class="qi-board">${cells}</div>
      <div class="qi-legend">${QI_LEGEND}</div>
     </div></section>
-    <section class="mod" id="qmModGong"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
+    <section class="mod" id="qmModGong"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="mod-title">宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
      <table class="qm-tbl qm-tbl-sm"><thead><tr><th>宫</th><th>九星</th><th>八门</th><th>八神</th><th>门宫关系</th><th>星之旺衰</th><th>十干克应</th></tr></thead>
      <tbody>${gongOverviewRows}</tbody></table>
      <div class="qm-note">门迫（门克宫，事受制）<span class="qm-rel-xiong">红字</span>；门制（宫克门，力有牵制）<span class="qm-rel-ji">金字</span>。星旺衰：旺相<span class="qm-wx-wang">绿</span>、囚废<span class="qm-wx-ruo">红</span>、休平<span class="qm-wx-ping">灰</span>。</div>
     </div></section>
-    <section class="mod" id="qmModGeju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="gua-ico">✦</span><span class="mod-title">格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}${pan.family!=='时家'?'<div class="qm-note">非时家局：格局按盘面通用项列出。</div>':''}</div></section>
-    <section class="mod" id="qmModDuanju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModDuanju')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">断局特征</span><span class="mod-sub">宫气 用神网络 多派</span></div><div class="mod-body">
+    <section class="mod" id="qmModGeju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="mod-title">格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}${pan.family!=='时家'?'<div class="qm-note">非时家局：格局按盘面通用项列出。</div>':''}</div></section>
+    <section class="mod" id="qmModDuanju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModDuanju')"><span class="mod-caret">▾</span><span class="mod-title">断局特征</span><span class="mod-sub">宫气 用神网络 多派</span></div><div class="mod-body">
      ${djHtml}
     </div></section>
-    <section class="mod" id="qmModSynth"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">综合判断</span><span class="mod-sub">多派 用神 格局</span></div><div class="mod-body">
+    <section class="mod" id="qmModSynth"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModSynth')"><span class="mod-caret">▾</span><span class="mod-title">综合判断</span><span class="mod-sub">多派 用神 格局</span></div><div class="mod-body">
      <table class="qm-tbl zh-tbl"><tbody>${zhRows}</tbody></table>
     </div></section>
-    <section class="mod" id="qmModYingQi"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModYingQi')"><span class="mod-caret">▾</span><span class="gua-ico">▤</span><span class="mod-title">应期参考</span><span class="mod-sub">宫数 值使 空马 旺衰</span></div><div class="mod-body">
+    <section class="mod" id="qmModYingQi"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModYingQi')"><span class="mod-caret">▾</span><span class="mod-title">应期参考</span><span class="mod-sub">宫数 值使 空马 旺衰</span></div><div class="mod-body">
      ${yqHtml}
     </div></section>`;
 }/* 构建 AI 文本导出（__qm） */
@@ -472,7 +472,7 @@ function qShanChange(){
   const xiang=document.getElementById('qXiang');
   if(xiang) xiang.value=opp;
 }
-/* 出生地经度：手动经度优先，其次省市区三级经度真源；两处皆未定返回空，不按他地兜底 */
+/* 所在地经度：手动经度优先，其次省市区三级经度真源；两处皆未定返回空，不按他地兜底 */
 function qmBirthLng(){
   const v=document.getElementById('qmLng').value;
   if(String(v||'').trim()!==''&&isFinite(Number(v))) return parseFloat(v);
@@ -516,7 +516,7 @@ function paiju(){
   const ziMode=(document.getElementById('qmZi')||{}).value||'late';
   const sunMode=(document.getElementById('qmSun')||{}).value||'off';
   const lng=qmBirthLng();
-  if(sunMode!=='off'&&lng==null){ alert('太阳时校正已开，但未定出生地：请选择省市区或填写经度；若出生地无考，把太阳时改为不校正'); return; }
+  if(sunMode!=='off'&&lng==null){ alert('太阳时校正已开，但未定所在地：请选择省市区或填写经度；若所在地无考，把太阳时改为不校正'); return; }
   const pto=qmTimeOpts();
   const clockTxt=qmFmtClock(y,m,d,h,mi);
   let timeNote='';

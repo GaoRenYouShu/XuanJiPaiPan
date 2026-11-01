@@ -26,7 +26,7 @@ function cell(d,other,todayStr){
   const ld = lunar.getDayInChinese();
   const isToday = d.toDateString()===todayStr;
   const wd = d.getDay();
-  const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const key=`${d.getFullYear()}-${('0'+(d.getMonth()+1)).slice(-2)}-${('0'+d.getDate()).slice(-2)}`;
   /* 日历格 class：other 非本月、today 今日、weekend 周末、jq 节气日 */
   const cls = [other?'other':'', isToday?'today':'', (wd===0||wd===6)?'weekend':'', jq?'jq':''].filter(Boolean).join(' ');
   const jqMark = jq ? `<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>` : '';
@@ -403,13 +403,13 @@ function markToday(key){
 function initDefault(){
   const now = xjNowDate();
   cur = safeDate(now.getFullYear(), now.getMonth()+1, now.getDate());
-  lastSel = `${cur.getFullYear()}-${cur.getMonth()+1}-${cur.getDate()}`;
+  lastSel = `${cur.getFullYear()}-${('0'+(cur.getMonth()+1)).slice(-2)}-${('0'+cur.getDate()).slice(-2)}`;
   const input = document.getElementById('dInput');
   if (input) input.value = lastSel;
   const grid = document.getElementById('calGrid');
   const built = grid ? grid.getAttribute('data-built') : '';
   const builtMonth = built ? built.split('-').slice(0, 2).join('-') : '';
-  const curMonth = `${cur.getFullYear()}-${cur.getMonth()+1}`;
+  const curMonth = `${cur.getFullYear()}-${('0'+(cur.getMonth()+1)).slice(-2)}`;
   if (!grid || builtMonth !== curMonth) {
     render();
     showDay(lastSel);

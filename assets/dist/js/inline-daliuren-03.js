@@ -85,7 +85,7 @@ const LIUHE=['子丑','寅亥','卯戌','辰酉','巳申','午未'];
 const isLiuHe=(a,b)=>LIUHE.some(p=>p.indexOf(a)>=0&&p.indexOf(b)>=0);
 // 长生十二宫（阳干顺、阴干逆），用于干支败气判定
 const CHANGSHENG={木:['亥','子','丑','寅','卯','辰','巳','午','未','申','酉','戌'],火:['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'],金:['巳','午','未','申','酉','戌','亥','子','丑','寅','卯','辰'],水:['申','酉','戌','亥','子','丑','寅','卯','辰','巳','午','未']};
-// 毕法赋（凌福之《六壬毕法赋》/《六壬大全》卷十）：精选可用课盘判定的条目
+// 毕法赋（凌福之《六壬毕法赋》/《六壬大全》卷十一）：精选可用课盘判定的条目
 // 每条 {n:第几, title:条目名, hit:命中判定返回 true/false, say:释义}
 // 判定所需：o（日干支、四课、三传、天将、神煞等盘面数据）
 function bifaVerdicts(o){
@@ -94,19 +94,25 @@ function bifaVerdicts(o){
   const ganWx=GAN_WX[o.dGan];
   const dun=DUN_GAN[o.dGan]||{};
   const luZhi=dun.lu, dingZhi=dun.ding;
-  const dingOn=tianOn(dingZhi);
   const jg=JIGONG[o.dGan];
   const ganShang=tianOn(jg), zhiShang=tianOn(o.dZhi);   // 干上神、支上神
+  const dingHit = !!dingZhi && (ganShang===dingZhi || c.chu===dingZhi || c.zhong===dingZhi || c.mo===dingZhi);
   // 三传十神简判：比、生、食、财、官、泄
   const tenOf = z => { const w=ZHI_WX[z]; if(w===ganWx)return '比'; if(SHENG[ganWx]===w)return '生'; if(SHENG[w]===ganWx)return '食'; if(WX_KE2[ganWx]===w)return '财'; if(WX_KE2[w]===ganWx)return '官'; return '泄'; };
   const t1=tenOf(c.chu), t2=tenOf(c.zhong), t3=tenOf(c.mo);
   const hits=[];
-  // 第三十一 三传递生人举荐：三传递相生
-  if(SHENG[ganWx]===ZHI_WX[c.chu]&&SHENG[ZHI_WX[c.chu]]===ZHI_WX[c.zhong]&&SHENG[ZHI_WX[c.zhong]]===ZHI_WX[c.mo])
-    hits.push({n:'三十一',title:'三传递生人举荐',say:'三传干支递相生，主得人层层举荐、步步有人提携，谋事易成。'});
-  // 第三十二 三传互克众人欺：三传相互克制
-  if(WX_KE2[ZHI_WX[c.chu]]===ZHI_WX[c.zhong]||WX_KE2[ZHI_WX[c.zhong]]===ZHI_WX[c.mo]||WX_KE2[ZHI_WX[c.chu]]===ZHI_WX[c.mo])
-    hits.push({n:'三十二',title:'三传互克众人欺',say:'三传相互克制，主同行相争、众人排挤，凡事多掣肘难成。'});
+  // 第三十一 三传递生人举荐：初生中、中生末、末生日干，或末生中、中生初、初生日干
+  const wxS=z=>ZHI_WX[z];
+  const shengChain = (SHENG[wxS(c.chu)]===wxS(c.zhong)&&SHENG[wxS(c.zhong)]===wxS(c.mo)&&SHENG[wxS(c.mo)]===ganWx)
+    || (SHENG[wxS(c.mo)]===wxS(c.zhong)&&SHENG[wxS(c.zhong)]===wxS(c.chu)&&SHENG[wxS(c.chu)]===ganWx);
+  if(shengChain)
+    hits.push({n:'三十一',title:'三传递生人举荐',say:'三传递相生且生及日干，主得人层层举荐、步步有人提携，谋事易成。'});
+  // 第三十二 三传互克众人欺：初克中、中克末、末克日干，或末克中、中克初、初克日干
+  const keToGan=z=>WX_KE2[ZHI_WX[z]]===ganWx;
+  const keChain = (WX_KE2[wxS(c.chu)]===wxS(c.zhong)&&WX_KE2[wxS(c.zhong)]===wxS(c.mo)&&keToGan(c.mo))
+    || (WX_KE2[wxS(c.mo)]===wxS(c.zhong)&&WX_KE2[wxS(c.zhong)]===wxS(c.chu)&&keToGan(c.chu));
+  if(keChain)
+    hits.push({n:'三十二',title:'三传互克众人欺',say:'三传递相克且克及日干，主同行相争、众人排挤，凡事多掣肘难成。'});
   // 第二十一 交车相合交关利：干支上神相合
   if(isLiuHe(ganShang,zhiShang))
     hits.push({n:'二十一',title:'交车相合交关利',say:'干支上神六合，主内外交关顺遂、合作交易有利。'});
@@ -114,16 +120,16 @@ function bifaVerdicts(o){
   if(isLiuHe(ganShang,zhiShang)&&isLiuHe(jg,o.dZhi))
     hits.push({n:'二十二',title:'上下皆合两心齐',say:'干支上下皆合，主双方心意相合、宾主融洽，谋事顺遂。'});
   // 第二十五 金日逢丁凶祸动：金日（庚辛）逢丁神动
-  if((o.dGan==='庚'||o.dGan==='辛')&&dingOn)
+  if((o.dGan==='庚'||o.dGan==='辛')&&dingHit)
     hits.push({n:'二十五',title:'金日逢丁凶祸动',say:'庚辛金日而丁神动，主凶祸变动，家有惊扰，宜静守防意外。'});
   // 第二十六 水日逢丁财动之：水日（壬癸）逢丁神动
-  if((o.dGan==='壬'||o.dGan==='癸')&&dingOn)
+  if((o.dGan==='壬'||o.dGan==='癸')&&dingHit)
     hits.push({n:'二十六',title:'水日逢丁财动之',say:'壬癸水日而丁神动，主动财、财利有变，求财易动。'});
   // 第七 旺禄临身徒妄作：日禄（又作日旺神）临于干上，宜守禄勿妄作
   if(ganShang===luZhi)
     hits.push({n:'七',title:'旺禄临身徒妄作',say:'日之旺禄临于干上，宜安守本禄；舍此而别谋，反多虚妄、得不偿失。'});
   // 第八 权摄不正禄临支：日干禄神加临日支（地盘）上
-  if(tianOn(luZhi)===o.dZhi)
+  if(tianOn(o.dZhi)===luZhi)
     hits.push({n:'八',title:'权摄不正禄临支',say:'日禄加临支上，主所谋权柄不正、受宅事或他人牵制，禄不自主。'});
   // 第一 前后引从升迁吉：初传居干（寄宫）前为引、末传居干后为从，或初末引从支
   //（近似：初传所临地盘在日干寄宫与日支之间的序位关系引从）
@@ -168,27 +174,27 @@ const DLR_SCHOOL_DOC={
   },
   '六壬大全':{
     src:'明代郭载騋辑，四库全书子部术数类所收六壬完帙，十二卷。卷首总论起例与神将，卷三以下分课体与类占，卷十载《毕法赋》。',
-    claim:'月将总以中气过宫，太阳逢中气始过宫，据时宪书某日某时定之；起贵取甲羊戊庚牛一系，四库提要引《吴越春秋》子胥、范蠡二课，甲日丑为阴贵、戊日丑为阳贵。昼夜本页取古法以日出入为限，星没为旦、星出为暮。取传循九宗门次第，课体与神将类占并重。',
+    claim:'月将总以中气过宫，太阳逢中气始过宫，据时宪书某日某时定之；起贵取甲羊戊庚牛一系，四库提要引《吴越春秋》子胥、范蠡二课，甲日丑为阴贵、戊日丑为阳贵。昼夜取古法以日出入为限，星没为旦、星出为暮。取传循九宗门次第，课体与神将类占并重。',
     diff:'与《御定六壬直指》同取甲羊戊庚牛、中气过宫，只昼夜分界不同：本派以寅申分阴阳，昼占时段较卯酉为限者多寅、酉两时，故这两时的占课天将排列整体错开。'
   },
   '六壬指南':{
     src:'明代陈公献撰，清顺治程起鸾、庄公远校刊。卷首为占验序与分门会纂，正文收《大六壬心印赋》《大六壬九天玄女指掌赋》二赋注解，卷末附《大六壬神煞指南》。',
-    claim:'本典为赋注与占验专书，未特立起课口径。本页从通行：起贵取正法甲戊庚牛羊，昼夜取卯至申为昼，月将取节气过宫，过节即换月建六合为将。取传循九宗门次第，断法重神将象意与分门类占。',
+    claim:'本典为赋注与占验专书，未特立起课口径。未特立起课口径，取通行：起贵取正法甲戊庚牛羊，昼夜取卯至申为昼，月将取节气过宫，过节即换月建六合为将。取传循九宗门次第，断法重神将象意与分门类占。',
     diff:'与他派之别在起贵口诀与月将过宫：本派取甲戊庚牛羊，甲日阳贵在丑而非未；月将以节换将，较中气过宫者早约半月，交节后至中气前的半月内两派月将相差一宫，天地盘整体错开。'
   },
   '大六壬断案':{
     src:'宋代邵彦和撰，后学辑录其占验课例二百余则，分天时、宅墓、前程仕进、终身、流年、婚姻、胎产诸门，以实例立断。',
-    claim:'本典为课例专书，未特立起课口径。本页从通行：起贵取正法甲戊庚牛羊，昼夜取寅至酉为昼，月将取节气过宫。取传涉害优先，多克时先较涉害深浅，取涉害深者发用；深浅相同取孟神（见机），无孟取仲神（察微），复等取干上神（缀瑕）。断法重类神与年命行年。',
+    claim:'本典为课例专书，未特立起课口径。未特立起课口径，取通行：起贵取正法甲戊庚牛羊，昼夜取寅至酉为昼，月将取节气过宫。取传涉害优先，多克时先较涉害深浅，取涉害深者发用；深浅相同取孟神（见机），无孟取仲神（察微），复等取干上神（缀瑕）。断法重类神与年命行年。',
     diff:'与他派之别在昼夜分界与取传：本派以寅申分阴阳，昼占时段较卯至申一系多寅、酉两时；遇多克不先比用，径较涉害，故课体复杂的盘上初传常与九宗门次第者不同。'
   },
   '毕法赋':{
     src:'宋代凌福之撰，六壬课体断语百法，见《六壬大全》卷十，逐条以课体格局定吉凶。',
-    claim:'本典为断语专书，未及起课口径。本页从通行：起贵取正法甲戊庚牛羊，昼夜取卯至申为昼，月将取中气过宫。取传涉害优先，断法以课体条文为纲，参神将类神。',
+    claim:'本典为断语专书，未及起课口径。未及起课口径，取通行：起贵取正法甲戊庚牛羊，昼夜取卯至申为昼，月将取中气过宫。取传涉害优先，断法以课体条文为纲，参神将类神。',
     diff:'与《大六壬断案》同取涉害优先，昼夜分界与月将过宫不同：本派取卯至申为昼、中气过宫，故寅酉两时的昼夜归属与交节后半月内的月将，两派各异。'
   }
 };
 /* 页内并存诸说：起贵、昼夜、月将三轴各有两说，均注明出处，可在表单单独切换 */
-const DLR_SCHOOL_NOTE='页内并存诸说：起贵口诀有甲羊戊庚牛（《御定六壬直指》起例、四库本《六壬大全》提要古例）与甲戊庚牛羊（汉简与六朝式盘所载正法）两系；昼夜分界有卯至申为昼（通行捷法，《御定六壬直指》起例明载）与寅至酉为昼（寅申分阴阳一说，见《六壬大占》）两说；月将过宫有中气过宫与节气过宫（过节换将，取月建六合为将）两说。三轴均可在上方表单单独切换。';
+const DLR_SCHOOL_NOTE='页内并存诸说：起贵口诀有甲羊戊庚牛（《御定六壬直指》起例、四库本《六壬大全》提要古例）与甲戊庚牛羊（汉简与六朝式盘所载正法）两系；昼夜分界有卯至申为昼（通行捷法，《御定六壬直指》起例明载）与寅至酉为昼（寅申分阴阳一说，见《六壬大占》）两说；月将过宫有中气过宫与节气过宫（过节换将，取月建六合为将）两说。昼夜与月将两轴可在上方表单单独切换，起贵口诀随所选流派而定。';
 function fillDlSchool(){document.getElementById('dlSchool').innerHTML=Object.keys(DALIUREN_SCHOOLS).map(k=>`<option value="${k}">《${k}》</option>`).join('');}
 /* 换流派即套用该典籍预设口径，昼夜与月将两轴仍可单独切换 */
 function dlrApplySchoolPreset(){
@@ -209,7 +215,7 @@ const TIANJIANG_INFO={
 const DRN_LEI={
  '自身人事':{yong:'日干',desc:'占自身、官贵、行人，以日干为类神（干为外为动、为所占之人）。'},
  '家宅求财':{yong:'日支',desc:'占家宅、求财、田土，以日支为类神（支为内为本、为宅与财源）。'},
- '官讼':{yong:'官鬼（日干所克）',desc:'占官讼、功名，以日干所克之阳鬼、阴鬼为类神，视其临传与否。'},
+ '官讼':{yong:'官鬼（克日干者）',desc:'占官讼、功名，以克日干之阳鬼、阴鬼为类神，视其临传与否。'},
  '婚姻':{yong:'男看日干、女看日支',desc:'占婚姻，男看日干、女看日支，参三传青龙、六合之吉凶。'},
  '疾病':{yong:'日干为身、官鬼为病',desc:'占病，以日干为身、官鬼为病根、子孙为药，观生克旺衰。'},
  '失物':{yong:'日支上神、财',desc:'占失物，以日支上神与妻财为类神，玄武主盗失之方。'},
@@ -272,7 +278,13 @@ function query(){
   const v=document.getElementById('dInput').value; if(!v)return;
   const shiIdx=parseInt(document.getElementById('shichen').value,10);
   const [y,m,d]=v.split('-').map(Number);
-  const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
+  if(!(m>=1&&m<=12)){ document.getElementById('infoLine').textContent='日期格式不合，请按 2026-10-31 填写。'; return; }
+  const dim=[31,(y%4===0&&(y%100!==0||y%400===0))?29:28,31,30,31,30,31,31,30,31,30,31][m-1];
+  if(!(d>=1&&d<=dim)){ document.getElementById('infoLine').textContent='日期不存在，请核对年月日。'; return; }
+  let solar;
+  try{ solar=Solar.fromYmd(y,m,d); }catch(e){ document.getElementById('infoLine').textContent='日期超出可排范围，请核对年月日。'; return; }
+  if(solar.getYear()!==y||solar.getMonth()!==m||solar.getDay()!==d){ document.getElementById('infoLine').textContent='日期不存在，请核对年月日。'; return; }
+  const lunar=solar.getLunar();
   const dgz=lunar.getDayInGanZhi(); const dGan=dgz[0], dZhi=dgz[1];
   const shiZhi=ZHI[shiIdx];
   const skName=document.getElementById('dlSchool').value;
@@ -318,9 +330,13 @@ function query(){
   const lei=DRN_LEI[dcat]||DRN_LEI['自身人事'];
   const chuan=deriveChuan(ke,dGan,tianOn,sc.faYong,{dZhi,shiZhi,jiang,tianOn});
   // 本命行年：男命寅上起一岁顺行、女命申上起一岁逆行（虚岁）
-  const birth=(document.getElementById('dBirth')||{}).value?document.getElementById('dBirth').value.trim():'';
+  let birth=(document.getElementById('dBirth')||{}).value?document.getElementById('dBirth').value.trim():'';
   const sex=(document.getElementById('dSex')||{}).value||'男';
   let benMing=null, xingNian=null;
+  if(birth && !/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(birth)){
+    document.getElementById('infoLine').textContent+='　本命年请填干支两字，如 庚午，已按不填处理。';
+    birth='';
+  }
   if(birth && birth.length===2){
     const GAN10=GAN, ZHI12=ZHI;
     const g0=GAN10.indexOf(birth[0]), z0=ZHI12.indexOf(birth[1]);
@@ -359,12 +375,16 @@ function query(){
   };
   render(o);
   LAST={dgz,dGan,dZhi,shiZhi,jiang,tian,jiangOnTian,ke,chuan,guiZhi,day,school:document.getElementById('dlSchool').value,o};
- }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起课出错：'+(e.message||e)+'</p>'; }
+ }catch(e){ if(window.console) console.error(e); document.getElementById('out').innerHTML='<p class="notice">起课出错：请核对日期与时辰后重试。</p>'; }
 }
 function deriveChuan(ke,dGan,tianOn,faYong,ctx){
   // 收集上克下、下克上
   const xiaKe=[], shangKe=[]; // 元素 {u,d}
+  const seenKe=new Set();
   ke.forEach(k=>{
+    const sig=k.u+k.d;
+    if(seenKe.has(sig)) return;           // 四课不全时同课重出，按一课计
+    seenKe.add(sig);
     if(keOf(k.d,k.u)) xiaKe.push(k);      // 下克上（贼）
     if(keOf(k.u,k.d)) shangKe.push(k);    // 上克下（克）
   });
@@ -374,15 +394,18 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
   const dZhi=ctx2.dZhi||'';
   const jg=ctx2.jg||JIGONG[dGan];
   const tOn=ctx2.tianOn||tianOn;
-  // 八专：日干寄宫与日支同宫（甲寅、庚申、丁未、己未、癸丑、辛丑），四课只有两课
+  // 天盘支反查所临地盘：tian[i]=jiang+(i-shi)，故地盘位 i=天盘支-月将+占时
+  const diUnderTian = z => (ctx2.jiang&&ctx2.shiZhi)
+    ? ZHI[((ZHI.indexOf(z)-ZHI.indexOf(ctx2.jiang)+ZHI.indexOf(ctx2.shiZhi))%12+12)%12] : '';
+  // 八专：日干寄宫与日支同宫（甲寅、庚申、丁未、己未、癸丑），四课只有两课
   const baZhuan = jg===dZhi;
   // 伏吟：天地盘同宫（月将与占时同支）；返吟：天地盘对冲（月将与占时相冲）
   const fuYin = ctx2.jiang===ctx2.shiZhi;
   const fanYin = (ctx2.jiang && ctx2.shiZhi) ? (['巳','亥'].includes(ctx2.jiang)&&['亥','巳'].includes(ctx2.shiZhi) ? true :
     Math.abs(ZHI.indexOf(ctx2.jiang)-ZHI.indexOf(ctx2.shiZhi))===6) : false;
-  function biYong(list){ // 比用：取与日干阴阳相同者
+  function biYong(list){ // 比用：取与日干阴阳相同者；俱比或俱不比让位涉害
     const same=list.filter(k=>(['子','寅','辰','午','申','戌'].includes(k.u))===yangGan);
-    return (same[0]||list[0]).u;
+    return same.length===1?same[0].u:null;
   }
   // 涉害（见机、察微）：多克俱比、俱不比时，取"涉地盘归本家受克最深"者发用。
   // 深浅法：受克者从所临天盘之位顺数至地盘本位，沿途每遇克其五行之地支或藏干即计一重，涉害多者为用；
@@ -392,7 +415,7 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
     // list 内元素 {u:上神(受克方), d:下神}；prefix 用于伏吟、返吟时的方法名前缀
     const depth = k => {
       const uWx=ZHI_WX[k.u];                     // 受克方五行
-      const diIdx=ZHI.indexOf(tianOn(k.u));       // 上神所临地盘位（起点）
+      const diIdx=ZHI.indexOf(k.d);               // 上神所临地盘位（起点）
       let n=0;
       for(let i=1;i<12;i++){
         const z=ZHI[(diIdx+i)%12];
@@ -410,10 +433,17 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
     if(meng.length) return {chu:meng[0].u, method:prefix+'涉害（见机）'};
     const zhong=deepest.filter(k=>['子','午','卯','酉'].includes(k.u));
     if(zhong.length) return {chu:zhong[0].u, method:prefix+'涉害（察微）'};
-    // 缀瑕：深浅与孟仲皆同，取干上神发用
-    const ganShang=tOn(jg);
-    const duok = (deepest.find(k=>k.u===ganShang)||deepest[0]).u;
-    return {chu:duok, method:prefix+'涉害（缀瑕取干上神）'};
+    // 缀瑕：深浅与孟仲皆同，阳日取干上神、阴日取支上神
+    const target = yangGan? tOn(jg) : tOn(dZhi);
+    const duok = (deepest.find(k=>k.u===target)||deepest[0]).u;
+    return {chu:duok, method:prefix+'涉害（缀瑕取'+(yangGan?'干上神':'支上神')+'）'};
+  }
+  // 多克先比用，俱比或俱不比较涉害；单一克直取重审元首
+  function keFa(list, kind){
+    if(list.length===1) return {chu:list[0].u, method:(kind==='下贼'?'重审（下贼上）':'元首（上克下）')};
+    const bi=biYong(list);
+    if(bi) return {chu:bi, method:'比用（'+kind+'取一）'};
+    return sheHai(list,'');
   }
   // 遥克：先取上神克日干（蒿矢），无则取日干克上神（弹射）；多克者取与日干阴阳相同者（比用）
   function yaoKe(){
@@ -427,9 +457,7 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
   // 昴星（无克且四课全）：阳日取地盘酉上神（昴星虎视），阴日取天盘酉下神（昴星冬蛇）
   function angXing(){
     if(yangGan) return tOn('酉')||ke[0].u;      // 阳日虎视：酉上神
-    const youTian=tOn('酉');                     // 阴日冬蛇：天盘酉之下神
-    const diYou=ZHI[(ZHI.indexOf(youTian)+6)%12];
-    return diYou||ke[0].u;
+    return diUnderTian('酉')||ke[0].u;           // 阴日冬蛇：天盘酉之下神
   }
   // 别责（四课不全且无克）：阳日取日干所合之干寄宫上神为初传，阴日取日支三合前一位之支上神为初传；中末皆取干上神。
   function bieZe(){
@@ -452,9 +480,9 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
     if(yangGan) return ganShang||zhiShang||ke[0].u;   // 阳日自任
     return zhiShang||ganShang||ke[0].u;               // 阴日自信
   }
-  // 返吟无克：井栏射（取日支驿马发用；阴柔六日丁丑丁未己丑己未辛丑辛未）
+  // 返吟无克：井栏射（取日支驿马发用；无克惟己丑、丁丑、辛未、辛丑四日）
   function fanYinFa(){
-    return tOn(YIMA[dZhi])||ke[0].u;
+    return YIMA[dZhi]||ke[0].u;
   }
   // 地支相刑（初刑中、中刑末）；自刑四支：辰午酉亥
   const XING={'子':'卯','卯':'子','寅':'巳','巳':'申','申':'寅','丑':'戌','戌':'未','未':'丑','辰':'辰','午':'午','酉':'酉','亥':'亥'};
@@ -472,8 +500,8 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
   }
   if(baZhuan){
     // 八专：有克先取克（比用、涉害），无克取干上神顺逆数三位发用；中末不论阴阳皆取干上神
-    if(xiaKe.length){ const r=sheHai(xiaKe,'八专（下贼、'); chu=r.chu; method=r.method+'）'; }
-    else if(shangKe.length){ const r=sheHai(shangKe,'八专（上克、'); chu=r.chu; method=r.method+'）'; }
+    if(xiaKe.length){ const r=keFa(xiaKe,'下贼'); chu=r.chu; method='八专：'+r.method; }
+    else if(shangKe.length){ const r=keFa(shangKe,'上克'); chu=r.chu; method='八专：'+r.method; }
     else{
       // 无克：阳日自干上神顺数三位，阴日自第四课上神逆数三位；中末皆归干上神
       const ganShang=tOn(jg);
@@ -488,15 +516,15 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
   }
   if(fuYin){
     // 伏吟：有克取克（比用、涉害），无克阳日自任取干上、阴日自信取支上；三传皆循刑，自刑则取冲
-    if(xiaKe.length){ const r=sheHai(xiaKe,'伏吟（下贼、'); chu=r.chu; method=r.method+'）'; }
-    else if(shangKe.length){ const r=sheHai(shangKe,'伏吟（上克、'); chu=r.chu; method=r.method+'）'; }
+    if(xiaKe.length){ const r=keFa(xiaKe,'下贼'); chu=r.chu; method='伏吟：'+r.method; }
+    else if(shangKe.length){ const r=keFa(shangKe,'上克'); chu=r.chu; method='伏吟：'+r.method; }
     else { chu=fuYinFa(); method='伏吟（'+(yangGan?'自任取干上神':'自信取支上神')+'）'; }
     const r=fuYinChuan(chu); return {chu:r.chu,zhong:r.zhong,mo:r.mo,method};
   }
   if(fanYin){
     // 返吟：有克取克（比用、涉害）为无依格，中末递传；无克为井栏射，取日支驿马（支冲）发用，中取支上、末取干上
-    if(xiaKe.length){ const r=sheHai(xiaKe,'返吟（下贼、'); chu=r.chu; method=r.method+'）'; const d=diChuan(chu); return {chu:d.chu,zhong:d.zhong,mo:d.mo,method}; }
-    if(shangKe.length){ const r=sheHai(shangKe,'返吟（上克、'); chu=r.chu; method=r.method+'）'; const d=diChuan(chu); return {chu:d.chu,zhong:d.zhong,mo:d.mo,method}; }
+    if(xiaKe.length){ const r=keFa(xiaKe,'下贼'); chu=r.chu; method='返吟无依：'+r.method; const d=diChuan(chu); return {chu:d.chu,zhong:d.zhong,mo:d.mo,method}; }
+    if(shangKe.length){ const r=keFa(shangKe,'上克'); chu=r.chu; method='返吟无依：'+r.method; const d=diChuan(chu); return {chu:d.chu,zhong:d.zhong,mo:d.mo,method}; }
     chu=fanYinFa(); method='返吟井栏射（无克取支驿马发用）';
     return {chu, zhong:tOn(dZhi), mo:tOn(jg), method};
   }
@@ -507,23 +535,21 @@ function deriveChuan(ke,dGan,tianOn,faYong,ctx){
     else if(shangKe.length===1){ chu=shangKe[0].u; method='元首（上克下）'; }
     else if(shangKe.length>1){ const r=sheHai(shangKe,''); chu=r.chu; method=r.method; }
     else{
-      if(sanBei()){ chu=bieZe(); method=(yangGan?'别责（阳日取干合上神）':'别责（阴日取支前三合上神）');
-        const ganShang=tOn(jg); return {chu,zhong:ganShang,mo:ganShang,method}; }
       const yk=yaoKe();
       if(yk){ chu=yk.chu; method=yk.method; }
+      else if(sanBei()){ chu=bieZe(); method=(yangGan?'别责（阳日取干合上神）':'别责（阴日取支前三合上神）');
+        const ganShang=tOn(jg); return {chu,zhong:ganShang,mo:ganShang,method}; }
       else{ chu=angXing(); method=(yangGan?'昴星虎视（阳日取地盘酉上神）':'昴星冬蛇（阴日取天盘酉下神）');
         return yangGan? {chu, zhong:tOn(dZhi), mo:tOn(jg), method} : {chu, zhong:tOn(jg), mo:tOn(dZhi), method}; }
     }
   } else {
-    if(xiaKe.length===1){ chu=xiaKe[0].u; method='重审（下贼上）'; }
-    else if(xiaKe.length>1){ chu=biYong(xiaKe); method='比用（下贼上取一）'; }
-    else if(shangKe.length===1){ chu=shangKe[0].u; method='元首（上克下）'; }
-    else if(shangKe.length>1){ chu=biYong(shangKe); method='比用（上克下取一）'; }
+    if(xiaKe.length){ const r=keFa(xiaKe,'下贼'); chu=r.chu; method=r.method; }
+    else if(shangKe.length){ const r=keFa(shangKe,'上克'); chu=r.chu; method=r.method; }
     else{
-      if(sanBei()){ chu=bieZe(); method=(yangGan?'别责（阳日取干合上神）':'别责（阴日取支前三合上神）');
-        const ganShang=tOn(jg); return {chu,zhong:ganShang,mo:ganShang,method}; }
       const yk=yaoKe();
       if(yk){ chu=yk.chu; method=yk.method; }
+      else if(sanBei()){ chu=bieZe(); method=(yangGan?'别责（阳日取干合上神）':'别责（阴日取支前三合上神）');
+        const ganShang=tOn(jg); return {chu,zhong:ganShang,mo:ganShang,method}; }
       else{ chu=angXing(); method=(yangGan?'昴星虎视（阳日取地盘酉上神）':'昴星冬蛇（阴日取天盘酉下神）');
         return yangGan? {chu, zhong:tOn(dZhi), mo:tOn(jg), method} : {chu, zhong:tOn(jg), mo:tOn(dZhi), method}; }
     }
@@ -543,14 +569,29 @@ function baihua(o){
   const tianOn=z=>o.tian[ZHI.indexOf(z)];
   let leiZhi, leiFrom;
   const ly=o.lei.yong;
+  const ganWxL=GAN_WX[o.dGan];
+  const isGuanGui=z=>WX_KE2[ZHI_WX[z]]===ganWxL;   // 克日干者为官鬼
+  const guanGuiHit=()=>{
+    const ch=[c.chu,c.zhong,c.mo].filter(isGuanGui);
+    if(ch.length) return {zhi:ch[0], from:'三传'};
+    const ks=o.ke.map(k=>k.u).filter(isGuanGui);
+    if(ks.length) return {zhi:ks[0], from:'四课上神'};
+    return {zhi:'', from:''};
+  };
   if(ly==='日支'||ly==='日支上神、财'){ leiZhi=tianOn(o.dZhi); leiFrom='日支'+o.dZhi+'的上神'; }
   else if(ly==='天将所属'){ leiZhi=c.chu; leiFrom='初传天将'; }
+  else if(ly.indexOf('官鬼')>=0){ const g=guanGuiHit(); leiZhi=g.zhi; leiFrom=g.zhi?(g.from+'所见官鬼'):''; }
+  else if(ly==='男看日干、女看日支'){
+    if(o.sex==='女'){ leiZhi=tianOn(o.dZhi); leiFrom='日支'+o.dZhi+'的上神'; }
+    else { leiZhi=tianOn(jg); leiFrom='日干寄宫'+jg+'的上神'; }
+  }
   else { leiZhi=tianOn(jg); leiFrom='日干寄宫'+jg+'的上神'; }
-  const leiWx=ZHI_WX[leiZhi], ganWx=GAN_WX[o.dGan];
+  const ganWx=GAN_WX[o.dGan];
   let leiState;
-  if(leiWx===ganWx||SHENG[ganWx]===leiWx) leiState='类神得日干生扶或比和，旺相有气，所占之事易成';
-  else if(WX_KE2[ganWx]===leiWx) leiState='日干可克类神（我制之），事情尚能掌控';
-  else if(WX_KE2[leiWx]===ganWx) leiState='类神反克日干，事多受制、费力';
+  if(!leiZhi) leiState='课中未见官鬼，类神不现，宜参三传天将与年命另断';
+  else if(ZHI_WX[leiZhi]===ganWx||SHENG[ganWx]===ZHI_WX[leiZhi]) leiState='类神得日干生扶或比和，旺相有气，所占之事易成';
+  else if(WX_KE2[ganWx]===ZHI_WX[leiZhi]) leiState='日干可克类神（我制之），事情尚能掌控';
+  else if(WX_KE2[ZHI_WX[leiZhi]]===ganWx) leiState='类神反克日干，事多受制、费力';
   else leiState='类神与日干无甚生克，旺衰平平';
   // 三传天将吉凶统计
   const tjs=[tj(c.chu),tj(c.zhong),tj(c.mo)].filter(Boolean);
@@ -574,14 +615,14 @@ function baihua(o){
     const luInfo=luT ? '，临'+tj(luT)+jxSuffix(tj(luT)) : '';
     const deInfo=deT ? '，临'+tj(deT)+jxSuffix(tj(deT)) : '';
     const dinInfo=dinT ? '，临'+tj(dinT)+jxSuffix(tj(dinT)) : '';
-    dunLine=`<p>${o.dGan}干之禄神在<b>${dun.lu}</b>（天盘${luT}）${luInfo}；德神在<b>${dun.de}</b>（天盘${deT}）${deInfo}；丁神在<b>${dun.ding}</b>（天盘${dinT}）${dinInfo}。禄德为旺气吉神，丁神主动应，视其临传与类神定其吉凶。</p>`;
+    dunLine=`${o.dGan}干之禄神在${dun.lu}（天盘${luT}）${luInfo}；德神在${dun.de}（天盘${deT}）${deInfo}；丁神在${dun.ding}（天盘${dinT}）${dinInfo}。禄德为旺气吉神，丁神主动应，视其临传与类神定其吉凶。`;
   }
   // 本命行年
   let benLine='';
   if(o.benMing&&o.xingNian){
     const bz=o.benMing.zhi, bzT=tianOn(bz);
     const xz=o.xingNian.zhi, xzT=tianOn(xz);
-    benLine=`<p><b>本命行年</b>：本命 <b>${o.benMing.gan}${o.benMing.zhi}</b>，${o.sex}命，虚岁 ${o.xingNian.age}，行年支 <b>${xz}</b>（${xzT?'天盘'+xzT+'，临'+tjInfo(xzT):'天盘'+xzT}）；本命支 ${bz}（${bzT?'天盘'+bzT+'，临'+tjInfo(bzT):'天盘'+bzT}）。行年落宫之神即本人当前所行之气，参其吉凶与类神生克断事。</p>`;
+    benLine=`本命行年：本命 ${o.benMing.gan}${o.benMing.zhi}，${o.sex}命，虚岁 ${o.xingNian.age}，行年支 ${xz}，${xzT?'天盘'+xzT+'，临'+tjInfo(xzT):'天盘'+xzT}；本命支 ${bz}，${bzT?'天盘'+bzT+'，临'+tjInfo(bzT):'天盘'+bzT}。行年落宫之神即本人当前所行之气，参其吉凶与类神生克断事。`;
   }
   // 三传行（同句分号分隔）
   const chuanHtml = `初传 ${wxSpan(c.chu)} ${tjInfo(c.chu)}（${yz(c.chu)}）；中传 ${wxSpan(c.zhong)} ${tjInfo(c.zhong)}（${yz(c.zhong)}）；末传 ${wxSpan(c.mo)} ${tjInfo(c.mo)}（${yz(c.mo)}）`;
@@ -590,9 +631,9 @@ function baihua(o){
     ['天地盘', '天盘为月将加占时布出的动态盘，地盘为十二地支本位；十二天将随天盘排布，各主吉凶。'],
     ['四课', `以日干、日支为中心取上方天盘之神成四层。${keDesc}。`],
     ['三传', `${chuanHtml}`],
-    ['类神', `本占（${o.dcat}）以 ${o.lei.yong} 为类神。${o.lei.desc}类神落 ${wxSpan(leiZhi)}（${leiFrom}），临 ${tjInfo(leiZhi)}。${leiState}。`],
-    ['干遁', dunLine ? dunLine.replace(/<[^>]+>/g,'').replace(/<p>/g,'').replace(/<\/p>/g,'') : '无'],
-    ['本命', benLine ? benLine.replace(/<[^>]+>/g,'').replace(/<p>/g,'').replace(/<\/p>/g,'') : '未填本命年'],
+    ['类神', `本占（${o.dcat}）以 ${o.lei.yong} 为类神。${o.lei.desc}类神落 ${leiZhi?wxSpan(leiZhi):'未现'}（${leiFrom||'课中未见'}），临 ${leiZhi?tjInfo(leiZhi):'无'}。${leiState}。`],
+    ['干遁', dunLine||'无'],
+    ['本命', benLine||'未填本命年'],
     ['吉凶', tjSummary],
     ['应期', `${yq}（阳传应期速、阴传应期迟）。`],
     ['总结', `占${o.dcat}，以类神为事之核心，看类神旺衰与所临天将吉凶，再合三传定应期，${jiN>xN?'吉神多于凶神，整体偏利':jiN<xN?'凶神多于吉神，宜谨慎防阻':'吉凶参半，须审时度势'}。`]
@@ -623,8 +664,11 @@ function render(o){
   grid+='</div>';
   // 四课
   const keHtml=o.ke.slice().reverse().map(k=>{
-    let rel = keOf(k.d,k.u)?'下克上贼' : keOf(k.u,k.d)?'上克下克' : '比和';
-    let relCls = rel==='比和'?'lr-rel-ping':'lr-rel-ke';
+    let rel, relCls='lr-rel-ping';
+    if(keOf(k.d,k.u)){ rel='下贼上'; relCls='lr-rel-ke'; }
+    else if(keOf(k.u,k.d)){ rel='上克下'; relCls='lr-rel-ke'; }
+    else if(ZHI_WX[k.u]===ZHI_WX[k.d]){ rel='比和'; }
+    else { rel=SHENG[ZHI_WX[k.d]]===ZHI_WX[k.u]?'下生上':'上生下'; }
     return `<div class="lr-ke">
     <div class="lr-ke-u">${wxSpan(k.u)}</div><div class="lr-ke-d">${wxSpan(k.d)}</div>
     <div class="lr-ke-l">${k.lbl}</div><div class="lr-ke-rel ${relCls}">${rel}</div></div>`;
@@ -652,7 +696,7 @@ function render(o){
     <section class="mod collapsed" id="dlrModPan"><div class="mod-head" onclick="dlrToggleMod('dlrModPan')"><span class="mod-caret">▾</span><span class="gua-ico">☷</span><span class="mod-title">天地盘</span><span class="mod-sub">${o.jiangKey} 十二天将</span></div><div class="mod-body">${grid}</div></section>
     <section class="mod collapsed" id="dlrModKe"><div class="mod-head" onclick="dlrToggleMod('dlrModKe')"><span class="mod-caret">▾</span><span class="gua-ico">☵</span><span class="mod-title">四课</span><span class="mod-sub">干支阴阳</span></div><div class="mod-body"><div class="lr-kes">${keHtml}</div></div></section>
     <section class="mod collapsed" id="dlrModChuan"><div class="mod-head" onclick="dlrToggleMod('dlrModChuan')"><span class="mod-caret">▾</span><span class="gua-ico">☳</span><span class="mod-title">三传</span><span class="mod-sub">初传 中传 末传</span></div><div class="mod-body"><div class="lr-chuans">${trip}</div><p class="sub-note">取法：${c.method}。</p></div></section>
-    <section class="mod collapsed" id="dlrModLei"><div class="mod-head" onclick="dlrToggleMod('dlrModLei')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">类神取用</span><span class="mod-sub">${o.dcat}</span></div><div class="mod-body"><div class="info-box lr-lei" id="lrLeiBox"><p>本占（${o.dcat}）以 <b>${o.lei.yong}</b> 为类神。${o.lei.desc}</p>${o.benMing&&o.xingNian?`<p class="lr-lei-sub"><b>本命行年</b>：${o.benMing.gan}${o.benMing.zhi}命、${o.sex}、虚岁${o.xingNian.age}、行年 ${o.xingNian.zhi}（${o.jiangOnTian[o.tian[ZHI.indexOf(o.xingNian.zhi)]]?'临'+o.jiangOnTian[o.tian[ZHI.indexOf(o.xingNian.zhi)]]:'天盘'+o.tian[ZHI.indexOf(o.xingNian.zhi)]}）</p>`:''}${o.sha?`<p class="lr-lei-sub"><b>神煞</b>：驿马${o.sha.yima||'-'}，天马${o.sha.tianma||'-'}，天喜${o.sha.tianxi||'-'}，天医${o.sha.tianyi||'-'}，劫煞${o.sha.jiesha||'-'}，灾煞${o.sha.zaisha||'-'}，亡神${o.sha.wangshen||'-'}，破碎${o.sha.posui||'-'}，三合${o.sha.sanhe||'-'}，六冲${o.sha.liuchong||'-'}，日德${o.sha.ride||'-'}，丧门${o.sha.sangmen||'-'}，吊客${o.sha.diaoke||'-'}，病符${o.sha.bingfu||'-'}</p>`:''}</div></div></section>
+    <section class="mod collapsed" id="dlrModLei"><div class="mod-head" onclick="dlrToggleMod('dlrModLei')"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">类神取用</span><span class="mod-sub">${o.dcat}</span></div><div class="mod-body"><div class="info-box lr-lei" id="lrLeiBox"><p>本占（${o.dcat}）以 <b>${o.lei.yong}</b> 为类神。${o.lei.desc}</p>${o.benMing&&o.xingNian?`<p class="lr-lei-sub"><b>本命行年</b>：${o.benMing.gan}${o.benMing.zhi}命、${o.sex}、虚岁${o.xingNian.age}、行年 ${o.xingNian.zhi}（${o.jiangOnTian[o.tian[ZHI.indexOf(o.xingNian.zhi)]]?'临'+o.jiangOnTian[o.tian[ZHI.indexOf(o.xingNian.zhi)]]:'天盘'+o.tian[ZHI.indexOf(o.xingNian.zhi)]}）</p>`:''}${o.sha?`<p class="lr-lei-sub"><b>神煞</b>：驿马${o.sha.yima||'-'}，天马${o.sha.tianma||'-'}，天喜${o.sha.tianxi||'-'}，天医${o.sha.tianyi||'-'}，劫煞${o.sha.jiesha||'-'}，灾煞${o.sha.zaisha||'-'}，亡神${o.sha.wangshen||'-'}，破碎${o.sha.posui||'-'}，日德${o.sha.ride||'-'}，丧门${o.sha.sangmen||'-'}，吊客${o.sha.diaoke||'-'}，病符${o.sha.bingfu||'-'}</p><p class="lr-lei-sub"><b>支间关系</b>：日支三合${o.sha.sanhe||'-'}，六冲${o.sha.liuchong||'-'}</p>`:''}</div></div></section>
     <section class="mod collapsed" id="dlrModSchool"><div class="mod-head" onclick="dlrToggleMod('dlrModSchool')"><span class="mod-caret">▾</span><span class="gua-ico">☴</span><span class="mod-title">流派解读</span><span class="mod-sub">《${skName}》</span></div><div class="mod-body"><div class="info-box lr-school">
        <table class="lr-school-tbl"><tbody>
          <tr><th>典籍与传人</th><td>${skDoc.src}</td></tr>
@@ -662,7 +706,7 @@ function render(o){
        </tbody></table>
        <p class="sub-note">${DLR_SCHOOL_NOTE}${presetNote}</p>
      </div></div></section>
-    <section class="mod collapsed" id="dlrModSynth"><div class="mod-head" onclick="dlrToggleMod('dlrModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">综合判断</span><span class="mod-sub">毕法赋 天将象意</span></div><div class="mod-body">${baihua(o)}<details class="lr-bifa" id="lrBifa" open><summary>毕法赋断语（《六壬大全》卷十，凌福之）</summary>${bifaTable(o)}</details><details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details></div></section>`;
+    <section class="mod collapsed" id="dlrModSynth"><div class="mod-head" onclick="dlrToggleMod('dlrModSynth')"><span class="mod-caret">▾</span><span class="gua-ico">☯</span><span class="mod-title">综合判断</span><span class="mod-sub">毕法赋 天将象意</span></div><div class="mod-body">${baihua(o)}<details class="lr-bifa" id="lrBifa" open><summary>毕法赋断语（《六壬大全》卷十一，凌福之）</summary>${bifaTable(o)}</details><details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details></div></section>`;
   xjApplyModState('dlrModState','#out details[id]');
 }
 /* 刷新重出：顶层机制回填输入后按此钩子重排；changed 为空即不动，折叠态与滚动位置保持 */

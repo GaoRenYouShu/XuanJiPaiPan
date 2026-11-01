@@ -223,6 +223,17 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .menu-btn{display:inline-flex;margin-left:auto}
 }
 
+@media(max-width:640px){
+.xj-tc{min-width:3em;max-width:var(--xj-cap,min(70vw,22em))}
+
+.tbl-hs{width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+body .page .tbl-hs table:not(.tbl-kv){table-layout:auto;width:max-content;min-width:100%;max-width:none}
+
+body .page .tbl-hs table:not(.tbl-kv) th:nth-child(n),
+  body .page .tbl-hs table:not(.tbl-kv) td:nth-child(n){white-space:normal;word-break:normal;overflow-wrap:break-word;width:auto;min-width:0}
+}
+
 #shan,#laiLong{min-width:115px;width:115px}
 
 @media (prefers-color-scheme:dark){
@@ -566,7 +577,7 @@ body:has(.page-ly) .scroll-jump:not(.show){display:none}</style>
         </div>
         <div class="field hh-lng"><label for="lyLng">经度（可选）</label><input type="number" id="lyLng" aria-label="手动输入东经经度" step="0.01" placeholder="当地"></div>
         <div class="field chk hh-true"><input type="checkbox" id="lyTrue" aria-label="是否启用真太阳时校正"><label for="lyTrue">真太阳时校正</label></div>
-        <div class="field" id="lyTzField" hidden><label for="lyTz">时区偏移</label><select id="lyTz" aria-label="选择境外出生地标准时区偏移" onchange="lySyncOverseas()"></select></div>
+        <div class="field" id="lyTzField" hidden><label for="lyTz">时区偏移</label><select id="lyTz" aria-label="选择境外所在地标准时区偏移" onchange="lySyncOverseas()"></select></div>
         <div class="field chk" id="lyLocalDstField" hidden><input type="checkbox" id="lyLocalDst" onchange="lySyncOverseas()"><label for="lyLocalDst">当地夏令时（钟面减1小时）</label></div>
       </div>
       <p class="sub-note" id="lyOverseasNote" hidden></p>

@@ -29,7 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const tzSel=document.getElementById('qmTzOff');
     if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
     if(typeof fillPlaceTrio==='function'){
-      fillPlaceTrio(document.getElementById('qmProv'),document.getElementById('qmCity'),document.getElementById('qmDist'),function(){ qmSyncOverseas(); });
+      window.__qmPlaceTrio=fillPlaceTrio(document.getElementById('qmProv'),document.getElementById('qmCity'),document.getElementById('qmDist'),function(){ qmSyncOverseas(); });
+      if(typeof placeIpPrefill==='function'){
+        placeIpPrefill({manualKey:'qm_geo_manual', group:document.getElementById('qmBirthGroup'), trio:window.__qmPlaceTrio, onDone:qmSyncOverseas});
+      }
     }
     qmSyncOverseas();
     qmRestoreSnapshotBeforeRender();
