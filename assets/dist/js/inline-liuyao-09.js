@@ -1400,15 +1400,8 @@ function cast(){
     ${Object.keys(CAT_YONG).map(k=>`<tr class="${CAT_YONG[k]===yong&&k===cat?'ly-cur':''}"><td>${k}</td><td>${CAT_YONG[k]==='世'?'世爻':CAT_YONG[k]}</td><td>${CAT_PRINC[k]}</td></tr>`).join('')}
     </tbody></table></details>`;
   /* 连占对比模式：结果追加为卡片（一卦多断、连占），否则覆盖单盘 */
-  if((document.getElementById('lyMulti')||{}).checked===true){
-    const host=document.getElementById('lyMultiHost');
-    if(host){
-      const n=host.querySelectorAll('.ly-multi-card').length+1;
-      const card=document.createElement('div');
-      card.className='ly-multi-card';
-      card.innerHTML='<div class="ly-multi-head"><span class="ly-multi-no">第'+n+'占</span><span class="ly-multi-info">'+ben.name+(nMoving>0?('→'+bianP.name):'')+'、'+cat+'、'+rawNow.getFullYear()+'-'+pad2(rawNow.getMonth()+1)+'-'+pad2(rawNow.getDate())+' '+pad2(rawNow.getHours())+':'+pad2(rawNow.getMinutes())+((document.getElementById('q').value||'').trim()?('、'+document.getElementById('q').value.trim()):'')+'</span><button type="button" class="btn ly-del-btn" aria-label="移除本占" class="ly-multi-del-btn" onclick="this.closest(\'.ly-multi-card\').remove()">移除</button></div>'+panelHtml;
-      host.appendChild(card);
-    }
+  if(xjMulti.on(LY_MULTI_CFG)){
+    xjMulti.add(LY_MULTI_CFG, panelHtml, ben.name+(nMoving>0?('→'+bianP.name):'')+'、'+cat+'、'+rawNow.getFullYear()+'-'+pad2(rawNow.getMonth()+1)+'-'+pad2(rawNow.getDate())+' '+pad2(rawNow.getHours())+':'+pad2(rawNow.getMinutes())+((document.getElementById('q').value||'').trim()?('、'+document.getElementById('q').value.trim()):''));
   }else{
     document.getElementById('out').innerHTML=panelHtml;
   }
@@ -1417,14 +1410,9 @@ function cast(){
   const lineStateTxt=lineState.map((st,i)=>'第'+(i+1)+'爻'+nj.gan[i]+nj.zhi[i]+(st.kong?'，空':'')+(st.po?'，破':'')+(st.mu?'，墓':'')); 
   /* 保存历史：存储完整快照（含爻象lines，支持"重开"还原） */
   try{
-    const his=JSON.parse(localStorage.getItem('lyHistory')||'[]');
     const entry={t:rawNow.getFullYear()+'-'+pad2(rawNow.getMonth()+1)+'-'+pad2(rawNow.getDate())+' '+pad2(rawNow.getHours())+':'+pad2(rawNow.getMinutes()), tt:(sunMode!=='off'&&!lyNoPlace?(now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate())+' '+pad2(now.getHours())+':'+pad2(now.getMinutes())):''), rt:rawNow.toISOString(), q:(document.getElementById('q').value||'').trim()||cat, cat, ben:ben.name, bian:nMoving>0?bianP.name:'', method, school:document.getElementById('lySchool').value, sex:SEX, zi:ziMode, useTrue:(sunMode==='true')?'1':'0', sun:sunMode, prov:document.getElementById('lyProv').value, city:document.getElementById('lyCity').value, dist:document.getElementById('lyDist').value, lng:document.getElementById('lyLng').value, tz:document.getElementById('lyTz').value, dst:document.getElementById('lyLocalDst').checked?'1':'0', date:document.getElementById('lyDate').value, time:document.getElementById('lyTime').value, lines:lines.map(function(l){return {bit:l.bit,moving:l.moving,val:l.val};})};
     /* 去重：相同爻象+起卦时间不重复插入（如"重开"后再排），已存在则移到顶部 */
-    const lk=JSON.stringify(entry.lines);
-    const dup=his.findIndex(function(h){ return h.date===entry.date && h.time===entry.time && h.lines && JSON.stringify(h.lines)===lk; });
-    if(dup>=0) his.splice(dup,1);
-    his.unshift(entry);
-    localStorage.setItem('lyHistory', JSON.stringify(his.slice(0,9)));
+    xjHist.push('lyHistory', entry, function(h){ return h.date===entry.date && h.time===entry.time && h.lines && JSON.stringify(h.lines)===JSON.stringify(entry.lines); });
   }catch(e){}
   __ly=`${q?('所占之事：'+q+'\n'):''}起卦时间：${lunar.getYearInGanZhi()}年${lunar.getMonthInGanZhi()}月${dgz}日${hourGZ}时\n本卦："${ben.name}"，${bp.palace} ${bp.type}\n变卦："${bianP.name}"，${zp.palace}（${bQinGongNote}）\n世应：世在第${bp.world}爻，应在第${bp.ying}爻\n旬空：${kong.filter(Boolean).join('、')||'无'}　月建：${mG+mz}　日辰：${dgz}\n动爻：${moving}${dongDetail.length?('；'+dongDetail.map(function(it){return '第'+(it.i+1)+'爻'+it.txt;}).join('；')):''}\n六神，初爻到上爻：${gods.join('、')}\n六亲，初爻到上爻：${qin.join('、')}\n纳甲，初爻到上爻：${nj.gan.map((g,i)=>g+nj.zhi[i]).join('、')}\n爻之空破墓，初爻到上爻：${lineStateTxt.join('；')}\n用神：${cat}，${yong==='世'?'世爻':yong}，第${yongIdx+1}爻${yongMoving?'，动爻':'，静爻'}\n用神状态：月令${effWang}；${effKong?'旬空':'不空'}${effPo?'、月破':'、不破'}${effMu?(effMoving?'、入墓':'、临库'):'、不墓'}${effNote?('（'+effNote+'）'):''}\n${fuShenInfo?('伏神：'+fuShenInfo.replace(/<[^>]*>/g,'')+'\n'):''}${heChongGuaTxt.join('；')}${sanHe?('；'+(sanHe.half?'半合：'+sanHe.zhis.join('')+'半合'+sanHe.wx+'局':'三合：'+sanHe.zhis.join('')+'成'+sanHe.wx+'局')+sanHePoTxt):''}${fanYin?'；反吟，事有反复':''}${fuYin?'；伏吟，事多困滞':''}${godMean?('；'+godMean):''}\n月将日辰入卦：${yueRuTxt}${riRuTxt}\n用神位置：${yongPosTxt}\n三神发动：${sanDongTxt}\n世应旺衰：${shiYingWangTxt}\n卦辞："${ben.name}"${guaCi||'无'}${bianCi?('；变卦"'+bianP.name+'"'+bianCi):''}\n太岁：${taiSuiTxt.replace(/<[^>]*>/g,'')}\n求占性别：${SEX==='f'?'女':'男'}${cat==='婚姻'?('（占婚姻以'+(yong==='官鬼'?'官鬼':'妻财')+'为用）'):''}\n爻临神煞：${lineState.map(function(st,i){return st.sha&&st.sha.length?('第'+(i+1)+'爻'+st.sha.join('、')):null;}).filter(Boolean).join('；')||'无'}\n三神：原神${yong==='世'?'无':(sanShen.yuan||'无')}、忌神${yong==='世'?'无':(sanShen.ji||'无')}、仇神${yong==='世'?'无':(sanShen.chou||'无')}（生克链：原神生用神、忌神克用神、仇神生忌神）\n应期：${yingText}\n流派：${s.name}\n断卦要诀：${s.note}\n解读要点：${wangTxt}；${wangFull}；${shiYing}；${dongTxt}；应期：${yingText}`;
   /* 重排后恢复折叠框展开状态 */
@@ -1432,57 +1420,38 @@ function cast(){
   /* 最近盘面爻象快照：供分享链接/JSON 导出完整还原（含摇卦结果） */
   window.__lyLastLines=lines.map(function(l){return {bit:l.bit,moving:l.moving,val:l.val};});
 }
+var LY_MULTI_CFG={check:'lyMulti', host:'lyMultiHost'};
 /* 历史记录弹层 */
-function _escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 var LY_METHOD_LBL={'coin':'铜钱','num':'数字','time':'时间','baoshu':'报数','specify':'指定','step':'逐爻','name':'姓名'};
-function showLyHistory(){
-  var his=[];
-  try{ his=JSON.parse(localStorage.getItem('lyHistory')||'[]'); }catch(e){}
-  var mask=document.getElementById('lyHistMask');
-  if(!mask){
-    mask=document.createElement('div'); mask.id='lyHistMask'; mask.className='modal-mask';
-    mask.setAttribute('role','dialog'); mask.setAttribute('aria-label','历史记录');
-    mask.innerHTML='<div class="modal ly-hist-modal"><span class="close" onclick="closeLyHist()" aria-label="关闭">×</span><div class="ly-hist-head">历史记录（最多9条）</div><div class="ly-hist-list" id="lyHistList"></div><div class="sub-note ly-hist-foot">点击"重开"还原该次盘面（含完整参数与爻象）。数据保存在浏览器本地，按 ESC 关闭。</div></div>';
-    mask.addEventListener('click',function(e){if(e.target===mask)closeLyHist();});
-    document.body.appendChild(mask);
+var LY_HIST_CFG={
+  mask:'lyHistMask', list:'lyHistList', key:'lyHistory', title:'历史记录（最多9条）',
+  restoreFn:'loadLyHistory', delFn:'delLyHistory',
+  row:function(h){
+    var tStr=h.t||'';
+    /* 旧存档为本地化串，按旧式样截到分；新存档已是定长格式直用 */
+    if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(tStr))tStr=tStr.replace(/^(\d{4}\/\d{1,2}\/\d{1,2})\s(\d{1,2}:\d{2}).*$/,'$1 $2');
+    var ttStr=h.tt||'';
+    if(ttStr&&!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(ttStr)){ var tm=ttStr.match(/\d{1,2}:\d{2}/); ttStr=tm?tm[0]:''; }
+    var mLb=LY_METHOD_LBL[h.method]||'';
+    var info=(h.cat||'自身')+(h.sex==='f'?'女':'男')+(mLb?''+mLb:'');
+    return {
+      t:tStr,
+      tt:ttStr?'真太阳时 '+ttStr:'北京时间',
+      main:h.ben+(h.bian?'→'+h.bian:''),
+      sub:h.q?h.q:info
+    };
   }
-  var host=document.getElementById('lyHistList');
-  if(!his.length){ host.innerHTML='<div class="ly-hist-empty">暂无历史记录。起卦后自动保存。</div>'; }else{
-    var html='<div class="ly-hist-hd"><span class="ly-hc ly-hc-t">时间</span><span class="ly-hc ly-hc-c">信息</span><span class="ly-hc ly-hc-g">卦、所问</span><span class="ly-hc ly-hc-a">操作</span></div>';
-    his.forEach(function(h,i){
-      var tStr=h.t||'';
-      /* 旧存档为本地化串，按旧式样截到分；新存档已是定长格式直用 */
-      if(!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(tStr))tStr=tStr.replace(/^(\d{4}\/\d{1,2}\/\d{1,2})\s(\d{1,2}:\d{2}).*$/,'$1 $2');
-      var ttStr=h.tt||'';
-      if(ttStr&&!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(ttStr)){ var tm=ttStr.match(/\d{1,2}:\d{2}/); ttStr=tm?tm[0]:''; }
-      var mLb=LY_METHOD_LBL[h.method]||'';
-      var sexLb=(h.sex==='f'?'女':'男');
-      var info=(h.cat||'自身')+(sexLb?''+sexLb:'')+(mLb?''+mLb:'');
-      var guaText=h.ben+(h.bian?'→'+h.bian:'');
-      var qTxt=h.q?'<br><span class="ly-hist-q">'+_escHtml(h.q)+'</span>':'';
-      var ttTxt=ttStr?'<br><span class="ly-hist-q">真太阳时 '+ttStr+'</span>':'<br><span class="ly-hist-q">北京时间</span>';
-      html+='<div class="ly-hist-row"><span class="ly-hc ly-hc-t">'+tStr+ttTxt+'</span><span class="ly-hc ly-hc-c">'+_escHtml(info)+'</span><span class="ly-hc ly-hc-g" title="'+_escHtml(h.q||'')+'">'+_escHtml(guaText)+qTxt+'</span><span class="ly-hc ly-hc-a"><button class="btn" aria-label="重开第'+(i+1)+'条" class="ly-hist-act-btn" onclick="loadLyHistory('+i+')">重开</button><button class="btn ly-del-btn" aria-label="删除第'+(i+1)+'条" class="ly-hist-del-btn" onclick="delLyHistory('+i+')">×</button></span></div>';
-    });
-    host.innerHTML=html;
-  }
-  mask.classList.add('show');
-}
-function closeLyHist(){ var m=document.getElementById('lyHistMask'); if(m) m.classList.remove('show'); }
+};
+function showLyHistory(){ xjHist.open(LY_HIST_CFG); }
+function closeLyHist(){ xjHist.close(); }
 /* 清空连占对比卡片 */
-function clearLyMulti(){ var h=document.getElementById('lyMultiHost'); if(h) h.innerHTML=''; }
+function clearLyMulti(){ xjMulti.clear(LY_MULTI_CFG); }
 /* 六十四卦速查表：首次展开懒渲染，内容由周易经文共享组件提供（与梅花、测字、铁板同源） */
 function lyRenderGuaRef(){
   var host=document.getElementById('lyGuaGrid');
   if(host&&window.jwRenderInto) window.jwRenderInto(host);
 }
-function delLyHistory(i){
-  try{
-    var his=JSON.parse(localStorage.getItem('lyHistory')||'[]');
-    if(i<0||i>=his.length)return;
-    his.splice(i,1); localStorage.setItem('lyHistory',JSON.stringify(his.slice(0,9)));
-    showLyHistory(); /* 刷新弹层 */
-  }catch(e){}
-}
+function delLyHistory(i){ xjHist.del(LY_HIST_CFG,i); }
 function loadLyHistory(i){
   try{
     var his=JSON.parse(localStorage.getItem('lyHistory')||'[]');
@@ -1585,7 +1554,6 @@ function doCast(){
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
     renderChrome('liuyao.html');
-    document.addEventListener('keydown',function(e){ if(e.key==='Escape'||e.key==='Esc') closeLyHist(); });
     (function(){
       var KEY='lyDetailsOpen';
       function lyDetailsKey(d,i){ return d.id||('idx'+i); }

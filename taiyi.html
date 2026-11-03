@@ -305,6 +305,10 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-ty .btn:not(.soft):not(.btn-ghost):hover{background:var(--ty2)}
 
+.page-ty .btn-ghost{background:var(--card);border:1px solid var(--ty-line);color:var(--ty2)}
+
+.page-ty .btn-ghost:hover{background:var(--ty-tint)}
+
 .page-ty .ai-block{border:0;border-top:1px solid var(--ty-line);border-bottom:1px solid var(--ty-line);border-radius:0;background:transparent;color:var(--ty-ink);box-shadow:none}
 
 .page-ty .ai-head{background:transparent;border-bottom-color:var(--ty-line)}
@@ -457,7 +461,8 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
         <option value="3">太乙局</option>
       </select></div>
       <div class="field chk"><input type="checkbox" id="shiOn" checked><label for="shiOn">排时计</label></div>
-      <button class="btn" onclick="query()">起局</button>
+      <button class="btn" onclick="query();pushTyHistory()">起局</button>
+      <button class="btn btn-ghost" onclick="showTyHistory()">历史记录</button>
     </div>
     <div class="opts" id="tyOptsWrap">
       <div class="birth-group compact" id="tyBirthGroup">
@@ -632,7 +637,8 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
 <script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
 <script defer fetchpriority="low" src="assets/taiyi-engine.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-06.js"></script>
+<script defer fetchpriority="low" src="assets/hist-modal.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-07.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-taiyi-08.js"></script>
 </body>
 </html>

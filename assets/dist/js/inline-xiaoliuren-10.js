@@ -282,5 +282,57 @@ function query(){
     </div>
     `;
   document.getElementById('out').innerHTML=html;
+  if(xjMulti.on(XLR_MULTI_CFG)){
+    xjMulti.add(XLR_MULTI_CFG, html, LAST.lunarStr+'、'+GONG[LAST.gMonth].n+'→'+GONG[LAST.gDay].n+'→'+GONG[LAST.gTime].n);
+  }
+  xlrSaveHist();
  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">起课出错：'+(e.message||e)+'</p>'; }
+}
+
+/* 起课历史：存起课参数与三宫，回看按参数重放，不存渲染文本 */
+var XLR_MULTI_CFG={check:'xlrMulti', host:'xlrMultiHost'};
+function clearXlrMulti(){ xjMulti.clear(XLR_MULTI_CFG); }
+const XLR_HIST_KEY='xlrHistory';
+var XLR_HIST_CFG={
+  mask:'xlrHistMask', list:'xlrHistList', key:XLR_HIST_KEY, title:'历史记录（最多9条）',
+  restoreFn:'restoreXlrHist', delFn:'delXlrHistory',
+  row:function(h){ return {t:h.t||'', main:h.g||'', sub:h.s||''}; }
+};
+function xlrHistEntry(){
+  if(typeof LAST==='undefined'||!LAST) return null;
+  const el=function(id){ return document.getElementById(id)||{}; };
+  const schoolSel=el('school');
+  return {
+    t:LAST.lunarStr,
+    g:GONG[LAST.gMonth].n+'→'+GONG[LAST.gDay].n+'→'+GONG[LAST.gTime].n,
+    s:(schoolSel.options&&schoolSel.options[schoolSel.selectedIndex])?schoolSel.options[schoolSel.selectedIndex].text:'',
+    mode:LAST.mode, d:el('dInput').value||'', ti:el('tInput').value||'',
+    n1:el('qNum1').value||'', n2:el('qNum2').value||'', n3:el('qNum3').value||'', ch:el('qChar').value||'',
+    school:schoolSel.value||'', prov:el('xlrProv').value||'', city:el('xlrCity').value||'', dist:el('xlrDist').value||'',
+    lng:el('xlrLng').value||'', dst:el('xlrDst').value||'off', zi:el('xlrZi').value||'late', sun:el('xlrSun').value||'off'
+  };
+}
+function xlrSaveHist(){
+  try{
+    const e=xlrHistEntry(); if(!e) return;
+    xjHist.push(XLR_HIST_KEY, e, function(h){ return JSON.stringify([h.mode,h.d,h.ti,h.n1,h.n2,h.n3,h.ch,h.school])===JSON.stringify([e.mode,e.d,e.ti,e.n1,e.n2,e.n3,e.ch,e.school]); });
+  }catch(err){}
+}
+function showXlrHistory(){ xjHist.open(XLR_HIST_CFG); }
+function closeXlrHist(){ xjHist.close(); }
+function delXlrHistory(i){ xjHist.del(XLR_HIST_CFG,i); }
+function restoreXlrHist(i){
+  try{
+    const his=JSON.parse(localStorage.getItem(XLR_HIST_KEY)||'[]');
+    const h=his[i]; if(!h) return;
+    const set=function(id,v){ const el=document.getElementById(id); if(el&&v!=null) el.value=v; };
+    set('qiMode',h.mode); switchQiMode();
+    set('dInput',h.d); set('tInput',h.ti);
+    set('qNum1',h.n1); set('qNum2',h.n2); set('qNum3',h.n3); set('qChar',h.ch);
+    set('school',h.school); set('xlrLng',h.lng);
+    set('xlrDst',h.dst); set('xlrZi',h.zi); set('xlrSun',h.sun);
+    if(h.prov && window.__xlrPlaceTrio) window.__xlrPlaceTrio.set(h.prov,h.city,h.dist);
+    closeXlrHist();
+    query();
+  }catch(err){}
 }

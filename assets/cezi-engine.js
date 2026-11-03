@@ -5,8 +5,11 @@
  *   getKangxiStroke(kangxi.js) / JIANBI(jianbi.js)
  *   TRIGRAMS / guaName / palaceInfo(gua.js) / lunar(lunar.js 的 Lunar 实例)
  * 口径：
- *   起卦与 meihua.html 字占同源：上卦=康熙笔画%8（余0取8）、下卦=(笔画%8)+1（余0取8）、
- *   动爻=笔画×2%6（余0取6）；动爻在上卦（>3）则体=下卦、用=上卦，反之体=上卦、用=下卦。
+ *   起卦与 meihua.html 一字占同源：上卦=康熙笔画%8（余0取8）、下卦=(笔画%8)+1（余0取8）、
+ *   动爻=笔画%6（余0取6）；动爻在上卦（>3）则体=下卦、用=上卦，反之体=上卦、用=下卦。
+ *   月建按节令月支分季，寅卯春、巳午夏、申酉秋、亥子冬，辰未戌丑四土月归四季土。
+ *   主气以字义五行定，主外应、应期、旺衰、喜用与评级；拆解主气只作展示。
+ *   康熙笔画未收录者 ksOk=false，页面不出盘。
  *   数理走 NAME_DATA.NAME81（超 81 减 80 取模），拆解、卦象、旺衰喜用按本页权重加权评级。
  * ============================================================ */
 window.CEZI_ENGINE = (function(){
@@ -19,7 +22,7 @@ window.CEZI_ENGINE = (function(){
   const WX_COLOR = {木:'#4f8a3d',火:'#c0392b',土:'#8a6d3b',金:'#b8860b',水:'#2c5f8a'};
 
   /* 月建旺衰：季节 → 五行旺衰 */
-  const SEASON_OF_MONTH = {寅:'春',卯:'春',辰:'春',巳:'夏',午:'夏',未:'夏',申:'秋',酉:'秋',戌:'秋',亥:'冬',子:'冬',丑:'冬'};
+  const SEASON_OF_MONTH = {寅:'春',卯:'春',辰:'四季',巳:'夏',午:'夏',未:'四季',申:'秋',酉:'秋',戌:'四季',亥:'冬',子:'冬',丑:'四季'};
   const WX_LING = {春:'木',夏:'火',秋:'金',冬:'水',四季:'土'};
   /* 体卦五行相对月建的旺相休囚死 */
   function wangOf(tiWx, lingWx){
@@ -69,37 +72,47 @@ window.CEZI_ENGINE = (function(){
     if(e && e.c[0] && e.c[0].py) return e.c[0].py;
     return '';
   }
+  /* 独体基础字义五行（民俗通行归法）：字义五行与部件五行共用一表 */
+  const WX_MAP = {'一':'水','二':'木','三':'火','口':'木','水':'水','土':'土','王':'土','大':'火','天':'火','木':'木','火':'火','金':'金','日':'火','月':'水','山':'土','石':'金','田':'土','马':'火','牛':'土','犬':'木','女':'水','子':'水','目':'水','耳':'火','手':'金','足':'水','走':'水','门':'木','卜':'水','心':'火','云':'水','雨':'水','风':'水','行':'水','言':'火','立':'火','生':'木','之':'水','人':'金','入':'水','八':'水','七':'金','九':'金','十':'金','千':'金','丁':'火','刀':'金','力':'火','又':'金','乃':'水','几':'木','气':'水','爪':'金','爻':'火','囗':'土','尸':'金','巾':'木','巳':'火','彐':'金','彳':'火','龟':'水','兔':'金','象':'金','面':'木','骨':'木','鬼':'水','食':'土','音':'土','页':'金','飞':'水','鱼':'水','鸟':'火','龙':'火','幺':'水','毋':'水','聿':'木','艮':'土','禹':'土','臼':'金','羊':'土','羽':'土','老':'火','考':'木','者':'火','高':'木','黄':'土','黑':'水','齐':'金','齿':'金','豆':'土','亥':'水','聿2':'木'};
+
+  /* 部件五行：PARTS 明注优先，其次本表，其次 CEZI 首拆法逐部件递归，其次八卦归象，仍无返回空串 */
+  function partWx(pc, seen){
+    if(!pc) return '';
+    const chain = Object.assign({}, seen);
+    if(chain[pc]) return '';
+    chain[pc] = 1;
+    const pt = CEZI_DATA.PARTS[pc];
+    if(pt && pt.w) return pt.w;
+    if(WX_MAP[pc]) return WX_MAP[pc];
+    const ce = CEZI_DATA.CEZI[pc];
+    if(ce && ce.c[0]){
+      const cnt = {};
+      Array.from(ce.c[0].p).forEach(function(p2){
+        const w = partWx(p2, chain);
+        if(w) cnt[w] = (cnt[w]||0)+1;
+      });
+      let best='', bn=0;
+      WX_ALL.forEach(function(w){ if((cnt[w]||0)>bn){ best=w; bn=cnt[w]; } });
+      if(best) return best;
+    }
+    const gong = CEZI_DATA.GONG_MAP && CEZI_DATA.GONG_MAP[pc];
+    if(gong && TRI_WX[gong]) return TRI_WX[gong];
+    return '';
+  }
+
   function yiWxOf(c){
     const nc = window.NAME_CHARS && NAME_CHARS[c];
     if(nc && nc[4]) return nc[4];
-    /* 独体基础字义五行（民俗通行归法） */
-    const WX_MAP = {'一':'水','二':'木','三':'火','口':'木','水':'水','土':'土','王':'土','大':'火','天':'火','木':'木','火':'火','金':'金','日':'火','月':'水','山':'土','石':'金','田':'土','马':'火','牛':'土','犬':'木','女':'水','子':'水','目':'水','耳':'火','手':'金','足':'水','走':'水','门':'木','卜':'水','心':'火','云':'水','雨':'水','风':'水','行':'水','言':'火','立':'火','生':'木','之':'水','人':'金','入':'水','八':'水','七':'金','九':'金','十':'金','千':'金','丁':'火','刀':'金','力':'火','又':'金','乃':'水','几':'木','气':'水','爪':'金','爻':'火','囗':'土','尸':'金','巾':'木','巳':'火','彐':'金','彳':'火','龟':'水','兔':'金','象':'金','面':'木','骨':'木','鬼':'水','食':'土','音':'土','页':'金','飞':'水','鱼':'水','鸟':'火','龙':'火','幺':'水','毋':'水','聿':'木','艮':'土','禹':'土','臼':'金','羊':'土','羽':'土','老':'火','考':'木','者':'火','高':'木','黄':'土','黑':'水','齐':'金','齿':'金','豆':'土','亥':'水','聿2':'木'};
     if(WX_MAP[c]) return WX_MAP[c];
     const e = CEZI_DATA.CEZI[c];
     if(e && e.c[0]){
-      const wxCnt = {};
-      const GX2 = {'乾':'金','坤':'土','震':'木','巽':'木','坎':'水','离':'火','艮':'土','兑':'金'};
+      const cnt = {};
       Array.from(e.c[0].p).forEach(function(pc){
-        const pt = CEZI_DATA.PARTS[pc];
-        if(pt && pt.w) { wxCnt[pt.w] = (wxCnt[pt.w]||0)+1; return; }
-        /* 部件是独体基础字：WX_MAP（优先，防递归抢跑） */
-        if(WX_MAP[pc]) { wxCnt[WX_MAP[pc]] = (wxCnt[WX_MAP[pc]]||0)+1; return; }
-        /* 部件是 CEZI 收录字：用其首拆法部件五行（一层递归） */
-        const ce = CEZI_DATA.CEZI[pc];
-        if(ce && ce.c[0]){
-          Array.from(ce.c[0].p).forEach(function(pc2){
-            const pt2 = CEZI_DATA.PARTS[pc2];
-            if(pt2 && pt2.w) wxCnt[pt2.w] = (wxCnt[pt2.w]||0)+1;
-            else if(WX_MAP[pc2]) wxCnt[WX_MAP[pc2]] = (wxCnt[WX_MAP[pc2]]||0)+1;
-          });
-          return;
-        }
-        /* 八卦归象五行 */
-        const gong = CEZI_DATA.GONG_MAP && CEZI_DATA.GONG_MAP[pc];
-        if(gong && GX2[gong]) { wxCnt[GX2[gong]] = (wxCnt[GX2[gong]]||0)+1; }
+        const w = partWx(pc);
+        if(w) cnt[w] = (cnt[w]||0)+1;
       });
-      let best='',bn=0;
-      ['木','火','土','金','水'].forEach(function(w){ if((wxCnt[w]||0)>bn){ best=w; bn=wxCnt[w]; } });
+      let best='', bn=0;
+      WX_ALL.forEach(function(w){ if((cnt[w]||0)>bn){ best=w; bn=cnt[w]; } });
       if(best) return best;
     }
     /* 最终回退：按康熙部首五行 */
@@ -111,19 +124,26 @@ window.CEZI_ENGINE = (function(){
       if(BS_WX[_b[0]]) return BS_WX[_b[0]];
       if(_b[1] && BS_WX[_b[1]]) return BS_WX[_b[1]];
     }
-    return '土';
+    return '';
   }
 
-  /* ---- 拆解五行主气：按拆法部件五行计数取众数 ---- */
-  function chaiMainWx(pstr){
-    const cnt = {};
+  /* ---- 拆解五行主气：按拆法部件五行计数取众数；并列时字义五行在列取字义，否则取拆法顺序首项 ---- */
+  function chaiMainWx(pstr, yiWx){
+    const cnt = {}, order = [];
     Array.from(pstr).forEach(function(pc){
-      const pt = CEZI_DATA.PARTS[pc];
-      const w = pt ? pt.w : '';
-      if(w) cnt[w] = (cnt[w]||0) + 1;
+      const w = partWx(pc);
+      if(!w) return;
+      if(cnt[w]===undefined) order.push(w);
+      cnt[w] = (cnt[w]||0) + 1;
     });
-    let best='', bn=0;
-    WX_ALL.forEach(function(w){ if((cnt[w]||0)>bn){ best=w; bn=cnt[w]; } });
+    let max = 0;
+    order.forEach(function(w){ if(cnt[w] > max) max = cnt[w]; });
+    if(!max) return '';
+    if(yiWx && cnt[yiWx]===max) return yiWx;
+    const first = order.find(function(w){ return cnt[w]===max; });
+    if(first) return first;
+    let best='';
+    WX_ALL.forEach(function(w){ if(!best && cnt[w]===max) best=w; });
     return best;
   }
 
@@ -137,10 +157,10 @@ window.CEZI_ENGINE = (function(){
         return { p:x.p, note:x.n, tag:x.t, fa:x.f||'', src:x.src||'', ge:x.ge||'', geSrc:x.geSrc||'', bm:x.bm||'', bmSrc:x.bmSrc||'', shuang:x.shuang||'', shuangSrc:x.shuangSrc||'', luck:x.l, lx:x.lx||'', gm:x.gm||null, cats:cats||[],
           parts: Array.from(x.p).map(function(pc){
             const pt = CEZI_DATA.PARTS[pc];
-            if(pt) return {p:pc, yi:pt.y, wx:pt.w, gong:(CEZI_DATA.GONG_MAP&&CEZI_DATA.GONG_MAP[pc])||'', sang:(CEZI_DATA.SANG_MAP&&CEZI_DATA.SANG_MAP[pc])||null};
+            if(pt) return {p:pc, yi:pt.y, wx:partWx(pc), gong:(CEZI_DATA.GONG_MAP&&CEZI_DATA.GONG_MAP[pc])||'', sang:(CEZI_DATA.SANG_MAP&&CEZI_DATA.SANG_MAP[pc])||null};
             const ce = CEZI_DATA.CEZI[pc];
-            if(ce && ce.c[0]) return {p:pc, yi:ce.c[0].n, wx:chaiMainWx(ce.c[0].p), gong:(CEZI_DATA.GONG_MAP&&CEZI_DATA.GONG_MAP[pc])||'', sang:(CEZI_DATA.SANG_MAP&&CEZI_DATA.SANG_MAP[pc])||null};
-            return {p:pc, yi:'', wx:'', gong:''};
+            if(ce && ce.c[0]) return {p:pc, yi:ce.c[0].n, wx:partWx(pc), gong:(CEZI_DATA.GONG_MAP&&CEZI_DATA.GONG_MAP[pc])||'', sang:(CEZI_DATA.SANG_MAP&&CEZI_DATA.SANG_MAP[pc])||null};
+            return {p:pc, yi:'', wx:partWx(pc), gong:''};
           })
         };
       });
@@ -167,7 +187,7 @@ window.CEZI_ENGINE = (function(){
     const M=8;
     let up = ks%M; up = up||M;
     let low = ((ks%M)+1)%M; low = low||M;
-    let dong = (ks*2)%6; dong = dong||6;
+    let dong = ks%6; dong = dong||6;
     const bits = function(n){ const g=TRIGRAMS[Object.keys(TRIGRAMS).find(k=>TRIGRAMS[k].xt===n)]; return g?g.bits.slice():[1,1,1]; };
     const upBits = bits(up), lowBits = bits(low);
     const benBits = lowBits.concat(upBits);
@@ -223,19 +243,29 @@ window.CEZI_ENGINE = (function(){
   /* 字气五行所值地支与对冲（应期细化：逢值逢冲之日） */
   const YINGQI_ZHI = {木:['寅','卯'],火:['巳','午'],土:['辰','戌','丑','未'],金:['申','酉'],水:['亥','子']};
   const ZHI_CHONG = {子:'午',丑:'未',寅:'申',卯:'酉',辰:'戌',巳:'亥',午:'子',未:'丑',申:'寅',酉:'卯',戌:'辰',亥:'巳'};
-  /* 从起测日起 60 日内，算首个值日（体卦五行所值地支）与首个冲日 */
+  /* 从起测日起 60 日内，先取首个值日，再取首个与值日相冲之日 */
   function zhiChongDays(mainWx, solar){
     if(!solar || !solar.next) return {zhi:'', chong:''};
     const zhis = YINGQI_ZHI[mainWx] || YINGQI_ZHI.土;
-    const chongs = zhis.map(function(z){ return ZHI_CHONG[z]; });
     const out = {zhi:'', chong:''};
+    let zhiZhi = '';
     try{
-      for(let i=1; i<=60 && (!out.zhi || !out.chong); i++){
+      for(let i=1; i<=60 && !out.zhi; i++){
         const s = solar.next(i);
         const gz = s.getLunar().getDayInGanZhi();
         const zhi = gz.charAt(1);
-        if(!out.zhi && zhis.indexOf(zhi)>=0) out.zhi = (s.getMonth()+'月'+s.getDay()+'日（'+gz+'，值'+zhi+'）');
-        if(!out.chong && chongs.indexOf(zhi)>=0) out.chong = (s.getMonth()+'月'+s.getDay()+'日（'+gz+'，冲'+ZHI_CHONG[zhi]+'）');
+        if(zhis.indexOf(zhi)>=0){
+          zhiZhi = zhi;
+          out.zhi = (s.getMonth()+'月'+s.getDay()+'日（'+gz+'，值'+zhi+'）');
+        }
+      }
+      if(!zhiZhi) return out;
+      const chongZhi = ZHI_CHONG[zhiZhi];
+      for(let i=1; i<=60 && !out.chong; i++){
+        const s = solar.next(i);
+        const gz = s.getLunar().getDayInGanZhi();
+        const zhi = gz.charAt(1);
+        if(zhi === chongZhi) out.chong = (s.getMonth()+'月'+s.getDay()+'日（'+gz+'，冲'+ZHI_CHONG[zhi]+'）');
       }
     }catch(e){}
     return out;
@@ -265,12 +295,27 @@ window.CEZI_ENGINE = (function(){
   /* 互变参断三态分组：比和、用生体为吉，体克用、体生用为可成，用克体为阻 */
   function relGroup(rel){ return (rel==='比和'||rel==='用生体') ? 'ji' : (rel==='用克体') ? 'zu' : 'cheng'; }
 
+  /* 起测时刻的公历日期与时分：Solar 有 toYmdHms 则截取前段与时分，否则按年月日时分拼装 */
+  function ymdHmOf(solar){
+    if(!solar) return {date:'', hm:''};
+    if(typeof solar.toYmdHms === 'function'){
+      const t = String(solar.toYmdHms());
+      return {date:t.slice(0,10), hm:t.slice(10,16).replace(/^\s+/, '')};
+    }
+    const pad = function(n){ return (n<10?'0':'')+n; };
+    return {date:solar.getYear()+'-'+pad(solar.getMonth())+'-'+pad(solar.getDate()),
+      hm:pad(solar.getHours())+':'+pad(solar.getMinutes())};
+  }
+
   /* ============================================================
-   * 主入口：analyze(char, catKey, lunar, solar)
+   * 主入口：analyze(char, catKey, lunar, solar, opts)
    * char 已校验的单个汉字；catKey 为 CEZI_DATA.CATS 键；
-   * lunar/solar 为 lunar-javascript 实例（当前起测时刻）。
+   * lunar/solar 为按起测时刻折算后的 lunar-javascript 实例；
+   * opts 带子时算法、所在地与折算口径，只用于取数与展示，不改拆解、数理、卦象与断曰。
    * ============================================================ */
-  function analyze(ch, catKey, lunar, solar){
+  function analyze(ch, catKey, lunar, solar, opts){
+    opts = opts || {};
+    const ziMode = opts.ziMode==='early' ? 'early' : 'late';
     const cat = CEZI_DATA.CATS[catKey] || CEZI_DATA.CATS.zong;
     const ks = (typeof getKangxiStroke==='function') ? getKangxiStroke(ch) : 0;
     const js = (window.JIANBI && JIANBI[ch]) ? JIANBI[ch] : 0;
@@ -293,8 +338,9 @@ window.CEZI_ENGINE = (function(){
     })();
     const geObj = chai.list.filter(function(x){ return x.ge; }).find(function(x){ return x.cats.indexOf(catKey)>=0; }) || chai.list.find(function(x){ return x.ge; }) || null;
     const shObj = chai.list.find(function(x){ return x.shuang; }) || null;
-    const chaiWx = chai.source==='cezi' ? chaiMainWx(chaiPick.p) : '';
-    const mainWx = chaiWx || yiWxOf(ch) || shuli.wx || '土';
+    const yiWx = yiWxOf(ch);
+    const chaiWx = chai.source==='cezi' ? chaiMainWx(chaiPick.p, yiWx) : '';
+    const mainWx = yiWx || chaiWx || shuli.wx || '土';
     const huoRaw = (CEZI_DATA.HUO && CEZI_DATA.HUO[ch]) || [];
     const huo = huoRaw.filter(function(h){ return h.cats && h.cats.indexOf(catKey)>=0; })
       .concat(huoRaw.filter(function(h){ return !(h.cats && h.cats.indexOf(catKey)>=0); }));
@@ -302,18 +348,23 @@ window.CEZI_ENGINE = (function(){
     const gua = guaOf(ks || js || 1);
     const yaoJie = (CEZI_DATA.YAO_JIE && CEZI_DATA.YAO_JIE[gua.yaoKey]) || null;
 
-    /* 时辰外应：月建旺衰 + 日干支 + 时支 */
-    let wai = { season:'', lingWx:'', wang:'', dayGZ:'', shiZhi:'', shiWx:'' };
+    /* 时辰外应：月建旺衰 + 日干支 + 时支，日期与时分取自折算后的起测时刻；
+       月建按交节时刻取精确值，日干支按子时算法取晚子归次日或归当日 */
+    const dh = ymdHmOf(solar);
+    const place = opts.place || '', caliber = opts.caliber || '', timeNote = opts.note || '';
+    let wai = { season:'', lingWx:'', wang:'', dayGZ:'', shiZhi:'', shiWx:'', date:dh.date, hm:dh.hm,
+      place:place, caliber:caliber, note:timeNote };
     if(lunar){
-      const mz = lunar.getMonthZhi();
-      const season = SEASON_OF_MONTH[mz] || '春';
-      const lingWx = WX_LING[season==='春'?'春':season==='夏'?'夏':season==='秋'?'秋':season==='冬'?'冬':'四季'];
+      const mz = (typeof lunar.getMonthZhiExact==='function') ? lunar.getMonthZhiExact() : lunar.getMonthZhi();
+      const season = SEASON_OF_MONTH[mz] || '四季';
+      const lingWx = WX_LING[season] || '土';
       const wang = wangOf(mainWx, lingWx);
       let shiZhi='', dayGZ='';
-      try{ dayGZ = lunar.getDayInGanZhi(); }catch(e){}
+      try{ dayGZ = ziMode==='late' ? lunar.getDayInGanZhiExact() : lunar.getDayInGanZhiExact2(); }catch(e){}
       try{ shiZhi = lunar.getTimeZhi(); }catch(e){}
       const shiWx = (typeof ZHI_WX!=='undefined' && ZHI_WX[shiZhi]) || '';
-      wai = { season:season, lingWx:lingWx, wang:wang, dayGZ:dayGZ, shiZhi:shiZhi, shiWx:shiWx };
+      wai = { season:season, lingWx:lingWx, wang:wang, dayGZ:dayGZ, shiZhi:shiZhi, shiWx:shiWx, date:dh.date, hm:dh.hm,
+        place:place, caliber:caliber, note:timeNote };
     }
 
     const xi = xiScore(mainWx, cat.xi);
@@ -335,17 +386,18 @@ window.CEZI_ENGINE = (function(){
     const ying = YINGQI[mainWx] || YINGQI.土;
     const yingNear = wai.wang ? (wai.wang.label==='旺'||wai.wang.label==='相' ? '期近' : '期缓') : '期不定';
     const tpl = cat.tpl[luckKey];
-    const duan = tpl
+    let duan = tpl
       .replace('{zi}', ch)
       .replace('{chai}', chaiPick.note)
       .replace('{shuli}', shuli.key || shuli.label || shuli.num+'数')
       .replace('{ying}', ying.season)
       .replace('{fang}', ying.fang);
+    if (luckKey === 'ji' && chaiPick.luck === 'xiong') duan = '拆象虽凶，' + duan;
 
     return {
       char:ch, catKey:catKey, catName:cat.name,
       py:pinyinOf(ch), ks:ks, js:js, struct:structName(ch)||'未详', bs:chai.bs||'未详',
-      yiWx:yiWxOf(ch)||'未详', shuWx:shuli.wx||'未详', mainWx:mainWx,
+      yiWx:yiWx||'未详', chaiWx:chaiWx, shuWx:shuli.wx||'未详', mainWx:mainWx, ksOk:ks>0,
       chai:chai, shuli:shuli, gua:gua, wai:wai, xi:xi, huo:huo, yaoJie:yaoJie, zhai:zhai, ge:geObj?{duan:geObj.ge,src:geObj.geSrc}:null, shuang:shObj?{duan:shObj.shuang,src:shObj.shuangSrc}:null, xiesheng:xiesheng, jia:jia, zhuan:zhua,
       huJie:{rel:gua.huRel, txt:cat.hu ? (cat.hu[relGroup(gua.huRel)]||'') : ''},
       bianJie:{rel:gua.bianRel, txt:cat.bian ? (cat.bian[relGroup(gua.bianRel)]||'') : ''},
@@ -384,7 +436,7 @@ window.CEZI_ENGINE = (function(){
     if(r.ge) s += '取格（秘牒卷三已验）：'+r.ge.duan+'\n';
     const bmObj = (r.chai.source==='cezi'&&r.chai.list[r.chai.pick]&&r.chai.list[r.chai.pick].bm)?r.chai.list[r.chai.pick]:null;
     if(bmObj) s += '观梅底本释义：'+bmObj.bm+'\n';
-    if(r.wai.dayGZ) s += '外应：'+r.wai.dayGZ+'日'+(r.wai.shiZhi?r.wai.shiZhi+'时':'')+'，'+r.mainWx+'行'+r.wai.wang.label+'\n';
+    if(r.wai.dayGZ) s += '外应：'+(r.wai.date?(r.wai.date+(r.wai.hm?' '+r.wai.hm:'')+'，'):'')+r.wai.dayGZ+'日'+(r.wai.shiZhi?r.wai.shiZhi+'时':'')+'，'+r.mainWx+'行'+r.wai.wang.label+(r.wai.place?'，所在地'+r.wai.place:'')+(r.wai.caliber?'，折算口径'+r.wai.caliber:'')+'\n';
     s += '互卦：'+r.gua.huName+'（事之中机），'+r.gua.huRel+'，'+(r.huJie&&r.huJie.txt?r.huJie.txt+'；':'')+'变卦：'+r.gua.benName+'之'+r.gua.bianName+'（事之终应），'+r.gua.bianRel+'，'+(r.bianJie&&r.bianJie.txt?r.bianJie.txt+'；':'')+'变后用卦'+r.gua.bianYongName+r.gua.bianYongWx+'与体'+r.gua.bianRel+'，'+r.gua.bianRelTxt+'（参断）\n';
     s += '应期：宜候'+r.ying.day+'，应于'+r.ying.season+'，方位利'+r.ying.fang+(r.ying.zhi?'，值日'+r.ying.zhi:'')+(r.ying.chong?'，冲日'+r.ying.chong:'')+'\n';
     s += '综合：'+r.level.name+'（'+r.total+'分）\n断曰：'+r.duan;

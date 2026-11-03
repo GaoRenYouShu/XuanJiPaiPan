@@ -13,11 +13,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var YEAR_MIN = 1900, YEAR_MAX = 2100;
 
     /* ===== 1. 七模块渲染（数据一律取 YQ.compute 真源） ===== */
-    function renderYun(p){
-      var ov = '<div class="yq-ov">' + esc(p.year) + ' ' + esc(p.gz) + '年：岁运' + esc(p.yun.wx) + esc(p.yun.shuai) + '（' + esc(p.yun.wuyin) + '），司天' + esc(p.sitian.name) + '、在泉' + esc(p.zaiquan.name) + (p.tonghua.any ? '，运气同化见下方模块' : '，无天符岁会同化') + '</div>';
-      var html = '<div class="yq-head">' + esc(p.year) + ' ' + esc(p.gz) + '年　岁运' + esc(p.yun.wx) + '（' + esc(p.yun.shuai) + '）</div>';
+    function renderYun(p, dateStr, bound){
+      var boundTxt = bound === 'lichun' ? '立春换年' : '春节换年';
+      var ov = '<div class="yq-ov">' + esc(dateStr) + '（' + boundTxt + '，属' + esc(p.gz) + '年）：岁运' + esc(p.yun.wx) + esc(p.yun.shuai) + '（' + esc(p.yun.wuyin) + '），司天' + esc(p.sitian.name) + '、在泉' + esc(p.zaiquan.name) + (p.tonghua.any ? '，运气同化见下方模块' : '，无天符岁会同化') + '</div>';
+      var html = '<div class="yq-head">' + esc(dateStr) + '（属' + esc(p.gz) + '年）　岁运' + esc(p.yun.wx) + '（' + esc(p.yun.shuai) + '）</div>';
       html += '<div class="yq-tbl-wrap"><table class="yq-tbl"><tbody>';
       html += '<tr><td class="yq-c0">年干支</td><td>' + esc(p.gz) + '（' + esc(p.yun.yang ? '阳干阳支' : '阴干阴支') + '）</td></tr>';
+      html += '<tr><td class="yq-c0">年界</td><td>' + boundTxt + (bound === 'lichun' ? '（立春为岁首）' : '（农历正月初一为界）') + '</td></tr>';
       html += '<tr><td class="yq-c0">化运</td><td>' + esc(p.yun.he) + '</td></tr>';
       html += '<tr><td class="yq-c0">岁运五行</td><td>' + esc(p.yun.wx) + '</td></tr>';
       html += '<tr><td class="yq-c0">五脏归属</td><td>' + esc(WX_ZANG[p.yun.wx] || '') + '脏</td></tr>';
@@ -83,14 +85,72 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderZhu(p){
+      var qiB = YQ.stepBounds(p.year, YQ.ZHU_QI_JIE);
+      var curI = YQ.stepAt(YQ_LAST_DATE || '', qiB);
       var html = '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr>' +
-        '<th>六步</th><th>六气</th><th>五行</th><th>起止节气</th></tr></thead><tbody>';
+        '<th>六步</th><th>六气</th><th>五行</th><th>起止节气与公历日</th></tr></thead><tbody>';
       for (var i=0;i<p.zhu.length;i++){
         var z = p.zhu[i];
-        html += '<tr><td class="yq-c0">' + esc(z.bu) + '</td><td>' + esc(z.qi) + '</td><td>' + esc(YQ.qiWx(z.qi)) + '</td><td>' + esc(z.start) + '起，' + esc(z.end) + '止</td></tr>';
+        var b0 = qiB[i], b1 = qiB[i+1];
+        var span = esc(z.start) + '（' + (b0 ? esc(b0.ymd) : '—') + '）起，' + esc(z.end) + '（' + (b1 ? esc(b1.ymd) : '—') + '）止';
+        html += '<tr' + (i === curI ? ' class="yq-cur"' : '') + '><td class="yq-c0">' + esc(z.bu) + '</td><td>' + esc(z.qi) + '</td><td>' + esc(YQ.qiWx(z.qi)) + '</td><td>' + span + '</td></tr>';
       }
       html += '</tbody></table></div>';
       $('yqZhuOut').innerHTML = html;
+    }
+
+    /* 时令落步：输入日期所在的主气、客气、主运、客运四步与客主加临 */
+    function renderStep(p){
+      var d = YQ_LAST_DATE || '';
+      var si = d ? YQ.stepInfo(d, p.year) : null;
+      if (!si || !si.qi || !si.yun){
+        $('yqStepOut').innerHTML = '<p class="sub-note">该日期未落在本运气年的步界内。</p>';
+        return;
+      }
+      var jq = YQ.jieQiNameOf(d);
+      var html = '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr>' +
+        '<th>项目</th><th>当前所在</th><th>起止</th></tr></thead><tbody>';
+      html += '<tr><td class="yq-c0">当日节气</td><td>' + esc(jq || '—') + '</td><td>' + esc(d) + '</td></tr>';
+      html += '<tr><td class="yq-c0">主气</td><td>' + esc(si.qi.bu) + '　' + esc(si.qi.zhu) + '</td><td>' + esc(si.qi.start.ymd) + ' 起，' + esc(si.qi.end.ymd) + ' 止</td></tr>';
+      html += '<tr><td class="yq-c0">客气</td><td>' + esc(si.qi.bu) + '　' + esc(si.qi.ke) + (si.qi.i === 2 ? '（司天）' : (si.qi.i === 5 ? '（在泉）' : '（间气）')) + '</td><td>' + esc(si.qi.start.ymd) + ' 起，' + esc(si.qi.end.ymd) + ' 止</td></tr>';
+      html += '<tr><td class="yq-c0">主运</td><td>' + esc(si.yun.bu) + '　' + esc(si.yun.zhu.yin) + '（' + esc(si.yun.zhu.wx) + '）</td><td>' + esc(yqYunBoundTxt(si.yun.i)) + '（' + esc(si.yun.start.ymd) + '）起</td></tr>';
+      html += '<tr><td class="yq-c0">客运</td><td>' + esc(si.yun.bu) + '　' + esc(si.yun.ke.yin) + '（' + esc(si.yun.ke.wx) + '）</td><td>' + esc(yqYunBoundTxt(si.yun.i)) + '（' + esc(si.yun.start.ymd) + '）起</td></tr>';
+      if (si.jialin){
+        var ok = si.jialin.pan === '相得';
+        var jlTxt = (ok ? '相得' : ('不相得：' + si.jialin.du)) + (si.jialin.note ? '（' + si.jialin.note + '）' : '');
+        html += '<tr class="' + (ok ? 'yq-good' : 'yq-bad') + '"><td class="yq-c0">客主加临</td><td>' + esc(si.jialin.rel) + '，' + esc(jlTxt) + '</td><td>' + esc(si.qi.bu) + ' 内</td></tr>';
+      }
+      html += '</tbody></table></div>';
+      html += '<p class="sub-note">落步按节气真源：主气、客气六步以大寒、春分、小满、大暑、秋分、小雪为界；主运、客运五步以大寒、春分、芒种、处暑、立冬为界。</p>';
+      $('yqStepOut').innerHTML = html;
+    }
+
+    /* 主运五步交司名（《类经图翼·各年五运交司时日》） */
+    function yqYunBoundTxt(i){ return ['大寒', '春分后十三日', '芒种后十日', '处暑后七日', '立冬后四日'][i] || ''; }
+
+    /* 主运客运五步：主运初运太少由中运上推，客运以岁运五音为初运，皆太少相生 */
+    function renderZhuYun(p){
+      var zy = YQ.zhuYunOf(p.gz), ky = YQ.keYunOf(p.yun.wuyin);
+      var yunB = YQ.stepBounds(p.year, YQ.ZHU_YUN_JIE, YQ.ZHU_YUN_OFFSET);
+      var curI = YQ.stepAt(YQ_LAST_DATE || '', yunB);
+      $('yqWuyunWheelHost').innerHTML = '<div class="wheel-block"><h4>主运客运圆盘</h4>' + yqWuyunWheel(p)
+        + '<div class="wheel-detail" id="yqWuyunDetail">' + yqWuyunDetailHTML(p, YQ_WY_SEL) + '</div></div>';
+      var html = '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr>' +
+        '<th>五步</th><th>主运</th><th>客运</th><th>起止节气与公历日</th></tr></thead><tbody>';
+      for (var i = 0; i < 5; i++){
+        var b0 = yunB[i], b1 = yunB[i+1];
+        var span = esc(yqYunBoundTxt(i)) + '（' + (b0 ? esc(b0.ymd) : '—') + '）起，' + (i === 4 ? '大寒' : esc(yqYunBoundTxt(i+1))) + '（' + (b1 ? esc(b1.ymd) : '—') + '）止';
+        html += '<tr' + (i === curI ? ' class="yq-cur"' : '') + '><td class="yq-c0">' + esc(zy[i].bu) + '</td><td>' + esc(zy[i].yin) + '（' + esc(zy[i].wx) + '）</td><td>' + esc(ky[i].yin) + '（' + esc(ky[i].wx) + '）</td><td>' + span + '</td></tr>';
+      }
+      html += '</tbody></table></div>';
+      html += '<p class="sub-note">主运五步次序固定角、徵、宫、商、羽，初运太少由中运上推：甲乙丙壬癸太角起、丁戊己庚辛少角起，太少相生；客运以岁运五音为初运，沿五音相生太少相生（《类经图翼》）。每步七十三日零五刻，交司大寒、春分后十三日、芒种后十日、处暑后七日、立冬后四日。</p>';
+      $('yqZhuYunOut').innerHTML = html;
+    }
+
+    /* 运气总图：六气外环、五运内环同盘，点六气步看该步加临 */
+    function renderZongTu(p){
+      $('yqZongTuWheelHost').innerHTML = '<div class="wheel-block"><h4>运气总图</h4>' + yqZongTuWheel(p)
+        + '<div class="wheel-detail" id="yqZongTuDetail">' + yqZongTuDetailHTML(p, YQ_ZT_SEL) + '</div></div>';
     }
 
     function renderKe(p){
@@ -114,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
       for (var i=0;i<p.jialin.length;i++){
         var r = p.jialin[i];
         var du = r.pan === '相得' ? '相得' : '不相得：' + r.du;
+        if (r.note) du += '（' + r.note + '）';
         html += '<tr class="' + (r.pan==='相得'?'yq-good':'yq-bad') + '"><td class="yq-c0">' + esc(p.zhu[i].bu) + '</td><td>' + esc(r.zhu) + '</td><td>' + esc(r.ke) + '</td><td>' + esc(r.rel) + '</td><td>' + esc(du) + '</td></tr>';
       }
       html += '</tbody></table></div>';
@@ -147,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* 运气学源流与流派：七篇篇目、历代注家、学说定位与分歧，均为陈说照录、随文注明出处 */
     function renderYuanliu(){
-      var h = '<p class="sub-note">运气学说不出于一人一时：其推法在《素问》运气七篇，其入临床在金元，其图表集成于宋明，其辨难起于清代。以下照录篇目主旨与历代注家之说，学说定位与分歧并列陈之，本页不作裁断。</p>';
+      var h = '<p class="sub-note">运气学说不出于一人一时：其推法在《素问》运气七篇，其入临床在金元，其图表集成于宋明，其辨难起于清代。以下照录篇目主旨、历代注家之说、六气标本中见与胜复、五郁之治与五郁之发、在泉淫胜之治，学说定位与分歧并列陈之，本页不作裁断。</p>';
       h += '<div class="yq-head">运气七篇大论</div>';
       h += '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr><th>篇名</th><th>主旨</th></tr></thead><tbody>';
       for (var i = 0; i < YQ_PIAN.length; i++){
@@ -166,6 +227,27 @@ document.addEventListener('DOMContentLoaded', function () {
         h += '<tr><td class="yq-c0">' + esc(YQ_POSITION[k].k) + '</td><td>' + esc(YQ_POSITION[k].v) + '</td></tr>';
       }
       h += '</tbody></table></div>';
+      /* 六气标本中见与胜复：至真要大论原文照录 */
+      h += '<div class="yq-head">六气标本中见</div>';
+      h += '<p class="sub-note">' + esc(YQ_BIAOBEN) + '（《素问·至真要大论》照录）</p>';
+      h += '<div class="yq-head">六气胜复</div>';
+      h += '<p class="sub-note">' + esc(YQ_SHENG_FU) + '（《素问·至真要大论》照录：初气终三气天气主之，胜之常也；四气尽终气地气主之，复之常也）</p>';
+      /* 五郁治则与五郁之发：六元正纪大论原文照录 */
+      h += '<div class="yq-head">五郁之治与五郁之发</div>';
+      h += '<p class="sub-note">' + esc(YQ_YU_ZHI) + '（《素问·六元正纪大论》照录）</p>';
+      h += '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr><th>郁发</th><th>气候物候之变（《素问·六元正纪大论》照录）</th></tr></thead><tbody>';
+      for (var m = 0; m < YQ_YU_FA.length; m++){
+        h += '<tr><td class="yq-c0">' + esc(YQ_YU_FA[m].yu) + '</td><td>' + esc(YQ_YU_FA[m].txt.replace(YQ_YU_FA[m].yu + '，', '')) + '</td></tr>';
+      }
+      h += '</tbody></table></div>';
+      /* 六气在泉淫胜治则：至真要大论六句照录；属医家治则，照录备参不作用药之荐 */
+      h += '<div class="yq-head">六气在泉淫胜之治</div>';
+      h += '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr><th>六气</th><th>治则（《素问·至真要大论》照录）</th></tr></thead><tbody>';
+      for (var n = 0; n < YQ_YIN_ZHI.length; n++){
+        h += '<tr><td class="yq-c0">' + esc(YQ_YIN_ZHI[n].qi) + '</td><td>' + esc(YQ_YIN_ZHI[n].txt) + '</td></tr>';
+      }
+      h += '</tbody></table></div>';
+      h += '<p class="sub-note">淫胜之治属医家药食治则，此处照录以备运气学说之全，不作用药依据。</p>';
       $('yqYuanliuOut').innerHTML = h;
     }
 
@@ -180,9 +262,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var YQ_STEP = 60;
     var WQ_ARC=188, WQ_OUT=179, WQ_IN=120, WQ_CORE=78, WQ_LAB_OUT=206, WQ_LAB_IN=148,
         WQ_TICK0=171, WQ_TICK1=177, WQ_P0=82, WQ_P1=116, WQ_HIT1=WQ_ARC+6;
-    var WJ_ARC=192, WJ_OUT=182, WJ_IN=104, WJ_CORE=78, WJ_LAB_OUT=206, WJ_LAB_KE=154, WJ_LAB_ZHU=118,
-        WJ_TICK0=168, WJ_TICK1=176, WJ_P0=82, WJ_P1=100, WJ_HIT1=198;
-    var YQ_LAST=null, YQ_KE_SEL=0, YQ_JL_SEL=0;
+    /* 客主加临盘与运气总图与客气盘同制式：弧 188、外环 179、内界 120、盘心 78、
+       字环 206 与 150、刻度 171 至 177、指针 82 至 116（恒在内界圈内）、热区外沿 194 */
+    var WJ_ARC=188, WJ_OUT=179, WJ_IN=120, WJ_CORE=78, WJ_LAB_OUT=206, WJ_LAB_KE=150,
+        WJ_TICK0=171, WJ_TICK1=177, WJ_P0=82, WJ_P1=116, WJ_HIT1=194;
+    var YQ_LAST=null, YQ_LAST_DATE='', YQ_KE_SEL=0, YQ_JL_SEL=0;
 
     /* 该步客气在本年的角色：三之气为司天、终之气为在泉，其余四步为间气（《素问·至真要大论》） */
     function yqKeRole(i){ return i===2 ? '司天' : (i===5 ? '在泉' : '间气'); }
@@ -208,8 +292,9 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         labelsOut:function(i,dg){
           var tp=WHEEL.px(WQ_LAB_OUT,dg);
+          var role = (i===2 || i===5) ? '<tspan class="w-lab-sm">（'+yqKeRole(i)+'）</tspan>' : '';
           return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_KE_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(p.ke[i])+'</text>';
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(p.ke[i])+role+'</text>';
         },
         labelsIn:function(i,dg){
           var tp=WHEEL.px(WQ_LAB_IN,dg);
@@ -271,14 +356,12 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         labelsMid:function(i,dg){
           var x=p.jialin[i], yes=(x.pan==='相得'), tp=WHEEL.px(WJ_LAB_KE,dg);
-          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab w-lab-lg'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-            +' style="fill:'+(yes?'var(--wheel-good)':'var(--wheel-bad)')+'"'
-            +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(x.ke))+'</text>';
-        },
-        labelsIn:function(i,dg){
-          var tp=WHEEL.px(WJ_LAB_ZHU,dg);
+          var g='var(--wheel-good)', b='var(--wheel-bad)';
           return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_JL_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
-            +' transform="rotate('+WHEEL.radial(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(p.jialin[i].zhu))+'</text>';
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'
+            +'<tspan x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" dy="-14" style="fill:'+(yes?g:b)+'">客'+esc(yqQiShort(x.ke))+'</tspan>'
+            +'<tspan x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'">主'+esc(yqQiShort(x.zhu))+'</tspan>'
+            +'<tspan x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" dy="14" class="w-lab-sm" style="fill:'+(yes?g:b)+'">'+(yes?'相得':'不相得')+'</tspan></text>';
         },
         center:[
           {y:WHEEL.C-16, cls:'w-c1', id:'yqJlC1', text:esc(p.zhu[YQ_JL_SEL].bu)},
@@ -287,11 +370,17 @@ document.addEventListener('DOMContentLoaded', function () {
         ]
       });
     }
-    function yqJlDetailHTML(p,i){
+    /* 加临详情共件：两盘详情条同源（withRole 加客气的司天在泉角色，tail 为各盘末注） */
+    function yqJialinDetail(p,i,withRole,tail){
       var r=p.jialin[i], ok=(r.pan==='相得');
-      return esc(p.zhu[i].bu)+'，客气 '+esc(r.ke)+'，主气 '+esc(r.zhu)+'，'+esc(r.rel)
-        +'<span class="wd-br"></span><span class="'+(ok?'wd-g':'wd-x')+'">'+esc(ok?'相得':('不相得：'+r.du))+'</span>'
-        +'<span class="wd-br"></span>主气六步年年不移，客气随司天在泉轮转；同气相生为相得，相克为不相得，客胜主为从、主胜客为逆';
+      var duTxt = ok ? '相得' : ('不相得：'+r.du);
+      if (r.note) duTxt += '（'+r.note+'）';
+      return esc(p.zhu[i].bu)+'，客气 '+esc(r.ke)+(withRole?'（'+yqKeRole(i)+'）':'')+'，主气 '+esc(r.zhu)+'，'+esc(r.rel)
+        +'<span class="wd-br"></span><span class="'+(ok?'wd-g':'wd-x')+'">'+esc(duTxt)+'</span>'
+        +'<span class="wd-br"></span>'+tail;
+    }
+    function yqJlDetailHTML(p,i){
+      return yqJialinDetail(p, i, false, '主气六步年年不移，客气随司天在泉轮转；同气相生为相得，相克为不相得，客胜主为从、主胜客为逆；君火相火互临按君位臣顺、臣位君逆');
     }
     function yqPickJl(i){
       var p=YQ_LAST; if(!p||!p.jialin[i]) return;
@@ -316,6 +405,148 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* 年份信息已并入岁运表，不另设模块 */
+
+    /* ===== 1e. 五运盘与运气总图（同走 WHEEL，颜色字号只取令牌） ===== */
+    var YQ_WY_SEL = 0, YQ_ZT_SEL = 0;
+
+    /* 主运客运五步盘：外环五步、中环客运、内环主运，五格每格七十二度 */
+    function yqWuyunWheel(p){
+      var zy = YQ.zhuYunOf(p.gz), ky = YQ.keYunOf(p.yun.wuyin), n = 5;
+      return WHEEL.render({
+        id:'yqWuyunWheel', aria:'主运客运五步盘：外环五步、中环客运、内环主运',
+        n:n,
+        span:function(i){ return [i*72-36, i*72+36]; },
+        mid:function(i){ return i*72; },
+        arc:WQ_ARC, rIn:WQ_IN, hit1:WQ_HIT1, tick0:WQ_TICK0, tick1:WQ_TICK1, p0:WQ_P0, p1:WQ_P1, out:WQ_OUT, core:WQ_CORE,
+        sel:YQ_WY_SEL,
+        selId:'yqWuyunArc', needleId:'yqWuyunNeedle', dotId:'yqWuyunDot',
+        onclick:'yqPickWuyun',
+        tickAt:function(i){
+          var dg=i*72, ta=WHEEL.px(WQ_TICK0,dg), tb=WHEEL.px(WQ_TICK1,dg);
+          return '<line x1="'+WHEEL.n(ta[0])+'" y1="'+WHEEL.n(ta[1])+'" x2="'+WHEEL.n(tb[0])+'" y2="'+WHEEL.n(tb[1])+'" class="w-tick'+(i===YQ_WY_SEL?' w-tick-j':'')+'"/>';
+        },
+        labelsOut:function(i,dg){
+          var tp=WHEEL.px(WQ_LAB_OUT,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_WY_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(zy[i].bu)+'</text>';
+        },
+        labelsMid:function(i,dg){
+          var tp=WHEEL.px(157,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_WY_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'
+            +'<tspan x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'">客'+esc(ky[i].yin)+'</tspan>'
+            +'<tspan x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" dy="14">主'+esc(zy[i].yin)+'</tspan></text>';
+        },
+        center:[
+          {y:WHEEL.C-16, cls:'w-c1', id:'yqWuyunC1', text:esc(zy[YQ_WY_SEL].bu)},
+          {y:WHEEL.C+14, cls:'w-c2', id:'yqWuyunC2', text:'主'+esc(zy[YQ_WY_SEL].yin)+' 客'+esc(ky[YQ_WY_SEL].yin)},
+          {y:WHEEL.C+34, cls:'w-c3', id:'yqWuyunC3', text:'岁运'+esc(p.yun.wuyin)}
+        ]
+      });
+    }
+    function yqWuyunDetailHTML(p,i){
+      var zy = YQ.zhuYunOf(p.gz), ky = YQ.keYunOf(p.yun.wuyin);
+      var yb = YQ.stepBounds(p.year, YQ.ZHU_YUN_JIE, YQ.ZHU_YUN_OFFSET);
+      var b = yb[i];
+      return esc(zy[i].bu)+'，主运 '+esc(zy[i].yin)+'（'+esc(zy[i].wx)+'），客运 '+esc(ky[i].yin)+'（'+esc(ky[i].wx)+'）'
+        +'<span class="wd-br"></span>起于 '+esc(yqYunBoundTxt(i))+'（'+(b?esc(b.ymd):'—')+'）'
+        +'<span class="wd-br"></span>主运五步年年不移，客运以岁运为初运随年轮转；初运太少由中运上推，太少相生';
+    }
+    function yqPickWuyun(i){
+      var p=YQ_LAST; if(!p) return;
+      YQ_WY_SEL=i;
+      WHEEL.pick('yqWuyunWheel',i);
+      WHEEL.lab('yqWuyunWheel',i);
+      var a0=i*72-36, a1=i*72+36, dg=i*72, k;
+      var arc=document.getElementById('yqWuyunArc'); if(arc) arc.setAttribute('d',WHEEL.arc(WQ_ARC,a0,a1));
+      var q0=WHEEL.px(WQ_P0,dg), q1=WHEEL.px(WQ_P1,dg);
+      var ln=document.getElementById('yqWuyunNeedle');
+      if(ln){ ln.setAttribute('x1',WHEEL.n(q0[0])); ln.setAttribute('y1',WHEEL.n(q0[1]));
+              ln.setAttribute('x2',WHEEL.n(q1[0])); ln.setAttribute('y2',WHEEL.n(q1[1])); }
+      var dt=document.getElementById('yqWuyunDot');
+      if(dt){ dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1])); }
+      var ticks=document.querySelectorAll('#yqWuyunWheel .w-tick');
+      for(k=0;k<ticks.length;k++) ticks[k].classList.toggle('w-tick-j',k===i);
+      var zy = YQ.zhuYunOf(p.gz), ky = YQ.keYunOf(p.yun.wuyin);
+      WHEEL.text('yqWuyunC1',zy[i].bu);
+      WHEEL.text('yqWuyunC2','主'+zy[i].yin+' 客'+ky[i].yin);
+      WHEEL.text('yqWuyunC3','岁运'+p.yun.wuyin);
+      var d=document.getElementById('yqWuyunDetail'); if(d) d.innerHTML=yqWuyunDetailHTML(p,i);
+    }
+
+    /* 运气总图：与客主加临盘同一制式（弧 188、外环 179、内界 120、盘心 78、指针 82 至 116）。
+       外环客气六步字 206（标司天在泉）、主气六步字 168、五运五步字 138（客前主后一行，五格界刻度 120 至 132） */
+    function yqZongTuWheel(p){
+      var n=6, zy=YQ.zhuYunOf(p.gz), ky=YQ.keYunOf(p.yun.wuyin);
+      return WHEEL.render({
+        id:'yqZongTuWheel', aria:'运气总图：外环客气六步、二环主气六步、内环主运客运五步',
+        n:n,
+        span:function(i){ return [i*60-30, i*60+30]; },
+        mid:function(i){ return i*60; },
+        arc:WJ_ARC, rIn:WJ_IN, hit1:WJ_HIT1, tick0:WJ_TICK0, tick1:WJ_TICK1, p0:WJ_P0, p1:WJ_P1, out:WJ_OUT, core:WJ_CORE,
+        sel:YQ_ZT_SEL,
+        selId:'yqZtArc', needleId:'yqZtNeedle', dotId:'yqZtDot',
+        onclick:'yqPickZt',
+        tickAt:function(i){
+          var dg=i*60, ta=WHEEL.px(WJ_TICK0,dg), tb=WHEEL.px(WJ_TICK1,dg);
+          return '<line x1="'+WHEEL.n(ta[0])+'" y1="'+WHEEL.n(ta[1])+'" x2="'+WHEEL.n(tb[0])+'" y2="'+WHEEL.n(tb[1])+'" class="w-tick'+(i===YQ_ZT_SEL?' w-tick-j':'')+'"/>';
+        },
+        labelsOut:function(i,dg){
+          var tp=WHEEL.px(WJ_LAB_OUT,dg);
+          var role = (i===2 || i===5) ? '<tspan class="w-lab-sm">（'+yqKeRole(i)+'）</tspan>' : '';
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_ZT_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(p.ke[i]))+role+'</text>';
+        },
+        labelsMid:function(i,dg){
+          var tp=WHEEL.px(160,dg);
+          return '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab'+(i===YQ_ZT_SEL?' w-lab-cur':'')+'" data-i="'+i+'"'
+            +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">'+esc(yqQiShort(p.zhu[i].qi))+'</text>';
+        },
+        extra:function(){
+          var s='', i, dg, tp, a, b;
+          /* 五运五步刻度：内界圈 120 到 128，与五运字环留净距，不切字 */
+          for (i=0;i<5;i++){
+            dg=i*72; a=WHEEL.px(120,dg); b=WHEEL.px(128,dg);
+            s += '<line x1="'+WHEEL.n(a[0])+'" y1="'+WHEEL.n(a[1])+'" x2="'+WHEEL.n(b[0])+'" y2="'+WHEEL.n(b[1])+'" class="w-tick"/>';
+          }
+          /* 五运单行：168 为主气环，140 为五运环，客前主后一行，居中于五格 */
+          for (i=0;i<5;i++){ dg=i*72; tp=WHEEL.px(140,dg);
+            s += '<text x="'+WHEEL.n(tp[0])+'" y="'+WHEEL.n(tp[1])+'" class="w-lab"'
+              +' transform="rotate('+WHEEL.ring(dg)+' '+WHEEL.n(tp[0])+' '+WHEEL.n(tp[1])+')">客'+esc(ky[i].yin)+' 主'+esc(zy[i].yin)+'</text>';
+          }
+          return s;
+        },
+        center:[
+          {y:WHEEL.C-16, cls:'w-c1', id:'yqZtC1', text:esc(p.zhu[YQ_ZT_SEL].bu)},
+          {y:WHEEL.C+14, cls:'w-c2', id:'yqZtC2', text:esc(p.ke[YQ_ZT_SEL])},
+          {y:WHEEL.C+34, cls:'w-c3', id:'yqZtC3', text:esc(p.jialin[YQ_ZT_SEL].pan==='相得'?'相得':'不相得'), style:'fill:'+(p.jialin[YQ_ZT_SEL].pan==='相得'?'var(--wheel-good)':'var(--wheel-bad)')}
+        ]
+      });
+    }
+    function yqZongTuDetailHTML(p,i){
+      return yqJialinDetail(p, i, true, '外环客气六步、二环主气六步、内环主运客运五步；六步每步六十度、五步每步七十二度，皆自大寒起算；逐格相得不相得见客主加临盘');
+    }
+    function yqPickZt(i){
+      var p=YQ_LAST; if(!p||!p.ke[i]) return;
+      YQ_ZT_SEL=i;
+      WHEEL.pick('yqZongTuWheel',i);
+      WHEEL.lab('yqZongTuWheel',i);
+      var a0=i*60-30, a1=i*60+30, dg=i*60, k;
+      var arc=document.getElementById('yqZtArc'); if(arc) arc.setAttribute('d',WHEEL.arc(WJ_ARC,a0,a1));
+      var q0=WHEEL.px(WJ_P0,dg), q1=WHEEL.px(WJ_P1,dg);
+      var ln=document.getElementById('yqZtNeedle');
+      if(ln){ ln.setAttribute('x1',WHEEL.n(q0[0])); ln.setAttribute('y1',WHEEL.n(q0[1]));
+              ln.setAttribute('x2',WHEEL.n(q1[0])); ln.setAttribute('y2',WHEEL.n(q1[1])); }
+      var dt=document.getElementById('yqZtDot');
+      if(dt){ dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1])); }
+      var ticks=document.querySelectorAll('#yqZongTuWheel .w-tick');
+      for(k=0;k<ticks.length;k++) ticks[k].classList.toggle('w-tick-j',k===i);
+      var r=p.jialin[i], ok=(r.pan==='相得');
+      WHEEL.text('yqZtC1',p.zhu[i].bu);
+      WHEEL.text('yqZtC2',p.ke[i]);
+      WHEEL.text('yqZtC3',ok?'相得':'不相得',ok?'var(--wheel-good)':'var(--wheel-bad)');
+      var d=document.getElementById('yqZongTuDetail'); if(d) d.innerHTML=yqZongTuDetailHTML(p,i);
+    }
 
     /* ===== 1b. 浅释措辞（随各模块就地输出，不单设模块） ===== */
     var WX_BAIHUA = {
@@ -425,39 +656,134 @@ document.addEventListener('DOMContentLoaded', function () {
       { k: '司天口径', v: '本页取《素问》逐年司天通行例：年支定司天、对位定在泉，十二年一周。清代王丙、陆懋修一系另倡大司天说，以司天在泉各主六十年，与逐年司天不同科；本页主口径取逐年例，大司天说并列备注。' },
       { k: '验与不验', v: '运气之验历代有争：主验者以气化应物候为据，主不验者谓气候随地而异、不可执一。本页只陈典籍之推法与历代注家之说，不作验否之断。' }
     ];
+    /* 六气标本中见 【定源】《素问·至真要大论》帝曰六气标本所从不同一段照录（该段在至真要大论，非六微旨大论，卷十九穷尽检索无此段） */
+    var YQ_BIAOBEN = '帝曰：六气标本，所从不同，奈何。歧伯曰：气有从本者，有从标本者，有不从标本者也。少阳太阴从本，少阴太阳从本从标，阳明厥阴，不从标本，从乎中也。故从本者，化生于本，从标本者，有标本之化，从中者，以中气为化也。';
+    /* 六气在泉淫胜治则 【定源】《素问·至真要大论》诸气在泉六句照录：司天在泉淫胜各有治则，此为在泉六淫于内之治 */
+    var YQ_YIN_ZHI = [
+      { qi: '风', txt: '风淫于内，治以辛凉，佐以苦，以甘缓之，以辛散之。' },
+      { qi: '热', txt: '热淫于内，治以咸寒，佐以甘苦，以酸收之，以苦发之。' },
+      { qi: '湿', txt: '湿淫于内，治以苦热，佐以酸淡，以苦燥之，以淡泄之。' },
+      { qi: '火', txt: '火淫于内，治以咸冷，佐以苦辛，以酸收之，以苦发之。' },
+      { qi: '燥', txt: '燥淫于内，治以苦温，佐以甘辛，以苦下之。' },
+      { qi: '寒', txt: '寒淫于内，治以甘热，佐以苦辛，以咸泻之，以辛润之，以苦坚之。' }
+    ];
+    /* 五郁治则与五郁之发 【定源】《素问·六元正纪大论》郁之甚者一段与五郁之发五段照录（取维基文库本首句，屋发折木从维基文库本） */
+    var YQ_YU_ZHI = '木郁达之，火郁发之，土郁夺之，金郁泄之，水郁折之，然调其气，过者折之，以其畏也，所谓泻之。';
+    var YQ_YU_FA = [
+      { yu: '木郁之发', txt: '木郁之发，太虚埃昏，云物以扰，大风乃至，屋发折木，木有变。' },
+      { yu: '火郁之发', txt: '火郁之发，太虚肿翳，大明不彰，炎火行，大暑至，山泽燔燎，材木流津，广厦腾烟，土浮霜卤，止水乃减，蔓草焦黄，风行惑言，湿化乃后。' },
+      { yu: '土郁之发', txt: '土郁之发，岩谷震惊，雷殷气交，埃昏黄黑，化为白气，飘骤高深，击石飞空，洪水乃从，川流漫衍，田牧土驹。' },
+      { yu: '金郁之发', txt: '金郁之发，天洁地明，风清气切，大凉乃举，草树浮烟，燥气以行，霿雾数起，杀气来至，草木苍干，金乃有声。' },
+      { yu: '水郁之发', txt: '水郁之发，阳气乃辟，阴气暴举，大寒乃至，川泽严凝，寒雰结为霜雪，甚则黄黑昏翳，流行气交，乃为霜杀，水乃见祥。' }
+    ];
+    /* 胜复 【定源】《素问·至真要大论》有胜则复一段照录 */
+    var YQ_SHENG_FU = '初气终三气，天气主之，胜之常也。四气尽终气，地气主之，复之常也。有胜则复，无胜则否。';
+
+    /* 六十年气化总表：逐年岁运、司天在泉、运气同化，全部取 YQ.compute 引擎终值
+       【定源】《素问·六元正纪大论》六十年纪；年干支随农历正月初一界，与岁运模块同源。 */
+    function renderTab60(){
+      var g = $('yq60Gan').value, z = $('yq60Zhi').value;
+      var html = '<div class="yq-tbl-wrap"><table class="yq-tbl yq-tbl-sm"><thead><tr>' +
+        '<th>年</th><th>干支</th><th>岁运</th><th>司天</th><th>在泉</th><th>同化</th></tr></thead><tbody>';
+      var shown = 0;
+      for (var y = YEAR_MIN; y <= YEAR_MAX; y++){
+        var p = YQ.compute(y);
+        if (g && p.gan !== g) continue;
+        if (z && p.zhi !== z) continue;
+        var hits = [];
+        if (p.tonghua.tianFu.hit) hits.push('天符');
+        if (p.tonghua.suiHui.hit) hits.push('岁会');
+        if (p.tonghua.taiYi.hit) hits.push('太乙天符');
+        if (p.tonghua.tongTianFu.hit) hits.push('同天符');
+        if (p.tonghua.tongSuiHui.hit) hits.push('同岁会');
+        html += '<tr><td class="yq-c0">' + p.year + '</td><td>' + esc(p.gz) + '</td><td>' + esc(p.yun.wx + p.yun.shuai) +
+          '</td><td>' + esc(p.sitian.name) + '</td><td>' + esc(p.zaiquan.name) + '</td><td>' + esc(hits.length ? hits.join('、') : '无') + '</td></tr>';
+        shown++;
+      }
+      html += '</tbody></table></div>';
+      html += '<p class="sub-note">共 ' + shown + ' 行，依《素问·六元正纪大论》六十年纪；年界随上方所选，与岁运模块一致。</p>';
+      $('yqTabOut').innerHTML = html;
+    }
+
+    /* 干支反查年：一天干一地支，在 YEAR_MIN 至 YEAR_MAX 内反查，命中多时取首个并把年中日期带入日期框 */
+    function gzLookup(){
+      var v = String($('yqGz').value || '').replace(/^\s+|\s+$/g, '');
+      if (!v) return null;
+      if (!/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(v)) return -1;
+      var out = [];
+      for (var y = YEAR_MIN; y <= YEAR_MAX; y++){
+        if (YQ.compute(y).gz === v) out.push(y);
+      }
+      return out;
+    }
+
+    /* 年界口径：春节换年或立春换年，决定该日期归入哪个运气年 */
+    function yqBound(){
+      return $('yqBound').value === 'lichun' ? 'lichun' : 'chunjie';
+    }
 
     function renderAll(){
       var out = $('yqYunOut');
-      var year = parseInt($('yqYear').value, 10);
-      if (!(year >= YEAR_MIN && year <= YEAR_MAX)){
-        out.innerHTML = '<p class="yq-err">请选择 ' + YEAR_MIN + ' 至 ' + YEAR_MAX + ' 年之间的公历年份。</p>';
+      var gzV = String($('yqGz').value || '').replace(/^\s+|\s+$/g, '');
+      if (gzV){
+        var gzHits = gzLookup();
+        if (gzHits === -1){
+          out.innerHTML = '<p class="yq-err">干支格式应为一天干一地支，如 丙午。</p>';
+          return;
+        }
+        if (!gzHits.length){
+          out.innerHTML = '<p class="yq-err">' + YEAR_MIN + ' 至 ' + YEAR_MAX + ' 年内无 ' + esc(gzV) + ' 年。</p>';
+          return;
+        }
+        $('yqDate').value = gzHits[0] + '-06-01';
+      }
+      var dateStr = String($('yqDate').value || '').replace(/^\s+|\s+$/g, '');
+      if (!window.xjValidDate(dateStr)){
+        out.innerHTML = '<p class="yq-err">请输入合法的公历日期，如 2026-10-30。</p>';
         return;
       }
-      var p = window.YQ.compute(year);
-      YQ_LAST = p; YQ_KE_SEL = 0; YQ_JL_SEL = 0;
-      renderYun(p);
+      /* 已排盘之日期即用户所定：标记手改，默认值续算不再回写，刷新亦按所定恢复 */
+      $('yqDate').setAttribute('data-user-set', '1');
+      $('yqBound').setAttribute('data-user-set', '1');
+      var dp = dateStr.split('-').map(Number);
+      var bound = yqBound();
+      var effYear = YQ.yearOfDate(dp[0], dp[1], dp[2], bound);
+      if (!(effYear >= YEAR_MIN && effYear <= YEAR_MAX)){
+        out.innerHTML = '<p class="yq-err">该日期按所选年界属 ' + effYear + ' 年，超出 ' + YEAR_MIN + ' 至 ' + YEAR_MAX + ' 年范围。</p>';
+        return;
+      }
+      var p = window.YQ.compute(effYear);
+      YQ_LAST = p; YQ_LAST_DATE = dateStr; YQ_KE_SEL = 0; YQ_JL_SEL = 0;
+      renderYun(p, dateStr, bound);
       renderSitian(p);
       renderZhu(p);
       renderKe(p);
       renderJialin(p);
       renderTonghua(p);
+      renderStep(p);
+      renderZhuYun(p);
+      renderZongTu(p);
       renderYuanliu();
+      if (document.getElementById('yqTabOut').innerHTML) renderTab60();
     }
 
     /* ===== 2. AI 上下文 ===== */
     function yqAiContext(){
-      var year = parseInt($('yqYear').value, 10);
-      var s = '【五运六气页】依《黄帝内经·素问》运气七篇大论通行例。四口径对照（天干正五行、地支正五行、化运、纳音）、岁运三纪（《五常政大论》）、气交之变（《气交变大论》）、司天之政（《六元正纪大论》）与运气学源流随各模块就地输出，读盘三步与民俗口径见说明页。\n';
-      if (window.YQ && year >= YEAR_MIN && year <= YEAR_MAX){
-        var p = window.YQ.compute(year);
-        s += '当前排盘：' + p.year + ' 年（' + p.gz + '年，' + p.sheng + '肖，纳音' + p.nayin + '）。\n';
+      var dateStr = String($('yqDate').value || '').replace(/^\s+|\s+$/g, '');
+      var bound = yqBound();
+      var s = '【五运六气页】依《黄帝内经·素问》运气七篇大论通行例。四口径对照（天干正五行、地支正五行、化运、纳音）、岁运三纪（《五常政大论》）、气交之变（《气交变大论》）、司天之政（《六元正纪大论》）、标本中见与胜复（《至真要大论》）、五郁之治与五郁之发（《六元正纪大论》）随各模块就地输出，读盘三步与口径注见说明页。\n';
+      var dp = dateStr.split('-').map(Number);
+      var effYear = (dp.length === 3 && window.xjValidDate(dateStr)) ? YQ.yearOfDate(dp[0], dp[1], dp[2], bound) : NaN;
+      if (window.YQ && effYear >= YEAR_MIN && effYear <= YEAR_MAX){
+        var p = window.YQ.compute(effYear);
+        s += '当前排盘：' + dateStr + '（年界' + (bound === 'lichun' ? '立春换年' : '春节换年') + '，属' + p.gz + '年，' + p.sheng + '肖，纳音' + p.nayin + '）。\n';
         s += '岁运：' + p.yun.wx + '，' + p.yun.shuai + '（' + p.yun.he + '）。\n';
         s += '司天：' + p.sitian.name + '（主上半年）；在泉：' + p.zaiquan.name + '（主下半年）。\n';
         s += '客气六步：' + p.ke.join('、') + '（三之气为司天，终之气为在泉）。\n';
         var de = [];
         for (var i=0;i<p.jialin.length;i++){
           var r = p.jialin[i];
-          de.push(p.zhu[i].bu + ' ' + r.zhu + '/' + r.ke + ' ' + r.rel + ' ' + (r.pan==='相得'?'相得':'不相得：'+r.du));
+          de.push(p.zhu[i].bu + ' ' + r.zhu + '/' + r.ke + ' ' + r.rel + ' ' + (r.pan==='相得'?'相得':'不相得：'+r.du) + (r.note ? '（' + r.note + '）' : ''));
         }
         s += '客主加临：' + de.join('；') + '（通行归纳：同气相生为相得，相克为不相得，客胜主为从、主胜客为逆）。\n';
         var hits = [];
@@ -467,6 +793,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (p.tonghua.tongTianFu.hit) hits.push('同天符');
         if (p.tonghua.tongSuiHui.hit) hits.push('同岁会');
         s += '运气同化：' + (hits.length ? hits.join('、') : '无') + '。\n';
+        var zy = window.YQ.zhuYunOf(p.gz), ky = window.YQ.keYunOf(p.yun.wuyin);
+        s += '主运五步：' + zy.map(function(x){ return x.bu + x.yin; }).join('、') + '。\n';
+        s += '客运五步：' + ky.map(function(x){ return x.bu + x.yin; }).join('、') + '。\n';
+        var si = window.YQ.stepInfo(dateStr, effYear);
+        if (si && si.qi && si.yun){
+          s += '时令落步：' + dateStr + ' 在' + si.qi.bu + '（主气' + si.qi.zhu + '，客气' + si.qi.ke + '），' + si.yun.bu + '（主运' + si.yun.zhu.yin + '，客运' + si.yun.ke.yin + '），当日节气' + (window.YQ.jieQiNameOf(dateStr) || '未载') + '。\n';
+        }
       }
       s += '运气学说出自《黄帝内经》，不作医学诊断依据。';
       return s;
@@ -476,7 +809,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var YQ_MOD_KEY = 'yqModState';
     var yqModNavReady = false;
     function _yqAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return ['yqmod-yun']; } }
-    function toggleMod(id){ var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveYqModState(); }
+    function toggleMod(id){
+      var el = document.getElementById(id); if (el) el.classList.toggle('collapsed');
+      saveYqModState();
+      /* 结果未出时首开即排：任一模块展开先出一次盘，展开的模块内即有所见。
+         载入仍不自动出结果（与全站去除预置结果同口径），此只在用户点开时补一次。 */
+      if (el && !el.classList.contains('collapsed') && !YQ_LAST) renderAll();
+      /* 六十年总表首开即渲：模块展开而表格未渲过时渲染一次，之后仅随筛选与排盘刷新 */
+      if (id === 'yqmod-60' && el && !el.classList.contains('collapsed') && !document.getElementById('yqTabOut').innerHTML) renderTab60();
+    }
+    /* 折叠头走内联 onclick 只能触达全局：脚本求值即挂上，init 中任一附加模块异常都不再拖死开合 */
+    window.toggleMod = toggleMod;
         function saveYqModState(){
       if (!yqModNavReady) return;
       try{
@@ -492,6 +835,8 @@ document.addEventListener('DOMContentLoaded', function () {
       try{
         _yqAllModIds().forEach(function(id){
           var e = document.getElementById(id); if (!e) return;
+          /* 结果未出时不恢复展开态：空模块展开无内容，首屏保持静态折叠 */
+          if (!YQ_LAST) return;
           if (o[id] === true) e.classList.add('collapsed');
           else if (o[id] === false) e.classList.remove('collapsed');
         });
@@ -500,20 +845,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* ===== 4. 初始化 ===== */
     function init(){
-      var sel = $('yqYear');
-      var opts = '';
-      for (var y = YEAR_MAX; y >= YEAR_MIN; y--){ opts += '<option value="' + y + '">' + y + '</option>'; }
-      sel.innerHTML = opts;
-      sel.value = String(xjNowDate().getFullYear());
-      $('yqBtn').addEventListener('click', renderAll);
-      if (window.mountAI) window.mountAI(yqAiContext, '五运六气', { share:{ page:"yunqi", title:"五运六气在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ renderAll(); }); } } });
+      $('yqBtn').addEventListener('click', function(){
+        renderAll();
+        /* 排盘按钮即出结果入口：岁运收起而结果已出时展开，落眼即所见 */
+        var m = document.getElementById('yqmod-yun');
+        if (m && m.classList.contains('collapsed') && document.querySelector('#yqYunOut .yq-ov')) toggleMod('yqmod-yun');
+      });
+      /* 六十年总表筛选器：年干年支选项填充与变更即重渲（表未渲染过则先渲染一次） */
+      var GANS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+      var ZHIS = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+      var gSel = $('yq60Gan'), zSel = $('yq60Zhi');
+      var gOpts = '', zOpts = '', gi, zi;
+      for (gi = 0; gi < GANS.length; gi++){ gOpts += '<option value="' + GANS[gi] + '">' + GANS[gi] + '</option>'; }
+      for (zi = 0; zi < ZHIS.length; zi++){ zOpts += '<option value="' + ZHIS[zi] + '">' + ZHIS[zi] + '</option>'; }
+      gSel.innerHTML += gOpts;
+      zSel.innerHTML += zOpts;
+      gSel.addEventListener('change', renderTab60);
+      zSel.addEventListener('change', renderTab60);
+      /* 干支反查输入框回车即排盘 */
+      $('yqGz').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') renderAll(); });
+      if (window.mountAI) window.mountAI(yqAiContext, '五运六气', { share:{ page:"yunqi", title:"五运六气在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ renderAll(); applyYqModState(); }); } } });
       /* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */;
       applyYqModState();
       yqModNavReady = true;
-      window.toggleMod = toggleMod;
-      /* 两盘点选回调：内联 onclick 只能触达全局，故与 toggleMod 一并挂到 window */
+      /* 四盘点选回调：内联 onclick 只能触达全局，故挂到 window */
       window.yqPickKe = yqPickKe;
       window.yqPickJl = yqPickJl;
+      window.yqPickWuyun = yqPickWuyun;
+      window.yqPickZt = yqPickZt;
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();

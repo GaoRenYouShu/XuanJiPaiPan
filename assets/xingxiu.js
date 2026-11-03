@@ -103,7 +103,7 @@
         '<div class="xx-card-h"><span class="xx-xname">' + r.su + o.yao + o.qin + '</span>' +
           '<span class="xx-tag xx-tag-xiang xx-' + o.xiang + '">' + o.xiang + '</span>' +
           '<span class="xx-tag ' + luckCls + '">' + (o.luck === '吉' ? '吉' : '凶') + '</span>' +
-          '<span class="xx-tag xx-tag-yao">' + r.yao + '曜</span></div>' +
+          '<span class="xx-tag xx-tag-yao">出生' + r.yao + '曜</span></div>' +
         '<div class="xx-card-row"><span>本命宿</span><b>' + r.su + '宿（农历 ' + (r.leap ? '闰' : '') + gzCn(r.lm) + '月' + gzCn(r.ld) + '日推算）</b></div>' +
         '<div class="xx-card-row"><span>宿直生人</span><b>' + r.ming + '</b></div>' +
         baiRow +
@@ -123,23 +123,36 @@
     var bi = XX_ORDER.indexOf(base);
     return XX_ORDER[(bi + shiIdx) % 28];
   }
-  /* 年禽正法：《演禽通纂》三元旬头起手例。生年干支定所属旬（六旬配三元，两旬一元），
-   * 取该旬旬头甲日所值之宿，再按生年干支在旬内之序顺数去牛二十八宿得年禽。
-   * 旬内序：甲子 0、乙丑 1，至癸亥 59。 */
+  /* 年禽正法：《演禽通纂》三元旬头起手例。以 1504 上元甲子箕为锚，
+   * 每元六十年甲子头进六宿，旬内每旬进十宿，年支顺数，均去牛，九元五百四十年一周。
+   * 旬内序：甲子 0、乙丑 1，至癸亥 59；历元底本无载，1504 锚为推定，待核。 */
   function xunOfIndex(i) { return Math.floor(i / 10); } // 六旬：甲子、甲戌、甲申、甲午、甲辰、甲寅
-  function nianQinOf(gzIndex) {
+  function ganZhiIndex(gz) {
+    var gan = '甲乙丙丁戊己庚辛壬癸', zhi = '子丑寅卯辰巳午未申酉戌亥';
+    var gi = gan.indexOf(gz.charAt(0)), zi = zhi.indexOf(gz.charAt(1));
+    for (var i = 0; i < 60; i++) if (i % 10 === gi && i % 12 === zi) return i;
+    return 0;
+  }
+  function nianQinOf(gzIndex, liChunYear) {
     var xun = xunOfIndex(gzIndex);
     var pos = gzIndex % 10; // 旬内干支序（0=甲某）
-    var yuan = XX_NIAN_QIN.xunYuan[xun];
-    var xunKey = ['jiazi', 'jiaxu', 'jiashen', 'jiawu', 'jiachen', 'jiayin'][xun];
-    var head = XX_NIAN_QIN.yuan[yuan][xunKey];
-    var hi = XX_ORDER.indexOf(head);
-    /* 旬内顺数：甲起旬头宿，每进一支顺进一宿，去牛不用 */
-    var cnt = 0, cur = hi;
-    for (var k = 0; k < pos; k++) {
+    var cycle = Math.floor((liChunYear - XX_NIAN_QIN_ANCHOR.year) / 60);
+    var yuan = ((cycle % 3) + 3) % 3 + 1; // 1 上元、2 中元、3 下元
+    var steps = 6 * cycle + 10 * xun;
+    var cur = XX_ORDER.indexOf(XX_NIAN_QIN_ANCHOR.xiu);
+    var k;
+    for (k = 0; k < steps; k++) {
       cur = (cur + 1) % 28;
       if (XX_ORDER[cur] === '牛') { cur = (cur + 1) % 28; }
-      cnt++;
+    }
+    for (k = 0; k < -steps; k++) {
+      cur = (cur - 1 + 28) % 28;
+      if (XX_ORDER[cur] === '牛') { cur = (cur - 1 + 28) % 28; }
+    }
+    var head = XX_ORDER[cur];
+    for (k = 0; k < pos; k++) {
+      cur = (cur + 1) % 28;
+      if (XX_ORDER[cur] === '牛') { cur = (cur + 1) % 28; }
     }
     return { xiu: XX_ORDER[cur], yuan: yuan, xun: xun, head: head };
   }
@@ -173,8 +186,11 @@
     var suo = XX_SUOPO[ri];
     var ySX = l.getYearShengXiao();
     var benQin = XX_SHENGXIAO_XIU[ySX] || '';
-    var gzIdx = ((y - 4) % 60 + 60) % 60;
-    var nq = nianQinOf(gzIdx);
+    var gzYear = l.getYearInGanZhiByLiChun();
+    var gzIdx = ganZhiIndex(gzYear);
+    var liChunYear = y;
+    if (Solar.fromYmd(y, 6, 1).getLunar().getYearInGanZhiByLiChun() !== gzYear) liChunYear = y - 1;
+    var nq = nianQinOf(gzIdx, liChunYear);
     var nqObj = xiuObj(nq.xiu);
     var nqFull = nq.xiu + nqObj.yao + nqObj.qin;
     var yuanName = ['', '上元', '中元', '下元'][nq.yuan];
@@ -187,14 +203,14 @@
       '<div class="xx-card-h"><span class="xx-xname">' + full + '</span>' +
         '<span class="xx-tag xx-tag-qiyuan">第' + gzCn(q) + '元</span>' +
         '<span class="xx-tag ' + (o.luck === '吉' ? 'xx-luck-j' : 'xx-luck-x') + '">' + (o.luck === '吉' ? '吉' : '凶') + '</span></div>' +
-      '<div class="xx-card-row"><span>本命禽</span><b>' + (benQin ? ySX + '年生本命禽为 ' + benQin : '生年地支未配，余俟补') + '</b></div>' +
-      '<div class="xx-card-row"><span>年禽</span><b>' + nqFull + '（' + l.getYearInGanZhi() + '，' + yuanName + xunName + '旬，旬头' + nq.head + '宿）</b></div>' +
+      '<div class="xx-card-row"><span>属相禽</span><b>' + (benQin ? ySX + '年生属相禽为 ' + benQin : '生年地支未配，余俟补') + '</b></div>' +
+      '<div class="xx-card-row"><span>年禽（本命禽）</span><b>' + nqFull + '（' + gzYear + '，' + yuanName + xunName + '旬，旬头' + nq.head + '宿，三元历元待核）</b></div>' +
       '<div class="xx-card-row"><span>月禽</span><b>' + yqFull + '（农历' + (l.getMonth() < 0 ? '闰' : '') + gzCn(lmAbs) + '月，年禽' + nqObj.yao + '曜正月起' + XX_YUE_QIN[nqObj.yao] + '，顺数' + gzCn(lmAbs) + '月）</b></div>' +
       '<div class="xx-card-row"><span>日禽（值宿）</span><b>' + ri + o.yao + o.qin + '（' + o.xiang + '，' + o.gong + '方）</b></div>' +
-      '<div class="xx-card-row"><span>七元</span><b>第' + gzCn(q) + '元（甲子日值' + Object.keys(XX_QIYUAN).filter(function (k) { return XX_QIYUAN[k] === q; })[0] + '宿）</b></div>' +
+      '<div class="xx-card-row"><span>七元</span><b>第' + gzCn(q) + '元（将头' + Object.keys(XX_QIYUAN).filter(function (k) { return XX_QIYUAN[k] === q; })[0] + '宿）</b></div>' +
       '<div class="xx-card-row"><span>时禽</span><b>' + shiNames[shiIdx] + '时 → ' + shiName + (xiuObj(shiName) ? xiuObj(shiName).yao + xiuObj(shiName).qin : '') + '</b></div>';
-    if (tan) html += '<div class="xx-card-row"><span>吞啖</span><b>食 ' + tan.shi.join('、') + '；畏 ' + tan.wei.join('、') + '</b></div>';
-    if (suo) html += '<div class="xx-card-row"><span>锁泊</span><b>' + suo + '</b></div>';
+    html += '<div class="xx-card-row"><span>吞啖</span><b>' + (tan ? '食 ' + tan.shi.join('、') + '；畏 ' + tan.wei.join('、') : '未辑录') + '</b></div>';
+    html += '<div class="xx-card-row"><span>锁泊</span><b>' + (suo || '未辑录') + '</b></div>';
     if (td) html += '<div class="xx-card-row"><span>值宿宜忌</span><b>宜 ' + td.yi.join('、') + '；忌 ' + td.ji.join('、') + '；伏断 ' + td.fu + '时</b></div>';
     html += '</div>';
     out.innerHTML = html;
@@ -292,7 +308,7 @@
     var si = sunInXiu(now.getYear(), now.getMonth(), now.getDay());
     var siObj = xiuObj(si.xiu);
     var siName = siObj ? si.xiu + siObj.yao + siObj.qin : (si.xiu || '未定');
-    var html = '<div class="xx-card-row xx-sun-row"><span>今日太阳</span><b>视黄经 ' + si.lon.toFixed(2) + ' 度，入 ' + siName + '（J2000 宿界口径，观象参考）</b></div>';
+    var html = '<div class="xx-card-row xx-sun-row"><span>今日太阳</span><b>视黄经 ' + si.lon.toFixed(2) + ' 度，入 ' + siName + '（J2000 宿界口径，觜参段随距星黄经，与通行觜前参后相反，观象参考）</b></div>';
     var duText = XX_DU_TEXT.replace(/。/g, '。 ');
     html += '<div class="xx-quote">' + duText + '</div>';
     html += '<div class="xx-tbl-wrap"><table class="xx-tbl"><thead><tr>' +
@@ -325,8 +341,8 @@
   }
 
   /* ===== 十b、二十八宿示意星图（玄夜鎏金，圆形图版） =====
-   * 骨架与站内圆盘通用件同制式（440 见方、盘心 220）：外圈线 182、内界圈 100、盘心圈 60、
-   * 刻度 168–176、宿名环 148（一字沿圆周环布 WHEEL.ring）。夜幕底色以圆形图版嵌入纸页，
+   * 骨架与站内圆盘通用件同制式（440 见方、盘心 220）：外圈线 182、内界圈 108、盘心圈 60、
+   * 刻度 168 至 160、宿名环 144（一字沿圆周环布 WHEEL.ring）。夜幕底色以圆形图版嵌入纸页，
    * 圆形（半径 182）内为玄夜鎏金，圆外留纸本白底，鎏金细圈收束图版外缘，外圈鎏金刻线环与
    * 四象柔光弧贴在盘缘内侧；二十八宿按通行宿序环天一周（屏幕角逆时针递减、起点 135°），
    * 宿点带四象色柔光晕，连成细金环；今日值宿以十芒金星加虚线光环高亮，宿名以 .w-lab-cur

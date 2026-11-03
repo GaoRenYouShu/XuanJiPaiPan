@@ -7,13 +7,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>测字 玄机排盘</title>
-<meta name="description" content="在线测字拆字：输入单字详测字象，精编拆字拆解、康熙数理、梅花字占卦象、时辰外应应期与九类事综合断语，支持随机拈字与 AI 解读，拆字断吉凶。">
+<meta name="description" content="在线测字拆字：输入单字详测字象，按起测时刻与所在地作真太阳时折算，精编拆字拆解、康熙数理、梅花字占卦象、时辰外应应期与九类事综合断语，支持随机拈字与 AI 解读，拆字断吉凶。">
 <meta name="keywords" content="测字,拆字,字占,测字算命,拆字测吉凶,拈字,康熙笔画,梅花字占">
 <link rel="canonical" href="https://gaoren.org/cezi.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="玄机排盘">
 <meta property="og:title" content="测字 玄机排盘">
-<meta property="og:description" content="在线测字拆字：输入单字详测字象，精编拆字拆解、康熙数理、梅花字占卦象、时辰外应应期与九类事综合断语，支持随机拈字与 AI 解读，拆字断吉凶。">
+<meta property="og:description" content="在线测字拆字：输入单字详测字象，按起测时刻与所在地作真太阳时折算，精编拆字拆解、康熙数理、梅花字占卦象、时辰外应应期与九类事综合断语，支持随机拈字与 AI 解读，拆字断吉凶。">
 <meta property="og:url" content="https://gaoren.org/cezi.html">
 <meta property="og:image" content="https://gaoren.org/assets/logo/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -28,6 +28,26 @@
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/dist/css/base.css">
 <style data-critical>/* 本页首屏样式。 */
+
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 
 body{--footer-ink:#61432a}
 
@@ -86,7 +106,31 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 #out + *{margin-top:var(--sp-4)}
 
-.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+.opts .field{flex:0 0 auto;min-width:120px}
+
+.birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
+  flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
+  border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+
+.birth-group .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.birth-group .field{flex:1 1 140px;min-width:120px;margin:0}
+
+.birth-group .field.hh-lng{max-width:200px}
+
+.opts{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:stretch;margin-bottom:var(--sp-2);flex-direction:column}
+
+.opts-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:flex-end}
+
+.opts-row .group-label{width:100%;font-size:13px;font-weight:400;color:var(--gold2);line-height:1.1}
+
+.opts-row .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.opts-row .field select{width:auto;max-width:100%}
+
+@media(max-width:640px){
+.opts-row{gap:var(--sp-2)}
+}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -125,6 +169,30 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
   box-shadow:0 24px 64px rgba(28,26,23,.28)}
 
 #aiModelList{max-height:190px;overflow-y:auto;border:1px solid #eee8da;border-radius:0;background:var(--card);padding:0 12px}
+
+.birth-group.compact{gap:var(--sp-2);padding:var(--sp-3) 0}
+
+.birth-group.compact .field{flex:0 0 auto;min-width:0;margin:0;width:auto;max-width:none}
+
+.birth-group.compact .field input[type="text"]{width:96px}
+
+.birth-group.compact .field.hh-lng{flex:0 0 96px;min-width:96px;max-width:96px}
+
+.birth-group.compact .group-label{width:100%;margin:0}
+
+.birth-group.compact .field select{width:auto;align-self:flex-start}
+
+.birth-group.compact .field select[id$="Prov"]{width:137px}
+
+.birth-group.compact .field select[id$="City"]{width:96px}
+
+.birth-group.compact .field select[id$="Dist"]{width:137px}
+
+@media(max-width:640px){
+.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+
+.birth-group.compact .field:has(input[type="text"]){flex:0 0 96px;min-width:96px;max-width:96px}
+}
 
 @media(max-width:640px){
 .page{padding:var(--sp-4) var(--sp-4) 0}
@@ -193,7 +261,9 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .cz-fold>summary::-webkit-details-marker{display:none}
 
-.page-cz .page > .form-row{margin-bottom:var(--sp-2)}
+.page-cz .page > .form-row{margin-bottom:var(--sp-3)}
+
+.page-cz .birth-group{border-bottom:1px solid var(--cz-line)}
 
 .page-cz .page h1{color:var(--cz-deep);font-family:var(--cz-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
 
@@ -204,8 +274,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-cz .page .lead::after{background:var(--cz-line)}
 
 .page-cz .page .lead{color:var(--cz-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
-
-.page-cz .sub-note{color:var(--cz-ink2)}
 
 .page-cz .field label{color:var(--cz2);font-weight:400}
 
@@ -355,10 +423,29 @@ html .page-cz {
     <div class="form-row">
       <div class="field"><label for="czChar">所测之字（一字）</label><input id="czChar" class="cz-char-input" maxlength="4" placeholder="随手写一字"></div>
       <div class="field"><label for="czCat">所问之事</label><select id="czCat"><option value="zong">总论</option><option value="shiye">事业功名</option><option value="caiyun">财运买卖</option><option value="hunyin">婚姻感情</option><option value="jiankang">健康疾病</option><option value="xueye">学业考试</option><option value="chuxing">出行行人</option><option value="xunwu">寻人寻物</option><option value="guansi">官司是非</option></select></div>
+      <div class="field"><label for="czDate">起测日期</label><span class="dt-wrap"><input type="text" class="dt-input" id="czDate" aria-label="起测日期" placeholder="2026-11-02"></span></div>
+      <div class="field"><label for="czTime">起测时刻</label><span class="dt-wrap"><input type="time" id="czTime" aria-label="起测时刻"></span></div>
       <button class="btn gold" onclick="draw()">✍ 拆字详测</button>
       <button class="btn" onclick="nianzi()">🎲 随机拈字</button>
     </div>
-        <p class="sub-note">多字粘贴时只取首字</p>
+    <div class="opts">
+      <div class="birth-group compact" id="czGeoGroup">
+        <div class="group-label">所在地（用于经度校正，内置行政区划经度）</div>
+        <div class="field"><label for="czProv">省份</label><select id="czProv" aria-label="所在地省份"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="czCity">城市</label><select id="czCity" aria-label="所在地城市"><option value="未知地">未知地</option></select></div>
+        <div class="field"><label for="czDist">区县</label><select id="czDist" aria-label="所在地区县"><option value="未知地">未知地</option></select></div>
+        <div class="field hh-lng"><label for="czLng">经度（可选）</label><input type="text" id="czLng" size="7" inputmode="decimal" placeholder="所在地" aria-label="手动经度东经度数"></div>
+      </div>
+      <div class="opts-row" id="czOptsRow">
+        <div class="group-label">时间折算与流派</div>
+        <div class="field" id="czDstField"><label for="czDst">夏令时</label><select id="czDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
+        <div class="field"><label for="czZi">子时算法</label><select id="czZi" aria-label="选择子时归属算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
+        <div class="field"><label for="czSun">太阳时</label><select id="czSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+        <div class="field" id="czTzField" hidden><label for="czTz">时区偏移</label><select id="czTz" aria-label="选择境外所在地标准时区偏移" onchange="czOverseasChange()"></select></div>
+        <div class="field chk" id="czLocalDstField" hidden><input type="checkbox" id="czLocalDst" onchange="czOverseasChange()"><label for="czLocalDst">当地夏令时（钟面减1小时）</label></div>
+      </div>
+    </div>
+    <p class="sub-note" id="czOverseasNote" hidden></p>
     <div id="out"></div>
     <div id="aiMount"><details class="ai-block" id="aiBlock">
       <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
@@ -371,6 +458,7 @@ html .page-cz {
 </div></footer>
 <script defer src="assets/geo.js"></script>
 <script defer src="assets/ai-lazy.js"></script>
+<script data-sync="1" src="assets/dist/js/inline-cezi-now.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/data-lunar.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/cezi.seg1.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/data-kangxi.js"></script>
@@ -378,6 +466,7 @@ html .page-cz {
 <script defer fetchpriority="low" src="assets/dist/js/data-name-data.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/cezi.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/data-cezi-data.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/data-latlng.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/cezi.seg3.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-cezi-00.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-cezi-01.js"></script>

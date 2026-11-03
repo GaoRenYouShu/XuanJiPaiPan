@@ -439,7 +439,6 @@ html .page-qm {
         <select id="qMode" onchange="qModeChange()">
           <option value="normal">常规（时间起局）</option>
           <option value="shanxiang">山向奇门（空间起局）</option>
-          <option value="saved">已存</option>
         </select>
       </div>
       <div class="field q-mode-time"><label for="qDate">起局日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qDate" value="2026-10-29"></div>
@@ -532,8 +531,8 @@ html .page-qm {
           <option value="失物">失物</option>
         </select>
       </div>
-      <button class="btn" onclick="paiju()">起局</button>
-      <button class="btn btn-ghost" onclick="saveQimenEntry()">保存</button>
+      <button class="btn" onclick="paiju();pushQmHistory()">起局</button>
+      <button class="btn btn-ghost" onclick="showQmHistory()">历史记录</button>
     </div>
     <div class="opts" id="qmOptsWrap">
       <div class="birth-group compact" id="qmBirthGroup">
@@ -553,10 +552,6 @@ html .page-qm {
       </div>
     </div>
     <p class="sub-note" id="qmOverseasNote" hidden></p>
-    <div id="qmSavedPanel" hidden>
-      <div class="qm-note" id="qmSavedTip"></div>
-      <table class="qm-tbl"><thead><tr><th>局式</th><th>时间或山向</th><th>用神</th><th>家数排法</th><th>操作</th></tr></thead><tbody id="qmSavedList"></tbody></table>
-    </div>
     <div id="out"></div>
     <details class="mh-ref qm-gloss-ref" id="qmGlossRef"><summary>术语速查</summary>
     <table class="qm-gloss"><thead><tr><th>术语</th><th>白话解释</th></tr></thead>
@@ -613,7 +608,8 @@ html .page-qm {
 <script defer fetchpriority="low" src="assets/qimen-extra.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-qimen-07.js"></script>
+<script defer fetchpriority="low" src="assets/hist-modal.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-qimen-08.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-qimen-09.js"></script>
 </body>
 </html>

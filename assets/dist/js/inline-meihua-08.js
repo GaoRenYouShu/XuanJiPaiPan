@@ -253,23 +253,17 @@ function mhUseNow(){
   document.getElementById('mDate').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
   document.getElementById('mTime').value=`${pad2(n.getHours())}:${pad2(n.getMinutes())}`;
 }
-function showMhHistory(){
-  var mask=document.getElementById('mhHistMask');
-  if(!mask){ mask=document.createElement('div'); mask.id='mhHistMask'; mask.className='modal-mask';
-    mask.addEventListener('click',function(e){ if(e.target===mask) closeMhHist(); });
-    document.body.appendChild(mask); }
-  mask.innerHTML='<div class="modal mh-hist-modal"><span class="close" onclick="closeMhHist()">×</span><div class="ly-hist-head">历史记录（最多9条）</div><div class="ly-hist-list" id="mhHistList"></div></div>';
-  mask.classList.add('show');
-  renderMhHist();
-}
-function closeMhHist(){ var m=document.getElementById('mhHistMask'); if(m) m.classList.remove('show'); }
-function renderMhHist(){
-  const host=document.getElementById('mhHistList');
-  if(!host) return;
-  try{ var his=JSON.parse(localStorage.getItem('mhHistory')||'[]'); }catch(e){ his=[]; }
-  if(!his.length){ host.innerHTML='<div class="mh-hist-empty">暂无历史记录。</div>'; return; }
-  host.innerHTML=his.map(function(h,i){ return '<div class="mh-hist-row"><span class="mh-hist-t">'+h.t+'</span><button class="btn" onclick="restoreMhHist('+i+')">重开</button></div>'; }).join('');
-}
+var MH_MULTI_CFG={check:'mhMulti', host:'mhMultiHost'};
+var MH_HIST_CFG={
+  mask:'mhHistMask', list:'mhHistList', key:'mhHistory', title:'历史记录（最多9条）',
+  restoreFn:'restoreMhHist', delFn:'delMhHistory',
+  row:function(h){
+    return {t:(h.d||'')+(h.t?' '+h.t:''), main:(h.s||'')+(h.c?' '+h.c:'')};
+  }
+};
+function showMhHistory(){ xjHist.open(MH_HIST_CFG); }
+function closeMhHist(){ xjHist.close(); }
+function delMhHistory(i){ xjHist.del(MH_HIST_CFG,i); }
 function restoreMhHist(i){
   try{ var his=JSON.parse(localStorage.getItem('mhHistory')||'[]'); var h=his[i]; if(!h)return;
     document.getElementById('mDate').value=h.d; document.getElementById('mTime').value=h.t;
@@ -280,7 +274,7 @@ function restoreMhHist(i){
     qigua();
   }catch(e){}
 }
-function clearMhMulti(){ document.getElementById('mhMultiHost').innerHTML=''; }
+function clearMhMulti(){ xjMulti.clear(MH_MULTI_CFG); }
 /* 起卦方式与输入组的对应：一组一值，选中者加 .is-on，显隐由样式表定 */
 const MH_METHOD_FIELD={mhNumField:'num',mhCharField:'char',mhNameField:'name',mhYingField:'ying'};
 function mhMethodChange(){
@@ -552,17 +546,14 @@ function qigua(){
 流派：${document.getElementById('mhSchool').value}：${MEIHUA_SCHOOLS[document.getElementById('mhSchool').value].note}`+(mhQVal?'\n占问：'+mhQVal:'');
   /* 保存历史（最多9条）：存起卦方式与全量输入，重开按原方式与原输入重算 */
   try{
-    var his=JSON.parse(localStorage.getItem('mhHistory')||'[]');
-    his.unshift({d:dv,t:tv,s:document.getElementById('mhSchool').value,c:document.getElementById('mhCat').value,m:method,
+    xjHist.push('mhHistory', {d:dv,t:tv,s:document.getElementById('mhSchool').value,c:document.getElementById('mhCat').value,m:method,
       n1:document.getElementById('mhNum1').value,n2:document.getElementById('mhNum2').value,n3:document.getElementById('mhNum3').value,
       ch:document.getElementById('mhChar').value,nm:document.getElementById('mhName').value,yg:document.getElementById('mhYingVal').value});
-    localStorage.setItem('mhHistory',JSON.stringify(his.slice(0,9)));
   }catch(e){}
-  /* 连占对比模式 */
-  var _mchk=document.getElementById('mhMulti');
-  if(_mchk&&_mchk.checked===true){
-    var host=document.getElementById('mhMultiHost');
-    if(host){ var card=document.createElement('div'); card.className='ly-multi-card'; card.innerHTML=document.getElementById('out').innerHTML; host.appendChild(card); }
+  /* 连占对比模式：本次结果追加为卡片，单盘照常覆盖 */
+  if(xjMulti.on(MH_MULTI_CFG)){
+    xjMulti.add(MH_MULTI_CFG, document.getElementById('out').innerHTML,
+      benInfo.name+(bianInfo.name&&bianInfo.name!==benInfo.name?('→'+bianInfo.name):'')+'、'+document.getElementById('mhCat').value);
   }
 }
 /* 折叠态属交互态：结果区与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */

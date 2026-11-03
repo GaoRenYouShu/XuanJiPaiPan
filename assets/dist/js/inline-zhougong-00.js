@@ -13,6 +13,14 @@ function zgCard(r){
     (r.omen ? '<span class="zg-omen">' + r.omen + '</span>' : '') + '</div>' +
     '</div>';
 }
+/* 分类浏览卡：组头已出主体，卡内只留吉凶徽标与条目 */
+function zgCardBrowse(r){
+  return '<div class="zg-card">' +
+    '<div class="zg-card-top">' + zgLuckBadge(r.luck) + '</div>' +
+    '<div class="zg-entry"><span class="zg-img">' + r.img + '</span>' +
+    (r.omen ? '<span class="zg-omen">' + r.omen + '</span>' : '') + '</div>' +
+    '</div>';
+}
 /* 断梦秘书：同名梦象索引（去"梦"字头后与通行本梦象比对），键为规范化梦象 */
 var ZG_DM_DUI = {};
 var ZG_DM_NORM = {};
@@ -23,10 +31,9 @@ function zgDmDupHtml(img){
   if ((ZG_DM_DUP[img] || 0) < 2) return '';
   return '<div class="zd-dup">此象原书两见，前后释文详略有别，各存其真，未加删并。</div>';
 }
-/* 断梦条目卡：占辞为释义原文，无吉凶标签，小节名随卡显示；两书同名梦象时附通行本对照行 */
+/* 断梦条目卡：组头出小节，卡内只留梦象与释义；两书同名梦象时附通行本对照行 */
 function zgDmCard(r){
   return '<div class="zg-card">' +
-    '<div class="zg-card-top"><span class="zg-cat-chip">' + ZG_DM_CATS[r[0] * 2 - 1] + '：' + r[1].replace(/^梦/, '') + '</span></div>' +
     '<div class="zg-entry"><span class="zg-img">' + r[2] + '</span>' +
     '<span class="zg-omen">' + r[3] + '</span></div>' +
     zgDmDupHtml(r[2]) +
@@ -62,10 +69,10 @@ function zgCardDui(r){
 function zgRenderSearch(){
   var q = document.getElementById('zgQ').value;
   var out = document.getElementById('zgOut');
-  var list = zgSearch(q);
+  var list = zgSearch(q, 0);
   if (!q) { out.innerHTML = ''; return; }
   if (!list.length) {
-    var kRaw = q.replace(/^梦(见|到|了)?/, '').replace(/^\s+|\s+$/g, '');
+    var kRaw = zgNorm(q);
     var k = escapeHtml(kRaw);
     var near = zgNeighbors(q);
     var mg = zgModernMatch(kRaw);
@@ -85,7 +92,9 @@ function zgRenderSearch(){
   var shown = Math.min(list.length, 60);
   var head = '检得 ' + list.length + ' 条';
   if (list.length > shown) head += '，显示前 ' + shown + ' 条';
-  out.innerHTML = '<div class="zg-count">' + head + '</div>' + list.map(zgCardDui).join('');
+  var terms = zgSearchTerms(q);
+  if (terms.length > 1) head += '；已并检：' + terms.slice(1).join('、');
+  out.innerHTML = '<div class="zg-count">' + head + '</div>' + list.slice(0, shown).map(zgCardDui).join('');
 }
 function zgRenderCats(){
   var counts = zgCatCounts();
@@ -100,7 +109,7 @@ function zgRenderCat(cat){
   var html = '<h3 class="zg-cat-h">' + ZG_CATS[cat - 1] + '（第' + ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四','二十五','二十六','二十七'][cat - 1] + '类）</h3>';
   html += groups.map(function(g){
     return '<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + g.items.length + '）</div>' +
-      g.items.map(zgCard).join('') + '</div>';
+      g.items.map(zgCardBrowse).join('') + '</div>';
   }).join('');
   document.getElementById('zgBrowse').innerHTML = html;
 }
@@ -115,6 +124,14 @@ function zgRenderStats(){
     '<span class="zg-stat zg-sjian"><b>' + s.jian + '</b>吉凶兼</span>' +
     '<span class="zg-stat"><b>' + dmTotal + '</b>断梦秘书条</span>' +
     '<span class="zg-stat"><b>' + ZG_DM_DUI_COUNT + '</b>同名异文</span>';
+  var set = function(id, val){ var el = document.getElementById(id); if (el) el.textContent = val; };
+  set('zgKaoguTotal', s.total);
+  set('zgKaoguLian', ZG_ROWS.filter(function(r){ return !r.omen; }).length);
+  set('zgDmTotal', dmTotal);
+  set('zgDmTotalIntro', dmTotal);
+  set('zgLuckJi', s.ji);
+  set('zgLuckXiong', s.xiong);
+  set('zgLuckJian', s.jian);
 }
 
 function zgRenderNotes(){
@@ -153,7 +170,7 @@ function zgDmRenderCat(cat){
 }
 function zgAiContext(){
   var luckName = { '1':'吉', '-1':'凶', '0':'吉凶兼' };
-  var s = '周公解梦（通行本《周公解梦》二十七类九百五十一句占辞，托名周公旦，隋唐以降民间占梦材料辑录）\n';
+  var s = '周公解梦（通行本《周公解梦》' + ZG_CATS.length + '类' + ZG_ROWS.length + '句占辞，托名周公旦，隋唐以降民间占梦材料辑录）\n';
   if (ZG_DM_ON_CAT){
     var dmRows = ZG_DM_SETS.filter(function(r){ return r[0] === ZG_DM_ON_CAT; });
     s += '另附《断梦秘书》当前浏览类别：' + ZG_DM_CAT_ORDER[ZG_DM_ON_CAT - 1] + ' '
@@ -241,7 +258,10 @@ document.addEventListener('DOMContentLoaded', function () {
         browse.innerHTML = '';
         return;
       }
-      document.querySelectorAll('.zd-chip').forEach(function(c){ c.classList.remove('on'); });
+      document.querySelectorAll('#zgDmCats .zd-chip').forEach(function(c){ c.classList.remove('on'); });
+      document.querySelectorAll('#zgCats .zg-chip').forEach(function(c){ c.classList.remove('on'); });
+      ZG_ON_CAT = 0;
+      document.getElementById('zgBrowse').innerHTML = '';
       btn.classList.add('on');
       ZG_DM_ON_CAT = cat;
       zgDmRenderCat(cat);
@@ -268,20 +288,23 @@ document.addEventListener('DOMContentLoaded', function () {
         browse.innerHTML = '';
         return;
       }
-      document.querySelectorAll('.zg-chip').forEach(function(c){ c.classList.remove('on'); });
+      document.querySelectorAll('#zgCats .zg-chip').forEach(function(c){ c.classList.remove('on'); });
+      document.querySelectorAll('#zgDmCats .zd-chip').forEach(function(c){ c.classList.remove('on'); });
+      ZG_DM_ON_CAT = 0;
+      document.getElementById('zgDmBrowse').innerHTML = '';
       btn.classList.add('on');
       ZG_ON_CAT = cat;
       zgRenderCat(cat);
       if (browse.scrollIntoView) browse.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
-    /* 诗文与分类已是页面终值，data-built 记写出当日，访问日与所记不同才重出。 */
+    /* 诗文是静态终值，访问日与 data-built 不同才重排；分类条数随数据现算，每次装载都重出。 */
     var zgBuilt = document.querySelector('.page-zg');
     zgBuilt = zgBuilt ? zgBuilt.getAttribute('data-built') : '';
     if (zgBuilt !== xjNowStr().slice(0, 10)) {
       zgRenderPoem();
-      zgRenderCats();
-      zgDmRenderCats();
     }
+    zgRenderCats();
+    zgDmRenderCats();
     zgRenderStats();
     zgRenderNotes();
     mountAI(zgAiContext, '周公解梦', { share:{
@@ -296,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function () {
       restore: function(d){
         ZG_ON_CAT = 0;
         ZG_DM_ON_CAT = 0;
-        document.querySelectorAll('.zg-chip').forEach(function(c){ c.classList.remove('on'); });
-        document.querySelectorAll('.zd-chip').forEach(function(c){ c.classList.remove('on'); });
+        document.querySelectorAll('#zgCats .zg-chip').forEach(function(c){ c.classList.remove('on'); });
+        document.querySelectorAll('#zgDmCats .zd-chip').forEach(function(c){ c.classList.remove('on'); });
         document.getElementById('zgBrowse').innerHTML = '';
         document.getElementById('zgDmBrowse').innerHTML = '';
         shareDefaultRestore(d);

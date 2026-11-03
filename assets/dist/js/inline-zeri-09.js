@@ -506,29 +506,18 @@ function renderZm(){
   var res=ZM_RES, ctx=ZM_CTX;
   if(!res || !res.count){ out.innerHTML='<p class="notice">窗口内无可用候选。</p>'; return; }
   var list = (ZM_VIEW==='day') ? ZAOMING.bestPerDay(res.list) : res.list;
-  var byDay={};
-  list.forEach(function(it){ var k=it.y+'-'+it.m+'-'+it.d; (byDay[k]=byDay[k]||[]).push(it); });
-  var diffNotes={};
-  Object.keys(byDay).forEach(function(k){
-    var arr=byDay[k]; if(arr.length<2) return;
-    var hi=arr[0], lo=arr[arr.length-1];
-    var hiH=ZERI.HOURS[hi.hourIdx].z, loH=ZERI.HOURS[lo.hourIdx].z;
-    var dr=(hi.res.total-lo.res.total).toFixed(1);
-    diffNotes[k]=hiH+'时优于'+loH+'时（差 '+dr+' 分），主因：'+((hi.res.Q.score!==lo.res.Q.score)?'八字质量不同':'同八字而家长缘分或避凶底线有别');
-  });
   var hasTop=list.some(function(it){ return it.res.total>=88; });
   var degradeNote=hasTop?'':(list.length?('窗口内未出上吉之选（无 88 分以上），可扩大日期范围；若工期所限，取排序最前者并重点核对避凶底线明细。'):'');
   var top=list.slice(0,30);
   var hasParent = !!(ctx.parent1||ctx.parent2);
-  var degradeHtml = degradeNote ? ('<div class="zm-degrade"><span class="zr-k">择时说明</span>：'+degradeNote+'</div>') : '';
+  var degradeHtml = degradeNote ? ('<p class="sub-note zm-degrade"><span class="zr-k">择时说明</span>：'+degradeNote+'</p>') : '';
   var pInfo = hasParent
-    ? degradeHtml+'已纳入家长缘分（'+[(ctx.parent1?ctx.parent1.label:''),(ctx.parent2?ctx.parent2.label:'')].filter(Boolean).join('、')+'完整八字）'
+    ? '已纳入家长缘分（'+[(ctx.parent1?ctx.parent1.label:''),(ctx.parent2?ctx.parent2.label:'')].filter(Boolean).join('、')+'完整八字）'
     : '未填家长信息，家长缘分层不参与（其余三层按剩余权重等比放大）';
   /* 宝宝出生地未定而真太阳时开着：整批候选按钟面标准时排，明写出来免被当作已校正 */
   var noPlaceNote = (ctx.useTrue && ctx.lng==null) ? '　宝宝出生地未定，全部候选按钟面标准时排盘，未作太阳时校正。' : '';
   var cards=top.map(function(it,i){
-    var r=it.res, g=r.grade; var dKey=it.y+'-'+it.m+'-'+it.d; var dNote=diffNotes[dKey]||'';
-    var diffHtml = dNote ? ('<div class="zm-diff">'+dNote+'</div>') : '';
+    var r=it.res, g=r.grade;
     var layers='<div class="zm-layers">'
       +'<span class="zm-layer">八字质量 '+r.Q.score+'</span>'
       +'<span class="zm-layer">前三步大运 '+(r.Y.score==null?'无':r.Y.score)+'</span>'
@@ -558,7 +547,6 @@ function renderZm(){
       +'<div class="zr-date">'
       +'<div class="zr-sol">'+it.y+'年'+it.m+'月'+it.d+'日 '+ZERI.HOURS[it.hourIdx].z+'时（'+it.clockTime+'）'+(it.trueNote?(' <span>真太阳时 '+it.trueTime+'</span>'):'')+'</div>'
       +'<div class="zr-lun">农历'+it.lunarText+'　'+it.pillars.join(' ')+'</div>'
-      +(diffHtml?'<div class="zr-diff">'+diffHtml+'</div>':'')
       +'</div>'
       +'<div class="zr-tags">'
       +'<span class="zr-tag">日主'+it.dayGan+'（'+it.dayWx+'）</span>'
@@ -575,6 +563,7 @@ function renderZm(){
       +'</div>';
   }).join('');
   out.innerHTML='<h4 class="jz-h">造命排盘：综合判定（共 '+res.count+' 个候选：'+res.days+' 天 × '+ctx.hours.length+' 时辰）</h4>'
+    + degradeHtml
     +'<p class="sub-note">'+pInfo+'；'+(ctx.useTS?'已纳入各候选出生年的流年太岁（岁破、三煞）':'未纳入太岁避凶')+'。'+noPlaceNote+'</p>'
     +'<p class="sub-note zm-dis">择时为医生许可窗口内的优选参考，非逆天改命；早产与医学指征优先。本结果不构成医疗建议，分娩时机请以产科医生判断为准。</p>'
     +'<div class="zm-tabs">'

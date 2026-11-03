@@ -2191,19 +2191,24 @@ to{opacity:1;transform:none}}
 
 .page-mh .ly-zh-tbl th{width:88px}
 
-.page-mh .ly-multi-card{border:2px solid var(--mh-line,var(--line));border-radius:0;padding:var(--sp-3) var(--sp-3);margin-top:var(--sp-3);background:var(--card);box-shadow:var(--shadow)}
+/* 连占对比卡（六爻、梅花、小六壬同款）：卡头序号与摘要、移除钮、可清空 */
+.multi-card{border:2px solid var(--gold);border-radius:0;padding:var(--sp-3);margin-top:var(--sp-3);background:var(--card)}
+.multi-head{display:flex;align-items:center;gap:var(--sp-2);padding-bottom:var(--sp-2);margin-bottom:var(--sp-2);border-bottom:1px dashed var(--gold)}
+.multi-no{font-size:var(--tier4);font-weight:400;color:var(--gold2);white-space:nowrap}
+.multi-info{flex:1 1 auto;min-width:0;font-size:var(--tier4);color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.multi-del{height:auto;font-size:var(--tier4);padding:1px var(--sp-2);line-height:1.5}
 
-.page-mh .ly-multi-card h3.rel-title:first-child{margin-top:0}
+.page-mh .multi-card h3.rel-title:first-child{margin-top:0}
 
-.page-mh .ly-multi-card .yao-board{padding:var(--sp-2) var(--sp-3);gap:var(--sp-3)}
+.page-mh .multi-card .yao-board{padding:var(--sp-2) var(--sp-3);gap:var(--sp-3)}
 
-.page-mh .ly-multi-card .yao-col{flex:0 1 auto;width:auto}
+.page-mh .multi-card .yao-col{flex:0 1 auto;width:auto}
 
-.page-mh .ly-multi-card .yb{width:22px;height:7px}
+.page-mh .multi-card .yb{width:22px;height:7px}
 
-.page-mh .ly-multi-card .yb.gap{width:22px}
+.page-mh .multi-card .yb.gap{width:22px}
 
-.page-mh .ly-multi-card .yb.gap span{width:9px;height:7px}
+.page-mh .multi-card .yb.gap span{width:9px;height:7px}
 
 .page-mh .mh-cat-tbl th:first-child{white-space:nowrap;width:4em}
 
@@ -2369,17 +2374,18 @@ to{opacity:1;transform:none}}
   }
 }
 
-.modal.mh-hist-modal .mh-hist-empty{padding:var(--sp-3);color:var(--tk-ink,var(--ink2));font-size:var(--tier4);text-align:center}
-
-.modal.mh-hist-modal .mh-hist-row{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-1) 0;border-bottom:1px solid var(--tk-line,var(--line))}
-
-.modal.mh-hist-modal .mh-hist-row .mh-hist-t{flex:1;font-size:var(--tier4)}
-
-.modal.mh-hist-modal .mh-hist-row .btn{height:30px;font-size:var(--tier4)}
-
-.modal.mh-hist-modal{max-width:560px}
-
-.modal.mh-hist-modal .ly-hist-list > div{border-bottom:1px solid var(--tk-line,var(--line))}
+/* 历史记录弹层（六爻、梅花、灵签同款）：三列行、重开与删除钮、脚注同档 */
+.modal.hist-modal{max-width:560px}
+.hist-list{margin-top:var(--sp-1)}
+.hist-empty{padding:var(--sp-3);color:var(--ink2);font-size:var(--tier4);text-align:center}
+.hist-foot{margin-top:var(--sp-2);font-size:var(--tier4);color:var(--ink2)}
+.hist-row{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:var(--tier4);padding:var(--sp-1) 0;border-bottom:1px solid var(--line)}
+.hist-t{flex:0 0 auto;max-width:110px;min-width:0;color:var(--ink2);line-height:1.5;overflow-wrap:anywhere}
+.hist-g{flex:1 1 auto;min-width:0;color:var(--ink);line-height:1.5;overflow-wrap:anywhere}
+.hist-q{color:var(--ink2);font-size:var(--tier4)}
+.hist-a{flex:0 0 auto;display:flex;gap:var(--sp-1);align-items:center}
+.modal .hist-act,.modal .hist-del{height:auto;font-size:var(--tier4);padding:2px var(--sp-2);line-height:1.5}
+.modal .hist-del{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
 
 /* 日期弹框主题（字面量） */
 .dtm-mh{--tk:#b34a6d;--tk2:#8e3350;--tk-ink:#483641;--tk-line:#ecdbe2;--tk-tint:#fbf1f5}

@@ -281,6 +281,10 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-dlr .btn:not(.soft):not(.btn-ghost):hover{background:var(--dlr2)}
 
+.page-dlr .btn-ghost{background:var(--card);border:1px solid var(--dlr-line);color:var(--dlr2)}
+
+.page-dlr .btn-ghost:hover{background:var(--dlr-tint)}
+
 .page-dlr .ai-block{border:0;border-top:1px solid var(--dlr-line);border-bottom:1px solid var(--dlr-line);border-radius:0;background:transparent;color:var(--dlr-ink);box-shadow:none}
 
 .page-dlr .ai-head{background:transparent;border-bottom-color:var(--dlr-line)}
@@ -445,7 +449,8 @@ body:has(.page-dlr) .scroll-jump:not(.show){display:none}
       <div class="field"><label for="dSex">性别</label>
         <select id="dSex"><option value="男">男</option><option value="女">女</option></select>
       </div>
-      <button class="btn" onclick="query()">起课</button>
+      <button class="btn" onclick="query();pushDlHistory()">起课</button>
+      <button class="btn btn-ghost" onclick="showDlHistory()">历史记录</button>
     </div>
     <div class="opts" id="dlOptsWrap">
       <div class="birth-group compact" id="dlBirthGroup">
@@ -497,6 +502,7 @@ body:has(.page-dlr) .scroll-jump:not(.show){display:none}
 <script defer fetchpriority="low" src="assets/latlng.js"></script>
 <script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
+<script defer fetchpriority="low" src="assets/hist-modal.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-daliuren-01.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-daliuren-02.js"></script>
 </body>

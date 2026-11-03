@@ -230,6 +230,10 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
+/* 抽牌与历史同排：钮随内容宽，行宽由所在表单行决定 */
+.page-ln .ln-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2)}
+.page-ln .ln-actions > .btn{flex:0 0 auto}
+
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
   background:var(--red);color:#fff;font-size:13px;font-weight:400;
@@ -2153,8 +2157,8 @@ to{opacity:1;transform:none}}
      所问之事为长文本输入框，整行铺满系其本分，不在此列。 */
   .page-ln .page > .form-row .field:has(#spread),.page-ln .page > .form-row .field:has(#sig){flex:0 0 auto;width:auto;align-self:flex-start}
   .page-ln .page > .form-row .field:has(#spread) select,.page-ln .page > .form-row .field:has(#sig) select{width:auto;max-width:100%}
-  /* 抽牌钮占满一行：列向容器里 flex-basis 即主轴（高），写百分比会盖掉 .btn 的 30px 定高，故取 auto */
-  .page-ln .page > .form-row .btn{flex:0 0 auto;width:100%}
+  /* 抽牌与历史两个钮同排：行容器占满一格，钮随内容宽，窄屏由行自身换行 */
+  .page-ln .page > .form-row > .ln-actions{flex:0 0 auto;width:100%}
   .page-ln .leno-box{grid-template-columns:repeat(2,1fr)}
   /* 大全景移动端：3 列放大砖块 */
   .page-ln .leno-gt{grid-template-columns:repeat(3,1fr)}
@@ -2311,3 +2315,16 @@ body:has(.page-ln) .scroll-jump:not(.show){display:none}
   .page-ln .btn.gold{color:#1a1a1a}
 }
 
+
+/* 历史记录弹层（六爻、梅花、灵签、小六壬、塔罗、雷诺曼同款）：三列行、重开与删除钮、脚注同档 */
+.modal.hist-modal{max-width:560px}
+.hist-list{margin-top:var(--sp-1)}
+.hist-empty{padding:var(--sp-3);color:var(--ink2);font-size:var(--tier4);text-align:center}
+.hist-foot{margin-top:var(--sp-2);font-size:var(--tier4);color:var(--ink2)}
+.hist-row{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:var(--tier4);padding:var(--sp-1) 0;border-bottom:1px solid var(--line)}
+.hist-t{flex:0 0 auto;max-width:110px;min-width:0;color:var(--ink2);line-height:1.5;overflow-wrap:anywhere}
+.hist-g{flex:1 1 auto;min-width:0;color:var(--ink);line-height:1.5;overflow-wrap:anywhere}
+.hist-q{color:var(--ink2);font-size:var(--tier4)}
+.hist-a{flex:0 0 auto;display:flex;gap:var(--sp-1);align-items:center}
+.modal .hist-act,.modal .hist-del{height:auto;font-size:var(--tier4);padding:2px var(--sp-2);line-height:1.5}
+.modal .hist-del{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}

@@ -80,6 +80,10 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
+.page-ln .ln-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2)}
+
+.page-ln .ln-actions > .btn{flex:0 0 auto}
+
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
   background:var(--red);color:#fff;font-size:13px;font-weight:400;
@@ -194,7 +198,7 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-ln .page > .form-row .field:has(#spread) select,.page-ln .page > .form-row .field:has(#sig) select{width:auto;max-width:100%}
 
-.page-ln .page > .form-row .btn{flex:0 0 auto;width:100%}
+.page-ln .page > .form-row > .ln-actions{flex:0 0 auto;width:100%}
 }
 
 @media print{
@@ -374,7 +378,10 @@ body:has(.page-ln) .scroll-jump:not(.show){display:none}
         </select>
       </div>
       <div class="field"><label for="question">所问之事（可选）</label><input id="question" placeholder="如：这段关系走向…"></div>
-      <button class="btn gold" onclick="draw()">抽牌</button>
+      <div class="ln-actions">
+        <button class="btn gold" onclick="draw()">抽牌</button>
+        <button class="btn soft" onclick="showLeHistory()">历史记录</button>
+      </div>
     </div>
     <div id="out"></div>
   <div id="aiMount"><details class="ai-block" id="aiBlock">
@@ -405,7 +412,8 @@ body:has(.page-ln) .scroll-jump:not(.show){display:none}
 <script defer fetchpriority="low" src="assets/leno-data.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-lenormand-04.js"></script>
+<script defer fetchpriority="low" src="assets/hist-modal.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-lenormand-05.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-lenormand-06.js"></script>
 </body>
 </html>

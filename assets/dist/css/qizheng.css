@@ -2044,13 +2044,21 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
    引用在本页 HTML 内，排在按页样式之后；版本串由内容派生，不必手改。
    本档内 @media 块须排在顶层声明之后，否则窄屏终值被源序压掉。 */
 
-.page-qz .qz-row-inputs .field{flex:0 0 auto;min-width:0}
+.page-qz .qz-row-inputs .field{flex:0 0 auto;width:auto;min-width:0;max-width:none}
+
+.page-qz .qz-row-inputs .field select{width:auto;max-width:100%}
 
 .page-qz .qz-form .field input,.page-qz .qz-form .field select{box-sizing:border-box;max-width:100%;min-width:0}
 
 .page-qz .qz-row-inputs{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-3)}
 
 .page-qz .qz-opts .group-label{width:100%;font-size:13px;font-weight:400;line-height:1.1;color:var(--qz2)}
+
+/* 时间折算与流派四项：窄屏静态宽度与八字、紫微同值，首帧换行与增强后一致。 */
+@media(max-width:970px){
+  .page-qz .qz-opts .field select{width:93px}
+  .page-qz .qz-opts .field select#qzZi{width:80px}
+}
 
 .page-qz .qz-form .f-tz input{width:64px}
 

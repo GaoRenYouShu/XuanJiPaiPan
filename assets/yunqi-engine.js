@@ -47,6 +47,109 @@ var ZHU_QI = [
 /* 年支正五行（岁会判定用） */
 var ZHI_WX = {'子':'水','亥':'水','寅':'木','卯':'木','巳':'火','午':'火','申':'金','酉':'金','辰':'土','戌':'土','丑':'土','未':'土'};
 
+/* 主运五步 【定源】《素问·六元正纪大论》五音建运通行例，主运初运之太少由中运上推；
+ * 《类经图翼·五音五运太少相生解》：凡甲乙丙壬癸五年皆以太角为初，丁戊己庚辛五年皆以少角为初；
+ * 《类经图翼·各年五运交司时日》：初运大寒日、二运春分后十三日、三运芒种后十日、
+ * 四运处暑后七日、五运立冬后四日。每步七十三日零五刻。 */
+var ZHU_YUN_JIE = ['大寒','春分','芒种','处暑','立冬'];
+var ZHU_YUN_OFFSET = [0, 13, 10, 7, 4];
+/* 主气六步步界节气（与 ZHU_QI 的起止一致，供日期落步用） */
+var ZHU_QI_JIE = ['大寒','春分','小满','大暑','秋分','小雪'];
+var WU_YIN_XU = ['角','徵','宫','商','羽'];
+var YIN_WX = {'角':'木','徵':'火','宫':'土','商':'金','羽':'水'};
+var BU5 = ['初运','二运','三运','四运','终运'];
+
+/* 主运五步：初运角，中运所值一步之太少与中运同，太少相生上推 */
+function zhuYunOf(gz){
+  var wuyin = WU_YIN[gz.charAt(0)];
+  var tai0 = wuyin.charAt(0) === '太';
+  var zi = WU_YIN_XU.indexOf(wuyin.charAt(1));
+  var out = [];
+  for (var i = 0; i < 5; i++){
+    var tai = ((i - zi) % 2 === 0) ? tai0 : !tai0;
+    out.push({ bu: BU5[i], yin: (tai ? '太' : '少') + WU_YIN_XU[i], wx: YIN_WX[WU_YIN_XU[i]] });
+  }
+  return out;
+}
+
+/* 客运五步：以中运（岁运五音）为初运，沿五音相生次序太少相生 */
+function keYunOf(yunWuyin){
+  var tai0 = yunWuyin.charAt(0) === '太';
+  var idx = WU_YIN_XU.indexOf(yunWuyin.charAt(1));
+  var out = [];
+  for (var i = 0; i < 5; i++){
+    var tai = (i % 2 === 0) ? tai0 : !tai0;
+    var yin = WU_YIN_XU[(idx + i) % 5];
+    out.push({ bu: BU5[i], yin: (tai ? '太' : '少') + yin, wx: YIN_WX[yin] });
+  }
+  return out;
+}
+
+/* 节气日真源：取该公历年的节气表 */
+function jieQiOf(year, name){
+  var t = Solar.fromYmd(year, 6, 1).getLunar().getJieQiTable();
+  var s = t[name];
+  if (!s) return null;
+  return { y: s.getYear(), m: s.getMonth(), d: s.getDay(), ymd: s.toYmd(), name: name };
+}
+
+/* 步界日期：给定运气年与步界节气名，出 n+1 个界点（末界取次年大寒）；
+   offsets 为各步界节气后的日数偏移（主运交司用），缺省即节气当日 */
+function stepBounds(year, names, offsets){
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  var arr = [];
+  for (var i = 0; i < names.length; i++){
+    var jq = jieQiOf(year, names[i]);
+    if (jq && offsets && offsets[i]){
+      var dd = new Date(jq.y, jq.m - 1, jq.d + offsets[i]);
+      jq = { y: dd.getFullYear(), m: dd.getMonth() + 1, d: dd.getDate(),
+             ymd: dd.getFullYear() + '-' + pad(dd.getMonth() + 1) + '-' + pad(dd.getDate()), name: names[i] };
+    }
+    arr.push(jq);
+  }
+  arr.push(jieQiOf(year + 1, '大寒'));
+  return arr;
+}
+
+/* 日期落步：返回 0 起序号，不在界内归 -1 */
+function stepAt(dateStr, bounds){
+  var p = String(dateStr).split('-').map(Number);
+  if (p.length !== 3 || !isFinite(p[0]) || !isFinite(p[1]) || !isFinite(p[2])) return -1;
+  var ms = new Date(p[0], p[1] - 1, p[2]).getTime();
+  for (var i = 0; i < bounds.length - 1; i++){
+    var a = bounds[i], b = bounds[i + 1];
+    if (!a || !b) continue;
+    var t0 = new Date(a.y, a.m - 1, a.d).getTime();
+    var t1 = new Date(b.y, b.m - 1, b.d).getTime();
+    if (ms >= t0 && ms < t1) return i;
+  }
+  return -1;
+}
+
+/* 时令落步：输入日期在运气年内的主气、客气、主运、客运步与客主加临 */
+function stepInfo(dateStr, year){
+  var p = compute(year);
+  var qiB = stepBounds(year, ZHU_QI_JIE);
+  var yunB = stepBounds(year, ZHU_YUN_JIE, ZHU_YUN_OFFSET);
+  var iQi = stepAt(dateStr, qiB);
+  var iYun = stepAt(dateStr, yunB);
+  var zy = zhuYunOf(p.gz);
+  var ky = keYunOf(p.yun.wuyin);
+  return {
+    qi: iQi >= 0 ? { i: iQi, bu: ZHU_QI[iQi].bu, zhu: p.zhu[iQi].qi, ke: p.ke[iQi], start: qiB[iQi], end: qiB[iQi + 1] } : null,
+    yun: iYun >= 0 ? { i: iYun, bu: zy[iYun].bu, zhu: zy[iYun], ke: ky[iYun], start: yunB[iYun], end: yunB[iYun + 1] } : null,
+    jialin: iQi >= 0 ? p.jialin[iQi] : null
+  };
+}
+
+/* 日期所在节气（含当日，取最近一个已至的节气） */
+function jieQiNameOf(dateStr){
+  var p = String(dateStr).split('-').map(Number);
+  if (p.length !== 3 || !isFinite(p[0]) || !isFinite(p[1]) || !isFinite(p[2])) return '';
+  var jq = Solar.fromYmd(p[0], p[1], p[2]).getLunar().getPrevJieQi(true);
+  return jq && jq.getName ? jq.getName() : '';
+}
+
 var WX_SHENG = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
 var WX_KE = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
 
@@ -60,12 +163,34 @@ function yearBase(year){
   return { gz:gz, gan:gz.charAt(0), zhi:gz.charAt(1), sheng:l.getYearShengXiao(), nayin:l.getYearNaYin() };
 }
 
+/* 年界换算：给定公历日期与年界，返回该日期所属运气年的公历年（供 compute 取干支）。
+   春节界取农历年，正月初一为岁首；立春界以立春为岁首，立春前归前一年。
+   两界只在立春至春节之间的日期上分属两年，其余日期同归一年。 */
+function yearOfDate(y, m, d, boundary){
+  if (boundary === 'lichun'){
+    var l = Solar.fromYmd(y, 6, 1).getLunar();
+    var lc = l.getJieQiTable()['立春'];
+    var lcMs = new Date(lc.getYear(), lc.getMonth() - 1, lc.getDay()).getTime();
+    var dMs = new Date(y, m - 1, d).getTime();
+    return dMs < lcMs ? y - 1 : y;
+  }
+  return Solar.fromYmd(y, m, d).getLunar().getYear();
+}
+
 /* 客主加临单步：客气、主气五行同气、相生、相克定关系与相得断语
  * 【定源】《素问·五运行大论》"相得则和，不相得则病"；客胜主为从、主胜客为逆
  * （《素问·至真要大论》），断语为通行归纳。 */
 function jiaLinOne(zhu, ke){
   var wK = qiWx(ke), wZ = qiWx(zhu);
-  if (wK === wZ) return { zhu:zhu, ke:ke, rel:'同气', pan:'相得', du:'' };
+  if (wK === wZ){
+    /* 二火君臣位 【定源】《素问·六微旨大论》"君位臣则顺，臣位君则逆"：
+       君火临相火为君临臣而顺，相火临君火为臣居君位而逆（王冰注） */
+    if (ke !== zhu){
+      var keJun = ke.indexOf('少阴') === 0;
+      return { zhu:zhu, ke:ke, rel: keJun ? '君临臣' : '臣临君', pan:'相得', du:'', note: keJun ? '君位臣，顺' : '臣位君，逆' };
+    }
+    return { zhu:zhu, ke:ke, rel:'同气', pan:'相得', du:'' };
+  }
   if (WX_SHENG[wK] === wZ) return { zhu:zhu, ke:ke, rel:'客生主', pan:'相得', du:'' };
   if (WX_SHENG[wZ] === wK) return { zhu:zhu, ke:ke, rel:'主生客', pan:'相得', du:'' };
   if (WX_KE[wK] === wZ) return { zhu:zhu, ke:ke, rel:'客克主', pan:'不相得', du:'从（客胜主）' };
@@ -95,8 +220,16 @@ function compute(year){
   var taiYi = tianFu && suiHui;
   var tongTianFu = shuai === '太过' && yunWx === qiWx(zaiquan);
   var tongSuiHui = shuai === '不及' && yunWx === qiWx(zaiquan);
-  /* 交运时刻 【定源】《素问·六元正纪大论》常位大寒交运，太过之年先天十三日、不及之年后天十三日，通行例。 */
-  var jiaoyun = shuai === '太过' ? '先天：大寒前十三日交运' : '后天：大寒后十三日交运';
+  /* 交运时刻 【定源】《素问·六元正纪大论》常位大寒交运，太过之年先天十三日、不及之年后天十三日，通行例。
+   * 具体公历日：大寒日自 lunar.js 节气表真源取，太过减十三日、不及加十三日。 */
+  var dcSolar = '';
+  try {
+    var dc = Solar.fromYmd(y, 6, 1).getLunar().getJieQiTable()['大寒'];
+    var dcMs = new Date(dc.getYear(), dc.getMonth() - 1, dc.getDay()).getTime();
+    var jyDate = new Date(dcMs + (shuai === '太过' ? -13 : 13) * 86400000);
+    dcSolar = Solar.fromYmd(jyDate.getFullYear(), jyDate.getMonth() + 1, jyDate.getDate()).toYmd();
+  } catch (e) { dcSolar = ''; }
+  var jiaoyun = (shuai === '太过' ? '先天：大寒前十三日' : '后天：大寒后十三日') + (dcSolar ? '，' + dcSolar + '交运' : '交运');
   /* 平气 【定源】《素问·五常政大论》通行归纳：运太过而被司天所抑、运不及而得岁支正五行相助，皆为平气；
    * 干德符（交运日干与年干相合）须逐日推算，本页未取。 */
   var pingTai = shuai === '太过' && WX_KE[qiWx(sitian)] === yunWx;
@@ -190,12 +323,42 @@ function selfTest(){
   p = compute(2009);
   t('2009己丑太乙天符成立', p.tonghua.taiYi.hit);
   t('2009己丑非同岁会', !p.tonghua.tongSuiHui.hit);
+  /* 年界换算：2026 春节 2-17、立春 2-4；2-10 在立春之后春节之前，两界分属两年；
+   * 1-15 在立春之前，两界同归前一年 */
+  eq('2026-02-10 春节界属乙巳', compute(yearOfDate(2026, 2, 10, 'chunjie')).gz, '乙巳');
+  eq('2026-02-10 立春界属丙午', compute(yearOfDate(2026, 2, 10, 'lichun')).gz, '丙午');
+  eq('2026-01-15 两界同属乙巳', [compute(yearOfDate(2026, 1, 15, 'chunjie')).gz, compute(yearOfDate(2026, 1, 15, 'lichun')).gz], ['乙巳', '乙巳']);
+  /* 主运五步：初运太少由中运上推（甲乙丙壬癸太角起、丁戊己庚辛少角起） */
+  eq('丙午主运五步', zhuYunOf('丙午').map(function(x){ return x.yin; }), ['太角', '少徵', '太宫', '少商', '太羽']);
+  eq('乙巳主运五步', zhuYunOf('乙巳').map(function(x){ return x.yin; }), ['太角', '少徵', '太宫', '少商', '太羽']);
+  eq('戊午主运五步', zhuYunOf('戊午').map(function(x){ return x.yin; }), ['少角', '太徵', '少宫', '太商', '少羽']);
+  eq('庚申主运五步', zhuYunOf('庚申').map(function(x){ return x.yin; }), ['少角', '太徵', '少宫', '太商', '少羽']);
+  /* 客运五步：丙午中运太羽起，沿五音相生太少相生 */
+  eq('丙午客运五步', keYunOf('太羽').map(function(x){ return x.yin; }), ['太羽', '少角', '太徵', '少宫', '太商']);
+  /* 时令落步：2026-10-16 在主气五之气、主运四运（少商），当日节气寒露 */
+  var si = stepInfo('2026-10-16', 2026);
+  eq('2026-10-16 主气五之气', si.qi && si.qi.bu, '五之气');
+  eq('2026-10-16 主运四运少商', si.yun && [si.yun.bu, si.yun.zhu.yin], ['四运', '少商']);
+  eq('2026-10-16 客运四运少宫', si.yun && si.yun.ke.yin, '少宫');
+  eq('2026-10-16 当日节气寒露', jieQiNameOf('2026-10-16'), '寒露');
+  /* 主运交司：春分后十三日、芒种后十日、处暑后七日、立冬后四日 */
+  var yb = stepBounds(2026, ZHU_YUN_JIE, ZHU_YUN_OFFSET);
+  eq('2026 主运二运起 04-02', yb[1] && yb[1].ymd, '2026-04-02');
+  eq('2026 主运三运起 06-15', yb[2] && yb[2].ymd, '2026-06-15');
+  eq('2026 主运四运起 08-30', yb[3] && yb[3].ymd, '2026-08-30');
+  eq('2026 主运终运起 11-11', yb[4] && yb[4].ymd, '2026-11-11');
+  /* 二火君臣位：丙午三之气客君火加主相火为君临臣，癸卯二之气客相火加主君火为臣临君 */
+  var j1 = compute(2026).jialin[2], j2 = compute(2023).jialin[1];
+  eq('丙午三之气二火君临臣', [j1.rel, j1.pan, j1.note], ['君临臣', '相得', '君位臣，顺']);
+  eq('癸卯二之气二火臣临君', [j2.rel, j2.pan, j2.note], ['臣临君', '相得', '臣位君，逆']);
   return rs;
 }
 
 var API = { YUN_HUA: YUN_HUA, YUN_HUA_TXT: YUN_HUA_TXT, YANG_GAN: YANG_GAN, WU_YIN: WU_YIN, SITIAN: SITIAN,
   ZAIQUAN: ZAIQUAN, HUANXU: HUANXU, ZHU_QI: ZHU_QI, ZHI_WX: ZHI_WX, WX_SHENG: WX_SHENG, WX_KE: WX_KE,
-  qiWx: qiWx, yearBase: yearBase, jiaLinOne: jiaLinOne, compute: compute, selfTest: selfTest };
+  ZHU_YUN_JIE: ZHU_YUN_JIE, ZHU_QI_JIE: ZHU_QI_JIE, ZHU_YUN_OFFSET: ZHU_YUN_OFFSET, zhuYunOf: zhuYunOf, keYunOf: keYunOf,
+  jieQiOf: jieQiOf, stepBounds: stepBounds, stepAt: stepAt, stepInfo: stepInfo, jieQiNameOf: jieQiNameOf,
+  qiWx: qiWx, yearBase: yearBase, yearOfDate: yearOfDate, jiaLinOne: jiaLinOne, compute: compute, selfTest: selfTest };
 
 if (typeof module !== 'undefined' && module.exports){ module.exports = API; }
 global.YQ = API;

@@ -1,5 +1,23 @@
 /* 本页首屏样式。 */
 
+.form-row .field input[type="text"].dt-input{width:96px}
+
+input[type="text"].dt-input::-webkit-calendar-picker-indicator,
+input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
+input[type="text"].dt-input::-moz-calendar-picker-indicator,
+input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+
+.dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
+
+.field .dt-wrap{width:100%}
+
+.dt-wrap input{flex:1 1 auto;min-width:0;height:100%}
+
+.dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
+
+input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+
 body{--footer-ink:#275737}
 
 body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
@@ -25,9 +43,23 @@ body{
 
 html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-top:0}
 
-html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));padding-top:var(--sp-2)}
-
 #nmTwinKind{width:130px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+
+.field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field input,.field select{
+  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
+  line-height:1.35;box-sizing:border-box;
+}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
@@ -63,18 +95,6 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 .ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
 
-.ai-body{padding:var(--sp-3) var(--sp-4)}
-
-.ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
-
-.ai-actions .btn{font-weight:400;font-size:13px;padding:0 12px;line-height:1.35}
-
-.btn.soft{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
-
-.btn.soft:hover{background:var(--card);border-color:var(--line)}
-
-.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
-
 .modal.ai-cfg{--cfg-accent:#a5321f;--cfg-accent-line:rgba(165,50,31,.4);--cfg-accent-deep:#7e2418;
   max-width:600px;border:0;border-radius:0;padding:0;overflow:auto;
   box-shadow:0 24px 64px rgba(28,26,23,.28)}
@@ -85,6 +105,12 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 .page{padding:var(--sp-4) var(--sp-4) 0}
 
 #lrs{display:grid;grid-template-columns:repeat(var(--lr-cols,10),minmax(0,1fr));gap:var(--sp-1)}
+
+.form-row{gap:var(--sp-2)}
+
+.form-row .field{flex:0 0 auto;width:auto;min-width:70px}
+
+.form-row .field input,.form-row .field select{width:auto;max-width:100%;box-sizing:border-box;display:inline-block}
 
 .cal-cell .slot{display:none}
 }
@@ -184,6 +210,18 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-yq .mod-head{border-top-color:var(--yq-line);border-bottom-color:var(--yq-line)}
 
+.page-yq .field label{color:var(--yq2);font-weight:400}
+
+.page-yq .field select{border-color:var(--yq-line);background:var(--card);color:var(--yq-deep)}
+
+.page-yq .field select:focus{border-color:var(--yq);outline:none}
+
+.page-yq .field input{border-color:var(--yq-line);background:var(--card);color:var(--yq-deep)}
+
+.page-yq .field input:focus{border-color:var(--yq);outline:none}
+
+.page-yq .field.yq-field-gz input{width:96px}
+
 .page-yq .btn:not(.soft):not(.btn-ghost){background:var(--yq)}
 
 .page-yq .btn:not(.soft):not(.btn-ghost):hover{background:var(--yq2)}
@@ -193,14 +231,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-yq .ai-head{background:transparent;border-bottom-color:var(--yq-line)}
 
 .page-yq .ai-head h3{color:var(--yq2)}
-
-.page-yq .ai-block .btn{background:var(--yq);color:#fff}
-
-.page-yq .ai-block .btn:hover{background:var(--yq2)}
-
-.page-yq .ai-block .btn.gold,.page-yq .ai-block .btn.soft{background:var(--yq-tint);border-color:var(--yq-line);color:var(--yq-ink);box-shadow:none}
-
-.page-yq .ai-block .btn.gold:hover,.page-yq .ai-block .btn.soft:hover{background:var(--card);border-color:var(--yq-line);color:var(--yq2)}
 
 @media (prefers-color-scheme: dark){
 html .page-yq {
@@ -245,7 +275,7 @@ html .page-yq {
 
 .dtm-yq{--tk:#357247;--tk2:#275737;--tk-ink:#3c4a40;--tk-line:#d6e6da;--tk-tint:#f1f7f3}
 
-@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../../fonts/pages/yunqi-0.woff2) format("woff2");unicode-range:U+0020-007e, U+00b7, U+3000-3002, U+300a-300b, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0d-4e0e, U+4e11, U+4e19, U+4e2d, U+4e34, U+4e3b, U+4e4b, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4ec5, U+4ee3, U+4efd, U+4f1a, U+4f4d, U+4f8b, U+4f9b, U+4fd7, U+4fe1, U+5148, U+514b, U+5165, U+516b-516d, U+5171, U+5173, U+5185, U+519c, U+51ac, U+51f8, U+5206, U+521d, U+529f-52a0, U+52ff, U+5316, U+5341, U+5348, U+534a, U+535c, U+5360, U+536f, U+5386, U+53c2, U+53ca, U+53d6, U+53f8, U+540c, U+547d, U+56db, U+5728, U+5730, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5929-592a, U+5973, U+5a31, U+5b50, U+5b66, U+5b9a, U+5ba2, U+5bb5-5bb6, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c45, U+5c81, U+5df1, U+5df3, U+5e1d, U+5e72, U+5e74, U+5e93, U+5e9a, U+5ea7, U+5eff-5f00, U+5f0f, U+5f26, U+5f52, U+5f55, U+5f85, U+5f97, U+60ca, U+620a, U+620c, U+6210, U+62e9, U+6309, U+636e, U+6392, U+63d0, U+652f, U+6570, U+6587, U+65ad, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+679c, U+6b63, U+6b65, U+6b67, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cc9, U+6cd5, U+6ce8, U+6d3e, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7334, U+7384, U+7406, U+751f, U+7531-7533, U+7537, U+7678, U+767d, U+76c8, U+76d8, U+76f8, U+7709, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+79fb, U+7a76, U+7acb, U+7b26, U+7b97, U+7bc7, U+7d20, U+7eb3, U+7ec8, U+7ecf, U+7ed3, U+7f6e, U+7f8a, U+8003, U+80fd, U+814a, U+81ea, U+81f3, U+8282, U+8292, U+86c7, U+86f0, U+86fe, U+884c, U+8bba, U+8bbe, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fc7, U+8fd0, U+8ff7, U+9009, U+901a, U+9149, U+914d, U+9519, U+95ed-95ee, U+95f0, U+9633-9634, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+9996, U+9a6c, U+9e21, U+9ec4, U+9f99, U+ff08-ff09, U+ff0c}
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../../fonts/pages/yunqi-0.woff2) format("woff2");unicode-range:U+0020-007e, U+00b7, U+3000-3002, U+300a-300b, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0d-4e0e, U+4e11, U+4e19, U+4e2d, U+4e34, U+4e3a-4e3b, U+4e4b, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea5, U+4ee3-4ee5, U+4f1a, U+4f4d, U+4f8b, U+4fd7, U+5148, U+514b, U+5165, U+516b-516d, U+5173, U+5185, U+519c, U+51ac, U+51f8, U+5206, U+521d, U+52a0, U+5316, U+5341, U+5348, U+534a, U+535c, U+5360, U+536f, U+5386, U+53ca, U+53d6, U+53e0, U+53f8, U+5408, U+540c, U+547d, U+56db, U+56fe, U+5728, U+5730, U+58ec, U+5904, U+590f, U+5915-5916, U+591c, U+5927, U+5929-592a, U+5973, U+5982, U+5b50, U+5b66, U+5b9a, U+5ba2, U+5bb5-5bb6, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5c11, U+5c45, U+5c81, U+5df1, U+5df3, U+5e1d, U+5e72, U+5e74, U+5e9a, U+5ea7, U+5eff, U+5f0f, U+5f26, U+5f52, U+5f55, U+5f85, U+5f97, U+603b, U+60ca, U+620a, U+620c, U+6240, U+62e9, U+6309, U+6362, U+636e, U+6392, U+63a8, U+63d0, U+652f, U+6570, U+65ad, U+65b0, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672f, U+673a, U+679c, U+67e5, U+6b63, U+6b65, U+6b67, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cc9, U+6cd5, U+6ce8, U+6d3e, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+70b9, U+7334, U+7384, U+73af, U+7406, U+751f, U+7531-7533, U+7537, U+754c, U+7678, U+767d, U+7684, U+76c8, U+76d8, U+76f8, U+7709, U+77a4, U+786e, U+793a, U+79cb, U+79cd, U+79fb, U+7acb, U+7b26, U+7bc7, U+7d20, U+7eb3, U+7ec8, U+7ecf, U+7ed3, U+7f6e, U+7f8a, U+814a, U+81f3, U+8282, U+8292, U+843d, U+86c7, U+86f0, U+86fe, U+8842, U+884c, U+89c1, U+8bba, U+8bbe, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fc7, U+8fd0, U+9009, U+901a, U+9149, U+914d, U+9519, U+95ed-95ee, U+95f0, U+9633-9634, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+973f, U+9875, U+9996, U+9a6c, U+9e21, U+9ec4-9ec5, U+9f99, U+ff08-ff09, U+ff0c, U+ff1a}
 
 @media (prefers-color-scheme: dark){
 .page-yq .btn.gold{color:#1a1a1a}

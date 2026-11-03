@@ -1209,3 +1209,23 @@ function render(o){
     <details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details>`;
   xjApplyModState('dlrModState','#out details[id]');
 }
+/* 历史记录：共享弹层，起课后自动存最近九条，可重开还原全部参数 */
+const DL_HIST_FIELDS=['dInput','dTime','drnCat','dlSchool','dlDay','dlJiang','dBirth','dSex','dlProv','dlCity','dlDist','dlLng','dlDst','dlZi','dlSun','dlTzOff','dlLocalDst'];
+const DL_HIST_CFG={
+  mask:'dlHistMask', list:'dlHistList', key:'dlHistory', title:'历史记录（最多9条）',
+  restoreFn:'restoreDlHistory', delFn:'delDlHistory',
+  row:function(h){ return {t:(h.dInput||'')+' '+(h.dTime||''), main:(h.drnCat||'')+' '+(h.dlSchool||'')}; }
+};
+function showDlHistory(){ xjHist.open(DL_HIST_CFG); }
+function delDlHistory(i){ xjHist.del(DL_HIST_CFG,i); }
+function pushDlHistory(){
+  const e=xjHist.collect(DL_HIST_FIELDS);
+  if(!e.dInput || !e.dTime) return;
+  xjHist.push('dlHistory', e, function(h){ return xjHist.key(h)===xjHist.key(e); });
+}
+function restoreDlHistory(i){
+  const e=xjHist.get('dlHistory',i);
+  if(!e) return;
+  xjHist.apply(DL_HIST_FIELDS,e);
+  query();
+}

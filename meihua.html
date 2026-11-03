@@ -122,8 +122,6 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .opts-row .field select{width:auto;max-width:100%}
 
-.opts-row .btn{flex:0 0 auto;align-self:flex-end}
-
 @media(max-width:640px){
 .opts-row{gap:var(--sp-2)}
 }
@@ -439,7 +437,6 @@ body:has(.page-mh) .scroll-jump:not(.show){display:none}</style>
       <div class="field" id="mhDstField"><label for="mhDst">夏令时</label><select id="mhDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
       <div class="field mh-zi-field"><label for="mhZi">子时算法</label><select id="mhZi" aria-label="选择子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
       <div class="field"><label for="mhSun">太阳时</label><select id="mhSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
-      <div class="field ly-tf-btn"><button type="button" class="btn" onclick="mhUseNow()">用当前时间</button></div>
       <div class="field" id="mhTzField" hidden><label for="mhTz">时区偏移</label><select id="mhTz" aria-label="选择境外所在地标准时区偏移" onchange="mhSyncOverseas()"></select></div>
       <div class="field chk" id="mhLocalDstField" hidden><input type="checkbox" id="mhLocalDst" onchange="mhSyncOverseas()"><label for="mhLocalDst">当地夏令时（钟面减1小时）</label></div>
     </div>
@@ -477,6 +474,8 @@ body:has(.page-mh) .scroll-jump:not(.show){display:none}</style>
 <script defer fetchpriority="low" src="assets/xuanji-lib.js"></script>
 <script defer fetchpriority="low" src="assets/gua.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-meihua-06.js"></script>
+<script defer fetchpriority="low" src="assets/hist-modal.js"></script>
+<script defer fetchpriority="low" src="assets/multi-card.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-meihua-08.js"></script>
 </body>
 </html>

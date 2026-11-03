@@ -24,15 +24,16 @@ function show(r){
     m=/^(.+?)-(.+)$/.exec(s); if(m) return m[1]+'去'+m[2]+'之形';
     return s;
   })(r.bs);
+  const ksDisp=r.ks?r.ks+'画':(r.js?r.js+'画（康熙未详）':'未详');
   const meta=[
     ['读音',r.py||'未详'],
-    ['康熙笔画',r.ks?r.ks+'画':(r.js?r.js+'画（康熙未详）':'未详')],
+    ['康熙笔画',ksDisp],
     ['简体笔画',r.js?r.js+'画':'未详'],
     ['字形结构',r.struct],
     ['康熙部首',bsDisp],
     ['字义五行',wxTag(r.yiWx)],
     ['数理五行',wxTag(r.shuWx)],
-    ['拆解主气',wxTag(r.mainWx)]
+    ['拆解主气',wxTag(r.chaiWx)]
   ].map(a=>`<div><span class="cz-em">${a[0]}</span><span>${a[1]}</span></div>`).join('');
   const gColor=r.level.name==='大吉'||r.level.name==='吉'?'var(--green)':(r.level.name==='凶'?'#c0392b':(r.level.name==='谨'?'#c0392b':'#61432a'));
   const head=`
@@ -62,7 +63,7 @@ function show(r){
     const srcTag=x.src?`<span class="cz-tag" title="断语出处">${x.src}</span>`:'';
     const gmHtml=(x.gm&&i===r.chai.pick)?`<div class="cz-line-t cz-note-s">观梅字象：形，${x.gm.x}；神气，${x.gm.sh}。</div>`:'';
     return `<div class="cz-chai">
-      <div class="cz-chai-row">${chips}<span class="cz-tag">${x.fa||x.tag}</span>${x.lx?`<span class="cz-tag">${x.lx}</span>`:''}${srcTag}${catTag}${mainTag}<span class="cz-luck ${x.luck}">${CZ_LUCK_TXT[x.luck]}</span></div>
+      <div class="cz-chai-row">${chips}<span class="cz-tag">${x.fa||x.tag}</span>${x.lx?`<span class="cz-tag">${x.lx}</span>`:''}${srcTag}${catTag}${mainTag}<span class="cz-luck ${x.luck}">${CZ_LUCK_TXT[x.luck]||''}</span></div>
       <div class="cz-line">${x.note}。</div>${gmHtml}${sangHtml}${x.ge?`<div class="cz-line-s"><span class="cz-tag">取格</span> ${x.ge}<span class="cz-note-s">（${x.geSrc}已验）</span></div>`:''}${x.bm?`<div class="cz-line-s"><span class="cz-tag">底本</span> ${x.bm}<span class="cz-note-s">（${x.bmSrc}）</span></div>`:''}${x.shuang?`<div class="cz-line-s"><span class="cz-tag">双句格</span> ${x.shuang}<span class="cz-note-s">（${x.shuangSrc}）</span></div>`:''}${yis}
     </div>`;
   }).join('');
@@ -70,7 +71,7 @@ function show(r){
   const noneHtml=r.chai.source==='none'?`<p class="notice cz-p">所测“${r.char}”未收录精编拆解，如实以待；以下数理、卦象、外应诸层照常参断。</p>`:'';
   const huoHtml=(r.huo&&r.huo.length)?`<div class="cz-chai cz-sec">
     <div class="cz-chai-row"><span class="cz-tag">活拆变象</span></div>
-    ${r.huo.map(h=>`<div class="cz-line-t"><span class="cz-tag">${h.f2||''}</span>${h.f==='加'?'添<span class="cz-part">'+h.a+'</span>':'减去一笔'}成<span class="cz-part">${h.r}</span>，${h.n}。${(h.cats&&h.cats.indexOf(r.catKey)>=0)?'<span class="cz-tag">'+r.catName+'切</span>':''}</div>`).join('')}
+    ${r.huo.map(h=>`<div class="cz-line-t"><span class="cz-tag">${h.f2||''}</span>${h.f==='加'?'添<span class="cz-part">'+h.a+'</span>':'减去其部'}成<span class="cz-part">${h.r}</span>，${h.n}。${(h.cats&&h.cats.indexOf(r.catKey)>=0)?'<span class="cz-tag">'+r.catName+'切</span>':''}</div>`).join('')}
   </div>`:'';
   const zhaiHtml=r.zhai?`<div class="cz-chai cz-sec">
     <div class="cz-chai-row"><span class="cz-tag">摘字</span><span class="cz-note-s">取字之一部另有所主</span></div>
@@ -89,7 +90,7 @@ function show(r){
   const shuliBox=`
   <h3 class="rel-title">康熙数理</h3>
   <div class="info-box">
-    <p class="cz-p">${r.ks}画 → 数理 <span class="cz-em">${r.shuli.idx}</span>${r.ks>81?'（超81减80取模）':''}，
+    <p class="cz-p">${ksDisp} → 数理 <span class="cz-em">${r.shuli.idx}</span>${r.ks>81?'（超81减80取模）':''}，
       <span class="cz-em">${r.shuli.label}</span>，
       ${r.shuli.key}。定性标签：${r.shuli.tag||'未详'}；数理五行${wxTag(r.shuWx)}。</p>
   </div>`;
@@ -104,18 +105,18 @@ function show(r){
     ${g.ci?`<p class="cz-p">卦辞：${g.ci}。</p>`:''}
     ${g.yaoCi?`<p class="cz-p">动第${g.dong}爻爻辞：${g.yaoCi}。</p>`:''}
     ${r.yaoJie?`<p class="cz-p">爻解：${r.yaoJie.yi}。于${r.catName}：<span class="cz-em">${r.yaoJie.duan[r.catKey]||'未详'}</span>。</p>`:''}
-    <p class="cz-p">互卦<span class="cz-em">${g.huName}</span>（事之中机），${g.huRel}；变卦<span class="cz-em">${g.bianName}</span>（事之终应），${g.bianRel}。${r.huJie.txt?'互见'+g.huRel+'，'+r.huJie.txt+'。':''}${r.bianJie.txt?'变见'+g.bianRel+'，'+r.bianJie.txt+'。':''}变后用卦${g.bianYongName}${wxTag(g.bianYongWx)}与体<span class="cz-em">${g.bianRel}</span>，${g.bianRelTxt}。</p>
+    <p class="cz-p">互卦<span class="cz-em">${g.huName}</span>（事之中机），${g.huRel}；变卦<span class="cz-em">${g.bianName}</span>（事之终应），${g.bianRel}。${r.huJie.txt?'互见'+g.huRel+'，'+r.huJie.txt+'。':''}${r.bianJie.txt?'变见'+g.bianRel+'，'+r.bianJie.txt+'。':''}变后用卦${g.bianYongName}${wxTag(g.bianYongWx)}，与体相较属<span class="cz-em">${g.bianRel}</span>，${g.bianRelTxt}。</p>
     <p class="cz-p">动爻在${g.dongInUpper?'上':'下'}卦，体卦${g.tiName}${wxTag(g.tiWx)}、用卦${g.yongName}${wxTag(g.yongWx)}，
       <span class="cz-em">${g.rel}</span>，${g.relTxt}。</p>
   </div>`;
   /* ---- 时辰外应与应期 ---- */
   const w=r.wai, y=r.ying;
+  const xiTxt=r.catKey==='zong'?'总论不设偏喜，以中和论':`${r.catName}喜${CEZI_DATA.CATS[r.catKey].xi&&CEZI_DATA.CATS[r.catKey].xi.length?CEZI_DATA.CATS[r.catKey].xi.map(wxTag).join('、'):'中和无偏'}；${r.xi.txt}`;
   const waiBox=`
   <h3 class="rel-title">时辰外应与应期</h3>
   <div class="info-box">
-    <p class="cz-p">起测时刻：${w.dayGZ||'未详'}日${w.shiZhi?w.shiZhi+'时（'+(w.shiWx||'未详')+'）':'，时辰未详'}，
-      ${w.season}月建${w.lingWx}旺。字之主气${wxTag(r.mainWx)}，<span class="cz-em">${w.wang?w.wang.label:'未详'}</span>，${w.wang?w.wang.txt:'无时辰可参'}。</p>
-    <p class="cz-p">事类喜用：${r.catName}喜${r.xi&&CEZI_DATA.CATS[r.catKey].xi.length?CEZI_DATA.CATS[r.catKey].xi.map(wxTag).join('、'):'中和无偏'}；${r.xi.txt}。</p>
+    <p class="cz-p">起测时刻：${w.date?w.date+(w.hm?' '+w.hm:'')+'，':''}${w.dayGZ||'未详'}日${w.shiZhi?w.shiZhi+'时（'+(w.shiWx||'未详')+'）':'，时辰未详'}，${w.season}月建${w.lingWx}旺。${w.place?'所在地：'+w.place+'。':''}${w.caliber?'折算口径：'+w.caliber+(w.note?'；'+w.note:'')+'。':''}字之主气${wxTag(r.mainWx)}，<span class="cz-em">${w.wang?w.wang.label:'未详'}</span>，${w.wang?w.wang.txt:'无时辰可参'}。</p>
+    <p class="cz-p">事类喜用：${xiTxt}。</p>
     <p class="cz-p">应期推断：字气属${wxTag(r.mainWx)}，宜候${y.day}，应于${y.season}，方位利${y.fang}；${y.near==='期近'?'体气得时，应期近。':(y.near==='期缓'?'体气失时，应期缓。':'无时辰可参，应期不定。')}${y.zhi?'六十日内，值日为'+y.zhi+'，冲日为'+y.chong+'。':'六十日内未见值冲之日。'}</p>
   </div>`;
   /* ---- 相字十法说明（法例数动态统计） ---- */
@@ -139,13 +140,13 @@ function show(r){
       <span class="cz-sf-i"><b>添笔</b>${sfCnt['添笔']||0} 例</span>
       <span class="cz-sf-i"><b>减笔</b>${sfCnt['减笔']||0} 例</span>
       <span class="cz-sf-i"><b>对关</b>${sfCnt['对关']||0} 例</span>
-      <span class="cz-sf-i"><b>摘字</b>${(CEZI_DATA.ZHAI?Object.keys(CEZI_DATA.ZHAI).length:0)} 例</span>
+      <span class="cz-sf-i"><b>摘字</b>${(CEZI_DATA.ZHAI?Object.keys(CEZI_DATA.ZHAI).length:0)} 条</span>
       <span class="cz-sf-i"><b>观梅</b>${sfCnt['观梅']||0} 例</span>
     </div>
   </div>
   </details>`;
   const casesRows=(CEZI_DATA.CASES||[]).map(function(c){
-    const body=c.text.replace(new RegExp('^'+c.zi+'字'),'').replace(/^[\s，、。]+/,'');
+    const body=(c.body||c.text);
     return `<tr><td class="cz-zi">${c.zi}</td><td>${body}</td></tr>`;
   }).join('');
   const casesBox=`
@@ -178,26 +179,97 @@ function czValidate(){
 }
 /* 起测时刻：外应旺衰、日干支、应期值冲皆由此刻定，非仅由字与事类定，故盘面须随时刻一并留档 */
 function czNow(){
-  const d=new Date(); const p=n=>('0'+n).slice(-2);
+  const d=(typeof xjNowDate==='function')?xjNowDate():new Date(); const p=n=>('0'+n).slice(-2);
   return { date:d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()), hm:p(d.getHours())+':'+p(d.getMinutes()) };
 }
-/* 由日期与时分重建起测时刻；无时刻则返回 null，外应诸层按无时辰参断 */
-function czSolarOf(date, hm){
-  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date||''); if(!m) return null;
-  const t=/^(\d{1,2}):(\d{2})$/.exec(hm||'');
-  return t ? Solar.fromYmdHms(+m[1],+m[2],+m[3],+t[1],+t[2],0) : Solar.fromYmd(+m[1],+m[2],+m[3]);
+/* 表单所载起测时刻：日期与时刻由共享日期件给值；缺一项即回落当下，与刷新锚点同源 */
+function czClock(){
+  const dv=((document.getElementById('czDate')||{}).value||'').trim();
+  const tv=((document.getElementById('czTime')||{}).value||'').trim();
+  if(dv&&tv) return {date:dv, hm:tv};
+  return czNow();
 }
-function czRender(ch, catKey, solar){
-  show(CEZI_ENGINE.analyze(ch, catKey, solar?solar.getLunar():null, solar));
+/* 所在地经度：手动经度优先，其次省市区三级经度真源；两处皆未定返回空，不按他地兜底 */
+function czLocalLng(){ return typeof xjLocalLng==='function'?xjLocalLng('czLng','czProv','czCity','czDist'):null; }
+/* 境外所在地的基准经线与当地夏令时，取共享件同一份口径 */
+function czTimeOpts(){
+  if(typeof placeTimeOptsOf==='function') return placeTimeOptsOf({prov:'czProv',city:'czCity',lng:'czLng',tz:'czTz',dst:'czLocalDst'});
+  return {overseas:false,baseLng:120,localDst:false,lng:null};
+}
+/* 境外所在地：选到境外城市时挂出时区与当地夏令时，显隐与文案由共享件 syncOverseasFields 一处判 */
+function czSyncOverseas(){
+  if(typeof syncOverseasFields==='function'){
+    syncOverseasFields({prov:'czProv',city:'czCity',lng:'czLng',tz:'czTz',dst:'czLocalDst',
+      tzField:'czTzField',dstField:'czLocalDstField',note:'czOverseasNote',chinaDstField:'czDstField'},{chinaDst:true});
+  }
+}
+function czOverseasChange(){ czSyncOverseas(); }
+/* 所在地文字：省市区三级齐列，未定地如实写未定；经度附在括注内 */
+function czPlaceText(lng){
+  const val=function(id){ const el=document.getElementById(id); return el?(el.value||'').trim():''; };
+  const prov=val('czProv'), city=val('czCity'), dist=val('czDist');
+  const names=[];
+  if(prov&&prov!=='未知地') names.push(prov);
+  if(city&&city!=='未知地'&&city!==prov) names.push(city);
+  if(dist&&dist!=='未知地') names.push(dist);
+  const lngTxt=lng==null?'':(lng>=0?'东经 ':'西经 ')+(Math.round(Math.abs(lng)*100)/100)+' 度';
+  if(names.length) return names.join(' ')+(lngTxt?'（'+lngTxt+'）':'');
+  return lngTxt||'未定';
+}
+/* 折算口径文字：取太阳时下拉的共享选项文案，校正量与校正后时刻一并写明 */
+function czCaliberText(sunMode, ts, lng, clockHm){
+  const sel=document.getElementById('czSun');
+  const label=(sel&&sel.selectedIndex>=0)?sel.options[sel.selectedIndex].text:(sunMode==='mean'?'平太阳时（仅经度差）':'真太阳时（均时差加经度）');
+  if(sunMode==='off') return '不校正，按北京时间标准时';
+  if(lng==null||!ts) return label+'未行，所在地未定';
+  return label+'，钟面 '+clockHm+' 校正 '+ts.totalAdj+' 分，得 '+pad2(ts.h)+':'+pad2(ts.mi);
+}
+/* 起测时刻链：钟面先按夏令时折算，再按所在地经度与均时差作太阳时校正，末按子时算法定日界；
+   太阳时缺省不校正，未定所在地不开校正，与河洛、奇门、六壬诸页同一条链。 */
+function czConverted(){
+  const t=czClock();
+  const m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t.date||''); if(!m) return null;
+  const hm=/^(\d{1,2}):(\d{2})$/.exec(t.hm||''); if(!hm) return null;
+  let y=+m[1], mo=+m[2], d=+m[3], h=+hm[1], mi=+hm[2];
+  const dstMode=((document.getElementById('czDst')||{}).value)||'off';
+  const ziMode=((document.getElementById('czZi')||{}).value)||'late';
+  const sunMode=((document.getElementById('czSun')||{}).value)||'off';
+  const pto=czTimeOpts();
+  const notes=[];
+  if(!pto.overseas&&typeof applyDstCorrection==='function'){
+    const ds=applyDstCorrection(y,mo,d,h,mi,dstMode);
+    if(ds.applied){ y=ds.y; mo=ds.m; d=ds.d; h=ds.h; mi=ds.mi; notes.push(ds.note); }
+  } else if(pto.overseas&&pto.localDst&&typeof shiftClockDay==='function'){
+    const ld=shiftClockDay(y,mo,d,h,mi,-60);
+    notes.push('当地夏令时：钟面 '+pad2(h)+':'+pad2(mi)+' 折为标准时 '+pad2(ld.h)+':'+pad2(ld.mi));
+    y=ld.y; mo=ld.m; d=ld.d; h=ld.h; mi=ld.mi;
+  }
+  const lng=czLocalLng();
+  let ts=null, solarClock=pad2(h)+':'+pad2(mi);
+  if(sunMode!=='off'&&lng!=null){
+    ts=trueSolarTime(y,mo,d,h,mi,lng,sunMode,pto.baseLng==null?120:pto.baseLng);
+    y=ts.y; mo=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
+  }
+  if(h===23) notes.push(ziMode==='late'?'晚子时：23时后日柱归次日':'早子时：23时仍归当日');
+  let solar;
+  try{ solar=Solar.fromYmdHms(y,mo,d,h,mi,0); }catch(e){ return null; }
+  const lunar=solar.getLunar();
+  return { solar:solar, lunar:lunar, ziMode:ziMode,
+    place:czPlaceText(lng), caliber:czCaliberText(sunMode, ts, lng, solarClock), note:notes.join('；') };
+}
+function czRender(ch, catKey, conv){
+  show(CEZI_ENGINE.analyze(ch, catKey, conv?conv.lunar:null, conv?conv.solar:null, conv||null));
 }
 function draw(){
   const v=czValidate();
   const box=document.getElementById('out');
   if(v.err){ box.innerHTML=`<p class="notice cz-err">${v.err}</p>`; LAST=null; return; }
+  const ks=(typeof getKangxiStroke==='function')?getKangxiStroke(v.ch):0;
+  const js=(window.JIANBI&&window.JIANBI[v.ch])?window.JIANBI[v.ch]:0;
+  if(!ks&&!js){ box.innerHTML='<p class="notice cz-err">该字康熙笔画未收录，请换一字。</p>'; LAST=null; return; }
   const catKey=document.getElementById('czCat').value;
   try{ localStorage.setItem('ceziForm',JSON.stringify({czChar:v.ch,czCat:catKey})); }catch(e){}
-  const t=czNow();
-  czRender(v.ch, catKey, czSolarOf(t.date, t.hm));
+  czRender(v.ch, catKey, czConverted());
 }
 function nianzi(){
   const ch=CEZI_ENGINE.pickRandom();

@@ -80,6 +80,10 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
+.page-tr .tr-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2)}
+
+.page-tr .tr-actions > .btn{flex:0 0 auto}
+
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
   background:var(--red);color:#fff;font-size:13px;font-weight:400;
@@ -196,7 +200,7 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-tr .page > .form-row .field select,.page-tr .page > .form-row .field input{width:100%}
 
-.page-tr .page > .form-row .btn{flex:1 1 100%}
+.page-tr .page > .form-row > .tr-actions{flex:1 1 100%}
 
 .page-tr .page > .form-row .field:has(#spread){flex:0 1 auto;width:auto}
 
@@ -372,7 +376,10 @@ body:has(.page-tr) .scroll-jump:not(.show){display:none}</style>
         </select>
       </div>
       <div class="field"><label for="question">所问之事（可选）</label><input id="question" placeholder="如：近期事业发展…"></div>
-      <button class="btn gold" onclick="draw()">洗牌抽牌</button>
+      <div class="tr-actions">
+        <button class="btn gold" onclick="draw()">洗牌抽牌</button>
+        <button class="btn soft" onclick="showTrHistory()">历史记录</button>
+      </div>
     </div>
     <div id="out"></div>
   <div id="aiMount"><details class="ai-block" id="aiBlock">
@@ -402,7 +409,8 @@ body:has(.page-tr) .scroll-jump:not(.show){display:none}</style>
 <div id="trMask" onclick="if(event.target===this)trClose()"><div class="tr-modal" id="trModalBox"></div></div>
 <script defer fetchpriority="low" src="assets/app.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-tarot-03.js"></script>
+<script defer fetchpriority="low" src="assets/hist-modal.js"></script>
 <script defer fetchpriority="low" src="assets/dist/js/inline-tarot-04.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-tarot-05.js"></script>
 </body>
 </html>

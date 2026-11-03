@@ -28,6 +28,17 @@ function sanheOf(zhi){
   return { hit:false, wu:'', group:'' };
 }
 
+/* ===== 1b. 对冲之支（消费 bazi-data.js 的 DIZHI_CHONG，本页不另立冲表） ===== */
+function chongOf(zhi){
+  if (typeof DIZHI_CHONG === 'undefined') return '';
+  for (var i=0;i<DIZHI_CHONG.length;i++){
+    var p = DIZHI_CHONG[i];
+    if (p[0]===zhi) return p[1];
+    if (p[1]===zhi) return p[0];
+  }
+  return '';
+}
+
 /* ===== 2. 犯太岁判定核心 =====
  * types 取值：值、冲、刑、害、破、合、暗合、三合。
  * yZhi=本命年支，suiZhi=流年支。关系类型一律取 window.zhiRelTypes 真源，
@@ -141,8 +152,8 @@ var TS_TEMPLATES = {
     health:'无明显之应，保持常规作息。'
   },
   he: {
-    label:'六合', w:'小吉',
-    note:'六合者，地支六合，和合之象，多为贵人缘与协作运佳，主和顺、得助，与暗合之"暗"不同，六合明面和合。',
+    label:'六合太岁', w:'小吉',
+    note:'六合者，地支六合，和合之象，多为贵人缘与协作运佳，主和顺、得助，与暗合之“暗”不同，六合明面和合。',
     total:'和合之象，人际顺遂、贵人缘佳，宜协作合伙、广结善缘，事多逢迎。',
     career:'合作运佳，团队与合伙事宜推进，易得前辈同侪帮扶，谈判签约顺。',
     wealth:'财运平顺，人际带来机会，勿因人情滥作担保、忌合伙账目不清。',
@@ -162,24 +173,17 @@ var TS_TEMPLATES = {
 
 /* ===== 5. 六十甲子→太岁星君对照与化太岁仪轨（民俗通传照录） ===== */
 var TS_RITUAL = [
-  {t:'拜太岁', d:'正月初八或十五前，到供奉当年太岁星君的道观（或家中朝当年太岁方位）礼拜，报生辰、姓名、住址，祈太岁星君护佑一年平安，此谓"摄太岁"。年末冬至前后拜谢还愿。（当年太岁方位见太岁查询结果首行）'},
+  {t:'拜太岁', d:'正月初八或十五前，到供奉当年太岁星君的道观（或家中朝当年太岁方位）礼拜，报生辰、姓名、住址，祈太岁星君护佑一年平安，此谓“摄太岁”。年末冬至前后拜谢还愿。（当年太岁方位见太岁查询结果首行）'},
   {t:'安奉太岁符', d:'请正一道观太岁符，正月初一至十五安奉于家中清净处（客厅高处或神龛旁），年底冬至前后送化（焚化）送神，符来有处、去有归。'},
-  {t:'穿红', d:'值太岁（本命年）民俗穿红内衣、红腰带、红绳，取"红色辟邪"之意；部分地区讲究由家人赠送而非自购。'},
+  {t:'穿红', d:'值太岁（本命年）民俗穿红内衣、红腰带、红绳，取“红色辟邪”之意；部分地区讲究由家人赠送而非自购。'},
   {t:'避冲', d:'冲太岁之年出行谨慎，避免探病问丧、赌气远行与高风险运动，诸事以稳为主。'},
-  {t:'善行积德', d:'通传"一善解百灾"，行善布施、孝亲敬师、护生惜物，为化太岁之根本，前几项皆为辅助。'},
-  {t:'立春躲春', d:'立春交节时刻前后约一小时静处不出、避见生人，民俗谓"躲太岁"，各地实践宽严不一，从其俗即可。'}
+  {t:'善行积德', d:'通传“一善解百灾”，行善布施、孝亲敬师、护生惜物，为化太岁之根本，前几项皆为辅助。'},
+  {t:'立春躲春', d:'立春交节时刻前后约一小时静处不出、避见生人，民俗谓“躲太岁”，各地实践宽严不一，从其俗即可。'}
 ];
 
-/* 刑名短注：zhiRelTypes 只给类型，展示所需刑名由本页按支补注 */
-var XING_NAME = {
-  '寅巳':'无恩之刑', '巳申':'无恩之刑', '寅申':'（相冲不论刑，冲力覆盖）',
-  '丑戌':'恃势之刑', '戌未':'恃势之刑', '丑未':'恃势之刑',
-  '子卯':'无礼之刑', '辰辰':'自刑', '午午':'自刑', '酉酉':'自刑', '亥亥':'自刑'
-};
+/* 刑名：取 bazi-data.js 的 xingKindOf，本页不另立刑名表 */
 function xingNameOf(a,b){
-  var k1=a+b, k2=b+a;
-  if (a===b) return XING_NAME[a+a]||'自刑';
-  return XING_NAME[k1]||XING_NAME[k2]||'';
+  return (typeof xingKindOf === 'function' ? xingKindOf(a,b) : '') || '刑';
 }
 
 /* ===== 6. 六十星君总表渲染 ===== */
@@ -279,7 +283,7 @@ function judgeSuiPillars(suiGan, suiZhi, BZ, hasTime){
     }
   }
   if (GAN_WX[BZ.dayGan] && GAN_WX[suiGan] && WX_KE[GAN_WX[BZ.dayGan]]===GAN_WX[suiGan]){
-    res.special.push({t:'日犯岁君', d:'日干' + BZ.dayGan + '克流年天干' + suiGan + '，古谓"日犯岁君"，主与太岁相犯，宜谨言慎行、勿与岁争。'});
+    res.special.push({t:'日犯岁君', d:'日干' + BZ.dayGan + '克流年天干' + suiGan + '，古谓“日犯岁君”，主与太岁相犯，宜谨言慎行、勿与岁争。'});
   }
   return res;
 }
@@ -298,6 +302,8 @@ function renderBaziBlock(suiGan, suiZhi, BZ, hasTime, lunarZhi){
     var gRel = ganRelBrief(suiGan, g);
     var zRel = window.zhiRelTypes ? window.zhiRelTypes(z, suiZhi).slice() : [];
     if (z===suiZhi) zRel.unshift('值');
+    var zSh = sanheOf(z), sSh = sanheOf(suiZhi);
+    if (zSh.hit && sSh.hit && zSh.group===sSh.group && z!==suiZhi && zRel.indexOf('三合')<0) zRel.push('三合');
     html += '<tr><td class="ts-c0">' + BP_LABELS[i] + '</td><td>' + esc(g+z) + '</td>' +
       '<td>' + esc(gRel.length?gRel.join('、'):'无') + '</td>' +
       '<td>' + esc(zRel.length?zRel.join('、'):'无') + '</td></tr>';
@@ -306,7 +312,9 @@ function renderBaziBlock(suiGan, suiZhi, BZ, hasTime, lunarZhi){
   for (var j=0;j<jp.special.length;j++){
     html += '<div class="ts-judge-row"><span class="ts-judge-k">' + esc(jp.special[j].t) + '</span><span>' + esc(jp.special[j].d) + '</span></div>';
   }
-  /* 年界差异提示：四柱年柱立春界与页面农历界不同时注明 */
+  if (lunarZhi && BZ.zhis[0] !== lunarZhi){
+    html += '<p class="ts-ys-note">年界差异：本页生肖与流年太岁按农历正月初一为界，四柱年柱按立春为界；本命生肖为' + esc(ZHI_SHENG[lunarZhi]) + '，年柱为' + esc(BZ.gans[0]+BZ.zhis[0]) + '，两界不同时以八字排盘页为准。</p>';
+  }
   return html;
 }
 
@@ -316,32 +324,37 @@ function renderCheck(){
   var dateStr = $('tsDate').value.trim();
   var ly = lunarYearOf(dateStr);
   if (!ly){ out.innerHTML = '<p class="ts-err">请输入有效公历生日，格式 2026-09-05（yyyy-mm-dd，月日两位补零）。</p>'; return; }
-  var suiLy = lunarYearOf($('tsSuiDate').value.trim()) || lunarYearOf(todayStr());
+  var suiRaw = $('tsSuiDate').value.trim();
+  var suiLy = suiRaw ? lunarYearOf(suiRaw) : lunarYearOf(todayStr());
+  if (!suiLy){ out.innerHTML = '<p class="ts-err">请输入有效流年参考日，格式 2026-09-05（yyyy-mm-dd，月日两位补零）。</p>'; return; }
   var suiZhi = suiLy.zhi, suiGz = suiLy.ygz;
   var yZhi = ly.zhi;
   var r = judgeTaisui(yZhi, suiZhi);
   var star = window.TAISUI_STAR[suiGz]||'未载';
+  var benStar = window.TAISUI_STAR[ly.ygz]||'未载';
+  var suiPo = chongOf(suiZhi);
   var bio = bioOfGz(suiGz);
 
   var html = '';
   /* 头卡：本命与流年 */
   html += '<div class="ts-head-cards"><div class="ts-card">' +
     '<div class="ts-card-k">本命年支</div><div class="ts-card-v">' + esc(ly.ygz) + '</div>' +
-    '<div class="ts-card-s">' + esc(ly.sheng) + '肖，公历 ' + esc(fmtYmd(ly)) + '；本命太岁' + esc(yZhi) + '宫居' + esc((window.ZHI_FANG||{})[yZhi] || '无') + '方</div></div>' +
+    '<div class="ts-card-s">' + esc(ly.sheng) + '肖，公历 ' + esc(fmtYmd(ly)) + '；本命太岁' + esc(yZhi) + '宫居' + esc((window.ZHI_FANG||{})[yZhi] || '无') + '方；本命星君' + esc(benStar) + '大将军</div></div>' +
     '<div class="ts-card ts-card-gold">' +
     '<div class="ts-card-k">流年太岁</div><div class="ts-card-v">' + esc(suiGz) + '</div>' +
-    '<div class="ts-card-s">' + esc(star) + '大将军，' + esc(ZHI_SHENG[suiZhi]) + '年，' + esc(suiLy.y) + '年；太岁居' + esc((window.ZHI_FANG||{})[suiZhi] || '无') + '方</div></div></div>';
+    '<div class="ts-card-s">' + esc(star) + '大将军，' + esc(ZHI_SHENG[suiZhi]) + '年，' + esc(suiLy.y) + '年；太岁居' + esc((window.ZHI_FANG||{})[suiZhi] || '无') + '方；岁破居' + esc((window.ZHI_FANG||{})[suiPo] || '无') + '方</div></div></div>';
 
   /* 犯太岁判定卡 */
   var tags = '';
   if (r.types.length===0){
-    tags = '<span class="ts-badge ts-ok">与流年太岁无刑冲破害</span>';
+    tags = '<span class="ts-badge ts-ok">平年：与流年太岁无刑冲破害，亦无合</span>';
   } else {
     var order = ['值','冲','刑','害','破','合','暗合','三合'];
     for (var i=0;i<order.length;i++){
       if (r.types.indexOf(order[i])>=0){
-        var cls = (order[i]==='三合'||order[i]==='暗合') ? 'ts-badge ts-good' : 'ts-badge ts-bad';
-        tags += '<span class="' + cls + '">' + esc(order[i]) + '太岁</span>';
+        var cls = (order[i]==='三合'||order[i]==='暗合'||order[i]==='合') ? 'ts-badge ts-good' : 'ts-badge ts-bad';
+        var label = order[i]==='合' ? '六合' : order[i];
+        tags += '<span class="' + cls + '">' + esc(label) + '太岁</span>';
       }
     }
   }
@@ -391,11 +404,12 @@ function renderYingshi(r, yZhi, suiZhi, sheng){
   var goodKeys = [];
   if (r.sanheHit) goodKeys.push('sanhe');
   if (r.anhe)     goodKeys.push('anhe');
+  if (r.he)       goodKeys.push('he');
 
   var html = '';
   if (badKeys.length===0 && goodKeys.length===0){
-    html += '<div class="ts-ys-head">本年无犯</div>' +
-      '<p class="ts-ys-note">本命' + esc(sheng) + '肖与流年太岁无冲、刑、害、破，亦无三合暗合，为平年之象：流年干支不与本命年支直接作用，吉凶由本命八字与流年大运另论，本页不代断。</p>';
+    html += '<div class="ts-ys-head">平年</div>' +
+      '<p class="ts-ys-note">本命' + esc(sheng) + '肖与流年太岁无冲、刑、害、破，亦无六合、三合、暗合，为平年之象：流年干支不与本命年支直接作用，吉凶由本命八字与流年大运另论，本页不代断。</p>';
     return html;
   }
   var mainKey = badKeys.length ? badKeys[0] : goodKeys[0];
@@ -461,7 +475,7 @@ function renderLayerTable(title, refZhi, full){
       } else if (r.anhe){
         relTxt = '暗合太岁'; wTxt = '小吉'; sumTxt = TS_TEMPLATES.anhe.total;
       } else {
-        relTxt = '无犯'; wTxt = '平'; sumTxt = '与流年太岁无直接刑冲破害，为平年之象，吉凶由本命八字与流年大运另论。';
+        relTxt = '平年'; wTxt = '平'; sumTxt = '与流年太岁无直接刑冲破害，为平年之象，吉凶由本命八字与流年大运另论。';
       }
       var cls = (wTxt==='吉'||wTxt==='小吉') ? ' class="ts-row-good"' : (wTxt==='平' ? '' : ' class="ts-row-bad"');
       html += '<tr' + cls + '><td class="ts-c0">' + esc(ZHI_SHENG[z]) + '</td><td>' + esc(z) + '</td>' +
@@ -469,8 +483,9 @@ function renderLayerTable(title, refZhi, full){
     } else {
       var rel = relBrief(z, refZhi);
       var cls2 = (rel==='三合'||rel==='暗合'||rel==='合') ? ' class="ts-row-good"' : (rel==='平' ? '' : ' class="ts-row-bad"');
+      var relLabel = rel==='合' ? '六合' : rel;
       html += '<tr' + cls2 + '><td class="ts-c0">' + esc(ZHI_SHENG[z]) + '</td><td>' + esc(z) + '</td>' +
-        '<td>' + esc(rel) + '</td><td>' + esc(REL_NOTES[rel]) + '</td></tr>';
+        '<td>' + esc(relLabel) + '</td><td>' + esc(REL_NOTES[rel]) + '</td></tr>';
     }
   }
   html += '</tbody></table></div>';
@@ -480,7 +495,7 @@ function renderYearView(){
   var out = $('tsYearOut');
   /* 优先取本模块查询日期，空则回落顶部流年参考日，再回落今天 */
   var q = $('tsYearDate').value.trim();
-  var ly = lunarYearOf(q) || lunarYearOf($('tsSuiDate').value.trim()) || lunarYearOf(todayStr());
+  var ly = q ? lunarYearOf(q) : (lunarYearOf($('tsSuiDate').value.trim()) || lunarYearOf(todayStr()));
   if (!ly){
     out.innerHTML = '<p class="ts-err">请输入有效查询日期，格式 2026-09-05（yyyy-mm-dd，月日两位补零）。</p>';
     return;
@@ -507,7 +522,7 @@ function renderYearView(){
  * 年度：12 肖本命支 × 流年太岁支 → relBrief 真源 → fortuneKeyOf → TS_TEMPLATES 维度文案。
  * 月度：12 肖本命支 × 十二月亮支（寅卯辰巳午未申酉戌亥子丑，以节令为界，序列固定）
  *       故月度关系跨年通用，作通用月度参考；单元格标关系、悬停看基调。
- * 本命生肖高亮：取顶部公历生日对应生肖支，行内注"（本命）"并以暖金底色标出。 */
+ * 本命生肖高亮：取顶部公历生日对应生肖支，行内注“（本命）”并以提示淡底色标出。 */
 function fortuneKeyOf(rel){
   switch(rel){
     case '值': return 'zhi';
@@ -557,10 +572,13 @@ function renderFortuneYear(){
     var rel = relBrief(z, suiZhi);
     var t = TS_TEMPLATES[fortuneKeyOf(rel)];
     var relLabel = t.label + '（力' + t.w + '）';
-    var cls = (t.w==='吉'||t.w==='小吉') ? ' class="ts-row-good"' : (t.w==='平' ? '' : ' class="ts-row-bad"');
+    var rowCls = [];
+    if (t.w==='吉'||t.w==='小吉') rowCls.push('ts-row-good');
+    else if (t.w!=='平') rowCls.push('ts-row-bad');
+    if (z===benZhi) rowCls.push('ts-row-ben');
+    var cls = rowCls.length ? ' class="' + rowCls.join(' ') + '"' : '';
     var benMark = (z===benZhi) ? '（本命）' : '';
-    var benStyle = (z===benZhi) ? ' style="background:rgba(138,106,30,.14)"' : '';
-    html += '<tr' + cls + benStyle + '><td class="ts-c0">' + esc(ZHI_SHENG[z]) + benMark + '（' + esc(z) + '）</td>' +
+    html += '<tr' + cls + '><td class="ts-c0">' + esc(ZHI_SHENG[z]) + benMark + '（' + esc(z) + '）</td>' +
       '<td>' + esc(relLabel) + '<br><span class="ts-ys-sub">' + esc(t.total) + '</span></td>' +
       '<td>' + esc(t.career) + '</td><td>' + esc(t.wealth) + '</td><td>' + esc(t.love) + '</td><td>' + esc(t.health) + '</td></tr>';
   }
@@ -583,7 +601,8 @@ function renderFortuneMonth(){
       var rel = relBrief(z, MONTH_ZHI[m2]);
       var cls = (rel==='三合'||rel==='暗合'||rel==='合') ? ' class="ts-row-good"' : (rel==='平' ? '' : ' class="ts-row-bad"');
       var gist = FORTUNE_GIST[rel] || '';
-      html += '<td' + cls + ' title="' + esc(gist) + '">' + esc(rel) + '</td>';
+      var relLabel = rel==='合' ? '六合' : rel;
+      html += '<td' + cls + ' title="' + esc(gist) + '">' + esc(relLabel) + '</td>';
     }
     html += '</tr>';
   }
@@ -633,8 +652,9 @@ function tsAiContext(){
       s += '用户本命：' + ly.ygz + '年（' + ly.sheng + '肖）。\n';
       s += '犯太岁判定：' + (r.types.length?r.types.join('、'):'无犯') + '。\n';
       s += '太岁方位：流年太岁' + suiLy.zhi + '宫居' + (window.ZHI_FANG ? (window.ZHI_FANG[suiLy.zhi] || '无') : '无') + '方；本命太岁' + ly.zhi + '宫居' + (window.ZHI_FANG ? (window.ZHI_FANG[ly.zhi] || '无') : '无') + '方。\n';
+      s += '本命星君：' + (window.TAISUI_STAR[ly.ygz]||'未载') + '大将军；岁破：流年太岁对冲之支' + chongOf(suiLy.zhi) + '，居' + (window.ZHI_FANG ? (window.ZHI_FANG[chongOf(suiLy.zhi)]||'无') : '无') + '方。\n';
       if (r.sanheHit) s += '三合：本命' + ly.zhi + '与流年同入' + r.sanhe.group + '局。\n';
-      var mainKey = r.chong?'chong':(r.zhi?'zhi':(r.xing?'xing':(r.po?'po':(r.hai?'hai':(r.he?'he':'')))));
+      var mainKey = r.chong?'chong':(r.zhi?'zhi':(r.xing?'xing':(r.po?'po':(r.hai?'hai':(r.he?'he':(r.sanheHit?'sanhe':(r.anhe?'anhe':'')))))));
       if (mainKey)       s += '主力形态：' + TS_TEMPLATES[mainKey].label + '（力' + TS_TEMPLATES[mainKey].w + '）。\n';
       var hourVal2 = $('tsHour') ? $('tsHour').value : '';
       var hasTime2 = !!hourVal2;
@@ -721,6 +741,8 @@ function init(){
       recast:function(){ renderCheck(); renderYearView(); renderFortune(); }
     }
   });
+  var savedMod = (typeof xjReadFold === 'function') ? xjReadFold(TS_MOD_KEY) : {};
+  if (savedMod['tsmod-check'] !== true){ var checkMod = $('tsmod-check'); if (checkMod) checkMod.classList.remove('collapsed'); }
   applyTsModState(); /* 恢复折叠状态（渲染完成后） */
   tsModNavReady = true; /* 打标后才允许写持久化 */
 }
