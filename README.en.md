@@ -161,6 +161,92 @@ Pure static with zero build. Fork the repository and pick any host; any domain a
 - **Netlify**: import the repository at app.netlify.com, leave the build command empty and set the publish directory to `./`.
 - **Other hosts**: any static host or object storage with a CDN (Alibaba Cloud OSS, Tencent Cloud COS, EdgeOne Pages, Render and others) works by uploading the repository files as they are; no server side needed.
 
+## Deploy with Docker
+
+The site is pure static with no backend, so a container only has to serve files: no build step and no environment variables. The shortest path clones the repository and starts the container in one command:
+
+```bash
+git clone --depth 1 https://github.com/GaoRenYouShu/XuanJiPaiPan.git && cd XuanJiPaiPan && docker run -d --name xuanji-paipan -p 8080:80 -v "$PWD:/usr/share/nginx/html:ro" nginx:alpine
+# open http://localhost:8080
+```
+
+With the repository already on disk, pick any of the following three ways.
+
+**Run the nginx container against the repository** (no files changed; good for a local or intranet trial):
+
+```bash
+docker run -d --name xuanji-paipan -p 8080:80 \
+  -v "$PWD:/usr/share/nginx/html:ro" \
+  nginx:alpine
+# open http://localhost:8080
+```
+
+**Build your own image** (good for intranet distribution and pinned versions):
+
+```dockerfile
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY *.html manifest.webmanifest robots.txt sitemap.xml sw.js ./
+COPY assets ./assets
+```
+
+```bash
+docker build -t xuanji-paipan .
+docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
+```
+
+**Run with docker compose** (good for long-running deployments):
+
+```yaml
+services:
+  xuanji-paipan:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+    restart: unless-stopped
+```
+
+```bash
+docker compose up -d
+```
+
+- Any domain, port or subpath works as is: canonical, og:url and share-image links are generated from the actual address, with no source changes.
+- PWA installation and offline caching require HTTPS or localhost: over plain http on a LAN IP the pages work but the service worker does not register; for public deployment put an HTTPS reverse proxy in front of the container.
+- 404 page: nginx serves its own error page by default; to use the site's 404.html, add `error_page 404 /404.html;` to the server block.
+- A read-only mount is enough: the site never writes, all data and calculation run in the browser, and recreating the container loses no state.
+
+**Update a running deployment**: the container does not pull GitHub updates by itself; the steps depend on how it was deployed.
+
+**Mounted repository** (including the one-command setup): pull the repository and refresh the page; no container restart is needed:
+
+```bash
+cd XuanJiPaiPan
+git pull
+```
+
+**Built image**: rebuild and replace the old container:
+
+```bash
+cd XuanJiPaiPan
+git pull
+docker build -t xuanji-paipan .
+docker rm -f xuanji-paipan
+docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
+```
+
+**Compose** mounts the repository, so updates follow the mounted case; rerun `docker compose up -d` only when the compose file itself changes.
+
+For fully automatic updates, add a scheduled pull on the host:
+
+```bash
+# pull once a day at 04:00
+0 4 * * * cd /path/to/XuanJiPaiPan && git pull --ff-only
+```
+
+If the upstream history was rewritten and `git pull` fails, align with `git fetch --depth 1 origin main && git reset --hard origin/main`.
+
 ## Repository Stats
 
 | Overview | Languages |

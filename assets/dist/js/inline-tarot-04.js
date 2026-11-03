@@ -206,7 +206,7 @@ function renderSpread(picks,sp){
  document.getElementById('out').innerHTML=`
    ${cardsHtml}
    ${tarotRead(picks,sp)}
-   <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图，取自 Wikimedia Commons。</div>`;
+   <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图。</div>`;
  LAST={q:document.getElementById('question').value,sp:layoutName,key:sp,picks};
 }
 /* 元素尊贵：同气相强，火风、水土相生互旺，水火、土风相冲互削，余者（火土、风水）中性。

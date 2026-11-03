@@ -776,7 +776,12 @@ function shareCopyText(text){
 }
 function shareDefaultCollect(){
   const d={}; const els=document.querySelectorAll('input[id],select[id],textarea[id]');
-  for(let i=0;i<els.length;i++){ const el=els[i]; if(el.type==='file'||el.type==='button'||el.type==='submit') continue; d[el.id]=(el.type==='checkbox'||el.type==='radio')?(el.checked?'1':'0'):el.value; }
+  for(let i=0;i<els.length;i++){
+    const el=els[i];
+    if(el.type==='file'||el.type==='button'||el.type==='submit'||el.type==='password') continue;
+    if(el.closest && el.closest('#aiMount, #aiCfgMask')) continue;
+    d[el.id]=(el.type==='checkbox'||el.type==='radio')?(el.checked?'1':'0'):el.value;
+  }
   return d;
 }
 function shareDefaultRestore(d){
@@ -811,6 +816,8 @@ function injectShare(host, share){
     const o = {};
     host.querySelectorAll('input,select,textarea').forEach(function(el){
       if(!el.id) return;
+      if(el.type === 'password') return;
+      if(el.closest && el.closest('#aiMount, #aiCfgMask')) return;
       o[el.id] = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? '1' : '0') : el.value;
     });
     return o;

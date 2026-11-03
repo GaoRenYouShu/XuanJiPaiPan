@@ -162,6 +162,92 @@ python -m http.server 8080
 - **Netlify**：在 app.netlify.com 导入仓库，构建命令留空、发布目录 `./`。
 - **其他托管**：任意静态托管或对象存储加 CDN（阿里云 OSS、腾讯云 COS、EdgeOne Pages、Render 等）将仓库文件原样上传即可，无需服务端。
 
+## Docker 部署
+
+纯静态站不依赖后端，容器只承担静态文件服务，无需构建步骤与环境变量。最简一条命令从零拉仓并启动：
+
+```bash
+git clone --depth 1 https://github.com/GaoRenYouShu/XuanJiPaiPan.git && cd XuanJiPaiPan && docker run -d --name xuanji-paipan -p 8080:80 -v "$PWD:/usr/share/nginx/html:ro" nginx:alpine
+# 打开 http://localhost:8080
+```
+
+仓库已在本地时，以下三种方式任选。
+
+**直接用 nginx 容器挂载仓库**（不改任何文件，适合本机与内网试用）：
+
+```bash
+docker run -d --name xuanji-paipan -p 8080:80 \
+  -v "$PWD:/usr/share/nginx/html:ro" \
+  nginx:alpine
+# 打开 http://localhost:8080
+```
+
+**构建自有镜像**（适合内网分发与固定版本）：
+
+```dockerfile
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY *.html manifest.webmanifest robots.txt sitemap.xml sw.js ./
+COPY assets ./assets
+```
+
+```bash
+docker build -t xuanji-paipan .
+docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
+```
+
+**用 docker compose 长期运行**：
+
+```yaml
+services:
+  xuanji-paipan:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+    restart: unless-stopped
+```
+
+```bash
+docker compose up -d
+```
+
+- 任意域名、端口与子路径均可直接使用，页面内 canonical、og:url 与分享图链接按实际访问地址生成，无需改源码。
+- PWA 安装与离线缓存须 HTTPS 或 localhost 才生效：经局域网 IP 以 http 访问时页面可用，Service Worker 不注册，对外部署请在容器前加一层 HTTPS 反向代理。
+- 404 页：nginx 默认返回自带错误页，如需本站的 404.html，在 server 段加 `error_page 404 /404.html;`。
+- 容器只读挂载即可，站点无写入需求，数据与计算全在浏览器完成，重建容器不丢任何状态。
+
+**更新已部署实例**：容器不会自动拉取 GitHub 的更新，按部署方式处理。
+
+**挂载运行**（含一行部署）直接拉取仓库，刷新页面即生效，无需重启容器：
+
+```bash
+cd XuanJiPaiPan
+git pull
+```
+
+**自有镜像**须重新构建并换掉旧容器：
+
+```bash
+cd XuanJiPaiPan
+git pull
+docker build -t xuanji-paipan .
+docker rm -f xuanji-paipan
+docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
+```
+
+**compose** 用挂载方式，更新同挂载运行；改了 compose 文件才需要重跑 `docker compose up -d`。
+
+需要全自动时，在宿主机加一条定时拉取即可：
+
+```bash
+# 每天 4 点拉一次
+0 4 * * * cd /path/to/XuanJiPaiPan && git pull --ff-only
+```
+
+仓库历史被重写导致 `git pull` 失败时，用 `git fetch --depth 1 origin main && git reset --hard origin/main` 对齐远端。
+
 ## 仓库数据
 
 | 仓库概览 | 语言构成 |
