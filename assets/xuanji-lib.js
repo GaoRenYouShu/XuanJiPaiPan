@@ -865,21 +865,29 @@ function xjFsXkWheelSvg(opts){
     +`<text id="fsXkC2" x="${g.c}" y="${g.c+14}" class="w-c2">${ct[1]}</text>`
     +`<text id="fsXkC3" x="${g.c}" y="${g.c+34}" class="w-c3" style="fill:${ct[3]}">${ct[2]}</text>`;
   return `<svg class="wheel" id="fsXkWheel" viewBox="0 0 440 440" role="img" aria-label="玄空飞星山向盘：外圈八宫方位，内两圈为运星与山向星，点选一宫看该宫山向旺衰与断事">${s}</svg>`;
-}function xjFsXkDetail(){
+}function xjFsXkDetail(kind){
   const d=FS_XK_DATA; if(!d) return;
   const b=getBase(), r=fsXkRow(FS_XK_SEL), yun=d.yun.yun;
   const sw=FS.starWangShuai(r.sit,yun), fw=FS.starWangShuai(r.face,yun);
   const dc=FS.gongDingCai(r.sit,r.face,yun), cj=FS.comboJx(r.sit,r.face);
   const jxCls=jx=>jx.indexOf('凶')>=0?'wd-x':(jx.indexOf('吉')>=0?'wd-g':'');
-  const tag=(r.palace===FS_GUA_NUM[b.faceShan]?'向首宫 ':'')+(r.palace===FS_GUA_NUM[b.sitShan]?'坐山宫 ':'');
+  const tag=(r.palace===FS_GUA_NUM[FS.SHAN_BAGUA[b.faceShan]]?'向首宫 ':'')+(r.palace===FS_GUA_NUM[FS.SHAN_BAGUA[b.sitShan]]?'坐山宫 ':'');
+  const yin=kind==='yin';
+  const dirTxt=yin?window.fyDir(FS.NINE_BAGUA[r.palace]):FS.NINE_DIR[r.palace];
+  const yt=s=>FS.yuanOf(s)+'元'+(FS.shanYang(s)?'阳':'阴');
+  const tail=yin
+    ?`<span class="wd-br"></span>三元龙 坐${b.sitShan}${yt(b.sitShan)}、向${b.faceShan}${yt(b.faceShan)}`
+      +`<span class="wd-br"></span>顺逆之由 山${window.fsXkYuanTxt(d.sitIn,b.sitShan,d.sitShun)}；向${window.fsXkYuanTxt(d.faceIn,b.faceShan,d.faceShun)}`
+      +`<span class="wd-br"></span>中宫入中：运星${d.yun.yun}、山星${d.sitIn}、向星${d.faceIn} 山星主人丁子孙、向星主荫资产业，旺山旺向为葬地之上格。`
+      +`<span class="wd-br"></span>坐向轴 盘上加重的那两根刻度即坐山宫与向首宫。`
+    :`<span class="wd-br"></span>中宫入中：运星${d.yun.yun}、山星${d.sitIn}、向星${d.faceIn} 旺山旺向为阳宅大吉之局，双星到向须向首有水、双星到山须坐后有山。`;
   fwDetail('fsXkDetail',
-    `${FS.NINE_BAGUA[r.palace]}宫（${FS.NINE_DIR[r.palace]}方） ${tag}运星${r.yun} 山星${r.sit}（${sw}） 向星${r.face}（${fw}）`
+    `${FS.NINE_BAGUA[r.palace]}宫（${dirTxt}方） ${tag}运星${r.yun} 山星${r.sit}（${sw}） 向星${r.face}（${fw}）`
     +`<span class="wd-br"></span>`
     +`丁财断 <span class="${jxCls(dc.jx)}">${dc.jx}</span> ${dc.mean}`
     +`<span class="wd-br"></span>`
     +`山向相会 <span class="${jxCls(cj.jx)}">${cj.jx}</span> ${cj.mean||'比和，随当令断'}`
-    +`<span class="wd-br"></span>`
-    +`中宫入中：运星${d.yun.yun}、山星${d.sitIn}、向星${d.faceIn} 旺山旺向为阳宅之上格，双星到向须向首有水、双星到山须坐后有山。`);
+    +tail);
 }
 
 window.xjFeiText = xjFeiText;

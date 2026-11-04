@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
       window.LS_FIELDS = LS_FIELDS;
     })();
     (function(){
-      const GUA_OPTS=['坎','坤','震','巽','乾','兑','艮','离'].map(g=>`<option value="${g}">${g}${FS.GUA_DIR[g]}</option>`).join('');
+      const GUA_OPTS=['坎','坤','震','巽','乾','兑','艮','离'].map(g=>`<option value="${g}">${g}${fsDir(g)}</option>`).join('');
       window.GUA_OPTS = GUA_OPTS;
     })();
     (function(){
@@ -219,8 +219,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const ns=FS.nianSha(b.flowYear); s+=`\n流年太岁（${b.flowYear}年）：太岁${ns.taiSui.zhi}、岁破${ns.suiPo.zhi}、三煞${ns.sanSha.map(x=>x.name+x.zhi).join('、')}、五黄${ns.wuHuang.dir}。`;
       }catch(e){}
       try{
-        const lz=FS.lingZheng(FS.yunQi(b.flowYear).yun);
-        if(lz) s+=`\n零正神（${b.flowYear}年${FS.yunQi(b.flowYear).yun}运）：正神${lz.zhengGua}${lz.zhengDir}、零神${lz.lingGua}${lz.lingDir}，正神宜高实、零神宜水。`;
+        /* 零正神与本页同源：运取该层实际流年或换运年，五运按所在十年传前、后段 */
+        const yq=FS.yunQi(b.flowYear, b.yunOv);
+        const lz=FS.lingZheng(yq.yun, fsYunDecade(yq, b.flowYear));
+        if(lz) s+=`\n零正神（${b.flowYear}年${yq.yuan}${yq.yun}运${lz.note?'，'+lz.note:''}）：正神${lz.zhengGua}${lz.zhengDir}、零神${lz.lingGua}${lz.lingDir}，正神宜高实、零神宜水。`;
       }catch(e){}
       try{
         const si=FS.shanInfo(b.sitShan,b.flowYear);
@@ -230,7 +232,60 @@ document.addEventListener('DOMContentLoaded', function () {
         const xk=FS.xuanKong(b.sitShan,b.faceShan,b.flowYear,b.deg,b.faceDeg, b.yunOv);
         if(xk) s+=`\n玄空（坐${b.sitShan}向${b.faceShan} ${b.flowYear}年）：${xk.yun.yuan}${xk.yun.yun}运，格局${xk.geju}。`;
       }catch(e){}
+      /* 三要、六事、峦头、金锁、分金、病点六类只给已出的结论，未评之项照实说不评 */
+      try{
+        const e=fsSanYao();
+        const at=g=>g?(g+fsDir(g)):'未填';
+        const jxOf=ok=>ok?'吉':'凶';
+        let t='\n阳宅三要（'+(e.method==='door'?'以门起伏位':'以坐山起伏位')+'，'+e.qiGua+'卦起游年）：';
+        t+='门开'+at(e.door)+'（'+e.doorStar+'，'+jxOf(e.isJi(e.doorStar))+'）、';
+        t+='主房'+(e.main?'在'+at(e.main)+'（'+e.mainStar+'，'+jxOf(e.isJi(e.mainStar))+'）':'未填')+'、';
+        t+='灶座'+(e.stove?'在'+at(e.stove)+'（'+e.stoveStar+'，'+(e.isJi(e.stoveStar)?'压吉反伤':'压凶化吉')+'）':'未填')+'、';
+        t+='灶向'+(e.stoveDir?'朝'+at(e.stoveDir)+'（'+e.dirStar+'，'+jxOf(e.isJi(e.dirStar))+'）':'未填')+'。';
+        s+=t;
+      }catch(e){}
+      try{
+        const mg=mingGua(b.mingYear,b.male);
+        const ls=FS.liuShi(mg?mg.gua:null, getLiuShi());
+        if(ls){
+          const rows=ls.rows.filter(r=>r.key!=='door'&&r.key!=='stove'&&r.key!=='stoveDir');
+          s+='\n阳宅六事（'+(mg?mg.gua+'命':'命卦未填')+'起游年）：'+(rows.length?'门、灶见三要；'+rows.map(r=>r.name+'在'+r.gua+fsDir(r.gua)+'（'+r.star+'，'+r.jx+'）').join('、'):'门、灶见三要，余事未填')+'。';
+        }
+      }catch(e){}
+      try{
+        const lt=FS.luantou(collectLt());
+        if(lt) s+='\n外部峦头（'+lt.got+'分，'+lt.grade+'）：'+lt.rows.map(r=>r.type+(r.dir?'（'+r.dir+'方）':'')+'，'+r.jx+'，强度'+r.strength).join('；')+'。';
+        else s+='\n外部峦头：未录形物，不评。';
+      }catch(e){}
+      try{
+        const jsy=collectJsy(), sc=FS.scoreJsy(jsy.shans, jsy.xing);
+        s+=sc?'\n金锁砂水：'+sc.note+'评'+sc.got+'分（'+sc.grade+'）。':'\n金锁砂水：未选砂水，不评。';
+      }catch(e){}
+      try{
+        const xmEl=document.getElementById('fjXm');
+        const xmY=(xmEl&&xmEl.value)?parseInt(xmEl.value,10):null;
+        const fj=FS.scoreFenjin(b.sitShan, b.deg, xmY||null);
+        s+=fj?'\n宿度分金（'+b.sitShan+'山）：'+fj.note+'评'+fj.got+'分（'+fj.grade+'）。':'\n宿度分金：坐度未填或无可取分金，不评。';
+      }catch(e){}
+      try{
+        const d=fsFinalData();
+        const bad=d.items.filter(x=>x.st==='veto'||x.st==='bad').map(x=>x.name);
+        const warn=d.items.filter(x=>x.st==='warn').map(x=>x.name);
+        let t='\n病点（否决或凶 '+d.badN+' 项，小疵 '+d.warnN+' 项，待核 '+d.naN+' 项）：';
+        t+=bad.length?bad.slice(0,8).join('、'):'无否决或凶项';
+        if(warn.length) t+='；小疵 '+warn.slice(0,6).join('、');
+        s+=t+'。';
+      }catch(e){}
+      try{
+        const mem=document.getElementById('fsMemBody');
+        if(mem&&mem.rows.length) s+='\n家人宫位：'+[...mem.rows].map(r=>[...r.cells].map(c=>c.textContent.trim()).join('，')).join('；')+'。';
+        const ss=document.getElementById('ssBody');
+        if(ss&&ss.rows.length&&ss.textContent.indexOf('四势未选')<0) s+='\n外局四势：'+[...ss.rows].map(r=>[...r.cells].map(c=>c.textContent.trim()).join('，')).join('；')+'。';
+        const env=FS_MEM_ENV.filter(x=>{const el=document.getElementById('env-'+x.n);return el&&el.checked;});
+        s+='\n环境自检：'+(env.length?env.map(x=>x.nm).join('、')+'（现实项，不入评分）':'未勾选（现实项，不入评分）')+'。';
+        s+='\n依据与置信度只作读法提示，不进总分。';
+      }catch(e){}
       return s;
-    }, '风水', { share:{ page:"fengshui", title:"风水", result:"#fsmod-l5", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ fsNow(); }); } } });
+    }, '风水', { share:{ page:"fengshui", title:"风水", result:"#fsmod-final", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ fsNow(); }); } } });
   }, 0);
 });

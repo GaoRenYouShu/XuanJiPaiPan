@@ -277,9 +277,9 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-fy input:focus,.page-fy select:focus,.page-fy textarea:focus{border-color:var(--fy);outline:none}
 
-.page-fy .btn:not(.soft):not(.btn-ghost){background:var(--fy);border-color:var(--fy);color:#fff;box-shadow:none}
+.page-fy .btn:not(.soft){background:var(--fy);border-color:var(--fy);color:#fff;box-shadow:none}
 
-.page-fy .btn:not(.soft):not(.btn-ghost):hover{background:var(--fy2);border-color:var(--fy2);color:#fff;box-shadow:none}
+.page-fy .btn:not(.soft):hover{background:var(--fy2);border-color:var(--fy2);color:#fff;box-shadow:none}
 
 .page-fy .btn.gold{background:var(--fy);color:#fff}
 
@@ -414,7 +414,7 @@ html .page-fy {
         <div class="field"><label for="baseYear">仙命出生年</label><input type="number" id="baseYear" value="1940" min="1800" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
         <div class="field"><label for="baseSit">坐山</label><select id="baseSit" onchange="fsApplyBase()"><option value="子">子山</option><option value="癸">癸山</option><option value="丑">丑山</option><option value="艮">艮山</option><option value="寅">寅山</option><option value="甲">甲山</option><option value="卯">卯山</option><option value="乙">乙山</option><option value="辰">辰山</option><option value="巽">巽山</option><option value="巳">巳山</option><option value="丙">丙山</option><option value="午">午山</option><option value="丁">丁山</option><option value="未">未山</option><option value="坤">坤山</option><option value="申">申山</option><option value="庚">庚山</option><option value="酉">酉山</option><option value="辛">辛山</option><option value="戌">戌山</option><option value="乾">乾山</option><option value="亥">亥山</option><option value="壬">壬山</option></select></div>
         <div class="field"><label for="baseFace">向首</label><select id="baseFace" onchange="fsApplyBase()"><option value="子">子山</option><option value="癸">癸山</option><option value="丑">丑山</option><option value="艮">艮山</option><option value="寅">寅山</option><option value="甲">甲山</option><option value="卯">卯山</option><option value="乙">乙山</option><option value="辰">辰山</option><option value="巽">巽山</option><option value="巳">巳山</option><option value="丙">丙山</option><option value="午" selected>午山</option><option value="丁">丁山</option><option value="未">未山</option><option value="坤">坤山</option><option value="申">申山</option><option value="庚">庚山</option><option value="酉">酉山</option><option value="辛">辛山</option><option value="戌">戌山</option><option value="乾">乾山</option><option value="亥">亥山</option><option value="壬">壬山</option></select></div>
-        <div class="field"><label for="baseYear2">安葬流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
+        <div class="field"><label for="baseYear2">安葬流年</label><input type="number" id="baseYear2" value="2026" min="1864" max="2100" class="fs-inp-w90" oninput="this.setAttribute('data-user-set','1')" onchange="fsApplyBase()"></div>
         <div class="field"><label for="baseDeg">罗盘实测坐度</label><input type="number" id="baseDeg" min="0" max="360" step="0.1" class="fs-inp-w100" placeholder="正针坐度°" onchange="fsApplyBase()"></div>
       </div>
       <div class="birth-group compact" id="fsGeoGroup">
@@ -628,7 +628,7 @@ html .page-fy {
 <h3 class="rel-title">安葬择日避忌（分事核对：破土、安葬、立碑）</h3>
     <div class="fs-row">
       <div class="field"><label for="zrEvent">用事（分事各择）</label><select id="zrEvent" onchange="drawZeRi();drawBuLong();drawFinal();"><option value="破土">破土（开金井）</option><option value="安葬">安葬（下葬乘气）</option><option value="立碑">立碑（竖碑勒石）</option></select></div>
-      <div class="field" data-built="2026-10-29"><label for="zrDate">日期</label><span class="dt-wrap dtm-fy"><input type="text" class="dt-input fs-inp-w130" id="zrDate" value="2026-10-29" onchange="drawZeRi();drawBuLong();drawFinal();" readonly></span></div>
+      <div class="field" data-built="2026-10-30"><label for="zrDate">日期</label><span class="dt-wrap dtm-fy"><input type="text" class="dt-input fs-inp-w130" id="zrDate" value="2026-10-30" onchange="drawZeRi();drawBuLong();drawFinal();" readonly></span></div>
       <div class="field"><label for="zrHour">下葬时辰（选填）</label><select id="zrHour" onchange="drawZeRi();drawBuLong();drawFinal();"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
       <div class="field"><label for="zrJiZhu">祭主出生年</label><input type="number" id="zrJiZhu" value="" min="1900" max="2100" class="fs-inp-w100" placeholder="选填" onchange="drawZeRi();drawBuLong();drawFinal();"></div>
       <button class="btn gold" onclick="drawZeRi();drawBuLong();drawFinal();">核此日</button>
@@ -649,8 +649,8 @@ html .page-fy {
       <div class="field"><label for="ckHour">用事时辰</label><select id="ckHour" onchange="drawKeCe();"><option value="-1">只论日柱</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
     </div>
     <div class="fs-row">
-      <div class="field" data-built="2026-10-29"><label for="ckFrom">起始日期</label><span class="dt-wrap dtm-fy"><input type="text" class="dt-input fs-inp-w120" id="ckFrom" value="2026-10-29" placeholder="2026-09-30" onchange="drawKeCe();" readonly></span></div>
-      <div class="field" data-built="2026-10-29" data-keep><label for="ckTo">结束日期</label><span class="dt-wrap dtm-fy"><input type="text" class="dt-input fs-inp-w120" id="ckTo" value="2026-11-28" placeholder="2026-09-30" onchange="drawKeCe();" readonly></span></div>
+      <div class="field" data-built="2026-10-30"><label for="ckFrom">起始日期</label><span class="dt-wrap dtm-fy"><input type="text" class="dt-input fs-inp-w120" id="ckFrom" value="2026-10-30" placeholder="2026-09-30" onchange="drawKeCe();" readonly></span></div>
+      <div class="field" data-built="2026-10-30" data-keep><label for="ckTo">结束日期</label><span class="dt-wrap dtm-fy"><input type="text" class="dt-input fs-inp-w120" id="ckTo" value="2026-11-29" placeholder="2026-09-30" onchange="drawKeCe();" readonly></span></div>
       <button class="btn gold" onclick="drawKeCe()">选成课</button>
     </div>
     <div id="ckOut"></div>

@@ -534,7 +534,7 @@ xjScheduleNowDefaults();
       /* 日期框落盘前先过合法性判据：非法串（URL 参数或旧存档带来的 2 月 31 日一类）
          归位到今日，并派发 change 令本页按合法值重排。挂在初始化这一层，则各页无需各写一遍，
          也不会出现某页忘了判而静默折算出一张错日之盘。时辰框不判。 */
-      if(!isTime && !xjValidDate(inp.value)) inp.value = todayStr();
+      if(!isTime && !inp.hasAttribute('data-keep') && !xjValidDate(inp.value)) inp.value = todayStr();
     });
   };
 
@@ -854,12 +854,18 @@ window.xjShuffle = xjShuffle;
       window.__xjFormRestored = true;
       try{ window.dispatchEvent(new Event('xj:form-restored')); }catch(e){}
       /* 结果由结果快照恢复，首屏不在加载时重算。 */
-      var sy=parseInt(rd(K_S)||'0',10);
+      /* 深链优先：非刷新导航带 hash 时，以 hash 目标为准；本页旧滚动位置与旧锚点只服务刷新回填。 */
+      var hashId='';
+      if(!isReload&&location.hash){
+        try{ hashId=decodeURIComponent(location.hash.slice(1)); }catch(e){ hashId=location.hash.slice(1); }
+      }
+      var hashEl=hashId?document.getElementById(hashId):null;
+      var sy=hashEl?0:parseInt(rd(K_S)||'0',10);
       var anchor=null;
-      if(typeof window.xjRefreshAnchor==='function'){
+      if(!hashEl&&typeof window.xjRefreshAnchor==='function'){
         try{ anchor=JSON.parse(rd(K_A)||'null'); }catch(e){ anchor=null; }
       }
-      var anchorEl=anchor&&anchor.id?document.getElementById(anchor.id):null;
+      var anchorEl=hashEl||(anchor&&anchor.id?document.getElementById(anchor.id):null);
       var raf=(window.requestAnimationFrame&&window.requestAnimationFrame.bind(window))||function(f){ setTimeout(f,16); };
       /* 位置回填：刷新后结果区与折叠区是整块重建的，重建途中文档高度先塌后长，
          塌陷那一刻浏览器会把滚动位置钳到当时的文档末尾，位置就此丢失（实测阳宅页高由 41013

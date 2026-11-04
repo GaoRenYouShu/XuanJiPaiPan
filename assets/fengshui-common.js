@@ -160,7 +160,7 @@ function fsShDetailCommon(){
     +`<span class="wd-br"></span>`
     +`${d.ju}：${d.zs}起长生、帝旺在${d.miao}、墓库在${d.mu} 收山出煞：${d.shou}`
     +`<span class="wd-br"></span>`
-    +`来水宜长生、冠带、临官、帝旺四宫，去水宜衰、墓、绝、胎四宫；沐浴来水不吉而宜去。`
+    +`来水宜长生、冠带、临官、帝旺四宫，去水宜衰、病、死、墓、绝、胎六宫；养来去皆可，沐浴宜去不宜来。`
     +`<span class="wd-br"></span>`
     +FS.SH_QUJIAO);
 }

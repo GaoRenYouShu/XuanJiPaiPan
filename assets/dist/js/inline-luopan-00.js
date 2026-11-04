@@ -2,11 +2,11 @@
 /* 基础设定与风水两页同族：页内 DOM 操作留本页，几何与渲染走共享库 LUOPAN 与 FS_LUO。
    引擎以 global.FENGSHUI 暴露；页内别名 FS 须待 defer 脚本执行后取，
    故置 DOMContentLoaded 内取，确保 fengshui-engine 已挂 FENGSHUI，其余页面级别量由本页自管。 */
-var LP_DECL_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null, LP_LV_MAX=5, LP_GEO_HINT='';
+var LP_DECL_TOUCH=false, LP_FIELD_TOUCH=false, LP_YEAR=2026, LP_SIT='子', LP_FACE='午', LP_DEG=null, LP_COMPASS=null, LP_LV_MAX=5, LP_GEO_HINT='';
 var FS=null;
 /* 所在地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地取磁偏角，
    来历不著。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。
-   手填经纬度与三级下拉是两条独立的定地途径，故手填框不归它管。 */
+   经纬度随所在地回填，手改经纬度即按手改值取磁偏角与总场强。 */
 function lpGeoCoord(){
   var lo=parseFloat((document.getElementById('lpLng')||{}).value);
   var la=parseFloat((document.getElementById('lpLat')||{}).value);
@@ -31,10 +31,31 @@ function lpDeclAuto(){
   el.value=c?FS_MAG.decl(c.lat, c.lng, xjNowDate()).toFixed(2):'';
   return !!c;
 }
-function lpGeoPick(){
+function lpGeoPick(fromPlace){
   lpGeoNoteSet('');
+  if(fromPlace){
+    LP_FIELD_TOUCH=false;
+    var sp=document.getElementById('lpProv');
+    var sc=document.getElementById('lpCity'), sd=document.getElementById('lpDist');
+    var c=sp&&sp.value?declCoord(sp.value, sc&&sc.value, sd&&sd.value):null;
+    if(c){
+      var lngEl=document.getElementById('lpLng'), latEl=document.getElementById('lpLat');
+      if(lngEl) lngEl.value=c.lng.toFixed(2);
+      if(latEl) latEl.value=c.lat.toFixed(2);
+    }
+  }
   lpDeclAuto();
+  lpFieldAuto(fromPlace);
   lpApplyBase();
+}
+function lpFieldTouch(){ LP_FIELD_TOUCH=true; }
+function lpFieldAuto(force){
+  var el=document.getElementById('baseField'); if(!el) return;
+  if(LP_FIELD_TOUCH && !force) return;
+  var c=lpGeoCoord();
+  if(!c){ el.value=''; return; }
+  var f=FS_MAG.field(c.lat, c.lng, xjNowDate());
+  el.value=(f&&isFinite(f.total))?f.total:'';
 }
 /* 解除手填锁定：清空框并回到随所在地折算。 */
 function lpDeclUnlock(){
@@ -92,8 +113,8 @@ function lpMagOnline(){
    手填经纬度与三级下拉是两条独立的定地途径，故手填框不归它管。 */
 function lpGeoInit(){
   var sp=document.getElementById('lpProv'); if(!sp) return;
-  window.__lpPlaceTrio=fillPlaceTrio(sp, document.getElementById('lpCity'), document.getElementById('lpDist'), lpGeoPick);
-  lpGeoPick();
+  window.__lpPlaceTrio=fillPlaceTrio(sp, document.getElementById('lpCity'), document.getElementById('lpDist'), function(){ lpGeoPick(true); });
+  lpGeoPick(true);
 }
 /* 所在地预填与页脚地理定位共用 aiGeoLookup 一条管线。取数或归位不成时在组下明示，
    手填省市区与经纬度照常可用；预填成功或用户自选后即撤提示。 */
@@ -138,12 +159,18 @@ function lpApplyBase(){
 /* 各盘点选：落山、内圈读数、盘下详情 */
 var LP_SEL={real:0,zhen:0,fen:0,chuan:0,tou:0,bagua:0,luoshu:0,yun:0,xiu:0,sanhe:0,bazhai:0,tianxing:0,decl:0};
 var LP_SANHE=null;
+/* 三盘三针盘心：所选之山即实测坐度，三针各按本针偏度落山，不按山序轮换针制。 */
+function lpZhenCore(sel){
+  var deg=sel*15;
+  var z=FS.zhenShan(deg,'zheng'), y=FS.zhenShan(deg,'zhong'), f=FS.zhenShan(deg,'feng');
+  return [FS.SHAN_LIST[sel]+'山', '正'+z.shan+' 中'+y.shan+' 缝'+f.shan];
+}
 function lpPickZhen(i){
   LP_SEL.zhen=i;
-  var z=FS.ZHEN_LIST[i%3];
   FS_LUO.pick({id:'lpZhen',curId:'lpZhenCur',needleId:'lpZhenNeedle',dotId:'lpZhenDot',i:i,degOf:j=>j*15});
-  WHEEL.text('lpZhenC1', '三针');
-  WHEEL.text('lpZhenC2', z?z.name+' '+z.use:'', '');
+  var ct=lpZhenCore(i);
+  WHEEL.text('lpZhenC1', ct[0]);
+  WHEEL.text('lpZhenC2', ct[1], '');
   lpZhenDetail();
 }
 function lpPickFen(i){ LP_SEL.fen=i; LUOPAN.pick({id:'lpFen',curId:'lpFenCur',i:i}); lpCorePaint('lpFen', lpFenCore, i); lpFenDetail(); }
@@ -166,9 +193,7 @@ function lpCorePaint(id, coreFn, sel){
   WHEEL.text(id+'C3', ct[3]);
 }
 function lpXiuMid(i){
-  var W=360/28, A0=135;
-  var mid=A0-(i+0.5)*W;
-  return ((mid%360)+360)%360;
+  return LUOPAN.xiuMidEq(i, FS.XIU_28.length);
 }
 
 /* 真实罗盘：渲染、读数栏联动、锁定、盘制与底色切换、缩放拖移。
@@ -265,6 +290,10 @@ function lpRealDetailRender(deg, beta, gamma){
   /* 两向倾角以实参优先，实参缺则回取库内所存；二者皆缺即未取，如实报缺。 */
   var lvB=(beta!=null?beta:lv.shu), lvG=(gamma!=null?gamma:lv.heng);
   var info=FS.shanInfo(sit, LP_YEAR, LP_DEG);
+  /* 分金取本山中格（每山五分金之正中一格），纳音即该格干支之纳音；
+     直接以单地支取名只得甲子之纳音，与所坐之山无涉。 */
+  var fjMid=(FS.fenJin(sit)||[])[2]||null;
+  var zh=FS.SHAN_ZHI[sit]||'';
   var pj=info&&info.measured;
   var st=pj?(pj.kong?'<span class="wd-x">骑缝空亡（不可立向）</span>':(pj.jian?'兼'+pj.jianTo+'山（须起替卦）':'<span class="wd-g">正向（下卦立向）</span>')):'未填实测坐度';
   var zhen=FS.zhenShan(deg,'zheng'), zhong=FS.zhenShan(deg,'zhong'), feng=FS.zhenShan(deg,'feng');
@@ -294,7 +323,7 @@ function lpRealDetailRender(deg, beta, gamma){
       case 'chuan': return v.kong?'<span class="wd-x">穿山大空亡龙（不可立向）</span>':'穿山七十二龙 '+v.gz+'龙（纳音'+v.nayin+'，'+(function(){ var jx=FS.longJx(v); var c=(jx.jx==='大吉'||jx.jx==='吉')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+jx.jx+'</span>'; })()+'）';
       case 'fen': return '百二十分金 '+v.gz+'（纳音'+v.nayin+'，'+(function(){ var c=(v.wang==='旺'||v.wang==='相')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+'</span>'; })()+'）';
       case 'zhong': return '人盘中针 '+v.shan+'山（消砂）';
-      case 'laiGong': return '赖公五行 '+v.wx;
+      case 'laiGong': return '宿度五行推衍 '+v.wx+'（本页由宿度七曜推得，非通行赖公拨砂表）';
       case 'tou': return '透地六十龙 '+v.gz+'龙（纳音'+v.nayin+'，'+(function(){ var c=(v.wang==='旺'||v.wang==='相')?'wd-g':'wd-x'; return '<span class="'+c+'">'+v.wang+'</span>'; })()+'）';
       case 'feng': return '天盘缝针 '+v.shan+'山（纳水）';
       case 'najia': return '纳甲 '+(v.yang?'<span class="wd-g">净阳</span>':'净阴');
@@ -305,12 +334,12 @@ function lpRealDetailRender(deg, beta, gamma){
       case 'sanyuan24': case 'fumu': return '三元 '+v.yuan+'元龙（'+(v.yang?'阳':'阴')+'，'+v.san+'）';
       case 'sanyuan24c': case 'zhengSanYuan': return '三元阴阳 '+(v.yang?'<span class="wd-g">阳山</span>':'阴山');
       case 'aixing': return '挨星五行 '+v.wx;
-      case 'gua64': return '六十四卦 '+v.name+(v.full?'（'+v.full+'）':'');
+      case 'gua64': return '六十四卦方图序 '+v.name+(v.full?'（'+v.full+'）':'');
       case 'yunShu': return '卦运 '+v.han;
       case 'yuanQi': return '卦气 '+v.han;
       case 'fanFu': return '反吟伏吟 线位在'+v.name+'卦';
       case 'chouYao': return '抽爻换象 '+v.name+'卦'+v.yao+'爻'+(v.bao?'<span class="wd-g">珠宝线</span>':'<span class="wd-x">火坑线</span>');
-      case 'jieqi': return '节气 '+v.name;
+      case 'jieqi': return '节气月建 '+v.name;
       case 'xiu': return '二十八宿 '+v.xiu+'宿（'+v.wx+'曜，本度'+v.du+'°）';
       case 'deg': return '周天 '+v.deg.toFixed(1)+'°';
       default: return '';
@@ -338,12 +367,14 @@ function lpRealDetailRender(deg, beta, gamma){
     +'<span class="wd-br"></span>'
     +'坐 '+sit+'山 向 '+face+'山 '+((info)?(info.bagua+'卦'+info.wx+'行'):'')
     +'　'+st
-    +'　'+FS.SHAN_ZHI[sit]+'支 纳音'+FS.nayin(FS.SHAN_ZHI[sit]).name
+    +(fjMid?'　'+zh+'支 中格分金纳音'+fjMid.nayin+'（'+fjMid.gz+'）':'　中格分金未取')
     +'<span class="wd-br"></span>'
     +'立向：'+(hit.length?'<span class="wd-x">'+hit.join('、')+'</span>':'<span class="wd-g">本年四煞不到山</span>')
     +'　正针落'+zhen.shan+'山（立向） 中针落'+zhong.shan+'山（消砂） 缝针落'+feng.shan+'山（纳水）'
     +'<span class="wd-br"></span>'
-    +'三合'+FS.SANHE_JU[FS.SHAN_SANHE[sit]].ju+'（'+FS.SHAN_SANHE[sit]+'）　桃花'+FS.taoHuaShui(sit).zhi+'方　洪范'+FS.HONGFAN_WX[sit]+'行'
+    /* 三合行与长生行同取盘面本设坐向 LP_SIT：此刻实测之坐向只出上段读数，不掺入本行，
+       两行各取一山则同段并出两局，读作自相矛盾。 */
+    +'三合（本设坐向'+LP_SIT+'山）'+FS.SANHE_JU[FS.SHAN_SANHE[LP_SIT]].ju+'（'+FS.SHAN_SANHE[LP_SIT]+'）　桃花'+FS.taoHuaShui(LP_SIT).zhi+'方　洪范'+FS.HONGFAN_WX[LP_SIT]+'行'
 +'<span class="wd-hr"></span>'
 +set.name+'共'+set.rings.length+'层，此刻坐度所落：'
     +'<span class="wd-br"></span>'
@@ -480,20 +511,18 @@ function lpZhenSvg(){
     phase:0,
     degOf:function(i){ return i*15; },
     bad:function(){ return false; },
-    core:function(sel){
-      var z=FS.ZHEN_LIST[sel%3];
-      return ['三针', z? z.name : '正针'];
-    },
+    core: lpZhenCore,
     label:'三盘三针：地盘正针（立向格龙）、人盘中针（消砂）、天盘缝针（纳水）同刻二十四山，子山中心各差七点五度。'
   });
   document.getElementById('lpZhenHost').innerHTML=s;
 }
 function lpZhenDetail(){
-  var sel=LP_SEL.zhen, z=FS.ZHEN_LIST[sel%3];
+  var sel=LP_SEL.zhen, deg=sel*15;
+  var z=FS.zhenShan(deg,'zheng'), y=FS.zhenShan(deg,'zhong'), f=FS.zhenShan(deg,'feng');
   LUOPAN.detail('lpZhenDetail',
-    z.full+'（'+z.name+'）：'+z.use+'，子山中心为周天'+z.c0+'°。'
+    '周天'+deg+'° 三针落山：正针'+z.shan+'山（立向格龙）、中针'+y.shan+'山（消砂）、缝针'+f.shan+'山（纳水）。'
     +'<span class="wd-br"></span>'
-    +'三盘同刻二十四山，唯子山中心各异；同一实测读数在三盘下落作不同山名，立向必以正针为准，消砂方用中针，纳水方用缝针。');
+    +'三盘同刻二十四山，唯子山中心各异（'+FS.ZHEN_LIST.map(function(t){ return t.name+t.c0+'°'; }).join('、')+'）；同一实测读数在三盘下落作不同山名，立向必以正针为准，消砂方用中针，纳水方用缝针。');
 }
 /* 分金盘：每山五分金 */
 function lpFenCore(sel){
@@ -541,7 +570,7 @@ function lpChuanSvg(){
     id:'lpChuan', curId:'lpChuanCur', pick:'lpPickChuan', sel:sel,
     inner:function(i,shan){
       return FS.chuanShan72(shan).map(function(r){
-        var d=r.start+2.5-180;
+        var d=r.start+2.5;
         return {text:r.gz||'空', wang:r.wang, deg:((d%360)+360)%360, color:'var(--wheel-ink)', kong:r.kong};
       });
     },
@@ -574,7 +603,7 @@ function lpTouSvg(){
     id:'lpTou', curId:'lpTouCur', pick:'lpPickTou', sel:sel,
     inner:function(i,shan){
       return FS.touDi60(shan).map(function(r){
-        var d=((r.start+3+180)%360+360)%360;
+        var d=((r.start+3)%360+360)%360;
         return {text:r.gz, wang:r.wang, deg:d, color:'var(--wheel-ink)', kong:(r.wang==='龟甲')};
       });
     },
@@ -716,7 +745,7 @@ function lpXiuDetail(){
     +'<span class="wd-br"></span>'
     +'此盘照老黄历宿盘制式：二十八宿等分一圈、逆时针自角宿起，只作周天宿位对应，不裁吉凶；'
     +'真实盘之二十八宿环则依本表距度不等分布列，宿名、五行与度同格，二盘一为等分定位、一为按度分度，不可互校。'
-    +'宿度五行由七曜本气推得，即人盘赖公五行所本。');
+    +'宿度五行由七曜本气推得，与通行赖公拨砂表非同一口径，本页只作推衍展示。');
 }
 /* 三合水法盘（长生十二宫）：照阳宅风水页同制式，外圈十二宫名带吉凶色、内圈地支取字角。
    宫序自本局长生起顺排十二宫，宫心落地盘本支山心，与本站取角口径同源。 */
@@ -745,7 +774,7 @@ function lpSanheDetail(){
     +'<span class="wd-br"></span>'
     +d.ju+'：'+d.zs+'起长生、帝旺在'+d.miao+'、墓库在'+d.mu+' 收山出煞：'+d.shou
     +'<span class="wd-br"></span>'
-    +'来水宜长生、冠带、临官、帝旺四宫，去水宜衰、墓、绝、胎四宫；沐浴来水不吉而宜去。'
+    +'来水宜长生、冠带、临官、帝旺四宫，去水宜衰、病、死、墓、绝、胎六宫；养来去皆可，沐浴宜去不宜来。'
     +'<span class="wd-br"></span>'
     +FS.SH_QUJIAO);
 }
@@ -754,10 +783,12 @@ function lpSanheBuild(){
   LP_SEL.sanhe=4;
   lpSanheSvg(); lpSanheDetail();
 }
-/* 八宅游年盘 */
+/* 八宅游年盘：所点为宅卦，非命卦，故分组称东四宅、西四宅；方向显示补正字。 */
+function lpDir(g){ var d=FS.GUA_DIR[g]||''; return (d==='北'||d==='南'||d==='东'||d==='西')?'正'+d:d; }
+function lpHouseGroup(g){ return ['坎','震','巽','离'].indexOf(g)>=0?'东四宅':'西四宅'; }
 function lpBazhaiCore(sel){
   var shan=FS.SHAN_LIST[sel], g=FS.SHAN_BAGUA[shan], b=FS.baZhai(g);
-  return [shan+'山', b?b.group:g+'卦', '', g+'卦 '+FS.GUA_DIR[g]+'方'];
+  return [shan+'山', b?lpHouseGroup(g):g+'卦', '', g+'卦 '+lpDir(g)+'方'];
 }
 function lpBazhaiSvg(){
   var sel=LP_SEL.bazhai;
@@ -765,18 +796,18 @@ function lpBazhaiSvg(){
     id:'lpBazhai', curId:'lpBazhaiCur', pick:'lpPickBazhai', sel:sel,
     inner:function(i,shan){
       var g=FS.SHAN_BAGUA[shan], b=FS.baZhai(g);
-      return [{text:b?b.group.charAt(0):'中', deg:(i * 15)}];
+      return [{text:b?lpHouseGroup(g).charAt(0):'中', deg:(i * 15)}];
     },
     core: lpBazhaiCore,
-    label:'八宅游年盘：外圈二十四山，内圈所属宅卦之东西四命，游年九星生气延年天医伏位为吉、绝命五鬼祸害六煞为凶。'
+    label:'八宅游年盘：外圈二十四山，内圈所属宅卦之东西四宅，游年九星生气延年天医伏位为吉、绝命五鬼祸害六煞为凶。'
   });
 }
 function lpBazhaiDetail(){
   var shan=FS.SHAN_LIST[LP_SEL.bazhai], g=FS.SHAN_BAGUA[shan], b=FS.baZhai(g);
   if(!b){ LUOPAN.detail('lpBazhaiDetail',''); return; }
-  var ji=b.ji.map(function(o){ return o.name+'（'+o.gua+o.dir+'）'; }).join('、');
-  var xiong=b.xiong.map(function(o){ return o.name+'（'+o.gua+o.dir+'）'; }).join('、');
-  LUOPAN.detail('lpBazhaiDetail', shan+'山 属'+g+'卦 '+b.group
+  var ji=b.ji.map(function(o){ return o.name+'（'+o.gua+lpDir(o.gua)+'）'; }).join('、');
+  var xiong=b.xiong.map(function(o){ return o.name+'（'+o.gua+lpDir(o.gua)+'）'; }).join('、');
+  LUOPAN.detail('lpBazhaiDetail', shan+'山 属'+g+'卦 '+lpHouseGroup(g)
     +'<span class="wd-br"></span>'
     +'吉方：'+ji+'<span class="wd-br"></span>凶方：'+xiong);
 }
@@ -794,15 +825,15 @@ function lpTianxingSvg(){
       return [{text:g.gui?g.star.charAt(0):'平', deg:(i * 15)}];
     },
     core: lpTianxingCore,
-    label:'天星盘：依赖公《催官篇》以二十四山配天星论贵贱（亥应紫微、艮应天市等）；赖公五行与宿度五行诸家不一，本库依师传口径，不臆造。'
+    label:'天星盘：依《催官篇》以二十四山配天星论贵贱（亥应紫微、艮应天市等）；宿度五行由七曜推衍，与赖公拨砂通行表不一，本页只作推衍展示。'
   });
 }
 function lpTianxingDetail(){
   var shan=FS.SHAN_LIST[LP_SEL.tianxing], g=FS.tianXingGui(shan);
   var tail='<span class="wd-br"></span>'
     +'此盘看坐山所应天星与催官贵向：外圈二十四山，内圈为各山所应之天星，无者留空。'
-    +'用法与消砂分两步：砂之吉凶以人盘中针赖公五行论，贵向则以此层天星论，二者不互套。'
-    +'乌兔太阳一系诸家不一，本站留白不书，用时依本门所传。';
+    +'用法与消砂分两步：砂之吉凶以人盘中针所刻五行论，贵向则以此层天星论，二者不互套。'
+    +'乌兔太阳一系诸家不一，此层留白不书，用时依师承所传。';
   if(!g.gui){ LUOPAN.detail('lpTianxingDetail', shan+'山 无特定催官贵向记载，按所用主线自裁。'+tail); return; }
   LUOPAN.detail('lpTianxingDetail', shan+'山 应'+g.star+'<span class="wd-br"></span>'+g.mean+tail);
 }
@@ -912,8 +943,9 @@ function lpStartCompass(){
     if(!ok) lpCompassState('未能取得传感器权限，可手拨盘面对针或填实测坐度。');
   });
 }
-/* 实测回填：罗盘所测（实时所向，已锁则取所锁）回写基础设定的实测坐度与坐山向首，
-   测量结果由此成为全页排盘输入。未取得读数则说明之，不盲填。 */
+/* 实测回填：罗盘所测真北（实时所向，已锁则取所锁）折回磁北后回写基础设定的坐度与坐山向首，
+   测量结果由此成为全页排盘输入。框内之值经 lpMagTrue 折真北，此处若直写真北，
+   再折一次磁偏角即差出两倍偏角。未取得读数则说明之，不盲填。 */
 function lpBackfillBase(){
   var deg=(LP_REAL.lock&&LP_REAL.lockedDeg!=null)?LP_REAL.lockedDeg:LP_REAL.liveDeg;
   if(deg==null||!isFinite(deg)){ lpCompassState('指南针未取得读数，无法回填；可启动指南针或手填实测坐度。'); return; }
@@ -927,12 +959,17 @@ function lpBackfillBase(){
   var z=FS.zhenShan(deg,'zheng');
   var sit=z?z.shan:null;
   var face=sit?FS.SHAN_LIST[(FS.SHAN_LIST.indexOf(sit)+12)%24]:null;
+  /* 偏角框空者按零度计，即磁北与真北同值；所填之值一律为磁北。
+     保留两位小数：偏角框取到百分位，折回磁北亦取百分位，回填不再另舍一次。 */
+  var decl=parseFloat((document.getElementById('baseDecl')||{}).value);
+  if(!isFinite(decl)) decl=0;
+  var magDeg=((deg-decl)%360+360)%360, magTxt=magDeg.toFixed(2);
   var dEl=document.getElementById('baseDeg');
-  if(dEl) dEl.value=deg.toFixed(1);
+  if(dEl) dEl.value=magTxt;
   if(sit){ var sEl=document.getElementById('baseSit'); if(sEl) sEl.value=sit; }
   if(face){ var fEl=document.getElementById('baseFace'); if(fEl) fEl.value=face; }
   lpApplyBase();
-  lpCompassState('已回填实测坐度与坐山向首（'+sit+'山'+face+'山 '+deg.toFixed(1)+'°）。');
+  lpCompassState('已回填磁北坐度'+magTxt+'°（真北'+deg.toFixed(1)+'°），坐'+sit+'山向'+face+'山。');
 }
 function lpRenderAll(){
   lpRealRender();

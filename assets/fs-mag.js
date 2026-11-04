@@ -192,11 +192,15 @@
     const bh = Math.hypot(bx, by);
     const decl = (bx !== 0 || by !== 0) ? Math.atan2(by, bx) * RAD : 0;
     const incl = (bh !== 0 || bz !== 0) ? Math.atan2(bz, bh) * RAD : 0;
-    return { decl: Math.round(decl * 100) / 100, incl: Math.round(incl * 100) / 100, decimalYear: dy };
+    const total = Math.hypot(bx, by, bz);
+    return { decl: Math.round(decl * 100) / 100, incl: Math.round(incl * 100) / 100, total: Math.round(total), horizontal: Math.round(bh), decimalYear: dy };
   }
 
   /* 磁偏角（度）：东偏为正、西偏为负 */
   function decl(lat, lng, when, altKm){ return field(lat, lng, when, altKm).decl; }
+
+  /* 地磁总场强（nT）：WMM 模型值，非实测 */
+  function total(lat, lng, when, altKm){ return field(lat, lng, when, altKm).total; }
 
   /* 模型是否仍在有效期内 */
   function inRange(when){
@@ -231,6 +235,7 @@
 
   global.FS_MAG = {
     decl: decl,
+    total: total,
     field: field,
     online: online,
     inRange: inRange,

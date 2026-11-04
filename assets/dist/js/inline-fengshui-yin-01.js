@@ -184,6 +184,12 @@ document.addEventListener('DOMContentLoaded', function () {
       let FINAL_ITEMS=[], FINAL_SCORE=null;
       window.FINAL_ITEMS = FINAL_ITEMS; window.FINAL_SCORE = FINAL_SCORE;
     })();
+    /* 择日与三纲的结构化终值：drawZeRi 写 LP_ZR、drawBuLong 写 LP_BL，drawFinal 只读此两值，
+       不回读渲染文案与核对表单元格 */
+    (function(){
+      let LP_ZR=null, LP_BL=null;
+      window.LP_ZR = LP_ZR; window.LP_BL = LP_BL;
+    })();
     (function(){
       const YIN_W={'1 觅龙':0.09,'2 察砂':0.06,'3 观水':0.06,'4 点穴':0.09,'5 立向':0.22,'6 定线':0.15,'7 配仙命':0.13,'8 择日':0.20};
       window.YIN_W = YIN_W;
@@ -197,16 +203,26 @@ document.addEventListener('DOMContentLoaded', function () {
     fsGeoInit('fsy_geo_manual');
     fillBuLong();
     (function(){
-      /* 日期初值由全站统一函数在首绘前写入；起建年为年份输入，按当年补齐。 */
-      const n=new Date();
+      /* 静态默认态所属日由容器 data-built 记写：日期框停在构建日时校正到访问日，
+         用户改过的日期带 data-user-set，不覆盖。成课结束日期是派生值（data-keep），恒等于起始日期加三十日。
+         安葬流年默认写当年，用户改过的不覆盖。本段只改控件值，不出盘：结果等用户点起盘。 */
+      const n=new Date(), p2=v=>(v<10?'0':'')+v;
+      const ymd=n.getFullYear()+'-'+p2(n.getMonth()+1)+'-'+p2(n.getDate());
+      const builtEl=document.querySelector('[data-built]');
+      const bd=builtEl?builtEl.getAttribute('data-built'):'';
+      const fixDate=id=>{
+        const el=document.getElementById(id);
+        if(el&&!el.hasAttribute('data-user-set')&&(!el.value||el.value===bd)) el.value=ymd;
+      };
+      fixDate('zrDate');
+      fixDate('ckFrom');
       const de=document.getElementById('baseYear2');
-      if(de && !de.value) de.value=n.getFullYear();
-      /* 成课默认窗口：结束日期是派生值，等于起始日期加三十日 */
+      if(de&&!de.hasAttribute('data-user-set')&&(!de.value||de.value===bd.slice(0,4))) de.value=String(n.getFullYear());
       const ckf=document.getElementById('ckFrom'), ckt=document.getElementById('ckTo');
       const m=ckf&&ckt?/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(ckf.value||''):null;
       if(m){
         const e=new Date(+m[1], +m[2]-1, +m[3]+30);
-        ckt.value=e.getFullYear()+'-'+String(e.getMonth()+1).padStart(2,'0')+'-'+String(e.getDate()).padStart(2,'0');
+        ckt.value=e.getFullYear()+'-'+p2(e.getMonth()+1)+'-'+p2(e.getDate());
       }
     })();
     document.addEventListener('toggle',function(e){
@@ -238,7 +254,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const sz=FS.SHAN_SHUANGZHI[b.sitShan];
         const rel=FS.zhiGuanXi(xmGz[1], sz);
         const lmg=FS.luMaGui(xmGz);
-        s+=`\n仙命：${xmGz}（纳音${FS.nayin(xmGz).name}），配坐山双山支${sz}：${rel.name}（${rel.jx}）；禄${lmg.lu}、马${lmg.ma}、贵人${lmg.guiren.join('、')}。`;
+        const guiTxt=fyGuiSets(lmg).map(g=>(g.pai?g.pai:'')+'贵人'+g.zhi.join('')).join('、');
+        s+=`\n仙命：${xmGz}（纳音${FS.nayin(xmGz).name}），配坐山双山支${sz}：${rel.name}（${rel.jx}）；禄${lmg.lu}、马${lmg.ma}、${guiTxt}。`;
       }catch(e){}
       try{
         const bs=FS.baSha(b.sitShan), tq=FS.huangQuan(b.faceShan), th=FS.taoHuaShui(b.sitShan);
@@ -256,7 +273,16 @@ document.addEventListener('DOMContentLoaded', function () {
           s+=`\n安葬择日（${dv}）：日课${ctx.yGz}年${ctx.mGz}月${ctx.dayGz}日，节气月建${ctx.mGz[1]}。`;
         }
       }catch(e){}
+      try{
+        const SC=FINAL_SCORE;
+        if(SC&&SC.layers){
+          const nm=k=>k.replace(/^\d+\s*/,'');
+          const one=l=>nm(l.key)+'：'+(l.veto?'否决':(l.score==null?'未评':l.score+' 分，'+(l.key==='8 择日'?zeGradeName(l.score):yinGrade(l.score))));
+          s+='\n八步结论：'+SC.layers.map(one).join('、')+'。';
+          s+='\n综合分：位置分 '+(SC.pos.score==null?'未评':SC.pos.score+' 分，'+SC.pos.grade)+'；择日分 '+(SC.ze.score==null?'未评':SC.ze.score+' 分，'+SC.ze.grade)+'；最终 '+(SC.zong.score==null?'待填':SC.zong.score+' 分，'+SC.zong.grade)+'。';
+        }
+      }catch(e){}
       return s;
-    }, '阴宅风水', { share:{ page:"fengshui-yin", title:"阴宅风水", result:"#xkOut", recast:function(){ try{ fsApplyBase(); }catch(e){} } } });
+    }, '阴宅风水', { share:{ page:"fengshui-yin", title:"阴宅风水", result:"#fvCard", recast:function(){ try{ drawXingLuan(); }catch(e){} try{ fsApplyBase(); }catch(e){} } } });
   }, 0);
 });

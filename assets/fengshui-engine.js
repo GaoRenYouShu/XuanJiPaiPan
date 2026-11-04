@@ -4,7 +4,7 @@
    改锚点须先给出典籍出处，防止改对改错。 */
 (function(global){
   const NINE_ORDER=[1,2,3,4,5,6,7,8,9];
-  const NINE_DIR={1:'北',2:'西南',3:'东',4:'东南',5:'中',6:'西北',7:'西',8:'东北',9:'南'};
+  const NINE_DIR={1:'正北',2:'西南',3:'正东',4:'东南',5:'中',6:'西北',7:'正西',8:'东北',9:'正南'};
   const NINE_BAGUA={1:'坎',2:'坤',3:'震',4:'巽',5:'中',6:'乾',7:'兑',8:'艮',9:'离'};
   const STAR_MEAN={
     1:'一白贪狼水，主财官与桃花，吉',
@@ -748,15 +748,18 @@
      禄：甲禄寅、乙卯、丙戊巳、丁己午、庚申、辛酉、壬亥、癸子（按年干）；
      驿马：申子辰马在寅、寅午戌马在申、巳酉丑马在亥、亥卯未马在巳（按年支）；
      天乙贵人：甲戊庚牛羊，乙己鼠猴乡，丙丁猪鸡位，壬癸兔蛇藏，六辛逢马虎（按年干）。
+     【流派】庚日取支两说并列：三命通会派作丑未（本表 guiren），玉匣记派作午寅（luMaGui 另出 guiAlt），余干两派同。
      造葬以禄马贵人到山到向、三方拱照为吉。
-     锚点：甲禄在寅；子年马在寅；甲干贵人丑未；辛干贵人午寅。 */
+     锚点：甲禄在寅；子年马在寅；甲干贵人丑未；辛干贵人午寅；庚干两派丑未与午寅。 */
   const GAN_LU={甲:'寅',乙:'卯',丙:'巳',丁:'午',戊:'巳',己:'午',庚:'申',辛:'酉',壬:'亥',癸:'子'};
   const ZHI_MA={申:'寅',子:'寅',辰:'寅',寅:'申',午:'申',戌:'申',巳:'亥',酉:'亥',丑:'亥',亥:'巳',卯:'巳',未:'巳'};
   const GAN_GUIREN={甲:['丑','未'],戊:['丑','未'],庚:['丑','未'],乙:['子','申'],己:['子','申'],
     丙:['亥','酉'],丁:['亥','酉'],壬:['卯','巳'],癸:['卯','巳'],辛:['午','寅']};
+  const GAN_GUIREN_ALT={庚:['午','寅']};
   function luMaGui(gz){
     const gan=gz[0], zhi=gz[1];
-    return {lu:GAN_LU[gan]||null, ma:ZHI_MA[zhi]||null, guiren:GAN_GUIREN[gan]||[]};
+    return {lu:GAN_LU[gan]||null, ma:ZHI_MA[zhi]||null, guiren:GAN_GUIREN[gan]||[],
+      guiAlt:GAN_GUIREN_ALT[gan]||GAN_GUIREN[gan]||[]};
   }
   /* 【定源】重丧日（通书通行，按节气月建本气定日干）：寅月甲、卯乙、辰戊、巳丙、午丁、未己、申庚、酉辛、
      戌戊、亥壬、子癸、丑己。安葬日犯之为重丧，大忌。
@@ -978,18 +981,20 @@
   /* 扶山核对：坐山不必补、扶起不克倒。山五行用正体五行（SHAN_WX）。
      吉=四柱与山比肩一气（同五行之支）/印绶生山（生山五行之干）；大忌=地支冲山；次忌=天干克山；
      四柱纳音克山者，葬以月日纳音制之（制者当令、克者休囚乃稳）。
-     锚点：子山（水）四柱见午=冲山大凶；见申子=比肩一气；见庚辛=印绶生山。 */
+     冲山按双山配支论：八干四维随所配之支（甲同卯、乾同亥、壬同子），故二十四山皆可判冲。
+     锚点：子山（水）四柱见午=冲山大凶；甲山（双山卯）见酉=冲山大凶；乾山（双山亥）见巳、壬山（双山子）见午同断；
+     子山见申子=比肩一气；见庚辛=印绶生山。 */
   function fuShan(shan, ganArr, zhiArr){
     const wx=SHAN_WX[shan];
     if(!wx||!zhiArr) return null;
-    const shanPair=CHONG[shan];
+    const shanPair=CHONG[SHAN_SHUANGZHI[shan]||shan];
     const chong=zhiArr.filter(z=>z===shanPair);
     const keShan=ganArr?ganArr.filter(g=>WX_KE[GAN_WX5[g]]===wx):[];
     const sameQi=zhiArr.filter(z=>LONG_WX[z]===wx);
     const shengShan=ganArr?ganArr.filter(g=>WX_SHENG[GAN_WX5[g]]===wx):[];
     let zong, mean;
     if(chong.length>0){
-      zong='大凶'; mean='四柱'+chong.join('')+'支冲坐山'+shan+'，克倒坐山，大忌；太岁冲山尤忌，日月时止一字冲犹可，冲多则破。';
+      zong='大凶'; mean='四柱'+chong.join('')+'支冲坐山'+shan+(SHAN_SHUANGZHI[shan]!==shan?'（双山'+SHAN_SHUANGZHI[shan]+'）':'')+'，克倒坐山，大忌；太岁冲山尤忌，日月时止一字冲犹可，冲多则破。';
     }else if(keShan.length>=2){
       zong='凶'; mean='四柱天干'+keShan.join('')+'克山（'+shan+'山属'+wx+'），天干克山多见必凶。';
     }else if(keShan.length===1){
@@ -1087,8 +1092,9 @@
       if(!xk) continue;
       const gj=xk.geju;
       const fanFu=gj.indexOf('伏吟')>=0||gj.indexOf('反吟')>=0;
-      if(gj.indexOf('旺山旺向')===0) out.push({sit, face, gj, grade:fanFu?'上格而犯伏吟反吟（慎用）':'上格'});
+      if(gj.indexOf('旺山旺向')===0) out.push({sit, face, gj, grade:fanFu?'大吉而犯伏吟反吟（凶）':'大吉'});
       else if(gj.indexOf('双星到向')===0&&!fanFu) out.push({sit, face, gj, grade:'次格（须向首有水外有山）'});
+      else if(gj.indexOf('双星到山')===0&&!fanFu) out.push({sit, face, gj, grade:'次格（须坐后有山）'});
     }
     return out;
   }
@@ -1096,15 +1102,21 @@
      【定源】《天玉经》零正法（通行简法）：当运旺星所临之宫为正神方，与运星合十之宫为零神方。
      正神方宜高实静满（山、高大建筑、常坐之正用），忌低空动水；零神方宜低空虚动（明堂、门路、水光），
      拨水入零堂主旺财。零神即当运衰气之方，衰位反用故以空动纳之。
-     锚点：一运正神坎（北）、零神离（南）；八运正神艮（东北）、零神坤（西南）；九运正神离（南）、零神坎（北）。
+     五运无独立正零：前十年承四运、后十年启六运（通行处理），正零方位按有效运取，返回值以 yun 记原运、effYun 记有效运。
+     第二参 decade 由调用方传 'before' 或 'after'，不传按前十年承四运处理；页面凡遇五运须传此参。
+     锚点：一运正神坎（北）、零神离（南）；五运前十年正神巽（东南四宫）、后十年正神乾（西北六宫）；
+     八运正神艮（东北）、零神坤（西南）；九运正神离（南）、零神坎（北）。
      【流派】零正取用另有兼论照神（生成数宫）配水之说，本页取合十通行简法。 */
-  function lingZheng(yun){
+  function lingZheng(yun, decade){
     const y=Math.round(Number(yun));
     if(!(y>=1&&y<=9)) return null;
-    const zp=y, lp=10-y;
-    return {yun:y, zhengPalace:zp, zhengDir:NINE_DIR[zp], zhengGua:NINE_BAGUA[zp],
+    const eff=y===5?(decade==='after'?6:4):y;
+    const note=y===5?('五运'+(eff===6?'后十年启六运':'前十年承四运')+'，正零方位按'+YUN_NAMES[eff]+'运取'):'';
+    const zp=eff, lp=10-eff;
+    return {yun:y, effYun:eff, note,
+      zhengPalace:zp, zhengDir:NINE_DIR[zp], zhengGua:NINE_BAGUA[zp],
       lingPalace:lp, lingDir:NINE_DIR[lp], lingGua:NINE_BAGUA[lp],
-      zhengMean:'正神方，当运旺气所临：宜高实静满，山体、高大建筑、常坐常动之正用皆宜；忌低陷动水，旺气宜满不宜空。',
+      zhengMean:'正神方，当运旺气所临：宜高实静满，山体、高大建筑、常坐常动之正用皆宜；忌低陷动水，旺气宜满不宜空。'+(note?note+'。':''),
       lingMean:'零神方，衰气之位反用：宜低空虚动，明堂、门路、水光动气皆宜，拨水入零堂主旺财；忌高压实塞。'};
   }
   /* ===================== 消亡水（先后天卦位水口） =====================
@@ -1287,9 +1299,11 @@
      震、乾、离三宫山向飞星合成一四七、二五八、三六九者为真打劫（离宫打劫，用离）；
      坎、巽、兑三宫合成者为假打劫（坎宫打劫，用坎）。用离则不能用坎。犯伏吟反吟不可用；
      打劫局主劫取未来旺气、三元不败，三宫宜门路通气、外有明堂。
-     【流派】有单取向星到向即可成劫之宽式，本页从严取双星到向。 */
+     【流派】有单取向星到向即可成劫之宽式，本页从严取双星到向。
+     格局名带伏吟反吟后缀者仍以双星到向为体入判，成局而犯伏反吟由 fanFu 记，不取为真打劫之用。
+     锚点：八运子山午向成真打劫（离宫）；九运巽山乾向双星到向带向盘反吟，成真打劫而 fanFu 为真。 */
   function daJieCheck(xk){
-    if(xk.geju!=='双星到向') return null;
+    if(String(xk.geju).indexOf('双星到向')!==0) return null;
     const grpPalaces=(palaces)=>{
       const g=new Set(palaces.map(p=>sanBanGroupIdx(xk.sitBoard.find(x=>x.palace===p).star)));
       palaces.forEach(p=>g.add(sanBanGroupIdx(xk.faceBoard.find(x=>x.palace===p).star)));
@@ -1449,9 +1463,9 @@
      三、体用分离：宅评（静态诸法加权，srZhaiPing）与年评（流年叠断，scoreSuiyun）分列，
         蒋大鸿一系宅运与流年两断：宅评定"可居与否"，年评定"当年宜忌"，不再混入一个百分。
      模块分式：got = 60（宅盘中枢）+ Σ阶梯档点，封顶100下限0；方位避忌类以100为基逐项扣（另注）。
-     等级：≥88 上格、≥76 中格、≥60 平、≥40 慎用、<40 另择（全站同尺，与择日页精择分、阴宅页综合判定一致）。
+     等级：≥88 大吉、≥76 中吉、≥60 平、≥40 凶、<40 大凶（全站同尺，与择日页精择分、阴宅页综合判定一致）。
      缺输入依据之处一律不评（返回 null）。 */
-  function srGrade(got){ return got>=88?'上格':(got>=76?'中格':(got>=60?'平':(got>=40?'慎用':'另择'))); }
+  function srGrade(got){ return got>=88?'大吉':(got>=76?'中吉':(got>=60?'平':(got>=40?'凶':'大凶'))); }
   const JIE_TI={'大凶':-25,'凶':-15,'次忌':-8,'平':0,'小吉':8,'吉':15,'上吉':25};
   function jieTiSum(levels){ const a=Array.isArray(levels)?levels:[levels]; return a.reduce((s,l)=>s+(JIE_TI[l]||0),0); }
   function srFromLadder(levels){ return Math.max(0, Math.min(100, 60+jieTiSum(levels))); }
@@ -1460,13 +1474,17 @@
   /* 玄空格局分（阶梯制）：格局档：旺山旺向上吉（通行断"上上吉格"）、双星到山、到向吉、单旺小吉、
      上山下水凶、丁财不济大凶；三般卦连茹吉（原文"三元不败"，然成局极罕，作救局之吉计）；
      可用城门小吉、打劫可用吉；伏吟凶、反吟凶（通行断"伏吟反吟泣呻吟"）、兼向替卦次忌；骑缝空亡否决。
-     锚点：八运乾山巽向=93上格（旺山旺向上吉+可用城门小吉）；八运子山午向=90上格（双星到向+真打劫）；
-     八运艮山坤向=68平（上山下水凶+全局三般卦吉+可用城门小吉）；八运子山兼压线=0否决。 */
+     查档取基础格局：带伏吟反吟后缀者截去后缀再查档，后缀所记伏反吟另由 fuYin、fanYin 计分；
+     note 仍展示完整格局名。
+     锚点：八运乾山巽向=93大吉（旺山旺向上吉+可用城门小吉）；八运子山午向=90大吉（双星到向+真打劫）；
+     八运艮山坤向=68平（上山下水凶+全局三般卦吉+可用城门小吉）；八运丑山未向=70平（旺山旺向上吉+反吟凶）；
+     九运巽山乾向=68平（双星到向吉+可用城门小吉+反吟凶）；八运子山兼压线=0否决。 */
   function scoreGeju(xk){
     if(!xk) return null;
     if(xk.sitKong||xk.faceKong) return srVeto('坐向压交界线犯骑缝空亡，典籍断不可立向，一票否决。');
     const LV={'旺山旺向':'上吉','双星到山':'吉','双星到向':'吉','单旺星到山（旺丁）':'小吉','单旺星到向（旺财）':'小吉','上山下水':'凶','丁财不济':'大凶'};
-    const lvs=[LV[xk.geju]||'平'];
+    const base=xk.gejuBase||String(xk.geju).split('，')[0];
+    const lvs=[LV[base]||'平'];
     const parts=[xk.geju+'（'+lvs[0]+'）'];
     const gg=gaoGeJu(xk);
     if(gg.sanBan||gg.lianRu){ lvs.push('吉'); parts.push((gg.sanBan?'全局三般卦':'连茹格')+'（三元不败）'); }
@@ -1481,9 +1499,9 @@
   }
   /* 立极坐度分（宅评，静态）：体用分离，只论坐度本体：下卦正向为立极之上、兼向替卦次之、骑缝空亡否决；
      流年太岁岁破三煞五黄到山归年评（scoreSuiyun），与静态坐度分算。
-     本模块为单项合规判定，合规即记满分：正向（下卦）坐度得本山正气，记 100；兼向起替卦须精确复测，记 76（中格线）；
+     本模块为单项合规判定，合规即记满分：正向（下卦）坐度得本山正气，记 100；兼向起替卦须精确复测，记 76（中吉线）；
      未填实测坐度无从判向，按宅盘中枢 60 计；骑缝空亡断不可立，否决。
-     锚点：子山未填度数=60平；子山3度正向=100上格；子山5度兼癸=76中格；子山7.5度骑缝=0否决。 */
+     锚点：子山未填度数=60平；子山3度正向=100大吉；子山5度兼癸=76中吉；子山7.5度骑缝=0否决。 */
   function scoreLixiang(sitShan, deg){
     if(SHAN_LIST.indexOf(sitShan)<0) return null;
     if(typeof deg!=='number'||isNaN(deg)) return {got:60, grade:srGrade(60), note:'未填实测坐度，正向兼向未判，按宅盘中枢计。'};
@@ -1494,9 +1512,9 @@
   }
   /* 分金分（阶梯制）：旺相珠宝线得本山正气（旺优于相）、孤虚线为孤虚空亡差错不可取用、龟甲火坑线否决
      （《罗经透解》龟甲空亡断不可用）；合宅主年命纳音比和或生年命记吉、克泄记凶（合命从轻加减）。
-     本模块为线位合规判定，珠宝线得本山正气即记上格：旺 90、相 80；孤虚线属孤虚空亡差错，记 35；
+     本模块为线位合规判定，珠宝线得本山正气即记大吉：旺 90、相 80；孤虚线属孤虚空亡差错，记 35；
      合宅主年命纳音比和或生年命再加而不溢顶、克泄再减。
-     锚点：子山3度庚子（旺）无年命=90上格；子山3度合庚午年命（纳音比和）=100上格；子山5度孤虚=35另择；子山0度戊子龟甲=0否决。 */
+     锚点：子山3度庚子（旺）无年命=90大吉；子山3度合庚午年命（纳音比和）=100大吉；子山5度孤虚=35大凶；子山0度戊子龟甲=0否决。 */
   function scoreFenjin(sitShan, deg, birthYear){
     if(typeof deg!=='number'||isNaN(deg)) return null;
     const pj=panJue(sitShan, deg);
@@ -1519,29 +1537,43 @@
     return {got, grade:srGrade(got), note:parts.join('；')+'。'};
   }
   /* 阳宅三要分（阶梯制，门主灶分权）：《阳宅三要》三要并称而门为先（门为宅之口、纳气第一），灶次之（养命之源）。
+     首参为起星基准卦 qiGua：取宅卦（坐山为伏位），或以门起伏位时的门卦（门为伏位），门主灶三要游年皆由该卦起。
      权重门0.5、主0.3、灶0.2为本站归纳（典据：《阳宅三要》三要并称而"门为先"：门为纳气之口、主为居之堂、灶为养命之源，次序即书之纲领；门0.5 取"门先"为主、主0.3 灶0.2 依其次，量值本站拟定）；
    游星档：生气延年吉（《八宅明镜》断生气贪狼木、延年武曲金上吉）、天医伏位小吉（天医巨门土主康泰、伏位辅弼木主平和）、祸害六煞次忌、绝命五鬼凶（绝命破军金最凶、五鬼廉贞火主火厄官非，通行断）。
      逐要得分=60+本模块档点（吉记满分、小吉次之、次忌凶依次扣减），三分加权平均，三要俱吉者达满分线。
-     锚点：坎命门延年主天医灶伏位=93上格；坎命门绝命主天医灶伏位=63平。 */
-  function scoreSanyao(mingGua, doorGua, mainGua, stoveGua){
-    const raw=BAZHAI[mingGua];
+     门与主按游星档正计；灶座反判（《八宅明镜》坐凶向吉、压凶方为吉、压吉反伤）：压吉为负、压凶为正，
+     吉与凶对换、小吉与次忌对换，伏位随吉方反判为负；灶向不并入本分。
+     锚点：坎宅门离主震灶坎=86中吉（灶压伏位反判次忌）；坎宅门离主震灶坤=96大吉（灶压绝命反判吉）；
+     坎宅门坤主震灶坎=56凶（门落绝命降分）。 */
+  function scoreSanyao(qiGua, doorGua, mainGua, stoveGua){
+    const raw=BAZHAI[qiGua];
     if(!raw||!BAZHAI[doorGua]||!BAZHAI[mainGua]||!BAZHAI[stoveGua]) return null;
+    const starOf=g=>{
+      if(g===qiGua) return '伏位';
+      for(const k in raw.ji){ if(raw.ji[k]===g) return k; }
+      for(const k in raw.xiong){ if(raw.xiong[k]===g) return k; }
+      return '';
+    };
     const lvOf=g=>{
-      if(g===mingGua) return '小吉';
-      for(const k in raw.ji){ if(raw.ji[k]===g) return (k==='生气'||k==='延年')?'吉':'小吉'; }
-      for(const k in raw.xiong){ if(raw.xiong[k]===g) return (k==='祸害'||k==='六煞')?'次忌':'凶'; }
+      const k=starOf(g);
+      if(k==='生气'||k==='延年') return '吉';
+      if(k==='天医'||k==='伏位') return '小吉';
+      if(k==='祸害'||k==='六煞') return '次忌';
+      if(k==='绝命'||k==='五鬼') return '凶';
       return '平';
     };
+    const FAN={'吉':'凶','小吉':'次忌','次忌':'小吉','凶':'吉','平':'平'};
     const W={door:0.5, main:0.3, stove:0.2};
     const T={'吉':40,'小吉':25,'次忌':-10,'凶':-20,'平':0};
-    const item=g=>60+(T[lvOf(g)]||0);
-    const got=Math.round(item(doorGua)*W.door+item(mainGua)*W.main+item(stoveGua)*W.stove);
+    const item=lv=>60+(T[lv]||0);
+    const stoveLv=FAN[lvOf(stoveGua)];
+    const got=Math.round(item(lvOf(doorGua))*W.door+item(lvOf(mainGua))*W.main+item(stoveLv)*W.stove);
     return {got, grade:srGrade(got),
-      note:mingGua+'命：门落'+doorGua+'（'+lvOf(doorGua)+'，门为先）、主落'+mainGua+'（'+lvOf(mainGua)+'）、灶落'+stoveGua+'（'+lvOf(stoveGua)+'），三要加权合成（《阳宅三要》门为宅之口）。'};
+      note:qiGua+'起星：门落'+doorGua+starOf(doorGua)+'（'+lvOf(doorGua)+'，门为先）、主落'+mainGua+starOf(mainGua)+'（'+lvOf(mainGua)+'）、灶座'+stoveGua+starOf(stoveGua)+'（'+lvOf(stoveGua)+'方，反判为'+stoveLv+'）；三要加权合成（《阳宅三要》门为宅之口，灶座以压凶为吉）。'};
   }
   /* 穿宫分（阶梯制）：三吉栋（生气天医延年）吉、伏位小吉、祸害六煞次忌、绝命五鬼凶，逐进均分于中枢60上。
      本模块档点按全进皆三吉达满分线配平（吉记满分、小吉次之、次忌凶依次扣减）。
-     锚点：坎宅巽门五栋（天医延年六煞生气五鬼）=75中格；五进皆三吉=100上格。 */
+     锚点：坎宅巽门五栋（天医延年六煞生气五鬼）=75中吉；五进皆三吉=100大吉。 */
   function scoreChuangong(cg){
     if(!cg||!cg.stars||!cg.stars.length) return null;
     const lvOf=s=>(['生气','天医','延年'].indexOf(s)>=0)?'吉':(s==='伏位'?'小吉':((s==='祸害'||s==='六煞')?'次忌':'凶'));
@@ -1557,7 +1589,7 @@
      流年二黑三碧七赤到门凶-15、到坐次忌-8（门重于坐，纳气之口）；坐山流年煞：
      太岁到坐次忌-8（太岁可坐不可向，坐山值太岁降为次忌）、岁破到坐凶-15、三煞到坐凶-15（"大煞"归档）、年五黄到坐凶-15；
      流年与宅盘凶组合叠宫：大凶组合-8、凶-4，门坐二宫倍计，合计封顶-40；流年吉星引动宅盘旺宫每宫+8封顶+16。
-     锚点：九运子山午向2026（坐子山）：五黄到门-25、岁破三煞到坐-30、流年凶组合叠宫封顶-40、吉星引动+8 → 13另择（实值见selfTest）。 */
+     锚点：九运子山午向2026（坐子山）：五黄到门-25、岁破三煞到坐-30、流年凶组合叠宫封顶-40、吉星引动+8 → 13大凶（实值见selfTest）。 */
   function scoreSuiyun(xk, year, sitShan, doorGua){
     if(!xk) return null;
     const sd=suiNianDie(xk, year, doorGua);
@@ -1593,21 +1625,27 @@
     return {got, grade:srGrade(got), note:(ns.length?ns.join('；'):'流年无凶星叠门坐，亦无凶组合，亦无坐山流年煞')+'。'};
   }
   /* 形煞分（第五层　形煞自检）：近犯（近距离正对）每项-15、远犯（远距离斜对）每项-7，
-     近远分档为本站归纳权重；近远合计犯三项以上交加另-25
-     锚点：近犯2项=70平；近1远1=78中格；近犯3项=100-45-25=30另择；远犯3项=100-21-25=54慎用；0犯=100上格。 */
-  function scoreXingsha(nearN, farN){
+     近远分档为本站归纳权重；近远合计犯三项以上交加另-25。
+     第三参 checkedN 为已核对项数：省略时取近犯与远犯之和；为 0 即未核对，本项不评（返回 null，不以满分充数），
+     已核而一项未犯方记满分。
+     锚点：近犯2项=70平；近1远1=78中吉；近犯3项=100-45-25=30大凶；远犯3项=100-21-25=54凶；
+     已核3项0犯=100大吉；近远皆0且未传 checkedN=不评。 */
+  function scoreXingsha(nearN, farN, checkedN){
     if((nearN!=null&&(typeof nearN!=='number'||isNaN(nearN)||nearN<0))||
-       (farN!=null&&(typeof farN!=='number'||isNaN(farN)||farN<0))) return null;
+       (farN!=null&&(typeof farN!=='number'||isNaN(farN)||farN<0))||
+       (checkedN!=null&&(typeof checkedN!=='number'||isNaN(checkedN)||checkedN<0))) return null;
     const n=nearN>0?nearN:0, f=farN>0?farN:0;
+    const ck=checkedN==null?(n+f):checkedN;
+    if(ck===0) return null;
     const got=Math.max(0, 100-n*15-f*7-((n+f)>=3?25:0));
     const ns=[];
     if(n) ns.push('近犯'+n+'项');
     if(f) ns.push('远犯'+f+'项');
     if(n+f) {
       if(n+f>=3) ns.push('三项以上交加，凶力相叠');
-      return {got, grade:srGrade(got), note:'犯形煞：'+ns.join('，')+'。轻重以远近大小正对程度论，分档仅粗核。'};
+      return {got, grade:srGrade(got), note:'已核'+ck+'项，犯形煞：'+ns.join('，')+'。轻重以远近大小正对程度论，分档仅粗核。'};
     }
-    return {got, grade:srGrade(got), note:'未犯形煞（未核对项不计），本项满分。'};
+    return {got, grade:srGrade(got), note:'已核'+ck+'项未犯形煞，本项满分。'};
   }
   /* 金锁砂水分（第五层　金锁玉关）：未选山不评（返回 null）；逐山合局（坎坤震巽喜砂、乾兑艮离喜水），
      形差减半，合局率即得分
@@ -1633,7 +1671,7 @@
      金锁砂水0.09（水法收气之要，与峦头并重）、穿宫九星0.08（内局层进吉凶）、立极坐度0.07、分金0.08（二者为坐度与线位之合规判定，合规即满分、不合规即否决，故权重从轻）。
      任一含否决项（veto，空亡线、龟甲线等"断不可用"）→ 宅评整体 0 分：吉不敌禁。
      入参 parts: {geju, sanyao, luantou, chuangong, lixiang, fenjin, jsy} 各为模块评分对象或 null。
-     锚点：九运子山午向（正向、珠宝线、延年门、五进）＝85 中格；八运乾山巽向全项俱优＝上格；含否决项=0。 */
+     锚点：九运子山午向（正向、珠宝线、延年门、五进）＝85 中吉；八运乾山巽向全项俱优＝大吉；含否决项=0。 */
   function srZhaiPing(parts){
     if(!parts) return null;
     const W={geju:0.28, sanyao:0.20, luantou:0.20, chuangong:0.08, lixiang:0.07, fenjin:0.08, jsy:0.09};
@@ -1661,7 +1699,7 @@
      割脚煞、孤阴孤阳、声光电煞=次忌；玉带环抱（吉水）、玄武有靠（吉山）=吉（正向）。
      强度分=基础档绝对值×距离带×角度×高低（各0~1），逐物累加：got=100-Σ强度+吉形项×8，封顶下限。
      距离未填按形带足力计（从严）、角度未填按正对计（从严）、高低未填按足力计，缺项不隐瞒只从严，断语注明。
-     锚点：路冲正对20米=100-15=85上格；同物60米势带=100-8=92上格；斜30°减半同92；逾45°=100不上榜；
+     锚点：路冲正对20米=100-15=85大吉；同物60米势带=100-8=92大吉；斜30°减半同92；逾45°=100不上榜；
      玉带环抱一项=100+8封顶100。 */
   const LUANTOU_DEF={
     '路冲枪煞':{lv:'凶', h:false, mean:'道路长巷直冲宅之门窗，如枪直刺（通行形法大忌）', hua:'门内设玄关屏风挡煞、门楣置凸镜，冲大门者尤忌'},
@@ -1787,6 +1825,8 @@
         为两派取用，并列展示不由本页裁断。
      二、太岁应期：流年太岁到方（支神方位）与流年紫白到宫合参，谈氏以太岁为六法之用神主应期。
      雌雄（山水相对）、金龙（须实地山水形势）、挨星（谈沈异本无定）盘面不可算，列入理法辨异面板不设计算。
+     五运之十年归属由调用方传 yunDecade：'before' 取四运、'after' 取六运，不传按前十年承四运处理；
+     页面凡遇五运须传此参，不得只传运数。
      锚点：一运谈氏正神一二三四宫零神六七八九宫；五运前十年正神同四运、后十年同六运；九运正神六七八九宫；
      2026丙午太岁方在午（离南九宫）；2016丙申太岁方在申（坤西南二宫，与 SHAN_BAZI 申=2 一致）。 */
   const ZHI_GONG={子:1,丑:8,寅:8,卯:3,辰:4,巳:4,午:9,未:2,申:2,酉:7,戌:6,亥:6};
@@ -1897,7 +1937,7 @@
     eq('2026太岁午', ns.taiSui.zhi, '午');
     eq('2026岁破子', ns.suiPo.zhi, '子');
     eq('2026三煞亥子丑', ns.sanSha.map(s=>s.zhi), ['亥','子','丑']);
-    eq('2026年五黄南', ns.wuHuang.dir, '南');
+    eq('2026年五黄正南', ns.wuHuang.dir, '正南');
     /* 三元九运与玄空 */
     eq('2020八运', yunQi(2020).yun, 8);
     eq('2026九运', yunQi(2026).yun, 9);
@@ -2019,6 +2059,7 @@
     eq('子年马在寅', luMaGui('甲子').ma, '寅');
     eq('甲干贵人丑未', luMaGui('甲子').guiren.join(''), '丑未');
     eq('辛干贵人午寅', luMaGui('辛卯').guiren.join(''), '午寅');
+    eq('庚干贵人两派丑未午寅', [luMaGui('庚子').guiren.join(''), luMaGui('庚子').guiAlt.join('')], ['丑未','午寅']);
     /* 择日神煞 */
     eq('寅月重丧甲', ZHONG_SANG['寅'], '甲');
     eq('戌月重丧戊', ZHONG_SANG['戌'], '戊');
@@ -2090,6 +2131,9 @@
     eq('甲命1煞得食神丙制平用', xiangZhu('甲子',['庚','丙','甲','甲'],['申','寅','子','子']).zong, '平');
     /* 扶山锚点 */
     eq('子山四柱午冲山大凶', fuShan('子',['甲','丙','戊','庚'],['午','子','申','辰']).zong, '大凶');
+    eq('甲山酉支冲山大凶（双山卯）', fuShan('甲',['庚'],['酉']).zong, '大凶');
+    eq('乾山巳支冲山大凶（双山亥）', fuShan('乾',['乙'],['巳']).zong, '大凶');
+    eq('壬山午支冲山大凶（双山子）', fuShan('壬',['丙'],['午']).zong, '大凶');
     eq('子山申子辰亥扶起吉', fuShan('子',['壬','癸','庚','辛'],['申','子','辰','亥']).zong, '吉');
     eq('子山庚辛印绶生山', fuShan('子',['庚','辛','甲','乙'],['申','辰','子','亥']).keN, 0);
     t('午山壬癸二干克山检出', fuShan('午',['壬','癸','庚','辛'],['寅','戌','午','巳']).keN===2);
@@ -2118,7 +2162,8 @@
     /* 玄空大利坐向扫描 */
     t('玄空扫描2020乾巽旺山旺向', xkDaLiXiang(2020).some(x=>x.face==='巽'&&x.sit==='乾'&&x.gj==='旺山旺向'));
     t('玄空扫描2020子午双星到向', xkDaLiXiang(2020).some(x=>x.face==='午'&&x.sit==='子'&&x.gj==='双星到向'));
-    t('玄空扫描降级伏吟反吟', xkDaLiXiang(1990).every(x=>x.grade.indexOf('慎用')<0||x.gj.indexOf('吟')>=0));
+    t('玄空扫描2026子午双星到山', xkDaLiXiang(2026).some(x=>x.sit==='子'&&x.face==='午'&&x.gj.indexOf('双星到山')===0));
+    t('玄空扫描降级伏吟反吟', xkDaLiXiang(1990).every(x=>x.grade.indexOf('凶')<0||x.gj.indexOf('吟')>=0));
     /* 零正神（《天玉经》零正法，合十通行简法） */
     eq('一运正神坎', lingZheng(1).zhengPalace, 1);
     eq('一运零神离', lingZheng(1).lingPalace, 9);
@@ -2126,6 +2171,9 @@
     eq('八运零神坤', lingZheng(8).lingPalace, 2);
     eq('九运正神离', lingZheng(9).zhengPalace, 9);
     eq('九运零神坎', lingZheng(9).lingPalace, 1);
+    eq('五运前十年承四运正神四宫', [lingZheng(5,'before').yun, lingZheng(5,'before').effYun, lingZheng(5,'before').zhengPalace], [5,4,4]);
+    eq('五运后十年启六运正神六宫', [lingZheng(5,'after').yun, lingZheng(5,'after').effYun, lingZheng(5,'after').zhengPalace], [5,6,6]);
+    t('五运零正注明承四启六', lingZheng(5,'before').zhengMean.indexOf('承四运')>=0&&lingZheng(5,'after').zhengMean.indexOf('启六运')>=0);
     /* 消亡水（先后天卦位水口） */
     eq('酉来子去犯消水（坎）', xiaoWangShui('酉','子').xiao, '坎');
     eq('子来酉去犯亡水（坎）', xiaoWangShui('子','酉').wang, '坎');
@@ -2193,6 +2241,8 @@
     t('八运艮山坤向全局父母三般卦', ggG.sanBan===true);
     const ggD=gaoGeJu(xuanKong('乾','巽',2020));
     eq('八运乾山巽向正城门离宫', ggD.chengMen.zheng.palace, 9);
+    const ggJ=gaoGeJu(xuanKong('巽','乾',2026));
+    t('九运巽乾成局犯伏反吟', !!(ggJ.daJie&&ggJ.daJie.fanFu&&ggJ.daJie.type.indexOf('真打劫')===0));
     /* 岁运叠断 */
     const sd26=suiNianDie(xuanKong('子','午',2024), 2026);
     eq('2026流年一白入中', sd26.inCenter, 1);
@@ -2224,6 +2274,8 @@
     eq('评分玄空乾巽八运93（旺山旺向+可用城门）', scoreGeju(xuanKong('乾','巽',2020)).got, 93);
     eq('评分玄空子午八运90（双星到向吉+真打劫吉）', scoreGeju(xuanKong('子','午',2020)).got, 90);
     eq('评分玄空艮坤八运68（上山下水凶+三般卦吉+城门小吉）', scoreGeju(xuanKong('艮','坤',2020)).got, 68);
+    eq('评分玄空丑未八运70（旺山旺向带山盘反吟）', scoreGeju(xuanKong('丑','未',2020)).got, 70);
+    eq('评分玄空巽乾九运68（双星到向带向盘反吟+城门）', scoreGeju(xuanKong('巽','乾',2026)).got, 68);
     t('评分玄空压线否决', scoreGeju(xuanKong('子','午',2020,7.5)).veto===true);
     eq('评分立极未填度60平', scoreLixiang('子').got, 60);
     eq('评分立极子山兼向76', scoreLixiang('子',5).got, 76);
@@ -2232,15 +2284,19 @@
     eq('评分分金子3度合庚午命100', scoreFenjin('子',3,1990).got, 100);
     t('评分分金龟甲否决', scoreFenjin('子',0).veto===true);
     t('评分分金未填坐度不评', scoreFenjin('子')===null);
-    eq('评分三要坎命延年天医伏位93', scoreSanyao('坎','离','震','坎').got, 93);
-    eq('评分三要坎命门绝命63（门为先降分）', scoreSanyao('坎','坤','震','坎').got, 63);
+    eq('评分三要坎宅门离主震灶坎86（灶压伏位反判次忌）', scoreSanyao('坎','离','震','坎').got, 86);
+    eq('评分三要坎宅门坤主震灶坎56（门为先降分）', scoreSanyao('坎','坤','震','坎').got, 56);
+    eq('评分三要坎宅门离主坎灶坎86（灶压吉反判为负）', scoreSanyao('坎','离','坎','坎').got, 86);
+    eq('评分三要坎宅门离主震灶坤96（灶压凶反判为吉）', scoreSanyao('坎','离','震','坤').got, 96);
     eq('评分穿宫五栋75（三吉3进）', scoreChuangong(chuanGong('坎','巽','离',5)).got, 75);
-    t('评分年评九运子山午向2026≤55慎用以下', scoreSuiyun(xuanKong('子','午',2024),2026,'子').got<55);
+    t('评分年评九运子山午向2026≤55凶与大凶', scoreSuiyun(xuanKong('子','午',2024),2026,'子').got<55);
     eq('评分形煞近犯2项70', scoreXingsha(2,0).got, 70);
     eq('评分形煞近犯3项30（交加）', scoreXingsha(3,0).got, 30);
     eq('评分形煞近1远1=78', scoreXingsha(1,1).got, 78);
     eq('评分形煞远犯3项54（交加）', scoreXingsha(0,3).got, 54);
     t('评分形煞负数不评', scoreXingsha(-1,0)===null);
+    t('评分形煞未核对不评', scoreXingsha(0,0)===null);
+    eq('评分形煞已核3项未犯100', scoreXingsha(0,0,3).got, 100);
     eq('评分金锁子砂午水100', scoreJsy({子:'砂',午:'水'}).got, 100);
     eq('评分金锁子水午砂0', scoreJsy({子:'水',午:'砂'}).got, 0);
     t('评分金锁未选山不评', scoreJsy({})===null);
@@ -2283,8 +2339,10 @@
     eq('六法九运正神六七八九', liuFa(9).zhengPalaces.join(''), '6789');
     eq('六法五运前十年承四运', liuFa(5,'before').eff, 4);
     eq('六法五运后十年启六运', liuFa(5,'after').eff, 6);
+    eq('六法五运前十年正神一二三四', liuFa(5,'before').zhengPalaces.join(''), '1234');
+    eq('六法五运后十年正神六七八九', liuFa(5,'after').zhengPalaces.join(''), '6789');
     eq('六法2026太岁午在离九宫', taiSuiFang(2026).palace, 9);
-    eq('六法2026太岁方南', taiSuiFang(2026).dir, '南');
+    eq('六法2026太岁方正南', taiSuiFang(2026).dir, '正南');
     /* 理法综合裁决（跨派主从，见 zhenJue 定源） */
     eq('裁决玄空吉三合吉立向吉', zhenJue([
       {yu:'lixiang', fa:'玄空', jx:'吉', mean:'旺山旺向'},

@@ -188,7 +188,7 @@ function wheelSvg(o){
   /* 盘心两行：行距与字号按盘心半径五十六反推，最宽态（骑缝空亡）取十号时不出盘心圆。 */
   const ct=o.core(sel);
   const ys=[-10,10], sz=[13,10];
-  const fills=['var(--fy)',ct[2]];
+  const fills=['var(--fy)', ct[2] || 'var(--fy)'];
   for(let i=0;i<2;i++){
     s+=`<text id="${o.c1}${i+1}" x="${LY_C}" y="${LY_C+ys[i]}" text-anchor="middle" dominant-baseline="central"`
       +` style="font-size:${sz[i]}px;fill:${fills[i]};font-weight:700">${ct[i]}</text>`;

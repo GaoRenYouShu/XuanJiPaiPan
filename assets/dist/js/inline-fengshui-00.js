@@ -17,6 +17,190 @@ function mingGuaYear(y,m,d){
   }catch(e){}
   return y;
 }
+/* 方位显示：FS.GUA_DIR 四正只给单字，显示时补正字作正北、正南、正东、正西；四隅照旧。
+   本函数只供显示，查表取值（如 FS_DIR_DEG 取角）仍用 FS.GUA_DIR 原值。 */
+function fsDir(g){
+  const d=FS.GUA_DIR[g]||'';
+  return (d==='北'||d==='南'||d==='东'||d==='西')?'正'+d:d;
+}
+/* 家人宫位：命卦按出生日期与性别，角色宫按乾父坤母震长男巽长女坎中男离中女艮少男兑少女；
+   身体取角色宫象身，财位取命卦生气方，流年只报四煞到角色宫。 */
+const FS_MEM_BODY={乾:'头、肺',坤:'腹、脾',震:'足、肝',巽:'股、胆',坎:'耳、肾',离:'眼、心',艮:'手、脾',兑:'口、肺'};
+const FS_GUA_PALACE={乾:'西北',坤:'西南',震:'东',巽:'东南',坎:'北',离:'南',艮:'东北',兑:'西'};
+const FS_MEM_ROLE_GUA={父:'乾',母:'坤',长男:'震',长女:'巽',中男:'坎',中女:'离',少男:'艮',少女:'兑'};
+const FS_MEM_ROLE_SEX={父:'1',母:'0',长男:'1',长女:'0',中男:'1',中女:'0',少男:'1',少女:'0'};
+const FS_MEM_ROLE_SWAP={父:'母',母:'父',长男:'长女',长女:'长男',中男:'中女',中女:'中男',少男:'少女',少女:'少男'};
+const FS_MEM_ENV=[
+  {n:1,nm:'采光不足',impact:'长期昏暗影响情绪与用眼',adv:'增加照明与浅色反射，卧室优先自然光。',conf:'高'},
+  {n:2,nm:'通风不畅',impact:'空气滞浊、潮湿与呼吸道不适',adv:'形成对流，厨房与卫生间装排风，潮湿季节除湿。',conf:'高'},
+  {n:3,nm:'潮湿霉味',impact:'霉斑与湿气加重呼吸道、关节不适',adv:'查渗漏与返潮，修防水、加通风除湿，霉斑及时清理。',conf:'高'},
+  {n:4,nm:'噪声振动',impact:'睡眠与情绪受扰',adv:'临街窗加双层玻璃与厚帘，卧室避开噪声源。',conf:'高'},
+  {n:5,nm:'排水渗漏',impact:'渗水损结构、滋生霉变',adv:'清理天沟地漏，修外墙与管道渗漏，保持宅基干燥。',conf:'高'},
+  {n:6,nm:'尖角路冲邻近',impact:'直视冲射感强，心理压迫与安全风险',adv:'正对处设屏风、绿植或遮挡，减少直视与冲射感。',conf:'中'},
+  {n:7,nm:'隐私视线压迫',impact:'对视与压迫感影响休息',adv:'加帘、格栅或绿植，降低对窗对视与压迫感。',conf:'高'},
+  {n:8,nm:'维护安全隐患',impact:'结构、电气、燃气、防滑风险',adv:'先修结构、电气、燃气与防滑，安全优先于方位。',conf:'高'}
+];
+function fsMemCalc(dateStr, male){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr||''));
+  if(!m) return null;
+  const y=mingGuaYear(+m[1],+m[2],+m[3]);
+  const g=mingGua(y,male);
+  const bz=FS.baZhai(g.gua);
+  const qi=bz&&bz.ji?bz.ji.find(x=>x.name==='生气'):null;
+  return {y,g,palace:FS_GUA_PALACE[g.gua]||'',qi,pn:FS_GUA_NUM[g.gua]};
+}
+function fsMemNian(ns,pn){
+  const hit=[];
+  if(!ns||!pn) return '无';
+  if(ns.wuHuang&&ns.wuHuang.palace===pn) hit.push('五黄');
+  if(ns.taiSui&&FS.ZHI_GONG[ns.taiSui.zhi]===pn) hit.push('太岁');
+  if(ns.suiPo&&FS.ZHI_GONG[ns.suiPo.zhi]===pn) hit.push('岁破');
+  if(ns.sanSha&&ns.sanSha.some(x=>FS.ZHI_GONG[x.zhi]===pn)) hit.push('三煞');
+  return hit.length?hit.join('、'):'无';
+}
+function fsMemRoleGua(role){ return FS_MEM_ROLE_GUA[role]||''; }
+const FS_MEM_STAR_ALIAS={生气:'贪狼木',延年:'武曲金',天医:'巨门土',伏位:'辅弼木',绝命:'破军金',五鬼:'廉贞火',祸害:'禄存土',六煞:'文曲水'};
+function fsMemStar(gua,roleGua){
+  if(!gua||!roleGua) return null;
+  const bz=FS.baZhai(gua); if(!bz) return null;
+  const ji=(bz.ji||[]).find(x=>x.gua===roleGua);
+  if(ji) return {name:ji.name,good:true};
+  const x=(bz.xiong||[]).find(y=>y.gua===roleGua);
+  return x?{name:x.name,good:false}:null;
+}
+function fsMemSyncRoles(){
+  const sels=[...document.querySelectorAll('[id^=fsMemRole]')];
+  const seen=new Set();
+  sels.forEach(s=>{ if(s.value&&seen.has(s.value)) s.value=''; if(s.value) seen.add(s.value); });
+  const used={}; sels.forEach(s=>{ if(s.value) used[s.value]=1; });
+  sels.forEach(s=>{ [...s.options].forEach(o=>{ if(o.value) o.disabled=!!used[o.value]&&o.value!==s.value; }); });
+}
+function fsMemRoleChange(el){
+  const sels=[...document.querySelectorAll('[id^=fsMemRole]')];
+  const used=sels.filter(s=>s!==el).map(s=>s.value).filter(Boolean);
+  if(el.value&&used.indexOf(el.value)>=0) el.value='';
+  const row=el.closest('tr'), sex=row&&row.querySelector('select[id^=fsMemSex]');
+  if(sex&&FS_MEM_ROLE_SEX[el.value]) sex.value=FS_MEM_ROLE_SEX[el.value];
+  if(el.id==='fsMemRole1'){ fsMemBaseChange(); return; }
+  fsMemSyncRoles(); drawMembers();
+}
+function fsMemSexChange(el){
+  const row=el.closest('tr'), role=row&&row.querySelector('select[id^=fsMemRole]');
+  if(role&&role.value&&FS_MEM_ROLE_SEX[role.value]&&FS_MEM_ROLE_SEX[role.value]!==el.value){
+    const sw=FS_MEM_ROLE_SWAP[role.value];
+    if(sw){
+      const other=[...document.querySelectorAll('[id^=fsMemRole]')].find(x=>x!==role&&x.value===sw);
+      if(other&&role.id==='fsMemRole1'){ other.value=role.value; role.value=sw; }
+      else role.value=other?'':sw;
+    }
+  }
+  if(el.id==='fsMemSex1'){ fsMemBaseChange(); return; }
+  fsMemSyncRoles(); drawMembers();
+}
+function fsMemBaseChange(){
+  const d=document.getElementById('fsMemDate1'), s=document.getElementById('fsMemSex1');
+  const bd=document.getElementById('baseDate'), bs=document.getElementById('baseSex');
+  if(d&&bd){ bd.value=d.value; bd.setAttribute('data-user-set','1'); }
+  if(s&&bs) bs.value=s.value;
+  fsApplyBase();
+}
+function fsMemEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function drawMembers(){
+  const body=document.getElementById('fsMemBody'); if(!body) return;
+  fsMemSyncRoles();
+  const b=getBase(), ns=FS.nianSha(b.flowYear);
+  const bd0=(document.getElementById('baseDate')||{}).value||'';
+  const male=((document.getElementById('baseSex')||{}).value==='1');
+  const d1=document.getElementById('fsMemDate1'), s1=document.getElementById('fsMemSex1');
+  const bd=bd0||(d1&&d1.value)||xjNowStr().slice(0,10);
+  if(d1) d1.value=bd;
+  if(s1) s1.value=male?'1':'0';
+  const rows=[], seen=new Set();
+  const z=fsMemCalc(d1?d1.value:bd, s1?s1.value==='1':male);
+  const role1El=document.getElementById('fsMemRole1');
+  let role1=(role1El||{}).value||'';
+  if(role1El&&s1&&role1&&FS_MEM_ROLE_SEX[role1]&&s1.value!==FS_MEM_ROLE_SEX[role1]){
+    const sw=FS_MEM_ROLE_SWAP[role1];
+    const used=[...document.querySelectorAll('[id^=fsMemRole]')].some(x=>x!==role1El&&x.value===sw);
+    if(sw&&!used){ role1El.value=sw; role1=sw; }
+  }
+  const name1=((document.getElementById('fsMemName1')||{}).value||'').trim();
+  if(z&&role1&&!seen.has(role1)){seen.add(role1); rows.push({role:role1,name:name1,date:d1?d1.value:bd,c:z,roleGua:fsMemRoleGua(role1)});}
+  for(let i=2;i<=6;i++){
+    const role=(document.getElementById('fsMemRole'+i)||{}).value||'';
+    const nm=((document.getElementById('fsMemName'+i)||{}).value||'').trim();
+    const dt=(document.getElementById('fsMemDate'+i)||{}).value||'';
+    const sex=((document.getElementById('fsMemSex'+i)||{}).value==='1');
+    const c=fsMemCalc(dt,sex);
+    if(!role||!c||seen.has(role)) continue;
+    seen.add(role); rows.push({role,name:nm,date:dt,c,roleGua:fsMemRoleGua(role)});
+  }
+  body.innerHTML=rows.length?rows.map(r=>{
+    const star=r.roleGua?fsMemStar(r.c.g.gua,r.roleGua):null;
+    const gong=r.roleGua?r.roleGua+'（'+FS_GUA_PALACE[r.roleGua]+'）'+(star?'，<span class="'+(star.good?'fs-badge-g':'fs-badge-r')+'">'+star.name+'（'+(FS_MEM_STAR_ALIAS[star.name]||'')+'）</span>':'，—'):'—';
+    const hit=r.roleGua?fsMemNian(ns,FS_GUA_NUM[r.roleGua]):'—';
+    return `<tr><td class="lbl-1">${r.role}${r.name?'（'+fsMemEsc(r.name)+'）':''}</td><td>${r.date.slice(0,4)}年</td><td>${r.c.g.gua}（${r.c.g.group}）</td><td>${gong}</td><td>${r.roleGua?FS_MEM_BODY[r.roleGua]:'—'}</td><td>${r.c.qi?fsDir(r.c.qi.gua)+'（生气）':'—'}</td><td>${hit}</td></tr>`;
+  }).join(''):'<tr><td colspan="7" class="sub-note">选角色并填出生日期后出表。</td></tr>';
+}
+function drawEnv(){
+  const out=document.getElementById('fsEnvOut'); if(!out) return;
+  const hit=FS_MEM_ENV.filter(x=>{const el=document.getElementById('env-'+x.n); return el&&el.checked;});
+  out.innerHTML=hit.length?'<b>环境项 '+hit.length+' 项</b>：'+hit.map(x=>x.nm).join('、')+'。<br>'+hit.map(x=>'<b>'+x.nm+'</b>：影响：'+x.impact+'；建议：'+x.adv+'；依据：现场观察，置信：'+x.conf).join('<br>'):'未勾选环境项。';
+}
+const FS_SW_SIDES=[
+  {k:'hou',id:'ssHou',name:'后',role:'长房',good:['高起有靠','路环'],flat:['平缓','凸出','水抱'],bad:['低陷','缺失','冲射','压迫','破败','水直','路冲'],judge:{吉:'根基稳',平:'根基平常',凶:'根基弱，长房先应'}},
+  {k:'zuo',id:'ssZuo',name:'左',role:'长男',good:['高起有靠','水抱','路环'],flat:['平缓','凸出'],bad:['低陷','缺失','冲射','压迫','破败','水直','路冲'],judge:{吉:'长男得势',平:'长男平常',凶:'长男受制'}},
+  {k:'you',id:'ssYou',name:'右',role:'幼房',good:['平缓','水抱','路环'],flat:['凸出'],bad:['高起有靠','低陷','缺失','冲射','压迫','破败','水直','路冲'],judge:{吉:'幼房安',平:'幼房平常',凶:'幼房受制'}},
+  {k:'qian',id:'ssQian',name:'前',role:'中房',good:['平缓','水抱','路环'],flat:['凸出'],bad:['高起有靠','低陷','缺失','冲射','压迫','破败','水直','路冲'],judge:{吉:'明堂得用',平:'明堂平常',凶:'明堂受煞，财源先应'}}
+];
+const FS_SW_ADV={
+  '高起有靠':'保持完整，勿开大窗泄气。',
+  '平缓':'形势平常，重在门主灶与维护。',
+  '低陷':'宜补形、围墙、植树或挡土，具体从现场定。',
+  '缺失':'缺位之方宜补形、遮挡，不宜再开门泄气。',
+  '凸出':'凸出过甚者宜修整，避免独高招风。',
+  '冲射':'正对处设屏风、绿植或遮挡，减少直视冲射。',
+  '压迫':'高压方宜低伏、遮挡，门窗少开。',
+  '破败':'先修破损、排水与结构，安全优先。',
+  '水抱':'水宜清、缓、环抱；忌污水与急流。',
+  '水直':'直水宜缓冲、遮挡，忌贴基急流。',
+  '路环':'路宜环抱缓行；忌反弓与直冲。',
+  '路冲':'冲门处设玄关、屏风或绿植，门少开。'
+};
+function fsSiShiGate(){
+  const wrap=document.getElementById('ssWrap');
+  if(!wrap) return false;
+  const t=(document.getElementById('baseType')||{}).value||'house';
+  const on=t==='house';
+  wrap.hidden=!on;
+  return on;
+}
+function drawSiShi(){
+  const body=document.getElementById('ssBody'); if(!body) return;
+  if(!fsSiShiGate()){
+    body.innerHTML='<tr><td colspan="5" class="sub-note">当前场所类型非住宅别墅，外局四势与房份不适用。</td></tr>';
+    const o=document.getElementById('ssOut'); if(o) o.textContent='';
+    return;
+  }
+  const rows=[], bad=[];
+  FS_SW_SIDES.forEach(s=>{
+    const el=document.getElementById(s.id), v=el?el.value:'';
+    if(!v) return;
+    const lv=s.good.indexOf(v)>=0?'吉':(s.flat.indexOf(v)>=0?'平':'凶');
+    let adv=FS_SW_ADV[v]||'具体从现场定。';
+    if(s.k==='hou'&&v==='水抱') adv='后宜山不宜水，水抱先防潮、排水，具体从现场定。';
+    if((s.k==='you'||s.k==='qian')&&v==='高起有靠') adv='过高逼压者宜遮挡、退让，不宜再抬高。';
+    rows.push({s,v,lv,adv});
+    if(lv==='凶') bad.push(s.name);
+  });
+  body.innerHTML=rows.length?rows.map(r=>'<tr><td class="lbl-1">'+r.s.name+'</td><td>'+r.v+'</td><td>'+r.s.role+'</td><td>'+r.s.judge[r.lv]+'</td><td>'+r.adv+'</td></tr>').join(''):'<tr><td colspan="5" class="sub-note">四势未选，先选后、左、右、前的主要形势。</td></tr>';
+  const out=document.getElementById('ssOut');
+  if(!out) return;
+  if(!rows.length){ out.textContent=''; return; }
+  const list=rows.map(r=>r.s.name+'方'+r.v).join('；');
+  const tail=bad.length?'受煞方：'+bad.join('、')+'，先化后调。':'四势未见重煞，仍须合距离、角度、高低与流年。';
+  out.innerHTML='<b>外局大势</b>：'+list+'。'+tail+' 本块只断外局大势，不入宅评总分；应期见第四层流年。';
+}
 /* 盘下详情条：通用件 .wheel-detail 制式 */
 function fwDetail(id,html){ const e=document.getElementById(id); if(e) e.innerHTML=html; }
 /* 所在地三级下拉默认停在未知地：起首若是某地，未动过表单的盘便按该地取磁偏角，
@@ -90,7 +274,7 @@ function fsApplyBase(){
   fsSitFromDeg();
   drawZiBai();
   drawBazhai(); drawNianSha(); drawShan(); drawXuanKong(); drawXiuFen(); drawSanHe(); drawLingZheng(); drawLayout(); drawCui();
-  drawLiuFa(); drawLiuShi(); drawZhenJue();
+  drawLiuFa(); drawLiuShi(); drawZhenJue(); drawMembers(); fsSiShiGate();
   /* 九星组合继承玄空盘，直接用同一坐向推算 */
   const b=getBase();
   const xk=FS.xuanKong(b.sitShan, b.faceShan, b.flowYear, b.deg, b.faceDeg, b.yunOv);
@@ -284,7 +468,7 @@ function drawBazhai(){
     <div class="wheel-block fs-mt-3"><h4>八宅游年方位盘（${mg.gua}命 ${mg.group}）</h4>
       <div id="fsBaWheelHost">${fsBaWheelSvg()}</div>
       <div class="wheel-detail" id="fsBaDetail"></div></div>
-    <div class="sub-note">吉方：${bz.ji.map(x=>x.name+'（'+x.dir+'）').join('、')}　凶方：${bz.xiong.map(x=>x.name+'（'+x.dir+'）').join('、')}。吉方宜安门、置床、设灶，凶方宜作厕所、储物，主静避冲。</div>`;
+    <div class="sub-note">吉方：${bz.ji.map(x=>x.name+'（'+fsDir(x.gua)+'）').join('、')}　凶方：${bz.xiong.map(x=>x.name+'（'+fsDir(x.gua)+'）').join('、')}。吉方宜安门、置床、设灶，凶方宜作厕所、储物，主静避冲。</div>`;
   fsBaDetail();
 }
 function fsBaGua(i){ return FS.NINE_BAGUA[FS_ZB_ORDER[i]]; }
@@ -294,7 +478,7 @@ function fsBaNeedle(i){ fsNeedleCommon('fsBaNeedle','fsBaDot',i*45,false); }
 function fsBaCoreTxt(i){
   const g=fsBaGua(i), inf=FS_BA_INFO[g]||{name:'伏位',good:true};
   return [(FS_BA_MG?FS_BA_MG.gua:'')+'命', inf.name+' '+FS_YOU_JX[inf.name],
-    g+'宫'+FS.GUA_DIR[g]+'方', inf.good?'var(--wheel-good)':'var(--wheel-bad)'];
+    g+'宫'+fsDir(g)+'方', inf.good?'var(--wheel-good)':'var(--wheel-bad)'];
 }
 function fsBaCore(i){
   const t=fsBaCoreTxt(i);
@@ -334,7 +518,7 @@ function fsBaWheelSvg(){
 function fsBaDetail(){
   const g=fsBaGua(FS_BA_SEL), inf=FS_BA_INFO[g]||{name:'伏位',good:true};
   fwDetail('fsBaDetail',
-    `${g}宫（${FS.GUA_DIR[g]}方） ${inf.name} <span class="${inf.good?'wd-g':'wd-x'}">${FS_YOU_JX[inf.name]}</span> ${inf.good?'吉方':'凶方'}`
+    `${g}宫（${fsDir(g)}方） ${inf.name} <span class="${inf.good?'wd-g':'wd-x'}">${FS_YOU_JX[inf.name]}</span> ${inf.good?'吉方':'凶方'}`
     +`<span class="wd-br"></span>`
     +`${FS_YOU_MEAN[inf.name]} ${inf.good?'宜安门、置床、设灶':'宜作厕所、储物，主静避冲'}`);
 }
@@ -367,7 +551,7 @@ function drawNianSha(){
   document.getElementById('nianshaOut').innerHTML=html;
   fsNsDetail();
 }
-function fsNsZhiDir(z){ return FS.GUA_DIR[FS.SHAN_BAGUA[z]]||''; }
+function fsNsZhiDir(z){ return fsDir(FS.SHAN_BAGUA[z]); }
 function fsPickNs(i){ fsPickCommon(i, FS_PICK_CONF.ns); }
 function fsNsNeedle(j){ fsNeedleCommon('fsNsNeedle','fsNsDot',fwZhiDeg(j),false); }
 /* 盘心三行：第一行常驻流年干支，第二行给该方所犯之煞（判定，带吉凶色），第三行给该方方位与并临煞数 */
@@ -419,11 +603,25 @@ function fsNsDetail(){
     +`<span class="wd-br"></span>`
     +`${hs.length?hs.map(h=>h.mean).join('；'):'此方平安，宜开门、安床、设灶，用事无妨'}`);
 }
-/* 模块内评分行：null（无输入依据）不显示 */
-function srLine(sc){
+/* 模块内评分行：null（无输入依据）不显示；key 给出依据与置信度，只展示不改分。 */
+const FS_SC_META={
+  lixiang:{src:'玄空：立极分金',conf:'高'},
+  fenjin:{src:'三合：百二十分金',conf:'高'},
+  geju:{src:'玄空：山向飞星',conf:'高'},
+  suiyun:{src:'玄空：流年紫白',conf:'高'},
+  sanyao:{src:'八宅：三要',conf:'中'},
+  chuangong:{src:'八宅：穿宫九星',conf:'中'},
+  liushi:{src:'八宅：六事',conf:'中'},
+  jsy:{src:'金锁玉关（站内归纳）',conf:'中'},
+  xingsha:{src:'形法：十项形煞（站内归纳）',conf:'低'},
+  luantou:{src:'形法：峦头三因子（站内归纳）',conf:'低'}
+};
+function srLine(sc,key){
   if(!sc) return '';
   const vetoTxt=sc.veto?'　<b class="fs-t-red">一票否决</b>':'';
-  return '<div class="sub-note fs-mt-2">模块评分：<span class="fs-score">'+sc.got+'</span> 分（'+sc.grade+'）'+vetoTxt+'　'+sc.note+'</div>';
+  const m=FS_SC_META[key]||null;
+  return '<div class="sub-note fs-mt-2">模块评分：<span class="fs-score">'+sc.got+'</span> 分（'+sc.grade+'）'+vetoTxt+'　'+sc.note
+    +(m?'　<span class="fs-src">依据：'+m.src+'　置信：'+m.conf+'</span>':'')+'</div>';
 }
 /* 二十四山 */
 function drawShan(){
@@ -475,7 +673,7 @@ function fsShanInfoHtml(i){
   return tip
     +`<div class="sub-note">坐山朝对：${shan}山必朝对宫 ${FS.SHAN_LIST[(i+12)%24]}山；用事以坐山定坐向、以朝向定门路。</div>`
     +wuTxt
-    +srLine(FS.scoreLixiang(shan, fsShanDegOf(i)));
+    +srLine(FS.scoreLixiang(shan, fsShanDegOf(i)),'lixiang');
 }
 function fsPickShan(i){ fsPickCommon(i, FS_PICK_CONF.shan); }
 function fsShanNeedle(i){ fsNeedleCommon('fsShanNeedle','fsShanDot',fwShanDeg(i),false); }
@@ -567,7 +765,7 @@ function drawXuanKong(){
       ${isC?'':'<div class="fs-gua">'+FS.NINE_BAGUA[n]+'</div>'}</div>`;
   }).join('');
   FS_XK_DATA=xk;
-  FS_XK_SEL=FS_ZB_ORDER.indexOf(FS_GUA_NUM[face]);
+  FS_XK_SEL=FS_ZB_ORDER.indexOf(FS_GUA_NUM[FS.SHAN_BAGUA[face]]);
   if(FS_XK_SEL<0) FS_XK_SEL=0;
   document.getElementById('xkOut').innerHTML=`
     <div class="sub-note">${y}年 ${xk.yun.yuan}${xk.yun.yun}运（${xk.yun.name}，${xk.yun.start}-${xk.yun.end}）${b.yunOv?'　换运盘：起宅定运，不随流年':''}　${sit}山${face}向（坐${sit}向${face}）　入中：山${xk.sitIn}、向${xk.faceIn}　${xk.sitShun?'山顺':'山逆'}、${xk.faceShun?'向顺':'向逆'}${xk.tiGua?'（替卦）':'（下卦）'}</div>
@@ -581,7 +779,7 @@ function drawXuanKong(){
       <div class="fs-xk-board"><div class="fs-board-title">山盘（坐${sit}）</div><div class="fs-grid">${xkGrid(xk.sitBoard)}</div></div>
       <div class="fs-xk-board"><div class="fs-board-title">向盘（向${face}）</div><div class="fs-grid">${xkGrid(xk.faceBoard)}</div></div>
     </div>
-    <div class="sub-note">${xk.sitShan}山星（${xk.sitIn}）：${xk.sitMean}　${xk.faceShan}向星（${xk.faceIn}）：${xk.faceMean}</div>
+    <div class="sub-note">${xk.sitShan}山坐宫之星（${xk.toSit}）：${xk.sitMean}　${xk.faceShan}向向首之星（${xk.toFace}）：${xk.faceMean}</div>
     <div class="fs-tbl-scroll fs-mt-3">
       <table class="fs-mean-tbl"><thead><tr><th>宫位</th><th>山星</th><th>向星</th><th>旺衰</th><th>丁财断</th><th>说明</th></tr></thead>
         <tbody>${FS_GRID.map(n=>{
@@ -619,6 +817,7 @@ function fsXkNeedle(i){
   dt.setAttribute('cx',WHEEL.n(q1[0])); dt.setAttribute('cy',WHEEL.n(q1[1]));
 }
 function fsXkWheelSvg(){ return xjFsXkWheelSvg({axis:function(){return {sit:null,face:null};},geo:{in:window.SD_IN||104,hit1:window.SD_HIT1||198,zw:window.SD_ZW||152,sx:window.SD_SX||120,p0:window.SD_P0||82,p1:window.SD_P1||100,out:window.FW_OUT||182,core:window.FW_CORE||78,c:window.FW_C||220}}); }
+/* 盘下详情条由共享件出：坐向取山名，宫位比对照卦名，共享件先经 SHAN_BAGUA 转卦名 */
 function fsXkDetail(){ return xjFsXkDetail(); }
 function fsPickXk(i){ fsPickCommon(i, FS_PICK_CONF.xk); }
 /* 九星组合断事（继承玄空盘结果） */
@@ -686,14 +885,22 @@ function drawXiaoWang(){
     `<tr><td class="lbl-1">来水${l}山　去水${q}山</td><td class="${jx}">${verdict}</td><td>${r.mean}</td></tr>`+
     '</tbody></table></div>';
 }
+/* 五运无独立正零：前十年承四运、后十年启六运（通行处理）。按落在该运区间内的年份取段，
+   流年在本运区间内即取本流年，换运盘使流年出于区间者按最近一端取，故不恒取前十年。 */
+function fsYunDecade(yq, year){
+  if(!yq||yq.yun!==5) return undefined;
+  const y=(typeof year==='number'&&!isNaN(year))?year:yq.start;
+  const inYun=Math.min(Math.max(y, yq.start), yq.end);
+  return inYun<yq.start+10?'before':'after';
+}
 /* 零正神（拨水入零堂） */
 function drawLingZheng(){
   const b=getBase();
   const yq=FS.yunQi(b.flowYear, b.yunOv);
-  const lz=FS.lingZheng(yq.yun);
+  const lz=FS.lingZheng(yq.yun, fsYunDecade(yq, b.flowYear));
   if(!lz) return;
   document.getElementById('lzOut').innerHTML=
-    `<div class="sub-note">${b.flowYear}年${yq.yuan}${yq.yun}运：正神在${lz.zhengGua}（${lz.zhengDir}，洛书${lz.zhengPalace}宫）、零神在${lz.lingGua}（${lz.lingDir}，洛书${lz.lingPalace}宫）。</div>`+
+    `<div class="sub-note">${b.flowYear}年${yq.yuan}${yq.yun}运${lz.note?'（'+lz.note+'）':''}：正神在${lz.zhengGua}（${lz.zhengDir}，洛书${lz.zhengPalace}宫）、零神在${lz.lingGua}（${lz.lingDir}，洛书${lz.lingPalace}宫）。</div>`+
     `<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>方位</th><th>取用</th></tr></thead><tbody>`+
     `<tr><td class="lbl-1">正神${lz.zhengDir}方（${lz.zhengGua}）</td><td>${lz.zhengMean}</td></tr>`+
     `<tr><td class="lbl-1">零神${lz.lingDir}方（${lz.lingGua}）</td><td>${lz.lingMean}</td></tr>`+
@@ -750,7 +957,7 @@ function drawXiuFen(){
           return `<tr><td class="lbl-1">${d.gz}${d.half?'（半交）':''}</td><td>${d.nayin}</td><td class="${WX_CLS[d.nayinWx]}">${d.nayinWx}</td><td>${d.wang}</td><td class="${lCls}">${lj.jx}</td><td>${d.start}°-${d.end}°</td></tr>`;
         }).join('')}</tbody></table>
     </div>
-    ${srLine(FS.scoreFenjin(shan, b.deg, xm||null))}`;
+    ${srLine(FS.scoreFenjin(shan, b.deg, xm||null),'fenjin')}`;
 }
 /* 阳宅布局建议（九宫格，综合八宅+玄空当运旺星） */
 function drawLayout(){
@@ -763,7 +970,9 @@ function drawLayout(){
   bz.xiong.forEach(x=>info[x.gua]={name:x.name,good:false});
   info[mg.gua]={name:'伏位',good:true};
   const xk=FS.xuanKong(sitShan, faceShan, flowY, b.deg, b.faceDeg, b.yunOv);
-  const yq=FS.yunQi(flowY);
+  /* 旺衰、丁财、当令与生气星全取玄空盘所起之运（xk 已按宅运换运起盘），不再另按流年取运，
+     同页只留一套运，免得盘按换运、表按流年两下相左 */
+  const yun=xk?xk.yun:null;
   /* 吉凶方位对应宜忌 */
   const GOOD_USE={生气:'宜开门纳气',延年:'宜主卧安床',天医:'宜厨房灶位',伏位:'宜神位静处'};
   const BAD_USE={绝命:'宜厕所压之',五鬼:'宜储物镇之',祸害:'宜杂用避冲',六煞:'宜通道过之'};
@@ -780,11 +989,11 @@ function drawLayout(){
         xkStar='山'+sc.star+'向'+fc.star;
         /* 合成权重（本站归纳）：玄空逐星旺衰 旺2 生1 退0 死煞-1；组合大凶-3 凶-2（斗牛交剑交加等重于单星） */
         const rk=w=>w==='旺'?2:(w==='生'?1:(w==='退'?0:-1));
-        xkScore+=rk(FS.starWangShuai(sc.star, yq.yun))+rk(FS.starWangShuai(fc.star, yq.yun));
+        xkScore+=rk(FS.starWangShuai(sc.star, yun.yun))+rk(FS.starWangShuai(fc.star, yun.yun));
         const cj=FS.comboJx(sc.star, fc.star);
         if(cj.jx.indexOf('大凶')>=0) xkScore-=3;
         else if(cj.jx.indexOf('凶')>=0) xkScore-=2;
-        const dc=FS.gongDingCai(sc.star, fc.star, yq.yun);
+        const dc=FS.gongDingCai(sc.star, fc.star, yun.yun);
         dingCai=dc.jx==='大吉'||dc.jx==='吉'?'旺丁财':(dc.jx==='凶'?'衰丁财':'丁财平');
       }
     }
@@ -797,7 +1006,7 @@ function drawLayout(){
     else if(total>= -1){ zongJx='平'; use='宜神位过道'; }
     else if(total>= -3){ zongJx='凶'; use=BAD_USE[inf?inf.name:'']||'宜厕所压之'; }
     else { zongJx='大凶'; use='忌动土修造'; }
-    return {n, gua, dir:FS.GUA_DIR[gua], baName:inf?inf.name:'-', baGood:!!(inf&&inf.good),
+    return {n, gua, dir:fsDir(gua), baName:inf?inf.name:'-', baGood:!!(inf&&inf.good),
       xkStar, dingCai, zongJx, use};
   });
   FS_YZ_PAL=pal; FS_YZ_MG=mg;
@@ -816,7 +1025,7 @@ function drawLayout(){
     let s=0;
     if(sc&&fc){
       const rk=w=>w==='旺'?2:(w==='生'?1:(w==='退'?0:-1));
-      s+=rk(FS.starWangShuai(sc.star, yq.yun))+rk(FS.starWangShuai(fc.star, yq.yun));
+      s+=rk(FS.starWangShuai(sc.star, yun.yun))+rk(FS.starWangShuai(fc.star, yun.yun));
       const cj=FS.comboJx(sc.star, fc.star);
       if(cj.jx.indexOf('大凶')>=0) s-=3;
       else if(cj.jx.indexOf('凶')>=0) s-=2;
@@ -855,7 +1064,7 @@ function drawLayout(){
       const sc=xk.sitBoard.find(x=>x.palace===pn);
       const fc=xk.faceBoard.find(x=>x.palace===pn);
       if(sc&&fc){
-        const sw=FS.starWangShuai(sc.star, yq.yun), fw=FS.starWangShuai(fc.star, yq.yun);
+        const sw=FS.starWangShuai(sc.star, yun.yun), fw=FS.starWangShuai(fc.star, yun.yun);
         const tag=w=>w==='旺'?'旺':(w==='生'?'生':(w==='退'?'退':'衰'));
         const cls=w=>(w==='旺'||w==='生')?'fs-badge-g':(w==='退'?'s-gold':'fs-badge-r');
         dcTxt='<span class="'+cls(sw)+'">丁'+tag(sw)+'</span> <span class="'+cls(fw)+'">财'+tag(fw)+'</span>';
@@ -882,8 +1091,8 @@ function drawLayout(){
   /* 当运旺星（当令星）落宫：山盘管丁、向盘管财 */
   let wangDing='未排盘', wangCai='未排盘';
   if(xk){
-    const dingR=xk.sitBoard.filter(x=>x.star===yq.yun).map(x=>FS.NINE_DIR[x.palace]);
-    const caiR=xk.faceBoard.filter(x=>x.star===yq.yun).map(x=>FS.NINE_DIR[x.palace]);
+    const dingR=xk.sitBoard.filter(x=>x.star===yun.yun).map(x=>FS.NINE_DIR[x.palace]);
+    const caiR=xk.faceBoard.filter(x=>x.star===yun.yun).map(x=>FS.NINE_DIR[x.palace]);
     if(dingR.length) wangDing=dingR.join('、');
     if(caiR.length) wangCai=caiR.join('、');
   }
@@ -912,7 +1121,7 @@ function drawLayout(){
       </div>
     </div>`;
   yzOut.innerHTML=`
-    <div class="sub-note">${y}年${male?'男':'女'}命：命卦 ${mg.gua}（${mg.group}）　${sitShan}山${faceShan}向　${flowY}年${yq.yuan}${yq.yun}运　${xk?xk.geju:''}</div>
+    <div class="sub-note">${y}年${male?'男':'女'}命：命卦 ${mg.gua}（${mg.group}）　${sitShan}山${faceShan}向　${flowY}年${yun?yun.yuan+yun.yun+'运':'未排盘'}${b.yunOv?'（换运盘，起宅定运）':''}　${xk?xk.geju:''}</div>
     <div class="wheel-block fs-mt-3"><h4>阳宅布局综合方位盘（${mg.gua}命 ${mg.group}）</h4>
       <div id="fsYzWheelHost">${fsYzWheelSvg()}</div>
       <div class="wheel-detail" id="fsYzDetail"></div></div>
@@ -922,8 +1131,8 @@ function drawLayout(){
       <div class="fs-tbl-scroll"><table class="fs-mean-tbl">
         <thead><tr><th>分类</th><th>内容</th></tr></thead>
         <tbody>
-          <tr><td class="lbl-1">吉方</td><td class="fs-badge-g">${bz.ji.map(x=>x.name+'（'+x.dir+'）').join('、')}</td></tr>
-          <tr><td class="lbl-1">凶方</td><td class="fs-badge-r">${bz.xiong.map(x=>x.name+'（'+x.dir+'）').join('、')}</td></tr>
+          <tr><td class="lbl-1">吉方</td><td class="fs-badge-g">${bz.ji.map(x=>x.name+'（'+fsDir(x.gua)+'）').join('、')}</td></tr>
+          <tr><td class="lbl-1">凶方</td><td class="fs-badge-r">${bz.xiong.map(x=>x.name+'（'+fsDir(x.gua)+'）').join('、')}</td></tr>
         </tbody>
       </table></div>
     </div>`;
@@ -1027,7 +1236,7 @@ function drawJsy(){
         <span class="fs-jsy-gs">${shapeTxt}</span>
         <span class="fs-jsy-gc">已定 ${picked.length}/${g.shan.length}</span></div>${rows}</div>`;
   }).join('');
-  out.innerHTML=`<div class="fs-jsy">${segs}</div>${srLine(FS.scoreJsy(collectJsy().shans, collectJsy().xing))}`;
+  out.innerHTML=`<div class="fs-jsy">${segs}</div>${srLine(FS.scoreJsy(collectJsy().shans, collectJsy().xing),'jsy')}`;
 }
 /* 阳宅三要：《阳宅三要》门主灶以游年星定吉凶为主，五行生克为辅参 */
 function drawSanYao(){
@@ -1056,40 +1265,54 @@ function drawSanYao(){
   const qiGua=method==='door'?door:zhaiGua;   /* 伏位卦：门或坐山 */
   const qiName=method==='door'?('门卦（门为伏位）'):('宅卦（坐山为伏位）');
   const doorStar=method==='door'?'伏位':FS.youXing(zhaiGua,door),
-    mainStar=FS.youXing(qiGua,main), stoveStar=FS.youXing(qiGua,stove), dirStar=FS.youXing(qiGua,stoveDir);
+    mainStar=main?FS.youXing(qiGua,main):'', stoveStar=stove?FS.youXing(qiGua,stove):'', dirStar=stoveDir?FS.youXing(qiGua,stoveDir):'';
   const isJi=s=>['生气','延年','天医','伏位'].includes(s);
-  /* 三要断法：门为第一要（宅之口），主为第二要（宅之腹），灶为第三要（宅之养），递进主断 */
-  const dm=rel(door,main), ms=rel(main,stove), sd=rel(stove,door);
-  const doorOk=isJi(doorStar), mainOk=isJi(mainStar);
-  const stoveOk=!isJi(stoveStar), dirOk=isJi(dirStar);
+  /* 三要断法：门为第一要（宅之口），主为第二要（宅之腹），灶为第三要（宅之养），递进主断。
+     主、灶座、灶向未填即不评，不以空值充吉充凶，总断只就已填之要合断 */
+  const doorOk=isJi(doorStar);
+  const mainOk=main?isJi(mainStar):null, stoveOk=stove?!isJi(stoveStar):null, dirOk=stoveDir?isJi(dirStar):null;
+  const miss=[];
+  if(!main) miss.push('主');
+  if(!stove) miss.push('灶座');
+  if(!stoveDir) miss.push('灶向');
   let zong, zy;
   if(!doorOk){ zong='凶'; zy='门为宅之口，门落凶星则纳气不正，三要之首已失，纵主灶得宜亦难安'; }
-  else if(!mainOk){ zong='凶'; zy='主为宅之腹，主房落凶星则宅主受损，家口难宁'; }
+  else if(mainOk===false){ zong='凶'; zy='主为宅之腹，主房落凶星则宅主受损，家口难宁'; }
+  else if(mainOk===null){ zong='吉'; zy=miss.join('、')+'未填不评，门已落吉星，按已填之要合断，补全后重断'; }
+  else if(stoveOk===null||dirOk===null){ zong='吉'; zy='门主皆落吉星，'+miss.join('、')+'未填不评，按已填之要合断，补全后重断'; }
   else if(stoveOk&&dirOk){ zong='大吉'; zy='门主皆落吉星，灶座坐凶向吉，三要全合，为阳宅上吉之局'; }
   else if(stoveOk||dirOk){ zong='吉'; zy='门主皆吉，灶仅半合（座或向失其一），主吉局，灶位宜微调'; }
   else { zong='平'; zy='门主虽吉而灶座向俱不合，宅无大碍，灶为养命之源宜速调整'; }
   const zCls=zong==='大吉'||zong==='吉'?'fs-badge-g':(zong==='凶'?'fs-badge-r':'');
   /* 宅命相配：东四命住东四宅、西四命住西四宅为配 */
   const mg=mingGua(b.mingYear,b.male);
-  const zhaiGroup=(['坎','震','巽','离'].includes(zhaiGua))?'东四':'西四';
-  const mingGroup=mg?mg.group.substring(0,2):'';
+  const zhaiGroup=(['坎','震','巽','离'].includes(zhaiGua))?'东四宅':'西四宅';
+  const mingGroup=mg?mg.group.replace('命','宅'):'';
   const pei=zhaiGroup===mingGroup?'吉（宅命同组，相配）':'凶（宅命异组，不相配）';
   const peiCls=zhaiGroup===mingGroup?'fs-badge-g':'fs-badge-r';
   const starCell=(s,ok)=>`<span class="${ok?'fs-badge-g':'fs-badge-r'}">${s}${JIXING[s]?'　'+JIXING[s]:''}</span>`;
+  const rowOf=(label,gua,cell,yi,relTxt)=>gua
+    ?`<tr><td class="lbl-1">${label}</td><td>${gua}${fsDir(gua)}</td><td>${cell}</td><td>${yi}</td><td>${relTxt}</td></tr>`
+    :`<tr><td class="lbl-1">${label}</td><td colspan="4" class="s-gold">未填，本项不评（补填后重断）</td></tr>`;
+  const relRow=(label,a,c)=>{
+    if(!a||!c) return `<tr><td class="lbl-1">${label}</td><td colspan="3" class="s-gold">未填，本项不评</td></tr>`;
+    const r=rel(a,c);
+    return `<tr><td class="lbl-1">${label}</td><td>${wx[a]}对${wx[c]}</td><td class="${r.cls}">${r.jx}</td><td>${r.mean}</td></tr>`;
+  };
   document.getElementById('sanyaoOut').innerHTML=`
     <div class="sub-note">起星法：${qiName}（${qiGua}）　宅卦：${zhaiGua}（坐${b.sitShan}山，${zhaiGroup}，五行${wx[zhaiGua]}）　宅主命卦：${mg?mg.gua+'（'+mg.group+'）':'未填'}　宅命相配：<b class="${peiCls}">${pei}</b></div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>要</th><th>方位</th><th>游年星（门主主断，灶为辅参）</th><th>宜忌</th><th>五行（辅参）</th></tr></thead><tbody>
-      <tr><td class="lbl-1">门</td><td>${door}${FS.GUA_DIR[door]}</td><td>${starCell(doorStar,isJi(doorStar))}</td><td>${isJi(doorStar)?'门开吉方，纳气为吉':'门开凶方，宜改吉方或改门路'}</td><td>${method==='door'?'门为伏位起星点':rel(door,zhaiGua).mean}</td></tr>
-      <tr><td class="lbl-1">主</td><td>${main}${FS.GUA_DIR[main]}</td><td>${starCell(mainStar,isJi(mainStar))}</td><td>${isJi(mainStar)?'主房安吉方，利宅主':'主房落凶方，宜移或改作他用'}</td><td>${rel(main,zhaiGua).mean}</td></tr>
-      <tr><td class="lbl-1">灶座</td><td>${stove}${FS.GUA_DIR[stove]}</td><td>${starCell(stoveStar,isJi(stoveStar))}</td><td>${!isJi(stoveStar)?'灶压凶方，以火化煞为吉':'灶压吉方，反伤吉气（三要忌之）'}</td><td>${rel(stove,zhaiGua).mean}</td></tr>
-      <tr><td class="lbl-1">灶向</td><td>${stoveDir}${FS.GUA_DIR[stoveDir]}</td><td>${starCell(dirStar,isJi(dirStar))}</td><td>${isJi(dirStar)?'灶向朝吉方，纳吉为吉':'灶向朝凶方，宜改向'}</td><td>${rel(stoveDir,zhaiGua).mean}</td></tr>
+      ${rowOf('门',door,starCell(doorStar,isJi(doorStar)),isJi(doorStar)?'门开吉方，纳气为吉':'门开凶方，宜改吉方或改门路',method==='door'?'门为伏位起星点':rel(door,zhaiGua).mean)}
+      ${rowOf('主',main,starCell(mainStar,isJi(mainStar)),isJi(mainStar)?'主房安吉方，利宅主':'主房落凶方，宜移或改作他用',rel(main,zhaiGua).mean)}
+      ${rowOf('灶座',stove,starCell(stoveStar,isJi(stoveStar)),!isJi(stoveStar)?'灶压凶方，以火化煞为吉':'灶压吉方，反伤吉气（三要忌之）',rel(stove,zhaiGua).mean)}
+      ${rowOf('灶向',stoveDir,starCell(dirStar,isJi(dirStar)),isJi(dirStar)?'灶向朝吉方，纳吉为吉':'灶向朝凶方，宜改向',rel(stoveDir,zhaiGua).mean)}
     </tbody></table></div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>关系</th><th>五行生克（辅参）</th><th>吉凶</th><th>说明</th></tr></thead><tbody>
-      <tr><td class="lbl-1">门→主</td><td>${wx[door]}对${wx[main]}</td><td class="${dm.cls}">${dm.jx}</td><td>${dm.mean}</td></tr>
-      <tr><td class="lbl-1">主→灶</td><td>${wx[main]}对${wx[stove]}</td><td class="${ms.cls}">${ms.jx}</td><td>${ms.mean}</td></tr>
-      <tr><td class="lbl-1">灶→门</td><td>${wx[stove]}对${wx[door]}</td><td class="${sd.cls}">${sd.jx}</td><td>${sd.mean}</td></tr>
+      ${relRow('门→主',door,main)}
+      ${relRow('主→灶',main,stove)}
+      ${relRow('灶→门',stove,door)}
     </tbody></table></div>
-    <div class="sub-note">总体：<b class="${zCls}">${zong}</b>。${zy}。</div>${srLine(FS.scoreSanyao(mg?mg.gua:null, door, main, stove))}`;
+    <div class="sub-note">总体：<b class="${zCls}">${zong}</b>。${zy}。</div>${srLine(FS.scoreSanyao(qiGua, door, main, stove),'sanyao')}`;
 }
 /* 催旺布局：依玄空当运旺星与九星专主，定财位、文昌位、桃花位、官贵位、催丁位并附催法 */
 function drawCui(){
@@ -1264,7 +1487,7 @@ function drawGaoJi(){
       <td>山星${xk.sitIn}入中，行至${rq.shan.yun}运(${rq.shan.start}-${rq.shan.end})山星入囚，主该运损丁；向星${xk.faceIn}入中，行至${rq.face.yun}运(${rq.face.start}-${rq.face.end})向星入囚，主该运破财。囚于中宫之气不能作用，宜中宫天井动象或向首放光之水解救。</td></tr>`
   ];
   document.getElementById('ggOut').innerHTML=`
-    ${srLine(FS.scoreGeju(xk))}
+    ${srLine(FS.scoreGeju(xk),'geju')}
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>格局</th><th>判定</th><th>断要</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
 }
 function fsSdRow(i){ return FS_SD_DATA.rows.find(r=>r.palace===FS_ZB_ORDER[i]); }
@@ -1369,7 +1592,7 @@ function drawSuiYun(){
     <div class="wheel-detail" id="fsSdDetail"></div></div>`
     +`<div class="sub-note">内两圈：外为流年星，内为山星与向星（山在左、向在右），字色即流年叠断之裁决。</div>`
     +(sd.warnings.length?'<div class="fs-warn">'+sd.warnings.map(w=>'<i>'+w+'</i>').join('')+'</div>':'')
-    +srLine(FS.scoreSuiyun(xk, b.flowYear, b.sitShan, b.doorGua));
+    +srLine(FS.scoreSuiyun(xk, b.flowYear, b.sitShan, b.doorGua),'suiyun');
   fsSdDetail();
 }
 /* 八宅穿宫九星（竹节贯井） */
@@ -1386,7 +1609,7 @@ function drawChuanGong(){
   document.getElementById('cgOut').innerHTML=`
     <div class="sub-note">${zhai}宅（坐${b.sitShan}）　门开${door}方　向${face}（向首${b.faceShan}）　${n}进　${cg.zhaiType}　第一栋定法：${cg.firstRule}。</div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>进（层）</th><th>九星</th><th>吉凶</th><th>宜忌</th></tr></thead><tbody>${rows}</tbody></table></div>
-    ${srLine(FS.scoreChuangong(cg))}`;
+    ${srLine(FS.scoreChuangong(cg),'chuangong')}`;
 }
 /* 金锁玉关现状收集（drawJsy 与评分共用） */
 function collectJsy(){
@@ -1398,6 +1621,22 @@ function collectJsy(){
   });
   return {shans, xing};
 }
+/* 形煞推断：只读峦头三因子给建议，用户点采纳才写入十项核对；不自动改分。 */
+function fsSuggestXingSha(){
+  const box=document.getElementById('xsSuggest'); if(!box) return;
+  const map={'天斩煞':1,'路冲枪煞':2,'反弓煞':3,'割脚煞':4,'尖角冲射':7,'孤阴孤阳':9,'声光电煞':10};
+  const out=[];
+  collectLt().forEach(r=>{
+    const idx=map[r.type]; if(!idx) return;
+    if(r.angle>=60){ out.push({idx,nm:r.type,v:'',note:'侧对不论'}); return; }
+    if(r.dist==null){ out.push({idx,nm:r.type,v:'',note:'距离未填，待实测'}); return; }
+    const v=r.dist<=32?'近':'远';
+    out.push({idx,nm:r.type,v,note:(v==='近'?'近':'远')+'距 '+r.dist+' 米'});
+  });
+  if(!out.length){ box.textContent='峦头三因子中暂无可对应的形煞项。'; return; }
+  box.innerHTML='<b>推断建议</b>（点采纳才写入形煞核对，不自动改分）：<br><span class="fs-src">依据：峦头三因子（距离、角度、高低）；置信：中；只建议，采纳才写入。</span><br>'+out.map(x=>`<span class="fs-sug">${x.nm}：${x.note}${x.v?'，建议'+x.v+'犯':''}${x.v?` <button class="btn" type="button" onclick="fsAdoptSug(${x.idx},'${x.v}')">采纳</button>`:''}</span>`).join('<br>');
+}
+function fsAdoptSug(idx,v){ const el=document.getElementById('xs-'+idx); if(!el) return; el.value=v; drawXingSha(); fsSuggestXingSha(); }
 /* 阳宅形煞自检（外部峦头核对）：近犯（近距离正对）重、远犯（远距离斜对）轻，分档为本站归纳 */
 function drawXingSha(){
   const NM=['天斩煞','路冲枪煞','反弓煞','割脚煞','穿堂煞','横梁压顶','尖角冲射','镰刀煞','孤阴独阳','声光电磁'];
@@ -1423,17 +1662,18 @@ function drawXingSha(){
   const jCls=jx==='安'?'fs-badge-g':(jx==='交加'||jx==='见重'?'fs-badge-r':'s-gold');
   document.getElementById('xsOut').innerHTML=
     '<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>核对</th><th>判定</th><th>断要</th></tr></thead><tbody>'+
-    `<tr><td class="lbl-1">已核${checked.length}项　近犯${near.length}　远犯${far.length}</td><td class="${jCls}">${jx}</td><td>${mean}</td></tr>`+
-    '</tbody></table></div>'+srLine(FS.scoreXingsha(near.length, far.length));
+    `<tr><td class="lbl-1">${checked.length?'已核'+checked.length+'项':'未核'}　近犯${near.length}　远犯${far.length}</td><td class="${jCls}">${jx}</td><td>${mean}</td></tr>`+
+    '</tbody></table></div>'+srLine(FS.scoreXingsha(near.length, far.length, checked.length),'xingsha');
 }
 /* 玄空六法（谈氏参断）：零正（谈氏原法）对照合十简法、太岁应期 */
 function drawLiuFa(){
   const out=document.getElementById('lfOut'); if(!out) return;
   const b=getBase();
   const yq=FS.yunQi(b.flowYear, b.yunOv);
-  const lf=FS.liuFa(yq.yun);
+  const dec=fsYunDecade(yq, b.flowYear);
+  const lf=FS.liuFa(yq.yun, dec);
   if(!lf){ out.innerHTML=''; return; }
-  const lz=FS.lingZheng(yq.yun);
+  const lz=FS.lingZheng(yq.yun, dec);
   const ts=FS.taiSuiFang(b.flowYear);
   const row=(k,v)=>`<tr><td class="lbl-1">${k}</td><td>${v}</td></tr>`;
   out.innerHTML=`
@@ -1476,11 +1716,11 @@ function drawLiuShi(){
   const mg=mingGua(b.mingYear, b.male);
   const r=FS.liuShi(mg?mg.gua:null, getLiuShi());
   if(!r){ out.innerHTML='<div class="sub-note">逐项填六事所在方位后断（至少一项）；命卦见上方八宅模块。</div>'; return; }
-  const rows=r.rows.map(x=>`<tr><td class="lbl-1">${x.name}</td><td>${x.gua}${FS.GUA_DIR[x.gua]}</td><td>${x.star}</td><td class="${x.jx==='吉'?'fs-badge-g':'fs-badge-r'}">${x.jx}</td><td>${x.mean}</td></tr>`).join('');
+  const rows=r.rows.map(x=>`<tr><td class="lbl-1">${x.name}</td><td>${x.gua}${fsDir(x.gua)}</td><td>${x.star}</td><td class="${x.jx==='吉'?'fs-badge-g':'fs-badge-r'}">${x.jx}</td><td>${x.mean}</td></tr>`).join('');
   out.innerHTML=`
     <div class="sub-note">${b.mingYear}年${b.male?'男':'女'}命　命卦${mg.gua}（${mg.group}）起游年，六事逐断：</div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>事</th><th>方位</th><th>游年星</th><th>吉凶</th><th>断要</th></tr></thead><tbody>${rows}</tbody></table></div>
-    ${srLine(r)}`;
+    ${srLine(r,'liushi')}`;
 }
 function addLtRow(){
   const box=document.getElementById('ltRows');
@@ -1532,7 +1772,7 @@ function drawLuantou(){
       <div class="fs-lt-m">${x.mean}<span class="fs-lt-hua">化解：${x.hua}</span></div>
     </div>`;
   }).join('');
-  out.innerHTML=`<div class="fs-lt">${items}</div>${srLine(r)}`;
+  out.innerHTML=`<div class="fs-lt">${items}</div>${srLine(r,'luantou')}`;
 }
 /* 宅形自检（《阳宅十书》图诀选目） */
 function fillZhaiXing(){
@@ -1573,12 +1813,14 @@ function collectVerdicts(){
   }
   const lt=FS.luantou(collectLt());
   if(lt) vs.push({yu:'lixiang', fa:'形法', jx:lt.got>=76?'吉':(lt.got<60?'凶':'平'), mean:'外部峦头强度评'+lt.got+'（'+lt.grade+'）'});
-  /* 门域：八宅门星、玄空门宫向星旺衰 */
+  /* 门域、灶域：八宅参法与三要同一起星基准卦（宅卦或以门起伏位时的门卦），
+     不与八宅方位模块的命卦混用，免同一门灶两处断语相反 */
+  const e=fsSanYao(), qiGua=e.qiGua;
   const doorGua=b.doorGua||'';
-  if(doorGua&&mg){
-    const star=FS.youXing(mg.gua, doorGua);
+  if(doorGua&&qiGua){
+    const star=e.doorStar;
     const isJi=['生气','天医','延年','伏位'].indexOf(star)>=0;
-    vs.push({yu:'men', fa:'八宅', jx:isJi?'吉':'凶', mean:'门开'+doorGua+'（'+FS.GUA_DIR[doorGua]+'）落'+star});
+    vs.push({yu:'men', fa:'八宅', jx:isJi?'吉':'凶', mean:'门开'+doorGua+'（'+fsDir(doorGua)+'）落'+star+'（'+qiGua+'起星）'});
     if(xk){
       const pn=FS_GUA_NUM[doorGua];
       const fw=FS.starWangShuai(xk.faceBoard.find(x=>x.palace===pn).star, xk.yun.yun);
@@ -1587,11 +1829,11 @@ function collectVerdicts(){
     }
   }
   /* 灶域：八宅灶座压凶、玄空灶宫星气 */
-  const stoveGua=(document.getElementById('yzStove')||{}).value||'';
-  if(stoveGua&&mg){
-    const star=FS.youXing(mg.gua, stoveGua);
+  const stoveGua=e.stove||'';
+  if(stoveGua&&qiGua){
+    const star=e.stoveStar;
     const isJi=['生气','天医','延年','伏位'].indexOf(star)>=0;
-    vs.push({yu:'zao', fa:'八宅', jx:isJi?'凶':'吉', mean:'灶座'+stoveGua+'落'+star+(isJi?'（压吉伤吉，宜移）':'（坐凶化吉）')});
+    vs.push({yu:'zao', fa:'八宅', jx:isJi?'凶':'吉', mean:'灶座'+stoveGua+'落'+star+(isJi?'（压吉伤吉，宜移）':'（坐凶化吉）')+'（'+qiGua+'起星）'});
     if(xk){
       const pn=FS_GUA_NUM[stoveGua];
       const sc=xk.sitBoard.find(x=>x.palace===pn).star, fc=xk.faceBoard.find(x=>x.palace===pn).star;
@@ -1627,8 +1869,8 @@ function drawZhenJue(){
   const r=FS.zhenJue(collectVerdicts(), zjPresetMap());
   if(!r){ out.innerHTML=head+'<div class="sub-note">暂无可用断语（相应模块未排盘或未填输入）。</div>'; fsZjDetail(); return; }
   const cls=j=>j==='吉'?'fs-badge-g':(j==='凶'?'fs-badge-r':'');
-  const rows=r.domains.map(d=>`<tr><td class="lbl-1">${d.name}</td><td>${d.main}</td><td class="${cls(d.jx)}">${d.jx}</td>
-    <td>${d.mean}${d.entries.length?'<i class="fs-ib-mt">参断　'+d.entries.map(e=>e.fa+'：'+e.jx+'，'+e.mean).join('；')+'</i>':''}</td></tr>`).join('');
+  const rows=r.domains.map(d=>{const vm=FS_VERDICT_META[d.main]||null;return `<tr><td class="lbl-1">${d.name}</td><td>${d.main||'未评'}</td><td class="${cls(d.jx)}">${d.jx}</td>
+    <td>${d.mean||'本域无可用断语（相应模块未填输入），不强评。'}${vm?'<i class="fs-src">依据：'+vm.src+'　置信：'+vm.conf+'</i>':''}${d.entries.length?'<i class="fs-ib-mt">参断　'+d.entries.map(e=>e.fa+'：'+e.jx+'，'+e.mean).join('；')+'</i>':''}</td></tr>`;}).join('');
   out.innerHTML=head+`<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>问题域</th><th>主法</th><th>裁决</th><th>断要与参断</th></tr></thead><tbody>${rows}</tbody></table></div>
     ${r.conflictN?'<div class="sub-note fs-t-gold">本局有 '+r.conflictN+' 域存在跨派分歧，已在表中标明异断与附条件，宜实地核实后再行取舍。</div>':''}`;
   fsZjDetail();
@@ -1660,7 +1902,7 @@ function fsZjData(){
     if(at(ns.taiSui.zhi)) sha.push('太岁');
     if(at(ns.suiPo.zhi)) sha.push('岁破');
     ns.sanSha.forEach(s=>{ if(at(s.zhi)) sha.push(s.name); });
-    return {n, gua, dir:FS.GUA_DIR[gua], shans:fsGuaShans(gua), star:c.star,
+    return {n, gua, dir:fsDir(gua), shans:fsGuaShans(gua), star:c.star,
       jx:FS.STAR_JX[c.star], you:bzInfo[gua]||null, sha};
   });
   return {b, y, gz:FS.yearGZ(y), yun:FS.yunQi(y), mg, ic:yb.inCenter, pal};
@@ -1766,7 +2008,9 @@ function syncZibaiDate(){
   /* 出生日期只用于命卦重排；第一层日期为流年信息，独立输入不被覆盖 */
   fsApplyBase();
 }
-/* 页面加载初始化：日期与时间由全站统一函数写入当下；流年日期与流年时辰与主日期同源。 */
+/* 页面加载初始化：日期与时间由全站统一函数写入当下；流年日期与流年时辰与主日期同源。
+   流年静态值只作构建日兜底：用户未动过流年即改写为当下年份，动过则记 data-user-set、一律不覆盖；
+   写值不经 change，故不会因默认值自动出盘。 */
 function fsInitDefaults(){
   const n=xjNowDate();
   const de=document.getElementById('baseDate');
@@ -1774,6 +2018,17 @@ function fsInitDefaults(){
   if(zd) zd.value=de?de.value:'';
   const zhr=document.getElementById('zbHour');
   if(zhr) zhr.value=String(Math.floor(((n.getHours()+1)%24)/2));
+  const by=document.getElementById('baseYear2');
+  if(!by) return;
+  if(!by.hasAttribute('data-user-set')) by.value=String(n.getFullYear());
+  /* 层内流年与基础设定同源，经层内改年份亦算用户设定，此后不再被当下年份覆盖 */
+  document.querySelectorAll('.fs-lb-year').forEach(function(el){
+    if(el.__fsYearSetBound) return;
+    el.__fsYearSetBound=true;
+    el.addEventListener('input',function(){ by.setAttribute('data-user-set','1'); });
+  });
+  drawMembers();
+  drawSiShi();
 }
 /* 用户主动查询：按当前输入全排。 */
 function fsCalc(){
@@ -1844,11 +2099,41 @@ function fsMean(arr){
   if(v.some(x=>x.veto)) return {got:0, veto:true};
   return {got:Math.round(v.reduce((s,x)=>s+x.got,0)/v.length)};
 }
+const FS_ITEM_META={
+  '第二层 立向':{src:'玄空：立向分金',conf:'高'},
+  '第三层 定人':{src:'八宅：三要六事',conf:'中'},
+  '第四层 避煞':{src:'玄空：流年紫白',conf:'高'},
+  '第五层 布局':{src:'形法：形煞峦头（站内归纳）',conf:'低'}
+};
+const FS_VERDICT_META={玄空:{src:'玄空：飞星',conf:'高'},八宅:{src:'八宅：游年',conf:'中'},三合:{src:'三合：水法',conf:'中'},形法:{src:'形法：峦头（站内归纳）',conf:'低'},金锁:{src:'金锁玉关（站内归纳）',conf:'中'}};
+function fsItemMeta(step,name){
+  const n=String(name||'');
+  if(step==='第二层 立向'){
+    if(n.indexOf('坐度')===0) return {src:'玄空：立极分金',conf:'高'};
+    if(n.indexOf('玄空格局')===0) return {src:'玄空：山向飞星',conf:'高'};
+    if(n.indexOf('宿度分金')===0) return {src:'三合：百二十分金',conf:'高'};
+    if(n.indexOf('三合配局')===0) return {src:'三合：水法',conf:'中'};
+  }
+  if(step==='第三层 定人'){
+    if(/^(门|主|灶座|灶向)/.test(n)) return {src:'八宅：三要',conf:'中'};
+    if(/^(床|路|井|卫生间|碓磨)/.test(n)) return {src:'八宅：六事',conf:'中'};
+    if(n.indexOf('穿宫')===0) return {src:'八宅：穿宫九星',conf:'中'};
+    if(n.indexOf('宅命相配')===0) return {src:'八宅：命卦',conf:'中'};
+    if(n.indexOf('主灶五行')===0) return {src:'五行：主灶生克',conf:'低'};
+  }
+  if(step==='第四层 避煞') return {src:'玄空：流年紫白与太岁三煞',conf:'高'};
+  if(step==='第五层 布局'){
+    if(n.indexOf('形煞')>=0||n.indexOf('峦头')>=0) return {src:'形法：形煞峦头（站内归纳）',conf:'低'};
+    if(n.indexOf('金锁')===0) return {src:'金锁玉关（站内归纳）',conf:'中'};
+    if(n.indexOf('宅形')===0) return {src:'阳宅十书：宅形图诀',conf:'中'};
+  }
+  return FS_ITEM_META[step]||null;
+}
 function fsFinalData(){
   const b=getBase(), e=fsSanYao(), mg=e.mg;
   const xk=FS.xuanKong(b.sitShan,b.faceShan,b.flowYear,b.deg,b.faceDeg, b.yunOv);
   const parts={}, items=[];
-  const P=(step,name,st,txt,act,jump,pal)=>items.push({step,name,st,txt:txt||'',act:act||'',jump:jump||'',pal:pal||''});
+  const P=(step,name,st,txt,act,jump,pal)=>{const m=fsItemMeta(step,name); items.push({step,name,st,txt:txt||'',act:act||'',jump:jump||'',pal:pal||'',basis:m?m.src:'',conf:m?m.conf:''});};
   /* 第二层 立向：坐度、格局、分金、三合参断 */
   parts.lixiang=FS.scoreLixiang(b.sitShan,b.deg);
   const xmEl=document.getElementById('fjXm'), xmY=(xmEl&&xmEl.value)?parseInt(xmEl.value,10):null;
@@ -1857,6 +2142,7 @@ function fsFinalData(){
   if(parts.lixiang&&parts.lixiang.veto) P('第二层 立向','坐度','veto',parts.lixiang.note,'实测坐度压交界线，须移线复测重立向（典籍断不可用）','fsmod-l2');
   else if(xk&&(xk.sitKong||xk.faceKong)) P('第二层 立向','坐向空亡','veto','坐向压卦界犯骑缝空亡，典籍断不可立向。','移线避开交界，重定坐向','fsmod-l2');
   else if(xk&&(xk.sitJian||xk.faceJian)) P('第二层 立向','兼向替卦','warn','坐度逾正向四度半入兼向，须起替卦并精确复测。','复测罗盘坐度，核对替卦盘与卦界阴阳差错','fsmod-l2');
+  else if(typeof b.deg!=='number') P('第二层 立向','坐度','na','未填实测坐度，正向、兼向与骑缝空亡俱未判，坐度一项不出结论。','量取罗盘正针坐度填入，重断正向兼向','fsmod-l2');
   else P('第二层 立向','坐度','ok',(parts.lixiang?parts.lixiang.note:''),'','fsmod-l2');
   if(parts.geju){
     if(parts.geju.veto) P('第二层 立向','玄空格局','veto',parts.geju.note,'改向择旺山旺向，或移线出空亡','fsmod-l2');
@@ -1876,16 +2162,18 @@ function fsFinalData(){
       P('第二层 立向','三合配局',good?'ok':'warn','向首'+b.faceShan+'得'+dj.ju+dj.type+'（三合参断，非主断）。',good?'':'三合不与玄空相权，作参断佐证；不合者以玄空立向为准','fsmod-l2');
     }
   }catch(err){}
-  /* 第三层 定人：三要（门主灶）、六事、穿宫、宅命相配 */
-  parts.sanyao=FS.scoreSanyao(mg?mg.gua:null, e.door, e.main, e.stove);
-  const dOk=e.isJi(e.doorStar), mOk=e.isJi(e.mainStar), sOk=!e.isJi(e.stoveStar), dirOk=e.isJi(e.dirStar);
+  /* 第三层 定人：三要（门主灶）、六事、穿宫、宅命相配。
+     三要主、灶座、灶向未填则三要分不评（引擎返回 null，缺项剔除后归一），对应病点亦不出 */
+  parts.sanyao=FS.scoreSanyao(e.qiGua, e.door, e.main, e.stove);
+  const dOk=e.isJi(e.doorStar);
+  const mOk=e.main?e.isJi(e.mainStar):null, sOk=e.stove?!e.isJi(e.stoveStar):null, dirOk=e.stoveDir?e.isJi(e.dirStar):null;
   if(!dOk) P('第三层 定人','门 '+fsRoomTxt(e.door),'bad','门为宅之口而落'+e.doorStar+'凶星，纳气不正，三要之首已失。','改门至吉方（生气延年天医）；不可改则玄关屏风、门楣凸镜，门常闭','fsmod-l3',e.door);
   else P('第三层 定人','门 '+fsRoomTxt(e.door),'ok','门开'+e.doorStar+'吉方，纳气为吉。','','fsmod-l3',e.door);
-  if(!mOk) P('第三层 定人','主 '+fsRoomTxt(e.main),'bad','主为宅之腹，主房落'+e.mainStar+'凶星，宅主受损、家口难宁。','主卧或宅主位移吉方；不可移则改作他用（储物），另择吉房为主','fsmod-l3',e.main);
-  else P('第三层 定人','主 '+fsRoomTxt(e.main),'ok','主房安'+e.mainStar+'吉方，利宅主。','','fsmod-l3',e.main);
-  if(!sOk) P('第三层 定人','灶座 '+fsRoomTxt(e.stove),'bad','灶压'+e.stoveStar+'吉方，反伤吉气（《阳宅三要》所忌）。','灶座移压凶方（绝命五鬼尤宜），灶口调向吉方','fsmod-l3',e.stove);
-  else P('第三层 定人','灶座 '+fsRoomTxt(e.stove),'ok','灶压'+e.stoveStar+'凶方，以火化煞为吉（坐凶向吉）。','','fsmod-l3',e.stove);
-  if(!dirOk) P('第三层 定人','灶向 '+fsRoomTxt(e.stoveDir),'warn','灶口朝'+e.dirStar+'凶方，纳气不正。','调转灶口使朝吉方','fsmod-l3',e.stoveDir);
+  if(mOk===false) P('第三层 定人','主 '+fsRoomTxt(e.main),'bad','主为宅之腹，主房落'+e.mainStar+'凶星，宅主受损、家口难宁。','主卧或宅主位移吉方；不可移则改作他用（储物），另择吉房为主','fsmod-l3',e.main);
+  else if(mOk===true) P('第三层 定人','主 '+fsRoomTxt(e.main),'ok','主房安'+e.mainStar+'吉方，利宅主。','','fsmod-l3',e.main);
+  if(sOk===false) P('第三层 定人','灶座 '+fsRoomTxt(e.stove),'bad','灶压'+e.stoveStar+'吉方，反伤吉气（《阳宅三要》所忌）。','灶座移压凶方（绝命五鬼尤宜），灶口调向吉方','fsmod-l3',e.stove);
+  else if(sOk===true) P('第三层 定人','灶座 '+fsRoomTxt(e.stove),'ok','灶压'+e.stoveStar+'凶方，以火化煞为吉（坐凶向吉）。','','fsmod-l3',e.stove);
+  if(dirOk===false) P('第三层 定人','灶向 '+fsRoomTxt(e.stoveDir),'warn','灶口朝'+e.dirStar+'凶方，纳气不正。','调转灶口使朝吉方','fsmod-l3',e.stoveDir);
   const lsp=getLiuShi(), lsr=FS.liuShi(mg?mg.gua:null, lsp);
   if(lsr) lsr.rows.forEach(r=>{
     /* 门、灶座、灶向三项真值在三要，已由三要出行；六事只补床、路、井、厕、磨，免同一口灶出两条病点 */
@@ -1937,7 +2225,8 @@ function fsFinalData(){
   const xsNear=xsVals.filter(x=>x.v==='近'||x.v==='犯'), xsFar=xsVals.filter(x=>x.v==='远');
   xsNear.forEach(x=>P('第五层 布局',x.nm+'（近犯）','bad',x.nm+'近距离正对门窗，形为体之伤，体先受损则气无所附。',FS_XS_HUA[x.nm]||'','fsmod-l5'));
   xsFar.forEach(x=>P('第五层 布局',x.nm+'（远犯）','warn',x.nm+'远距斜对，属小疵，轻重以远近、正对程度论。',FS_XS_HUA[x.nm]||'','fsmod-l5'));
-  parts.xingsha=FS.scoreXingsha(xsNear.length, xsFar.length);
+  /* 形煞分按已核项数计：一项未核即不评，已核而全未犯方记满分 */
+  parts.xingsha=FS.scoreXingsha(xsNear.length, xsFar.length, xsChecked.length);
   const jsy=collectJsy(), jsyPal={};
   JSY_GRP.forEach(g=>{
     const sel=Object.keys(jsy.shans).filter(s=>FS.SHAN_BAGUA[s]===g.gua);
@@ -1974,7 +2263,7 @@ function fsFinalData(){
   items.sort((a,b2)=>(FS_ST_ORD[a.st]||9)-(FS_ST_ORD[b2.st]||9));
   const badN=items.filter(x=>x.st==='bad'||x.st==='veto').length;
   const warnN=items.filter(x=>x.st==='warn').length;
-  const naN=pend.length;
+  const naN=pend.length+items.filter(x=>x.st==='na').length;
   const okN=items.filter(x=>x.st==='ok').length;
   return {b,e,mg,xk,parts,items,pend,zhaiPing,nian,l2,l3,l4:nian,l5,badN,warnN,naN,okN,jsyPal,lsPos:lsp,xsNear,xsFar,zx};
 }
@@ -1993,16 +2282,16 @@ function fsItemsTable(d){
     const list=PROB.filter(x=>x.step===layer.k);
     if(!list.length) return;
     const veto=list.some(x=>x.st==='veto');
-    const worst=veto?'veto':(list.some(x=>x.st==='bad')?'bad':'warn');
+    const worst=veto?'veto':(list.some(x=>x.st==='bad')?'bad':(list.some(x=>x.st==='warn')?'warn':'na'));
     const sc=layer.sc;
     const bar=(sc&&!sc.veto)?'<div class="scbar"><i class="'+(sc.got>=88?'b-hi':(sc.got>=60?'b-mid':'b-low'))+'" style="width:'+sc.got+'%"></i></div>':'';
     html+=`<tr class="${veto?'fs-row-veto':(sc&&sc.got>=76?'fs-row-hi':'fs-bg-paper')}">`
       +`<td class="lbl-1 fs-nowrap"><span class="fs-jump" onclick="jumpMod('${layer.m}')">${layer.k}</span></td>`
       +`<td>${sc?(sc.veto?'<b class="fs-t-red">0</b>':'<b class="fs-score">'+sc.got+'</b>'+bar):'未评'}</td>`
-      +`<td>${badge(worst)}</td><td>本层 ${list.length} 项待改</td></tr>`;
+      +`<td>${badge(worst)}</td><td>本层 ${list.length} 项${worst==='na'?'待核':'待改'}</td></tr>`;
     list.forEach(x=>{
       html+=`<tr><td class="fs-pad-l18">${x.name}</td><td>无</td><td>${badge(x.st)}</td>`
-        +`<td>${x.txt}${x.act?'<i class="fs-ib-mt">→ '+x.act+'</i>':''}</td></tr>`;
+        +`<td>${x.txt}${x.act?'<i class="fs-ib-mt">→ '+x.act+'</i>':''}${x.basis?'<i class="fs-src">依据：'+x.basis+'　置信：'+x.conf+'</i>':''}</td></tr>`;
     });
   });
   if(d.pend.length){
@@ -2052,6 +2341,7 @@ function fsRenderVerdict(d){
     +`<div class="fv-note">体用分离：<b>宅评</b>由第二、三、五层诸理法加权（气 .28、三要 .20、峦头 .20、金锁 .09、穿宫 .08、分金 .08、坐度 .07），判"此宅可居与否"；<b>年评</b>由第四层流年叠断独立评定，判"当年宜忌"。<b>两分分列不混算</b>：改屋不动流年，改宅与当年用事本属两类行动。评分一律基线 60、满 100、否决归零，缺输入之模块剔除后权重归一。</div>`
     +`<div class="fv-note">病点：<b class="fs-t-red">${d.badN}</b> 项否决或凶　<b class="s-gold">${d.warnN}</b> 项小疵　<b>${d.naN}</b> 项待核${d.okN?'　合局 '+d.okN+' 项（'+(okNames.join('、')||'无')+(d.okN>okNames.length?' 等':'')+'）':''}</div>`;
   html+=fsItemsTable(d);
+  html+='<div class="fv-note">依据与置信度：高＝输入完整、算法确定；中＝有流派异说或派生输入；低＝外部未实测或站内归纳。置信度只作读法提示，不进总分。</div>';
   if(d.pend.length) html+=`<div class="fv-act"><b>待核清算</b>：${d.pend.join('；')}。未勘之项一律不评，故现有分数为"以已填项为准"的分，补齐后即时刷新。</div>`;
   /* 行动行：先否决、次形煞、次三要门主灶、次年煞 */
   const acts=[];
@@ -2059,8 +2349,8 @@ function fsRenderVerdict(d){
   if(d.xsNear.length) acts.push('先化外局形煞近犯 '+d.xsNear.length+' 项（形为体，体先受损）');
   const e=d.e;
   if(!e.isJi(e.doorStar)) acts.push('门落凶星，改门或设玄关为第一要');
-  else if(!e.isJi(e.mainStar)) acts.push('主房落凶星，移主卧或改作他用');
-  else if(e.isJi(e.stoveStar)) acts.push('灶压吉方反伤吉气，移灶压凶、灶口向吉');
+  else if(e.main&&!e.isJi(e.mainStar)) acts.push('主房落凶星，移主卧或改作他用');
+  else if(e.stove&&e.isJi(e.stoveStar)) acts.push('灶压吉方反伤吉气，移灶压凶、灶口向吉');
   if(np&&np.got<60) acts.push('年评偏低，是年宜静守，按上述流年煞项避忌，忌动土修造');
   html+=`<div class="fv-act"><b>优先行动</b>：${acts.length?acts.join('；')+'。':'未见硬伤，按布局调整卡择吉方微调即可。'}</div>`;
   html+=`<div class="fv-note">本卡分数与清单随上方任一输入即时重算；改后即为"调整后"之值，可与调整前对照。</div>`;
@@ -2137,7 +2427,8 @@ function fsAdjustCard(d){
   if(mNeed) m2=rec.main.rec.gua;
   let proj=null;
   try{
-    const sanyao=FS.scoreSanyao(d.mg?d.mg.gua:null, d2, m2, d.e.stove);
+    /* 预估与三要同一基础卦；主、灶座、灶向未填时引擎返回 null，预估随之不出，不以空值凑分 */
+    const sanyao=FS.scoreSanyao(d.e.qiGua, d2, m2, d.e.stove);
     if(sanyao) proj=FS.srZhaiPing(Object.assign({}, d.parts, {sanyao}));
   }catch(err){}
   const zp=d.zhaiPing;
@@ -2173,6 +2464,7 @@ function fsDrawFinal(){
     fsRenderVerdict(d);
     fsAdjustCard(d);
     fsModScores(d);
+    drawMembers();
   }catch(err){
     const host=document.getElementById('fvCard');
     if(host) host.innerHTML='<div class="sub-note fs-t-red">综合诊断渲染异常：'+(err&&err.message?err.message:err)+'</div>';
