@@ -3759,17 +3759,27 @@ function renderNayinModule(cols, dayGan){
     let _lr = null;
     try{ _lr = _LT.judge(BZ); }catch(e){ _lr = null; }
     if(_lr){
-      h += `<div class="nayin-h">兰台妙选 纳音格局（古法参证）</div>`;
-      if(_lr.hits.length){
-        h += `<div class="tbl-hs"><table class="bazi-lt-tbl"><tr><th><div class="xj-tc">格名</div></th><th><div class="xj-tc">原释</div></th><th><div class="xj-tc">本盘依据</div></th></tr>`;
-        _lr.hits.forEach(function(x){
+      h += `<div class="nayin-h">兰台妙选 纳音论命（古法参证）</div>`;
+      h += `<p class="sub-note">《兰台妙选》以年命纳音为纲：上篇取象立贵格，中篇论恶煞、疾病、夭折、贫愚，下篇论贵格、杂格、性情与六亲。本模块按篇分列，只出本盘所成，未成不列。</p>`;
+      const _ltParts=[
+        {p:'上', title:'上篇 纳音取象与贵格'},
+        {p:'中', title:'中篇 恶煞疾病夭折贫愚'},
+        {p:'下', title:'下篇 贵格杂格与性情六亲'}
+      ];
+      let _anyHit=false;
+      _ltParts.forEach(function(part){
+        const rows=_lr.hits.filter(function(x){return x.p===part.p;});
+        if(!rows.length) return;
+        _anyHit=true;
+        h += `<div class="nayin-h">${part.title}（${rows.length} 条）</div>`;
+        h += `<div class="tbl-hs"><table class="bazi-lt-tbl"><tr><th><div class="xj-tc">条目</div></th><th><div class="xj-tc">原释</div></th><th><div class="xj-tc">本盘依据</div></th></tr>`;
+        rows.forEach(function(x){
           h += `<tr><td><div class="xj-tc">${x.n}</div></td><td><div class="xj-tc">${x.t}</div></td><td><div class="xj-tc">${x.b}</div></td></tr>`;
         });
         h += `</table></div>`;
-      }else{
-        h += `<p class="sub-note">本盘未成《兰台妙选》三篇可依四柱直接判定之格。</p>`;
-      }
-      h += `<p class="sub-note">《兰台妙选》以年命纳音为纲，按四柱干支取象立格，与子平日主十神、旺衰喜忌分属两路。此处只出本盘所成之格，未成者不列；所成为古法参证，不并入综合用神与吉凶主线。</p>`;
+      });
+      if(!_anyHit) h += `<p class="sub-note">本盘未见《兰台妙选》三篇可依四柱直接判定之条目。</p>`;
+      h += `<p class="sub-note">此处只出本盘所成条目，未成者不列；所成为古法参证，不并入综合用神与吉凶主线。</p>`;
     }
   }
 
