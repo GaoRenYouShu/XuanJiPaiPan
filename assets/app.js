@@ -1429,6 +1429,7 @@ window.xjShuffle = xjShuffle;
       'assets/bazi-mangpai.js',
       'assets/bazi-xinpai.js',
       'assets/wheel.js',
+      'assets/bazi-lantai.js',
       'assets/bazi-core.js'
     ],
     ziwei: [

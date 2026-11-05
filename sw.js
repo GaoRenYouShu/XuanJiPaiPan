@@ -7,7 +7,7 @@
    - 预缓存壳清单与构建清单所列稳定资源，单项失败不阻断安装。
    版本：BUILD 由构建入口按内容哈希写入，随清单同批生成；稳定资源按 BUILD 分桶缓存。
    缓存：壳仓随 BUILD 换代清理，哈希资源仓按内容寻址、跨版本保留。 */
-const BUILD = '2305493f74a4';
+const BUILD = 'ec39727a69b5';
 const CACHE_SHELL = 'xj-shell-' + BUILD;
 const CACHE_IMMUTABLE = 'xj-immutable-v1';
 const MANIFEST_URL = './assets/build-manifest.json';

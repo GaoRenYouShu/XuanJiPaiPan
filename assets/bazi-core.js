@@ -3741,20 +3741,40 @@ function renderNayinModule(cols, dayGan){
   else if(yd.rel==='我生') notes.push(`年命纳音 ${nayinColorSpan(yN)}（${yW}）受日主所生，日主泄气于年命`);
   else if(yd.rel==='我克') notes.push(`年命纳音 ${nayinColorSpan(yN)}（${yW}）为日主所克，日主可得年命之材`);
   if(!notes.length) notes.push('四柱纳音与年命、日主关系平稳，无明显旺克之象');
-  // 纳音格局一句话定性（提升综合参考的抓手）
+  // 纳音生克总评（综合参考的抓手）
   const otherCnt = shengWo+bihe+woKe+keWo+woSheng;
   let toneJudge='';
   if(otherCnt>0){
-    if(keWo>=2) toneJudge='；纳音格局以“克我”为重，早年离祖、自力倾向较显，宜以日主旺衰权衡轻重';
-    else if(shengWo>0 && keWo===0) toneJudge='；纳音格局以“生我”为主，祖荫外扶可承';
-    else if(bihe>0 && shengWo===0 && keWo===0) toneJudge='；纳音格局以“比和”为主，同气巩固';
-    else toneJudge='；纳音生克互见，格局尚平';
+    if(keWo>=2) toneJudge='；纳音生克以“克我”为重，早年离祖、自力倾向较显，宜以日主旺衰权衡轻重';
+    else if(shengWo>0 && keWo===0) toneJudge='；纳音生克以“生我”为主，祖荫外扶可承';
+    else if(bihe>0 && shengWo===0 && keWo===0) toneJudge='；纳音生克以“比和”为主，同气巩固';
+    else toneJudge='；纳音生克互见，气象尚平';
   }
   h += `<p class="ly-zh-p">${notes.join('；')}${toneJudge}。</p>`;
   h += `</div>`;
 
-  // 6. 口径公示：纳音在禄命古法与子平法中的地位及本站取舍立场（折叠，仅页面内，不动说明文档页）
-  h += `<details class="zr-mod zr-quant" id="zrNayinNote"><summary>口径说明：纳音的地位与本站立场</summary><div class="zr-mod-b"><p class="ly-zh-p">纳音为子平之外的独立辅助体系。禄命古法以年命纳音为身，论命以纳音为纲；自徐子平立正五行之说而后，子平法以正五行为主体、纳音为辅，明《三命通会》亦言“谈命者多不取纳音”。本站以正五行定十神、格局、旺衰、喜忌并断吉凶，纳音诸表只作气象、六亲与取象之辅助参证，不专以纳音定祸福。两说并存，用者各取所需。</p></div></details>`;
+  // 6. 兰台妙选纳音格局（三篇全目，古法参证，独立于子平综合用神与吉凶主线）
+  const _LT = (typeof window !== 'undefined' && window.LANTAI) ? window.LANTAI : null;
+  if(_LT && typeof _LT.judge === 'function'){
+    let _lr = null;
+    try{ _lr = _LT.judge(BZ); }catch(e){ _lr = null; }
+    if(_lr){
+      h += `<div class="nayin-h">兰台妙选 纳音格局（古法参证）</div>`;
+      if(_lr.hits.length){
+        h += `<div class="tbl-hs"><table class="bazi-lt-tbl"><tr><th><div class="xj-tc">格名</div></th><th><div class="xj-tc">原释</div></th><th><div class="xj-tc">本盘依据</div></th></tr>`;
+        _lr.hits.forEach(function(x){
+          h += `<tr><td><div class="xj-tc">${x.n}</div></td><td><div class="xj-tc">${x.t}</div></td><td><div class="xj-tc">${x.b}</div></td></tr>`;
+        });
+        h += `</table></div>`;
+      }else{
+        h += `<p class="sub-note">本盘未成《兰台妙选》三篇可依四柱直接判定之格。</p>`;
+      }
+      h += `<p class="sub-note">《兰台妙选》以年命纳音为纲，按四柱干支取象立格，与子平日主十神、旺衰喜忌分属两路。此处只出本盘所成之格，未成者不列；所成为古法参证，不并入综合用神与吉凶主线。</p>`;
+    }
+  }
+
+  // 7. 口径公示：纳音在禄命古法与子平法中的地位及本站取舍立场（折叠，仅页面内，不动说明文档页）
+  h += `<details class="zr-mod zr-quant" id="zrNayinNote"><summary>口径说明：纳音的地位与本站立场</summary><div class="zr-mod-b"><p class="ly-zh-p">纳音为子平之外的独立辅助体系。禄命古法以年命纳音为身，论命以纳音为纲；自徐子平立正五行之说而后，子平法以正五行为主体、纳音为辅，明《三命通会》亦言“谈命者多不取纳音”。本站以正五行定十神、格局、旺衰、喜忌并断吉凶，纳音诸表只作气象、六亲与取象之辅助参证，不专以纳音定祸福。《兰台妙选》诸格属纳音取象一路，同作古法参证，不并入综合用神与吉凶主线。两说并存，用者各取所需。</p></div></details>`;
 
   h += `</div></details>`;
   return h;
