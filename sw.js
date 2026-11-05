@@ -1,3 +1,6 @@
+/* Service Worker 模板：sw.js 由 build_manifest.js 以本件为底生成。
+   壳清单源件是 build/site/sw.shell.json，BUILD 行按发布内容哈希写入；本件两段都用占位，
+   生成时整体替换，运行期文件不入库。 */
 /* 玄机排盘 Service Worker：稳定路径按版本取，HTML 网络优先
    策略：
    - HTML 导航：网络优先，在线取当前版本并回写；断网回落同 URL 缓存，再回落首页壳；
@@ -7,7 +10,7 @@
    - 预缓存壳清单与构建清单所列稳定资源，单项失败不阻断安装。
    版本：BUILD 由构建入口按内容哈希写入，随清单同批生成；稳定资源按 BUILD 分桶缓存。
    缓存：壳仓随 BUILD 换代清理，哈希资源仓按内容寻址、跨版本保留。 */
-const BUILD = 'd3d6b716be3d';
+const BUILD = '85aba274bdb4';
 const CACHE_SHELL = 'xj-shell-' + BUILD;
 const CACHE_IMMUTABLE = 'xj-immutable-v1';
 const MANIFEST_URL = './assets/build-manifest.json';
@@ -24,7 +27,6 @@ const SHELL = [
   './404.html',
   './manifest.webmanifest',
   './assets/fonts/noto-serif-sc.css',
-  './assets/fonts/nssc-chrome.woff2',
   './assets/fonts/site-sym.css',
   './assets/lunar-today-2026.js'
 ];

@@ -3753,7 +3753,7 @@ function renderNayinModule(cols, dayGan){
   h += `<p class="ly-zh-p">${notes.join('；')}${toneJudge}。</p>`;
   h += `</div>`;
 
-  // 6. 兰台妙选纳音格局（三篇全目，古法参证，独立于子平综合用神与吉凶主线）
+  // 6. 兰台妙选纳音论命（三篇全目，古法参证，独立于子平综合用神与吉凶主线）
   const _LT = (typeof window !== 'undefined' && window.LANTAI) ? window.LANTAI : null;
   if(_LT && typeof _LT.judge === 'function'){
     let _lr = null;
