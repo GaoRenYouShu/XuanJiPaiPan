@@ -16,7 +16,7 @@
 [![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-35-2CA5E0?style=flat-square)](#feature-overview)
+[![Tools](https://img.shields.io/badge/Tools-36-2CA5E0?style=flat-square)](#feature-overview)
 [![Pure frontend](https://img.shields.io/badge/Pure_frontend-Zero_build-4c9e4c?style=flat-square)](#tech-stack)
 [![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
 [![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
@@ -37,7 +37,7 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Seven categories with 35 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi and Physiognomy.
+Seven categories with 36 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi and Physiognomy.
 
 | Category | Tools |
 |---|---|
@@ -45,7 +45,7 @@ Seven categories with 35 independent tools: Calendars, Fate Analysis, Three Styl
 | **Fate Analysis** | BaZi Chart, BaZi Compatibility, Zi Wei Dou Shu, He Luo Numerology, Tie Ban Shen Shu, Name Analysis, Western Astrology, Qizheng Siyu |
 | **Three Styles** | Qi Men Dun Jia, Da Liu Ren, Tai Yi Shen Shu |
 | **Divination** | Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Fortune Sticks, Tarot, Lenormand |
-| **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac |
+| **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi |
 | **Physiognomy** | Palmistry, Face Reading, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui, Luopan |
 
@@ -99,13 +99,14 @@ Introduced in the order of the site's seven sections.
 - **Tarot**: the 78-card Rider-Waite deck, six spreads, upright and reversed keywords with readings by domain, and astrological correspondences
 - **Lenormand**: 36 cards, seven spreads, a full 630-pair combination dictionary, playing-card correspondences, significator houses and knight-move reading
 
-### Folk Practices (5)
+### Folk Practices (6)
 
 - **Folk Divination**: bone-weight fortune, offending-month lookup, natal Buddha, phone-number eight-star magnetism and the Book of Three Lives
 - **Character Divination**: a curated glyph-splitting dictionary with question-driven splits, six-script annotations, added and removed stroke transformations, component glosses, Kangxi stroke counts, plum-blossom hexagrams, and hour and day correspondences
 - **Duke of Zhou Dream Interpretation**: the full 951-entry text in 27 categories from the common edition, with dual-source comparison, keyword search and category browsing
 - **Twenty-Eight Mansions**: natal mansion, Yanqin and mansion-based daily suitability, with the twelve palace divisions, the 24-mountain mansion mapping and judgments from the Treatise on the Celestial Offices
 - **Tai Sui and Zodiac**: annual Tai Sui offense checks (value, clash, punishment, harm, destruction and combination), yearly and monthly forecasts for the twelve zodiac signs, and biographies of the 60 Tai Sui generals
+- **Sacrificial Offerings**: seasonal rites, deity festivals, ancestral offerings, offerings and ritual taboos, queried by date, deity or occasion, with classical source, region and orientation for each entry
 
 ### Yunqi (1)
 
@@ -261,7 +262,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        40 pages: 35 tools plus the home page, three appendix pages and a 404 page
+├── *.html        41 pages: 36 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

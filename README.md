@@ -16,7 +16,7 @@
 [![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-35_个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-36_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
@@ -37,7 +37,7 @@
 
 ## 功能总览
 
-涵盖历法、命理、三式、占卜、民俗、运气、相术七大类，共 35 个独立工具。
+涵盖历法、命理、三式、占卜、民俗、运气、相术七大类，共 36 个独立工具。
 
 | 分类 | 工具 |
 |---|---|
@@ -45,7 +45,7 @@
 | **命理** | 八字排盘、八字合婚、紫微斗数、河洛理数、铁板神数、姓名学、占星术、七政四余 |
 | **三式** | 奇门遁甲、大六壬、太乙神数 |
 | **占卜** | 六爻、梅花易数、小六壬、灵签、塔罗牌、雷诺曼 |
-| **民俗** | 民俗占法、测字、周公解梦、二十八宿、太岁生肖 |
+| **民俗** | 民俗占法、测字、周公解梦、二十八宿、太岁生肖、祭祀供奉 |
 | **运气** | 五运六气 |
 | **相术** | 手相、面相、阳宅风水、阴宅风水、罗经仪 |
 
@@ -99,13 +99,14 @@
 - **塔罗牌**：韦特体系 78 张原版牌图，六种牌阵，逐张正逆位关键词与分域牌义、占星对应
 - **雷诺曼**：36 卡七种牌阵，630 对全组合词典成句，扑克对应、指标牌宫位与马步读法
 
-### 民俗（5 件）
+### 民俗（6 件）
 
 - **民俗占法**：称骨算命、犯月查询、本命佛、手机号八星磁场、三世书
 - **测字**：精编拆字字典，含随问取拆多拆法、六书标注、加笔减笔活拆变象、部件释义、康熙数理、梅花字占卦象、时辰外应与值日冲日应期
 - **周公解梦**：通行本二十七类九百五十一句占辞全文，双底本对照，关键词检索与分类浏览
 - **二十八宿**：本命宿、演禽、值宿宜忌，附十二宫次分野、二十四山配宿与《天官书》占辞
 - **太岁生肖**：流年犯太岁判定（值冲刑害破合），十二生肖年度月度运程，六十甲子太岁星君全传
+- **祭祀供奉**：岁时祭仪、神明圣诞、祭祖供品与仪注禁忌，按日期、对象、事项三路查询，逐条标典籍出处、地域与方位
 
 ### 运气（1 件）
 
@@ -262,7 +263,7 @@ docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
 
 ```
 XuanJiPaiPan/
-├── *.html        40 个页面：35 个工具加首页、附录三类与 404 页
+├── *.html        41 个页面：36 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
 ├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理
