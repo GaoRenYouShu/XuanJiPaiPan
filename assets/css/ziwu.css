@@ -1,0 +1,230 @@
+body{--footer-ink:#333;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+/* 本页样式：只含本页用到的规则，次序与共享源一致。 */
+
+:root{
+  color-scheme:light;
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:24px;
+  --paper:#ffffff;
+  --paper2:#faf9f6;
+  --ink:#1a1a1a;
+  --ink2:#52525a;
+  --line:#ddd8cf;
+  --gold:#c9952a;
+  --gold2:#a67c28;
+  --red:#b84a3a;
+  --red2:#9e3d2f;
+  --card:#ffffff;
+  --shadow:0 1px 6px rgba(0,0,0,.08);
+  --gold-bg:#fbf7f0;
+  --tier1:17px; --tier2:16px; --tier3:14px; --tier4:13px;
+  --title:var(--gold2);
+  --nav:#1e1e1e;
+  --nav-text:#f0ece0;
+  --cal-hover:#ecebe5;
+  --cal-selected:#e2e0d8;
+  --cal-zhai:var(--cal-selected);
+  --green:#2e7d32;
+  --brown:#a0522d;
+  --gold-brown:#8a6d1f;
+  --special-bg:#f3e7d3;
+  --special-text:#8a5a00;
+  --special-border:#d8b46a;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+html,body{height:100%}
+
+/* ===== 本页主题：艾绿 ===== */
+.page-ziwu{
+  --jl:#6b7a35;
+  --jl2:#556226;
+  --jl-deep:#333d1a;
+  --jl-ink:#3a3f2f;
+  --jl-line:#d9e0c8;
+  --jl-tint:#f2f5e9;
+  --jl-ink2:#5c634f;
+  --jl-serif:var(--font-serif);
+  --line:var(--jl-line);
+  --ink:var(--jl-ink);
+  --gold:var(--jl);
+  --gold2:var(--jl2);
+  --gold-brown:var(--jl2);
+  --gold-bg:var(--jl-tint);
+  --foot-ink:var(--jl2);
+  --wheel-arc:var(--jl);
+  --wheel-cur:var(--jl2);
+  --wheel-core:var(--jl-tint);
+  --wheel-deep:var(--jl-deep);
+  --wheel-ink:var(--jl-ink);
+  --wheel-ink2:var(--jl-ink2);
+  --wheel-line:var(--jl-line);
+  --wheel-serif:var(--jl-serif);
+  --wheel-good:var(--green);
+  --wheel-bad:var(--red);
+  --wheel-h4:var(--jl2);
+}
+
+.dtm-ziwu{--tk:#6b7a35;--tk2:#556226;--tk-ink:#333d1a;--tk-line:#d9e0c8;--tk-tint:#f2f5e9}
+
+/* ===== 圆盘（站内通用件，与历法五页同制式） ===== */
+.wheel{display:block;width:100%;max-width:400px;height:auto;margin:0 auto;font-family:var(--wheel-serif,var(--font-serif));
+/* 盘内只有 .w-hit 可交互，其余（弧、刻度、圈线、指针、盘心字、内外圈字）一律不接事件。 */
+  pointer-events:none}
+.wheel .w-ring{fill:none;stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+.wheel .w-core{fill:var(--wheel-core,#fff);stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+.wheel .w-core-hollow{fill:none;stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+.wheel .w-fill{fill:var(--wheel-core,#fff);stroke:none}
+.wheel .w-tick{stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+.wheel .w-tick-j{stroke:var(--wheel-arc,#666);stroke-width:1.6}
+.wheel .w-arc{fill:none;stroke:var(--wheel-arc,#666);stroke-width:3;stroke-opacity:.22;stroke-linecap:butt}
+.wheel .w-arc-solid{stroke-opacity:1}
+.wheel .w-arc-cur{stroke:var(--wheel-cur,#333);stroke-width:4;stroke-opacity:1}
+.wheel .w-needle{stroke:var(--wheel-cur,#333);stroke-width:1.5;stroke-linecap:butt}
+.wheel .w-dot{fill:var(--wheel-cur,#333)}
+.wheel .w-c1{font-size:22px;font-weight:400;letter-spacing:.1em;fill:var(--wheel-deep,#333);text-anchor:middle;dominant-baseline:central}
+.wheel .w-c2{font-size:12.5px;letter-spacing:.08em;fill:var(--wheel-ink2,#666);text-anchor:middle;dominant-baseline:central}
+.wheel .w-c3{font-size:11.5px;letter-spacing:.08em;fill:var(--wheel-ink2,#666);opacity:.8;text-anchor:middle;dominant-baseline:central}
+.wheel .w-lab{font-size:12.5px;fill:var(--wheel-ink,#444);text-anchor:middle;dominant-baseline:central}
+.wheel .w-lab-lg{font-size:13px}
+.wheel .w-lab-xl{font-size:14px}
+.wheel .w-lab-j{font-weight:700;fill:var(--wheel-deep,#333)}
+.wheel .w-lab-cur{font-weight:700;fill:var(--wheel-cur,#333)}
+.wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all;-webkit-tap-highlight-color:transparent}
+.wheel .w-hit:focus{outline:none}
+.wheel .w-sel{fill:none;pointer-events:none}
+@media (hover:hover) and (pointer:fine){
+.wheel .w-hit:hover+.w-sel{fill:var(--wheel-arc,#666);fill-opacity:.22}
+}
+
+/* 子午流注盘：外圈经名、内圈地支、24 小时刻度与当前时刻指针 */
+.page-ziwu .wheel .w-lab-xl{font-size:13px}
+.page-ziwu .wheel .w-lab-lg{font-size:12px}
+.page-ziwu .wheel .w-lab-cur{font-weight:400}
+.page-ziwu .w-hour{font-size:9px;fill:var(--wheel-ink2);text-anchor:middle;dominant-baseline:central}
+.page-ziwu .w-hour-dot{fill:var(--wheel-core);stroke:var(--wheel-line);stroke-width:.8}
+.page-ziwu .w-tick-24{stroke:var(--wheel-line);stroke-width:1}
+.page-ziwu .w-tick-24m{stroke:var(--wheel-ink2)}
+.page-ziwu .w-hand-hour{stroke:var(--wheel-ink);stroke-width:3;stroke-linecap:round}
+.page-ziwu .w-hand-min{stroke:var(--wheel-cur);stroke-width:1.5;stroke-linecap:round}
+.page-ziwu .w-pin{fill:var(--wheel-deep)}
+
+/* ===== 页头：卷首式 ===== */
+.page-ziwu .page h1{color:var(--jl-deep);font-family:var(--jl-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+.page-ziwu .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--jl-line);margin:0 auto var(--sp-3)}
+.page-ziwu .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--jl-line);margin:var(--sp-3) auto 0}
+.page-ziwu .page .lead{color:var(--jl-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+.page-ziwu .page .lead::after{background:var(--jl-line)}
+
+/* ===== 十二时辰条（输出区） ===== */
+.page-ziwu .jl-strip{display:grid;grid-template-columns:repeat(12,1fr);gap:1px;margin:0 0 var(--sp-3);background:var(--jl-line);border-top:1px solid var(--jl-line);border-bottom:1px solid var(--jl-line)}
+.page-ziwu .jl-strip-cell{display:flex;flex-direction:column;align-items:center;gap:2px;padding:var(--sp-2) 2px;background:var(--paper);text-align:center;cursor:pointer}
+.page-ziwu .jl-strip-cell:hover{background:var(--jl-tint)}
+.page-ziwu .jl-strip-cell b{font-size:var(--tier2);font-weight:400;color:var(--jl2);line-height:1.2}
+.page-ziwu .jl-strip-cell span{font-size:12px;color:var(--jl-ink);line-height:1.3}
+.page-ziwu .jl-strip-cell i{font-size:10px;font-style:normal;color:var(--jl-ink2);line-height:1.2;letter-spacing:.02em}
+.page-ziwu .jl-strip-cell.on{background:var(--jl-tint)}
+.page-ziwu .jl-strip-cell.on b{color:var(--jl)}
+
+/* ===== 查询行 ===== */
+.page-ziwu .form-row{align-items:flex-end}
+.page-ziwu .field label{color:var(--jl2);font-weight:400}
+.page-ziwu .field input,.page-ziwu .field select{border-color:var(--jl-line);background:var(--card);color:var(--jl-deep)}
+.page-ziwu .field input:focus,.page-ziwu .field select:focus{border-color:var(--jl);outline:none}
+.page-ziwu .jl-query{margin-top:var(--sp-4);margin-bottom:var(--sp-3)}
+.page-ziwu .jl-query .field{flex:0 0 auto}
+.page-ziwu .jl-point-query{margin-top:0;margin-bottom:var(--sp-3)}
+.page-ziwu .jl-ziliu-query{margin-top:0;margin-bottom:var(--sp-3)}
+
+/* ===== 结果区 ===== */
+.page-ziwu .jl-now{border-top:1px solid var(--jl-line);padding:var(--sp-4) 0 var(--sp-3)}
+.page-ziwu .jl-now-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-2)}
+.page-ziwu .jl-now-zhi{font-size:20px;color:var(--jl-deep);letter-spacing:.12em}
+.page-ziwu .jl-now-range{font-size:12px;color:var(--jl-ink2);letter-spacing:.06em}
+.page-ziwu .jl-now-tag{font-size:12px;color:var(--jl2);border:1px solid var(--jl-line);padding:0 var(--sp-2);line-height:1.6}
+.page-ziwu .jl-now-jing{font-size:var(--tier1);color:var(--jl-deep);letter-spacing:.08em;margin-bottom:var(--sp-3)}
+.page-ziwu .jl-now-kv{display:grid;grid-template-columns:88px 1fr;gap:var(--sp-2) var(--sp-3)}
+.page-ziwu .jl-now-kv>div{display:contents}
+.page-ziwu .jl-now-kv dt{color:var(--jl2);font-size:13px;line-height:1.8}
+.page-ziwu .jl-now-kv dd{color:var(--jl-ink);font-size:13.5px;line-height:1.8}
+.page-ziwu .jl-now-flow{margin-top:var(--sp-3);font-size:12px;line-height:1.6;color:var(--jl-ink2)}
+.page-ziwu .jl-now-song{margin-top:var(--sp-1);font-size:12px;line-height:1.6;color:var(--jl-ink2)}
+.page-ziwu .jl-strip + .jl-now{border-top:0;padding-top:0}
+
+/* ===== 模块 ===== */
+.page-ziwu .mod-head{border-top-color:var(--jl-line);border-bottom-color:var(--jl-line);margin-bottom:var(--sp-3)}
+.page-ziwu .mod-sub{color:var(--jl-ink2)}
+
+/* ===== 表格 ===== */
+.page-ziwu .jl-tbl-wrap{margin-top:var(--sp-3);overflow-x:auto}
+.page-ziwu .jl-tbl{width:100%;border-collapse:collapse;font-size:13px;line-height:1.6;border-top:1px solid var(--jl-line)}
+.page-ziwu .jl-tbl th{background:var(--jl-tint);text-align:left;font-weight:400;white-space:nowrap;color:var(--jl2);border:0;border-bottom:1px solid var(--jl-line);padding:6px 9px}
+.page-ziwu .jl-tbl td{border:0;border-bottom:1px solid var(--jl-line);padding:6px 9px;vertical-align:top;color:var(--jl-ink)}
+.page-ziwu .jl-tbl .jl-c0{white-space:nowrap;color:var(--jl-ink2)}
+.page-ziwu .jl-tbl tr.on td{background:var(--jl-tint)}
+.page-ziwu .jl-tbl tr[data-click]{cursor:pointer}
+.page-ziwu .jl-tbl tr[data-click]:hover td{background:var(--jl-tint)}
+
+/* ===== 详情卡 ===== */
+.page-ziwu .jl-card{border-top:1px solid var(--jl-line);padding-top:var(--sp-3);margin-top:var(--sp-3)}
+.page-ziwu .jl-card h4{font-size:var(--tier4);font-weight:400;color:var(--jl2);letter-spacing:.06em;margin-bottom:var(--sp-2)}
+.page-ziwu .jl-card h4 b{font-size:var(--tier2);color:var(--jl-deep);font-weight:400;margin-right:var(--sp-2)}
+.page-ziwu .jl-kv{display:grid;grid-template-columns:88px 1fr;gap:var(--sp-2) var(--sp-3)}
+.page-ziwu .jl-kv>div{display:contents}
+.page-ziwu .jl-kv dt{color:var(--jl2);font-size:13px;line-height:1.8}
+.page-ziwu .jl-kv dd{color:var(--jl-ink);font-size:13.5px;line-height:1.8}
+.page-ziwu .jl-src{font-size:12px;line-height:1.8;color:var(--jl-ink2)}
+.page-ziwu .jl-op-src{font-size:12px;color:var(--jl-ink2)}
+.page-ziwu .jl-note{margin-top:var(--sp-3);font-size:12px;line-height:1.6;color:var(--jl-ink2)}
+.page-ziwu .jl-sub{font-size:var(--tier4);font-weight:400;color:var(--jl2);letter-spacing:.06em;margin:var(--sp-3) 0 0}
+.page-ziwu .jl-empty{padding:var(--sp-3) 0;font-size:12px;line-height:1.6;color:var(--jl-ink2)}
+
+/* ===== 标签与安全提示 ===== */
+.page-ziwu .jl-tag{display:inline-block;border:1px solid var(--jl-line);color:var(--jl2);font-size:11px;line-height:1.6;padding:0 var(--sp-1);margin:0 var(--sp-1) var(--sp-1) 0}
+.page-ziwu .jl-safe{color:var(--red)}
+.page-ziwu .jl-warn{color:var(--brown)}
+.page-ziwu .jl-page-note{margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px solid var(--jl-line);font-size:12px;line-height:1.8;color:var(--jl-ink2)}
+
+/* ===== 选项卡 ===== */
+.page-ziwu .jl-tabs{display:flex;flex-wrap:wrap;gap:var(--sp-1);border-bottom:1px solid var(--jl-line);margin-bottom:var(--sp-3)}
+.page-ziwu .jl-tab{appearance:none;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--jl-ink2);font-family:inherit;font-size:13px;line-height:1.8;padding:var(--sp-1) var(--sp-2);cursor:pointer}
+.page-ziwu .jl-tab.on{color:var(--jl);border-bottom-color:var(--jl)}
+
+/* ===== 歌诀列表 ===== */
+.page-ziwu .jl-steps{margin:var(--sp-3) 0 0;padding-left:1.4em;font-size:13px;line-height:1.8;color:var(--jl-ink)}
+.page-ziwu .jl-steps li{margin-bottom:var(--sp-1)}
+
+/* ===== 附加功能 ===== */
+.page-ziwu .ai-block{border-color:var(--jl-line)}
+.page-ziwu .ai-head{color:var(--jl2)}
+
+/* ===== 窄屏 ===== */
+@media(max-width:640px){
+  .page-ziwu .jl-strip{grid-template-columns:repeat(6,1fr)}
+  .page-ziwu .jl-now-kv{grid-template-columns:72px 1fr}
+  .page-ziwu .jl-kv{grid-template-columns:72px 1fr}
+  .page-ziwu .tbl-hs table:not(.tbl-kv):has(tr>*:nth-child(4)){min-width:600px}
+}
+
+@media(max-width:390px){
+  .page-ziwu .jl-strip{grid-template-columns:repeat(4,1fr)}
+}
+
+/* ===== 打印 ===== */
+@media print{
+  .page-ziwu .jl-strip{display:none}
+  .page-ziwu .jl-query,.page-ziwu .jl-point-query,.page-ziwu .jl-ziliu-query,.page-ziwu .btn{display:none}
+  .page-ziwu .mod.collapsed .mod-body{display:block!important}
+  .page-ziwu .jl-tbl{page-break-inside:auto}
+  .page-ziwu .jl-tbl tr{page-break-inside:avoid}
+}
+
+/* page-font:begin */
+/* page-font-hash: 4cfa18a258b8 */
+@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../fonts/pages/ziwu-0.woff2) format("woff2");unicode-range:U+0020-007e, U+3000-3002, U+4e00-4e01, U+4e03, U+4e09-4e0b, U+4e0d-4e0e, U+4e11, U+4e19-4e1a, U+4e3a-4e3b, U+4e50, U+4e59, U+4e5d, U+4e8c, U+4e8f, U+4e94, U+4ea4-4ea5, U+4ec5, U+4f1a, U+4f20, U+4f4d, U+4f8b, U+4f9b, U+4fd7, U+4fde, U+4fe1, U+5019, U+5148, U+5165, U+516b-516d, U+5171, U+5173, U+5178, U+519c, U+51ac, U+51e1, U+51f8, U+5206, U+521d, U+523a-523b, U+529f-52a0, U+52df, U+52ff, U+5316, U+533a-533b, U+5341, U+5348, U+535c, U+5360, U+536f, U+5386, U+539f, U+53c2, U+53d6, U+5408, U+540c-540d, U+547d, U+56db, U+58ec, U+5904, U+590f, U+5915, U+591c, U+5927, U+5973, U+5a31, U+5b50, U+5b66, U+5b9a, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5bf9, U+5c0f, U+5c45, U+5df1, U+5df3, U+5e08, U+5e74, U+5e93, U+5e9a, U+5ea7, U+5efa, U+5eff-5f00, U+5f0f, U+5f26, U+5f52, U+5f55, U+5f85, U+5faa, U+60ca, U+620a, U+620c, U+6210, U+6247, U+6267, U+62e9, U+6309, U+6362, U+636e, U+6392, U+63d0, U+652f, U+6570, U+6587, U+65b0, U+65bd, U+65e0, U+65e2, U+65e5, U+65f6, U+660e, U+661f, U+6625, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+671f, U+672a, U+672c, U+672f, U+673a, U+6761, U+6784, U+679c, U+67e5, U+68c0, U+6b63, U+6b8b, U+6c11, U+6c14, U+6c34, U+6cbb, U+6cd5, U+6ce8, U+6cfb, U+6d41, U+6d88, U+6e05, U+6e10, U+6e90, U+6ee1, U+7075, U+7078, U+70b9, U+7167, U+7279, U+7334, U+7384, U+7406, U+751f, U+7528, U+7531-7533, U+7537, U+7597, U+75c5, U+7678, U+767d, U+7684, U+76c8, U+76d8, U+76f8, U+7709, U+770b, U+7814, U+786e, U+793a, U+79cb, U+79cd, U+7a74, U+7a76, U+7acb, U+7b97, U+7c4d, U+7d22, U+7eb3, U+7ecf, U+7ed3, U+7edc, U+7edf, U+7f6e, U+7f8a, U+8003, U+80fd, U+8109, U+814a, U+817e, U+81ea, U+81f3, U+827e, U+8292, U+836f, U+86c7, U+86f0, U+86fe, U+8840, U+884c, U+8865, U+8bae, U+8bbe, U+8bca, U+8be2, U+8bef, U+8bf4, U+8bf7, U+8c37, U+8f7d, U+8f93, U+8f9b, U+8fb0, U+8fd0, U+8ff7, U+9009, U+90c4, U+90e8, U+9149, U+914d, U+9488, U+9519, U+95ed, U+95f0, U+9644, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9875, U+987b, U+98de, U+9996, U+9a6c, U+9e21, U+9f99, U+9f9f, U+ff08-ff09, U+ff0c, U+ff1b}
+/* page-font:end */

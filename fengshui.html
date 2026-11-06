@@ -102,6 +102,8 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 #out + *{margin-top:var(--sp-4)}
 
+.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+
 .birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
   flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
   border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
@@ -243,10 +245,6 @@ section.mod{background:transparent;border:none;border-radius:0;padding:0;box-sha
 
 @media(max-width:640px){
 .mod-head{padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-2);flex-wrap:wrap}
-
-.mod-title{flex-shrink:0;white-space:nowrap;letter-spacing:.3px}
-
-.mod-sub{flex:1 0 100%;margin-left:0;margin-top:var(--sp-1);font-size:11px;line-height:1.45}
 }
 
 .page-fs #baseDecl,.page-fy #baseDecl{width:117px}
@@ -266,6 +264,8 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .nf-home:hover{border-color:#c65a48;color:#c65a48}
 }
+
+.page-fs .sub-note{color:var(--fs-ink2)}
 
 .page-fs .fs-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end}
 
@@ -437,6 +437,7 @@ html .page-fs {
     </div></div>
     <div class="nav-group" data-gi="6"><button class="nav-top" onclick="toggleNavGroup(this)">运气<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="yunqi.html">五运六气</a>
+      <a class="" href="ziwu.html">子午流注</a>
     </div></div>
     <div class="nav-group has-active" data-gi="7"><button class="nav-top" onclick="toggleNavGroup(this)">相术<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="shouxiang.html">手相</a>
@@ -458,9 +459,10 @@ html .page-fs {
 <div class="wrap page-fs" data-built="2026-10-30">
   <div class="page">
     <h1>阳宅风水</h1>
-    <div class="lead">阳宅理气与形法并重：年月日时紫白飞星、八宅方位、玄空当运与二十四山立极。</div>
+    <div class="lead">阳宅形法与理气并重：先察外局形煞，再以年月日时紫白、八宅方位、玄空当运与二十四山立极定吉凶。</div>
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">基础设定（全页共用，改后自动联动）</div>
+      <div class="sub-note">按实勘顺序：先看第一层外局与形煞，再定坐向与门位；点起盘后看第二层立向、第三层定人、第四层流年与第五层布局。改任一基础项会自动重算。</div>
       <div class="fs-row">
           <div class="field" data-built="2026-10-29"><label for="baseDate">出生日期</label><span class="dt-wrap"><input type="text" class="dt-input fs-inp-w130" id="baseDate" value="2026-10-29" onchange="syncZibaiDate()"></span></div>
         <div class="field"><label for="baseTime">出生时间</label><span class="dt-wrap"><input type="time" id="baseTime" onchange="syncZibaiDate()"></span></div>
@@ -495,184 +497,8 @@ html .page-fs {
     </div>
     <div class="stage2-late">
 <section class="mod fs-mod collapsed" id="fsmod-l1">
-<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☵</span><span class="mod-title">第一层 定运</span><span class="mod-sub">年月日时紫白飞星</span></div>
+<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☶</span><span class="mod-title">第一层 实勘</span><span class="mod-sub">外局四势 形煞自检 峦头三因子 环境自检 金锁玉关 宅形图诀</span><span class="mod-score" id="modSc-l1"></span></div>
 <div class="mod-body">
-    <div class="fs-row">
-      <div class="field"><label for="zbDate">公历日期</label><input type="text" class="dt-input fs-inp-w130" id="zbDate" onchange="drawZiBai()"></div>
-      <div class="field"><label for="zbHour">时辰（选填，未选默认子时）</label><select id="zbHour" onchange="drawZiBai()"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
-      <button class="btn" id="zbTab0" onclick="fsZbTab(0)">年飞星</button>
-      <button class="btn" id="zbTab1" onclick="fsZbTab(1)">月飞星</button>
-      <button class="btn" id="zbTab2" onclick="fsZbTab(2)">日飞星</button>
-      <button class="btn" id="zbTab3" onclick="fsZbTab(3)">时飞星</button>
-    </div>
-    <div id="zibaiOut"></div>
-    <div id="starMeanOut"></div>
-</div>
-</section>
-<section class="mod fs-mod collapsed" id="fsmod-l2">
-<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">第二层 立向</span><span class="mod-sub">玄空飞星盘 高级格局 九星组合 二十四山立极 三合水法 消亡水 零正神 玄空六法 宿度分金</span><span class="mod-score" id="modSc-l2"></span></div>
-<div class="mod-body">
-    <div class="fs-base">
-      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
-      <div class="fs-row">
-        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
-      </div>
-    </div>
-<h3 class="rel-title">玄空飞星盘（山向盘）</h3>
-    <div id="xkOut"></div>
-<h3 class="rel-title">玄空高级格局（三般卦 连茹 七星打劫 城门诀 令星入囚）</h3>
-    <div id="ggOut"></div>
-<h3 class="rel-title">九星组合断事（继承玄空盘）</h3>
-    <div id="cbOut"></div>
-<h3 class="rel-title">二十四山坐山立极</h3>
-    <div id="shanOut"></div>
-<h3 class="rel-title">三合水法（长生十二宫）</h3>
-    <div id="shOut"></div>
-<h3 class="rel-title">消亡水（先后天卦位水口）</h3>
-    <div class="fs-row">
-      <div class="field"><label for="xwLai">来水位（二十四山）</label><select id="xwLai"></select></div>
-      <div class="field"><label for="xwQu">去水位（二十四山）</label><select id="xwQu"></select></div>
-      <button class="btn gold" onclick="drawXiaoWang()">断消亡水</button>
-    </div>
-    <div id="xwOut"></div>
-<h3 class="rel-title">零正神方位（拨水入零堂）</h3>
-    <div id="lzOut"></div>
-<h3 class="rel-title">玄空六法（谈氏参断）</h3>
-    <div id="lfOut"></div>
-<h3 class="rel-title">二十八宿分金</h3>
-    <div class="fs-row">
-      <div class="field"><label for="fjXm">宅主出生年（选填）</label><input type="number" id="fjXm" value="" min="1800" max="2100" class="fs-inp-w100" placeholder="选填"></div>
-      <button class="btn gold" onclick="drawXiuFen()">查宿度分金</button>
-    </div>
-    <div id="fjOut"></div>
-</div>
-</section>
-<section class="mod fs-mod collapsed" id="fsmod-l3">
-<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☴</span><span class="mod-title">第三层 定人</span><span class="mod-sub">八宅吉凶方位 阳宅三要 穿宫九星 阳宅六事 家人宫位</span><span class="mod-score" id="modSc-l3"></span></div>
-<div class="mod-body">
-    <div class="fs-base">
-      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
-      <div class="fs-row">
-        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
-      </div>
-    </div>
-<div class="fs-board-title fs-title-left fs-mt-3">理气人宅</div>
-<h3 class="rel-title">八宅吉凶方位</h3>
-    <div id="bazhaiOut"></div>
-<h3 class="rel-title">阳宅三要</h3>
-    <div class="fs-row">
-      <div class="field"><label for="yzMethod">起星法</label><select id="yzMethod" onchange="fsReSanYao()"><option value="sit">以坐山起伏位</option><option value="door">以门起伏位</option></select></div>
-      <div class="field"><label for="yzDoor">门方位</label><select id="yzDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
-      <div class="field"><label for="yzMain">主方位</label><select id="yzMain" onchange="fsReSanYao()"><option value="">未填</option><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
-      <div class="field"><label for="yzStove">灶座</label><select id="yzStove" title="灶座真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="">未填</option><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
-      <div class="field"><label for="yzStoveDir">灶向</label><select id="yzStoveDir" title="灶向真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="">未填</option><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
-      <button class="btn gold" onclick="fsReSanYao()">断三要</button>
-    </div>
-    <div id="sanyaoOut"></div>
-<h3 class="rel-title">穿宫九星（竹节贯井法）</h3>
-    <div class="fs-row">
-      <div class="field"><label for="cgDoor">大门方位</label><select id="cgDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
-      <div class="field"><label for="cgN">进数（层数）</label><select id="cgN" onchange="drawChuanGong()"><option value="3">3 进</option><option value="4">4 进</option><option value="5" selected>5 进</option><option value="6">6 进</option><option value="7">7 进</option><option value="8">8 进</option><option value="9">9 进</option></select></div>
-      <button class="btn gold" onclick="drawChuanGong()">穿宫</button>
-    </div>
-    <div id="cgOut"></div>
-<h3 class="rel-title">阳宅六事（门路灶井厕磨，附安床）</h3>
-    <div class="fs-row">
-      <div class="field"><label for="lsDoor">门</label><select id="lsDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
-      <div class="field"><label for="lsRoad">路</label><select id="lsRoad" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label for="lsStove">灶座</label><select id="lsStove" class="fs-lb-stove" title="与三要同源（灶座真值在三要），改此处三要联动" onchange="fsSetLocalStove(this)"></select></div>
-      <div class="field"><label for="lsStoveDir">灶口（向）</label><select id="lsStoveDir" class="fs-lb-stovedir" title="与三要同源（灶向真值在三要），改此处三要联动" onchange="fsSetLocalStoveDir(this)"></select></div>
-      <div class="field"><label for="lsBed">床</label><select id="lsBed" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label for="lsWell">井（饮水位）</label><select id="lsWell" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label for="lsWc">坑厕（卫生间）</label><select id="lsWc" onchange="drawLiuShi()"></select></div>
-      <div class="field"><label for="lsMill">碓磨（洗衣机）</label><select id="lsMill" onchange="drawLiuShi()"></select></div>
-      <button class="btn gold" onclick="drawLiuShi()">断六事</button>
-    </div>
-    <div id="lsOut"></div>
-<h3 class="rel-title">家人宫位</h3>
-    <div class="sub-note fs-mt-2">角色固定八类，角色与性别联动，同一角色只取一处；宅主行即基础设定。</div>
-    <div class="sub-note">宫位取角色宫，九星取命卦到角色宫之星，财位取生气方，流年只报四煞。</div>
-    <div class="fs-row fs-mt-3">
-      <div class="field"><label for="fsMemRole1">角色</label><select id="fsMemRole1" aria-label="宅主角色" onchange="fsMemRoleChange(this)"><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
-      <div class="field"><label for="fsMemName1">称谓</label><input id="fsMemName1" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="宅主称谓" oninput="drawMembers()"></div>
-      <div class="field"><label for="fsMemDate1">出生日期</label><span class="dt-wrap"><input id="fsMemDate1" type="text" class="dt-input" data-keep aria-label="宅主出生日期" onchange="fsMemBaseChange()"></span></div>
-      <div class="field"><label for="fsMemSex1">性别</label><select id="fsMemSex1" aria-label="宅主性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
-    </div>
-    <div class="fs-row fs-mt-3">
-      <div class="field"><select id="fsMemRole2" aria-label="成员二角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
-      <div class="field"><input id="fsMemName2" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员二称谓" oninput="drawMembers()"></div>
-      <div class="field"><span class="dt-wrap"><input id="fsMemDate2" type="text" class="dt-input" aria-label="成员二出生日期" onchange="drawMembers()"></span></div>
-      <div class="field"><select id="fsMemSex2" aria-label="成员二性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
-    </div>
-    <div class="fs-row fs-mt-3">
-      <div class="field"><select id="fsMemRole3" aria-label="成员三角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
-      <div class="field"><input id="fsMemName3" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员三称谓" oninput="drawMembers()"></div>
-      <div class="field"><span class="dt-wrap"><input id="fsMemDate3" type="text" class="dt-input" aria-label="成员三出生日期" onchange="drawMembers()"></span></div>
-      <div class="field"><select id="fsMemSex3" aria-label="成员三性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
-    </div>
-    <div class="fs-row fs-mt-3">
-      <div class="field"><select id="fsMemRole4" aria-label="成员四角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
-      <div class="field"><input id="fsMemName4" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员四称谓" oninput="drawMembers()"></div>
-      <div class="field"><span class="dt-wrap"><input id="fsMemDate4" type="text" class="dt-input" aria-label="成员四出生日期" onchange="drawMembers()"></span></div>
-      <div class="field"><select id="fsMemSex4" aria-label="成员四性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
-    </div>
-    <div class="fs-row fs-mt-3">
-      <div class="field"><select id="fsMemRole5" aria-label="成员五角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
-      <div class="field"><input id="fsMemName5" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员五称谓" oninput="drawMembers()"></div>
-      <div class="field"><span class="dt-wrap"><input id="fsMemDate5" type="text" class="dt-input" aria-label="成员五出生日期" onchange="drawMembers()"></span></div>
-      <div class="field"><select id="fsMemSex5" aria-label="成员五性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
-    </div>
-    <div class="fs-row fs-mt-3">
-      <div class="field"><select id="fsMemRole6" aria-label="成员六角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
-      <div class="field"><input id="fsMemName6" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员六称谓" oninput="drawMembers()"></div>
-      <div class="field"><span class="dt-wrap"><input id="fsMemDate6" type="text" class="dt-input" aria-label="成员六出生日期" onchange="drawMembers()"></span></div>
-      <div class="field"><select id="fsMemSex6" aria-label="成员六性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
-    </div>
-    <div class="fs-tbl-scroll fs-mt-3"><table class="fs-mean-tbl"><thead><tr><th>成员</th><th>年命</th><th>命卦</th><th>宫位九星</th><th>身体</th><th>财位</th><th>流年</th></tr></thead><tbody id="fsMemBody"></tbody></table></div>
-    <div class="fs-src">依据：八宅命卦、角色宫、游年九星、流年四煞；置信：中；不作病名与财数之断。</div>
-    <div class="fs-hint">外局房份见第五层“外局与布局”。</div>
-</div>
-</section>
-<section class="mod fs-mod collapsed" id="fsmod-l4">
-<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☷</span><span class="mod-title">第四层 流年避煞</span><span class="mod-sub">流年飞星叠断 流年太岁 本命真太岁 三煞五黄方位</span><span class="mod-score" id="modSc-l4"></span></div>
-<div class="mod-body">
-    <div class="fs-base">
-      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
-      <div class="fs-row">
-        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
-      </div>
-    </div>
-<h3 class="rel-title">流年飞星叠宅运盘（岁运叠断）</h3>
-    <div id="sdOut"></div>
-    <div class="sub-note fs-bordertop fs-t-gold-b">流年太岁、岁破、三煞、年五黄方位与本命真太岁</div>
-    <div class="fs-row">
-      <div class="field"><label for="nsBirth">本命真太岁（选填）</label><input type="number" id="nsBirth" value="" min="1900" max="2100" class="fs-inp-w130" placeholder="留空只算流年"></div>
-      <button class="btn gold" onclick="drawNianSha()">查方位</button>
-    </div>
-    <div id="nianshaOut"></div>
-</div>
-</section>
-<section class="mod fs-mod collapsed" id="fsmod-l5">
-<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☶</span><span class="mod-title">第五层 外局与布局</span><span class="mod-sub">外局四势 形煞自检 峦头三因子 形煞推断 环境自检 金锁玉关 宅形图诀 布局建议 催旺布局 综合裁决 依据置信</span><span class="mod-score" id="modSc-l5"></span></div>
-<div class="mod-body">
-    <div class="fs-base">
-      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
-      <div class="fs-row">
-        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
-        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
-        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
-        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
-      </div>
-    </div>
 <div class="fs-board-title fs-title-left fs-mt-3">外局取证</div>
 <div id="ssWrap">
 <h3 class="rel-title">外局四势与房份</h3>
@@ -792,11 +618,239 @@ html .page-fs {
 <h3 class="rel-title">宅形自检（《阳宅十书》图诀）</h3>
     <div class="fs-row"><div class="field"><label for="zxSel">宅形</label><select id="zxSel" onchange="drawZhaiXing()"></select></div></div>
     <div id="zxOut"></div>
+</div>
+</section>
+<section class="mod fs-mod collapsed" id="fsmod-l2">
+<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☰</span><span class="mod-title">第二层 立向</span><span class="mod-sub">玄空飞星盘 高级格局 九星组合 二十四山立极 三合水法 消亡水 零正神 玄空六法 宿度分金</span><span class="mod-score" id="modSc-l2"></span></div>
+<div class="mod-body">
+    <div class="fs-base">
+      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
+      <div class="fs-row">
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+      </div>
+    </div>
+<h3 class="rel-title">玄空飞星盘（山向盘）</h3>
+    <div id="xkOut"></div>
+<h3 class="rel-title">玄空高级格局（三般卦 连茹 七星打劫 城门诀 令星入囚）</h3>
+    <div id="ggOut"></div>
+<h3 class="rel-title">玄空大卦抽爻换象</h3>
+    <div class="sub-note">选六十四卦，逐爻变出六变卦；只作立向参详，吉凶须结合卦运、爻位与山向。</div>
+    <div class="fs-row fs-mt-2">
+      <div class="field"><label for="cyGua">六十四卦</label><select id="cyGua" onchange="drawChouYao()"></select></div>
+      <button class="btn gold" onclick="drawChouYao()">抽爻</button>
+    </div>
+    <div id="cyOut"></div>
+<h3 class="rel-title">九星组合断事（继承玄空盘）</h3>
+    <div id="cbOut"></div>
+<h3 class="rel-title">二十四山坐山立极</h3>
+    <div id="shanOut"></div>
+<h3 class="rel-title">三合水法（长生十二宫）</h3>
+    <div id="shOut"></div>
+<h3 class="rel-title">消亡水（先后天卦位水口）</h3>
+    <div class="fs-row">
+      <div class="field"><label for="xwLai">来水位（二十四山）</label><select id="xwLai"></select></div>
+      <div class="field"><label for="xwQu">去水位（二十四山）</label><select id="xwQu"></select></div>
+      <button class="btn gold" onclick="drawXiaoWang()">断消亡水</button>
+    </div>
+    <div id="xwOut"></div>
+<h3 class="rel-title">零正神方位（拨水入零堂）</h3>
+    <div id="lzOut"></div>
+<h3 class="rel-title">玄空六法（谈氏参断）</h3>
+    <div id="lfOut"></div>
+<h3 class="rel-title">二十八宿分金</h3>
+    <div class="fs-row">
+      <div class="field"><label for="fjXm">宅主出生年（选填）</label><input type="number" id="fjXm" value="" min="1800" max="2100" class="fs-inp-w100" placeholder="选填"></div>
+      <button class="btn gold" onclick="drawXiuFen()">查宿度分金</button>
+    </div>
+    <div id="fjOut"></div>
+</div>
+</section>
+<section class="mod fs-mod collapsed" id="fsmod-l3">
+<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☴</span><span class="mod-title">第三层 定人</span><span class="mod-sub">八宅吉凶方位 阳宅三要 穿宫九星 阳宅六事 家人宫位</span><span class="mod-score" id="modSc-l3"></span></div>
+<div class="mod-body">
+    <div class="fs-base">
+      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
+      <div class="fs-row">
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+      </div>
+    </div>
+<div class="fs-board-title fs-title-left fs-mt-3">理气人宅</div>
+<h3 class="rel-title">八宅吉凶方位</h3>
+    <div id="bazhaiOut"></div>
+<h3 class="rel-title">阳宅三要</h3>
+    <div class="fs-row">
+      <div class="field"><label for="yzMethod">起星法</label><select id="yzMethod" onchange="fsReSanYao()"><option value="sit">以坐山起伏位</option><option value="door">以门起伏位</option></select></div>
+      <div class="field"><label for="yzDoor">门方位</label><select id="yzDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
+      <div class="field"><label for="yzMain">主方位</label><select id="yzMain" onchange="fsReSanYao()"><option value="">未填</option><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
+      <div class="field"><label for="yzStove">灶座</label><select id="yzStove" title="灶座真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="">未填</option><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
+      <div class="field"><label for="yzStoveDir">灶向</label><select id="yzStoveDir" title="灶向真值（六事同源，改此处六事联动）" onchange="fsReSanYao()"><option value="">未填</option><option value="坎">坎北</option><option value="坤">坤西南</option><option value="震">震东</option><option value="巽">巽东南</option><option value="乾">乾西北</option><option value="兑">兑西</option><option value="艮">艮东北</option><option value="离">离南</option></select></div>
+      <button class="btn gold" onclick="fsReSanYao()">断三要</button>
+    </div>
+    <div id="sanyaoOut"></div>
+<h3 class="rel-title">穿宫九星（竹节贯井法）</h3>
+    <div class="fs-row">
+      <div class="field"><label for="cgDoor">大门方位</label><select id="cgDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
+      <div class="field"><label for="cgN">进数（层数）</label><select id="cgN" onchange="drawChuanGong()"><option value="3">3 进</option><option value="4">4 进</option><option value="5" selected>5 进</option><option value="6">6 进</option><option value="7">7 进</option><option value="8">8 进</option><option value="9">9 进</option></select></div>
+      <button class="btn gold" onclick="drawChuanGong()">穿宫</button>
+    </div>
+    <div id="cgOut"></div>
+<h3 class="rel-title">阳宅六事（门路灶井厕磨，附安床）</h3>
+    <div class="fs-row">
+      <div class="field"><label for="lsDoor">门</label><select id="lsDoor" class="fs-lb-door" title="与基础设定同源，改此处全页联动" onchange="fsSetLocalDoor(this)"></select></div>
+      <div class="field"><label for="lsRoad">路</label><select id="lsRoad" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsStove">灶座</label><select id="lsStove" class="fs-lb-stove" title="与三要同源（灶座真值在三要），改此处三要联动" onchange="fsSetLocalStove(this)"></select></div>
+      <div class="field"><label for="lsStoveDir">灶口（向）</label><select id="lsStoveDir" class="fs-lb-stovedir" title="与三要同源（灶向真值在三要），改此处三要联动" onchange="fsSetLocalStoveDir(this)"></select></div>
+      <div class="field"><label for="lsBed">床</label><select id="lsBed" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsWell">井（饮水位）</label><select id="lsWell" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsWc">坑厕（卫生间）</label><select id="lsWc" onchange="drawLiuShi()"></select></div>
+      <div class="field"><label for="lsMill">碓磨（洗衣机）</label><select id="lsMill" onchange="drawLiuShi()"></select></div>
+      <button class="btn gold" onclick="drawLiuShi()">断六事</button>
+    </div>
+    <div id="lsOut"></div>
+<h3 class="rel-title">家人宫位</h3>
+    <div class="sub-note fs-mt-2">角色固定八类，角色与性别联动，同一角色只取一处；宅主行即基础设定。</div>
+    <div class="sub-note">宫位取角色宫，九星取命卦到角色宫之星，财位取生气方，流年只报四煞。</div>
+    <div class="fs-row fs-mt-3">
+      <div class="field"><label for="fsMemRole1">角色</label><select id="fsMemRole1" aria-label="宅主角色" onchange="fsMemRoleChange(this)"><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
+      <div class="field"><label for="fsMemName1">称谓</label><input id="fsMemName1" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="宅主称谓" oninput="drawMembers()"></div>
+      <div class="field"><label for="fsMemDate1">出生日期</label><span class="dt-wrap"><input id="fsMemDate1" type="text" class="dt-input" data-keep aria-label="宅主出生日期" onchange="fsMemBaseChange()"></span></div>
+      <div class="field"><label for="fsMemSex1">性别</label><select id="fsMemSex1" aria-label="宅主性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
+    </div>
+    <div class="fs-row fs-mt-3">
+      <div class="field"><select id="fsMemRole2" aria-label="成员二角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
+      <div class="field"><input id="fsMemName2" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员二称谓" oninput="drawMembers()"></div>
+      <div class="field"><span class="dt-wrap"><input id="fsMemDate2" type="text" class="dt-input" aria-label="成员二出生日期" onchange="drawMembers()"></span></div>
+      <div class="field"><select id="fsMemSex2" aria-label="成员二性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
+    </div>
+    <div class="fs-row fs-mt-3">
+      <div class="field"><select id="fsMemRole3" aria-label="成员三角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
+      <div class="field"><input id="fsMemName3" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员三称谓" oninput="drawMembers()"></div>
+      <div class="field"><span class="dt-wrap"><input id="fsMemDate3" type="text" class="dt-input" aria-label="成员三出生日期" onchange="drawMembers()"></span></div>
+      <div class="field"><select id="fsMemSex3" aria-label="成员三性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
+    </div>
+    <div class="fs-row fs-mt-3">
+      <div class="field"><select id="fsMemRole4" aria-label="成员四角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
+      <div class="field"><input id="fsMemName4" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员四称谓" oninput="drawMembers()"></div>
+      <div class="field"><span class="dt-wrap"><input id="fsMemDate4" type="text" class="dt-input" aria-label="成员四出生日期" onchange="drawMembers()"></span></div>
+      <div class="field"><select id="fsMemSex4" aria-label="成员四性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
+    </div>
+    <div class="fs-row fs-mt-3">
+      <div class="field"><select id="fsMemRole5" aria-label="成员五角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
+      <div class="field"><input id="fsMemName5" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员五称谓" oninput="drawMembers()"></div>
+      <div class="field"><span class="dt-wrap"><input id="fsMemDate5" type="text" class="dt-input" aria-label="成员五出生日期" onchange="drawMembers()"></span></div>
+      <div class="field"><select id="fsMemSex5" aria-label="成员五性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
+    </div>
+    <div class="fs-row fs-mt-3">
+      <div class="field"><select id="fsMemRole6" aria-label="成员六角色" onchange="fsMemRoleChange(this)"><option value="">未定</option><option value="父">父</option><option value="母">母</option><option value="长男">长男</option><option value="长女">长女</option><option value="中男">中男</option><option value="中女">中女</option><option value="少男">少男</option><option value="少女">少女</option></select></div>
+      <div class="field"><input id="fsMemName6" type="text" class="fs-inp-w100" maxlength="6" placeholder="选填" aria-label="成员六称谓" oninput="drawMembers()"></div>
+      <div class="field"><span class="dt-wrap"><input id="fsMemDate6" type="text" class="dt-input" aria-label="成员六出生日期" onchange="drawMembers()"></span></div>
+      <div class="field"><select id="fsMemSex6" aria-label="成员六性别" onchange="fsMemSexChange(this)"><option value="1">男</option><option value="0">女</option></select></div>
+    </div>
+    <div class="fs-tbl-scroll fs-mt-3"><table class="fs-mean-tbl"><thead><tr><th>成员</th><th>年命</th><th>命卦</th><th>宫位九星</th><th>身体</th><th>财位</th><th>流年</th></tr></thead><tbody id="fsMemBody"></tbody></table></div>
+    <div class="fs-src">依据：八宅命卦、角色宫、游年九星、流年四煞；置信：中；不作病名与财数之断。</div>
+    <div class="fs-hint">外局房份见第一层“实勘”。</div>
+</div>
+</section>
+<section class="mod fs-mod collapsed" id="fsmod-l4">
+<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☷</span><span class="mod-title">第四层 流年</span><span class="mod-sub">年月日时紫白 流年飞星叠断 流年太岁 本命真太岁 三煞五黄方位</span><span class="mod-score" id="modSc-l4"></span></div>
+<div class="mod-body">
+    <div class="fs-base">
+      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
+      <div class="fs-row">
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+      </div>
+    </div>
+    <div class="fs-row">
+      <div class="field"><label for="zbDate">公历日期</label><input type="text" class="dt-input fs-inp-w130" id="zbDate" onchange="drawZiBai()"></div>
+      <div class="field"><label for="zbHour">时辰（选填，未选默认子时）</label><select id="zbHour" onchange="drawZiBai()"><option value="-1">不计</option><option value="0">子(23-01)</option><option value="1">丑(01-03)</option><option value="2">寅(03-05)</option><option value="3">卯(05-07)</option><option value="4">辰(07-09)</option><option value="5">巳(09-11)</option><option value="6">午(11-13)</option><option value="7">未(13-15)</option><option value="8">申(15-17)</option><option value="9">酉(17-19)</option><option value="10">戌(19-21)</option><option value="11">亥(21-23)</option></select></div>
+      <button class="btn" id="zbTab0" onclick="fsZbTab(0)">年飞星</button>
+      <button class="btn" id="zbTab1" onclick="fsZbTab(1)">月飞星</button>
+      <button class="btn" id="zbTab2" onclick="fsZbTab(2)">日飞星</button>
+      <button class="btn" id="zbTab3" onclick="fsZbTab(3)">时飞星</button>
+    </div>
+    <div id="zibaiOut"></div>
+    <div id="starMeanOut"></div>
+<h3 class="rel-title">流年飞星叠宅运盘（岁运叠断）</h3>
+    <div id="sdOut"></div>
+    <div class="sub-note fs-bordertop fs-t-gold-b">流年太岁、岁破、三煞、年五黄方位与本命真太岁</div>
+    <div class="fs-row">
+      <div class="field"><label for="nsBirth">本命真太岁（选填）</label><input type="number" id="nsBirth" value="" min="1900" max="2100" class="fs-inp-w130" placeholder="留空只算流年"></div>
+      <button class="btn gold" onclick="drawNianSha()">查方位</button>
+    </div>
+    <div id="nianshaOut"></div>
+</div>
+</section>
+<section class="mod fs-mod collapsed" id="fsmod-l5">
+<div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☶</span><span class="mod-title">第五层 布局</span><span class="mod-sub">布局建议 催旺布局 财位文昌桃花 鲁班尺 楼层 室内细部 化煞物品 选房验房 场所专法 综合裁决</span></div>
+<div class="mod-body">
+    <div class="fs-base">
+      <div class="fs-board-title fs-title-left">本层坐向（与基础设定同源，改此处全页联动）</div>
+      <div class="fs-row">
+        <div class="field"><label>坐山</label><select aria-label="坐山" class="fs-lb-sit" onchange="fsSetLocalBase('sit',this)"></select></div>
+        <div class="field"><label>向首</label><select aria-label="向首" class="fs-lb-face" onchange="fsSetLocalBase('face',this)"></select></div>
+        <div class="field"><label>实测坐度</label><input aria-label="实测坐度" type="number" class="fs-lb-deg fs-inp-w100" min="0" max="360" step="0.1" placeholder="正针坐度°" onchange="fsSetLocalBase('deg',this)"></div>
+        <div class="field"><label>流年</label><input aria-label="流年" type="number" class="fs-lb-year fs-inp-w90" min="1864" max="2100" onchange="fsSetLocalBase('year',this)"></div>
+      </div>
+    </div>
 <div class="fs-board-title fs-title-left fs-mt-3">布局输出</div>
 <h3 class="rel-title">阳宅布局建议（综合）</h3>
     <div id="yzOut"></div>
 <h3 class="rel-title">催旺布局（催财催官催桃花）</h3>
     <div id="cuiOut"></div>
+<div class="fs-board-title fs-title-left fs-mt-3">财位与文昌桃花</div>
+<h3 class="rel-title" id="fs-cw">财位（明财位与暗财位）</h3>
+    <div class="sub-note">明财位取进门斜对角聚气之位，暗财位取八宅生气、玄空向星、流年八白与本命生气四法；两说并列，不一致时以暗财位为主、明财位为辅。</div>
+    <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawCaiWei()">排财位</button></div>
+    <div id="cwOut"></div>
+<h3 class="rel-title" id="fs-wc">文昌位（本命、流年、八宅、玄空）</h3>
+    <div class="sub-note">本命文昌按年干查，流年文昌取四绿飞临，八宅取生气方，玄空取四绿得令与一四同宫、四九为友。</div>
+    <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawWenChang()">排文昌位</button></div>
+    <div id="wcOut"></div>
+<h3 class="rel-title" id="fs-th">桃花位（本命、流年、八宅、玄空）</h3>
+    <div class="sub-note">本命桃花按年支咸池查，流年桃花取流年咸池与一白九紫，八宅取延年方，玄空取一白九紫得令。</div>
+    <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawTaoHua()">排桃花位</button></div>
+    <div id="thOut"></div>
+<h3 class="rel-title" id="fs-lb">鲁班尺（门公尺）</h3>
+    <div class="sub-note">量门、灶、床、神桌之内径，按鲁班尺八格判吉凶；尺长通行 42.9 厘米，另有 50.4 厘米等坊本。</div>
+    <div class="fs-row fs-mt-2">
+      <div class="field"><label for="lbCm">尺寸（厘米）</label><input type="number" id="lbCm" min="1" max="1000" step="0.1" class="fs-inp-w90" placeholder="内径"></div>
+      <div class="field"><label for="lbUse">用途</label><select id="lbUse"><option value="大门">大门</option><option value="房门">房门</option><option value="灶台">灶台</option><option value="神桌">神桌</option><option value="床">床</option><option value="办公桌">办公桌</option></select></div>
+      <button class="btn gold" onclick="drawLuBan()">量尺</button>
+    </div>
+    <div id="lbOut"></div>
+<h3 class="rel-title" id="fs-lc">楼层五行</h3>
+    <div class="sub-note">楼层五行按河图数取尾数：一六水、二七火、三八木、四九金、五十土；与宅主命卦五行论生克。</div>
+    <div class="fs-row fs-mt-2">
+      <div class="field"><label for="lcFloor">楼层</label><input type="number" id="lcFloor" min="-3" max="200" step="1" class="fs-inp-w90" placeholder="如 8"></div>
+      <button class="btn gold" onclick="drawLouCeng()">看楼层</button>
+    </div>
+    <div id="lcOut"></div>
+<h3 class="rel-title" id="fs-ind">室内细部宜忌</h3>
+    <div class="sub-note">逐项勾选家中实况，只列常见忌形与化解；未勾者视为未核，不作吉断。</div>
+    <div class="fs-row fs-mt-2" id="indRow"></div>
+    <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawIndoor()">看化解</button></div>
+    <div id="indOut"></div>
+<h3 class="rel-title" id="fs-cs">化煞物品用法</h3>
+    <div class="sub-note">只列通行法器与绿植的用途、用法与禁忌；法器以对症为先，不宜堆叠。</div>
+    <div id="csOut"></div>
+<h3 class="rel-title" id="fs-xf">选房与验房</h3>
+    <div class="fs-row fs-mt-2">
+      <div class="field"><label for="xfScene">场景</label><select id="xfScene" onchange="drawXuanFang()"><option value="buy">买房</option><option value="rent">租房</option><option value="second">二手房</option><option value="xiong">凶宅核验</option></select></div>
+      <button class="btn gold" onclick="drawXuanFang()">列核查项</button>
+    </div>
+    <div id="xfOut"></div>
+<h3 class="rel-title" id="fs-cst">场所专法（住宅、办公室、商铺、厂房）</h3>
+    <div class="sub-note">按基础设定的场所类型高亮本类；四类各列选址、门、核心位与忌。</div>
+    <div id="csTypeOut"></div>
 <div class="fs-board-title fs-title-left fs-mt-3">综合与依据</div>
 <h3 class="rel-title">理法综合裁决（跨派主从）</h3>
     <div class="fs-row">
@@ -830,8 +884,20 @@ html .page-fs {
 <section class="mod fs-mod collapsed" id="fsmod-final">
 <div class="mod-head" onclick="fsToggleMod(this.parentNode)"><span class="mod-caret">▾</span><span class="gua-ico">☲</span><span class="mod-title">综合诊断（宅为体、年为用）</span><span class="mod-sub">宅评分与年评分分列不混算，病点清单点击跳回对应模块改</span><span class="mod-score" id="modSc-final"></span></div>
 <div class="mod-body">
-    <div class="sub-note">两分制（本站体用分离口径）：<b>宅评分（体）</b>由第二、三、五层诸理法合参（玄空格局 0.28、阳宅三要 0.20、峦头形煞 0.20、金锁砂水 0.09、穿宫 0.08、分金 0.08、立极坐度 0.07，权重站内归纳），判"此宅可居与否"，含空亡龟甲等"断不可用"一票否决；<b>年评分（用）</b>由第四层流年叠断独立评定，只判"当年宜忌"，改屋不动流年，两分分列不混算。<b>层徽标</b>为层内已评模块均分（导航用，缺项剔除后归一）；<b>宅评总分</b>以引擎定权重合成为准。评分一律基线 60、满 100、0 为底、否决归零，缺输入之模块剔除后权重归一（能评则评、不强评）。下方病点清单按轻重排序，行内可点击跳回对应模块修改，改完分数与病点数即时刷新。</div>
+    <div class="sub-note">两分制（本站体用分离口径）：<b>宅评分（体）</b>由第一、二、三层诸理法合参（玄空格局 0.28、阳宅三要 0.20、峦头形煞 0.20、金锁砂水 0.09、穿宫 0.08、分金 0.08、立极坐度 0.07，权重站内归纳），判"此宅可居与否"，含空亡龟甲等"断不可用"一票否决；<b>年评分（用）</b>由第四层流年叠断独立评定，只判"当年宜忌"，改屋不动流年，两分分列不混算。<b>层徽标</b>为层内已评模块均分（导航用，缺项剔除后归一）；<b>宅评总分</b>以引擎定权重合成为准。评分一律基线 60、满 100、0 为底、否决归零，缺输入之模块剔除后权重归一（能评则评、不强评）。下方病点清单按轻重排序，行内可点击跳回对应模块修改，改完分数与病点数即时刷新。</div>
     <div id="fsZkFinal"></div>
+    <div class="fs-row fs-mt-2">
+      <span class="sub-note">布局参考：</span>
+      <a class="fs-jump" href="#fs-cw" onclick="jumpMod('fs-cw');return false;">财位</a>
+      <a class="fs-jump" href="#fs-wc" onclick="jumpMod('fs-wc');return false;">文昌</a>
+      <a class="fs-jump" href="#fs-th" onclick="jumpMod('fs-th');return false;">桃花</a>
+      <a class="fs-jump" href="#fs-lb" onclick="jumpMod('fs-lb');return false;">鲁班尺</a>
+      <a class="fs-jump" href="#fs-lc" onclick="jumpMod('fs-lc');return false;">楼层</a>
+      <a class="fs-jump" href="#fs-ind" onclick="jumpMod('fs-ind');return false;">室内</a>
+      <a class="fs-jump" href="#fs-cs" onclick="jumpMod('fs-cs');return false;">化煞</a>
+      <a class="fs-jump" href="#fs-xf" onclick="jumpMod('fs-xf');return false;">选房</a>
+      <a class="fs-jump" href="#fs-cst" onclick="jumpMod('fs-cst');return false;">场所</a>
+    </div>
     <div class="fs-verdict fs-mt-3" id="fvCard"></div>
     <div class="fs-mt-3">
       <div class="fs-board-title fs-title-left">布局调整卡（现状 vs 建议，附调整后宅评预估）</div>

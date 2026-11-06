@@ -120,6 +120,72 @@ function drawXingLuan(){
     <div class="sub-note fs-mt-2">本步总断：<b class="${cls}">${zong}</b></div>
     <div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>检核项</th><th>所选</th><th>断</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
   });
+  try{ drawFangFen(); }catch(e){}
+}
+/* 房份：左青龙主长房、右白虎主三房、前朱雀主二房、后玄武为各房根基。
+   青龙白虎取本模块独立选择，朱雀玄武直接读砂法自检既有值，两处不各存一份状态。
+   分法取左长右幼前二通行一法，各派另有异说，页面并列注明。 */
+const FY_FEN_OPTS={
+  环抱有情:{w:1,jx:'吉',txt:'护卫有情，主该房得力'},
+  平缓:{w:0,jx:'平',txt:'护卫平缓，力量中平'},
+  低陷:{w:-0.6,jx:'凶',txt:'低陷无力，主该房弱'},
+  缺失:{w:-0.8,jx:'凶',txt:'缺失无护，主该房损'},
+  高压:{w:-0.8,jx:'凶',txt:'高压逼穴，主该房受制'},
+  反窜:{w:-1,jx:'凶',txt:'反窜无情，主该房背离'},
+  破碎尖射:{w:-1,jx:'凶',txt:'破碎尖射，主该房刑伤'}
+};
+function fyFenOf(v){ return v?(FY_FEN_OPTS[v]||{w:0,jx:'平',txt:'未详'}):{w:null,jx:'未核',txt:'实地详审后再定'}; }
+function fyFenFromXl(id){
+  const el=document.getElementById(id);
+  const it=XL_ITEMS.find(x=>x.id===id);
+  if(!el||!it) return {jx:'未核',txt:'未详'};
+  const o=xlOpt(it,el.value);
+  if(o.w==null) return {jx:'未核',txt:'未详'};
+  return o.w>=0.5?{jx:'吉',txt:o.d}:(o.w<0?{jx:'凶',txt:o.d}:{jx:'平',txt:o.d});
+}
+function drawFangFen(){
+  const host=document.getElementById('fyFenOut'); if(!host) return;
+  const lv=document.getElementById('fyLhLeft').value||'';
+  const rv=document.getElementById('fyLhRight').value||'';
+  const left=fyFenOf(lv), right=fyFenOf(rv);
+  const zq=fyFenFromXl('xl-zq'), xw=fyFenFromXl('xl-xw');
+  const cls=v=>v==='吉'?'fs-badge-g':(v==='凶'?'fs-badge-r':'s-gold');
+  const rows=[
+    `<tr><td class="lbl-1">左青龙</td><td>长房（一、四、七房）</td><td>${lv||'未详'}</td><td class="${cls(left.jx)}">${left.jx}</td><td>${left.txt}</td></tr>`,
+    `<tr><td class="lbl-1">右白虎</td><td>三房（三、六、九房）</td><td>${rv||'未详'}</td><td class="${cls(right.jx)}">${right.jx}</td><td>${right.txt}</td></tr>`,
+    `<tr><td class="lbl-1">前朱雀</td><td>二房（二、五、八房）</td><td>砂法自检所填</td><td class="${cls(zq.jx)}">${zq.jx}</td><td>${zq.txt}</td></tr>`,
+    `<tr><td class="lbl-1">后玄武</td><td>各房根基</td><td>砂法自检所填</td><td class="${cls(xw.jx)}">${xw.jx}</td><td>${xw.txt}</td></tr>`
+  ].join('');
+  host.innerHTML=`<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>方位</th><th>房份</th><th>形势</th><th>判断</th><th>说明</th></tr></thead><tbody>${rows}</tbody></table></div><div class="sub-note">房份分法各派不同：左长右幼前二为通行一法，另有左长右二三、以水口分房、以砂之高低分房等说；玄武为各房共祖之靠，不专主一房。房份只断形法大势，不作具体人事之断。青龙、白虎在此为房份分判；砂法自检的龙虎为察砂合参，两处各按用途填。</div><div class="fs-src">依据：左青龙长房、右白虎幼房、前朱雀二房取《葬书》四象与《雪心赋》砂水房份通行说；分法为后世形法，本站取左长右幼前二；置信中。</div>`;
+}
+/* 现代葬式：公墓、陵园、骨灰、树葬、海葬、迁坟、修坟、合葬八类，形法原则与古法相通，
+   取舍以实地与法规为先；不套寻龙点穴于骨灰存放与海葬。 */
+const FY_MODERN=[
+  ['公墓选位','看园区大势：后有靠山或高地，前有明堂开阔，水口有关锁；忌低洼积水、高压线、路冲、反弓、紧邻殡仪炉口','选位以藏风聚气为先，园区规划与法规次之'],
+  ['陵园排位','排与排之间看高低与前后遮挡；前排低陷、后排高压者慎选','以碑向与明堂为准，不以排号吉凶为断'],
+  ['骨灰存放','骨灰堂、塔位以清净、干燥、明亮、通风为要；忌阴暗潮湿、正对厕所与电梯','位向以安稳为先，不套阴宅寻龙点穴'],
+  ['树葬花葬','以园区整体形势为准，单穴不立向；取安静、向阳、排水良好处','不立碑者以纪念位为凭'],
+  ['海葬江葬','以水势平缓、洁净、远离航道与排污为要；仪式从简','不涉立向分金'],
+  ['迁坟拾骨','先核旧坟是否犯五不葬、水浸、崩塌、路冲；择日动土，拾骨另葬','迁坟以避凶为先，新穴仍按八步审'],
+  ['修坟培土','崩陷、渗水、树根穿棺、碑石倾斜者修；修前择日，修后复土','不动向线者不重立向；改向须重排分金'],
+  ['合葬','先核两仙命与坐山是否相冲；同穴合葬以先葬者为主，后葬者配山','两命相冲者另穴，不强合']
+];
+function drawModernZang(){
+  const host=document.getElementById('fyModernOut'); if(!host) return;
+  host.innerHTML=`<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>葬式</th><th>要点</th><th>处置</th></tr></thead><tbody>${FY_MODERN.map(r=>`<tr><td class="lbl-1">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div><div class="fs-src">依据：公墓与陵园取阳宅形法藏风聚气与阴宅水口关锁通行说；骨灰、树葬、海葬从简，不套寻龙点穴；迁坟修坟取避凶为先；置信中。</div>`;
+}
+/* 墓碑：碑向随坟向，碑文从实，碑体与坟相称；立碑择日，先安碑座后竖碑。 */
+const FY_BEI=[
+  ['碑向','碑向与坟向一致，取分金吉线；碑面正对明堂','碑向偏斜主后人离心'],
+  ['碑文','先考先妣称谓、生卒、立碑人；文从实，不夸不虚','碑文错字主口舌'],
+  ['碑高','碑高与坟体相称，忌过高压穴、过低没气','以园区规制与碑体比例为准'],
+  ['碑距','碑与坟头留适当距离，忌贴穴太近','以不压穴为准'],
+  ['立碑','择日立碑，先安碑座后竖碑；立后复土夯实','忌风雨日与冲命日'],
+  ['碑色','取石材本色或稳重色，忌大红大黑','与园区规制相合为先']
+];
+function drawBei(){
+  const host=document.getElementById('fyBeiOut'); if(!host) return;
+  host.innerHTML=`<div class="fs-tbl-scroll"><table class="fs-mean-tbl"><thead><tr><th>项目</th><th>要点</th><th>忌</th></tr></thead><tbody>${FY_BEI.map(r=>`<tr><td class="lbl-1">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div><div class="fs-src">依据：碑向随坟向取分金吉线，碑文从实，立碑择日；取阴宅立碑通行说；置信中。</div>`;
 }
 /* ===================== 第二层 立向 ===================== */
 /* 阴宅格局断语：旺山旺向上格、双星须山水夹辅、上山下水大忌；伏吟反吟尤忌 */
@@ -2048,6 +2114,8 @@ function fsRestoreModState(){
 }
 function jumpMod(id){
   const el=document.getElementById(id); if(!el) return;
+  const sec=el.closest('section.fs-mod');
+  if(sec) sec.classList.remove('collapsed');
   el.classList.remove('collapsed');
   el.scrollIntoView({behavior:'smooth', block:'start'});
 }

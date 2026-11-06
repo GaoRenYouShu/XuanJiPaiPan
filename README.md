@@ -16,7 +16,7 @@
 [![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-36_个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-37_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
@@ -37,7 +37,7 @@
 
 ## 功能总览
 
-涵盖历法、命理、三式、占卜、民俗、运气、相术七大类，共 36 个独立工具。
+涵盖历法、命理、三式、占卜、民俗、运气、相术七大类，共 37 个独立工具。
 
 | 分类 | 工具 |
 |---|---|
@@ -46,7 +46,7 @@
 | **三式** | 奇门遁甲、大六壬、太乙神数 |
 | **占卜** | 六爻、梅花易数、小六壬、灵签、塔罗牌、雷诺曼 |
 | **民俗** | 民俗占法、测字、周公解梦、二十八宿、太岁生肖、祭祀供奉 |
-| **运气** | 五运六气 |
+| **运气** | 五运六气、子午流注 |
 | **相术** | 手相、面相、阳宅风水、阴宅风水、罗经仪 |
 
 ## 界面预览
@@ -108,9 +108,10 @@
 - **太岁生肖**：流年犯太岁判定（值冲刑害破合），十二生肖年度月度运程，六十甲子太岁星君全传
 - **祭祀供奉**：岁时祭仪、神明圣诞、祭祖供品与仪注禁忌，按日期、对象、事项三路查询，逐条标典籍出处、地域与方位
 
-### 运气（1 件）
+### 运气（2 件）
 
 - **五运六气**：岁运、司天在泉、客主加临、运气同化
+- **子午流注**：十二时辰当令、二十条经脉、三百六十一经穴与经外奇穴、九类特定穴、纳支补泻与飞腾八法
 
 ### 相术（5 件）
 
@@ -249,12 +250,6 @@ docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
 
 仓库历史被重写导致 `git pull` 失败时，用 `git fetch --depth 1 origin main && git reset --hard origin/main` 对齐远端。
 
-## 仓库数据
-
-| 仓库概览 | 语言构成 |
-|:---:|:---:|
-| [![仓库卡片](https://github-readme-stats.vercel.app/api/pin/?username=GaoRenYouShu&repo=XuanJiPaiPan&show_owner=true)](https://github.com/GaoRenYouShu/XuanJiPaiPan) | ![语言构成](https://github-readme-stats.vercel.app/api/top-langs/?username=GaoRenYouShu&layout=compact&langs_count=6&hide_border=false) |
-
 ### 提交活动
 
 ![Repobeats 分析图](https://repobeats.com/GaoRenYouShu/XuanJiPaiPan?theme=light&size=medium&period=30)
@@ -263,7 +258,7 @@ docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
 
 ```
 XuanJiPaiPan/
-├── *.html        41 个页面：36 个工具加首页、附录三类与 404 页
+├── *.html        42 个页面：37 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
 ├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理

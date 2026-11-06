@@ -67,6 +67,7 @@ const NAV_GROUPS = [
   ]},
   {type:'group', name:'运气', items:[
     {href:'yunqi.html', name:'五运六气'},
+    {href:'ziwu.html', name:'子午流注'},
   ]},
   {type:'group', name:'相术', items:[
     {href:'shouxiang.html', name:'手相'},
@@ -431,7 +432,7 @@ xjScheduleNowDefaults();
 
   /* 当前页面的主题后缀（wnl 等）：日期图标与日期弹框共用同一份，免两处各写一份页面清单 */
   function pageThemeSuffix(){
-    const el=document.querySelector('.page-wnl,.page-lhl,.page-foli,.page-daoli,.page-zeri,.page-hj,.page-hh,.page-bazi,.page-zw,.page-tieban,.page-nm,.page-xz,.page-qz,.page-qm,.page-dlr,.page-ty,.page-ly,.page-mh,.page-xlr,.page-lq,.page-tr,.page-ln,.page-ms,.page-xx,.page-ts,.page-fs,.page-fy,.page-hl,.page-zl,.page-yq,.page-sx,.page-mian,.page-lp');
+    const el=document.querySelector('.page-wnl,.page-lhl,.page-foli,.page-daoli,.page-zeri,.page-hj,.page-hh,.page-bazi,.page-zw,.page-tieban,.page-nm,.page-xz,.page-qz,.page-qm,.page-dlr,.page-ty,.page-ly,.page-mh,.page-xlr,.page-lq,.page-tr,.page-ln,.page-ms,.page-xx,.page-ts,.page-fs,.page-fy,.page-hl,.page-zl,.page-yq,.page-ziwu,.page-sx,.page-mian,.page-lp');
     const c=el ? [...el.classList].find(x=>/^page-/.test(x)) : '';
     return c ? c.slice(5) : '';
   }

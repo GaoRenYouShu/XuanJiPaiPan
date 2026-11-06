@@ -16,7 +16,7 @@
 [![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-36-2CA5E0?style=flat-square)](#feature-overview)
+[![Tools](https://img.shields.io/badge/Tools-37-2CA5E0?style=flat-square)](#feature-overview)
 [![Pure frontend](https://img.shields.io/badge/Pure_frontend-Zero_build-4c9e4c?style=flat-square)](#tech-stack)
 [![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
 [![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
@@ -37,7 +37,7 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Seven categories with 36 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi and Physiognomy.
+Seven categories with 37 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi and Physiognomy.
 
 | Category | Tools |
 |---|---|
@@ -46,7 +46,7 @@ Seven categories with 36 independent tools: Calendars, Fate Analysis, Three Styl
 | **Three Styles** | Qi Men Dun Jia, Da Liu Ren, Tai Yi Shen Shu |
 | **Divination** | Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Fortune Sticks, Tarot, Lenormand |
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
-| **Yunqi** | Five Movements and Six Qi |
+| **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
 | **Physiognomy** | Palmistry, Face Reading, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui, Luopan |
 
 ## Interface Preview
@@ -108,9 +108,10 @@ Introduced in the order of the site's seven sections.
 - **Tai Sui and Zodiac**: annual Tai Sui offense checks (value, clash, punishment, harm, destruction and combination), yearly and monthly forecasts for the twelve zodiac signs, and biographies of the 60 Tai Sui generals
 - **Sacrificial Offerings**: seasonal rites, deity festivals, ancestral offerings, offerings and ritual taboos, queried by date, deity or occasion, with classical source, region and orientation for each entry
 
-### Yunqi (1)
+### Yunqi (2)
 
 - **Five Movements and Six Qi**: annual movement, governing and terrestrial qi, guest and host qi, and qi convergence
+- **Ziwu Liuzhu Meridian Clock**: twelve two-hour periods and their ruling meridians, twenty meridians, 361 standard acupoints plus extra points, nine categories of specific points, and the Nazhi and Feiteng point-selection methods
 
 ### Physiognomy (5)
 
@@ -248,12 +249,6 @@ For fully automatic updates, add a scheduled pull on the host:
 
 If the upstream history was rewritten and `git pull` fails, align with `git fetch --depth 1 origin main && git reset --hard origin/main`.
 
-## Repository Stats
-
-| Overview | Languages |
-|:---:|:---:|
-| [![Repo card](https://github-readme-stats.vercel.app/api/pin/?username=GaoRenYouShu&repo=XuanJiPaiPan&show_owner=true)](https://github.com/GaoRenYouShu/XuanJiPaiPan) | ![Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=GaoRenYouShu&layout=compact&langs_count=6&hide_border=false) |
-
 ### Commit Activity
 
 ![Repobeats analytics](https://repobeats.com/GaoRenYouShu/XuanJiPaiPan?theme=light&size=medium&period=30)
@@ -262,7 +257,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        41 pages: 36 tools plus the home page, three appendix pages and a 404 page
+├── *.html        42 pages: 37 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

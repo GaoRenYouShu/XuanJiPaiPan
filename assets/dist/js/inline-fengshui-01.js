@@ -149,6 +149,18 @@ document.addEventListener('DOMContentLoaded', function () {
     fillZhaiXing();
     addLtRow();
     drawZhaiXing();
+    fillChouYao();
+    drawChouYao();
+    drawCaiWei();
+    drawWenChang();
+    drawTaoHua();
+    drawLuBan();
+    drawLouCeng();
+    fillIndoor();
+    drawIndoor();
+    drawHuaSha();
+    drawXuanFang();
+    drawChangSuo();
     drawLuantou();
     (function(){
       const FS_ROOM_PAL=[['离','南'],['坤','西南'],['兑','西'],['乾','西北'],['坎','北'],['艮','东北'],['震','东'],['巽','东南']];
@@ -251,6 +263,21 @@ document.addEventListener('DOMContentLoaded', function () {
           const rows=ls.rows.filter(r=>r.key!=='door'&&r.key!=='stove'&&r.key!=='stoveDir');
           s+='\n阳宅六事（'+(mg?mg.gua+'命':'命卦未填')+'起游年）：'+(rows.length?'门、灶见三要；'+rows.map(r=>r.name+'在'+r.gua+fsDir(r.gua)+'（'+r.star+'，'+r.jx+'）').join('、'):'门、灶见三要，余事未填')+'。';
         }
+      }catch(e){}
+      try{
+        const tblOf=id=>{ const el=document.getElementById(id); if(!el) return ''; return [...el.querySelectorAll('tbody tr')].map(r=>[...r.cells].map(c=>c.textContent.trim()).join('，')).join('；'); };
+        const cw=tblOf('cwOut'), wc=tblOf('wcOut'), th=tblOf('thOut');
+        if(cw) s+='\n财位：'+cw+'。';
+        if(wc) s+='\n文昌位：'+wc+'。';
+        if(th) s+='\n桃花位：'+th+'。';
+      }catch(e){}
+      try{
+        const firstRow=id=>{ const el=document.getElementById(id); if(!el) return ''; const r=el.querySelector('tbody tr'); return r?[...r.cells].map(c=>c.textContent.trim()).join('，'):''; };
+        const lb=firstRow('lbOut'), lc=firstRow('lcOut');
+        if(lb&&lb.indexOf('填入尺寸')<0) s+='\n鲁班尺：'+lb+'。';
+        if(lc&&lc.indexOf('填入楼层')<0) s+='\n楼层：'+lc+'。';
+        const ind=document.getElementById('indOut');
+        if(ind&&ind.textContent.indexOf('已勾')>=0) s+='\n室内忌形：'+ind.textContent.trim()+'。';
       }catch(e){}
       try{
         const lt=FS.luantou(collectLt());

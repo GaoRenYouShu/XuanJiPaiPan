@@ -199,6 +199,9 @@ document.addEventListener('DOMContentLoaded', function () {
       window.YIN_POS_W = YIN_POS_W; window.YIN_ZE_W = YIN_ZE_W;
     })();
     renderXlInput();
+    drawModernZang();
+    drawBei();
+    drawFangFen();
     fillBase();
     fsGeoInit('fsy_geo_manual');
     fillBuLong();
@@ -260,6 +263,10 @@ document.addEventListener('DOMContentLoaded', function () {
       try{
         const bs=FS.baSha(b.sitShan), tq=FS.huangQuan(b.faceShan), th=FS.taoHuaShui(b.sitShan);
         s+=`\n煞法：八煞${bs.gua}山忌${bs.zhi}方；${tq.none?'立'+b.faceShan+'向黄泉口诀未列':'立'+b.faceShan+'向黄泉在'+tq.zhi}方；桃花水在${th.zhi}方。`;
+      }catch(e){}
+      try{
+        const fen=document.getElementById('fyFenOut');
+        if(fen&&fen.textContent.trim()) s+='\n房份：'+[...fen.querySelectorAll('tbody tr')].map(r=>[...r.cells].map(c=>c.textContent.trim()).join('，')).join('；')+'。';
       }catch(e){}
       try{
         const tg=FS.tianXingGui(b.sitShan);

@@ -12,6 +12,9 @@
   var TABOO = g.JISI_TABOO || [];
   var BOOKS = g.JISI_BOOKS || [];
   var POS = g.JISI_POS || [];
+  var TABOO_G = {};
+  TABOO.forEach(function (t) { if (t && t.n && t.g) TABOO_G[t.n] = t.g; });
+  var LAST = { act: '', date: '', obj: '', matter: '' };
   var MONTH_NAMES = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
   var CN_MONTH = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
   var CN_DAYS = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十', '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
@@ -109,6 +112,32 @@
       return '《' + s.b + '》' + s.c + (s.g === '乙' ? '，通行说' : '');
     }).join('；');
   }
+  function srcLineOf(x) { return x && x.srcText ? x.srcText : srcLine(x && x.src); }
+  /* 异说源名：首词为本页书目者补书名号，通行说与地域源名原样出。 */
+  function varSrc(s) {
+    var str = String(s || ''), m = /^(\S+)\s+(.+)$/.exec(str);
+    if (m) {
+      for (var i = 0; i < BOOKS.length; i++) if (BOOKS[i].n === m[1]) return '《' + m[1] + '》' + m[2];
+    }
+    return str;
+  }
+  function tabooText(x) {
+    return (x.taboo || []).map(function (t) {
+      return esc(t) + (TABOO_G[t] === '乙' ? '（通行说）' : '');
+    }).join('；');
+  }
+  function placeLine(x) {
+    var note = String(x.placeNote || '').replace(/。$/, '');
+    var p = String(x.place || '');
+    if (!p) return note ? note + '。' : '';
+    return p + (note ? '；' + note : '');
+  }
+  function deityDateText(x) {
+    var head = MONTH_NAMES[x.m - 1] + '月' + (x.lastDay ? '末日' : dayCn(x.d));
+    if (x.lastDay) return head + '（月小取廿九）';
+    if (x.fallbackLast && x.d === 30) return head + '（月小取廿九）';
+    return head;
+  }
   function row(k, v) { return '<div class="jsi-row"><span class="jsi-k">' + k + '</span><span class="jsi-v">' + v + '</span></div>'; }
   function ol(items) { return '<ol class="jsi-ol">' + (items || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>'; }
   function tag(t) { return '<span class="jsi-tag">' + esc(t) + '</span>'; }
@@ -178,21 +207,29 @@
   }
   /* 祭日与事项共用神明安放条：祭日 id 先归到神明 id，再取神位安放表。 */
   var POS_ID = {
-    jiecaishen: 'caishen', caishendan: 'caishen',
+    jiecaishen: 'caishen', caishendan: 'caishen', caishenjie: 'caishen',
     'jizao-n': 'zaojun', 'jizao-s': 'zaojun', jizao: 'zaojun',
     guanyindan: 'guanyin', guanyinchengdao: 'guanyin', guanyinchujia: 'guanyin',
     jiasi: 'zuxian', citang: 'zuxian', jiri: 'zuxian', chuxi: 'zuxian', chuxijizu: 'zuxian',
     muji: 'zuxian', hanyi: 'zuxian', zhongyuan: 'zuxian',
-    guandidan: 'guandi', mazudan: 'mazu', yufo: 'shijia',
-    longtai: 'tudi', xietu: 'tudi', dongtu: 'tudi',
-    lvzudan: 'lvzu', 'shijia-chujia': 'shijia', 'shijia-niepan': 'shijia'
+    guandidan: 'guandi', mazudan: 'mazu', mazushengtian: 'mazu', yufo: 'shijia',
+    longtai: 'tudi', tudidan: 'tudi', xietu: 'tudi', dongtu: 'tudi',
+    lvzudan: 'lvzu', 'shijia-chujia': 'shijia', 'shijia-niepan': 'shijia',
+    laojundan: 'laojun', yaowangdan: 'yaowang', lubandan: 'luban'
   };
-  function posOf(x) {
+  function posParts(x) {
     var pid = POS_ID[x.id] || x.id;
     for (var i = 0; i < POS.length; i++) {
-      if (POS[i].id === pid) return '位：' + POS[i].place + '；向：' + POS[i].face + '；忌：' + POS[i].avoid;
+      if (POS[i].id === pid) {
+        return { kind: 'pos', place: POS[i].place, face: POS[i].face, avoid: String(POS[i].avoid || '').replace(/^忌/, '') };
+      }
     }
-    return '位：' + (x.place || '家宅厅堂') + '；向：' + dirOf(x);
+    return { kind: 'dir', text: dirOf(x) };
+  }
+  function posText(x) {
+    var p = posParts(x);
+    if (p.kind === 'pos') return '位：' + p.place + '；向：' + p.face + '；忌：' + p.avoid;
+    return p.text;
   }
 
   function cardForFest(f, info) {
@@ -202,24 +239,19 @@
     h += tag(f.kind) + tag(f.region + ' ' + f.era) + '</div>';
     var time = '公历 ' + info.dt.y + '年' + info.dt.m + '月' + info.dt.d + '日，农历' + info.monthName + '月' + info.dayName + '，' + info.gz + '日';
     if (info.term) time += '，' + info.term;
-    if (info.yi.length) time += '。通书宜：' + info.yi.slice(0, 8).join('、');
-    if (info.ji.length) time += '；忌：' + info.ji.slice(0, 8).join('、');
     h += row('时', esc(time));
-    var note = String(f.placeNote || '').replace(/。$/, '');
-    var place = note ? note + '。' : '';
-    if (f.place) place += '场所：' + f.place;
-    h += row('所', esc(place));
-    h += row('方位', esc(posOf(f)));
+    h += row('所', esc(placeLine(f)));
+    h += row('方位', esc(posText(f)));
     var wu = (f.offer || []).join('、');
     if (f.offerFull && f.offerFull.length) wu += '。全供：' + f.offerFull.join('、');
     h += row('物', esc(wu));
     h += row('仪', ol(f.rite));
-    h += row('禁', esc((f.taboo || []).join('；')));
-    h += row('据', esc(srcLine(f.src)));
+    h += row('禁', tabooText(f));
+    h += row('据', esc(srcLineOf(f)));
     if (f.variants && f.variants.length) {
       h += row('异说', f.variants.map(function (v) {
         var vt = String(v.text || '').replace(/。$/, '');
-        return '<span class="jsi-var"><b>' + esc(v.region) + '，' + esc(v.era) + '</b>：' + esc(vt) + '，' + esc(v.src) + '</span>';
+        return '<span class="jsi-var"><b>' + esc(v.region) + '，' + esc(v.era) + '</b>：' + esc(vt) + '，' + esc(varSrc(v.src)) + '</span>';
       }).join(''));
     }
     h += '</article>';
@@ -247,6 +279,13 @@
     return out;
   }
 
+  function yjLine(info) {
+    var yj = [];
+    if (info.yi.length) yj.push('通书宜：' + info.yi.slice(0, 8).join('、'));
+    if (info.ji.length) yj.push('忌：' + info.ji.slice(0, 8).join('、'));
+    return yj.length ? '<div class="jsi-aux">' + esc(yj.join('；')) + '</div>' : '';
+  }
+
   function renderDate(dateStr) {
     var out = document.getElementById('jsiOut');
     if (!out) return;
@@ -254,16 +293,14 @@
     if (!dt) { out.innerHTML = '<p class="jsi-empty">日期格式应为 YYYY-MM-DD。</p>'; return; }
     var info = lunarInfo(dt);
     if (!info) { out.innerHTML = '<p class="jsi-empty">历法数据未就绪，请刷新后重试。</p>'; return; }
+    LAST = { act: 'date', date: dateStr, obj: '', matter: '' };
     var hits = FEST.filter(function (f) { return festMatch(f, info); });
     var aux = auxNames(info);
     var head = '<div class="jsi-head">' + esc(dt.y + '年' + dt.m + '月' + dt.d + '日') + '，农历' + esc(info.monthName + '月' + info.dayName) + '，' + esc(info.gz) + '日' + (info.term ? '，' + esc(info.term) : '') + '</div>';
     if (aux.length) head += '<div class="jsi-aux">同日佛道历名目：' + esc(aux.join('、')) + '；与本站祭日两系并列，不合并裁断。</div>';
+    head += yjLine(info);
     if (!hits.length) {
       var next = nextFest(info, 60);
-      var yj = [];
-      if (info.yi.length) yj.push('通书宜：' + info.yi.slice(0, 8).join('、'));
-      if (info.ji.length) yj.push('忌：' + info.ji.slice(0, 8).join('、'));
-      var dayLine = yj.length ? '<div class="jsi-aux">' + esc(yj.join('；')) + '</div>' : '';
       var ml = monthList(info.lm);
       var monthHtml = ml.length ? '<div class="jsi-next"><div class="jsi-sub">本月祭仪</div>' + ml.map(function (f) {
         return '<div class="jsi-next-row"><b>' + (f.lastDay ? '末日' : dayCn(f.d)) + '</b> ' + esc(f.name) + '，' + esc(f.region) + '</div>';
@@ -271,7 +308,7 @@
       var nextHtml = next.length ? '<div class="jsi-next"><div class="jsi-sub">下一祭日</div>' + next.map(function (n) {
         return '<div class="jsi-next-row"><b>' + esc(n.date) + '</b> 农历' + esc(n.lunar) + ' ' + esc(n.name) + '</div>';
       }).join('') + '</div>' : '';
-      out.innerHTML = head + dayLine + '<p class="jsi-empty">今日无岁时祭仪。</p>' + monthHtml + nextHtml + '<div class="jsi-aux">同名祭日并列同出；供品分简供与全供，详见下方总表与供品释义。</div>';
+      out.innerHTML = head + '<p class="jsi-empty">今日无岁时祭仪。</p>' + monthHtml + nextHtml + '<div class="jsi-aux">同名祭日并列同出；供品分简供与全供，详见下方总表与供品释义。</div>';
       return;
     }
     out.innerHTML = head + hits.map(function (f) { return cardForFest(f, info); }).join('');
@@ -281,22 +318,23 @@
     var d = findDeity(id), out = document.getElementById('jsiOut');
     if (!out) return;
     if (!d) { out.innerHTML = '<p class="jsi-empty">未找到该对象。</p>'; return; }
+    LAST = { act: 'obj', date: '', obj: id, matter: '' };
     var h = '<article class="jsi-card">';
     h += '<div class="jsi-card-h"><span class="jsi-name">' + esc(d.name) + '</span>';
     if (d.alias) h += '<span class="jsi-alias">' + esc(d.alias) + '</span>';
     h += tag(d.group) + tag(d.region + ' ' + d.era) + '</div>';
-    var dates = (d.dates || []).map(function (x) { return '农历' + MONTH_NAMES[x.m - 1] + '月' + dayCn(x.d) + ' ' + x.name; }).join('；');
+    var dates = (d.dates || []).map(function (x) { return '农历' + deityDateText(x) + ' ' + x.name; }).join('；');
     h += row('日', esc(dates || '无固定祭日，随节令与家祭行之'));
-    h += row('所', esc(d.place));
-    h += row('方位', esc(posOf(d)));
+    h += row('所', esc(placeLine(d)));
+    h += row('方位', esc(posText(d)));
     h += row('物', esc((d.offer || []).join('、')));
     h += row('仪', ol(d.rite));
-    h += row('禁', esc((d.taboo || []).join('；')));
+    h += row('禁', tabooText(d));
     var fs = (d.fest || []).map(function (fid) { var f = findFest(fid); return f ? f.name : ''; }).filter(Boolean);
     if (fs.length) h += row('祭日', esc(fs.join('、')));
     var ms = (d.matters || []).map(function (mid) { var m = findMatter(mid); return m ? m.name : ''; }).filter(Boolean);
     if (ms.length) h += row('仪注', esc(ms.join('、')));
-    h += row('据', esc(srcLine(d.src)));
+    h += row('据', esc(srcLineOf(d)));
     h += '</article>';
     out.innerHTML = h;
   }
@@ -305,17 +343,18 @@
     var m = findMatter(id), out = document.getElementById('jsiOut');
     if (!out) return;
     if (!m) { out.innerHTML = '<p class="jsi-empty">未找到该事项。</p>'; return; }
+    LAST = { act: 'mat', date: '', obj: '', matter: id };
     var h = '<article class="jsi-card">';
     h += '<div class="jsi-card-h"><span class="jsi-name">' + esc(m.name) + '</span>';
     if (m.alias) h += '<span class="jsi-alias">' + esc(m.alias) + '</span>';
     h += tag(m.place) + '</div>';
     if (m.intro) h += '<p class="jsi-intro">' + esc(m.intro) + '</p>';
     h += row('序', ol(m.steps));
-    h += row('所', esc(m.place));
-    h += row('方位', esc(posOf(m)));
+    h += row('所', esc(placeLine(m)));
+    h += row('方位', esc(posText(m)));
     h += row('物', esc((m.offer || []).join('、')));
-    h += row('禁', esc((m.taboo || []).join('；')));
-    h += row('据', esc(srcLine(m.src)));
+    h += row('禁', tabooText(m));
+    h += row('据', esc(srcLineOf(m)));
     h += '</article>';
     out.innerHTML = h;
   }
@@ -357,7 +396,7 @@
     var rows = '';
     GROUP_ORDER.forEach(function (grp) {
       DEITY.filter(function (d) { return d.group === grp; }).forEach(function (d) {
-        var dates = (d.dates || []).map(function (x) { return MONTH_NAMES[x.m - 1] + '月' + dayCn(x.d) + ' ' + x.name; }).join('<br>') || '无固定祭日';
+        var dates = (d.dates || []).map(function (x) { return deityDateText(x) + ' ' + x.name; }).join('<br>') || '无固定祭日';
         rows += '<tr><td>' + esc(d.name) + '</td><td>' + esc(d.group) + '</td><td>' + dates + '</td><td>' + esc((d.offer || []).join('、')) + '</td><td>' + esc(d.region) + '</td></tr>';
       });
     });
@@ -384,7 +423,7 @@
     var body = document.getElementById('jsiTabooBody');
     if (!body) return;
     body.innerHTML = TABOO.map(function (t) {
-      return '<tr><td>' + esc(t.n) + '</td><td>' + esc(t.note) + '</td></tr>';
+      return '<tr><td>' + esc(t.n) + '</td><td>' + esc(t.g === '甲' ? '甲' : '乙') + '</td><td>' + esc(t.note) + '</td></tr>';
     }).join('');
   }
 
@@ -462,29 +501,26 @@
     } catch (e) { /* 预填失败不阻断 */ }
   }
 
-  /* 输入方式切换：公历模式只显公历日期框，农历模式只显农历年月闰日四项。 */
+  function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+
+  /* 输入方式切换：公历模式只显公历日期框，农历模式只显农历年月闰日四项；显隐走类名。 */
   function toggleMode() {
     var mode = document.getElementById('jiMode');
     var solar = !mode || mode.value === 'solar';
     var fs = document.getElementById('jiFSolar');
-    if (fs) fs.style.display = solar ? '' : 'none';
+    if (fs) fs.classList.toggle('jsi-off', !solar);
     ['jiFCnY', 'jiFCnM', 'jiFCnLeap', 'jiFCnD'].forEach(function (id) {
       var e = document.getElementById(id);
-      if (e) e.style.display = solar ? 'none' : '';
+      if (e) e.classList.toggle('jsi-off', solar);
     });
   }
 
   function queryDate() {
     var mode = document.getElementById('jiMode');
     if (!mode || mode.value === 'solar') {
-      var dateEl = document.getElementById('jiDate');
-      return dateEl ? dateEl.value : '';
+      return val('jiDate');
     }
-    var yEl = document.getElementById('jiCnYear');
-    var mEl = document.getElementById('jiCnMonth');
-    var dEl = document.getElementById('jiCnDay');
-    var lEl = document.getElementById('jiCnLeap');
-    var pl = parseLunar(parseInt(yEl ? yEl.value : '', 10), +(mEl ? mEl.value : 0), +(dEl ? dEl.value : 0), lEl && lEl.value === '1');
+    var pl = parseLunar(parseInt(val('jiCnYear'), 10), +val('jiCnMonth'), +val('jiCnDay'), val('jiCnLeap') === '1');
     if (pl.err) {
       var out = document.getElementById('jsiOut');
       if (out) out.innerHTML = '<p class="jsi-empty">' + esc(pl.err) + '</p>';
@@ -493,19 +529,59 @@
     return pl.sol.toYmd();
   }
 
+  /* 分享与刷新按最后一次查询重出：act 记查询路，obj 与 matter 记对象事项 id。 */
+  function recast() {
+    if (LAST.act === 'obj' && LAST.obj) { renderObject(LAST.obj); return; }
+    if (LAST.act === 'mat' && LAST.matter) { renderMatter(LAST.matter); return; }
+    var ds = queryDate();
+    if (ds) renderDate(ds);
+  }
+  function shareCollect() {
+    return {
+      jiMode: val('jiMode'), jiDate: val('jiDate'), jiCnYear: val('jiCnYear'), jiCnMonth: val('jiCnMonth'),
+      jiCnLeap: val('jiCnLeap'), jiCnDay: val('jiCnDay'), jiObj: val('jiObj'), jiMatter: val('jiMatter'),
+      act: LAST.act, obj: LAST.obj, matter: LAST.matter
+    };
+  }
+  function shareRestore(d) {
+    Object.keys(d || {}).forEach(function (k) {
+      var el = document.getElementById(k);
+      if (el) el.value = d[k];
+    });
+    LAST = { act: d.act || '', date: '', obj: d.obj || '', matter: d.matter || '' };
+    toggleMode();
+  }
+
+  /* AI 上下文取引擎终值：按最后一次查询路从数据件重构，不读结果区文案。 */
   function aiContext() {
-    var out = document.getElementById('jsiOut');
     var mode = document.getElementById('jiMode');
-    var q = '';
-    if (mode && mode.value === 'lunar') {
-      q = '农历 ' + ((document.getElementById('jiCnYear') || {}).value || '') + ' 年 ' +
-        ((document.getElementById('jiCnMonth') || {}).value || '') + ' 月 ' +
-        ((document.getElementById('jiCnDay') || {}).value || '') + ' 日';
+    var q = mode && mode.value === 'lunar'
+      ? '农历 ' + val('jiCnYear') + ' 年 ' + val('jiCnMonth') + ' 月 ' + val('jiCnDay') + ' 日' + (val('jiCnLeap') === '1' ? '（闰月）' : '')
+      : '公历 ' + val('jiDate');
+    var s = '页面：祭祀供奉\n查询：' + q + '\n';
+    if (LAST.act === 'obj') {
+      var d = findDeity(LAST.obj);
+      if (d) s += '对象：' + d.name + (d.alias ? '（' + d.alias + '）' : '') + '\n' +
+        '日：' + ((d.dates || []).map(function (x) { return '农历' + deityDateText(x) + ' ' + x.name; }).join('；') || '无固定祭日') + '\n' +
+        '所：' + placeLine(d) + '\n方位：' + posText(d) + '\n物：' + (d.offer || []).join('、') + '\n仪：' + (d.rite || []).join('、') + '\n禁：' + (d.taboo || []).join('；') + '\n据：' + srcLineOf(d);
+    } else if (LAST.act === 'mat') {
+      var m = findMatter(LAST.matter);
+      if (m) s += '事项：' + m.name + '\n序：' + (m.steps || []).join('、') + '\n所：' + placeLine(m) + '\n方位：' + posText(m) + '\n物：' + (m.offer || []).join('、') + '\n禁：' + (m.taboo || []).join('；') + '\n据：' + srcLineOf(m);
     } else {
-      q = '公历 ' + ((document.getElementById('jiDate') || {}).value || '');
+      var dt = parseDate(LAST.date || val('jiDate'));
+      var info = dt ? lunarInfo(dt) : null;
+      if (info) {
+        var hits = FEST.filter(function (f) { return festMatch(f, info); });
+        s += '日期：公历 ' + (LAST.date || val('jiDate')) + '，农历' + info.monthName + '月' + info.dayName + '，' + info.gz + '日' + (info.term ? '，' + info.term : '') + '\n';
+        if (info.yi.length) s += '通书宜：' + info.yi.slice(0, 8).join('、') + '\n';
+        if (info.ji.length) s += '通书忌：' + info.ji.slice(0, 8).join('、') + '\n';
+        s += '当日祭仪：' + (hits.length ? hits.map(function (f) { return f.name; }).join('、') : '无') + '\n';
+        s += hits.map(function (f) {
+          return '【' + f.name + '】方位：' + posText(f) + '；物：' + (f.offer || []).join('、') + '；仪：' + (f.rite || []).join('、') + '；禁：' + (f.taboo || []).join('；') + '；据：' + srcLineOf(f);
+        }).join('\n');
+      }
     }
-    return '页面：祭祀供奉\n查询：' + q + '\n结果：' + (out ? out.innerText.replace(/\s+/g, ' ').trim() : '未查询') +
-      '\n口径：结果卡含时、所、方位、物、仪、禁、据；异说并列，佛道名目与本站祭日两系并列。';
+    return s + '\n口径：异说并列，佛道历名目与本站祭日两系并列，不合并裁断。';
   }
 
   function bind() {
@@ -528,6 +604,13 @@
       var el = document.getElementById('jiMatter');
       if (el) renderMatter(el.value);
     });
+    document.querySelectorAll('.form-row').forEach(function (rowEl) {
+      rowEl.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var b = rowEl.querySelector('button');
+        if (b) { e.preventDefault(); b.click(); }
+      });
+    });
   }
 
   function init() {
@@ -545,7 +628,9 @@
     renderOfferTable();
     renderTabooTable();
     renderBookTable();
-    if (g.mountAI) g.mountAI(aiContext, '祭祀供奉');
+    if (g.mountAI) g.mountAI(aiContext, '祭祀供奉', {
+      share: { page: 'jisi', result: '#jsiOut', collect: shareCollect, restore: shareRestore, recast: recast }
+    });
   }
 
   function toggleMod(id) {

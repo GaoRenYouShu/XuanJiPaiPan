@@ -303,7 +303,13 @@ body{--footer-ink:#1f1c19;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 .page-ji .form-row{align-items:flex-end}
 
+.page-ji .jsi-off{display:none}
+
 .page-ji .field input,.page-ji .field select{border-color:var(--ji-line);background:var(--card);color:var(--ji-ink)}
+
+.page-ji .field select.jsi-sel-obj{width:216px}
+
+.page-ji .field select.jsi-sel-matter{width:202px}
 
 .page-ji .jsi-out{margin-top:0;min-height:1px}
 
@@ -320,7 +326,7 @@ body{--footer-ink:#1f1c19;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 .page-ji .jsi-tbl td{color:var(--ji-ink);border-bottom:1px solid var(--ji-line);padding:7px 8px;vertical-align:top;line-height:1.7}
 
 @media (max-width:640px){
-.page-ji .jsi-tbl th,.page-ji .jsi-tbl td{white-space:normal}
+.page-ji .jsi-tbl th,.page-ji .jsi-tbl td{white-space:normal;text-wrap:pretty}
 }</style>
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
@@ -381,6 +387,7 @@ body{--footer-ink:#1f1c19;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
     </div></div>
     <div class="nav-group" data-gi="6"><button class="nav-top" onclick="toggleNavGroup(this)">运气<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="yunqi.html">五运六气</a>
+      <a class="" href="ziwu.html">子午流注</a>
     </div></div>
     <div class="nav-group" data-gi="7"><button class="nav-top" onclick="toggleNavGroup(this)">相术<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="shouxiang.html">手相</a>
@@ -405,19 +412,19 @@ body{--footer-ink:#1f1c19;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
   <p class="lead">岁时祭仪、神明圣诞、祭祖供品与仪注禁忌，按日期、对象、事项三路查询。</p>
   <div class="form-row">
     <div class="field"><label for="jiMode">输入方式</label><select id="jiMode" aria-label="输入方式"><option value="solar" selected>公历</option><option value="lunar">农历</option></select></div>
-    <div class="field" id="jiFSolar"><label for="jiDate">公历日期</label><input type="text" class="dt-input" id="jiDate" aria-label="公历日期" placeholder="2026-11-05" value="2026-11-05"></div>
-    <div class="field" id="jiFCnY" style="display:none"><label for="jiCnYear">农历年</label><input type="number" id="jiCnYear" aria-label="农历年" min="1900" max="2100" step="1" value="2026"></div>
-    <div class="field" id="jiFCnM" style="display:none"><label for="jiCnMonth">农历月</label><select id="jiCnMonth" aria-label="农历月"></select></div>
-    <div class="field" id="jiFCnLeap" style="display:none"><label for="jiCnLeap">闰月</label><select id="jiCnLeap" aria-label="闰月"><option value="0" selected>平月</option><option value="1">闰月</option></select></div>
-    <div class="field" id="jiFCnD" style="display:none"><label for="jiCnDay">农历日</label><select id="jiCnDay" aria-label="农历日"></select></div>
+    <div class="field" id="jiFSolar"><label for="jiDate">公历日期</label><input type="text" class="dt-input" id="jiDate" aria-label="公历日期" placeholder="YYYY-MM-DD"></div>
+    <div class="field jsi-off" id="jiFCnY"><label for="jiCnYear">农历年</label><input type="number" id="jiCnYear" aria-label="农历年" min="1900" max="2100" step="1" value="2026"></div>
+    <div class="field jsi-off" id="jiFCnM"><label for="jiCnMonth">农历月</label><select id="jiCnMonth" aria-label="农历月"></select></div>
+    <div class="field jsi-off" id="jiFCnLeap"><label for="jiCnLeap">闰月</label><select id="jiCnLeap" aria-label="闰月"><option value="0" selected>平月</option><option value="1">闰月</option></select></div>
+    <div class="field jsi-off" id="jiFCnD"><label for="jiCnDay">农历日</label><select id="jiCnDay" aria-label="农历日"></select></div>
     <button id="jiDateBtn" class="btn gold" type="button">查询当日祭仪</button>
   </div>
   <div class="form-row">
-    <div class="field"><label for="jiObj">按对象</label><select id="jiObj" aria-label="按对象查询"></select></div>
+    <div class="field"><label for="jiObj">按对象</label><select id="jiObj" class="jsi-sel-obj" aria-label="按对象查询"></select></div>
     <button id="jiObjBtn" class="btn" type="button">查对象仪注</button>
   </div>
   <div class="form-row">
-    <div class="field"><label for="jiMatter">按事项</label><select id="jiMatter" aria-label="按事项查询"></select></div>
+    <div class="field"><label for="jiMatter">按事项</label><select id="jiMatter" class="jsi-sel-matter" aria-label="按事项查询"></select></div>
     <button id="jiMatterBtn" class="btn" type="button">查事项流程</button>
   </div>
   <div id="jsiOut" class="jsi-out"></div>
@@ -448,13 +455,13 @@ body{--footer-ink:#1f1c19;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
     <p class="sub-note">分简供与全供两档；简供为今日常行，全供为旧礼所载，各随条目出处。</p>
     <div class="jsi-tbl-wrap"><table class="jsi-tbl"><thead><tr><th>供品</th><th>档</th><th>释义与禁忌</th></tr></thead><tbody id="jsiOfferBody"></tbody></table></div>
   </details>
-  <div class="stage2-late">
-<details class="mh-ref jsi-fold" id="jsiTabooFold">
+  <details class="mh-ref jsi-fold" id="jsiTabooFold">
     <summary>禁忌释义</summary>
-    <p class="sub-note">分礼制所载与民间通行说两类；通行说随条注明，不作已核之据。</p>
-    <div class="jsi-tbl-wrap"><table class="jsi-tbl"><thead><tr><th>禁忌</th><th>释义</th></tr></thead><tbody id="jsiTabooBody"></tbody></table></div>
+    <p class="sub-note">甲为典籍明载，乙为通行说；通行说不作已核之据，条目名与结果卡禁段同名。</p>
+    <div class="jsi-tbl-wrap"><table class="jsi-tbl"><thead><tr><th>禁忌</th><th>档</th><th>释义</th></tr></thead><tbody id="jsiTabooBody"></tbody></table></div>
   </details>
-  <details class="mh-ref jsi-fold" id="jsiBookFold">
+  <div class="stage2-late">
+<details class="mh-ref jsi-fold" id="jsiBookFold">
     <summary>典籍依据</summary>
     <p class="sub-note">分岁时实录、礼制仪注、官方祀典、月令类书、择日、佛道、阳宅供奉、民间日用八层；每条只标书名与篇目。</p>
     <div class="jsi-tbl-wrap"><table class="jsi-tbl"><thead><tr><th>书</th><th>作者</th><th>时代</th><th>分层</th><th>取法</th></tr></thead><tbody id="jsiBookBody"></tbody></table></div>

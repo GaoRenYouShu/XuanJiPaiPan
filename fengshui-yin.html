@@ -90,6 +90,8 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 #out + *{margin-top:var(--sp-4)}
 
+.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+
 .birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
   flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
   border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
@@ -236,6 +238,8 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .nf-home:hover{border-color:#c65a48;color:#c65a48}
 }
+
+.page-fy .page .sub-note{color:var(--fy-ink2)}
 
 .page-fy .mod-sub{color:var(--fy-ink2)}
 
@@ -387,6 +391,7 @@ html .page-fy {
     </div></div>
     <div class="nav-group" data-gi="6"><button class="nav-top" onclick="toggleNavGroup(this)">运气<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="yunqi.html">五运六气</a>
+      <a class="" href="ziwu.html">子午流注</a>
     </div></div>
     <div class="nav-group has-active" data-gi="7"><button class="nav-top" onclick="toggleNavGroup(this)">相术<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="shouxiang.html">手相</a>
@@ -411,6 +416,7 @@ html .page-fy {
     <div class="lead">阴宅形法与理气并重，五层流程排凶存吉，荐向、荐课、荐坐线。</div>
     <div class="fs-base">
       <div class="fs-board-title fs-title-left">基础设定（全页共用，改后自动联动）</div>
+      <div class="sub-note">按八步实勘：1 觅龙、2 察砂、3 观水、4 点穴、5 立向、6 定线、7 配仙命、8 择日。先看龙砂水穴，坐向与仙命可后填；点起盘后看第 5 至 8 步与综合判定。公墓、骨灰、树葬、海葬先看第一层现代葬式与公墓选位，不套寻龙点穴。</div>
       <div class="fs-row">
         <div class="field"><label for="baseYear">仙命出生年</label><input type="number" id="baseYear" value="1940" min="1800" max="2100" class="fs-inp-w90" onchange="fsApplyBase()"></div>
         <div class="field"><label for="baseSit">坐山</label><select id="baseSit" onchange="fsApplyBase()"><option value="子">子山</option><option value="癸">癸山</option><option value="丑">丑山</option><option value="艮">艮山</option><option value="寅">寅山</option><option value="甲">甲山</option><option value="卯">卯山</option><option value="乙">乙山</option><option value="辰">辰山</option><option value="巽">巽山</option><option value="巳">巳山</option><option value="丙">丙山</option><option value="午">午山</option><option value="丁">丁山</option><option value="未">未山</option><option value="坤">坤山</option><option value="申">申山</option><option value="庚">庚山</option><option value="酉">酉山</option><option value="辛">辛山</option><option value="戌">戌山</option><option value="乾">乾山</option><option value="亥">亥山</option><option value="壬">壬山</option></select></div>
@@ -462,6 +468,9 @@ html .page-fy {
     <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawXingLuan()">断来龙</button></div>
     <div id="xlLlOut"></div>
     <div class="sub-note">觅龙为阴宅第一关：《葬书》曰“葬乘生气”，生气随龙而行，龙不真则穴虚，纵理气无差亦无所用。登山先寻太祖、少祖、父母三山，再审过峡束气与入首丰肥，末观枝脚顺逆与高低进退（龙势八格）。龙真而后可论砂、水、穴、向。</div>
+<h3 class="rel-title">现代葬式与公墓选位</h3>
+    <div class="sub-note">公墓、陵园、骨灰存放、树葬、海葬与迁坟修坟，形法原则与古法相通，取舍以实地与法规为先。</div>
+    <div id="fyModernOut"></div>
 </div>
 </section>
     <div class="stage2-late">
@@ -485,6 +494,14 @@ html .page-fy {
     <div class="fs-row fs-mt-2"><button class="btn gold" onclick="drawXingLuan()">断砂法</button></div>
     <div id="xlShaOut"></div>
     <div class="sub-note">砂为穴之护卫，藏风之要：无砂则风吹气散，砂凶则反受其害。三兽之中，玄武主坐后依托（忌昂首拒尸），朱雀主堂前照应（忌反背斜飞），龙虎主左右环抱（忌缺漏高压）。三者以玄武、龙虎为重，朱雀次之。</div>
+<h3 class="rel-title">房份（长房、二房、三房）</h3>
+    <div class="sub-note">左青龙主长房，右白虎主三房，前朱雀主二房，后玄武为各房根基；分法各派不同，本站取左长右幼前二一法。</div>
+    <div class="fs-row fs-mt-2">
+      <div class="field"><label for="fyLhLeft">青龙（左砂）</label><select id="fyLhLeft" onchange="drawFangFen()"><option value="">未详</option><option value="环抱有情">环抱有情</option><option value="平缓">平缓</option><option value="低陷">低陷</option><option value="缺失">缺失</option><option value="高压">高压</option><option value="反窜">反窜</option><option value="破碎尖射">破碎尖射</option></select></div>
+      <div class="field"><label for="fyLhRight">白虎（右砂）</label><select id="fyLhRight" onchange="drawFangFen()"><option value="">未详</option><option value="环抱有情">环抱有情</option><option value="平缓">平缓</option><option value="低陷">低陷</option><option value="缺失">缺失</option><option value="高压">高压</option><option value="反窜">反窜</option><option value="破碎尖射">破碎尖射</option></select></div>
+      <button class="btn gold" onclick="drawFangFen()">断房份</button>
+    </div>
+    <div id="fyFenOut"></div>
 </div>
 </section>
     <section class="mod fs-mod collapsed" id="fsmod-l3">
@@ -574,6 +591,9 @@ html .page-fy {
     <div id="shanOut"></div>
 <h3 class="rel-title">穿山透地格龙（七十二龙、六十龙）</h3>
     <div id="ctOut"></div>
+<h3 class="rel-title">墓碑与立碑</h3>
+    <div class="sub-note">碑向随坟向，碑文从实，碑体与坟相称；立碑择日，先安碑座后竖碑。</div>
+    <div id="fyBeiOut"></div>
 </div>
 </section>
     <section class="mod fs-mod collapsed" id="fsmod-l6">
@@ -665,6 +685,7 @@ html .page-fy {
     <div id="zhOut"></div>
     <div id="finalOut"></div>
     <div class="fs-verdict fs-mt-3" id="fvCard"></div>
+    <div class="sub-note fs-mt-2">参考入口：<a class="fs-jump" href="#fyFenOut" onclick="jumpMod('fyFenOut');return false;">房份</a>　<a class="fs-jump" href="#fyModernOut" onclick="jumpMod('fyModernOut');return false;">现代葬式</a>　<a class="fs-jump" href="#fyBeiOut" onclick="jumpMod('fyBeiOut');return false;">墓碑</a></div>
 </div>
 </section>
 <div class="fs-hint">风水为传统环境选择之学，各流派结论常不一致。阴宅涉及丧葬事宜，各地礼俗不同，实际择地安葬须结合实地形势与当地礼俗，不宜以方位吉凶代断。</div>

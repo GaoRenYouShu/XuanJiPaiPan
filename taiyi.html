@@ -162,8 +162,16 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .opts-row .field select{width:auto;max-width:100%}
 
+.page-ty .opts-row .field select.ty-sel-dst{width:clamp(93px,24vw,196px)}
+
+.page-ty .opts-row .field select.ty-sel-zi{width:clamp(80px,20.5vw,178px)}
+
+.page-ty .opts-row .field select.ty-sel-sun{width:clamp(93px,24vw,202px)}
+
 @media(max-width:640px){
-.opts-row{gap:var(--sp-2)}.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+.opts-row{gap:var(--sp-2)}
+
+.birth-group,.birth-group.compact{gap:var(--sp-2);padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
 }
 
 #yunHit{touch-action:pan-x pan-y}
@@ -429,6 +437,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
     </div></div>
     <div class="nav-group" data-gi="6"><button class="nav-top" onclick="toggleNavGroup(this)">运气<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="yunqi.html">五运六气</a>
+      <a class="" href="ziwu.html">子午流注</a>
     </div></div>
     <div class="nav-group" data-gi="7"><button class="nav-top" onclick="toggleNavGroup(this)">相术<span class="caret">▾</span></button><div class="nav-menu">
       <a class="" href="shouxiang.html">手相</a>
@@ -475,9 +484,9 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
       </div>
       <div class="opts-row" id="tyOptsRow">
         <div class="group-label">时间折算与流派</div>
-        <div class="field"><label for="tyDst">夏令时</label><select id="tyDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
-        <div class="field"><label for="tyZi">子时算法</label><select id="tyZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
-        <div class="field"><label for="tySun">太阳时</label><select id="tySun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
+        <div class="field"><label for="tyDst">夏令时</label><select id="tyDst" class="ty-sel-dst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
+        <div class="field"><label for="tyZi">子时算法</label><select id="tyZi" class="ty-sel-zi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
+        <div class="field"><label for="tySun">太阳时</label><select id="tySun" class="ty-sel-sun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
       </div>
     </div>
     <div class="sub-note" id="infoLine"></div>
