@@ -63,6 +63,7 @@ const NAV_GROUPS = [
     {href:'zhougong.html', name:'周公解梦'},
     {href:'xingxiu.html', name:'二十八宿'},
     {href:'taisui.html', name:'太岁生肖'},
+    {href:'jisi.html', name:'祭祀供奉'},
   ]},
   {type:'group', name:'运气', items:[
     {href:'yunqi.html', name:'五运六气'},
@@ -80,6 +81,85 @@ const NAV_GROUPS = [
     {href:'opensource.html', name:'算法数据'},
   ]},
 ];
+
+/* 导航就地校正：首屏静态导航已在页面 HTML 里，本函数只按 NAV_GROUPS 对齐既有节点。
+   结构一致时仅改当前页高亮；增删只补删对应菜单项，不重建整段。
+   整段重绘会让顶栏重排、把手标与工具区图标一并重建，刷新和切页因此闪跳。 */
+function syncNav(nav, active){
+  const tools = nav.querySelector(':scope > .nav-tools');
+  NAV_GROUPS.forEach(function(g, gi){
+    if(g.type === 'link'){
+      let a = nav.querySelector(':scope > a.nav-link');
+      if(!a){
+        a = document.createElement('a');
+        nav.insertBefore(a, nav.firstChild);
+      }
+      const cls = g.href === active ? 'nav-link active' : 'nav-link';
+      if(a.getAttribute('href') !== g.href) a.setAttribute('href', g.href);
+      if(a.textContent !== g.name) a.textContent = g.name;
+      if(a.className !== cls) a.className = cls;
+      return;
+    }
+    let box = nav.querySelector(':scope > .nav-group[data-gi="' + gi + '"]');
+    if(!box){
+      box = document.createElement('div');
+      box.className = 'nav-group';
+      box.setAttribute('data-gi', String(gi));
+      box.innerHTML = '<button class="nav-top" onclick="toggleNavGroup(this)">' + g.name
+        + '<span class="caret">▾</span></button><div class="nav-menu"></div>';
+      let at = tools;
+      for(let k = gi + 1; k < NAV_GROUPS.length; k++){
+        const later = nav.querySelector(':scope > .nav-group[data-gi="' + k + '"]');
+        if(later){ at = later; break; }
+      }
+      nav.insertBefore(box, at || null);
+    }
+    const btn = box.querySelector('.nav-top');
+    if(btn){
+      const first = btn.firstChild;
+      if(first && first.nodeType === 3){
+        if(first.nodeValue !== g.name) first.nodeValue = g.name;
+      } else {
+        btn.insertBefore(document.createTextNode(g.name), btn.firstChild);
+      }
+    }
+    const menu = box.querySelector('.nav-menu');
+    if(menu){
+      const want = {};
+      g.items.forEach(function(it){ want[it.href] = it.name; });
+      Array.prototype.slice.call(menu.children).forEach(function(a){
+        if(a.tagName === 'A' && !Object.prototype.hasOwnProperty.call(want, a.getAttribute('href'))) menu.removeChild(a);
+      });
+      g.items.forEach(function(it, idx){
+        let a = null;
+        Array.prototype.slice.call(menu.children).some(function(x){
+          if(x.tagName === 'A' && x.getAttribute('href') === it.href){ a = x; return true; }
+          return false;
+        });
+        if(!a){
+          a = document.createElement('a');
+          const rest = g.items.slice(idx + 1).map(function(x){ return x.href; });
+          let next = null;
+          Array.prototype.slice.call(menu.children).some(function(x){
+            if(x.tagName === 'A' && rest.indexOf(x.getAttribute('href')) >= 0){ next = x; return true; }
+            return false;
+          });
+          menu.insertBefore(a, next || null);
+        }
+        if(a.getAttribute('href') !== it.href) a.setAttribute('href', it.href);
+        if(a.textContent !== it.name) a.textContent = it.name;
+        const cls = it.href === active ? 'active' : '';
+        if(a.className !== cls) a.className = cls;
+      });
+    }
+    const on = g.items.some(function(it){ return it.href === active; });
+    box.classList.toggle('has-active', on);
+  });
+  Array.prototype.slice.call(nav.querySelectorAll(':scope > .nav-group')).forEach(function(box){
+    const gi = Number(box.getAttribute('data-gi'));
+    if(!NAV_GROUPS[gi] || NAV_GROUPS[gi].type !== 'group') nav.removeChild(box);
+  });
+}
 
 function renderChrome(active){
   let navHtml = '';
@@ -99,6 +179,18 @@ function renderChrome(active){
       </div>`;
     }
   });
+
+  /* 静态导航首屏直出，这里只校正差异；页面若不带导航（空 nav）才整段构建一次。 */
+  const nav = document.querySelector('.topbar nav.nav');
+  if (nav) {
+    if (nav.querySelector('.nav-group')) {
+      syncNav(nav, active);
+    } else {
+      const tools = nav.querySelector('.nav-tools');
+      nav.innerHTML = navHtml;
+      if (tools) nav.appendChild(tools);
+    }
+  }
 
   injectSkeleton();
   defaultToday();
