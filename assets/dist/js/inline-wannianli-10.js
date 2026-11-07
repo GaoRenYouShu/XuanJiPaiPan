@@ -320,9 +320,11 @@ const YZ_RULE={
 };
 function showYearZhanTip(y){ return xjShowYearZhanTip(y,_wnlShow); }
 function showDay(str, el){
-  const key = str.split('-').map(Number).join('-');
+  /* 日期串一律补零到 YYYY-MM-DD，与日历格 data-date、日期框同形；
+     单日按不补零归一即对不上格上的补零键，选中态落不到格 */
+  const [y,m,d]=str.split('-').map(Number);
+  const key=`${y}-${('0'+m).slice(-2)}-${('0'+d).slice(-2)}`;
   lastSel = key;
-  const [y,m,d]=key.split('-').map(Number);
   document.querySelectorAll('.cal-cell.selected').forEach(c=>c.classList.remove('selected'));
   const target = el || document.querySelector(`.cal-cell[data-date="${key}"]`);
   if(target) target.classList.add('selected');
