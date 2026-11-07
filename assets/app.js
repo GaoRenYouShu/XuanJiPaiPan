@@ -69,6 +69,9 @@ const NAV_GROUPS = [
     {href:'yunqi.html', name:'五运六气'},
     {href:'ziwu.html', name:'子午流注'},
   ]},
+  {type:'group', name:'养生', items:[
+    {href:'jingyou.html', name:'精油芳疗'},
+  ]},
   {type:'group', name:'相术', items:[
     {href:'shouxiang.html', name:'手相'},
     {href:'mianxiang.html', name:'面相'},

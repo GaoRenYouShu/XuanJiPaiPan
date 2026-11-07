@@ -16,7 +16,7 @@
 [![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-37_个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-38_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
@@ -37,7 +37,7 @@
 
 ## 功能总览
 
-涵盖历法、命理、三式、占卜、民俗、运气、相术七大类，共 37 个独立工具。
+涵盖历法、命理、三式、占卜、民俗、运气、养生、相术八大类，共 38 个独立工具。
 
 | 分类 | 工具 |
 |---|---|
@@ -47,6 +47,7 @@
 | **占卜** | 六爻、梅花易数、小六壬、灵签、塔罗牌、雷诺曼 |
 | **民俗** | 民俗占法、测字、周公解梦、二十八宿、太岁生肖、祭祀供奉 |
 | **运气** | 五运六气、子午流注 |
+| **养生** | 精油芳疗 |
 | **相术** | 手相、面相、阳宅风水、阴宅风水、罗经仪 |
 
 ## 界面预览
@@ -61,7 +62,7 @@
 
 ## 主要工具
 
-按站内七卷顺序逐件介绍。
+按站内八卷顺序逐件介绍。
 
 ### 历法（7 件）
 
@@ -113,6 +114,10 @@
 - **五运六气**：岁运、司天在泉、客主加临、运气同化
 - **子午流注**：十二时辰当令、二十条经脉、三百六十一经穴与经外奇穴、九类特定穴、纳支补泻与飞腾八法
 
+### 养生（1 件）
+
+- **精油芳疗**：按效果、人群、季节与体质配单方复方方案，含七十二味单方、十八种基础油、十二组经典复方；逐味列主要作用、具体作用、行业俗称与适用人群，可按指定单方与指定基础油成方，浓度与安全禁忌逐条标出处；另附纯露二十种，只作资料不入配比
+
 ### 相术（5 件）
 
 - **手相**：掌形七类与九宫八丘、三大主线与辅助线纹，勾选式自查计分，条文照录《麻衣相法》
@@ -125,7 +130,7 @@
 
 ## 站内导航
 
-顶部导航按八卷编排：历法、命理、三式、占卜、民俗、运气、相术，另有附录三类。
+顶部导航按九卷编排：历法、命理、三式、占卜、民俗、运气、养生、相术，另有附录三类。
 
 - **典籍参考** `dianji.html`：各模块所依典籍、版本与开放获取渠道
 - **说明文档** `shuoming.html`：每个工具的起例口径、流派取舍、源流考据、凡例与术语解说
@@ -258,7 +263,7 @@ docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
 
 ```
 XuanJiPaiPan/
-├── *.html        42 个页面：37 个工具加首页、附录三类与 404 页
+├── *.html        43 个页面：38 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
 ├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理

@@ -16,7 +16,7 @@
 [![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-37-2CA5E0?style=flat-square)](#feature-overview)
+[![Tools](https://img.shields.io/badge/Tools-38-2CA5E0?style=flat-square)](#feature-overview)
 [![Pure frontend](https://img.shields.io/badge/Pure_frontend-Zero_build-4c9e4c?style=flat-square)](#tech-stack)
 [![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
 [![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
@@ -37,7 +37,7 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Seven categories with 37 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi and Physiognomy.
+Eight categories with 38 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
 
 | Category | Tools |
 |---|---|
@@ -47,6 +47,7 @@ Seven categories with 37 independent tools: Calendars, Fate Analysis, Three Styl
 | **Divination** | Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Fortune Sticks, Tarot, Lenormand |
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
+| **Wellness** | Essential Oil Aromatherapy |
 | **Physiognomy** | Palmistry, Face Reading, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui, Luopan |
 
 ## Interface Preview
@@ -61,7 +62,7 @@ Seven categories with 37 independent tools: Calendars, Fate Analysis, Three Styl
 
 ## Main Tools
 
-Introduced in the order of the site's seven sections.
+Introduced in the order of the site's eight sections.
 
 ### Calendars (7)
 
@@ -113,6 +114,10 @@ Introduced in the order of the site's seven sections.
 - **Five Movements and Six Qi**: annual movement, governing and terrestrial qi, guest and host qi, and qi convergence
 - **Ziwu Liuzhu Meridian Clock**: twelve two-hour periods and their ruling meridians, twenty meridians, 361 standard acupoints plus extra points, nine categories of specific points, and the Nazhi and Feiteng point-selection methods
 
+### Wellness (1)
+
+- **Essential Oil Aromatherapy**: formulas calculated by effect, group, season and constitution, with 72 single oils, 18 carrier oils and 12 classic blends; each oil lists its main action, refined action, trade name and suitable groups, and specified single oils or carrier oils can be pinned into the formula, plus 20 hydrosols for reference only, with dilution limits and safety caveats cited entry by entry
+
 ### Physiognomy (5)
 
 - **Palmistry**: seven palm shapes with nine palaces and eight mounts, the three major lines and auxiliary lines, a checklist self-assessment, and texts quoted from the Ma Yi Physiognomy
@@ -125,7 +130,7 @@ All divination tools support switching between schools and algorithms, with resu
 
 ## Site Navigation
 
-The top navigation has eight sections: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Physiognomy and the Appendix of three pages.
+The top navigation has nine sections: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness, Physiognomy and the Appendix of three pages.
 
 - **Classics Reference** `dianji.html`: the classics, editions and open access channels behind each module
 - **Documentation** `shuoming.html`: casting rules, school choices, source research, conventions and terminology for every tool
@@ -257,7 +262,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        42 pages: 37 tools plus the home page, three appendix pages and a 404 page
+├── *.html        43 pages: 38 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages
