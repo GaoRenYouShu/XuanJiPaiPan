@@ -70,7 +70,7 @@
     var h = '<div class="jl-strip" aria-label="十二时辰经络对照">';
     list.forEach(function (j, i) {
       h += '<div class="jl-strip-cell' + (i === idx ? ' on' : '') + '" data-i="' + i + '" onclick="jlPickShichen(' + i + ')">'
-        + '<b>' + esc(j.zhi) + '</b><span>' + esc(j.jing) + '</span><i>' + esc(String(j.range).replace(/:00/g, '')) + '</i></div>';
+        + '<b>' + esc(j.zhi) + '</b><span>' + esc(j.jing) + '</span><i title="' + esc(j.range) + '">' + esc(String(j.range).replace(/:00/g, '')) + '</i></div>';
     });
     return h + '</div>';
   }
@@ -179,7 +179,7 @@
     h += '<div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>穴名</th><th>代码</th><th>归经</th><th>部位</th><th>功效</th></tr></thead><tbody>';
     shown.forEach(function (p) {
       var m = meridianOf(p.meridian);
-      h += '<tr data-point="' + esc(p.name) + '"><td class="jl-c0">' + esc(p.name) + '</td><td>' + esc(p.code) + '</td><td>' + esc(m ? m.short : '经外奇穴') + '</td><td>' + esc(p.region) + '</td><td>' + esc(p.fx) + '</td></tr>';
+      h += '<tr data-point="' + esc(p.name) + '"><td class="jl-c0">' + esc(p.name) + '</td><td>' + esc(p.code) + '</td><td>' + esc(m ? m.name : '经外奇穴') + '</td><td>' + esc(p.region) + '</td><td>' + esc(p.fx) + '</td></tr>';
     });
     h += '</tbody></table></div>';
     out.innerHTML = h;
@@ -289,6 +289,7 @@
 
   /* ---------- 十二时辰经络盘 ---------- */
   var WHEEL_SEL = 0, WHEEL_TIMER = null;
+  var WX_COLOR = { 木:'#5a8f45', 火:'#b8543f', 土:'#876248', 金:'#a8813a', 水:'#3f6d96' };
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
   function clockHands(h, mi) {
     if (!window.WHEEL) return;
@@ -323,7 +324,9 @@
       rings: [{ r: 182, cls: 'w-ring' }, { r: 150, cls: 'w-ring' }, { r: 120, cls: 'w-ring' }, { r: 78, cls: 'w-core' }],
       labelsOut: function (i, dg) {
         var tp = WHEEL.px(210, dg);
-        return '<text x="' + WHEEL.n(tp[0]) + '" y="' + WHEEL.n(tp[1]) + '" class="w-lab w-lab-xl' + (i === WHEEL_SEL ? ' w-lab-cur' : '') + '" data-i="' + i + '" transform="rotate(' + WHEEL.ring(dg) + ' ' + WHEEL.n(tp[0]) + ' ' + WHEEL.n(tp[1]) + ')">' + esc(list[i].jing) + '</text>';
+        var mr = meridianByShichen(list[i].zhi);
+        var fill = mr && WX_COLOR[mr.wuxing] ? ' fill="' + WX_COLOR[mr.wuxing] + '"' : '';
+        return '<text x="' + WHEEL.n(tp[0]) + '" y="' + WHEEL.n(tp[1]) + '" class="w-lab w-lab-xl' + (i === WHEEL_SEL ? ' w-lab-cur' : '') + '"' + fill + ' data-i="' + i + '" transform="rotate(' + WHEEL.ring(dg) + ' ' + WHEEL.n(tp[0]) + ' ' + WHEEL.n(tp[1]) + ')">' + esc(list[i].jing) + '</text>';
       },
       labelsIn: function (i, dg) {
         var tp = WHEEL.px(136, dg);
@@ -408,7 +411,7 @@
     if (typeof Solar === 'undefined') return null;
     try {
       var l = Solar.fromYmdHms(date.getFullYear(), date.getMonth() + 1, date.getDate(), t.h, t.mi, 0).getLunar();
-      return { day: l.getDayInGanZhi(), time: l.getTimeInGanZhi() };
+      return { day: l.getDayInGanZhiExact(), time: l.getTimeInGanZhi() };
     } catch (e) { return null; }
   }
   function najiaBlock(gz) {
@@ -431,7 +434,7 @@
       + row('时支', esc(hourZhi) + '时')
       + row('开穴', cell ? (cell.type === '开穴' ? esc(cell.point) + esc(nature) : esc(cell.type)) : '未载')
       + (extra ? row('同取', esc(extra)) : '')
-      + '</dl><div class="jl-src">开穴据《针灸大全》纳甲法。</div></div>';
+      + '</dl><div class="jl-src">开穴据《针灸大全》卷五纳甲法。</div></div>';
 
     var dgNum = L.dayStems && L.dayBranches ? (L.dayStems[dayGan] || 0) + (L.dayBranches[gz.day.charAt(1)] || 0) : 0;
     var hgNum = L.hourStems && L.hourBranches ? (L.hourStems[gz.time.charAt(0)] || 0) + (L.hourBranches[gz.time.charAt(1)] || 0) : 0;
@@ -447,7 +450,7 @@
         + row('配穴', gua ? esc(gua) : '未载')
         + row('归经', gm ? esc(gm.name) : '未载')
         + row('主治', gp ? esc(gp.zz) : '未载')
-        + '</dl><div class="jl-src">取穴据《针灸大全》灵龟八法。</div></div>';
+        + '</dl><div class="jl-src">取穴据《针灸大全》卷五灵龟八法。</div></div>';
     }
 
     return h;
@@ -474,7 +477,8 @@
     var ft = FEITENG[gan];
     var fp = ft ? pointOf(ft.point) : null;
 
-    var h = '<div class="jl-card"><h4><b>纳支法</b> ' + (mode === 'bu' ? '补母' : '泻子') + '</h4><dl class="jl-kv">'
+    var h = '<div class="jl-note">日柱按晚子时计，二十三时后归次日，与全站子时算法同口径。</div>';
+    h += '<div class="jl-card"><h4><b>纳支法</b> ' + (mode === 'bu' ? '补母' : '泻子') + '</h4><dl class="jl-kv">'
       + '<div><dt>时辰</dt><dd>' + esc(j.zhi) + '时 ' + esc(j.range) + '　' + esc(j.full) + '</dd></div>'
       + '<div><dt>日时干支</dt><dd>' + esc(gz ? gz.day + '日 ' + gz.time + '时' : '未载') + '</dd></div>'
       + '<div><dt>本经五行</dt><dd>' + esc(wu || '未载') + '</dd></div>'
@@ -486,7 +490,7 @@
       + '<div><dt>取穴</dt><dd>' + esc(ft ? ft.point : '未载') + '</dd></div>'
       + '<div><dt>归经</dt><dd>' + esc(fp ? (meridianOf(fp.meridian) ? meridianOf(fp.meridian).name : '经外奇穴') : '未载') + '</dd></div>'
       + '<div><dt>主治</dt><dd>' + esc(fp ? fp.zz : '未载') + '</dd></div>'
-      + '</dl><div class="jl-src">歌诀：壬甲公孙即是乾，丙居艮上内关然，戊为临泣生坎水，庚属外关震相连，辛上后溪装巽卦，乙癸申脉到坤传，己土列缺南离上，丁居照海兑金全。</div></div>';
+      + '</dl><div class="jl-src">取穴据《针灸大全》卷五飞腾八法。歌诀：壬甲公孙即是乾，丙居艮上内关然，戊为临泣生坎水，庚属外关震相连，辛上后溪装巽卦，乙癸申脉到坤传，己土列缺南离上，丁居照海兑金全。</div></div>';
 
     h += najiaBlock(gz);
     if (!window.ZW_NAJIA) {
@@ -495,7 +499,7 @@
     h += '<h4 class="jl-sub">纳甲法歌诀</h4><ol class="jl-steps">';
     NAJIA_SONGS.forEach(function (s) { h += '<li>' + esc(s) + '</li>'; });
     h += '</ol>';
-    h += '<h4 class="jl-sub">灵龟八法出处</h4><p class="jl-note">八脉交会穴配九宫，取穴据《针灸大全》灵龟八法。</p>';
+    h += '<h4 class="jl-sub">灵龟八法歌</h4><p class="jl-note">坎一联申脉，照海坤二五，震三属外关，巽四临泣数，乾六是公孙，兑七后溪府，艮八系内关，离九列缺主。出《针灸大全》卷五灵龟八法。</p>';
     out.innerHTML = h;
   }
 
@@ -510,7 +514,7 @@
     var tm = parseTime(tv);
     var idx = tm ? zhiIndex(tm.h) : (CURRENT_IDX === null ? zhiIndex(new Date().getHours()) : CURRENT_IDX);
     var j = list[idx], m = meridianByShichen(j.zhi);
-    return '所查 ' + d + (tv ? ' ' + tv : '') + '，' + j.zhi + '时（' + j.range + '）' + j.full + '当令；五行' + (m && m.wuxing ? m.wuxing : '不属五行') + '，本经' + (m ? m.count : '') + '穴；属络' + j.shu + '；宜做' + j.yi + '。本页为传统文化与经络学说查询，不构成诊疗建议。';
+    return '所查 ' + d + (tv ? ' ' + tv : '') + '，' + j.zhi + '时（' + j.range + '）' + j.full + '当令；五行' + (m && m.wuxing ? m.wuxing : '不属五行') + '，本经' + (m ? m.count : '') + '穴；属络' + j.shu + '；宜做' + j.yi + '。本页为传统文化与经络学说查询，不构成诊疗建议；针刺、艾灸与用药须由执业医师施行。';
   }
   function bind() {
     var btn = $('jlBtn');
