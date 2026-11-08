@@ -530,6 +530,13 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
+/* 起课时刻框：app.js 的日期件到齐后把裸 input[type="time"] 收进 .dt-wrap 并定为 72px；
+   首绘先按同宽、同字心与同图标口径出，否则框宽由原生 92px 收到 72px，右侧流派字段与
+   起课钮整体左移 20px，且首秒时钟图标占位把分钟挤掉（只显 11:）。与 bazi 页同一口径
+   （.page-bazi .field input[type="time"]{width:72px;height:30px}）。 */
+.page-xlr .field input[type="time"]{width:72px;text-align:center}
+.page-xlr .field input[type="time"]::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
   background:var(--red);color:#fff;font-size:13px;font-weight:400;
@@ -881,6 +888,17 @@ a.btn{display:inline-flex;align-items:center}
 .opts-row .btn{flex:0 0 auto;align-self:flex-end}
 
 @media(max-width:640px){.opts-row{gap:var(--sp-2)}}
+
+/* 时间折算与流派行的三只下拉：窄屏首绘前先按 app.js 的窄屏定宽口径收窄。
+   app.js 的 .opts-row select 定宽在 defer 脚本里执行，晚于首绘；首绘按全量 options
+   自然宽排时三只下拉各占一行，脚本到齐后收窄回一行，页尾附加功能面板与页脚因此上移
+   一百二十九像素，落进 844px 视口，首秒文本与终态不同。此处先给同一终值：选项括注前
+   最长四字或三字，一字 1em；41px 为左内距 12、边框 2、原生箭头约 20.656 与余量 6 的
+   合计取整。app.js 到位后以同值内联覆盖，不再重排。改选项文案须同步此式。 */
+@media(max-width:970px){
+  .page-xlr #xlrDst,.page-xlr #xlrSun{width:calc(4em + 41px);padding-right:0}
+  .page-xlr #xlrZi{width:calc(3em + 41px);padding-right:0}
+}
 
 .dual-wrap{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2);flex:1 1 100%}
 

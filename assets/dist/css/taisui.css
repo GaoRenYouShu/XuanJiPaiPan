@@ -2228,6 +2228,17 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 /* 日期弹框主题（字面量） */
 .dtm-ts{--tk:#2f6e40;--tk2:#265a34;--tk-ink:#33403a;--tk-line:#d5e2d8;--tk-tint:#eff5f0}
 
+/* 首屏查询模块静态期即按展开态出盒：构建器把 section.mod 一律补 collapsed，页脚本要到 defer 链尾
+   才移除，4G 下 3.4s 表单才出，首秒文本缺三标签一按钮、下方整段下推 68px（桌面）与 102px（窄屏）。
+   先按展开态显示，不增删 DOM；脚本挂上 dt-wrap 后再交回常规折叠，用户手收仍生效。 */
+.page-ts #tsmod-check .mod-body{display:block}
+
+.page-ts #tsmod-check.collapsed .mod-body:has(.dt-wrap){display:none}
+
+.page-ts #tsmod-check .mod-caret{transform:none}
+
+.page-ts #tsmod-check.collapsed:has(.dt-wrap) .mod-caret{transform:rotate(-90deg)}
+
 
 
 

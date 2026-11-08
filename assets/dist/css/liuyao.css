@@ -2391,6 +2391,17 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 .page-ly .ai-bubble.assistant{border-color:var(--ly-line)}
 
+/* 时间折算与流派行的三只下拉：窄屏首绘前先按 app.js 的窄屏定宽口径收窄。
+   app.js 的 .opts-row select 定宽在 defer 脚本里执行，晚于首绘；首绘按全量 options
+   自然宽排时三只下拉各占一行，太阳时落到 844px 视口外，脚本到齐后收窄回一行，
+   首秒文本与终态不同。此处先给同一终值：选项括注前最长 4 字或 3 字，1 字 1em；
+   41px 为左内距 12、边框 2、原生箭头约 20.656 与余量 6 的合计取整。app.js 到位后
+   以同值内联覆盖，不再重排。改选项文案须同步此式。 */
+@media(max-width:970px){
+  .page-ly #lyDst,.page-ly #lySun{width:calc(4em + 41px);padding-right:0}
+  .page-ly #lyZi{width:calc(3em + 41px);padding-right:0}
+}
+
 @media print{
   .page-ly .ly-cat-tbl th{background:var(--card) !important;border-color:var(--line) !important}
 }
