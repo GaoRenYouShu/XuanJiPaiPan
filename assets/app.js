@@ -71,6 +71,7 @@ const NAV_GROUPS = [
   ]},
   {type:'group', name:'养生', items:[
     {href:'jingyou.html', name:'精油芳疗'},
+    {href:'shiliao.html', name:'食疗'},
   ]},
   {type:'group', name:'相术', items:[
     {href:'shouxiang.html', name:'手相'},
@@ -204,13 +205,14 @@ function renderChrome(active){
   bridgeFooterInk();
 }
 
-/* 页脚在页容器之外，取不到页面墨色；把页面 --ink 抄到页脚，
-   免责声明与 IP 归属地随本页正文同色，亮暗主题切换时重抄。 */
+/* 页脚在页容器之外，取不到页面墨色；页面已用 --footer-ink 声明页脚色时优先用它，
+   未声明才回落页面 --ink，免责声明与 IP 归属地同色，亮暗主题切换时重抄。 */
 function bridgeFooterInk(){
   const f = document.getElementById('footer');
   if(!f) return;
   const pg = document.querySelector('.page') || document.body;
-  const v = getComputedStyle(pg).getPropertyValue('--ink').trim();
+  const v = getComputedStyle(document.body).getPropertyValue('--footer-ink').trim()
+    || getComputedStyle(pg).getPropertyValue('--ink').trim();
   if(v) f.style.setProperty('--footer-ink', v);
   if(!bridgeFooterInk.bound && window.matchMedia){
     bridgeFooterInk.bound = true;

@@ -16,7 +16,7 @@
 [![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-38-2CA5E0?style=flat-square)](#feature-overview)
+[![Tools](https://img.shields.io/badge/Tools-39-2CA5E0?style=flat-square)](#feature-overview)
 [![Pure frontend](https://img.shields.io/badge/Pure_frontend-Zero_build-4c9e4c?style=flat-square)](#tech-stack)
 [![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
 [![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
@@ -37,7 +37,7 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Eight categories with 38 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
+Eight categories with 39 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
 
 | Category | Tools |
 |---|---|
@@ -47,7 +47,7 @@ Eight categories with 38 independent tools: Calendars, Fate Analysis, Three Styl
 | **Divination** | Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Fortune Sticks, Tarot, Lenormand |
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
-| **Wellness** | Essential Oil Aromatherapy |
+| **Wellness** | Essential Oil Aromatherapy, Dietary Therapy |
 | **Physiognomy** | Palmistry, Face Reading, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui, Luopan |
 
 ## Interface Preview
@@ -114,9 +114,10 @@ Introduced in the order of the site's eight sections.
 - **Five Movements and Six Qi**: annual movement, governing and terrestrial qi, guest and host qi, and qi convergence
 - **Ziwu Liuzhu Meridian Clock**: twelve two-hour periods and their ruling meridians, twenty meridians, 361 standard acupoints plus extra points, nine categories of specific points, and the Nazhi and Feiteng point-selection methods
 
-### Wellness (1)
+### Wellness (2)
 
-- **Essential Oil Aromatherapy**: formulas calculated by effect, group, season and constitution, with 72 single oils, 18 carrier oils and 12 classic blends; each oil lists its main action, refined action, trade name and suitable groups, and specified single oils or carrier oils can be pinned into the formula, plus 20 hydrosols for reference only, with dilution limits and safety caveats cited entry by entry
+- **Essential Oil Aromatherapy**: single and blended formulas by effect, group, season and constitution, with 72 single oils, 18 carrier oils, 12 classic blends and 20 hydrosols
+- **Dietary Therapy**: food, recipe, seasonal and meal-plan queries by constitution, season and group, with 358 foods, 40 recipes and the food-medicine catalog
 
 ### Physiognomy (5)
 
@@ -262,7 +263,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        43 pages: 38 tools plus the home page, three appendix pages and a 404 page
+├── *.html        44 pages: 39 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

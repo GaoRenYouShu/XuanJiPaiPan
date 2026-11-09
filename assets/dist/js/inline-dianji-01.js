@@ -1,2 +1,8 @@
-/* 翻页钮属首屏壳层：壳层脚本一到位即挂出，不排在页面脚本之后。 */
-injectScrollJump();
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    renderChrome('dianji.html');
+  }, 0);
+});

@@ -1,8 +1,8 @@
-
-
-
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
-    renderChrome('dianji.html');
+    renderChrome('shiliao.html');
+    if (window.SL) {
+      SL.mountAI();
+    }
   }, 0);
 });
