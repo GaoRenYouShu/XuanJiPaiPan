@@ -13,6 +13,7 @@ body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif S
 /* 选中项：取当前页主体色 --tk（由 .dtm-* 类带出，见 app.js 自绘列表），无主题页回落 --red。 */
 .sel-opt.on{color:var(--tk,var(--red));font-weight:400}
 
+/* 旧页分片与旧缓存可能把字号抬回 11px；此条以更高权重压住，caret 只画 CSS 三角，不显任何字形。 */
 /* 顶栏两枚按钮同款同形：同高 30px、直角、无描边（⚙ AI 与 ☰ 只留字形与满填态），宽度随内容。 */
 
 /* 两枚图标收进一簇，簇内零 gap：间距只由 padding 承担，不再与 .nav 的 gap 叠加 */
@@ -994,7 +995,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
     min-height:36px;padding:0 var(--sp-2);font-size:14px}
   .nav-group{position:static;display:flex;flex-direction:column}
   .nav-group.open{grid-column:1/-1}
-  .nav-top .caret{font-size:11px;opacity:.75;transition:transform .18s}
+  .nav-top .caret{opacity:.75;transition:transform .18s}
   .nav-group.open .caret{transform:rotate(180deg)}
   .nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
     gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);
@@ -1947,7 +1948,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 }
 
 
-body{--footer-ink:#333;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
 
 /* 本页样式：只含本页用到的规则，次序与共享源一致。 */
 

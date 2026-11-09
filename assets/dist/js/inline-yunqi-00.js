@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function () {
       renderZhuYun(p);
       renderZongTu(p);
       renderYuanliu();
-      if (document.getElementById('yqTabOut').innerHTML) renderTab60();
+      renderTab60();
     }
 
     /* ===== 2. AI 上下文 ===== */
@@ -812,11 +812,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function toggleMod(id){
       var el = document.getElementById(id); if (el) el.classList.toggle('collapsed');
       saveYqModState();
-      /* 结果未出时首开即排：任一模块展开先出一次盘，展开的模块内即有所见。
-         载入仍不自动出结果（与全站去除预置结果同口径），此只在用户点开时补一次。 */
-      if (el && !el.classList.contains('collapsed') && !YQ_LAST) renderAll();
-      /* 六十年总表首开即渲：模块展开而表格未渲过时渲染一次，之后仅随筛选与排盘刷新 */
-      if (id === 'yqmod-60' && el && !el.classList.contains('collapsed') && !document.getElementById('yqTabOut').innerHTML) renderTab60();
     }
     /* 折叠头走内联 onclick 只能触达全局：脚本求值即挂上，init 中任一附加模块异常都不再拖死开合 */
     window.toggleMod = toggleMod;
@@ -860,8 +855,8 @@ document.addEventListener('DOMContentLoaded', function () {
       for (zi = 0; zi < ZHIS.length; zi++){ zOpts += '<option value="' + ZHIS[zi] + '">' + ZHIS[zi] + '</option>'; }
       gSel.innerHTML += gOpts;
       zSel.innerHTML += zOpts;
-      gSel.addEventListener('change', renderTab60);
-      zSel.addEventListener('change', renderTab60);
+      gSel.addEventListener('change', function(){ if (document.getElementById('yqTabOut').innerHTML) renderTab60(); });
+      zSel.addEventListener('change', function(){ if (document.getElementById('yqTabOut').innerHTML) renderTab60(); });
       /* 干支反查输入框回车即排盘 */
       $('yqGz').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') renderAll(); });
       if (window.mountAI) window.mountAI(yqAiContext, '五运六气', { share:{ page:"yunqi", title:"五运六气在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ renderAll(); applyYqModState(); }); } } });

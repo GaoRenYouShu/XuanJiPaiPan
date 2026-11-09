@@ -350,6 +350,7 @@
     if (digits.length < 2) { out.innerHTML = '<p class="ms-err">号码至少两位数字才能配对。</p>'; LAST.num = null; return; }
     var part = $('msNumPart').value;
     var taken = (part === 'tail' && digits.length > 8) ? digits.slice(-8) : digits;
+    var P2S = pairIndex(), BX = window.NUMBER_BAGXING;
 
     var m = num81(taken);
     var it = m >= 1 ? window.NAME_DATA.NAME81[m - 1] : null;
@@ -369,7 +370,6 @@
     if (BX.note) html += '<div class="ms-note">' + esc(BX.note) + '</div>';
 
     /* 八星：以 0、5 为界切段，段内相邻两位滑窗配对 */
-    var P2S = pairIndex(), BX = window.NUMBER_BAGXING;
     var segs = [], cur = '';
     for (var i = 0; i < taken.length; i++) {
       var ch = taken.charAt(i);
@@ -748,15 +748,6 @@
     $('msNumBtn').addEventListener('click', renderNum);
     $('msSanshiBtn').addEventListener('click', renderSanshi);
     fillToday();
-    /* 三框有日期预填，加载即出结果；号码无输入不渲染，保留框内说明。
-       首屏结果已是页面终值，data-built 记写出当日，访问日与所记不同才按当日重出。 */
-    var built = document.querySelector('.ms-page') ? document.querySelector('.ms-page').getAttribute('data-built') : '';
-    if (built !== todayStr()) {
-      renderChengu();
-      renderFanyue();
-      renderBuddha();
-      renderSanshi();
-    }
     if (window.mountAI) window.mountAI(msAiContext, '民俗占法', {
       share: {
         page: 'minsu', title: '民俗占法',

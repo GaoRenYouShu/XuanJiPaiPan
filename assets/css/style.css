@@ -88,7 +88,9 @@ select option{font-family:inherit}
 .nav-top:hover{background:none;color:#f0ece0}
 .nav-group.has-active .nav-top{color:#f0ece0;font-weight:400}
 .nav-group.has-active .nav-top::after{background:#a5321f}
-.nav-top .caret{display:inline-block;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-left:4px;font-size:0;line-height:0;opacity:.6;vertical-align:middle}
+.nav-top .caret{display:inline-block;width:0;height:0;border-left:2px solid transparent;border-right:2px solid transparent;border-top:3px solid currentColor;margin-left:4px;font-size:0;line-height:0;opacity:.6;vertical-align:middle}
+/* 旧页分片与旧缓存可能把字号抬回 11px；此条以更高权重压住，caret 只画 CSS 三角，不显任何字形。 */
+button.nav-top .caret{font-size:0;line-height:0}
 .nav-menu{display:none;position:absolute;top:100%;right:0;margin-top:var(--sp-2);min-width:150px;
   background:#25221e;border:1px solid rgba(255,255,255,.12);border-radius:0;padding:var(--sp-1);z-index:50;
   box-shadow:0 14px 32px rgba(0,0,0,.45);flex-direction:column;gap:var(--sp-1)}
@@ -1144,7 +1146,7 @@ table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:13%;padd
     min-height:36px;padding:0 var(--sp-2);font-size:14px}
   .nav-group{position:static;display:flex;flex-direction:column}
   .nav-group.open{grid-column:1/-1}
-  .nav-top .caret{font-size:11px;opacity:.75;transition:transform .18s}
+  .nav-top .caret{opacity:.75;transition:transform .18s}
   .nav-group.open .caret{transform:rotate(180deg)}
   .nav-menu{position:static;display:none;grid-template-columns:repeat(2,minmax(0,1fr));
     gap:var(--sp-1) var(--sp-1);min-width:0;margin:0 0 var(--sp-2);padding:0 0 0 var(--sp-3);

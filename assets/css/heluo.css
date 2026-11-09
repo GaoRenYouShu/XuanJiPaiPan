@@ -2295,9 +2295,11 @@ to{opacity:1;transform:none}}
 /* 河洛页日期弹框主题（app.js 按页面主题类自动挂 dtm-hl） */
 .dtm-hl{--tk:#2d5f5d;--tk2:#214544;--tk-ink:#31403f;--tk-line:#d3e0de;--tk-tint:#eef4f3}
 
-/* 首屏下拉定宽：字体未到时按回退字撑宽，行内折行与终态不同 */
-.page-hl .opts-row .field select{width:93px}
-.page-hl .opts-row .field select#hlZi{width:80px}
+/* 窄屏下拉取 app.js fit 的终值宽：首绘即按定宽排，脚本到齐重设同值。 */
+@media(max-width:970px){
+  .page-hl .opts-row .field select{width:93px}
+  .page-hl .opts-row .field select#hlZi{width:80px}
+}
 
 /* page-font:begin */
 /* page-font-hash: cb1b600c2c4d */

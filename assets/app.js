@@ -111,7 +111,7 @@ function syncNav(nav, active){
       box.className = 'nav-group';
       box.setAttribute('data-gi', String(gi));
       box.innerHTML = '<button class="nav-top" onclick="toggleNavGroup(this)">' + g.name
-        + '<span class="caret">▾</span></button><div class="nav-menu"></div>';
+        + '<span class="caret"></span></button><div class="nav-menu"></div>';
       let at = tools;
       for(let k = gi + 1; k < NAV_GROUPS.length; k++){
         const later = nav.querySelector(':scope > .nav-group[data-gi="' + k + '"]');
@@ -179,7 +179,7 @@ function renderChrome(active){
         return `<a class="${c}" href="${it.href}">${it.name}</a>`;
       }).join('');
       navHtml += `<div class="nav-group${hasActive?' has-active':''}" data-gi="${gi}">
-        <button class="nav-top" onclick="toggleNavGroup(this)">${g.name}<span class="caret">▾</span></button>
+        <button class="nav-top" onclick="toggleNavGroup(this)">${g.name}<span class="caret"></span></button>
         <div class="nav-menu">${items}</div>
       </div>`;
     }
