@@ -518,7 +518,10 @@ const xjGrid = (function(){
   }
   return { slots: slots, render: render };
 })();
-window.xjCalGrid = xjGrid;
+/* 解析期渲染件 build/site/cal-boot.js 已在页内装上 window.xjCal 时，xjCalGrid 只作别名，
+   不再另起一套格渲染；其余四页尚未迁移，无 xjCal 时仍用旧实现，迁移后删除旧实现。 */
+window.xjCalSlots = xjGrid.slots;
+window.xjCalGrid = window.xjCal || xjGrid;
 
 /* ===== 日历页检索与筛选（五历页共用） =====
    页给三样：逐日检索词、筛选项、逐日筛选判据；本件只管建查询行、跑前后三年、列命中与隐藏未命中格。

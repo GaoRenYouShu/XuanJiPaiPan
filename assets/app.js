@@ -197,7 +197,6 @@ function renderChrome(active){
     }
   }
 
-  injectSkeleton();
   defaultToday();
   initPickers();
   injectBaziLinkBanner();
@@ -655,17 +654,6 @@ xjScheduleNowDefaults();
   /* 页面在各自 load 回调里写回的 URL 参数晚于上一次扫描，load 后再补扫一轮 */
   window.addEventListener('load', function(){ sweepInvalidDates(); setTimeout(sweepInvalidDates, 0); });
 
-  /* 骨架屏：日历网格加载占位（JS 渲染前显示，render() 自动替换） */
-  window.injectSkeleton = function(){
-    const grid = document.getElementById('calGrid');
-    if(!grid || grid.children.length) return;
-    const wds = ['一','二','三','四','五','六','日'];
-    let html = wds.map(w => `<div class="sk-cell wd"></div>`).join('');
-    for(let r=0;r<6;r++){
-      for(let c=0;c<7;c++) html += '<div class="sk-cell"></div>';
-    }
-    grid.innerHTML = html;
-  };
 })();
 
 /* ===== 折叠块状态读取（全站共用） =====

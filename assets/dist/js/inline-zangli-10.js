@@ -3,6 +3,8 @@ let cur = new Date();
 let xjq = null;
 let school = 'phugpa';
 let lastKey = '';
+/* 日期键：YYYY-MM-DD，与格 data-date、日期框同形 */
+function dayKey(dt){ return `${dt.getFullYear()}-${('0'+(dt.getMonth()+1)).slice(-2)}-${('0'+dt.getDate()).slice(-2)}`; }
 /* 日期范围下限：饶迥纪年以公元 1027 年为第一饶迥元年，该年之前藏地未行此纪年 */
 const ZL_YMIN = 1027;
 const ZL_DAY_CN = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
@@ -292,20 +294,22 @@ function zlPickSk(i){
   const d = document.getElementById('zlSkipDetail'); if(d) d.innerHTML = zlSkipDetailHTML(i);
 }
 function render(){
-  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件；藏历日逐格带出前一格，
+  /* 整月格走解析期渲染件 window.xjCal；藏历日逐格带出前一格，
      重日与缺日须与前一格比对才能判出，故在此包一层取数再交给一格一貌的 cell */
   let prev = null;
-  xjCalGrid.render(cur.getFullYear(), cur.getMonth() + 1, {
-    today: new Date(),
-    cell: function(d, other, todayStr){
-      const t = zlFromGregorian(school, d.getFullYear(), d.getMonth() + 1, d.getDate());
-      const prevT = prev ? zlFromGregorian(school, prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
-        : zlPrevT(d.getFullYear(), d.getMonth() + 1, d.getDate());
-      const html = cell(d, other, todayStr, t, prevT);
-      prev = d;
-      return html;
-    }
+  const y = cur.getFullYear(), m = cur.getMonth() + 1;
+  const slots = (typeof xjCalSlots === 'function') ? xjCalSlots(y, m) : [];
+  const cells = slots.map(function(it){
+    const d = it.d;
+    const t = zlFromGregorian(school, d.getFullYear(), d.getMonth() + 1, d.getDate());
+    const prevT = prev ? zlFromGregorian(school, prev.getFullYear(), prev.getMonth() + 1, prev.getDate())
+      : zlPrevT(d.getFullYear(), d.getMonth() + 1, d.getDate());
+    const c = cell(d, it.other, t, prevT);
+    prev = d;
+    return c;
   });
+  const todayKey = dayKey(xjNowDate());
+  window.xjCal.render(y, m, cells, { today: todayKey, selected: lastKey || todayKey });
   if(xjq) xjq.apply();
   const lb = document.getElementById('zlLosarBody');
   if(lb) lb.innerHTML = zlLosarRows();
@@ -330,12 +334,11 @@ function zlDayFlags(y,m,d){
   if(!t) return { t:null, cm:{} };
   return { t:t, cm:zlCellMarks(t, zlPrevT(y,m,d)) };
 }
-function cell(d, other, todayStr, t, prevT){
+function cell(d, other, t, prevT){
   const ss = ZL_SHUSHENG[t.day];
   const fs = zlFestOf(t);
-  const isToday = d.toDateString() === todayStr;
   const wd = d.getDay();
-  const key = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  const key = dayKey(d);
   const wk = (wd === 0 || wd === 6) ? 'weekend' : '';
   /* 角标：殊（每月固定殊胜日）左上、节（年内固定节日）右上、重与缺左下、闰右下，只给字色不给底色 */
   const cm = zlCellMarks(t, prevT);
@@ -343,12 +346,13 @@ function cell(d, other, todayStr, t, prevT){
     + (cm.d ? '<span class="mk mk-' + (cm.d === '重' ? 'c' : 'q') + '">' + cm.d + '</span>' : '')
     + (cm.l ? '<span class="mk mk-r">' + cm.l + '</span>' : '');
   const tag = fs.length ? fs[0].name : (ss ? ss.short : '');
-  return '<div class="cal-cell ' + (other ? 'other' : '') + ' ' + (isToday ? 'today' : '') + ' ' + wk + '" data-date="' + key + '"'
-    + ' onclick="pickDate(\'' + key + '\')">'
-    + mk
+  /* 格附加类只给 other、weekend；today 与 selected 由渲染件按访问日落位 */
+  const cls = [other ? 'other' : '', wk].filter(Boolean).join(' ');
+  const h = mk
     + '<div class="sd"><span class="sd-num">' + d.getDate() + '</span></div>'
     + (tag ? '<div class="festival">' + tag + '</div>' : '')
-    + '<div class="ld">藏' + ZL_DAY_CN[t.day - 1] + '</div></div>';
+    + '<div class="ld">藏' + ZL_DAY_CN[t.day - 1] + '</div>';
+  return { d: key, c: cls, h: h };
 }
 /* 当月殊胜日与节日一览：不复刻到页面（与殊胜日盘重复），只留给 AI 提词的当月小节 */
 function monthFestList(y, m){
@@ -372,12 +376,12 @@ function monthFestList(y, m){
   return Object.keys(groups).map(function(k){ return groups[k]; }).filter(function(g){ return g.items.length; });
 }
 function showDay(str, el){
-  const key = str.split('-').map(Number).join('-');
+  const p = str.split('-').map(Number);
+  const key = dayKey(safeDate(p[0], p[1], p[2]));
   lastKey = key;
-  const p = key.split('-').map(Number);
-  document.querySelectorAll('.cal-cell.selected').forEach(function(c){ c.classList.remove('selected'); });
   const target = el || document.querySelector('.cal-cell[data-date="' + key + '"]');
-  if(target) target.classList.add('selected');
+  document.querySelectorAll('.cal-cell.selected').forEach(c => { if (c !== target) c.classList.remove('selected'); });
+  if (target && !target.classList.contains('selected')) target.classList.add('selected');
   const solar = Solar.fromYmd(p[0], p[1], p[2]), lunar = solar.getLunar();
   const t = zlFromGregorian(school, p[0], p[1], p[2]);
   const yn = zlYearName(t.jyear);
@@ -401,15 +405,17 @@ function showDay(str, el){
   const flyHtml = fly
     ? '<span class="ji">飞幡日</span>，依藏历此日不宜悬挂风马旗、经幡。'
     : '<span class="yi">非飞幡日</span>，此日可如常悬挂风马旗、经幡。';
-  document.getElementById('dayDetail').innerHTML = '<div class="today-card"><div class="today-top">'
+  const cardHtml = '<div class="today-card"><div class="today-top">'
     + '<div class="big-date"><div class="d">' + p[2] + '</div>'
     + '<div class="ym">' + p[0] + '年' + p[1] + '月 星期' + '日一二三四五六'[solar.getWeek()] + '</div></div>'
     + '<div class="lunar-info">'
     + '<div class="ln">藏历 ' + zlMonthName(t.month, t.leapMonth) + zlDayText(t) + '</div>'
     + '<div class="zodiac">农历 ' + lunar.getMonthInChinese() + '月' + lunar.getDayInChinese() + ' ' + lunar.getYearInGanZhi() + '年 ' + lunar.getMonthInGanZhi() + '月 ' + lunar.getDayInGanZhi() + '日</div>'
     + '<div class="zodiac">历算派别 ' + schName + (school === 'jungtsi' ? '，只改年界定义，日期推算同浦派' : '') + '</div>'
-    + '</div></div></div>'
-    + '<h3 class="rel-title">基础信息</h3>'
+    + '</div></div></div>';
+  /* 首轮卡面单写：解析期件已写出 .today-card 时只重画卡面以下，原卡节点保留；
+     换日后仍由本页重出卡面（fillDetail 内部按页只让一次）。 */
+  const bodyHtml = '<h3 class="rel-title">基础信息</h3>'
     + '<div class="zl-info">'
     + '<div class="zl-i zl-oneline"><span class="k">' + zlTip('藏历纪年', '饶迥') + '</span><span class="v"><span class="zl-s">第' + cy.cycle + '饶迥第' + cy.year + '年</span><span class="zl-br"></span><span class="zl-s">干支 ' + yn.ganzhi + '</span><span class="zl-br"></span><span class="zl-s">' + zlTip('五行', '五行生肖') + ' ' + yn.wx + '（' + yn.yx + '） ' + zlTip('生肖', '五行生肖') + ' ' + yn.sx + '</span></span></div>'
     + '<div class="zl-i zl-oneline"><span class="k">藏历月日</span><span class="v">' + zlMonthNameTip(t.month, t.leapMonth) + zlDayText(t) + '<span class="zl-br"></span>' + zlTip(zlWeekName(solar.getWeek()), '七曜') + '</span></div>'
@@ -425,6 +431,7 @@ function showDay(str, el){
     + '<div class="wheel-block"><h4>殊胜日盘</h4>' + zlSsWheel() + '<div class="wheel-detail" id="zlSsDetail">' + zlSsDetailHTML(ZL_SS_SEL) + '</div></div>'
     + '<div class="wheel-block"><h4>重日缺日盘</h4>' + zlSkipWheel() + '<div class="wheel-detail" id="zlSkipDetail">' + zlSkipDetailHTML(ZL_SK_SEL) + '</div></div>'
     + '</div>';
+  window.xjCal.fillDetail(cardHtml, bodyHtml);
   /* 两盘详情条按本月全部可选段落的最大高度预留，点选只换字不改高；换月与窗口缩放时重算 */
   WHEEL.lockDetail(document.getElementById('zlSsDetail'), ZL_SLOTS.length, zlSsDetailHTML);
   WHEEL.lockDetail(document.getElementById('zlSkipDetail'), ZL_SLOTS.length, zlSkipDetailHTML);
@@ -512,20 +519,16 @@ function jumpToDate(v){
   document.getElementById('dInput').value = c[0] + '-' + String(c[1]).padStart(2, '0') + '-' + String(c[2]).padStart(2, '0');
   cur = safeDate(c[0], c[1], c[2]); render(); showDay(c[0] + '-' + c[1] + '-' + c[2]);
 }
-/* 默认月与当日详情已是页面终值，data-built 记该日月度。
-   加载只补日期框值、选中日、盘格状态与检索区取数；所记日期与今日不同才整页换月。
-   两盘的点选读 ZL_SLOTS 与选中序号，静态盘面须补齐这份模块状态才可点选。 */
+/* 访问日与整月格已由解析期渲染件写成时，只补盘面取数、详情与检索区取数，不重写格与日期框；
+   数据未覆盖而置了库渲染旗标时，仍由本页首绘一次。 */
 function initDefault(){
-  const now = xjNowDate();
-  const key = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-  const input = document.getElementById('dInput');
-  if (input) input.value = key;
-  const grid = document.getElementById('calGrid');
-  if (!grid || grid.getAttribute('data-built') !== key) { setToday(); return; }
+  const now = (window.xjCal && window.xjCal.resolveDate) ? window.xjCal.resolveDate() : xjNowDate();
   cur = safeDate(now.getFullYear(), now.getMonth()+1, now.getDate());
-  lastKey = key;
-  ZL_SLOTS = zlSlots();
-  ZL_SS_CUR = ZL_SK_CUR = zlSelSlot();
-  ZL_SK_SEL = ZL_SS_SEL = ZL_SS_CUR;
-  if (xjq) xjq.apply();
+  lastKey = dayKey(cur);
+  if (window.__xjCalBootDone && !window.__xjCalNeedLibrary) {
+    showDay(lastKey);
+    if (xjq) xjq.apply();
+    return;
+  }
+  setToday();
 }

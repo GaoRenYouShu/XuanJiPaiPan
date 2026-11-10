@@ -2,15 +2,19 @@
 let cur = new Date();
 let xjq = null;
 let lastKey = '';
+/* 日期键：YYYY-MM-DD，与格 data-date、日期框同形 */
+function dayKey(dt){ return `${dt.getFullYear()}-${('0'+(dt.getMonth()+1)).slice(-2)}-${('0'+dt.getDate()).slice(-2)}`; }
 function render(){
-  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件，本页只给一格一貌的 cell */
-  xjCalGrid.render(cur.getFullYear(), cur.getMonth()+1, {
-    today: new Date(),
-    cell: cell
-  });
+  /* 整月格走解析期渲染件 window.xjCal，本页只给一格一貌的 cell 与格后重画的检索筛选。
+     格数据仍由本页生成，供数据未覆盖的月份回落到库渲染。 */
+  const y=cur.getFullYear(), m=cur.getMonth()+1;
+  const slots=(typeof xjCalSlots==='function')?xjCalSlots(y,m):[];
+  const cells=slots.map(function(it){ return cell(it.d, it.other); });
+  const todayKey=dayKey(xjNowDate());
+  window.xjCal.render(y,m,cells,{ today:todayKey, selected:lastKey||todayKey });
   if(xjq) xjq.apply();
 }
-function cell(d,other,todayStr){
+function cell(d,other){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), foto=lunar.getFoto();
   /* 佛道分工：本页只取 FotoUtil.OTHER_FESTIVAL（纯佛表，佛菩萨圣诞、成道、出家、佛吉祥日）。
      FESTIVAL 表是通书系逐日宜忌总表，主体为道教-民间神系（玉皇、老君、十殿阎罗、斗降、雷斋日等），
@@ -25,17 +29,17 @@ function cell(d,other,todayStr){
   const zhaiDay=foto.isDayZhaiShuoWang()||foto.isDayZhaiSix()||foto.isDayZhaiTen()||foto.isDayZhaiGuanYin();
   const festDay=fest.length>0;
   const danDay=fest.some(n=>n.indexOf('诞')>=0);
-  const isToday=d.toDateString()===todayStr;
   const wd=d.getDay();
-  const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const key=dayKey(d);
   const wk=(wd===0||wd===6)?'weekend':'';
-  return `<div class="cal-cell ${other?'other':''} ${isToday?'today':''} ${zhaiDay?'zhai':''} ${wk}" data-date="${key}"
-    onclick="pickDate('${key}')">
-    <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
+  /* 格附加类只给 other、zhai、weekend；today 与 selected 由渲染件按访问日落位 */
+  const cls=[other?'other':'', zhaiDay?'zhai':'', wk].filter(Boolean).join(' ');
+  const h=`<div class="sd"><span class="sd-num">${d.getDate()}</span></div>
     ${zhaiDay?'<span class="mk mk-z">斋</span>':''}
     ${danDay?'<span class="mk mk-d">诞</span>':(festDay?'<span class="mk mk-f">节</span>':'')}
     ${tag?`<div class="festival">${tag}</div>`:''}
-    <div class="ld">佛${foto.getDayInChinese()}</div></div>`;
+    <div class="ld">佛${foto.getDayInChinese()}</div>`;
+  return { d:key, c:cls, h:h };
 }
 function collectFestNames(foto){
   /* 佛道分工：只取纯佛表（OTHER_FESTIVAL），与日期格、月度一览同口径（见 cell 内注）。 */
@@ -365,12 +369,12 @@ function foliPickZhai(i){
 }
 function showDay(str, el){
  try{
-  const key = str.split('-').map(Number).join('-');
+  const [y,m,d]=str.split('-').map(Number);
+  const key=dayKey(safeDate(y,m,d));
   lastKey = key;
-  const [y,m,d]=key.split('-').map(Number);
-  document.querySelectorAll('.cal-cell.selected').forEach(c=>c.classList.remove('selected'));
-  const target=el||document.querySelector(`.cal-cell[data-date="${key}"]`);
-  if(target) target.classList.add('selected');
+  const target = el || document.querySelector('.cal-cell[data-date="' + key + '"]');
+  document.querySelectorAll('.cal-cell.selected').forEach(c => { if (c !== target) c.classList.remove('selected'); });
+  if (target && !target.classList.contains('selected')) target.classList.add('selected');
   const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), foto=lunar.getFoto();
   const fests=collectFests(foto);
   const zt=collectZhai(foto);
@@ -379,7 +383,7 @@ function showDay(str, el){
   const zhaiText = zt.length
     ? `本日逢${zt.map(tipSpan).join('、')}，属斋期。<span class="foli-br"></span>佛子宜茹素、持戒、诵经、礼忏，不杀生、不荤腥。`
     : '本日非斋期，饮食起居无特别禁戒。';
-  document.getElementById('dayDetail').innerHTML = `
+  const cardHtml = `
   <div class="today-card">
     <div class="today-top">
       <div class="big-date"><div class="d">${d}</div>
@@ -391,7 +395,10 @@ function showDay(str, el){
         <div class="zodiac">${foto.getGong()}方 ${foto.getShou()}、${foto.getAnimal()}</div>
       </div>
     </div>
-  </div>
+  </div>`;
+  /* 首轮卡面单写：解析期件已写出 .today-card 时只重画卡面以下，原卡节点保留；
+     换日后仍由本页重出卡面（fillDetail 内部按页只让一次）。 */
+  const bodyHtml = `
   <h3 class="rel-title">基础信息</h3>
   <div class="foli-info">
     <div class="foli-i"><span class="k tip" onclick="showFoliTip('斋期')">斋期</span><span class="v${zt.length?' yi':''}">${zhaiText}</span></div>
@@ -404,6 +411,7 @@ function showDay(str, el){
     <div class="wheel-block"><h4>二十七宿盘</h4>${foliXiuWheel(foto)}<div class="wheel-detail" id="foliXiuDetail">${foliXiuDetailHTML(FOLI_XIU_SEL)}</div></div>
     <div class="wheel-block"><h4>斋日盘</h4>${foliZhaiWheel()}<div class="wheel-detail" id="foliZhaiDetail">${foliZhaiDetailHTML(FZ_SEL)}</div></div>
   </div>`;
+  window.xjCal.fillDetail(cardHtml, bodyHtml);
  }catch(e){
   document.getElementById('dayDetail').innerHTML='<p class="notice">排盘出错，请换一日再试。</p>';
  }
@@ -415,18 +423,16 @@ function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
 function jumpToDate(v){ xjCalJump(v, function(y,m,d){ cur=safeDate(y,m,d); }); }
-/* 默认月与当日详情已是页面终值，data-built 记该日月度。
-   加载只补日期框值、选中日与检索区取数；所记日期与今日不同才整页换月。
-   两盘点选读页内盘格状态，静态盘面须经 showDay 补齐这份状态，否则点选无处落格。 */
+/* 访问日与整月格已由解析期渲染件写成时，只补盘面取数、详情与检索区取数，不重写格与日期框；
+   数据未覆盖而置了库渲染旗标时，仍由本页首绘一次。 */
 function initDefault(){
-  const now = xjNowDate();
-  const key = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-  const input = document.getElementById('dInput');
-  if (input) input.value = key;
-  const grid = document.getElementById('calGrid');
-  if (!grid || grid.getAttribute('data-built') !== key) { setToday(); return; }
+  const now = (window.xjCal && window.xjCal.resolveDate) ? window.xjCal.resolveDate() : xjNowDate();
   cur = safeDate(now.getFullYear(), now.getMonth()+1, now.getDate());
-  lastKey = key;
-  showDay(key);
-  if (xjq) xjq.apply();
+  lastKey = dayKey(cur);
+  if (window.__xjCalBootDone && !window.__xjCalNeedLibrary) {
+    showDay(lastKey);
+    if (xjq) xjq.apply();
+    return;
+  }
+  setToday();
 }

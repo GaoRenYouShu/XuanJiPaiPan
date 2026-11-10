@@ -70,6 +70,8 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeDaoTi
 let cur = new Date();
 let xjq = null;
 let lastKey = '';
+/* 日期键：YYYY-MM-DD，与格 data-date、日期框同形 */
+function dayKey(dt){ return `${dt.getFullYear()}-${('0'+(dt.getMonth()+1)).slice(-2)}-${('0'+dt.getDate()).slice(-2)}`; }
 /* 本地计算辅助：DIZHI_CHONG/pairChong 与地支方位 ZHI_FANG 由 assets/xuanji-lib.js 共享提供，太岁常量由 assets/taisui-data.js 提供 */
 function taiSuiText(ygz,yZhi,suiPo){ return xjTaiSuiText(ygz,yZhi,suiPo); }
 /* 胎神取引擎终值：月胎神与日胎神各一条，闰月沿用同月表；两页共用同一对函数，胎神判定只此一处 */
@@ -358,11 +360,13 @@ function dlDanDetailHTML(i){
 }
 function daoPickDan(i){ xjPickCommon(i, DL_PICK_DAN); }
 function render(){
-  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件，本页只给一格一貌的 cell */
-  xjCalGrid.render(cur.getFullYear(), cur.getMonth()+1, {
-    today: new Date(),
-    cell: cell
-  });
+  /* 整月格走解析期渲染件 window.xjCal，本页只给一格一貌的 cell 与格后重画的检索筛选。
+     格数据仍由本页生成，供数据未覆盖的月份回落到库渲染。 */
+  const y=cur.getFullYear(), m=cur.getMonth()+1;
+  const slots=(typeof xjCalSlots==='function')?xjCalSlots(y,m):[];
+  const cells=slots.map(function(it){ return cell(it.d, it.other); });
+  const todayKey=dayKey(xjNowDate());
+  window.xjCal.render(y,m,cells,{ today:todayKey, selected:lastKey||todayKey });
   if(xjq) xjq.apply();
 }
 /* 日期格：角标与色块照佛历 foli.html 同一套设计。
@@ -372,7 +376,7 @@ function render(){
    吉日名目由圣诞斋日盘、盘下详情条与 AI 导出列全。
    🔴 格不铺底色：节庆日由角标逐日点出，与去框改线的线、字优先一致。
    底色只留给三种态：今日（主体色实色）、选中（主体色淡染加细描）、悬停。 */
-function cell(d,other,todayStr){
+function cell(d,other){
   const solar=Solar.fromDate(d), lunar=solar.getLunar(), tao=lunar.getTao();
   const fest=tao.getFestivals();
   let tag='';
@@ -390,17 +394,17 @@ function cell(d,other,todayStr){
   const zhaiDay=zhaiTypes.length>0;
   const special=(tao.isDaySanHui()||tao.isDaySanYuan()||tao.isDayBaJie()||tao.isDayTianShe()||tao.isDayBaHui()||tao.isDayWuLa());
   const danDay=fest.some(f=>f.getName().indexOf('诞')>=0);
-  const isToday=d.toDateString()===todayStr;
   const wd=d.getDay();
-  const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const key=dayKey(d);
   const wk=(wd===0||wd===6)?'weekend':'';
-  return `<div class="cal-cell ${other?'other':''} ${isToday?'today':''} ${special?'zhai':''} ${wk}" data-date="${key}"
-    onclick="pickDate('${key}')">
-    <div class="sd"><span class="sd-num">${d.getDate()}</span></div>
+  /* 格附加类只给 other、zhai、weekend；today 与 selected 由渲染件按访问日落位 */
+  const cls=[other?'other':'', special?'zhai':'', wk].filter(Boolean).join(' ');
+  const h=`<div class="sd"><span class="sd-num">${d.getDate()}</span></div>
     ${zhaiDay?'<span class="mk mk-z">斋</span>':''}
     ${danDay?'<span class="mk mk-d">诞</span>':''}
     ${tag?`<div class="festival">${tag}</div>`:''}
-    <div class="ld">道${tao.getDayInChinese()}</div></div>`;
+    <div class="ld">道${tao.getDayInChinese()}</div>`;
+  return { d:key, c:cls, h:h };
 }
 function collectFests(tao){
   return tao.getFestivals().map(f=>{const rk=f.getRemark&&f.getRemark(); return f.getName()+(rk?`（${rk}）`:'');});
@@ -439,12 +443,12 @@ function monthTaoList(y,m){
   return Object.keys(groups).map(Number).sort((a,b)=>lmKey(a)-lmKey(b)).map(lm=>({label:groups[lm].label,items:groups[lm].items}));
 }
 function showDay(str, el){
-  const key = str.split('-').map(Number).join('-');
+  const [y,m,d]=str.split('-').map(Number);
+  const key=dayKey(safeDate(y,m,d));
   lastKey = key;
-  const [y,m,d]=key.split('-').map(Number);
-  document.querySelectorAll('.cal-cell.selected').forEach(c=>c.classList.remove('selected'));
-  const target=el||document.querySelector(`.cal-cell[data-date="${key}"]`);
-  if(target) target.classList.add('selected');
+  const target = el || document.querySelector('.cal-cell[data-date="' + key + '"]');
+  document.querySelectorAll('.cal-cell.selected').forEach(c => { if (c !== target) c.classList.remove('selected'); });
+  if (target && !target.classList.contains('selected')) target.classList.add('selected');
   const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar(), tao=lunar.getTao();
   const ygz=lunar.getYearInGanZhi(), yZhi=ygz[1];
   const dyGZ=lunar.getDayInGanZhi(), dyGan=dyGZ[0], dyZhi=dyGZ[1];
@@ -486,7 +490,7 @@ function showDay(str, el){
   /* 物候行：全名“节气 候序 候名”，候名可点取释义；无候可查时整行不点（照老黄历同法） */
   const wuInfo=(typeof shilingWuHouInfo==='function')?shilingWuHouInfo(lunar):null;
   const wuHouHtml=wuInfo?`${wuInfo.jq} ${wuInfo.hou} ${houSpan(wuInfo.wu)}`:(shilingWuHou(lunar)||'无');
-  document.getElementById('dayDetail').innerHTML = `
+  const cardHtml = `
   <div class="today-card">
     <div class="today-top">
       <div class="big-date"><div class="d">${d}</div>
@@ -497,7 +501,10 @@ function showDay(str, el){
         <div class="zodiac">${lunar.getYearShengXiao()} ${solar.getXingZuo()}座 月建 ${lunar.getMonthInGanZhi().slice(-1)}月 月相 ${lunar.getYueXiang()}</div>
       </div>
     </div>
-  </div>
+  </div>`;
+  /* 首轮卡面单写：解析期件已写出 .today-card 时只重画卡面以下，原卡节点保留；
+     换日后仍由本页重出卡面（fillDetail 内部按页只让一次）。 */
+  const bodyHtml = `
   <h3 class="rel-title">基础信息</h3>
   <div class="dao-info">
     <div class="dao-i wide"><span class="k">宜</span><span class="v yi">${lunar.getDayYi().map(tipSpan).join('、')||'诸事不宜'}</span></div>
@@ -539,6 +546,7 @@ function showDay(str, el){
     <div class="fei-block"><div class="fei-cap">日飞星（${m}月${d}日 ${FEI_NAME[dStar]}入中）</div>${feiGridHTML(dStar)}</div>
     <div class="fei-block"><div class="fei-cap">时飞星（当前${shName}时 ${FEI_NAME[hStar]}入中）</div>${feiGridHTML(hStar)}</div>
   </div></details>`;
+  window.xjCal.fillDetail(cardHtml, bodyHtml);
   xjApplyOneFold('dlFoldState','#dayDetail details.fold-block');
 }
 /* 九宫飞星折叠框随详情重建，重建后应用记忆态；键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
@@ -549,19 +557,17 @@ function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
 function jumpToDate(v){if(!v)return;const [y,m,d]=v.split('-').map(Number);if(!y||!m)return;cur=safeDate(y,m,d);const inp=document.getElementById('dInput');if(inp)inp.value=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;render();showDay(`${y}-${m}-${d}`);}
-/* 默认月与当日详情已是页面终值，data-built 记该日月度。
-   加载只补日期框值、选中日与折叠态；所记日期与今日不同才整页换月。
-   两盘点选读页内盘格状态，静态盘面须经 showDay 补齐这份状态，否则点选无处落格。 */
+/* 访问日与整月格已由解析期渲染件写成时，只补盘面取数、详情与折叠态，不重写格与日期框；
+   数据未覆盖而置了库渲染旗标时，仍由本页首绘一次。 */
 function initDefault(){
-  const now = xjNowDate();
-  const key = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-  const input = document.getElementById('dInput');
-  if (input) input.value = key;
-  const grid = document.getElementById('calGrid');
-  if (!grid || grid.getAttribute('data-built') !== key) { setToday(); return; }
+  const now = (window.xjCal && window.xjCal.resolveDate) ? window.xjCal.resolveDate() : xjNowDate();
   cur = safeDate(now.getFullYear(), now.getMonth()+1, now.getDate());
-  lastKey = key;
-  showDay(key);
-  if (xjq) xjq.apply();
-  xjApplyOneFold('dlFoldState','#dayDetail details.fold-block');
+  lastKey = dayKey(cur);
+  if (window.__xjCalBootDone && !window.__xjCalNeedLibrary) {
+    showDay(lastKey);
+    if (xjq) xjq.apply();
+    xjApplyOneFold('dlFoldState','#dayDetail details.fold-block');
+    return;
+  }
+  setToday();
 }

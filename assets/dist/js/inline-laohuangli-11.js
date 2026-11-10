@@ -244,38 +244,42 @@ function setToday(){ xjNavToday(); }
 function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
+/* 日期键：YYYY-MM-DD，与格 data-date、日期框同形 */
+function dayKey(dt){ return `${dt.getFullYear()}-${('0'+(dt.getMonth()+1)).slice(-2)}-${('0'+dt.getDate()).slice(-2)}`; }
 function renderGrid(){
   const v=document.getElementById('dInput').value; if(!v) return;
   const [Y,M]=v.split('-').map(Number);
-  const selKey=v.split('-').map(Number).join('-');
-  /* 月骨架走 assets/xuanji-lib.js 的 xjCalGrid 共享件；补位格只出日数空壳，
-     本月格一格一貌，休班标在格网重建后重画 */
-  xjCalGrid.render(Y, M, {
-    today: xjNowDate(),
-    cell: function(d, other, todayStr){
-      const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-      const wk=(d.getDay()===0||d.getDay()===6)?' weekend':'';
-      /* 补位格照万年历样板可点：点了带入该日并翻到其所在月，格内仍只出日数 */
-      if(other) return `<div class="cal-cell other${wk}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd">${d.getDate()}</div></div>`;
-      const solar=Solar.fromYmd(Y,M,d.getDate()), lunar=solar.getLunar();
-      const jq=lunar.getJieQi();
-      /* 节日取数走 xuanji-lib 的 festParts，与万年历同一份：格上只出一名，余下的留到下面节日行 */
-      const fp=festParts(solar,Y,M,d.getDate());
-      const mem=fp.mem;
-      /* 槽位分层（对齐万年历）：节气与节日各占一槽，互不顶掉。窄屏两槽一律隐去，
-         节日与纪念日改由左上红色节字、右下墨色纪字两枚角标点出；
-         节字角标只认四族真节（hasAny），只余初一月份名的日子留白不亮红，mem 管纪字角标 */
-      const hasFest=fp.hasAny;
-      const fest=fp.pick;
-      const jqMark=jq?`<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>`:'';
-      const ld=lunar.getDayInChinese();
-      const isToday=d.toDateString()===todayStr;
-      const sel=key===selKey?' selected':'';
-      return `<div class="cal-cell${isToday?' today':''}${wk}${sel}" data-date="${key}" onclick="pickDate('${key}')"><div class="sd"><span class="sd-num">${d.getDate()}</span></div>${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+festLine(fp.all)+'">节</span>':''}${jq?`<div class="slot slot-jq">${jq}</div>`:''}${fest?`<div class="slot slot-fest" title="${festLine(fp.all)}">${fest}</div>`:''}<div class="ld">${ld}</div></div>`;
-    },
-    after: paintRestMarks
-  });
+  /* 整月格走解析期渲染件 window.xjCal，本页只给一格一貌的 cell 与格后重画的休班标。
+     格数据仍由本页生成，供数据未覆盖的月份回落到库渲染。 */
+  const slots=(typeof xjCalSlots==='function')?xjCalSlots(Y,M):[];
+  const cells=slots.map(function(it){ return cell(it.d, it.other); });
+  const todayKey=dayKey(xjNowDate());
+  const selKey=dayKey(safeDate(Y,M,Number(v.split('-')[2])||1));
+  window.xjCal.render(Y,M,cells,{ today:todayKey, selected:selKey });
+  if(typeof paintRestMarks==='function') paintRestMarks();
   if(xjq) xjq.apply();
+}
+function cell(d,other){
+  const solar=Solar.fromDate(d), lunar=solar.getLunar();
+  const key=dayKey(d);
+  const wk=(d.getDay()===0||d.getDay()===6)?'weekend':'';
+  /* 补位格只出日数空壳；本月格一格一貌。格附加类只给 other、weekend、jq，
+     today 与 selected 由渲染件按访问日落位。 */
+  if(other) return { d:key, c:['other',wk].filter(Boolean).join(' '), h:`<div class="sd">${d.getDate()}</div>` };
+  const jq=lunar.getJieQi();
+  /* 节日取数走 xuanji-lib 的 festParts，与万年历同一份：格上只出一名，余下的留到下面节日行 */
+  const fp=festParts(solar,d.getFullYear(),d.getMonth()+1,d.getDate());
+  const mem=fp.mem;
+  /* 槽位分层（对齐万年历）：节气与节日各占一槽，互不顶掉。窄屏两槽一律隐去，
+     节日与纪念日改由左上红色节字、右下墨色纪字两枚角标点出；
+     节字角标只认四族真节（hasAny），只余初一月份名的日子留白不亮红，mem 管纪字角标 */
+  const hasFest=fp.hasAny;
+  const fest=fp.pick;
+  const jqMark=jq?`<span class="jq-mark">${jieQiIsJie(jq)?'节':'气'}</span>`:'';
+  const ld=lunar.getDayInChinese();
+  const cls=[wk, jq?'jq':''].filter(Boolean).join(' ');
+  const h=`<div class="sd"><span class="sd-num">${d.getDate()}</span></div>${jqMark}<span class="rest-mark"></span>${mem?'<span class="mem-mark" title="'+mem+'">纪</span>':''}${hasFest?'<span class="fest-mark" title="'+festLine(fp.all)+'">节</span>':''}${jq?`<div class="slot slot-jq">${jq}</div>`:''}${fest?`<div class="slot slot-fest" title="${festLine(fp.all)}">${fest}</div>`:''}<div class="ld">${ld}</div>`;
+  return { d:key, c:cls, h:h };
 }
 function query(keepGrid){
  try{
@@ -315,8 +319,9 @@ function query(keepGrid){
   const dangLing=shilingDangLing();
   shilingParts.push('经络当令：<span class="tip" onclick="showDangLingTip(\''+dangLing.zhi+'\')">'+dangLing.text+'</span>');
   if(!keepGrid) renderGrid();
-  /* 今日卡 */
-  html+=`<div class="today-card">
+  /* 首轮卡面单写：解析期件已写出 .today-card 时原卡节点保留，不重写；
+     换日后仍由本页重出卡面（fillCard 内部按页只让一次）。 */
+  const cardHtml=`<div class="today-card">
     <div class="today-top">
       <div class="big-date"><div class="d">${d}</div>
         <div class="ym">${y}年${m}月 星期${'日一二三四五六'[solar.getWeek()]}</div></div>
@@ -326,6 +331,7 @@ function query(keepGrid){
       </div>
     </div>
   </div>`;
+  window.xjCal.fillCard(cardHtml);
   /* 老黄历核心字段：分栏字段流，宜忌通栏、余项双栏；模块名置于表前；
      值神与建除分列两栏：黄道黑道是值神的分类（getDayTianShenType()），随值神同行；建除另标本派黄黑；
      分段符 .lhl-br：电脑端呈空格间隙，移动端呈换行 */
@@ -379,36 +385,13 @@ function query(keepGrid){
   document.getElementById('out').innerHTML='<p class="notice">排盘出错：'+((e&&e.message)?e.message:e)+'</p>';
  }
 }
-/* 默认月与当日详情已是页面终值，data-built 记该日月度。
-   同日只补日期框值与两盘取数；跨日同月只移动今日与选中标记并重出详情，
-   日历格保持原样，格位与休班标不随重排变动；所记月份与今日不同才整页换月。 */
-function markToday(key){
-  document.querySelectorAll('#calGrid .cal-cell').forEach(function(el){
-    const on = el.getAttribute('data-date') === key;
-    el.classList.toggle('today', on);
-    el.classList.toggle('selected', on);
-  });
-}
+/* 访问日与整月格已由解析期渲染件写成时，只补详情与两盘取数，不重写格与日期框；
+   数据未覆盖而置了库渲染旗标时，仍由本页首绘一次。 */
 function initDefault(){
-  const now = xjNowDate();
-  const key = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-  const input = document.getElementById('dInput');
-  if (input) input.value = key;
-  const grid = document.getElementById('calGrid');
-  const built = grid ? grid.getAttribute('data-built') : '';
-  const builtMonth = built ? built.split('-').slice(0, 2).join('-') : '';
-  const curMonth = `${now.getFullYear()}-${now.getMonth()+1}`;
-  if (!grid || builtMonth !== curMonth) { setToday(); return; }
-  if (built !== key) {
-    markToday(key);
+  if (window.__xjCalBootDone && !window.__xjCalNeedLibrary) {
     query(true);
     return;
   }
-  if (xjq) xjq.apply();
-  xjApplyOneFold('lhlFoldState','#out details.fold-block');
-  const solar = Solar.fromYmd(now.getFullYear(), now.getMonth()+1, now.getDate());
-  const lunar = solar.getLunar();
-  shichenWheel(lunar);
-  xiuWheel(lunar);
+  setToday();
 }
 /* 九宫飞星折叠框随查询重建，重建后应用记忆态；键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
