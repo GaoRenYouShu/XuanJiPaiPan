@@ -440,3 +440,5 @@ function initDefault(){
   render();
   showDay(lastSel);
 }
+/* 跨时辰：续算件派发 xj:time 后，只重画当日详情的时柱、时冲与时辰吉凶，不动整月格与日期框。 */
+window.addEventListener('xj:time', function(){ if(lastSel) showDay(lastSel); });

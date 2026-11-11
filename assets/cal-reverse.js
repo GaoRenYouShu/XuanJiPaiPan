@@ -151,6 +151,13 @@
       }catch(e){}
       refresh();
     }
+    /* 反查即手选：日期框先置手选标记再交页内回填，四页同一口径。
+       不置标记时，续算件会把刚反查出的日期按本机当天盖回去。 */
+    function pick(date){
+      var input=document.getElementById('dInput');
+      if(input) input.setAttribute('data-user-set','1');
+      onPick(date);
+    }
     function go(){
       var year=int(yEl.value), month=int(mEl.value), day=int(dEl.value);
       if(year==null||month==null||day==null){ note('请填写完整的年月日。'); return; }
@@ -162,11 +169,11 @@
           if(r.skipped) txt+='。该日缺日，藏历无此日，已按下一日反查。';
           else if(r.repeated) txt+='。该日重日，取'+(ldEl&&ldEl.checked?'前一日':'后一日')+'。';
           note(txt);
-          onPick(r.date);
+          pick(r.date);
         }else{
           var s=lunarToSolar(year,offset,month,leapEl.checked,day);
           note(esc(yearLabel.replace(/年$/,''))+' '+year+' 年'+(leapEl.checked?'闰':'')+monthNames[month-1]+DAY_CN[day-1]+' → 公历 '+s.date);
-          onPick(s.date);
+          pick(s.date);
         }
       }catch(e){
         note('该日期不存在：'+esc((e&&e.message)||String(e)));
