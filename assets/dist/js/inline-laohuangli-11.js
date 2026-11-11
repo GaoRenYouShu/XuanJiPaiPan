@@ -246,6 +246,14 @@ function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
 /* 日期键：YYYY-MM-DD，与格 data-date、日期框同形 */
 function dayKey(dt){ return `${dt.getFullYear()}-${('0'+(dt.getMonth()+1)).slice(-2)}-${('0'+dt.getDate()).slice(-2)}`; }
+/* 已出详情之日的键：跨午夜换日时据此判断详情是否需随格滚到新一天 */
+let lhlKey = '';
+/* 手选日期（输入框改值、日期弹层、检索跳日）：置 data-user-set，跨午夜续算不再改它。 */
+function queryUser(){
+  const input=document.getElementById('dInput');
+  if(input) input.setAttribute('data-user-set','1');
+  query();
+}
 function renderGrid(){
   const v=document.getElementById('dInput').value; if(!v) return;
   const [Y,M]=v.split('-').map(Number);
@@ -286,6 +294,7 @@ function query(keepGrid){
   const v=document.getElementById('dInput').value;
   if(!v)return;
   const [y,m,d]=v.split('-').map(Number);
+  lhlKey=dayKey(safeDate(y,m,d));
   const solar=Solar.fromYmd(y,m,d), lunar=solar.getLunar();
   const dgz=lunar.getDayInGanZhi(), ygz=lunar.getYearInGanZhi(), mgz=lunar.getMonthInGanZhi();
   const dyGan=dgz[0], dyZhi=dgz[1], yZhi=ygz[1], mZhi=mgz[1];
@@ -393,5 +402,29 @@ function initDefault(){
     return;
   }
   setToday();
+}
+/* 跨午夜换日：未手选时把日期框、格、今日卡与详情滚到新一天；手选过只校 .today 落位。 */
+function xjCalRoll(day){
+  if(!day) return;
+  const input=document.getElementById('dInput');
+  if(!input) return;
+  if(input.hasAttribute('data-user-set')||input.value!==day){
+    if(!window.xjCal.todayMarked(day)) renderGrid();
+    return;
+  }
+  if(lhlKey===day){ if(!window.xjCal.todayMarked(day)) renderGrid(); return; }
+  input.value=day;
+  query();
+}
+/* 表单快照还原手选值后，把格、今日卡与详情同步到该日。 */
+function xjCalSync(day){
+  if(!day) return;
+  const p=day.split('-').map(Number);
+  if(!p[0]||!p[1]) return;
+  const key=dayKey(safeDate(p[0],p[1],p[2]||1));
+  if(key===lhlKey) return;
+  const input=document.getElementById('dInput');
+  if(input && input.value!==key) input.value=key;
+  query();
 }
 /* 九宫飞星折叠框随查询重建，重建后应用记忆态；键按页独立，localStorage 主存、sessionStorage 隐私兜底 */

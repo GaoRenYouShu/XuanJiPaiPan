@@ -426,15 +426,21 @@ const xjNav = (function(){
   function fire(v){
     if (typeof xjNav.onQuery === 'function') xjNav.onQuery(v);
   }
+  /* 手选标记：点格、翻月、跳日与分享还原都给日期框置 data-user-set，
+     跨午夜续算件据此保留所选；今天按钮反过来清标记，回到自动跟随本机当天。 */
+  function markUser(el){ if (el) el.setAttribute('data-user-set', '1'); }
   function today(){
     const el = inputOf(); if (!el) return;
     const n = new Date();
     const v = ymd(n.getFullYear(), n.getMonth() + 1, n.getDate());
     el.value = v;
+    el.removeAttribute('data-user-set');
     /* 时辰类页（太乙、铁板）另有 hInput/kInput：today 后由页内 xjNavAfter 回填当辰，
        本件只认 dInput 这一公共面，不越页去认各页私有输入。 */
     if (typeof xjNav.onToday === 'function') xjNav.onToday(v);
     fire(v);
+    /* 页内 jumpToDate 会在 fire 里再置手选标记；今天按钮的终态是自动跟随，故 fire 后再清一次。 */
+    el.removeAttribute('data-user-set');
   }
   function shift(dm, dy){
     const el = inputOf(); if (!el) return;
@@ -447,11 +453,13 @@ const xjNav = (function(){
     if (d > dim) d = dim;
     const nv = ymd(y, m, d);
     el.value = nv;
+    markUser(el);
     fire(nv);
   }
   function pick(key){
     const el = inputOf(); if (!el) return;
     el.value = key;
+    markUser(el);
     fire(key);
   }
   /* 直达某日：只把日期串归一为补零的分日形状并写入输入框，刷新交由页内做。
@@ -461,7 +469,7 @@ const xjNav = (function(){
     const p = String(v).split('-').map(Number);
     if (!p[0] || !p[1]) return '';
     const key = ymd(p[0], p[1], p[2] || 1);
-    const el = inputOf(); if (el) el.value = key;
+    const el = inputOf(); if (el) { el.value = key; markUser(el); }
     return key;
   }
   return { onQuery: null, onToday: null, today: today, shift: shift, pick: pick, jump: jump };

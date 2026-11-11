@@ -197,6 +197,15 @@
   };
 
   if ('serviceWorker' in navigator) {
+    /* SW 接管页面后整页重载一次：页面里的脚本与缓存随之换代。
+       首次安装接管（无 controller 时）不重载，免得首访多刷一次。 */
+    var hadController = !!navigator.serviceWorker.controller;
+    var swReloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController || swReloading) return;
+      swReloading = true;
+      location.reload();
+    });
     window.addEventListener('load', function () {
       var host = location.hostname;
       var isCanon = host === CANON_HOST || host === 'www.' + CANON_HOST;
@@ -207,9 +216,19 @@
         }).catch(function () {});
         return;
       }
-      navigator.serviceWorker.register(dir + 'sw.js').then(function () {
+      navigator.serviceWorker.register(dir + 'sw.js').then(function (reg) {
         swEnabled = true;
         startPrefetch();
+        /* 注册默认二十四小时才查一次；每次进页主动查一次，回到前台再查一次，
+           取到的 SW 经 skipWaiting 与 claim 当场接管并触发上面的重载。 */
+        var update = function () {
+          var p = reg.update();
+          if (p && p.catch) p.catch(function () {});
+        };
+        update();
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') update();
+        });
       }).catch(function () {});
     });
   }

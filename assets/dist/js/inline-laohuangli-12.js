@@ -38,7 +38,7 @@
         const map={fest:fp.hasAny,jq:!!jq,mem:!!fp.mem,huangdao:ts==='黄道'};
         return sel.some(function(v){ return map[v]; });
       },
-      onJump:function(date){ const i=document.getElementById('dInput'); if(i)i.value=date; query(); }
+      onJump:function(date){ const i=document.getElementById('dInput'); if(i)i.value=date; queryUser(); }
     });
     (function(){
       const JIAZI60=(function(){const G=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],Z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const a=[];for(let i=0;i<60;i++)a.push(G[i%10]+Z[i%12]);return a;})();

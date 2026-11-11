@@ -879,10 +879,17 @@ window.xjShuffle = xjShuffle;
       });
     }
     function val(el){ return (el.type==='checkbox'||el.type==='radio')?el.checked:el.value; }
+    /* 派生值与自动当下值不进快照：前者由页内按起始值重算，后者由当下件重写；
+       两者都只认手选值，刷新与跨日才不会被昨天的自动值回填。 */
+    function autoOnly(el){
+      return !el.hasAttribute('data-user-set') &&
+        (el.hasAttribute('data-keep') || el.hasAttribute('data-autonow'));
+    }
     var ft=null;
     function saveForm(){
       var o={};
       fields().forEach(function(el){
+        if(autoOnly(el)) return;
         o[el.id]=val(el);
         if(el.hasAttribute('data-user-set')) o['__user:'+el.id]=1;
       });
@@ -920,8 +927,8 @@ window.xjShuffle = xjShuffle;
             var el=document.getElementById(id)||el0;  /* 变更处理器可能已重建控件，按 id 重新取 */
             var manual=!!o['__user:'+id];
             if(manual) el.setAttribute('data-user-set','1');
-            /* 未手改的默认日期与时刻不恢复旧快照：刷新时保持 now.js 写入的当下。 */
-            if(el.hasAttribute('data-autonow') && !manual) return;
+            /* 派生值与自动当下值不恢复旧快照：刷新时保持页内派生与本机当下，只还原手选值。 */
+            if(autoOnly(el)) return;
             var v=o[id];
             if(el.type==='checkbox'||el.type==='radio'){
               if(el.checked!==v){ el.checked=v; changed.push(el); if(!hook) fire(el); }

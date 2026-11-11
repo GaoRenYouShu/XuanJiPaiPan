@@ -349,8 +349,6 @@ table.yun-tbl.sk-base td,table.yun-tbl.sk-base thead th,
 
 .btn.soft:hover{background:var(--card);border-color:var(--line)}
 
-.ai-tip{font-size:12px;color:var(--ink2);margin-top:var(--sp-2)}
-
 @media(max-width:540px){
 .ai-model-row{gap:var(--sp-3);padding:var(--sp-2) 0;min-height:40px}
 
@@ -1070,12 +1068,21 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
 <script defer src="assets/geo.js"></script>
 <script defer src="assets/ai-lazy.js"></script>
 <script data-sync="1">/* 日期与时辰默认值：解析期同步执行，首绘前即当天与当下；页面停留时按本机时间续算，
-   跨时辰、跨午夜、跨年自动改值。与 app.js 的同名校正同源同判，defer 那次只作兜底。 */
+   跨时辰、跨午夜、跨年自动改值。与 app.js 的同名校正同源同判，defer 那次只作兜底。
+   日历五页的 #dInput 带 data-keep，访问日由解析期渲染件先写：本件只写未标 data-user-set 的框，
+   分享日与页内换日一律由页内先置该标记，故手选值与分享值不被续算覆盖。
+   日期一变即派发 xj:now，页内据此重绘 .today、今日卡与当日详情；load 后三秒再校正一次，
+   以本机时间复核日期与时辰，页内若已回填旧值即在此归位。 */
 (function () {
   function p2(v) { return (v < 10 ? '0' : '') + v; }
   function kept(el) { return el.hasAttribute('data-keep'); }
-  function isDateBox(el) {
-    if (el.tagName !== 'INPUT' || kept(el)) return false;
+  /* 日历日期框：五历页的 #dInput 由解析期渲染件写访问日，data-keep 只挡默认值件，不挡续算。 */
+  function isCalDate(el) {
+    return el.tagName === 'INPUT' && el.id === 'dInput';
+  }
+  function isDateBox(el, calPage) {
+    if (el.tagName !== 'INPUT') return false;
+    if (kept(el) && !(calPage && isCalDate(el))) return false;
     if (el.type === 'date') return true;
     if (el.type !== 'text' || !el.classList.contains('dt-input')) return false;
     if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(el.value || '')) return true;
@@ -1088,9 +1095,14 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
     var ymd = n.getFullYear() + '-' + p2(n.getMonth() + 1) + '-' + p2(n.getDate());
     var hm = p2(n.getHours()) + ':' + p2(n.getMinutes());
     var zhi = '子丑寅卯辰巳午未申酉戌亥'[Math.floor(((n.getHours() + 1) % 24) / 2)];
+    var calPage = !!document.getElementById('calGrid');
     document.querySelectorAll('input').forEach(function (el) {
       if (el.hasAttribute('data-user-set')) return;
-      if (isDateBox(el)) { el.value = ymd; el.setAttribute('data-autonow', '1'); return; }
+      if (isDateBox(el, calPage)) {
+        if (el.value !== ymd) el.value = ymd;
+        el.setAttribute('data-autonow', '1');
+        return;
+      }
       if (el.type === 'time' && !kept(el)) { el.value = hm; el.setAttribute('data-autonow', '1'); }
     });
     document.querySelectorAll('select').forEach(function (sel) {
@@ -1101,14 +1113,31 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
       });
       if (opt) { sel.value = opt.value; sel.setAttribute('data-autonow', '1'); }
     });
-    return ymd + ' ' + hm;
+    return { day: ymd, time: hm };
+  }
+  function notify(r, prev, check) {
+    try {
+      window.dispatchEvent(new CustomEvent('xj:now', {
+        detail: { day: r.day, prev: prev || '', time: r.time, check: !!check }
+      }));
+    } catch (e) { /* 无 CustomEvent 的环境按无监听处理 */ }
   }
   var last = apply();
   setInterval(function () {
-    var k = apply();
-    if (k === last) return;
-    last = k;
+    var r = apply();
+    if (r.day === last.day) { last = r; return; }
+    var prev = last.day;
+    last = r;
+    notify(r, prev, false);
   }, 1000);
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var r = apply();
+      var prev = last.day;
+      last = r;
+      notify(r, prev, true);
+    }, 3000);
+  });
 })();</script>
 <script defer fetchpriority="low" src="assets/lunar.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>

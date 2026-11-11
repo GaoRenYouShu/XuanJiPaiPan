@@ -397,6 +397,34 @@ function moveMonth(n){ xjNavMonth(n); }
 function moveYear(n){ xjNavYear(n); }
 function pickDate(key){ xjNavPick(key); }
 function jumpToDate(v){ xjCalJump(v, function(y,m,d){ cur=safeDate(y,m,d); lastSel=dayKey(cur); }); }
+/* 跨午夜换日：未手选时把格、选中、今日卡与详情滚到新一天；手选过只校 .today 落位。 */
+function xjCalRoll(day){
+  if(!day) return;
+  const input=document.getElementById('dInput');
+  const user=!!(input&&input.hasAttribute('data-user-set'));
+  if(user||(input&&input.value!==day)){
+    if(!window.xjCal.todayMarked(day)) render();
+    return;
+  }
+  if(lastSel===day){ if(!window.xjCal.todayMarked(day)) render(); return; }
+  const p=day.split('-').map(Number);
+  cur=safeDate(p[0],p[1],p[2]);
+  lastSel=day;
+  render();
+  showDay(day);
+}
+/* 表单快照还原手选值后，把选中、今日卡与详情同步到该日。 */
+function xjCalSync(day){
+  if(!day) return;
+  const p=day.split('-').map(Number);
+  if(!p[0]||!p[1]) return;
+  const key=dayKey(safeDate(p[0],p[1],p[2]||1));
+  if(key===lastSel) return;
+  cur=safeDate(p[0],p[1],p[2]||1);
+  lastSel=key;
+  render();
+  showDay(key);
+}
 /* 访问日已由解析期渲染件写成时，只补两盘取数并重出详情，不重写格与日期框；
    当月数据未覆盖而置了库渲染旗标时，仍由本页首绘一次。 */
 function initDefault(){

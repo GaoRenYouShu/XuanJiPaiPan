@@ -1220,32 +1220,16 @@ body:has(.page-daoli){background:#17171a;color:#d6d2cd}
     } catch (e) { return ''; }
   }
 
-  /* 表单快照里的日期：与 assets/app.js 的 xj:form:<页> 同键，先本机存储再会话存储。 */
-  function storedDate() {
-    var k = 'xj:form:' + pageName();
-    var stores = [];
-    try { if (window.localStorage) stores.push(window.localStorage); } catch (e) { /* 禁用存储即跳过 */ }
-    try { if (window.sessionStorage) stores.push(window.sessionStorage); } catch (e) { /* 禁用存储即跳过 */ }
-    for (var i = 0; i < stores.length; i++) {
-      try {
-        var raw = stores[i].getItem(k);
-        if (!raw) continue;
-        var o = JSON.parse(raw);
-        if (o && typeof o.dInput === 'string' && o.dInput) return o.dInput;
-      } catch (e) { /* 存档损坏即略过 */ }
-    }
-    return '';
-  }
-
-  /* 访问日：分享参数优先，其次表单快照，最后本机当下。 */
+  /* 访问日：分享参数优先用于选中，其余一律本机当下。表单快照里的旧日期不参与：
+     手选值由 assets/app.js 按 data-user-set 还原，自动值不得把访问日拉回昨天。 */
   function resolveDate() {
     var v = shareDate(), p = readKey(v);
     if (p) return safeDate(p.y, p.m, p.d);
-    v = storedDate();
-    p = readKey(v);
-    if (p) return safeDate(p.y, p.m, p.d);
     return new Date();
   }
+
+  /* 本机当天：.today 与今日卡只认这一处，不取访问日、不取快照。 */
+  function localToday() { return keyOf(new Date()); }
 
   /* 今日卡：cardDays 当日记录经 cardTpl 还原整卡 HTML，写入 .today-card。
      本件与页内换日后的重出是卡面的全部写者，页内首轮不再写第二份。 */
@@ -1341,19 +1325,53 @@ body:has(.page-daoli){background:#17171a;color:#d6d2cd}
     window.__xjCalNeedLibrary = false;
     var dt = resolveDate();
     var y = dt.getFullYear(), m = dt.getMonth() + 1, key = keyOf(dt);
-    if (!renderCompact(y, m, { today: key, selected: key })) window.__xjCalNeedLibrary = true;
-    /* 日期框在 body.part 标 data-keep，当下件与页内默认值件都不写它，本件是唯一的解析期写者。 */
+    var todayKey = localToday();
+    /* 访问日只定选中与卡面，.today 恒落本机当天：分享日或快照日不得顶替今日。 */
+    if (!renderCompact(y, m, { today: todayKey, selected: key })) window.__xjCalNeedLibrary = true;
+    /* 日期框在 body.part 标 data-keep，当下件与页内默认值件都不写它，本件是解析期唯一写者；
+       分享日在此置 data-user-set，续算件据此保留分享所选，不被本机当天覆盖。 */
     var input = document.getElementById('dInput');
-    if (input) input.value = key;
+    if (input) {
+      input.value = key;
+      if (key !== todayKey) input.setAttribute('data-user-set', '1');
+    }
     writeCard(key);
     writeNote(key);
     window.__xjCalBootDone = true;
     return true;
   }
 
+  /* 格上的 .today 是否已落本机当天：页内换日重绘前先看这一处，已对即不重画。 */
+  function todayMarked(key) {
+    var grid = document.getElementById('calGrid');
+    if (!grid) return false;
+    var cell = grid.querySelector('.today');
+    return !!(cell && cell.getAttribute('data-date') === key);
+  }
+
+  /* 跨午夜换日：当下件派发 xj:now 后交页内重绘；页内按 data-user-set 决定是否滚到新一天。 */
+  function onNow(e) {
+    var d = e && e.detail;
+    if (!d || !d.day) return;
+    if (typeof window.xjCalRoll === 'function') {
+      try { window.xjCalRoll(d.day, d); } catch (err) { /* 页内重绘失败不阻断其余监听 */ }
+    }
+  }
+  window.addEventListener('xj:now', onNow);
+
+  /* 表单快照还原手选值后：日期框已是该日，页内选中、今日卡与详情随之同步到该日。 */
+  function onFormRestored() {
+    var input = document.getElementById('dInput');
+    if (!input || !input.value) return;
+    if (typeof window.xjCalSync === 'function') {
+      try { window.xjCalSync(input.value); } catch (err) { /* 页内同步失败不阻断其余监听 */ }
+    }
+  }
+  window.addEventListener('xj:form-restored', onFormRestored);
+
   window.xjCal = {
     render: render, renderCompact: renderCompact, boot: boot, resolveDate: resolveDate,
-    fillDetail: fillDetail, fillCard: fillCard
+    todayMarked: todayMarked, fillDetail: fillDetail, fillCard: fillCard
   };
 
   /* 数据已在页内且容器已解析时自起绘；数据缺位时留待页内脚本按库渲染。 */
