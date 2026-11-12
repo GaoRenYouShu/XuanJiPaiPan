@@ -432,7 +432,7 @@ const DATA=[
   fn:'页面访问统计的上报端。cf-beacon.js 装载信标后，页面地址、来源与浏览器粗类（国家、浏览器、设备类别）由其发往 static.cloudflareinsights.com。无 cookie、无指纹、不采集个人标识，不含任何排盘数据。',
   note:'许可：Cloudflare Web Analytics 免费档。统计信标装载与否由站点令牌决定，令牌空即不装载、零外发。'},
  {name:'精油命名与安全依据（ ISO 4720、Tisserand 与 Young、中华本草与中国药典 ）', type:'in', v:4, s:4.0,
-  link:'https://www.iso.org/standard/67522.html',
+  link:'https://www.iso.org/standard/69688.html',
   fn:'精油芳疗页的命名与安全底本。单方学名取 ISO 4720 通行名与现行接受名；单方浓度上限、光敏与人群禁忌取 Tisserand 与 Young《Essential Oil Safety》第二版及 IFRA 限制；同源中药的性味与归经取《中华本草》与《中国药典》2020 年版。',
   note:'三家来源各管一段，只取名词、数值与限制，不一字照录；配比与断语属本站拟订。标准与手册为纸本与在线检索，页面运行时不取源。'},
  {name:'精油芳疗名录与规则表（aroma-data.js）', type:'self', v:2, s:4.0,
