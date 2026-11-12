@@ -1334,11 +1334,15 @@ window.xjShuffle = xjShuffle;
 })();
 
 /* 时间折算与流派行的控件宽：窄屏与平板（视口不超过 970）按"选项文案去掉括注"的实宽取值，
-   框内只显括注之前的一段（夏令时只显自动折算），点开下拉仍见全内容；桌面端不动，保持按全量选项自然宽。
+   框内只显括注之前的一段，点开下拉仍见全内容；桌面端不动，保持按全量选项自然宽。
    按全量选项自然宽取值时框宽一百七十六至二百零二像素，一行只容得下一项、七项占七行；
    按括注前文案取值时框宽八十七至一百像素，一行容得下三项、七项占三行。
-   宽度以真实字形实测，不写死字号与字数：取该下拉各选项括注前文案的最大渲染宽，
-   加内距、边框与原生箭头实宽，再留六像素余量（余量须小于一个汉字宽，否则括注会露头）。 */
+   夏令时与太阳时两族不在这里定宽：宽度由页样式按选中项分档，不折算与不校正是三字档，
+   同子时算法；自动折算、按夏令时、真太阳时、平太阳时是四字档，同空亡基准；改选即随
+   :has(option:checked) 换档，首帧与终态同一判据。本件对这两族只清内联宽，不写值。
+   其余下拉值域固定，取各选项括注前的最大实宽，一次量定。宽度以真实字形实测，
+   不写死字号与字数：加内距、边框与原生箭头实宽，再留六像素余量（余量须小于一个汉字宽，
+   否则括注会露头）。 */
 (function(){
   var arrowW = null;
   function textWidth(s, cs){
@@ -1379,6 +1383,10 @@ window.xjShuffle = xjShuffle;
     var add = function(x){ if(x && out.indexOf(x) < 0) out.push(x); };
     var rows = document.querySelectorAll('.opts-row select');
     for(i = 0; i < rows.length; i++) add(rows[i]);
+    /* 时间折算与流派一行有两式容器：多数页用 .opts-row，七政页用 .qz-opts；
+       两族的选中项定宽与容器无关，凡已打标记的下拉一律纳入 */
+    var marked = document.querySelectorAll('select[data-xjfw="sel"]');
+    for(i = 0; i < marked.length; i++) add(marked[i]);
     var all = document.querySelectorAll('select');
     for(i = 0; i < all.length; i++){
       s = all[i];
@@ -1391,33 +1399,44 @@ window.xjShuffle = xjShuffle;
     }
     return out;
   }
+  function headOf(o){
+    return o ? String(o.textContent || '').split('（')[0].replace(/\s+$/, '') : '';
+  }
+  /* 右内距归零：没有内距可容原生箭头，各引擎一律从文字区取箭头实宽，
+     占位即等于实测的箭头占宽，宽度才算得准 */
+  function setWidth(s){
+    s.style.setProperty('padding-right', '0', 'important');
+    var cs = getComputedStyle(s);
+    var pad = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0)
+            + (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
+    var textW = 1, i, head, w;
+    for(i = 0; i < s.options.length; i++){
+      head = headOf(s.options[i]);
+      if(!head) continue;
+      w = textWidth(head, cs);
+      if(w > textW) textW = w;
+    }
+    s.style.setProperty('width', Math.ceil(textW + pad + measureArrow()) + 6 + 'px', 'important');
+  }
+  function clearWidth(s){
+    s.style.removeProperty('width');
+    s.style.removeProperty('padding-right');
+  }
   function fit(){
     var narrow = window.innerWidth <= 970;
     var sels = targets();
     for(var i = 0; i < sels.length; i++){
       var s = sels[i];
-      if(!narrow){
-        s.style.removeProperty('width');
-        s.style.removeProperty('padding-right');
-        continue;
-      }
-      /* 右内距归零：没有内距可容原生箭头，各引擎一律从文字区取箭头实宽，
-         占位即等于下面实测的箭头占宽，宽度才算得准 */
-      s.style.setProperty('padding-right', '0', 'important');
-      var cs = getComputedStyle(s);
-      var pad = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0)
-              + (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
-      var textW = 1;
-      for(var k = 0; k < s.options.length; k++){
-        var head = String(s.options[k].textContent || '').split('（')[0].replace(/\s+$/, '');
-        if(!head) continue;
-        var w = textWidth(head, cs);
-        if(w > textW) textW = w;
-      }
-      s.style.setProperty('width', Math.ceil(textW + pad + measureArrow()) + 6 + 'px', 'important');
+      /* 夏令时与太阳时两族：宽度由页样式按选中项分档，首帧与改选同一判据；
+         本件不写内联宽，只清掉可能存在的旧值 */
+      if(s.getAttribute('data-xjfw') === 'sel'){ clearWidth(s); continue; }
+      if(!narrow){ clearWidth(s); continue; }
+      setWidth(s);
     }
   }
   function run(){ try{ fit(); }catch(e){} }
+  /* 选项表改写后重跑一次：改写会把取值重置为表首项，其余下拉的定宽随之重算 */
+  window.__xjFitOpts = run;
   var timer = 0;
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
@@ -1501,7 +1520,10 @@ window.xjShuffle = xjShuffle;
       }
       s.innerHTML = html;
       s.value = list[0][0];
+      /* 夏令时与太阳时两族按选中项定宽，打标记交给定宽件按当前取值量；两式行容器同判 */
+      if(list === DST || list === SUN) s.setAttribute('data-xjfw', 'sel');
     }
+    if(window.__xjFitOpts) window.__xjFitOpts();
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
   else sync();

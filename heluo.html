@@ -819,6 +819,9 @@ html .page-hl {
 .page-hl .opts-row .field select{width:93px}
 
 .page-hl .opts-row .field select#hlZi{width:80px}
+
+.page-hl #hlDst:has(option[value="auto"]):has(option[value="off"]:checked),
+  .page-hl #hlSun:has(option[value="mean"]):has(option[value="off"]:checked){width:calc(3em + 41px);padding-right:0}
 }</style>
 <link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/heluo-1.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
@@ -922,7 +925,7 @@ html .page-hl {
     </div>
     <div class="opts-row">
       <div class="group-label">时间折算与流派</div>
-      <div class="field" id="hlDstField"><label for="hlDst">夏令时</label><select id="hlDst" aria-label="选择夏令时折算口径"><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option><option value="off">不折算（钟面即标准时）</option></select></div>
+      <div class="field" id="hlDstField"><label for="hlDst">夏令时</label><select id="hlDst" aria-label="选择夏令时折算口径"><option value="off">不折算（钟面即标准时）</option><option value="auto">自动折算（1986至1991）</option><option value="on">按夏令时（钟面减1小时）</option></select></div>
       <div class="field"><label for="hlZi">子时算法</label><select id="hlZi" aria-label="子时算法"><option value="late">晚子时（23点归次日）</option><option value="early">早子时（23点归当日）</option></select></div>
       <div class="field"><label for="hlSun">太阳时</label><select id="hlSun" aria-label="选择太阳时口径"><option value="off">不校正（无时差经度差）</option><option value="true">真太阳时（均时差加经度）</option><option value="mean">平太阳时（仅经度差）</option></select></div>
       <div class="field" id="hlTzOffField" hidden><label for="hlTzOff">时区偏移</label><select id="hlTzOff" aria-label="选择境外出生地标准时区偏移" onchange="hlOverseasChange()"></select></div>

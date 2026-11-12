@@ -888,6 +888,9 @@ html .page-hh {
 .page-hh .opts-row .field select{width:93px}
 
 .page-hh .opts-row .field select#hhZi{width:80px}
+
+.page-hh #hhDst:has(option[value="auto"]):has(option[value="off"]:checked),
+  .page-hh #hhSun:has(option[value="mean"]):has(option[value="off"]:checked){width:calc(3em + 41px);padding-right:0}
 }</style>
 <link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/hehun-1.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
@@ -1040,9 +1043,9 @@ html .page-hh {
         <div class="group-label">时间折算与流派（两造共用，与八字排盘页同源）</div>
         <div class="field"><label for="hhDst">夏令时</label>
           <select id="hhDst" aria-label="选择夏令时折算口径">
+            <option value="off">不折算（钟面即标准时）</option>
             <option value="auto">自动折算（1986至1991）</option>
             <option value="on">按夏令时（钟面减1小时）</option>
-            <option value="off">不折算（钟面即标准时）</option>
           </select>
         </div>
         <div class="field"><label for="hhZi">子时算法</label>

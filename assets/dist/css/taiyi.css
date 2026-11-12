@@ -642,6 +642,11 @@ a.btn{display:inline-flex;align-items:center}
 .page-ty .opts-row .field select.ty-sel-dst{width:clamp(93px,24vw,196px)}
 .page-ty .opts-row .field select.ty-sel-zi{width:clamp(80px,20.5vw,178px)}
 .page-ty .opts-row .field select.ty-sel-sun{width:clamp(93px,24vw,202px)}
+/* 时间折算与流派三项：窄屏首帧即按三字档排，不折算与不校正取 80px，其余由脚本放四字档。 */
+@media(max-width:970px){
+  .page-ty #tyDst:has(option[value="auto"]):has(option[value="off"]:checked),
+  .page-ty #tySun:has(option[value="mean"]):has(option[value="off"]:checked){width:calc(3em + 41px);padding-right:0}
+}
 
 .opts-row .field.chk{align-self:flex-end;padding-bottom:var(--sp-2);min-width:auto}
 

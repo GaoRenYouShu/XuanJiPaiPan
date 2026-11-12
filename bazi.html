@@ -1021,6 +1021,9 @@ html .page-bazi {
 .page-bazi .opts-row .field select{width:93px}
 
 .page-bazi .opts-row .field select#bZi{width:80px}
+
+.page-bazi #bDst:has(option[value="auto"]):has(option[value="off"]:checked),
+  .page-bazi #bSun:has(option[value="mean"]):has(option[value="off"]:checked){width:calc(3em + 41px);padding-right:0}
 }</style>
 <link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/bazi-1.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
@@ -1187,9 +1190,9 @@ html .page-bazi {
         <div class="group-label">时间折算与流派</div>
         <div class="field" id="bDstField"><label for="bDst">夏令时</label>
           <select id="bDst" aria-label="选择夏令时折算口径" onchange="savePillarSel()">
+            <option value="off">不折算（钟面即标准时）</option>
             <option value="auto">自动折算（1986至1991）</option>
             <option value="on">按夏令时（钟面减1小时）</option>
-            <option value="off">不折算（钟面即标准时）</option>
           </select>
         </div>
         <div class="field" id="bZiField"><label for="bZi">子时算法</label>

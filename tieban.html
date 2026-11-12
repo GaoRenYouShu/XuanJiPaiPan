@@ -814,6 +814,9 @@ html .page-tieban {
 .page-tieban .opts-row .field select{width:93px}
 
 .page-tieban .opts-row .field select#ziInput{width:80px}
+
+.page-tieban #dstInput:has(option[value="auto"]):has(option[value="off"]:checked),
+  .page-tieban #sunInput:has(option[value="mean"]):has(option[value="off"]:checked){width:calc(3em + 41px);padding-right:0}
 }</style>
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
@@ -925,9 +928,9 @@ html .page-tieban {
     <div class="opts-row" id="optsRow">
       <div class="group-label">时间折算与流派</div>
       <div class="field" id="bDstField"><label for="dstInput">夏令时</label><select id="dstInput" aria-label="选择夏令时折算口径">
+        <option value="off">不折算（钟面即标准时）</option>
         <option value="auto">自动折算（1986至1991）</option>
         <option value="on">按夏令时（钟面减1小时）</option>
-        <option value="off">不折算（钟面即标准时）</option>
       </select></div>
       <div class="field"><label for="ziInput">子时算法</label><select id="ziInput" aria-label="子时算法">
         <option value="late">晚子时（23点归次日）</option>
