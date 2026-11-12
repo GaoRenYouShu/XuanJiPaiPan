@@ -1337,12 +1337,12 @@ window.xjShuffle = xjShuffle;
    框内只显括注之前的一段，点开下拉仍见全内容；桌面端不动，保持按全量选项自然宽。
    按全量选项自然宽取值时框宽一百七十六至二百零二像素，一行只容得下一项、七项占七行；
    按括注前文案取值时框宽八十七至一百像素，一行容得下三项、七项占三行。
-   夏令时与太阳时两族不在这里定宽：宽度由页样式按选中项分档，不折算与不校正是三字档，
-   同子时算法；自动折算、按夏令时、真太阳时、平太阳时是四字档，同空亡基准；改选即随
-   :has(option:checked) 换档，首帧与终态同一判据。本件对这两族只清内联宽，不写值。
-   其余下拉值域固定，取各选项括注前的最大实宽，一次量定。宽度以真实字形实测，
-   不写死字号与字数：加内距、边框与原生箭头实宽，再留六像素余量（余量须小于一个汉字宽，
-   否则括注会露头）。 */
+   夏令时与太阳时两族按当前选中项量宽：不折算与不校正是三字头，取三字宽，同子时算法；
+   自动折算、按夏令时、真太阳时、平太阳时是四字头，取四字宽，同空亡基准。两族与其余下拉
+   同走一条实测路径，箭头宽按各浏览器实宽取，故换档后与他项逐像素同宽。页样式另给首帧
+   同档静态宽，脚本到位后按选中项重设同值。其余下拉值域固定，取各选项括注前的最大实宽，
+   一次量定。宽度以真实字形实测，不写死字号与字数：加内距、边框与原生箭头实宽，
+   再留六像素余量（余量须小于一个汉字宽，否则括注会露头）。 */
 (function(){
   var arrowW = null;
   function textWidth(s, cs){
@@ -1404,17 +1404,22 @@ window.xjShuffle = xjShuffle;
   }
   /* 右内距归零：没有内距可容原生箭头，各引擎一律从文字区取箭头实宽，
      占位即等于实测的箭头占宽，宽度才算得准 */
-  function setWidth(s){
+  function setWidth(s, bySelected){
     s.style.setProperty('padding-right', '0', 'important');
     var cs = getComputedStyle(s);
     var pad = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0)
             + (parseFloat(cs.borderLeftWidth)||0) + (parseFloat(cs.borderRightWidth)||0);
     var textW = 1, i, head, w;
-    for(i = 0; i < s.options.length; i++){
-      head = headOf(s.options[i]);
-      if(!head) continue;
-      w = textWidth(head, cs);
-      if(w > textW) textW = w;
+    if(bySelected){
+      head = headOf(s.options[s.selectedIndex]);
+      if(head) textW = textWidth(head, cs);
+    }else{
+      for(i = 0; i < s.options.length; i++){
+        head = headOf(s.options[i]);
+        if(!head) continue;
+        w = textWidth(head, cs);
+        if(w > textW) textW = w;
+      }
     }
     s.style.setProperty('width', Math.ceil(textW + pad + measureArrow()) + 6 + 'px', 'important');
   }
@@ -1427,16 +1432,33 @@ window.xjShuffle = xjShuffle;
     var sels = targets();
     for(var i = 0; i < sels.length; i++){
       var s = sels[i];
-      /* 夏令时与太阳时两族：宽度由页样式按选中项分档，首帧与改选同一判据；
-         本件不写内联宽，只清掉可能存在的旧值 */
-      if(s.getAttribute('data-xjfw') === 'sel'){ clearWidth(s); continue; }
       if(!narrow){ clearWidth(s); continue; }
-      setWidth(s);
+      /* 夏令时与太阳时两族按当前选中项量宽：与子时算法、空亡基准同一条实测路径，
+         三字头即三字宽、四字头即四字宽，各浏览器按各自箭头宽取准 */
+      setWidth(s, s.getAttribute('data-xjfw') === 'sel');
+    }
+  }
+  /* 只重量按选中项定宽的两族：改选与还原之后重量，代价是三次取宽 */
+  function fitTiered(){
+    if(window.innerWidth > 970) return;
+    var sels = targets();
+    for(var i = 0; i < sels.length; i++){
+      var s = sels[i];
+      if(s.getAttribute('data-xjfw') === 'sel') setWidth(s, true);
     }
   }
   function run(){ try{ fit(); }catch(e){} }
-  /* 选项表改写后重跑一次：改写会把取值重置为表首项，其余下拉的定宽随之重算 */
+  function runTiered(){ try{ fitTiered(); }catch(e){} }
+  /* 选项表改写后重跑一次：改写会把取值重置为表首项，按选中项取的宽随之重算 */
   window.__xjFitOpts = run;
+  /* 改选与表单恢复会派发 change；页内存档、历史与分享还原只赋 value，
+     故在聚焦与点击之后补量一次，两族宽度随所载记录落到终值 */
+  document.addEventListener('change', function(e){
+    if(e.target && e.target.tagName === 'SELECT' && e.target.getAttribute('data-xjfw') === 'sel') runTiered();
+  }, true);
+  document.addEventListener('focusin', function(e){ if(e.target && e.target.tagName === 'SELECT') runTiered(); }, true);
+  document.addEventListener('click', runTiered);
+  window.addEventListener('xj:form-restored', runTiered);
   var timer = 0;
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
