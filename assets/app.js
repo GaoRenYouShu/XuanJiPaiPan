@@ -72,6 +72,7 @@ const NAV_GROUPS = [
   {type:'group', name:'养生', items:[
     {href:'jingyou.html', name:'精油芳疗'},
     {href:'shiliao.html', name:'食疗'},
+    {href:'tuina.html', name:'推拿按跷'},
   ]},
   {type:'group', name:'相术', items:[
     {href:'shouxiang.html', name:'手相'},

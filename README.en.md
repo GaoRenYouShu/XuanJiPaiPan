@@ -37,7 +37,7 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Eight categories with 39 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
+Eight categories with 40 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
 
 | Category | Tools |
 |---|---|
@@ -47,7 +47,7 @@ Eight categories with 39 independent tools: Calendars, Fate Analysis, Three Styl
 | **Divination** | Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Fortune Sticks, Tarot, Lenormand |
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
-| **Wellness** | Essential Oil Aromatherapy, Dietary Therapy |
+| **Wellness** | Essential Oil Aromatherapy, Dietary Therapy, Tuina Massage |
 | **Physiognomy** | Palmistry, Face Reading, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui, Luopan |
 
 ## Interface Preview
@@ -114,10 +114,11 @@ Introduced in the order of the site's eight sections.
 - **Five Movements and Six Qi**: annual movement, governing and terrestrial qi, guest and host qi, and qi convergence
 - **Ziwu Liuzhu Meridian Clock**: twelve two-hour periods and their ruling meridians, twenty meridians, 361 standard acupoints plus extra points, nine categories of specific points, and the Nazhi and Feiteng point-selection methods
 
-### Wellness (2)
+### Wellness (3)
 
 - **Essential Oil Aromatherapy**: single and blended formulas by effect, group, season and constitution, with 72 single oils, 18 carrier oils, 12 classic blends and 20 hydrosols
 - **Dietary Therapy**: food, recipe, seasonal and meal-plan queries by constitution, season and group, with 358 foods, 40 recipes and the food-medicine catalog
+- **Tuina Massage**: acupoint and technique queries by body region, symptom and meridian, with 16 techniques, 9 regions, 36 symptoms, 72 point routines and 12 contraindication groups; a separate section introduces pediatric tuina as a system, its sources and when to stop and see a doctor
 
 ### Physiognomy (5)
 
@@ -263,7 +264,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        44 pages: 39 tools plus the home page, three appendix pages and a 404 page
+├── *.html        45 pages: 40 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

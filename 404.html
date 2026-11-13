@@ -501,20 +501,22 @@ body.p404-page{margin:0;min-height:100vh;display:flex;align-items:center;justify
 
 .nf-seal{width:88px;height:88px}
 
+.nf-last{letter-spacing:0}
+
 .nf-code{margin:1.625rem 0 0;font-size:92px;font-weight:700;letter-spacing:.12em;line-height:1.1}
 
 .nf-rule{width:64px;height:4px;background:#b84a3a;margin:1.75rem auto}
 
-.nf-text{margin:0;font-size:19px;color:#52525a;letter-spacing:.1em}
+.nf-text{margin:0;font-size:19px;color:#52525a;letter-spacing:.1em;text-wrap:pretty}
 
-.nf-text .nf-gap{margin-left:1.1em}
+.nf-text .nf-clause{white-space:nowrap}
 
 .nf-home{display:inline-block;margin-top:2rem;padding:0.625rem 2.25rem;border:1.5px solid #1a1a1a;color:#1a1a1a;text-decoration:none;font-size:18px;letter-spacing:.28em;transition:border-color .2s,color .2s}
 
 .nf-home:hover{border-color:#b84a3a;color:#b84a3a}
 
 @media (max-width:480px){
-.nf-code{font-size:72px}.nf-text{font-size:17px}
+.nf-code{font-size:clamp(54px,17vw,72px)}.nf-text{font-size:17px}
 }
 
 @media (prefers-color-scheme:dark){
@@ -540,10 +542,10 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 <main class="nf">
     <img id="nf-seal" class="nf-seal" src="assets/logo/xuanji-seal.svg" alt="玄机排盘">
-    <div class="nf-code">四〇四</div>
+    <div class="nf-code">四〇<span class="nf-last">四</span></div>
     <div class="nf-rule"></div>
-    <p class="nf-text">此页未载于玄机<span class="nf-gap">或已迁易别处</span></p>
-    <a id="nf-home" class="nf-home" href="index.html">回到首页</a>
+    <p class="nf-text"><span class="nf-clause">此页未载于玄机</span>　<span class="nf-clause">或已迁易别处</span></p>
+    <a id="nf-home" class="nf-home" href="index.html">回到首<span class="nf-last">页</span></a>
   </main><script>
   
 
