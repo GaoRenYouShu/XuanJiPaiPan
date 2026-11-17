@@ -523,7 +523,7 @@ function paipan(){
     }
     let lun;
     try{ lun=Lunar.fromYmd(ly, leap? -lm : lm, ld); }
-    catch(e){ showFormErr((e&&e.message)||'农历日期无效（该月可能不足 '+ld+' 天）'); return; }
+    catch(e){ showFormErr('农历日期无效（该月可能不足 '+ld+' 天）'); return; }
     const s=lun.getSolar();
     dv=String(s.getYear()).padStart(4,'0')+'-'+String(s.getMonth()).padStart(2,'0')+'-'+String(s.getDay()).padStart(2,'0');
   } else {
@@ -597,7 +597,7 @@ function paipan(){
       }
       let lun2;
       try{ lun2=Lunar.fromYmd(ly2, leap2? -lm2 : lm2, ld2); }
-      catch(e){ showFormErr((e&&e.message)||'第二盘农历日期无效（该月可能不足 '+ld2+' 天）'); return; }
+      catch(e){ showFormErr('第二盘农历日期无效（该月可能不足 '+ld2+' 天）'); return; }
       const s2=lun2.getSolar();
       dv2=String(s2.getYear()).padStart(4,'0')+'-'+String(s2.getMonth()).padStart(2,'0')+'-'+String(s2.getDay()).padStart(2,'0');
     } else {

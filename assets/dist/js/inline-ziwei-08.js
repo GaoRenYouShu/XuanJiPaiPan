@@ -1493,7 +1493,6 @@ function zwModeToggle(){
   if(out&&(isPillar||isSaved)) out.innerHTML='';
   if(isPillar){ zwPillarLookup(); return; }
   if(isSaved){ zwRenderSaved(); return; }
-  if(isLunar) zwLunarToDate();
 }
 /* 年界切换：四柱模式重跑反查，其余模式由排盘按钮重排。 */
 function zwYearChange(){
@@ -1520,8 +1519,8 @@ function zwLocalDstClock(y,m,d,h,localDst){
   const p=new Date(Date.UTC(y,m-1,d-1));
   return {y:p.getUTCFullYear(),m:p.getUTCMonth()+1,d:p.getUTCDate(),h:23};
 }
-function zwTimingTable(){
-  const dv=document.getElementById('zDate').value;
+function zwTimingTable(dvIn){
+  const dv=dvIn||document.getElementById('zDate').value;
   if(!dv) return '';
   const [y,m,d]=dv.split('-').map(Number);
   const ct=String((document.getElementById('zTime')||{}).value||'12:00').split(':');
@@ -1556,32 +1555,40 @@ function zwTimingTable(){
   每档先按同一太阳时与夏令时口径折算，时刻列为折算后所得时辰。</p>`;
 }
 /* 对照表只在勾"时辰不确定"时填装：未勾时匣内留空并保持隐藏，不白排十三盘。 */
-function zwRenderTiming(astro){
+function zwRenderTiming(astro, dvIn){
   const box=document.getElementById('zwTimingBox');
   if(!box) return;
   const on=!!(document.getElementById('zUnsure')||{}).checked;
   box.hidden=!on;
   if(!on){ box.innerHTML='<h3 class="rel-title">十三时辰对照（定时用）</h3>'; delete box.dataset.filled; return; }
-  box.innerHTML='<h3 class="rel-title">十三时辰对照（定时用）</h3>'+zwTimingTable();
+  box.innerHTML='<h3 class="rel-title">十三时辰对照（定时用）</h3>'+zwTimingTable(dvIn);
   box.dataset.filled='1';
 }
-/* 农历转公历：闰月以负月传入（lunar.js 的约定），年超界或该月无此日时提示并中止。
-   结果写回公历框，排盘链路不必知道来的是农历还是公历。 */
+/* 农历校验失败落在结果区既有 .notice，并清掉旧盘与旧十三时辰表；不用浏览器弹窗。 */
+function zwLunarFail(msg){
+  const out=document.getElementById('out');
+  if(out) out.innerHTML='<p class="notice">'+msg+'</p>';
+  const box=document.getElementById('zwTimingBox');
+  if(box){ box.innerHTML='<h3 class="rel-title">十三时辰对照（定时用）</h3>'; delete box.dataset.filled; }
+  return '';
+}
+/* 农历转公历：闰月以负月传入（lunar.js 的约定），缺项、年超界或该月无此日时提示并返回空串。
+   只在排盘与保存取参时换算，不写公历框；公历模式的原日期不被农历切换覆盖。 */
 function zwLunarToDate(){
   const yEl=document.getElementById('zLunarY'), mEl=document.getElementById('zLunarM'), dEl=document.getElementById('zLunarD');
   const leapEl=document.getElementById('zLunarLeap');
   const ly=parseInt(yEl.value,10), lm=parseInt(mEl.value,10), ld=parseInt(dEl.value,10), leap=leapEl&&leapEl.checked;
-  if(!ly||!lm||!ld) return;
-  if(ly<1900||ly>2100){ alert('农历年范围 1900 至 2100'); return; }
+  if(!ly||!lm||!ld){ return zwLunarFail('请完整填写农历年、月、日'); }
+  if(ly<1900||ly>2100){ return zwLunarFail('农历年范围 1900 至 2100'); }
   if(leap){
     let lm0=0;
     try{ lm0=LunarYear.fromYear(ly).getLeapMonth(); }catch(e){ lm0=0; }
-    if(lm0!==lm){ alert(ZW_LUNAR_M[lm-1]+'不是该农历年的闰月'+(lm0?('，本年闰月为闰'+ZW_LUNAR_M[lm0-1]):'')); return; }
+    if(lm0!==lm){ return zwLunarFail(ZW_LUNAR_M[lm-1]+'不是该农历年的闰月'+(lm0?('，本年闰月为闰'+ZW_LUNAR_M[lm0-1]):'')); }
   }
   let solar;
   try{ solar=Lunar.fromYmd(ly, leap?-lm:lm, ld).getSolar(); }
-  catch(e){ alert('农历日期无效，该月可能不足 '+ZW_LUNAR_D[ld-1]+' 天'); return; }
-  document.getElementById('zDate').value=String(solar.getYear()).padStart(4,'0')+'-'+String(solar.getMonth()).padStart(2,'0')+'-'+String(solar.getDay()).padStart(2,'0');
+  catch(e){ return zwLunarFail('农历日期无效，该月可能不足 '+ld+' 天'); }
+  return String(solar.getYear()).padStart(4,'0')+'-'+String(solar.getMonth()).padStart(2,'0')+'-'+String(solar.getDay()).padStart(2,'0');
 }
 /* 恢复上次输入方式：刷新后仍停在四柱或已存，不必每次重选。
    四柱模式此时尚未选定候选日，是否排盘由 zwPillarLookup 自行决定，此处不代排。 */
@@ -1750,6 +1757,7 @@ function zwSaveEntry(){
   } else if(mode==='lunar'){
     const y=document.getElementById('zLunarY').value, m=document.getElementById('zLunarM').value, d=document.getElementById('zLunarD').value;
     if(!y||!m||!d){ alert('请完整填写农历年、月、日后再保存'); return; }
+    if(!zwLunarToDate()) return;
     entry.lunarY=y; entry.lunarM=m; entry.lunarD=d; entry.lunarLeap=!!(document.getElementById('zLunarLeap')||{}).checked;
     entry.time=document.getElementById('zTime').value||'12:00';
   } else {
@@ -1786,7 +1794,6 @@ function zwLoadSaved(i){
     set('zLunarY',e.lunarY); set('zLunarM',e.lunarM); set('zLunarD',e.lunarD);
     const lp=document.getElementById('zLunarLeap'); if(lp) lp.checked=!!e.lunarLeap;
     set('zTime',e.time||'12:00');
-    zwLunarToDate();
   } else if(e.mode==='pillar'){
     set('zpyG',e.yg); set('zpyZ',e.yz); set('zpmG',e.mg); set('zpmZ',e.mz);
     set('zpdG',e.dg); set('zpdZ',e.dz); set('zptG',e.tg); set('zptZ',e.tz);
@@ -1822,7 +1829,11 @@ function paipan(){
     });
     return;
   }
-  const dv=document.getElementById('zDate').value;
+  let dv=document.getElementById('zDate').value;
+  if(zwMode().isLunar){
+    dv=zwLunarToDate();
+    if(!dv) return;
+  }
   if(!dv){alert('请选择出生日期');return;}
   const [y0,m0,d0]=dv.split('-').map(Number);
   const tvRaw=document.getElementById('zTime').value;
@@ -2134,7 +2145,7 @@ function paipan(){
       ${ZIWEI_PAL_MEAN.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
     </tbody></table>
   </details>`;
-  zwRenderTiming(astro);
+  zwRenderTiming(astro, dv);
   // AI 上下文、复制排盘数据（按流派区分）
   const palLines=astro.palaces.map(p=>{
     const mj=(p.majorStars||[]).map(s=>s.name+(s.brightness?'（'+s.brightness+'）':'')+(s.mutagen?'化'+s.mutagen:'')).join(' ')||'无';
