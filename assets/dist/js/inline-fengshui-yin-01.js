@@ -228,11 +228,6 @@ document.addEventListener('DOMContentLoaded', function () {
         ckt.value=e.getFullYear()+'-'+p2(e.getMonth()+1)+'-'+p2(e.getDate());
       }
     })();
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) fsSaveModState();
-    },true);
-    fsRestoreModState();
     window.addEventListener("beforeunload", function(){ if(window.xjRefreshTakeover) return; try{ localStorage.setItem("fsy_scroll", String(window.scrollY)); }catch(e){} });
     try{
       if(!window.xjRefreshTakeover){

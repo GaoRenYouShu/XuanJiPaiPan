@@ -658,7 +658,6 @@ function paipan(){
   document.getElementById('out').appendChild(foot);
   if(!baziInitDone) restoreYunSel(); /* 初始化：恢复已保存的岁运选择（大运、流年、流月、流日），在 renderDyn 默认选择之后覆盖 */
   if(baziInitDone) savePillarSel(); /* 仅页面初始化完成后才持久化，避免初始渲染覆盖已保存状态 */
-  applyModState(); /* 刷新重排后读回三大模块折叠状态，避免展开被复位 */
   /* 人生议题表格化：挂到渲染生命周期内（与三大板块同一层），每次真正重排后自动重建。
      tableizeCore 由 bazi.html 内联脚本定义（加载晚于本文件），此处用 typeof 探测；
      初始加载时尚未定义则跳过，由内联脚本末尾 go() 兜底执行；性能守卫拦截时不重排，DOM 保持现状（含 mod-yiti）。 */
@@ -912,7 +911,6 @@ function paipanPillar(){
   foot.innerHTML='命理推演依格局、五行、十神、神煞与大运流年流月流日，各派结论可能不同，供文化研究参考。健康与人生重大决定，以专业意见为准，不宜以命理代断。';
   document.getElementById('out').appendChild(foot);
   if(!baziInitDone) restoreYunSel(); /* 四柱模式同样恢复岁运选择（无 renderDyn 时按钮不存在则安全降级） */
-  applyModState(); /* 刷新重排后读回三大模块折叠状态，避免展开被复位 */
   /* 人生议题表格化（四柱模式入口，同 paipan() 的钩子）：真正重排后自动重建 mod-yiti */
   if(typeof tableizeCore==='function' && !document.getElementById('proto')){ try{ tableizeCore(BZ); }catch(e){} }
   /* 首列列宽：按真实汉字渲染宽测量后 inline !important 设置（span 挂 body 探测） */
@@ -1281,52 +1279,7 @@ baziInitDone=true;
 
 
 /* ============ 三大模块折叠 ============ */
-/* 折叠模块 id 从 DOM 取（.mod[id]），新增模块自动纳入折叠与持久化，不靠硬编码名单 */
-function _allModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(e=>e.id); }catch(e){ return ['mod-base','mod-life','mod-yiti','mod-yun']; } }
-function readModState(){
-  try{
-    let raw=null;
-    try{ raw=localStorage.getItem(BAZI_MOD_KEY); }catch(e){}
-    if(!raw){ try{ raw=sessionStorage.getItem(BAZI_MOD_KEY); }catch(e){} }  /* localStorage 不可用（隐私模式、被清）时回退 sessionStorage */
-    const o=raw?JSON.parse(raw):null;
-    return (o&&typeof o==='object')?o:{};
-  }catch(e){ return {}; }
-}
-function toggleMod(id){ const el=document.getElementById(id); if(el) el.classList.toggle('collapsed'); saveModState(); }
-function saveModState(){
-  if(!baziInitDone) return; /* 初始化完成前不写，避免覆盖已保存状态 */
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：恢复折叠态本身会触发 toggle 回调本函数，而动态板块（先删后建）此刻不在场，
-       整份重写就会把这些件的键抹掉，下次刷新读不回来 */
-    const o=readModState();
-    _allModIds().forEach(id=>{ const e=document.getElementById(id); if(e) o[id]=e.classList.contains('collapsed'); });
-    /* 页内折叠块（本命分析小节、关联数术等）的 open 状态一并持久化（须带 id 方可定位） */
-    try{
-      const zr=(o._zr&&typeof o._zr==='object')?o._zr:{};
-      document.querySelectorAll('details[id]').forEach(d=>{ zr[d.id]=d.open; });
-      if(Object.keys(zr).length) o._zr=zr;
-    }catch(e){}
-    const v=JSON.stringify(o);
-    try{ localStorage.setItem(BAZI_MOD_KEY, v); }catch(e){}   /* 普通模式持久化 */
-    try{ sessionStorage.setItem(BAZI_MOD_KEY, v); }catch(e){} /* 隐私、无痕模式兜底：同一会话 F5 刷新时 sessionStorage 一定保留（localStorage 在部分隐私实现中刷新即失） */
-  }catch(e){}
-}
-function applyModState(){
-  const o=readModState();
-  try{
-    _allModIds().forEach(id=>{
-      const e=document.getElementById(id); if(!e) return;
-      if(o[id]===true) e.classList.add('collapsed');
-      else if(o[id]===false) e.classList.remove('collapsed');
-    });
-    /* 恢复内部折叠块 open 状态（须在模块展开后执行，DOM 已就绪） */
-    if(o._zr && typeof o._zr==='object'){
-      try{ document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in o._zr) d.open=!!o._zr[d.id]; }); }catch(e){}
-    }
-  }catch(e){}
-}
-/* 页内折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
-try{ document.addEventListener('toggle', e=>{ if(e.target && e.target.tagName==='DETAILS' && e.target.id) saveModState(); }, true); }catch(e){}
+function toggleMod(id){ const el=document.getElementById(id); if(el) el.classList.toggle('collapsed'); }
 
 /* ---------- 弹窗 ---------- */
 function showTip(key, extra){
@@ -1567,8 +1520,6 @@ function baziMountAI(){
 }
 if (BAZI_PAGE_UI) window.baziMountAI = baziMountAI;
 
-/* 三大模块折叠状态在首屏渲染完成后应用一次，先展开、高度正确、再定位。 */
-try{ applyModState(); }catch(e){}
 
 /* 滚动位置保持：刷新与重载后停在离开时的位置。
    位置由本地记录精确恢复，不依赖浏览器自动恢复（file:// 下 scrollRestoration 不可靠，

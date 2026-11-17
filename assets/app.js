@@ -312,6 +312,8 @@ const XJ_SHENSHA = {
   TIANDE:{寅:'丁',卯:'申',辰:'壬',巳:'辛',午:'亥',未:'甲',申:'癸',酉:'寅',戌:'丙',亥:'乙',子:'巳',丑:'庚'},
   YUEDE_TG:{寅:'丙',午:'丙',戌:'丙',申:'壬',子:'壬',辰:'壬',巳:'庚',酉:'庚',丑:'庚',亥:'甲',卯:'甲',未:'甲'},
   YUEYAN:['戌','酉','申','未','午','巳','辰','卯','寅','丑','子','亥'],
+  /* 飞魂：'飞魂，正月起亥顺行十二辰'《大六壬指南》 */
+  FEIHUN:{寅:'亥',卯:'子',辰:'丑',巳:'寅',午:'卯',未:'辰',申:'巳',酉:'午',戌:'未',亥:'申',子:'酉',丑:'戌'},
   XUEZHI:{寅:'丑',卯:'寅',辰:'卯',巳:'辰',午:'巳',未:'午',申:'未',酉:'申',戌:'酉',亥:'戌',子:'亥',丑:'子'}
 };
 window.XJ_SHENSHA = XJ_SHENSHA;
@@ -657,143 +659,6 @@ xjScheduleNowDefaults();
 
 })();
 
-/* ===== 折叠块状态读取（全站共用） =====
-   先取 localStorage，再退 sessionStorage；解析失败或非对象一律回空对象。
-   存储键由页给，各页键名保持不变，本件不认任何页的键。 */
-function xjReadFold(key){
-  try{
-    let raw = localStorage.getItem(key);
-    if(!raw) raw = sessionStorage.getItem(key);
-    const o = JSON.parse(raw || '{}');
-    return (o && typeof o === 'object') ? o : {};
-  }catch(e){ return {}; }
-}
-window.xjReadFold = xjReadFold;
-
-/* ===== 折叠块状态保存（全站共用） =====
-   以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调，整份重写会把此刻
-   未渲染的件的键一并抹掉，下次刷新读不回来。选择器由页给，本件不认页内结构。 */
-function xjSaveFold(key, selector){
-  try{
-    const o = xjReadFold(key);
-    document.querySelectorAll(selector).forEach(function(d){ o[d.id] = d.open; });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem(key, v); }catch(e){}
-    try{ sessionStorage.setItem(key, v); }catch(e){}
-  }catch(e){}
-}
-window.xjSaveFold = xjSaveFold;
-
-/* ===== 单块折叠态保存（历法两页共用） =====
-   只记一个折叠块的开关，键值为 fei；选择器由页给。 */
-function xjSaveOneFold(key, selector){
-  const dv = document.querySelector(selector); if(!dv) return;
-  const v = JSON.stringify({fei: dv.open});
-  try{ localStorage.setItem(key, v); }catch(e){}
-  try{ sessionStorage.setItem(key, v); }catch(e){}
-}
-window.xjSaveOneFold = xjSaveOneFold;
-
-/* ===== 模块与折叠态保存（排盘页共用） =====
-   模块段记收起与否，折叠块记开关；以已存为底、只覆盖此刻在场的件。
-   初始化完成前不写，避免首屏渲染过程覆盖已存状态；标志名由页给。 */
-function xjSaveModState(key, detailsSelector, initFlag){
-  if(!window[initFlag]) return;
-  try{
-    const o = xjReadFold(key);
-    document.querySelectorAll('#out section.mod[id]').forEach(function(m){ o[m.id] = !m.classList.contains('collapsed'); });
-    document.querySelectorAll(detailsSelector).forEach(function(d){ o[d.id] = d.open; });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem(key, v); }catch(e){}
-    try{ sessionStorage.setItem(key, v); }catch(e){}
-  }catch(e){}
-}
-window.xjSaveModState = xjSaveModState;
-
-/* ===== 折叠块状态应用（全站共用） =====
-   读已存状态，逐块还原开关；只认已存里有的件，未存的块保持页内默认。 */
-function xjApplyFold(key, selector){
-  const o = xjReadFold(key);
-  document.querySelectorAll(selector).forEach(function(d){ if(d.id in o) d.open = !!o[d.id]; });
-}
-window.xjApplyFold = xjApplyFold;
-
-/* ===== 单块折叠态应用（历法两页共用） =====
-   只还原一个折叠块，键值为 fei；选择器由页给。 */
-function xjApplyOneFold(key, selector){
-  let s = null;
-  try{ s = JSON.parse(localStorage.getItem(key) || sessionStorage.getItem(key) || 'null'); }catch(e){}
-  const dv = document.querySelector(selector);
-  if(dv && s && typeof s.fei === 'boolean') dv.open = s.fei;
-}
-window.xjApplyOneFold = xjApplyOneFold;
-
-/* ===== 模块与折叠态应用（排盘页共用） =====
-   读已存状态，模块段还原收起与否，折叠块还原开关；只认已存里有的件。 */
-function xjApplyModState(key, detailsSelector){
-  const s = xjReadFold(key);
-  document.querySelectorAll('#out section.mod[id]').forEach(function(m){ if(m.id in s) m.classList.toggle('collapsed', !s[m.id]); });
-  document.querySelectorAll(detailsSelector).forEach(function(d){ if(d.id in s) d.open = !!s[d.id]; });
-}
-window.xjApplyModState = xjApplyModState;
-
-/* ===== 模块折叠态保存与应用（相术两页） =====
-   守卫由页传 getter：守卫变量可能落在页内闭包里，本件不按 window 名硬取。 */
-function xjSaveModCollapsed(key, ready, selector){
-  if(ready && !ready()) return;
-  try{
-    const o = xjReadFold(key);
-    document.querySelectorAll(selector).forEach(function(e){ o[e.id] = e.classList.contains('collapsed'); });
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem(key, v); }catch(e){}
-    try{ sessionStorage.setItem(key, v); }catch(e){}
-  }catch(e){}
-}
-window.xjSaveModCollapsed = xjSaveModCollapsed;
-
-function xjApplyModCollapsed(key, selector){
-  const o = xjReadFold(key);
-  try{
-    document.querySelectorAll(selector).forEach(function(e){
-      if(o[e.id] === true) e.classList.add('collapsed');
-      else if(o[e.id] === false) e.classList.remove('collapsed');
-    });
-  }catch(e){}
-}
-window.xjApplyModCollapsed = xjApplyModCollapsed;
-
-/* ===== 模块折叠态保存与应用（引擎件：含内部折叠块 _zr） ===== */
-function xjSaveEngineModState(key, ready, idsFn){
-  if(ready && !ready()) return;
-  try{
-    const o = xjReadFold(key);
-    idsFn().forEach(function(id){ const e = document.getElementById(id); if(e) o[id] = e.classList.contains('collapsed'); });
-    try{
-      const zr = (o._zr && typeof o._zr === 'object') ? o._zr : {};
-      document.querySelectorAll('details[id]').forEach(function(d){ zr[d.id] = d.open; });
-      if(Object.keys(zr).length) o._zr = zr;
-    }catch(e){}
-    const v = JSON.stringify(o);
-    try{ localStorage.setItem(key, v); }catch(e){}
-    try{ sessionStorage.setItem(key, v); }catch(e){}
-  }catch(e){}
-}
-window.xjSaveEngineModState = xjSaveEngineModState;
-
-function xjApplyEngineModState(key, idsFn){
-  const o = xjReadFold(key);
-  try{
-    idsFn().forEach(function(id){
-      const e = document.getElementById(id); if(!e) return;
-      if(o[id] === true) e.classList.add('collapsed');
-      else if(o[id] === false) e.classList.remove('collapsed');
-    });
-    if(o._zr && typeof o._zr === 'object'){
-      Object.keys(o._zr).forEach(function(id){ const d = document.getElementById(id); if(d && d.tagName === 'DETAILS') d.open = (o._zr[id] === true); });
-    }
-  }catch(e){}
-}
-window.xjApplyEngineModState = xjApplyEngineModState;
 /* ===== 五行关系码（全站共用） =====
    同我、我生、生我、我克、克我五态；称谓由页映射。五行生克两表在此存全站定本一份，
    调用缺省即用定本；个别体系另有生克取法时仍可显式传入，不传即取定本。 */
@@ -859,8 +724,11 @@ window.xjShuffle = xjShuffle;
        与下面的位置回填抢位置。刷新且有已存位置时先摘掉 hash，只由回填定位；
        新开链接仍保留 hash，深链照常。 */
     var navEntry=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||null;
+    var navType=navEntry?navEntry.type:'';
     var isReload=navEntry?navEntry.type==='reload':!!(performance.navigation&&performance.navigation.type===1);
-    if(isReload&&rd(K_S)&&location.hash){
+    /* 旧滚动位置只服务刷新与前进后退；从别的页新进入一律回顶，免得带入本页旧位置。 */
+    var isHistory=isReload||navType==='back_forward';
+    if(isHistory&&rd(K_S)&&location.hash){
       try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
     }
 
@@ -950,13 +818,13 @@ window.xjShuffle = xjShuffle;
       /* 结果由结果快照恢复，首屏不在加载时重算。 */
       /* 深链优先：非刷新导航带 hash 时，以 hash 目标为准；本页旧滚动位置与旧锚点只服务刷新回填。 */
       var hashId='';
-      if(!isReload&&location.hash){
+      if(!isHistory&&location.hash){
         try{ hashId=decodeURIComponent(location.hash.slice(1)); }catch(e){ hashId=location.hash.slice(1); }
       }
       var hashEl=hashId?document.getElementById(hashId):null;
-      var sy=hashEl?0:parseInt(rd(K_S)||'0',10);
+      var sy=hashEl?0:(isHistory?parseInt(rd(K_S)||'0',10):0);
       var anchor=null;
-      if(!hashEl&&typeof window.xjRefreshAnchor==='function'){
+      if(isHistory&&!hashEl&&typeof window.xjRefreshAnchor==='function'){
         try{ anchor=JSON.parse(rd(K_A)||'null'); }catch(e){ anchor=null; }
       }
       var anchorEl=hashEl||(anchor&&anchor.id?document.getElementById(anchor.id):null);

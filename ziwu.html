@@ -26,6 +26,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"玄机排盘","alternateName":"XuanJi PaiPan","url":"https://gaoren.org/","inLanguage":"zh-CN"},{"@type":"WebApplication","name":"玄机排盘","url":"https://gaoren.org/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}]}</script>
 <link rel="stylesheet" href="assets/dist/css/base.css">
 <style data-critical>/* 本页首屏样式。 */
 
@@ -149,11 +150,27 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .fei-n{font-size:20px}
 }
 
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
 #out + *{margin-top:var(--sp-4)}
 
 @media(max-width:640px){
 .zp-yun-tbl td.lbl{white-space:nowrap;overflow-wrap:normal}
 }
+
+.field.chk{flex-direction:row;align-items:center;gap:var(--sp-1);min-width:auto}
+
+.field.chk input{width:auto;height:auto;padding:0}
 
 @media(max-width:640px){
 .opts-row{gap:var(--sp-2)}
@@ -506,6 +523,8 @@ table.yun-tbl.yd th:nth-child(1),table.yun-tbl.yd td:nth-child(1),
 
 .mod-sub{font-size:12px;color:var(--ink2);margin-left:var(--sp-1)}
 
+.mod-body{overflow:visible;text-align:left}
+
 .mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
 
 .mod:last-child{margin-bottom:0}
@@ -584,9 +603,40 @@ table.yun-tbl.yd th:nth-child(3),table.yun-tbl.yd td:nth-child(3){width:auto}
 table.yun-tbl.yd th:nth-child(4),table.yun-tbl.yd td:nth-child(4){width:3em}
 }
 
+.wheel{display:block;width:100%;max-width:400px;height:auto;margin:0 auto;font-family:var(--wheel-serif,var(--font-serif));
+/* 🔴 盘内只有 .w-hit 可交互，其余（弧、刻度、圈线、指针、盘心字、内外圈字）一律不接事件。 */
+  pointer-events:none}
+
+.wheel .w-ring{fill:none;stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+
+.wheel .w-core{fill:var(--wheel-core,#fff);stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+
+.wheel .w-arc{fill:none;stroke:var(--wheel-arc,#666);stroke-width:3;stroke-opacity:.22;stroke-linecap:butt}
+
+.wheel .w-arc-cur{stroke:var(--wheel-cur,#333);stroke-width:4;stroke-opacity:1}
+
+.wheel .w-lab{font-size:12.5px;fill:var(--wheel-ink,#444);text-anchor:middle;dominant-baseline:central}
+
+.wheel .w-lab-lg{font-size:13px}
+
+.wheel .w-lab-xl{font-size:14px}
+
+.wheel .w-lab-cur{font-weight:700;fill:var(--wheel-cur,#333)}
+
+.wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all;-webkit-tap-highlight-color:transparent}
+
+.wheel .w-hit:focus{outline:none}
+
+.wheel .w-sel{fill:none;pointer-events:none}
+
 @media (hover:hover) and (pointer:fine){
 .wheel .w-hit:hover+.w-sel{fill:var(--wheel-arc,#666);fill-opacity:.22}
 }
+
+.wheel-block{text-align:center}
+
+.wheel-detail{margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px solid var(--wheel-line,#c9c9c9);
+  font-size:12.5px;line-height:1.8;letter-spacing:.04em;color:var(--wheel-ink,#444);text-align:center}
 
 @media(max-width:640px){
 .wheel-wheels{grid-template-columns:1fr;gap:var(--sp-4)}
@@ -638,6 +688,58 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .nf-home:hover{border-color:#c65a48;color:#c65a48}
 }
+
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+.field.chk span{font-size:13px;color:var(--ink2)}
+
+.cs-head{display:flex;align-items:baseline;gap:var(--sp-2);margin:var(--sp-2) 0 var(--sp-1)}
+
+.cs-head b{font-size:var(--tier4);color:var(--tk2,var(--gold2));font-weight:400}
+
+.cs-head span{font-size:var(--tier4);color:var(--ink2)}
+
+.cs-ch{padding:var(--sp-3) 0;border-top:1px solid var(--tk-line,var(--line))}
+
+.cs-ch:first-of-type{border-top:0;padding-top:0}
+
+.cs-ch-h{font-size:var(--tier4);color:var(--tk2,var(--gold2));font-weight:400;margin-bottom:var(--sp-2)}
+
+#csBlock .cs-ch{padding:var(--sp-2) 0;border-top:1px solid var(--tk-line,var(--line))}
+
+#csBlock .cs-ch:first-of-type{border-top:0;padding-top:0}
+
+#csBlock .cs-ch:last-of-type{padding-bottom:0}
+
+#csBlock .cs-ch>*{margin-top:0;margin-bottom:0}
+
+#csBlock .cs-ch>*+*{margin-top:var(--sp-3)}
+
+#csBlock .cs-ch-h{margin:0 0 var(--sp-3)}
+
+#csBlock .cs-ch .form-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0}
+
+#csBlock .field label{color:var(--gold2)}
+
+#csBlock #csTip{display:block;line-height:1.6}
+
+#csBlock #csPresetNote{display:block;margin:var(--sp-2) 0 0}
+
+#csBlock #csGuide{display:block;margin-top:var(--sp-2)}
+
+.cs-ch:last-of-type{padding-bottom:0}
 
 .form-row .field input[type="text"].dt-input{width:96px}
 
@@ -698,11 +800,63 @@ body{--footer-ink:#556226;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 .page-ziwu .btn:not(.soft):not(.btn-ghost):hover,.page-ziwu .btn.gold:hover{background:var(--jl2);border-color:var(--jl2);color:#fff}
 
+.page-ziwu .ai-block .btn{border-radius:0}
+
+.page-ziwu .ai-block .btn.gold,.page-ziwu .ai-block .btn.soft{background:var(--jl-tint);border-color:var(--jl-line);color:var(--jl-ink)}
+
+.page-ziwu .ai-block .btn.gold:hover,.page-ziwu .ai-block .btn.soft:hover{background:#fff;border-color:var(--jl);color:var(--jl2)}
+
 .dtm-ziwu{--tk:#6b7a35;--tk2:#556226;--tk-ink:#333d1a;--tk-line:#d9e0c8;--tk-tint:#f2f5e9}
+
+.wheel{display:block;width:100%;max-width:400px;height:auto;margin:0 auto;font-family:var(--wheel-serif,var(--font-serif));
+/* 盘内只有 .w-hit 可交互，其余（弧、刻度、圈线、指针、盘心字、内外圈字）一律不接事件。 */
+  pointer-events:none}
+
+.wheel .w-ring{fill:none;stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+
+.wheel .w-core{fill:var(--wheel-core,#fff);stroke:var(--wheel-line,#c9c9c9);stroke-width:1}
+
+.wheel .w-arc{fill:none;stroke:var(--wheel-arc,#666);stroke-width:3;stroke-opacity:.22;stroke-linecap:butt}
+
+.wheel .w-arc-cur{stroke:var(--wheel-cur,#333);stroke-width:4;stroke-opacity:1}
+
+.wheel .w-lab{font-size:12.5px;fill:var(--wheel-ink,#444);text-anchor:middle;dominant-baseline:central}
+
+.wheel .w-lab-lg{font-size:13px}
+
+.wheel .w-lab-xl{font-size:14px}
+
+.wheel .w-lab-cur{font-weight:700;fill:var(--wheel-cur,#333)}
+
+.wheel .w-hit{fill:transparent;cursor:pointer;pointer-events:all;-webkit-tap-highlight-color:transparent}
+
+.wheel .w-hit:focus{outline:none}
+
+.wheel .w-sel{fill:none;pointer-events:none}
 
 @media (hover:hover) and (pointer:fine){
 .wheel .w-hit:hover+.w-sel{fill:var(--wheel-arc,#666);fill-opacity:.22}
 }
+
+.page-ziwu .wheel .w-lab-xl{font-size:13px}
+
+.page-ziwu .wheel .w-lab-lg{font-size:12px}
+
+.page-ziwu .wheel .w-lab-cur{font-weight:400}
+
+.page-ziwu .w-hour{font-size:9px;fill:var(--wheel-ink2);text-anchor:middle;dominant-baseline:central}
+
+.page-ziwu .w-hour-dot{fill:var(--wheel-core);stroke:var(--wheel-line);stroke-width:.8}
+
+.page-ziwu .w-tick-24{stroke:var(--wheel-line);stroke-width:1}
+
+.page-ziwu .w-tick-24m{stroke:var(--wheel-ink2)}
+
+.page-ziwu .w-hand-hour{stroke:var(--wheel-ink);stroke-width:3;stroke-linecap:round}
+
+.page-ziwu .w-hand-min{stroke:var(--wheel-cur);stroke-width:1.5;stroke-linecap:round}
+
+.page-ziwu .w-pin{fill:var(--wheel-deep)}
 
 .page-ziwu .page h1{color:var(--jl-deep);font-family:var(--jl-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
 
@@ -730,6 +884,28 @@ body{--footer-ink:#556226;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 .page-ziwu .mod-sub{color:var(--jl-ink2)}
 
+.page-ziwu .jl-tbl-wrap{margin-top:var(--sp-3);overflow-x:auto}
+
+.page-ziwu .jl-tbl{width:100%;border-collapse:collapse;font-size:13px;line-height:1.6;border-top:1px solid var(--jl-line)}
+
+.page-ziwu .jl-tbl th{background:var(--jl-tint);text-align:left;font-weight:400;white-space:nowrap;color:var(--jl2);border:0;border-bottom:1px solid var(--jl-line);padding:6px 9px}
+
+.page-ziwu .jl-tbl td{border:0;border-bottom:1px solid var(--jl-line);padding:6px 9px;vertical-align:top;color:var(--jl-ink)}
+
+.page-ziwu .jl-tbl .jl-c0{white-space:nowrap;color:var(--jl-ink2)}
+
+.page-ziwu .jl-kv{display:grid;grid-template-columns:88px 1fr;gap:var(--sp-2) var(--sp-3)}
+
+.page-ziwu .jl-kv>div{display:contents}
+
+.page-ziwu .jl-kv dt{color:var(--jl2);font-size:13px;line-height:1.8}
+
+.page-ziwu .jl-kv dd{color:var(--jl-ink);font-size:13.5px;line-height:1.8}
+
+.page-ziwu .jl-note{margin-top:var(--sp-3);font-size:12px;line-height:1.6;color:var(--jl-ink2)}
+
+.page-ziwu .jl-sub{font-size:var(--tier4);font-weight:400;color:var(--jl2);letter-spacing:.06em;margin:var(--sp-3) 0 0}
+
 .page-ziwu .jl-page-note{margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px solid var(--jl-line);font-size:12px;line-height:1.8;color:var(--jl-ink2)}
 
 .page-ziwu .ai-block{border-color:var(--jl-line)}
@@ -754,16 +930,15 @@ body{--footer-ink:#556226;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 .page-ziwu .jl-strip{display:none}
 
 .page-ziwu .jl-query,.page-ziwu .jl-point-query,.page-ziwu .jl-ziliu-query,.page-ziwu .btn{display:none}
-}</style>
+}</style><script>try{if(document.fonts&&document.fonts.load){document.fonts.load('400 12px "Noto Serif SC Page"','\u7384\u673a\u6392\u76d8\u9996\u9875\u5386\u6cd5\u547d\u7406\u4e09\u5f0f\u5360\u535c\u6c11\u4fd7\u8fd0\u6c14\u517b\u751f\u76f8\u672f\u9644\u5f55AI');}}catch(e){}</script>
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols.woff2">
 <link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
 <link rel="stage2-css" href="assets/dist/fonts/fonts.css">
 <noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
-<link rel="stage2-css" href="assets/dist/css/ziwu.css">
-<noscript><link rel="stylesheet" href="assets/dist/css/ziwu.css"></noscript>
+<link rel="stylesheet" href="assets/dist/css/ziwu.css">
 </head>
-<body>
+<body data-prerendered="1">
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
     <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
@@ -844,49 +1019,26 @@ body{--footer-ink:#556226;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
   <p class="lead">十二时辰气血流注，按经查穴，按时取穴。</p>
 
   <div class="form-row jl-query">
-    <div class="field"><label for="jlDate">日期</label><span class="dt-wrap dtm-ziwu"><input id="jlDate" type="text" class="dt-input" placeholder="YYYY-MM-DD" data-norefresh aria-label="公历日期"></span></div>
-    <div class="field"><label for="jlTime">时刻</label><span class="dt-wrap dtm-ziwu"><input id="jlTime" type="time" data-norefresh aria-label="时刻"></span></div>
+    <div class="field"><label for="jlDate">日期</label><span class="dt-wrap dtm-ziwu"><input id="jlDate" type="text" class="dt-input" placeholder="YYYY-MM-DD" data-norefresh="" aria-label="公历日期" data-autonow="1" readonly=""></span></div>
+    <div class="field"><label for="jlTime">时刻</label><span class="dt-wrap dtm-ziwu"><input id="jlTime" type="time" data-norefresh="" aria-label="时刻" data-autonow="1" class="dt-input" readonly=""></span></div>
     <button id="jlBtn" class="btn gold" type="button">查询</button>
   </div>
 
   <div id="jlOut" aria-live="polite"></div>
-
-  <section class="mod collapsed" id="jlmod-wheel">
-    <div class="mod-head" onclick="toggleMod('jlmod-wheel')"><span class="mod-caret">▾</span><span class="mod-title">十二时辰经络盘</span><span class="mod-sub">十二时辰配十二经</span></div>
-    <div class="mod-body">
-      <div class="wheel-block">
-        <div id="jlWheelHost"></div>
-        <div class="wheel-detail" id="jlWheelDetail"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="mod collapsed" id="jlmod-meridians">
-    <div class="mod-head" onclick="toggleMod('jlmod-meridians')"><span class="mod-caret">▾</span><span class="mod-title">十二经脉</span><span class="mod-sub">二十条经脉的循行、病候与穴位</span></div>
-    <div class="mod-body">
-      <div id="jlMeridianOut"></div>
-      <div id="jlMeridianDetail"></div>
-    </div>
-  </section>
 
   <section class="mod collapsed" id="jlmod-points">
     <div class="mod-head" onclick="toggleMod('jlmod-points')"><span class="mod-caret">▾</span><span class="mod-title">穴位查询</span><span class="mod-sub">按穴名、归经、部位与主治检索</span></div>
     <div class="mod-body">
       <div class="form-row jl-point-query">
         <div class="field"><label for="jlPointKw">关键词</label><input id="jlPointKw" type="text" placeholder="穴名、代码或主治" aria-label="穴位关键词"></div>
-        <div class="field"><label for="jlPointMer">归经</label><select id="jlPointMer" aria-label="按归经筛选"><option value="">全部经络</option></select></div>
-        <div class="field"><label for="jlPointRegion">部位</label><select id="jlPointRegion" aria-label="按部位筛选"><option value="">全部部位</option></select></div>
+        <div class="field"><label for="jlSymptom">症状速查</label><select id="jlSymptom" aria-label="按症状查穴"><option value="">选择症状</option><option value="头痛">头痛</option><option value="失眠">失眠</option><option value="胃痛">胃痛</option><option value="咳嗽">咳嗽</option><option value="腰痛">腰痛</option><option value="便秘">便秘</option><option value="呕吐">呕吐</option><option value="眩晕">眩晕</option><option value="耳鸣">耳鸣</option><option value="牙痛">牙痛</option><option value="咽喉">咽喉</option><option value="心悸">心悸</option><option value="月经">月经</option><option value="发热">发热</option></select></div>
+        <button id="jlSymptomBtn" class="btn soft" type="button">查症状</button>
+        <div class="field"><label for="jlPointMer">归经</label><select id="jlPointMer" aria-label="按归经筛选"><option value="">全部经络</option><option value="lung">手太阴肺经</option><option value="large-intestine">手阳明大肠经</option><option value="stomach">足阳明胃经</option><option value="spleen">足太阴脾经</option><option value="heart">手少阴心经</option><option value="small-intestine">手太阳小肠经</option><option value="bladder">足太阳膀胱经</option><option value="kidney">足少阴肾经</option><option value="pericardium">手厥阴心包经</option><option value="triple-burner">手少阳三焦经</option><option value="gallbladder">足少阳胆经</option><option value="liver">足厥阴肝经</option><option value="ren">任脉</option><option value="du">督脉</option><option value="chong">冲脉</option><option value="dai">带脉</option><option value="yinwei">阴维脉</option><option value="yangwei">阳维脉</option><option value="yinqiao">阴跷脉</option><option value="yangqiao">阳跷脉</option><option value="extra">经外奇穴</option></select></div>
+        <div class="field"><label for="jlPointRegion">部位</label><select id="jlPointRegion" aria-label="按部位筛选"><option value="">全部部位</option><option value="上臂">上臂</option><option value="会阴部">会阴部</option><option value="体表相关区域">体表相关区域</option><option value="前臂">前臂</option><option value="大腿">大腿</option><option value="头">头</option><option value="头部">头部</option><option value="小腿">小腿</option><option value="手指">手指</option><option value="手掌">手掌</option><option value="手部">手部</option><option value="拇指">拇指</option><option value="经外">经外</option><option value="肘部">肘部</option><option value="肩部">肩部</option><option value="背">背</option><option value="背部">背部</option><option value="胸侧部">胸侧部</option><option value="胸前部">胸前部</option><option value="腋部">腋部</option><option value="腕部">腕部</option><option value="腰">腰</option><option value="腰部">腰部</option><option value="腹部">腹部</option><option value="膝部">膝部</option><option value="臀部">臀部</option><option value="足底">足底</option><option value="足趾">足趾</option><option value="足部">足部</option><option value="踝部">踝部</option><option value="面">面</option><option value="面部">面部</option><option value="项">项</option><option value="颈部">颈部</option><option value="骶">骶</option><option value="骶部">骶部</option></select></div>
         <button id="jlPointBtn" class="btn gold" type="button">查穴</button>
       </div>
-      <div id="jlPointOut"></div>
-      <div id="jlPointDetail"></div>
-    </div>
-  </section>
-
-  <section class="mod collapsed" id="jlmod-specific">
-    <div class="mod-head" onclick="toggleMod('jlmod-specific')"><span class="mod-caret">▾</span><span class="mod-title">特定穴</span><span class="mod-sub">五输、原络郄募俞、八会、八脉交会、下合</span></div>
-    <div class="mod-body">
-      <div id="jlSpecificOut"></div>
+      <div id="jlPointOut"><div class="jl-note">共 11 穴。</div><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>穴名</th><th>代码</th><th>归经</th><th>部位</th><th>功效</th></tr></thead><tbody><tr data-point="中府"><td class="jl-c0">中府</td><td>LU1</td><td>手太阴肺经</td><td>胸前部</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="云门"><td class="jl-c0">云门</td><td>LU2</td><td>手太阴肺经</td><td>胸前部</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="天府"><td class="jl-c0">天府</td><td>LU3</td><td>手太阴肺经</td><td>上臂</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="侠白"><td class="jl-c0">侠白</td><td>LU4</td><td>手太阴肺经</td><td>上臂</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="尺泽"><td class="jl-c0">尺泽</td><td>LU5</td><td>手太阴肺经</td><td>肘部</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="孔最"><td class="jl-c0">孔最</td><td>LU6</td><td>手太阴肺经</td><td>前臂</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="列缺"><td class="jl-c0">列缺</td><td>LU7</td><td>手太阴肺经</td><td>前臂</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="经渠"><td class="jl-c0">经渠</td><td>LU8</td><td>手太阴肺经</td><td>前臂</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="太渊"><td class="jl-c0">太渊</td><td>LU9</td><td>手太阴肺经</td><td>腕部</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="鱼际"><td class="jl-c0">鱼际</td><td>LU10</td><td>手太阴肺经</td><td>手掌</td><td>宣肺理气，止咳平喘</td></tr><tr data-point="少商"><td class="jl-c0">少商</td><td>LU11</td><td>手太阴肺经</td><td>拇指</td><td>宣肺理气，止咳平喘</td></tr></tbody></table></div></div>
+      <div id="jlPointDetail"><div class="jl-card"><h4><b>中府</b> LU1　Zhōngfǔ</h4><dl class="jl-kv"><div><dt>归经</dt><dd>手太阴肺经</dd></div><div><dt>部位</dt><dd>胸前部</dd></div><div><dt>定位</dt><dd>锁骨下窝外侧，前正中线旁开6寸，平第1肋间隙</dd></div><div><dt>取法</dt><dd>仰卧，按肋间隙、正中线与旁开寸数取穴</dd></div><div><dt>针刺</dt><dd>向外斜刺0.5-0.8寸，不可向内深刺<span class="jl-op-src">（《针灸学》通行本）</span></dd></div><div><dt>功效</dt><dd>宣肺理气，止咳平喘</dd></div><div><dt>主治</dt><dd>咳嗽、哮喘、胸痛、胸满</dd></div><div><dt>特定穴</dt><dd><span class="jl-tag">募穴</span></dd></div><div><dt>安全</dt><dd>未列特殊禁忌</dd></div><div><dt>出处</dt><dd class="jl-src">定位取 GB/T 12346-2021；主治取世界卫生组织标准与《针灸学》通行本</dd></div></dl></div></div>
     </div>
   </section>
 
@@ -894,37 +1046,152 @@ body{--footer-ink:#556226;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
     <div class="mod-head" onclick="toggleMod('jlmod-ziliu')"><span class="mod-caret">▾</span><span class="mod-title">子午流注开穴</span><span class="mod-sub">纳支补泻、飞腾八法、纳甲与灵龟八法</span></div>
     <div class="mod-body">
       <div class="form-row jl-ziliu-query">
-        <div class="field"><label for="jlZiliuDate">日期</label><span class="dt-wrap dtm-ziwu"><input id="jlZiliuDate" type="text" class="dt-input" placeholder="YYYY-MM-DD" data-norefresh aria-label="开穴日期"></span></div>
-        <div class="field"><label for="jlZiliuTime">时刻</label><span class="dt-wrap dtm-ziwu"><input id="jlZiliuTime" type="time" data-norefresh aria-label="开穴时刻"></span></div>
-        <div class="field"><label for="jlZiliuMode">补泻</label><select id="jlZiliuMode" aria-label="选择补泻"><option value="bu" selected>补法</option><option value="xie">泻法</option></select></div>
+        <div class="field"><label for="jlZiliuDate">日期</label><span class="dt-wrap dtm-ziwu"><input id="jlZiliuDate" type="text" class="dt-input" placeholder="YYYY-MM-DD" data-norefresh="" aria-label="开穴日期" data-autonow="1" readonly=""></span></div>
+        <div class="field"><label for="jlZiliuTime">时刻</label><span class="dt-wrap dtm-ziwu"><input id="jlZiliuTime" type="time" data-norefresh="" aria-label="开穴时刻" data-autonow="1" class="dt-input" readonly=""></span></div>
+        <div class="field"><label for="jlZiliuMode">补泻</label><select id="jlZiliuMode" aria-label="选择补泻"><option value="bu" selected="">补法</option><option value="xie">泻法</option></select></div>
         <button id="jlZiliuBtn" class="btn gold" type="button">查询</button>
       </div>
-      <div id="jlZiliuOut"></div>
+      <div id="jlZiliuOut"><div class="jl-note">日柱按晚子时计，二十三时后归次日，与全站子时算法同口径。</div><div class="jl-card"><h4><b>纳支法</b> 补母</h4><dl class="jl-kv"><div><dt>时辰</dt><dd>亥时 21:00-23:00　手少阳三焦经</dd></div><div><dt>日时干支</dt><dd>乙未日 丁亥时</dd></div><div><dt>本经五行</dt><dd>火</dd></div><div><dt>取穴</dt><dd>中渚（输，木）</dd></div><div><dt>主治</dt><dd>头痛、目赤、耳聋、耳鸣、咽喉痛、热病</dd></div></dl></div><div class="jl-card"><h4><b>飞腾八法</b> 取穴</h4><dl class="jl-kv"><div><dt>取穴</dt><dd>照海</dd></div><div><dt>归经</dt><dd>足少阴肾经</dd></div><div><dt>主治</dt><dd>月经不调、带下病、子宫脱垂、瘙痒、尿潴留、便秘</dd></div></dl><div class="jl-src">取穴据《针灸大全》卷五飞腾八法。歌诀：壬甲公孙即是乾，丙居艮上内关然，戊为临泣生坎水，庚属外关震相连，辛上后溪装巽卦，乙癸申脉到坤传，己土列缺南离上，丁居照海兑金全。</div></div><div class="jl-card"><h4><b>纳甲法</b> 开穴</h4><dl class="jl-kv"><div><dt>日干</dt><dd>乙日</dd></div><div><dt>时支</dt><dd>亥时</dd></div><div><dt>开穴</dt><dd>少府（荥，火）</dd></div></dl><div class="jl-src">开穴据《针灸大全》卷五纳甲法。</div></div><div class="jl-card"><h4><b>灵龟八法</b> 配穴</h4><dl class="jl-kv"><div><dt>日时</dt><dd>乙未日　丁亥时</dd></div><div><dt>配穴</dt><dd>照海</dd></div><div><dt>归经</dt><dd>足少阴肾经</dd></div><div><dt>主治</dt><dd>月经不调、带下病、子宫脱垂、瘙痒、尿潴留、便秘</dd></div></dl><div class="jl-src">取穴据《针灸大全》卷五灵龟八法。</div></div><h4 class="jl-sub">纳甲法歌诀</h4><ol class="jl-steps"><li>甲日戌时胆窍阴，丙子时中前谷荥，戊寅陷谷阳明俞，返本丘墟木在寅，庚辰经注阳溪穴，壬午膀胱委中寻，甲申时纳三焦水，荥合天干取液门。</li><li>乙日酉时肝大敦，丁亥时荥少府心，己丑太白太冲穴，辛卯经渠是肺经，癸巳肾宫阴谷合，乙未劳宫火穴荥。</li><li>丙日申时少泽当，戊戌内庭治胀康，庚子时在三间俞，本原腕骨可祛黄，壬寅经火昆仑上，甲辰阳陵泉合长，丙午时受三焦木，中渚之中仔细详。</li><li>丁日未时心少冲，己酉大都脾土逢，辛亥太渊神门穴，癸丑复溜肾水通，乙卯肝经曲泉合，丁巳包络大陵中。</li><li>戊日午时厉兑先，庚申荥穴二间迁，壬戌膀胱寻束骨，冲阳土穴必还原，甲子胆经阳辅是，丙寅小海穴安然，戊辰气纳三焦脉，经穴支沟刺必痊。</li><li>己日巳时隐白始，辛未时中鱼际取，癸酉太溪太白原，乙亥中封内踝比，丁丑时合少海心，己卯间使包络止。</li><li>庚日辰时商阳居，壬午膀胱通谷之，甲申临泣为俞木，合谷金原返本归，丙戌小肠阳谷火，戊子时居三里宜，庚寅气纳三焦合，天井之中不用疑。</li><li>辛日卯时少商本，癸巳然谷何须忖，乙未太冲原太渊，丁酉心经灵道引，己亥脾合阴陵泉，辛丑曲泽包络准。</li><li>壬日寅时起至阴，甲辰胆脉侠溪荥，丙午小肠后溪俞，返求京骨本原寻，三焦寄有阳池穴，返本还原似嫡亲，戊申时注解溪胃，大肠庚戌曲池真，壬子气纳三焦寄，井穴关冲一片金，关冲属金壬属水，子母相生恩义深。</li><li>癸日亥时井涌泉，乙丑行间穴必然，丁卯输穴神门是，本寻肾水太溪原，包络大陵原并过，己巳商丘内踝边，辛未肺经合尺泽，癸酉中冲包络连。</li></ol><h4 class="jl-sub">灵龟八法歌</h4><p class="jl-note">坎一联申脉，照海坤二五，震三属外关，巽四临泣数，乾六是公孙，兑七后溪府，艮八系内关，离九列缺主。出《针灸大全》卷五灵龟八法。</p></div>
     </div>
   </section>
 
-  <section class="mod collapsed" id="jlmod-yuanliu">
-    <div class="mod-head" onclick="toggleMod('jlmod-yuanliu')"><span class="mod-caret">▾</span><span class="mod-title">经络源流与典籍</span><span class="mod-sub">经络学说源流、取穴凡例与典籍对照</span></div>
+  <details class="mh-ref" id="jlmod-wheel">
+    <summary>十二时辰经络盘<span class="mod-sub">十二时辰配十二经</span></summary>
     <div class="mod-body">
-      <div id="jlYuanliuOut"></div>
+      <div class="wheel-block">
+        <div id="jlWheelHost"><svg class="wheel" id="jlWheel" viewBox="0 0 440 440" role="img" aria-label="十二时辰经络盘"><path d="M170.3 34.5A192 192 0 0 1 269.7 34.5" class="w-arc"></path><path d="M269.7 34.5A192 192 0 0 1 355.8 84.2" class="w-arc"></path><path d="M355.8 84.2A192 192 0 0 1 405.5 170.3" class="w-arc"></path><path d="M405.5 170.3A192 192 0 0 1 405.5 269.7" class="w-arc"></path><path d="M405.5 269.7A192 192 0 0 1 355.8 355.8" class="w-arc"></path><path d="M355.8 355.8A192 192 0 0 1 269.7 405.5" class="w-arc"></path><path d="M269.7 405.5A192 192 0 0 1 170.3 405.5" class="w-arc"></path><path d="M170.3 405.5A192 192 0 0 1 84.2 355.8" class="w-arc"></path><path d="M84.2 355.8A192 192 0 0 1 34.5 269.7" class="w-arc"></path><path d="M34.5 269.7A192 192 0 0 1 34.5 170.3" class="w-arc"></path><path d="M34.5 170.3A192 192 0 0 1 84.2 84.2" class="w-arc"></path><path d="M84.2 84.2A192 192 0 0 1 170.3 34.5" class="w-arc"></path><path d="M168.8 28.7A198 198 0 0 1 271.2 28.7L251.1 104.1A120 120 0 0 0 188.9 104.1Z" class="w-hit" data-i="0" onclick="jlPickJingluo(0)"></path><path d="M168.8 28.7A198 198 0 0 1 271.2 28.7L251.1 104.1A120 120 0 0 0 188.9 104.1Z" class="w-sel"></path><path d="M271.2 28.7A198 198 0 0 1 360 80L304.9 135.1A120 120 0 0 0 251.1 104.1Z" class="w-hit" data-i="1" onclick="jlPickJingluo(1)"></path><path d="M271.2 28.7A198 198 0 0 1 360 80L304.9 135.1A120 120 0 0 0 251.1 104.1Z" class="w-sel"></path><path d="M360 80A198 198 0 0 1 411.3 168.8L335.9 188.9A120 120 0 0 0 304.9 135.1Z" class="w-hit" data-i="2" onclick="jlPickJingluo(2)"></path><path d="M360 80A198 198 0 0 1 411.3 168.8L335.9 188.9A120 120 0 0 0 304.9 135.1Z" class="w-sel"></path><path d="M411.3 168.8A198 198 0 0 1 411.3 271.2L335.9 251.1A120 120 0 0 0 335.9 188.9Z" class="w-hit" data-i="3" onclick="jlPickJingluo(3)"></path><path d="M411.3 168.8A198 198 0 0 1 411.3 271.2L335.9 251.1A120 120 0 0 0 335.9 188.9Z" class="w-sel"></path><path d="M411.3 271.2A198 198 0 0 1 360 360L304.9 304.9A120 120 0 0 0 335.9 251.1Z" class="w-hit" data-i="4" onclick="jlPickJingluo(4)"></path><path d="M411.3 271.2A198 198 0 0 1 360 360L304.9 304.9A120 120 0 0 0 335.9 251.1Z" class="w-sel"></path><path d="M360 360A198 198 0 0 1 271.2 411.3L251.1 335.9A120 120 0 0 0 304.9 304.9Z" class="w-hit" data-i="5" onclick="jlPickJingluo(5)"></path><path d="M360 360A198 198 0 0 1 271.2 411.3L251.1 335.9A120 120 0 0 0 304.9 304.9Z" class="w-sel"></path><path d="M271.2 411.3A198 198 0 0 1 168.8 411.3L188.9 335.9A120 120 0 0 0 251.1 335.9Z" class="w-hit" data-i="6" onclick="jlPickJingluo(6)"></path><path d="M271.2 411.3A198 198 0 0 1 168.8 411.3L188.9 335.9A120 120 0 0 0 251.1 335.9Z" class="w-sel"></path><path d="M168.8 411.3A198 198 0 0 1 80 360L135.1 304.9A120 120 0 0 0 188.9 335.9Z" class="w-hit" data-i="7" onclick="jlPickJingluo(7)"></path><path d="M168.8 411.3A198 198 0 0 1 80 360L135.1 304.9A120 120 0 0 0 188.9 335.9Z" class="w-sel"></path><path d="M80 360A198 198 0 0 1 28.7 271.2L104.1 251.1A120 120 0 0 0 135.1 304.9Z" class="w-hit" data-i="8" onclick="jlPickJingluo(8)"></path><path d="M80 360A198 198 0 0 1 28.7 271.2L104.1 251.1A120 120 0 0 0 135.1 304.9Z" class="w-sel"></path><path d="M28.7 271.2A198 198 0 0 1 28.7 168.8L104.1 188.9A120 120 0 0 0 104.1 251.1Z" class="w-hit" data-i="9" onclick="jlPickJingluo(9)"></path><path d="M28.7 271.2A198 198 0 0 1 28.7 168.8L104.1 188.9A120 120 0 0 0 104.1 251.1Z" class="w-sel"></path><path d="M28.7 168.8A198 198 0 0 1 80 80L135.1 135.1A120 120 0 0 0 104.1 188.9Z" class="w-hit" data-i="10" onclick="jlPickJingluo(10)"></path><path d="M28.7 168.8A198 198 0 0 1 80 80L135.1 135.1A120 120 0 0 0 104.1 188.9Z" class="w-sel"></path><path d="M80 80A198 198 0 0 1 168.8 28.7L188.9 104.1A120 120 0 0 0 135.1 135.1Z" class="w-hit is-on" data-i="11" onclick="jlPickJingluo(11)"></path><path d="M80 80A198 198 0 0 1 168.8 28.7L188.9 104.1A120 120 0 0 0 135.1 135.1Z" class="w-sel"></path><path id="jlWheelArc" d="M84.2 84.2A192 192 0 0 1 170.3 34.5" class="w-arc w-arc-cur"></path><text x="220" y="10" class="w-lab w-lab-xl" fill="#5a8f45" data-i="0" transform="rotate(0 220 10)">胆经</text><text x="325" y="38.1" class="w-lab w-lab-xl" fill="#5a8f45" data-i="1" transform="rotate(30 325 38.1)">肝经</text><text x="401.9" y="115" class="w-lab w-lab-xl" fill="#a8813a" data-i="2" transform="rotate(60 401.9 115)">肺经</text><text x="430" y="220" class="w-lab w-lab-xl" fill="#a8813a" data-i="3" transform="rotate(90 430 220)">大肠经</text><text x="401.9" y="325" class="w-lab w-lab-xl" fill="#876248" data-i="4" transform="rotate(120 401.9 325)">胃经</text><text x="325" y="401.9" class="w-lab w-lab-xl" fill="#876248" data-i="5" transform="rotate(150 325 401.9)">脾经</text><text x="220" y="430" class="w-lab w-lab-xl" fill="#b8543f" data-i="6" transform="rotate(180 220 430)">心经</text><text x="115" y="401.9" class="w-lab w-lab-xl" fill="#b8543f" data-i="7" transform="rotate(210 115 401.9)">小肠经</text><text x="38.1" y="325" class="w-lab w-lab-xl" fill="#3f6d96" data-i="8" transform="rotate(240 38.1 325)">膀胱经</text><text x="10" y="220" class="w-lab w-lab-xl" fill="#3f6d96" data-i="9" transform="rotate(270 10 220)">肾经</text><text x="38.1" y="115" class="w-lab w-lab-xl" fill="#b8543f" data-i="10" transform="rotate(300 38.1 115)">心包经</text><text x="115" y="38.1" class="w-lab w-lab-xl w-lab-cur" fill="#b8543f" data-i="11" transform="rotate(330 115 38.1)">三焦经</text><text x="220" y="84" class="w-lab w-lab-lg" data-i="0" transform="rotate(0 220 84)">子</text><text x="288" y="102.2" class="w-lab w-lab-lg" data-i="1" transform="rotate(-60 288 102.2)">丑</text><text x="337.8" y="152" class="w-lab w-lab-lg" data-i="2" transform="rotate(-30 337.8 152)">寅</text><text x="356" y="220" class="w-lab w-lab-lg" data-i="3" transform="rotate(0 356 220)">卯</text><text x="337.8" y="288" class="w-lab w-lab-lg" data-i="4" transform="rotate(30 337.8 288)">辰</text><text x="288" y="337.8" class="w-lab w-lab-lg" data-i="5" transform="rotate(60 288 337.8)">巳</text><text x="220" y="356" class="w-lab w-lab-lg" data-i="6" transform="rotate(0 220 356)">午</text><text x="152" y="337.8" class="w-lab w-lab-lg" data-i="7" transform="rotate(300 152 337.8)">未</text><text x="102.2" y="288" class="w-lab w-lab-lg" data-i="8" transform="rotate(330 102.2 288)">申</text><text x="84" y="220" class="w-lab w-lab-lg" data-i="9" transform="rotate(0 84 220)">酉</text><text x="102.2" y="152" class="w-lab w-lab-lg" data-i="10" transform="rotate(390 102.2 152)">戌</text><text x="152" y="102.2" class="w-lab w-lab-lg w-lab-cur" data-i="11" transform="rotate(420 152 102.2)">亥</text><line x1="220" y1="56" x2="220" y2="47" class="w-tick-24 w-tick-24m"></line><circle cx="220" cy="63" r="7" class="w-hour-dot"></circle><text x="220" y="63" class="w-hour">24</text><line x1="263.2" y1="58.7" x2="264.8" y2="52.9" class="w-tick-24"></line><circle cx="260.6" cy="68.3" r="7" class="w-hour-dot"></circle><text x="260.6" y="68.3" class="w-hour">01</text><line x1="302" y1="78" x2="306.5" y2="70.2" class="w-tick-24 w-tick-24m"></line><circle cx="298.5" cy="84" r="7" class="w-hour-dot"></circle><text x="298.5" y="84" class="w-hour">02</text><line x1="338.1" y1="101.9" x2="342.3" y2="97.7" class="w-tick-24"></line><circle cx="331" cy="109" r="7" class="w-hour-dot"></circle><text x="331" y="109" class="w-hour">03</text><line x1="362" y1="138" x2="369.8" y2="133.5" class="w-tick-24 w-tick-24m"></line><circle cx="356" cy="141.5" r="7" class="w-hour-dot"></circle><text x="356" y="141.5" class="w-hour">04</text><line x1="381.3" y1="176.8" x2="387.1" y2="175.2" class="w-tick-24"></line><circle cx="371.7" cy="179.4" r="7" class="w-hour-dot"></circle><text x="371.7" y="179.4" class="w-hour">05</text><line x1="384" y1="220" x2="393" y2="220" class="w-tick-24 w-tick-24m"></line><circle cx="377" cy="220" r="7" class="w-hour-dot"></circle><text x="377" y="220" class="w-hour">06</text><line x1="381.3" y1="263.2" x2="387.1" y2="264.8" class="w-tick-24"></line><circle cx="371.7" cy="260.6" r="7" class="w-hour-dot"></circle><text x="371.7" y="260.6" class="w-hour">07</text><line x1="362" y1="302" x2="369.8" y2="306.5" class="w-tick-24 w-tick-24m"></line><circle cx="356" cy="298.5" r="7" class="w-hour-dot"></circle><text x="356" y="298.5" class="w-hour">08</text><line x1="338.1" y1="338.1" x2="342.3" y2="342.3" class="w-tick-24"></line><circle cx="331" cy="331" r="7" class="w-hour-dot"></circle><text x="331" y="331" class="w-hour">09</text><line x1="302" y1="362" x2="306.5" y2="369.8" class="w-tick-24 w-tick-24m"></line><circle cx="298.5" cy="356" r="7" class="w-hour-dot"></circle><text x="298.5" y="356" class="w-hour">10</text><line x1="263.2" y1="381.3" x2="264.8" y2="387.1" class="w-tick-24"></line><circle cx="260.6" cy="371.7" r="7" class="w-hour-dot"></circle><text x="260.6" y="371.7" class="w-hour">11</text><line x1="220" y1="384" x2="220" y2="393" class="w-tick-24 w-tick-24m"></line><circle cx="220" cy="377" r="7" class="w-hour-dot"></circle><text x="220" y="377" class="w-hour">12</text><line x1="176.8" y1="381.3" x2="175.2" y2="387.1" class="w-tick-24"></line><circle cx="179.4" cy="371.7" r="7" class="w-hour-dot"></circle><text x="179.4" y="371.7" class="w-hour">13</text><line x1="138" y1="362" x2="133.5" y2="369.8" class="w-tick-24 w-tick-24m"></line><circle cx="141.5" cy="356" r="7" class="w-hour-dot"></circle><text x="141.5" y="356" class="w-hour">14</text><line x1="101.9" y1="338.1" x2="97.7" y2="342.3" class="w-tick-24"></line><circle cx="109" cy="331" r="7" class="w-hour-dot"></circle><text x="109" y="331" class="w-hour">15</text><line x1="78" y1="302" x2="70.2" y2="306.5" class="w-tick-24 w-tick-24m"></line><circle cx="84" cy="298.5" r="7" class="w-hour-dot"></circle><text x="84" y="298.5" class="w-hour">16</text><line x1="58.7" y1="263.2" x2="52.9" y2="264.8" class="w-tick-24"></line><circle cx="68.3" cy="260.6" r="7" class="w-hour-dot"></circle><text x="68.3" y="260.6" class="w-hour">17</text><line x1="56" y1="220" x2="47" y2="220" class="w-tick-24 w-tick-24m"></line><circle cx="63" cy="220" r="7" class="w-hour-dot"></circle><text x="63" y="220" class="w-hour">18</text><line x1="58.7" y1="176.8" x2="52.9" y2="175.2" class="w-tick-24"></line><circle cx="68.3" cy="179.4" r="7" class="w-hour-dot"></circle><text x="68.3" y="179.4" class="w-hour">19</text><line x1="78" y1="138" x2="70.2" y2="133.5" class="w-tick-24 w-tick-24m"></line><circle cx="84" cy="141.5" r="7" class="w-hour-dot"></circle><text x="84" y="141.5" class="w-hour">20</text><line x1="101.9" y1="101.9" x2="97.7" y2="97.7" class="w-tick-24"></line><circle cx="109" cy="109" r="7" class="w-hour-dot"></circle><text x="109" y="109" class="w-hour">21</text><line x1="138" y1="78" x2="133.5" y2="70.2" class="w-tick-24 w-tick-24m"></line><circle cx="141.5" cy="84" r="7" class="w-hour-dot"></circle><text x="141.5" y="84" class="w-hour">22</text><line x1="176.8" y1="58.7" x2="175.2" y2="52.9" class="w-tick-24"></line><circle cx="179.4" cy="68.3" r="7" class="w-hour-dot"></circle><text x="179.4" y="68.3" class="w-hour">23</text><circle cx="220" cy="220" r="182" class="w-ring"></circle><circle cx="220" cy="220" r="150" class="w-ring"></circle><circle cx="220" cy="220" r="120" class="w-ring"></circle><circle cx="220" cy="220" r="78" class="w-core"></circle><line id="jlWheelHour" class="w-hand-hour" x1="220" y1="220" x2="188.5" y2="176.2"></line><line id="jlWheelMin" class="w-hand-min" x1="220" y1="220" x2="173.2" y2="272"></line><circle class="w-pin" cx="220" cy="220" r="4"></circle></svg></div>
+        <div class="wheel-detail" id="jlWheelDetail"><dl class="jl-kv"><div><dt>时辰</dt><dd>亥时 21:00-23:00</dd></div><div><dt>当令经</dt><dd>手少阳三焦经</dd></div><div><dt>五行</dt><dd>火</dd></div><div><dt>气血状态</dt><dd>三焦通百脉，准备入睡</dd></div><div><dt>五输</dt><dd>关冲（井，金）、液门（荥，水）、中渚（输，木）、支沟（经，火）、天井（合，土）</dd></div><div><dt>原穴</dt><dd>阳池</dd></div></dl></div>
+      </div>
     </div>
-  </section>
+  </details>
 
-  <div class="stage2-late">
-<p class="jl-page-note">本页为传统文化与经络学说查询，不构成诊疗建议；针刺、艾灸与用药须由执业医师施行。</p>
+  <details class="mh-ref" id="jlmod-meridians">
+    <summary>十二经脉<span class="mod-sub">二十条经脉的循行、病候与穴位</span></summary>
+    <div class="mod-body">
+      <div id="jlMeridianOut"><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>脏腑</th><th>五行</th><th>当令</th><th>穴数</th><th>表里</th></tr></thead><tbody><tr data-mid="lung"><td class="jl-c0">手太阴肺经</td><td>肺、大肠</td><td>金</td><td>寅时 03:00-05:00</td><td>11</td><td>手阳明大肠经</td></tr><tr data-mid="large-intestine"><td class="jl-c0">手阳明大肠经</td><td>大肠、肺</td><td>金</td><td>卯时 05:00-07:00</td><td>20</td><td>手太阴肺经</td></tr><tr data-mid="stomach"><td class="jl-c0">足阳明胃经</td><td>胃、脾</td><td>土</td><td>辰时 07:00-09:00</td><td>45</td><td>足太阴脾经</td></tr><tr data-mid="spleen"><td class="jl-c0">足太阴脾经</td><td>脾、胃</td><td>土</td><td>巳时 09:00-11:00</td><td>21</td><td>足阳明胃经</td></tr><tr data-mid="heart"><td class="jl-c0">手少阴心经</td><td>心、小肠</td><td>火</td><td>午时 11:00-13:00</td><td>9</td><td>手太阳小肠经</td></tr><tr data-mid="small-intestine"><td class="jl-c0">手太阳小肠经</td><td>小肠、心</td><td>火</td><td>未时 13:00-15:00</td><td>19</td><td>手少阴心经</td></tr><tr data-mid="bladder"><td class="jl-c0">足太阳膀胱经</td><td>膀胱、肾</td><td>水</td><td>申时 15:00-17:00</td><td>67</td><td>足少阴肾经</td></tr><tr data-mid="kidney"><td class="jl-c0">足少阴肾经</td><td>肾、膀胱</td><td>水</td><td>酉时 17:00-19:00</td><td>27</td><td>足太阳膀胱经</td></tr><tr data-mid="pericardium"><td class="jl-c0">手厥阴心包经</td><td>心包、三焦</td><td>火</td><td>戌时 19:00-21:00</td><td>9</td><td>手少阳三焦经</td></tr><tr data-mid="triple-burner"><td class="jl-c0">手少阳三焦经</td><td>三焦、心包</td><td>火</td><td>亥时 21:00-23:00</td><td>23</td><td>手厥阴心包经</td></tr><tr data-mid="gallbladder"><td class="jl-c0">足少阳胆经</td><td>胆、肝</td><td>木</td><td>子时 23:00-01:00</td><td>44</td><td>足厥阴肝经</td></tr><tr data-mid="liver"><td class="jl-c0">足厥阴肝经</td><td>肝、胆</td><td>木</td><td>丑时 01:00-03:00</td><td>14</td><td>足少阳胆经</td></tr><tr data-mid="ren"><td class="jl-c0">任脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>24</td><td>无</td></tr><tr data-mid="du"><td class="jl-c0">督脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>28</td><td>无</td></tr><tr data-mid="chong"><td class="jl-c0">冲脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>0</td><td>无</td></tr><tr data-mid="dai"><td class="jl-c0">带脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>0</td><td>无</td></tr><tr data-mid="yinwei"><td class="jl-c0">阴维脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>0</td><td>无</td></tr><tr data-mid="yangwei"><td class="jl-c0">阳维脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>0</td><td>无</td></tr><tr data-mid="yinqiao"><td class="jl-c0">阴跷脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>0</td><td>无</td></tr><tr data-mid="yangqiao"><td class="jl-c0">阳跷脉</td><td>奇经</td><td>不属五行</td><td>无</td><td>0</td><td>无</td></tr></tbody></table></div><div class="jl-note">点经脉行看循行、病候与穴位。</div></div>
+      <div id="jlMeridianDetail"><div class="jl-card"><h4><b>手太阴肺经</b> 循行、病候与穴位</h4><dl class="jl-kv"><div><dt>循行</dt><dd>起于中焦，下络大肠，还循胃口，上膈属肺，从肺系横出腋下，沿上肢内侧前缘下行，经寸口、鱼际，出拇指桡侧端；支脉从腕后直出食指桡侧端。</dd></div><div><dt>病候</dt><dd>是动则病，肺胀满，膨膨而喘咳，缺盆中痛，甚则交两手而瞀，此为臂厥；是主肺所生病者，咳，上气，喘喝，烦心，胸满，臑臂内前廉痛厥，掌中热</dd></div><div><dt>穴位</dt><dd><a href="javascript:void(0)" data-point="中府">中府</a>、<a href="javascript:void(0)" data-point="云门">云门</a>、<a href="javascript:void(0)" data-point="天府">天府</a>、<a href="javascript:void(0)" data-point="侠白">侠白</a>、<a href="javascript:void(0)" data-point="尺泽">尺泽</a>、<a href="javascript:void(0)" data-point="孔最">孔最</a>、<a href="javascript:void(0)" data-point="列缺">列缺</a>、<a href="javascript:void(0)" data-point="经渠">经渠</a>、<a href="javascript:void(0)" data-point="太渊">太渊</a>、<a href="javascript:void(0)" data-point="鱼际">鱼际</a>、<a href="javascript:void(0)" data-point="少商">少商</a></dd></div><div><dt>出处</dt><dd class="jl-src">《灵枢》经脉</dd></div></dl></div></div>
+    </div>
+  </details>
+
+  
+
+  <details class="mh-ref" id="jlmod-specific">
+    <summary>特定穴<span class="mod-sub">五输、原络郄募俞、八会、八脉交会、下合</span></summary>
+    <div class="mod-body">
+      <div id="jlSpecificOut"><h4 class="jl-sub">五输穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>井</th><th>荥</th><th>输</th><th>经</th><th>合</th></tr></thead><tbody><tr><td class="jl-c0">手太阴肺经</td><td>少商（木）</td><td>鱼际（火）</td><td>太渊（土）</td><td>经渠（金）</td><td>尺泽（水）</td></tr><tr><td class="jl-c0">手阳明大肠经</td><td>商阳（金）</td><td>二间（水）</td><td>三间（木）</td><td>阳溪（火）</td><td>曲池（土）</td></tr><tr><td class="jl-c0">足阳明胃经</td><td>厉兑（金）</td><td>内庭（水）</td><td>陷谷（木）</td><td>解溪（火）</td><td>足三里（土）</td></tr><tr><td class="jl-c0">足太阴脾经</td><td>隐白（木）</td><td>大都（火）</td><td>太白（土）</td><td>商丘（金）</td><td>阴陵泉（水）</td></tr><tr><td class="jl-c0">手少阴心经</td><td>少冲（木）</td><td>少府（火）</td><td>神门（土）</td><td>灵道（金）</td><td>少海（水）</td></tr><tr><td class="jl-c0">手太阳小肠经</td><td>少泽（金）</td><td>前谷（水）</td><td>后溪（木）</td><td>阳谷（火）</td><td>小海（土）</td></tr><tr><td class="jl-c0">足太阳膀胱经</td><td>至阴（金）</td><td>足通谷（水）</td><td>束骨（木）</td><td>昆仑（火）</td><td>委中（土）</td></tr><tr><td class="jl-c0">足少阴肾经</td><td>涌泉（木）</td><td>然谷（火）</td><td>太溪（土）</td><td>复溜（金）</td><td>阴谷（水）</td></tr><tr><td class="jl-c0">手厥阴心包经</td><td>中冲（木）</td><td>劳宫（火）</td><td>大陵（土）</td><td>间使（金）</td><td>曲泽（水）</td></tr><tr><td class="jl-c0">手少阳三焦经</td><td>关冲（金）</td><td>液门（水）</td><td>中渚（木）</td><td>支沟（火）</td><td>天井（土）</td></tr><tr><td class="jl-c0">足少阳胆经</td><td>足窍阴（金）</td><td>侠溪（水）</td><td>足临泣（木）</td><td>阳辅（火）</td><td>阳陵泉（土）</td></tr><tr><td class="jl-c0">足厥阴肝经</td><td>大敦（木）</td><td>行间（火）</td><td>太冲（土）</td><td>中封（金）</td><td>曲泉（水）</td></tr></tbody></table></div><h4 class="jl-sub">原穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>穴名</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">手太阴肺经</td><td>太渊</td><td>咳嗽、哮喘、咯血、咽喉痛、心悸、胸痛</td></tr><tr><td class="jl-c0">手阳明大肠经</td><td>合谷</td><td>头痛、颈痛、目肿痛、眼痛、鼻衄、鼻塞</td></tr><tr><td class="jl-c0">足阳明胃经</td><td>冲阳</td><td>面瘫、肌肉萎缩、活动不利</td></tr><tr><td class="jl-c0">足太阴脾经</td><td>太白</td><td>胃痛、腹胀、便秘、痢疾、呕吐、泄泻</td></tr><tr><td class="jl-c0">手少阴心经</td><td>神门</td><td>心痛、烦躁、心悸、失眠、癫狂、癫痫</td></tr><tr><td class="jl-c0">手太阳小肠经</td><td>腕骨</td><td>热病、头痛、腕痛、黄疸</td></tr><tr><td class="jl-c0">足太阳膀胱经</td><td>京骨</td><td>头痛、项强、癫痫</td></tr><tr><td class="jl-c0">足少阴肾经</td><td>太溪</td><td>咽喉痛、牙痛、耳聋、耳鸣、头晕、唾血</td></tr><tr><td class="jl-c0">手厥阴心包经</td><td>大陵</td><td>心痛、心悸、胃痛、呕吐、神志病、癫痫</td></tr><tr><td class="jl-c0">手少阳三焦经</td><td>阳池</td><td>臂痛、疟疾、耳聋、口渴</td></tr><tr><td class="jl-c0">足少阳胆经</td><td>丘墟</td><td>颈痛、胁痛、呕吐、反酸、肌肉萎缩、疟疾</td></tr><tr><td class="jl-c0">足厥阴肝经</td><td>太冲</td><td>头痛、头晕、眩晕、失眠、目肿痛、眼痛</td></tr></tbody></table></div><h4 class="jl-sub">络穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>穴名</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">手太阴肺经</td><td>列缺</td><td>头痛、偏头痛、项强、咳嗽、哮喘、咽喉痛</td></tr><tr><td class="jl-c0">手阳明大肠经</td><td>偏历</td><td>目赤、耳鸣、耳聋、鼻衄、咽喉痛、水肿</td></tr><tr><td class="jl-c0">足阳明胃经</td><td>丰隆</td><td>头痛、头晕、眩晕、咳嗽、哮喘、胸痛</td></tr><tr><td class="jl-c0">足太阴脾经</td><td>公孙</td><td>胃痛、呕吐、腹痛、泄泻、痢疾、肠鸣</td></tr><tr><td class="jl-c0">手少阴心经</td><td>通里</td><td>心悸、头晕、视物模糊、咽喉痛、暴喑、失音</td></tr><tr><td class="jl-c0">手太阳小肠经</td><td>支正</td><td>项强、头痛、头晕、肘痛、热病、癫狂</td></tr><tr><td class="jl-c0">足太阳膀胱经</td><td>飞扬</td><td>头痛、视物模糊、鼻塞、鼻衄、痔疮</td></tr><tr><td class="jl-c0">足少阴肾经</td><td>大钟</td><td>唾血、哮喘、拘急强直、小便不利、便秘、足跟痛</td></tr><tr><td class="jl-c0">手厥阴心包经</td><td>内关</td><td>心痛、心悸、胁痛、胃痛、恶心、呕吐</td></tr><tr><td class="jl-c0">手少阳三焦经</td><td>外关</td><td>热病、头痛、耳聋、耳鸣、胁痛、活动不利</td></tr><tr><td class="jl-c0">足少阳胆经</td><td>光明</td><td>膝痛、肌肉萎缩、活动不利、视物模糊、眼痛</td></tr><tr><td class="jl-c0">足厥阴肝经</td><td>蠡沟</td><td>尿潴留、遗尿、疝气、月经不调、带下病、瘙痒</td></tr><tr><td class="jl-c0">任脉</td><td>鸠尾</td><td>恶心、神志病、癫痫</td></tr><tr><td class="jl-c0">督脉</td><td>长强</td><td>泄泻、痢疾、便血、痔疾、脱肛、腰脊痛</td></tr><tr><td class="jl-c0">脾之大络</td><td>大包</td><td>胸痛、哮喘</td></tr></tbody></table></div><h4 class="jl-sub">郄穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>穴名</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">手太阴肺经</td><td>孔最</td><td>咳嗽、胸痛、哮喘、咯血、咽喉痛、肘臂挛痛</td></tr><tr><td class="jl-c0">手阳明大肠经</td><td>温溜</td><td>头痛、咽喉痛、肠鸣、腹痛</td></tr><tr><td class="jl-c0">足阳明胃经</td><td>梁丘</td><td>麻木、胃痛、乳痈、活动不利</td></tr><tr><td class="jl-c0">足太阴脾经</td><td>地机</td><td>腹痛、泄泻、水肿、小便不利、遗精、月经不调</td></tr><tr><td class="jl-c0">手少阴心经</td><td>阴郄</td><td>心痛、盗汗、咯血、鼻衄、暴喑、失音</td></tr><tr><td class="jl-c0">手太阳小肠经</td><td>养老</td><td>视物模糊、肩痛</td></tr><tr><td class="jl-c0">足太阳膀胱经</td><td>金门</td><td>癫狂、癫痫、小儿惊风、抽搐、背痛、活动不利</td></tr><tr><td class="jl-c0">足少阴肾经</td><td>水泉</td><td>闭经、月经不调、痛经、子宫脱垂、小便不利、视物模糊</td></tr><tr><td class="jl-c0">手厥阴心包经</td><td>郄门</td><td>心痛、心悸、鼻衄、咯血、胸痛、癫痫</td></tr><tr><td class="jl-c0">手少阳三焦经</td><td>会宗</td><td>耳聋、癫痫</td></tr><tr><td class="jl-c0">足少阳胆经</td><td>外丘</td><td>颈痛</td></tr><tr><td class="jl-c0">足厥阴肝经</td><td>中都</td><td>腹痛、泄泻、疝气、崩漏</td></tr><tr><td class="jl-c0">阴维脉</td><td>筑宾</td><td>神志病、疝气</td></tr><tr><td class="jl-c0">阳维脉</td><td>阳交</td><td>胸满、肌肉萎缩</td></tr><tr><td class="jl-c0">阴跷脉</td><td>交信</td><td>月经不调、痛经、崩漏、子宫脱垂、泄泻、便秘</td></tr><tr><td class="jl-c0">阳跷脉</td><td>跗阳</td><td>头痛、腰痛</td></tr></tbody></table></div><h4 class="jl-sub">募穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>穴名</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">手太阴肺经</td><td>中府</td><td>咳嗽、哮喘、胸痛、胸满</td></tr><tr><td class="jl-c0">手厥阴心包经</td><td>膻中</td><td>哮喘、胸痛、胸满、心悸、乳少、呃逆</td></tr><tr><td class="jl-c0">手少阴心经</td><td>巨阙</td><td>恶心、反酸、吞咽困难、呕吐、神志病、癫痫</td></tr><tr><td class="jl-c0">足厥阴肝经</td><td>期门</td><td>腹胀、呃逆、反酸、乳痈、情志抑郁、热病</td></tr><tr><td class="jl-c0">足少阳胆经</td><td>日月</td><td>胁痛、呕吐、反酸、呃逆、黄疸、乳痈</td></tr><tr><td class="jl-c0">足太阴脾经</td><td>章门</td><td>腹胀、肠鸣、胁痛、呕吐、泄泻、消化不良</td></tr><tr><td class="jl-c0">足阳明胃经</td><td>中脘</td><td>胃痛、腹胀、肠鸣、恶心、呕吐、反酸</td></tr><tr><td class="jl-c0">手阳明大肠经</td><td>天枢</td><td>腹痛、肠鸣、便秘、泄泻、痢疾、月经不调</td></tr><tr><td class="jl-c0">手太阳小肠经</td><td>关元</td><td>遗尿、遗精、尿潴留、疝气、月经不调、带下病</td></tr><tr><td class="jl-c0">足太阳膀胱经</td><td>中极</td><td>遗尿、遗精、阳痿、疝气、崩漏、月经不调</td></tr><tr><td class="jl-c0">足少阴肾经</td><td>京门</td><td>腹胀、肠鸣、泄泻、腰痛</td></tr><tr><td class="jl-c0">手少阳三焦经</td><td>石门</td><td>腹痛、泄泻、水肿、疝气、遗尿、闭经</td></tr></tbody></table></div><h4 class="jl-sub">背俞穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>穴名</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">手太阴肺经</td><td>肺俞</td><td>咳嗽、哮喘、胸痛、唾血、发热、盗汗</td></tr><tr><td class="jl-c0">手厥阴心包经</td><td>厥阴俞</td><td>咳嗽、心痛、心悸、呕吐</td></tr><tr><td class="jl-c0">手少阴心经</td><td>心俞</td><td>心痛、心悸、咳嗽、唾血、遗精、盗汗</td></tr><tr><td class="jl-c0">足厥阴肝经</td><td>肝俞</td><td>黄疸、胁痛、目赤、视物模糊、神志病、癫痫</td></tr><tr><td class="jl-c0">足少阳胆经</td><td>胆俞</td><td>黄疸、胸痛、发热</td></tr><tr><td class="jl-c0">足太阴脾经</td><td>脾俞</td><td>腹胀、黄疸、呕吐、泄泻、痢疾、水肿</td></tr><tr><td class="jl-c0">足阳明胃经</td><td>胃俞</td><td>胸痛、食欲不振、腹胀、肠鸣、泄泻、恶心</td></tr><tr><td class="jl-c0">手阳明大肠经</td><td>大肠俞</td><td>腰痛、肠鸣、腹胀、泄泻、便秘、肌肉萎缩</td></tr><tr><td class="jl-c0">手太阳小肠经</td><td>小肠俞</td><td>小腹胀痛、遗精、遗尿、腰骶痛</td></tr><tr><td class="jl-c0">足太阳膀胱经</td><td>膀胱俞</td><td>小便不利、遗尿、腰骶痛</td></tr><tr><td class="jl-c0">足少阴肾经</td><td>肾俞</td><td>遗精、阳痿、遗尿、月经不调、带下病、腰痛</td></tr><tr><td class="jl-c0">手少阳三焦经</td><td>三焦俞</td><td>肠鸣、腹胀、消化不良、呕吐、泄泻、痢疾</td></tr></tbody></table></div><h4 class="jl-sub">下合穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>经脉</th><th>穴名</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">胃</td><td>足三里</td><td>胃痛、呕吐、呃逆、腹胀、肠鸣、泄泻</td></tr><tr><td class="jl-c0">大肠</td><td>上巨虚</td><td>腹痛、肠鸣、泄泻、痢疾、便秘、脚气</td></tr><tr><td class="jl-c0">小肠</td><td>下巨虚</td><td>小腹痛、腹痛、背痛、乳痈、麻木</td></tr><tr><td class="jl-c0">膀胱</td><td>委中</td><td>腰痛、活动不利、髋部症状、肌肉萎缩、麻木、半身不遂</td></tr><tr><td class="jl-c0">胆</td><td>阳陵泉</td><td>胁痛、黄疸、膝痛、下肢痿痹</td></tr><tr><td class="jl-c0">三焦</td><td>委阳</td><td>拘急强直、水肿、小便不利</td></tr></tbody></table></div><h4 class="jl-sub">八会穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>会名</th><th>穴名</th><th>归经</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">气会</td><td>膻中</td><td>任脉</td><td>哮喘、胸痛、胸满、心悸、乳少、呃逆</td></tr><tr><td class="jl-c0">血会</td><td>膈俞</td><td>足太阳膀胱经</td><td>呕吐、呃逆、吞咽困难、哮喘、咳嗽、唾血</td></tr><tr><td class="jl-c0">脉会</td><td>太渊</td><td>手太阴肺经</td><td>咳嗽、哮喘、咯血、咽喉痛、心悸、胸痛</td></tr><tr><td class="jl-c0">筋会</td><td>阳陵泉</td><td>足少阳胆经</td><td>胁痛、黄疸、膝痛、下肢痿痹</td></tr><tr><td class="jl-c0">骨会</td><td>大杼</td><td>足太阳膀胱经</td><td>头痛、颈痛、咳嗽、发热、项强</td></tr><tr><td class="jl-c0">髓会</td><td>悬钟</td><td>足少阳胆经</td><td>中风、半身不遂、腹胀、胁痛、肌肉萎缩、脚气</td></tr><tr><td class="jl-c0">脏会</td><td>章门</td><td>足厥阴肝经</td><td>腹胀、肠鸣、胁痛、呕吐、泄泻、消化不良</td></tr><tr><td class="jl-c0">腑会</td><td>中脘</td><td>任脉</td><td>胃痛、腹胀、肠鸣、恶心、呕吐、反酸</td></tr></tbody></table></div><h4 class="jl-sub">八脉交会穴</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>所通之脉</th><th>穴名</th><th>归经</th><th>主治摘要</th></tr></thead><tbody><tr><td class="jl-c0">冲脉</td><td>公孙</td><td>足太阴脾经</td><td>胃痛、呕吐、腹痛、泄泻、痢疾、肠鸣</td></tr><tr><td class="jl-c0">阴维</td><td>内关</td><td>手厥阴心包经</td><td>心痛、心悸、胁痛、胃痛、恶心、呕吐</td></tr><tr><td class="jl-c0">阳维</td><td>外关</td><td>手少阳三焦经</td><td>热病、头痛、耳聋、耳鸣、胁痛、活动不利</td></tr><tr><td class="jl-c0">带脉</td><td>足临泣</td><td>足少阳胆经</td><td>头痛、眩晕、瘰疬、胁痛、月经不调</td></tr><tr><td class="jl-c0">阳跷</td><td>申脉</td><td>足太阳膀胱经</td><td>癫痫、癫狂、头痛、头晕、失眠、背痛</td></tr><tr><td class="jl-c0">督脉</td><td>后溪</td><td>手太阳小肠经</td><td>耳鸣、耳聋、咽喉痛、癫狂、疟疾、盗汗</td></tr><tr><td class="jl-c0">任脉</td><td>列缺</td><td>手太阴肺经</td><td>头痛、偏头痛、项强、咳嗽、哮喘、咽喉痛</td></tr><tr><td class="jl-c0">阴跷</td><td>照海</td><td>足少阴肾经</td><td>月经不调、带下病、子宫脱垂、瘙痒、尿潴留、便秘</td></tr></tbody></table></div></div>
+    </div>
+  </details>
+
+  
+
+  <details class="mh-ref" id="jlmod-yuanliu">
+    <summary>经络源流与典籍<span class="mod-sub">经络学说源流、取穴凡例与典籍对照</span></summary>
+    <div class="mod-body">
+      <div id="jlYuanliuOut"><h4 class="jl-sub">经络学说源流</h4><p class="jl-note">经络学说以《灵枢》经脉为根本，十二经循行、是动所生病与十五络脉具在其中；《素问》气穴、气府、骨空诸论补腧穴与骨度。晋皇甫谧《针灸甲乙经》汇集腧穴定位与主治，宋王惟一《铜人腧穴针灸图经》定官学形制，元滑寿《十四经发挥》以任督与十二经合为十四经，明杨继洲《针灸大成》总汇穴法歌诀，清李学川《针灸逢源》与《医宗金鉴》定三百六十一穴之数。</p><h4 class="jl-sub">子午流注源流</h4><p class="jl-note">子午流注以十二时辰配十二经，纳支法本于《灵枢》经脉气血流注与《针灸大成》；纳甲法、灵龟八法、飞腾八法歌诀与逐日逐时开穴见《针灸大全》，金何若愚《子午流注针经》为纳甲法早期专书。四法各有流派，异文并列，本页不裁断。</p><h4 class="jl-sub">取穴凡例</h4><p class="jl-note">定位取 GB/T 12346-2021 与 GB/T 40997-2021 的通行表述重写，骨度分寸与体表标志并见；主治取世界卫生组织标准与《针灸学》通行本，功效为本站依主治归纳；特定穴按五输、原、络、郄、募、背俞、八会、八脉交会、下合九类标注；针刺深度与角度逐穴列于针刺行，取《针灸学》通行本，各版有异者取较浅值并标诸本不一；安全提示只列禁针、慎针与孕妇禁针。</p><h4 class="jl-sub">典籍对照</h4><div class="jl-tbl-wrap"><table class="jl-tbl"><thead><tr><th>典籍</th><th>成书</th><th>本页所据</th></tr></thead><tbody><tr><td class="jl-c0">黄帝内经（灵枢）</td><td>战国至汉</td><td>十二经循行、病候、骨度、经筋</td></tr><tr><td class="jl-c0">黄帝内经（素问）</td><td>战国至汉</td><td>气穴论、气府论、骨空论</td></tr><tr><td class="jl-c0">针灸甲乙经</td><td>晋 皇甫谧</td><td>腧穴定位与主治的早期专书</td></tr><tr><td class="jl-c0">针灸大成</td><td>明 杨继洲</td><td>穴法、歌诀、子午流注、禁针穴</td></tr><tr><td class="jl-c0">针灸大全</td><td>明 徐凤</td><td>纳甲、灵龟八法、飞腾八法</td></tr><tr><td class="jl-c0">针灸逢源</td><td>清 李学川</td><td>三百六十一穴与经络循行</td></tr><tr><td class="jl-c0">医宗金鉴（刺灸心法要诀）</td><td>清 吴谦等</td><td>三百六十一穴歌与分寸</td></tr><tr><td class="jl-c0">奇经八脉考</td><td>明 李时珍</td><td>奇经八脉循行与病候</td></tr></tbody></table></div></div>
+    </div>
+  </details>
+
+  <p class="jl-page-note">本页为传统文化与经络学说查询，不构成诊疗建议；针刺、艾灸与用药须由执业医师施行。</p>
 
   <div id="aiMount"><details class="ai-block" id="aiBlock">
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled="">停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl" style="display: none;">导出 JSON</button><button type="button" class="btn soft" data-xj="copy" style="display: none;">复制 JSON</button><button type="button" class="btn soft" data-xj="imp" style="display: none;">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    <div class="ai-cloud" id="csBlock"><div class="cs-head"><b>数据存储</b><span id="csStatus">未选择目录</span></div><div class="cs-ch cs-common"><div class="form-row"><div class="field" style="width:183px;flex:0 0 183px"><label for="csNote">备注</label><input type="text" id="csNote" placeholder="写入文件名" style="width:100%"></div><div class="field chk" style="width:auto;flex:0 0 auto"><input type="checkbox" id="csWithAi"><label for="csWithAi"><span>保存 AI 对话</span></label></div></div><div class="ai-tip">备注与保存 AI 对话，三个通道通用。</div></div><div class="cs-ch"><div class="cs-ch-h">通道一　本地目录</div><div class="ai-actions"><button class="btn gold" id="csPick">选择文件夹</button><button class="btn gold" id="csSaveLocal">保存本次</button><button class="btn soft" id="csOpen">存档管理</button></div><div class="ai-tip" id="csLocalTip">存档写入选定文件夹，不经网络。</div></div><div class="cs-ch"><div class="cs-ch-h">通道二　文件搬运</div><div class="ai-actions" id="csFile" data-done="1"><button class="btn soft">导出 JSON</button><button class="btn soft">复制 JSON</button><input type="file" accept="application/json,.json" style="display: none;"><button class="btn soft">导入 JSON</button></div><div class="ai-tip">导出文件可跨设备或分享；导入时按存档内的输入排出结果。</div></div><div class="cs-ch"><div class="cs-ch-h">通道三　直连 WebDAV</div><div class="form-row"><div class="field"><label for="csPreset">服务</label><select id="csPreset"><option value="" data-url="">自选地址</option><option value="clouddrive2" data-url="http://localhost:19799/dav">CloudDrive2</option><option value="alist" data-url="http://127.0.0.1:5244/dav">Alist</option><option value="cloudreve" data-url="https://自有域名/dav">Cloudreve</option><option value="sharelist" data-url="https://自有域名/dav">sharelist</option><option value="nextcloud" data-url="https://域名/remote.php/dav/files/用户名/">Nextcloud</option><option value="owncloud" data-url="https://域名/remote.php/dav/files/用户名/">ownCloud</option><option value="seafile" data-url="https://域名/seafdav/">Seafile</option><option value="synology" data-url="https://NAS地址:5006/">群晖 WebDAV</option><option value="wsgidav" data-url="http://127.0.0.1:8080/">WsgiDAV</option><option value="rclone" data-url="http://127.0.0.1:8080/">rclone serve webdav</option><option value="nginx" data-url="https://域名/dav/">nginx dav 模块</option><option value="pcloud" data-url="https://webdav.pcloud.com/">pCloud</option><option value="yandex" data-url="https://webdav.yandex.com/">Yandex Disk</option><option value="infinicloud" data-url="https://服务器.teracloud.jp/dav/">InfiniCLOUD</option><option value="box" data-url="https://dav.box.com/dav/">Box</option><option value="jianguoyun" data-url="https://dav.jianguoyun.com/dav/">坚果云</option></select></div></div><div class="form-row"><div class="field"><label for="csUrl">地址</label><input type="text" id="csUrl" placeholder="https://.../dav/"></div></div><div class="form-row"><div class="field"><label for="csUser">账号</label><input type="text" id="csUser"></div><div class="field"><label for="csPass">应用密码</label><input type="password" id="csPass"></div></div><div class="ai-tip" id="csPresetNote"></div><div id="csGuide" style="display:none"></div><div class="ai-actions"><button class="btn gold" id="csTest">测试连接</button><button class="btn gold" id="csSaveDav">上传本次</button><button class="btn soft" id="csListDav">远端存档</button><button class="btn soft" id="csClear">清除凭据</button></div><div class="ai-tip">须服务端允许跨域，浏览器方得读取响应；未开启时改用通道一或通道二。</div></div><div class="ai-tip" id="csTip"></div></div></div>
   </details></div>
 </main>
-</div>
-</div>
+</div><script data-sync="1">/* 折叠态首绘前落定：全站唯一一处读写折叠态的地方。
+ *
+ * 为什么单立此件：开合态要跨刷新保持，就必须在载入时读回来。若等 defer 件事后回填，
+ * 首帧是收起态、随后被展开，页面上就是一次可见的抖动。本件由构建器内联在 body 末尾、
+ * 以同步脚本执行：此时 body 已解析、首绘尚未发生，写出即终态。
+ *
+ * 口径：键为 xjFold 加页面路径，值按模块 id 记 1 或 0；未记过的模块保持源件的收起态。
+ * 页内点开合由 window.xjFoldRemember(id, open) 记录，本件只管读回与落类。
+ */
+(function () {
+  'use strict';
+  var KEY = 'xjFold:' + ((typeof location !== 'undefined' && location.pathname) || '/');
+
+  function readAll() {
+    try { return JSON.parse(sessionStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+
+  function setOpen(id, open) {
+    var n = document.getElementById(id);
+    if (!n) return;
+    if (n.tagName === 'DETAILS') n.open = !!open;
+    else if (open) n.classList.remove('collapsed');
+    else n.classList.add('collapsed');
+  }
+
+  var all = readAll();
+  Object.keys(all).forEach(function (id) { setOpen(id, !!all[id]); });
+
+  if (typeof window !== 'undefined') {
+    window.xjFoldRemember = function (id, open) {
+      if (!id) return;
+      var cur = readAll();
+      cur[id] = open ? 1 : 0;
+      try { sessionStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) { /* 存储不可用即不记忆 */ }
+    };
+  }
+})();</script>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
   <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
 <script defer src="assets/geo.js"></script>
 <script defer src="assets/ai-lazy.js"></script>
+<script defer src="assets/hist-modal.js"></script>
+<script data-sync="1">/* 折叠态首绘前落定：全站唯一一处读写折叠态的地方。
+ *
+ * 为什么单立此件：开合态要跨刷新保持，就必须在载入时读回来。若等 defer 件事后回填，
+ * 首帧是收起态、随后被展开，页面上就是一次可见的抖动。本件由构建器内联在 body 末尾、
+ * 以同步脚本执行：此时 body 已解析、首绘尚未发生，写出即终态。
+ *
+ * 口径：键为 xjFold 加页面路径，值按模块 id 记 1 或 0；未记过的模块保持源件的收起态。
+ * 页内点开合由 window.xjFoldRemember(id, open) 记录，本件只管读回与落类。
+ */
+(function () {
+  'use strict';
+  var KEY = 'xjFold:' + ((typeof location !== 'undefined' && location.pathname) || '/');
+
+  function readAll() {
+    try { return JSON.parse(sessionStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+
+  function setOpen(id, open) {
+    var n = document.getElementById(id);
+    if (!n) return;
+    if (n.tagName === 'DETAILS') n.open = !!open;
+    else if (open) n.classList.remove('collapsed');
+    else n.classList.add('collapsed');
+  }
+
+  var all = readAll();
+  Object.keys(all).forEach(function (id) { setOpen(id, !!all[id]); });
+
+  if (typeof window !== 'undefined') {
+    window.xjFoldRemember = function (id, open) {
+      if (!id) return;
+      var cur = readAll();
+      cur[id] = open ? 1 : 0;
+      try { sessionStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) { /* 存储不可用即不记忆 */ }
+    };
+  }
+})();</script>
 <script data-sync="1" src="assets/dist/js/inline-ziwu-now.js"></script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
@@ -933,6 +1200,7 @@ body{--footer-ink:#556226;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 <script defer fetchpriority="low" src="assets/wheel.js"></script>
 <script defer fetchpriority="low" src="assets/jingluo-data.js"></script>
 <script defer fetchpriority="low" src="assets/ziwu-najia.js"></script>
-<script defer fetchpriority="low" src="assets/dist/js/inline-ziwu-07.js"></script>
+<script defer fetchpriority="low" src="assets/mod-fold.js"></script>
+<script defer fetchpriority="low" src="assets/dist/js/inline-ziwu-08.js"></script>
 </body>
 </html>

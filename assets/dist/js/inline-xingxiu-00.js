@@ -4,12 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('xxFoldState','details[id]');
-    },true);
     renderChrome('xingxiu.html');
-    xjApplyFold('xxFoldState','details[id]');
   }, 0);
 });
 

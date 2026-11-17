@@ -207,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if(typeof f!=='function') return;
       window[n]=function(){ const r=f.apply(this,arguments); fsQueueFinal(); return r; };
     });
-    fsRestoreModState();
     window.addEventListener("beforeunload", function(){ if(window.xjRefreshTakeover) return; try{ localStorage.setItem("fs_scroll", String(window.scrollY)); }catch(e){} });
     fsInitDefaults();
     try{ if(window.xjRefreshTakeover){} else { const sy=parseInt(localStorage.getItem("fs_scroll")||"0",10); if(sy>0) setTimeout(function(){ window.scrollTo(0, sy); }, 0); } }catch(e){};

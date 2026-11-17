@@ -321,8 +321,9 @@ function renderBaziBlock(suiGan, suiZhi, BZ, hasTime, lunarZhi){
 /* ===== 8. 个人查测渲染 ===== */
 function renderCheck(){
   var out = $('tsCheckOut');
+  var direct = $('tsZhiPick') ? $('tsZhiPick').value : '';
   var dateStr = $('tsDate').value.trim();
-  var ly = lunarYearOf(dateStr);
+  var ly = direct ? { zhi: direct, sheng: ZHI_SHENG[direct], ygz: '', y: '', mo: '', d: '' } : lunarYearOf(dateStr);
   if (!ly){ out.innerHTML = '<p class="ts-err">请输入有效公历生日，格式 2026-09-05（yyyy-mm-dd，月日两位补零）。</p>'; return; }
   var suiRaw = $('tsSuiDate').value.trim();
   var suiLy = suiRaw ? lunarYearOf(suiRaw) : lunarYearOf(todayStr());
@@ -336,10 +337,14 @@ function renderCheck(){
   var bio = bioOfGz(suiGz);
 
   var html = '';
-  /* 头卡：本命与流年 */
+  /* 头卡：本命与流年（生肖直查时不取生日，年支即所选生肖） */
+  var benHead = direct
+    ? '<div class="ts-card-v">' + esc(yZhi) + '</div>' +
+      '<div class="ts-card-s">' + esc(ly.sheng) + '肖，按生肖直查；本命太岁' + esc(yZhi) + '宫居' + esc((window.ZHI_FANG||{})[yZhi] || '无') + '方</div>'
+    : '<div class="ts-card-v">' + esc(ly.ygz) + '</div>' +
+      '<div class="ts-card-s">' + esc(ly.sheng) + '肖，公历 ' + esc(fmtYmd(ly)) + '；本命太岁' + esc(yZhi) + '宫居' + esc((window.ZHI_FANG||{})[yZhi] || '无') + '方；本命星君' + esc(benStar) + '大将军</div>';
   html += '<div class="ts-head-cards"><div class="ts-card">' +
-    '<div class="ts-card-k">本命年支</div><div class="ts-card-v">' + esc(ly.ygz) + '</div>' +
-    '<div class="ts-card-s">' + esc(ly.sheng) + '肖，公历 ' + esc(fmtYmd(ly)) + '；本命太岁' + esc(yZhi) + '宫居' + esc((window.ZHI_FANG||{})[yZhi] || '无') + '方；本命星君' + esc(benStar) + '大将军</div></div>' +
+    '<div class="ts-card-k">本命年支</div>' + benHead + '</div>' +
     '<div class="ts-card ts-card-gold">' +
     '<div class="ts-card-k">流年太岁</div><div class="ts-card-v">' + esc(suiGz) + '</div>' +
     '<div class="ts-card-s">' + esc(star) + '大将军，' + esc(ZHI_SHENG[suiZhi]) + '年，' + esc(suiLy.y) + '年；太岁居' + esc((window.ZHI_FANG||{})[suiZhi] || '无') + '方；岁破居' + esc((window.ZHI_FANG||{})[suiPo] || '无') + '方</div></div></div>';
@@ -366,7 +371,7 @@ function renderCheck(){
   /* 四柱参照系（与八字页同源 buildBaziState；装配失败时整块省略不阻断生肖参照系） */
   var hourVal = $('tsHour') ? $('tsHour').value : '';
   var hasTime = !!hourVal;
-  var bzs = baziStateOf(dateStr, hourVal);
+  var bzs = direct ? null : baziStateOf(dateStr, hourVal);
   if (bzs && bzs.BZ && bzs.BZ.gans){
     html += renderBaziBlock(suiGz.charAt(0), suiZhi, bzs.BZ, hasTime, ly.zhi);
   }
@@ -384,7 +389,21 @@ function renderCheck(){
   /* 应事分项卡（五分项） */
   html += renderYingshi(r, yZhi, suiZhi, ly.sheng);
   out.innerHTML = html;
-  applyTsModState(); /* 本命星君卡随查询重出，重出后按存值复位开合 */
+}
+
+/* 流年快捷：只移流年参考日一年，重算犯太岁判定；闰日回落到二月廿八 */
+function shiftSuiYear(delta){
+  var el = $('tsSuiDate'); if (!el) return;
+  var p = (el.value.trim() || todayStr()).split('-');
+  if (p.length !== 3) return;
+  var y = parseInt(p[0], 10) + delta, m = parseInt(p[1], 10), d = parseInt(p[2], 10);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return;
+  if (m === 2 && d === 29){
+    var leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    if (!leap) d = 28;
+  }
+  el.value = y + '-' + pad2(m) + '-' + pad2(d);
+  renderCheck();
 }
 
 /* 按干支取传记对象 */
@@ -689,13 +708,14 @@ function tsAiContext(){
 
 /* ===== 13. 共享状态（mountAI 第三参 share） ===== */
 function tsCollect(){
-  return { date:$('tsDate').value, hour:$('tsHour') ? $('tsHour').value : '', suiDate:$('tsSuiDate').value, yearDate:$('tsYearDate').value, fortuneDate:$('tsFortuneDate').value };
+  return { date:$('tsDate').value, hour:$('tsHour') ? $('tsHour').value : '', zhi:$('tsZhiPick') ? $('tsZhiPick').value : '', suiDate:$('tsSuiDate').value, yearDate:$('tsYearDate').value, fortuneDate:$('tsFortuneDate').value };
 }
 function tsRestore(s){
   if (!s) return;
   if (s.date){ $('tsDate').value = s.date; }
   if (s.hour && $('tsHour')){ $('tsHour').value = s.hour; }
-  if (s.date || s.hour){ renderCheck(); }
+  if (s.zhi && $('tsZhiPick')){ $('tsZhiPick').value = s.zhi; }
+  if (s.date || s.hour || s.zhi){ renderCheck(); }
   if (s.suiDate){ $('tsSuiDate').value = s.suiDate; renderCheck(); }
   if (s.yearDate){ $('tsYearDate').value = s.yearDate; }
   if (s.fortuneDate){ $('tsFortuneDate').value = s.fortuneDate; }
@@ -703,15 +723,8 @@ function tsRestore(s){
   renderFortune();
 }
 
-/* ===== 13b. 折叠模块开合与状态持久化（ES5） ===== */
-var TS_MOD_KEY = 'tsModState';
-var tsModNavReady = false;
-function _tsAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return ['tsmod-check','tsmod-year','tsmod-ritual']; } }
-function toggleMod(id){ var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveTsModState(); }
-function saveTsModState(){ xjSaveEngineModState(TS_MOD_KEY, function(){ return tsModNavReady; }, _tsAllModIds); }
-function applyTsModState(){ xjApplyEngineModState(TS_MOD_KEY, _tsAllModIds); }
-/* 页内折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
-try{ document.addEventListener('toggle', function(e){ if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveTsModState(); }, true); }catch(e){}
+/* ===== 13b. 折叠模块开合（ES5） ===== */
+function toggleMod(id){ var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); }
 /* 六十星君卡片收起态不参与首屏：静态件带 hidden，外层折叠区展开时才露出。 */
 function bindBioFold(){
   var fold = $('tsFoldBio'), body = $('tsBioBody');
@@ -727,6 +740,9 @@ function init(){
   bindBioFold();
   renderRitual();
   $('tsCheckBtn').addEventListener('click', renderCheck);
+  $('tsZhiPick').addEventListener('change', function(){ if (this.value) renderCheck(); });
+  $('tsSuiPrev').addEventListener('click', function(){ shiftSuiYear(-1); });
+  $('tsSuiNext').addEventListener('click', function(){ shiftSuiYear(1); });
   $('tsYearBtn').addEventListener('click', renderYearView);
   /* 日期默认当天，三块结果区留空，等用户点各自主按钮后出结果 */
   $('tsDate').value = todayStr();
@@ -741,10 +757,6 @@ function init(){
       recast:function(){ renderCheck(); renderYearView(); renderFortune(); }
     }
   });
-  var savedMod = (typeof xjReadFold === 'function') ? xjReadFold(TS_MOD_KEY) : {};
-  if (savedMod['tsmod-check'] !== true){ var checkMod = $('tsmod-check'); if (checkMod) checkMod.classList.remove('collapsed'); }
-  applyTsModState(); /* 恢复折叠状态（渲染完成后） */
-  tsModNavReady = true; /* 打标后才允许写持久化 */
 }
 /* 内联 onclick 走全局作用域：本文件为 IIFE，须显式挂到 window，
    覆盖 bazi-app.js（本页也加载）注册的同名全局（其绑定 BAZI_MOD_KEY，键位与本页不同） */

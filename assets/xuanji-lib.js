@@ -882,7 +882,8 @@ function xjFsXkWheelSvg(opts){
   const sw=FS.starWangShuai(r.sit,yun), fw=FS.starWangShuai(r.face,yun);
   const dc=FS.gongDingCai(r.sit,r.face,yun), cj=FS.comboJx(r.sit,r.face);
   const jxCls=jx=>jx.indexOf('凶')>=0?'wd-x':(jx.indexOf('吉')>=0?'wd-g':'');
-  const tag=(r.palace===FS_GUA_NUM[FS.SHAN_BAGUA[b.faceShan]]?'向首宫 ':'')+(r.palace===FS_GUA_NUM[FS.SHAN_BAGUA[b.sitShan]]?'坐山宫 ':'');
+  const GUA_NUM={坎:1,坤:2,震:3,巽:4,乾:6,兑:7,艮:8,离:9};
+  const tag=(r.palace===GUA_NUM[FS.SHAN_BAGUA[b.faceShan]]?'向首宫 ':'')+(r.palace===GUA_NUM[FS.SHAN_BAGUA[b.sitShan]]?'坐山宫 ':'');
   const yin=kind==='yin';
   const dirTxt=yin?window.fyDir(FS.NINE_BAGUA[r.palace]):FS.NINE_DIR[r.palace];
   const yt=s=>FS.yuanOf(s)+'元'+(FS.shanYang(s)?'阳':'阴');

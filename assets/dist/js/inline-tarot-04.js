@@ -98,15 +98,18 @@ function echoLines(picks,sp){
 /* Fisher-Yates 洗牌 */
 function shuffle(a){ return xjShuffle(a); }
 function draw(){
- try{
-  const sp=document.getElementById('spread').value;
-  const layout=POS[sp];
-  const majorOnly=(sp==='1');
-  const deck=shuffle(buildTarotDeck(majorOnly).slice());
-  const picks=layout.map(o=>({card:deck.pop(),rev:Math.random()<0.5,pos:o.pos,desc:o.desc,role:o.role||'state',cls:o.cls||'',staff:!!o.staff}));
-  renderSpread(picks,sp);
-  trSaveHist();
- }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
+ xjLoadEngine('tarot', function(err){
+  if(err){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(err.message||err)+'</p>'; return; }
+  try{
+   const sp=document.getElementById('spread').value;
+   const layout=POS[sp];
+   const majorOnly=(sp==='1');
+   const deck=shuffle(buildTarotDeck(majorOnly).slice());
+   const picks=layout.map(o=>({card:deck.pop(),rev:Math.random()<0.5,pos:o.pos,desc:o.desc,role:o.role||'state',cls:o.cls||'',staff:!!o.staff}));
+   renderSpread(picks,sp);
+   trSaveHist();
+  }catch(e){ document.getElementById('out').innerHTML='<p class="notice">抽牌出错：'+(e.message||e)+'</p>'; }
+ });
 }
 /* 分享还原：牌序与正逆按牌 id 回填，不重洗；刷新回填由共用件 sessionStorage 的 xj:last 承担，本页不再另写本地档 */
 function tarotRestore(d){
@@ -155,11 +158,33 @@ function comboLine(p){
 }
 /* 是、否倾向由吉凶基调推导 */
 function ynOf(p){ const t=p.rev?(p.card.toneR||0):(p.card.tone||0); return t===1?'是否：偏是':t===-1?'是否：偏否':'是否：未定'; }
+/* 逐张翻牌：未翻者先只翻面，不弹详批；已翻者点开详批。翻牌态每次重出全部复位。
+   背面只用站内现有 .tr-mean/.tr-core 与 .tt-face/.tt-name 类，不另写样式。 */
+function trSetLock(el,on){
+ if(on){
+  if(el.getAttribute('data-lock')==='1') return;
+  el.__face=el.innerHTML;
+  const pos=el.querySelector('.tr-pos,.tt-pos');
+  const posHtml=pos?pos.outerHTML:'';
+  el.innerHTML=posHtml+(el.classList.contains('tr-tile')
+   ? '<div class="tt-face"><div class="tt-name">翻牌</div></div>'
+   : '<div class="tr-mean"><div class="tr-core">点击翻牌</div></div>');
+  el.setAttribute('data-lock','1');
+ }else{
+  if(el.__face!=null){ el.innerHTML=el.__face; delete el.__face; }
+  el.removeAttribute('data-lock');
+ }
+}
+function trTap(i){
+ const el=document.querySelector('#out [data-i="'+i+'"]');
+ if(el&&el.getAttribute('data-lock')==='1'){ trSetLock(el,false); return; }
+ trOpen(i);
+}
 function cardFace(p,idx){
  const c=p.card;
  const num=(c.num&&c.num!=='0')?`<div class="tr-num">${c.num}</div>`:'';
  const court=c.court?`<div class="tr-court">${c.court}</div>`:'';
- return `<div class="tr-card ${p.rev?'rev':''}" onclick="trOpen(${idx})">
+ return `<div class="tr-card ${p.rev?'rev':''}" data-i="${idx}" onclick="trTap(${idx})">
   <div class="tr-pos">${p.pos}</div>
   <div class="tr-face">
     <img class="tr-img" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" loading="lazy" onerror="trImgFallback(this,'${c.sym||'✦'}')">
@@ -181,7 +206,7 @@ function tileFace(p,idx){
  const c=p.card;
  const num=(c.num&&c.num!=='0')?`<div class="tt-num">${c.num}</div>`:'';
  const court=c.court?`<div class="tt-court">${c.court}</div>`:'';
- return `<div class="tr-tile ${p.cls} ${p.rev?'rev':''}" onclick="trOpen(${idx})">
+ return `<div class="tr-tile ${p.cls} ${p.rev?'rev':''}" data-i="${idx}" onclick="trTap(${idx})">
   <div class="tt-pos">${p.pos}</div>
   <div class="tt-face">${num}${court}<img class="tt-img" src="assets/tarot-img/${c.img}.jpg" alt="${c.name}" loading="lazy" onerror="trImgFallback(this,'${c.sym||'✦'}')"><div class="tt-name">${c.name}</div><div class="tt-en">${c.en}</div><div class="tt-ori">${p.rev?'逆 ▼':'正 ▲'}</div></div>
  </div>`;
@@ -207,6 +232,8 @@ function renderSpread(picks,sp){
    ${cardsHtml}
    ${tarotRead(picks,sp)}
    <div class="sub-note">牌图为 1909 年韦特-史密斯塔罗（ Pamela Colman Smith 绘）公有领域扫描图。</div>`;
+ document.querySelectorAll('#out .tr-card,#out .tr-tile').forEach(c=>trSetLock(c,true));
+ const mask=document.getElementById('trMask'); if(mask) mask.classList.remove('on');
  LAST={q:document.getElementById('question').value,sp:layoutName,key:sp,picks};
 }
 /* 元素尊贵：同气相强，火风、水土相生互旺，水火、土风相冲互削，余者（火土、风水）中性。
@@ -276,6 +303,7 @@ function trClose(){ document.getElementById('trMask').classList.remove('on'); }
 /* 综合判断（表格版，对齐雷诺曼 ln-table 体例）：牌阵连贯、本阵统计、整体基调、元素尊贵、元素成势、跨位呼应、大阿卡纳提示与提醒逐行进表 */
 function tarotRead(picks,sp){
  let upN=0,revN=0,majorN=0;
+ const qAsk=(document.getElementById('question').value||'').trim();
  const elCnt={火:0,水:0,风:0,土:0}, suitCnt={};
  picks.forEach(p=>{
    if(p.rev)revN++;else upN++;
@@ -323,6 +351,7 @@ function tarotRead(picks,sp){
    return suitCnt[k]?`${su} ${suitCnt[k]}`:'';
  }).filter(Boolean).join('、');
  const rows=[];
+ if(qAsk) rows.push(['所问', qAsk]);
  rows.push(['牌阵连贯',narr+'。']);
  rows.push(['本阵统计',`共 ${n} 张；正位 ${upN}、逆位 ${revN}；大阿卡纳 ${majorN}；${suitDetail?('花色 '+suitDetail+'；'):''}元素 ${elDetail||'无'}。`]);
  rows.push(['整体基调',tone+archTxt+elTxt]);

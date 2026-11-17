@@ -56,7 +56,9 @@
     { k: 'fanyue', id: 'msmod-fanyue', name: '犯月查询' },
     { k: 'buddha', id: 'msmod-buddha', name: '本命佛' },
     { k: 'shuzi', id: 'msmod-num', name: '号码吉凶' },
-    { k: 'sanshi', id: 'msmod-sanshi', name: '三世书' }
+    { k: 'sanshi', id: 'msmod-sanshi', name: '三世书' },
+    { k: 'jinqian', id: 'msmod-jinqian', name: '文王金钱课' },
+    { k: 'zhuge', id: 'msmod-zhuge', name: '诸葛神数' }
   ];
   function openFolds() {
     var r = [];
@@ -209,6 +211,7 @@
       dateStr: dateStr, total: total, liang: liangInt + ' 两 ' + qian + ' 钱',
       key: key, song: song.txt, verdict: vd ? vd.t : ''
     };
+    saveMs('chengu');
   }
 
   /* ===== 4. 犯月查询 ===== */
@@ -284,7 +287,102 @@
       dateStr: sol.toYmd(), sheng: sheng, mNum: mNum, isLeap: isLeap, taiGz: taiGz, taiM: taiM,
       hasHour: hasHour, ming: j1.mHit, an: j1.aHit, gs: j2 ? j2.mHit : false
     };
+    saveMs('fanyue');
   }
+
+  /* 犯月直查：已知生肖与农历生月，直接查本月败月生肖；与生日链路同表同判，只论生月 */
+  function renderFanyueQuick() {
+    var out = $('msFyQuickOut'); if (!out) return;
+    var sheng = $('msFyZhi').value;
+    var mNum = +$('msFyMonth').value;
+    var FY = window.FANYUE;
+    var GS = (window.FANYUE_VERSES && window.FANYUE_VERSES[0]) || null;
+    if (!FY || !mNum) { out.innerHTML = '<p class="ms-err">请选择生肖与月次。</p>'; return; }
+    var j1 = judgeYue(FY.name, FY.byMonth, sheng, mNum, 0);
+    var j2 = GS ? judgeYue(GS.name, GS.byMonth, sheng, mNum, 0) : null;
+    var html = '';
+    html += '<div class="ms-cards">';
+    html += '<div class="ms-card"><div class="ms-card-k">所选生肖</div><div class="ms-card-v">' + esc(sheng) + '</div></div>';
+    html += '<div class="ms-card"><div class="ms-card-k">农历月次</div><div class="ms-card-v">' + esc(CN_MONTH[mNum - 1]) + '月</div></div>';
+    html += '<div class="ms-card ms-card-gold"><div class="ms-card-k">本月败月生肖</div><div class="ms-card-v">' + esc(j1.mZhi) + '</div>' +
+      '<div class="ms-card-s">' + esc(FY.name) + '所定</div></div>';
+    html += '</div>';
+    html += '<div class="ms-judge">';
+    html += '<div class="ms-judge-row"><span class="ms-judge-k">' + esc(FY.name) + '</span><span>' +
+      '<span class="ms-badge ' + (j1.mHit ? 'ms-warn' : 'ms-ok') + '">' + (j1.mHit ? '明犯' : '不犯') + '</span>' +
+      '本月败月生肖 ' + esc(j1.mZhi) + '，所选生肖 ' + esc(sheng) + '</span></div>';
+    if (j2) {
+      html += '<div class="ms-judge-row"><span class="ms-judge-k">' + esc(j2.name) + '</span><span>' +
+        '<span class="ms-badge ' + (j2.mHit ? 'ms-warn' : 'ms-ok') + '">' + (j2.mHit ? '犯' : '不犯') + '</span>' +
+        '本月败月生肖 ' + esc(j2.mZhi) + '，坊本只论生月</span></div>';
+    }
+    html += '</div>';
+    html += '<div class="ms-note">直查只论生月；暗犯（血败子）须胎元月，请用上方生日查询。</div>';
+    html += disclaimerLine();
+    out.innerHTML = html;
+  }
+
+  /* ===== 4b. 保存记录：接站内共享历史弹层 xjHist，不另写列表 ===== */
+  var MS_SAVED_CFG = {
+    mask: 'msSavedMask', list: 'msSavedList', key: 'msSavedLog', title: '历史记录（最多9条）',
+    restoreFn: 'restoreMsSaved', delFn: 'delMsSaved',
+    row: function (h) { return { t: h.t || '', main: h.g || '', sub: h.s || '' }; }
+  };
+  function showMsSaved() { if (window.xjHist) xjHist.open(MS_SAVED_CFG); }
+  function delMsSaved(i) { if (window.xjHist) xjHist.del(MS_SAVED_CFG, i); }
+  function saveMs(kind) {
+    if (!window.xjHist) return;
+    var e = null;
+    if (kind === 'chengu' && LAST.chengu) {
+      var c = LAST.chengu;
+      e = {
+        k: 'chengu', t: xjHist.time(),
+        g: '称骨 ' + c.liang + '（' + c.total + ' 钱）',
+        s: '农历' + c.y + '年' + (c.leap ? '闰' : '') + CN_MONTH[c.mo - 1] + '月' + CN_DAYS[c.d - 1] + '，' + (c.sex === 'm' ? '男' : '女'),
+        mode: $('msCnMode').value, solar: $('msSolarDate').value,
+        y: $('msCnYear').value, mo: $('msCnMonth').value, d: $('msCnDay').value,
+        leap: $('msCnLeap').value, sex: $('msCnSex').value, hour: $('msCnHour').value
+      };
+    } else if (kind === 'fanyue' && LAST.fanyue) {
+      var f = LAST.fanyue;
+      e = {
+        k: 'fanyue', t: xjHist.time(),
+        g: '犯月 ' + f.sheng + ' ' + CN_MONTH[f.mNum - 1] + '月',
+        s: '明犯' + (f.ming ? '是' : '否') + '，暗犯' + (f.an ? '是' : '否'),
+        date: $('msFyDate').value, hour: $('msFyHour').value
+      };
+    }
+    if (!e) return;
+    var same = function (h, o) {
+      if (h.k !== o.k) return false;
+      if (o.k === 'chengu') return h.mode === o.mode && h.solar === o.solar && h.y === o.y && h.mo === o.mo && h.d === o.d && h.leap === o.leap && h.sex === o.sex && h.hour === o.hour;
+      return h.date === o.date && h.hour === o.hour;
+    };
+    xjHist.push(MS_SAVED_CFG.key, e, same);
+    if (document.getElementById('msSavedList')) xjHist.render(MS_SAVED_CFG);
+  }
+  function restoreMsSaved(i) {
+    if (!window.xjHist) return;
+    var e = xjHist.get(MS_SAVED_CFG.key, i); if (!e) return;
+    if (e.k === 'chengu') {
+      $('msCnMode').value = e.mode || 'solar'; toggleCnMode();
+      if (e.mode === 'solar') { $('msSolarDate').value = e.solar || ''; }
+      else {
+        $('msCnYear').value = e.y || ''; $('msCnMonth').value = e.mo || '1';
+        $('msCnDay').value = e.d || '1'; $('msCnLeap').value = e.leap || '0';
+      }
+      $('msCnSex').value = e.sex || 'm'; $('msCnHour').value = e.hour || '';
+      renderChengu();
+    } else if (e.k === 'fanyue') {
+      $('msFyDate').value = e.date || ''; $('msFyHour').value = e.hour || '';
+      renderFanyue();
+    }
+    xjHist.close();
+    var out = $(e.k === 'chengu' ? 'msChenguOut' : 'msFanyueOut');
+    if (out && out.scrollIntoView) out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  window.restoreMsSaved = restoreMsSaved;
+  window.delMsSaved = delMsSaved;
 
   /* ===== 5. 本命佛 ===== */
   function renderBuddha() {
@@ -378,16 +476,20 @@
     }
     if (cur) segs.push(cur);
     var seq = [], cnt = {}, skipN = 0;
+    var chains = [];
     for (var a = 0; a < segs.length; a++) {
       var sg = segs[a];
       if (sg.length < 2) continue;
+      var link = [];
       for (var b = 0; b < sg.length - 1; b++) {
         var pr = sg.slice(b, b + 2);
         var star = P2S[pr] || '';
         if (!star) continue;
         cnt[star] = (cnt[star] || 0) + 1;
         seq.push({ pr: pr, star: star });
+        link.push(pr + star);
       }
+      if (link.length) chains.push(link.join(' → '));
     }
     for (var s2 = 0; s2 < taken.length - 1; s2++) {
       var q = taken.slice(s2, s2 + 2);
@@ -416,10 +518,34 @@
       html += '<div class="ms-note">无相邻配对（号码全为 0 或 5，或各段不足两位），八星磁场不判。</div>';
     }
     if (skipN) html += '<div class="ms-note">含 0、5 的邻接组合 ' + skipN + ' 处不论磁场（中宫无卦）。</div>';
+    if (chains.length) html += '<div class="ms-note">三数连读飞星：' + esc(chains.join('；')) + '</div>';
+    var WXN = window.NAME_DATA.WX_OF_NUM || {};
+    /* 逐位五行图：一位一格，格内数字与五行，格间标相邻组合所主之星。
+       含 0、5 的组合中宫无卦，磁场不论，格间径写不论二字。 */
+    var p2s = pairIndex();
+    var wxCells = '';
+    var ds = taken.split('');
+    for (var wi = 0; wi < ds.length; wi++) {
+      var wxd = WXN[ds[wi]] || '无';
+      wxCells += '<span class="ms-wx-cell" data-wx="' + esc(wxd) + '"><b>' + esc(ds[wi]) + '</b><em>' + esc(wxd) + '</em></span>';
+      if (wi < ds.length - 1) {
+        var pst = p2s[ds[wi] + ds[wi + 1]];
+        wxCells += '<span class="ms-wx-gap' + (pst ? '' : ' ms-wx-gap-off') + '">' + (pst ? esc(pst) : '不论') + '</span>';
+      }
+    }
+    html += '<div class="ms-wx-chart"><div class="ms-note">逐位五行图，格间为相邻两位的磁场组合</div><div class="ms-wx-row">' + wxCells + '</div></div>';
+    var wxCnt = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+    var wxMiss = [];
+    ds.forEach(function (d) { var e = WXN[d]; if (e && wxCnt[e] !== undefined) wxCnt[e]++; });
+    ['木', '火', '土', '金', '水'].forEach(function (e) { if (!wxCnt[e]) wxMiss.push(e); });
+    var wxParts = [];
+    ['木', '火', '土', '金', '水'].forEach(function (e) { if (wxCnt[e]) wxParts.push(e + ' ' + wxCnt[e] + ' 位'); });
+    html += '<div class="ms-note">五行分布：' + wxParts.join('、')
+      + (wxMiss.length ? '；本号不见' + wxMiss.join('、') : '；五行俱见'); '</div>';
     html += disclaimerLine();
     out.innerHTML = html;
 
-    LAST.num = { taken: taken, m: m, luck: luck, wx: wx, cnt: cnt, seqLen: seq.length };
+    LAST.num = { taken: taken, m: m, luck: luck, wx: wx, cnt: cnt, seqLen: seq.length, chains: chains };
   }
 
   /* ===== 6b. 三世书（袁天罡三世相法） ===== */
@@ -600,7 +726,7 @@
   function msAiContext() {
     var of = openFolds();
     var name = of.length ? of.map(function (f) { return f.name; }).join('、') : '无（各模块皆收起）';
-    var s = '【民俗占法页】当前展开：' + name + '。五法均属民俗文化范畴，仅供文化了解，不作任何吉凶承诺。\n';
+    var s = '【民俗占法页】当前展开：' + name + '。七法均属民俗文化范畴，仅供文化了解，不作任何吉凶承诺。\n';
     if (LAST.chengu) {
       var c1 = LAST.chengu;
       s += '称骨：农历 ' + c1.y + ' 年' + (c1.leap ? '闰' : '') + CN_MONTH[c1.mo - 1] + '月' + CN_DAYS[c1.d - 1] +
@@ -620,14 +746,31 @@
     }
     if (LAST.num) {
       s += '号码：取位 ' + LAST.num.taken + '，八十一数理 ' + LAST.num.m + '（' + LAST.num.luck + '，五行 ' + LAST.num.wx +
-        '），八星配对 ' + LAST.num.seqLen + ' 组。\n';
+        '），八星配对 ' + LAST.num.seqLen + ' 组' +
+        (LAST.num.chains && LAST.num.chains.length ? ('，连读 ' + LAST.num.chains.join('；')) : '') + '。\n';
     }
     if (LAST.sanshi) {
       var c3 = LAST.sanshi;
       s += '三世书：' + c3.dateStr + ' 生，生肖' + c3.sheng + '（' + c3.yearZhi + '支），农历' + (c3.isLeap ? '闰' : '') + CN_MONTH[c3.mNum - 1] +
         '月，日柱纳音' + c3.navin + '。前世身份 ' + c3.gong + '（' + c3.shen + '），今世财禄 ' + c3.lu + '，前世婚姻夫妇感情位 ' + c3.hy + '。\n';
     }
-    s += '称骨骨重表与四柱真源自八字排盘体系，犯月胎元取同源 ec.getTaiYuan()，号码数理与姓名学八十一数理同法，三世书三表照录坊本（前世身份、今世财禄同取年支乘月，前世婚姻另取日柱纳音乘月）。';
+    if (LAST.jinqian) {
+      var c4 = LAST.jinqian;
+      var c4r = window.MS_JINQIAN && window.MS_JINQIAN[c4.name];
+      s += '文王金钱课：本卦 ' + c4.name + (c4.moving ? '，变卦 ' + c4.change : '，无动爻') +
+        '，六爻自初至上 ' + c4.vals.map(function (v) { return MS_JQ_VAL[v]; }).join('、') + '。';
+      if (c4r) s += '象曰：' + c4r.xiang + '；诗曰：' + c4r.shi + '；断曰：' + c4r.duan;
+      else s += '底本存二十六卦，未收该卦断语。';
+      s += '\n';
+    }
+    if (LAST.zhuge) {
+      var c5 = LAST.zhuge;
+      s += '诸葛神数：' + c5.chars.join('') + '，康熙笔画 ' + c5.strokes.join('、') + '，取 ' + c5.no + ' 数。';
+      if (c5.text) s += '签文：' + c5.text;
+      else s += '底本存一至二百三十数，未收该数。';
+      s += '\n';
+    }
+    s += '称骨骨重表与四柱真源自八字排盘体系，犯月胎元取同源 ec.getTaiYuan()，号码数理与姓名学八十一数理同法，三世书三表照录坊本（前世身份、今世财禄同取年支乘月，前世婚姻另取日柱纳音乘月），文王金钱课与诸葛神数照录坊本，缺卦缺数标未收。';
     return s;
   }
 
@@ -643,7 +786,9 @@
       fyDate: $('msFyDate').value, fyHour: $('msFyHour').value,
       bdDate: $('msBdDate').value, bdZhi: $('msBdZhi').value,
       ssDate: $('msSsDate').value,
-      num: $('msNum').value, numPart: $('msNumPart').value
+      num: $('msNum').value, numPart: $('msNumPart').value,
+      jqQ: $('msJqQ').value, jqVals: LAST.jinqian ? LAST.jinqian.vals : null,
+      zgA: $('msZgA').value, zgB: $('msZgB').value, zgC: $('msZgC').value
     };
   }
   function msRestore(o) {
@@ -663,6 +808,10 @@
     if (o.ssDate) $('msSsDate').value = o.ssDate;
     if (o.num) $('msNum').value = o.num;
     if (o.numPart) $('msNumPart').value = o.numPart;
+    if (o.jqQ != null) $('msJqQ').value = o.jqQ;
+    if (o.zgA != null) $('msZgA').value = o.zgA;
+    if (o.zgB != null) $('msZgB').value = o.zgB;
+    if (o.zgC != null) $('msZgC').value = o.zgC;
     /* 展开状态回填：各模块独立开合，按共享串记录的键重放（展开=去 collapsed） */
     if (o.open) {
       for (var i = 0; i < FOLDS.length; i++) {
@@ -671,6 +820,8 @@
       }
     }
     rerender();
+    if (o.jqVals && o.jqVals.length === 6) renderJinqian(o.jqVals);
+    if ($('msZgA').value && $('msZgB').value && $('msZgC').value) renderZhuge();
   }
   function rerender() {
     renderChengu();
@@ -681,16 +832,115 @@
     if (String($('msNum').value || '').replace(/\D/g, '')) renderNum();
   }
 
-  /* ===== 10b. 折叠模块开合与状态持久化 =====
-   * 折叠模块 id 从 DOM 取（.mod[id]），新增模块自动纳入折叠与持久化，不靠硬编码名单。 */
-  var MS_MOD_KEY = 'msModState';
-  var msInitDone = false;
-  function _allModIds() { try { return Array.from(document.querySelectorAll('.mod[id]')).map(function (e) { return e.id; }); } catch (e) { return FOLDS.map(function (f) { return f.id; }); } }
-    function toggleMod(id) { var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); saveModState(); }
-  function saveModState(){ xjSaveEngineModState(MS_MOD_KEY, function(){ return msInitDone; }, _allModIds); }
-  function applyModState(){ xjApplyEngineModState(MS_MOD_KEY, _allModIds); }
-  /* 页内参考折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
-  try { document.addEventListener('toggle', function (e) { if (e.target && e.target.tagName === 'DETAILS' && e.target.id) saveModState(); }, true); } catch (e) {}
+  /* ===== 10b. 折叠模块开合 ===== */
+  function toggleMod(id) { var el = document.getElementById(id); if (el) el.classList.toggle('collapsed'); }
+
+  /* ===== 11. 文王金钱课 ===== */
+  var MS_JQ_NAMES = [
+    '乾为天','天泽履','天火同人','天雷无妄','天风姤','天水讼','天山遁','天地否',
+    '泽天夬','兑为泽','泽火革','泽雷随','泽风大过','泽水困','泽山咸','泽地萃',
+    '火天大有','火泽睽','离为火','火雷噬嗑','火风鼎','火水未济','火山旅','火地晋',
+    '雷天大壮','雷泽归妹','雷火丰','震为雷','雷风恒','雷水解','雷山小过','雷地豫',
+    '风天小畜','风泽中孚','风火家人','风雷益','巽为风','风水涣','风山渐','风地观',
+    '水天需','水泽节','水火既济','水雷屯','水风井','坎为水','水山蹇','水地比',
+    '山天大畜','山泽损','山火贲','山雷颐','山风蛊','山水蒙','艮为山','山地剥',
+    '地天泰','地泽临','地火明夷','地雷复','地风升','地水师','地山谦','坤为地'
+  ];
+  /* 初二三爻的二进制值 0 至 7 依次对应坤艮坎巽震离兑乾 */
+  var MS_JQ_TRI = [7, 6, 5, 4, 3, 2, 1, 0];
+  var MS_JQ_YAO = ['初', '二', '三', '四', '五', '上'];
+  var MS_JQ_VAL = { 6: '老阴', 7: '少阳', 8: '少阴', 9: '老阳' };
+  function msJqGua(vals) {
+    var yang = vals.map(function (v) { return (v === 7 || v === 9) ? 1 : 0; });
+    var chg = vals.map(function (v, i) { return (v === 6 || v === 9) ? 1 - yang[i] : yang[i]; });
+    var lo = MS_JQ_TRI[yang[0] + yang[1] * 2 + yang[2] * 4];
+    var up = MS_JQ_TRI[yang[3] + yang[4] * 2 + yang[5] * 4];
+    var lo2 = MS_JQ_TRI[chg[0] + chg[1] * 2 + chg[2] * 4];
+    var up2 = MS_JQ_TRI[chg[3] + chg[4] * 2 + chg[5] * 4];
+    return {
+      name: MS_JQ_NAMES[up * 8 + lo],
+      change: MS_JQ_NAMES[up2 * 8 + lo2],
+      moving: vals.some(function (v) { return v === 6 || v === 9; })
+    };
+  }
+  function msJqDraw() {
+    var vals = [];
+    for (var i = 0; i < 6; i++) {
+      var backs = 0;
+      for (var j = 0; j < 3; j++) if (Math.random() < 0.5) backs++;
+      vals.push(backs === 3 ? 9 : backs === 2 ? 8 : backs === 1 ? 7 : 6);
+    }
+    return vals;
+  }
+  function renderJinqian(vals) {
+    var out = $('msJqOut');
+    if (!vals || vals.length !== 6) vals = msJqDraw();
+    vals = vals.map(function (v) { return +v; });
+    var g = msJqGua(vals);
+    var rec = window.MS_JINQIAN && window.MS_JINQIAN[g.name];
+    var q = $('msJqQ').value.trim();
+    var html = '<div class="ms-cards">' +
+      '<div class="ms-card ms-card-gold"><div class="ms-card-k">本卦</div><div class="ms-card-v">' + esc(g.name) + '</div>' +
+      '<div class="ms-card-s">' + (rec ? esc(rec.label) : '底本未收断语') + '</div></div>' +
+      '<div class="ms-card"><div class="ms-card-k">变卦</div><div class="ms-card-v">' + (g.moving ? esc(g.change) : '无动爻') + '</div>' +
+      '<div class="ms-card-s">' + (g.moving ? '老阳老阴为动，阴阳翻转后得变卦' : '六爻不动，只看本卦') + '</div></div></div>';
+    var rows = '';
+    for (var i = 5; i >= 0; i--) {
+      var moving = vals[i] === 6 || vals[i] === 9;
+      rows += '<tr><td>' + MS_JQ_YAO[i] + '爻</td><td>' + MS_JQ_VAL[vals[i]] + '</td><td>' + (moving ? '动' : '') + '</td></tr>';
+    }
+    html += '<div class="ms-tbl-wrap"><table class="ms-tbl"><thead><tr><th>爻位</th><th>阴阳</th><th>动</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    if (q) html += '<div class="ms-note">所问：' + esc(q) + '</div>';
+    if (rec) {
+      html += '<div class="ms-note"><b>象曰</b>　' + esc(rec.xiang) + '</div>';
+      html += '<div class="ms-note"><b>诗曰</b>　' + esc(rec.shi) + '</div>';
+      html += '<div class="ms-note"><b>断曰</b>　' + esc(rec.duan) + '</div>';
+    } else {
+      html += '<div class="ms-note">底本存二十六卦，未收' + esc(g.name) + '的断语；卦名与爻象照排，断语不补造。</div>';
+    }
+    html += disclaimerLine();
+    out.innerHTML = html;
+    LAST.jinqian = { vals: vals.slice(), name: g.name, change: g.change, moving: g.moving, q: q };
+  }
+
+  /* ===== 12. 诸葛神数 ===== */
+  function renderZhuge() {
+    var out = $('msZgOut');
+    var chars = [$('msZgA').value.trim(), $('msZgB').value.trim(), $('msZgC').value.trim()];
+    for (var i = 0; i < 3; i++) {
+      if (!/^[\u4e00-\u9fff]$/.test(chars[i])) {
+        out.innerHTML = '<p class="ms-err">三个框各填一个汉字。</p>';
+        LAST.zhuge = null;
+        return;
+      }
+    }
+    var strokes = chars.map(function (c) { return window.getKangxiStroke ? window.getKangxiStroke(c) : 0; });
+    if (strokes.some(function (n) { return !n; })) {
+      out.innerHTML = '<p class="ms-err">字库无该字笔画，请换常用字。</p>';
+      LAST.zhuge = null;
+      return;
+    }
+    var digs = strokes.map(function (n) { return n % 10; });
+    var total = 100 * digs[0] + 10 * digs[1] + digs[2];
+    var no = total;
+    while (no > 384) no -= 384;
+    if (no === 0) no = 384;
+    var text = window.MS_ZHUGE && window.MS_ZHUGE[no];
+    var html = '<div class="ms-cards">' +
+      '<div class="ms-card"><div class="ms-card-k">三字笔画</div><div class="ms-card-v">' + strokes.join('、') + '</div>' +
+      '<div class="ms-card-s">' + chars.join('') + '，取康熙笔画</div></div>' +
+      '<div class="ms-card ms-card-gold"><div class="ms-card-k">神数</div><div class="ms-card-v">' + no + ' 数</div>' +
+      '<div class="ms-card-s">百 ' + digs[0] + '、十 ' + digs[1] + '、个 ' + digs[2] + '，合 ' + total +
+      (total > 384 ? '，减 384 得 ' + no : '') + '</div></div></div>';
+    if (text) {
+      html += '<div class="ms-note"><b>第 ' + no + ' 数</b>　' + esc(text) + '</div>';
+    } else {
+      html += '<p class="ms-err">底本存一至二百三十数，未收第 ' + no + ' 数；数已算定，签文不补造。</p>';
+    }
+    html += disclaimerLine();
+    out.innerHTML = html;
+    LAST.zhuge = { chars: chars, strokes: strokes, total: total, no: no, text: text || null };
+  }
 
   /* ===== 10. 初始化 ===== */
   /* 输入方式切换：公历模式只显公历日期框，农历模式只显农历年月闰日四项；性别与时辰两模式共用 */
@@ -742,11 +992,16 @@
     renderBx();
     renderSanshiTables();
     $('msChenguBtn').addEventListener('click', renderChengu);
+    $('msChenguHistBtn').addEventListener('click', showMsSaved);
     $('msCnMode').addEventListener('change', toggleCnMode);
     $('msFanyueBtn').addEventListener('click', renderFanyue);
+    $('msFanyueHistBtn').addEventListener('click', showMsSaved);
+    $('msFyQuickBtn').addEventListener('click', renderFanyueQuick);
     $('msBuddhaBtn').addEventListener('click', renderBuddha);
     $('msNumBtn').addEventListener('click', renderNum);
     $('msSanshiBtn').addEventListener('click', renderSanshi);
+    $('msJqBtn').addEventListener('click', function () { renderJinqian(); });
+    $('msZgBtn').addEventListener('click', renderZhuge);
     fillToday();
     if (window.mountAI) window.mountAI(msAiContext, '民俗占法', {
       share: {
@@ -754,9 +1009,6 @@
         collect: msCollect, restore: msRestore, recast: rerender
       }
     });
-    /* 渲染完成：打标后折叠状态才允许写回，并恢复已存折叠偏好 */
-    msInitDone = true;
-    applyModState();
   }
 
   /* 内联 onclick 走全局作用域：本文件为 IIFE，须显式挂到 window，

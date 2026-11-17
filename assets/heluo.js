@@ -879,16 +879,8 @@ function hlCurLichunYear(){
   const t=new Date();
   return hlLichunYearNum(Solar.fromYmdHms(t.getFullYear(),t.getMonth()+1,t.getDate(),12,0,0));
 }
-/* ===== 折叠模块开合与状态持久化 =====
-   模块 id 从 DOM 取（.mod[id]），新增模块自动纳入折叠与持久化；hlInitDone 打标前不写回，防覆盖已存偏好 */
-var HL_MOD_KEY='hlModState';
-var hlInitDone=false;
-function _hlAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return []; } }
-function toggleMod(id){ var el=document.getElementById(id); if(el) el.classList.toggle('collapsed'); hlSaveModState(); }
-function hlSaveModState(){ xjSaveEngineModState(HL_MOD_KEY, function(){ return hlInitDone; }, _hlAllModIds); }
-function hlApplyModState(){ xjApplyEngineModState(HL_MOD_KEY, _hlAllModIds); }
-/* 页内 details 折叠块展开、收起即保存：toggle 事件不冒泡，用捕获阶段监听 */
-try{ document.addEventListener('toggle',function(e){ if(e.target&&e.target.tagName==='DETAILS'&&e.target.id) hlSaveModState(); },true); }catch(e){}
+/* ===== 折叠模块开合 ===== */
+function toggleMod(id){ var el=document.getElementById(id); if(el) el.classList.toggle('collapsed'); }
 
 /* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时、收起中国夏令时并写说明行；
    境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
@@ -933,9 +925,6 @@ function hlInit(){
       if(this.open&&!jwHost.__jwRendered){ window.jwRenderInto(jwHost); jwHost.__jwRendered=true; }
     });
   }
-  /* 渲染完成：打标后折叠状态才允许写回，并恢复已存折叠偏好 */
-  hlInitDone=true;
-  hlApplyModState();
 }
 if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hlInit); } else { hlInit(); }
 

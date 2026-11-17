@@ -459,12 +459,6 @@ a.btn{display:inline-flex;align-items:center}
 
 .bazi-link-banner b{color:var(--gold2);font-weight:700}
 
-.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
-
-.mh-ref:not([open]){border-bottom:1px solid var(--line)}
-
-.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
-
 .mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
 
 .mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
@@ -2165,7 +2159,13 @@ to{opacity:1;transform:none}}
 
 .page-xx .xx-z3j-item .xx-tag{margin-right:var(--sp-1)}
 
-.page-xx .xx-sun-row{margin-bottom:var(--sp-2)}
+.page-xx .xx-sun-row{display:flex;align-items:baseline;gap:var(--sp-1);margin-bottom:var(--sp-2)}
+/* 固定列宽：带 colgroup 的表用定宽布局，列宽只按 colgroup 走。
+   异文标注列的文字由脚本按访问日重写，auto 布局下会挤动前四列，故此类表一律定宽。 */
+.page-xx .xx-tbl.xx-fixed{table-layout:fixed}
+/* 视黄经那句按访问时刻重写，短句与长句差一行，行高变会把下面整张表推走。
+   给 b 固定占满剩余宽并恒为一行：长度变而盒子不变，表不动。 */
+.page-xx .xx-sun-row b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .page-xx .xx-xname{font-size:17px;font-weight:400;color:var(--xx2)}
 
@@ -2329,10 +2329,4 @@ to{opacity:1;transform:none}}
 /* 日期弹框主题（字面量，dt-input 弹框经页面主题类派发 dtm-xx） */
 .dtm-xx{--tk:#2c3e5d;--tk2:#1f2d47;--tk-ink:#3a4356;--tk-line:#d7dfe9;--tk-tint:#eef2f8}
 
-/* page-font:begin */
-/* page-font-hash: 9d69864bb170 */
-@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../fonts/pages/xingxiu-0.woff2) format("woff2");unicode-range:U+0020, U+0041, U+0049-004a, U+004e, U+0050, U+0055, U+0058, U+3000, U+3002, U+300a-300b, U+4e09, U+4e0e, U+4e66, U+4e8c, U+4f0f, U+4f4d, U+4f53, U+4fd7, U+503c, U+5165, U+516b, U+517b, U+5206, U+5341, U+535c, U+5360, U+5386, U+53e4, U+547d, U+56db, U+56fe, U+5929, U+5b98, U+5b9c, U+5bab, U+5bb6, U+5bbf, U+5c71, U+5c81, U+5dee, U+5e76, U+5ea6, U+5f0f, U+5f55, U+5fcc, U+603b, U+610f, U+6392, U+6587, U+65ad, U+65e5, U+661f, U+671f, U+672c, U+672f, U+673a, U+67e5, U+6b21, U+6c11, U+6c14, U+6cd5, U+6f14, U+7384, U+7406, U+751f, U+76d8, U+76f8, U+770b, U+793a, U+79bd, U+7cfb, U+8868, U+8be2, U+8ddd, U+8f93, U+8f9e, U+8fd0, U+914d, U+91ce, U+9644, U+9875, U+9996, U+ff0c}
-@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../fonts/pages/xingxiu-1.woff2) format("woff2");unicode-range:U+0021, U+0025-0026, U+0028-0029, U+002b, U+002f-0031, U+0038-0039, U+003d-003e, U+0040, U+0042-0044, U+0046-0047, U+004b-004d, U+004f, U+0053, U+0056, U+0059, U+005b, U+005f, U+0062, U+0065-0066, U+0068, U+006b-006d, U+0070-0071, U+0074-0075, U+007d-007e, U+4e00-4e01, U+4e03, U+4e19, U+4e4c, U+4e5d, U+4e8f, U+4ea5, U+5148, U+516d, U+519c, U+51f6, U+52a0, U+5348, U+5371, U+5409, U+571f, U+58ec, U+5915, U+591c, U+5927, U+5973, U+5a04, U+5ba4, U+5bc5, U+5bdd, U+5df3, U+5ea7, U+5f26, U+5f85, U+60ca, U+620c, U+6597, U+65b0, U+65e0, U+65e2, U+6625, U+6682, U+6691, U+6709, U+6714, U+6728, U+679c, U+6b63, U+6b8b, U+6d88, U+6e10, U+706b, U+70b9, U+71d5, U+732a, U+7334, U+7532-7533, U+7537, U+7678, U+76c8, U+7709, U+786e, U+79cb, U+7acb, U+7b95, U+7ed3, U+7f6e, U+7f8a, U+7ffc, U+80c3, U+814a, U+81f3, U+8292, U+865a, U+8693, U+86f0, U+89d2, U+8bef, U+8bf4, U+8c79, U+8f7d, U+8f9b, U+9009, U+9519, U+964d, U+96e8, U+971c, U+9732, U+9a6c, U+9b3c, U+9e21, U+9f20, U+9f99}
-@font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../fonts/pages/xingxiu-2.woff2) format("woff2");unicode-range:U+0022-0024, U+0027, U+002a, U+002c-002e, U+0032-0037, U+003a-003c, U+003f, U+0045, U+0048, U+0051-0052, U+0054, U+0057, U+005a, U+005c-005e, U+0060-0061, U+0063-0064, U+0067, U+0069-006a, U+006e-006f, U+0072-0073, U+0076-007c, U+4e0a-4e0b, U+4e11, U+4e59, U+4e94-4e95, U+4ea2, U+5154, U+516c, U+5173, U+51ac, U+51f8, U+521d, U+536f, U+53c2, U+53d6, U+58c1, U+5904, U+590f, U+594e, U+5a35, U+5b50, U+5b9a, U+5bb5, U+5bd2, U+5c0f, U+5c3e, U+5c45, U+5df1, U+5e74, U+5e9a, U+5ecf, U+5eff, U+5f20, U+5fc3, U+620a, U+623f, U+62e9, U+636e, U+63d0, U+6570, U+65f6, U+660e, U+6634, U+6653, U+6666, U+66f4, U+6708, U+671b, U+672a, U+67f3, U+6bd5, U+6c10, U+6c34, U+6e05, U+6ee1, U+725b, U+72b4, U+72d0, U+72d7, U+72fc, U+733f, U+7350, U+736c, U+767d, U+79cd, U+864e, U+86c7, U+86df, U+86fe, U+8760, U+89dc, U+8bbe, U+8bf7, U+8c37, U+8c89, U+8c90, U+8f78, U+8fb0, U+9149, U+91d1, U+95ed, U+95f0, U+96c9, U+96ea, U+9e7f}
-/* page-font:end */
 

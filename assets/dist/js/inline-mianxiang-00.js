@@ -11,14 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var ST = window.XS_SANTING, MIANY = window.XS_MIANY;
 
-    function mianToggleMod(id){ var el = $(id); if (el) el.classList.toggle('collapsed'); saveMxModState(); }
+    function mianToggleMod(id){ var el = $(id); if (el) el.classList.toggle('collapsed'); }
     window.mianToggleMod = mianToggleMod;
-
-    /* 折叠状态持久化：localStorage 为主、sessionStorage 兜底，以已存为底 */
-    var MX_MOD_KEY = 'mianModState';
-    var mianModNavReady = false;
-        function saveMxModState(){ xjSaveModCollapsed(MX_MOD_KEY, function(){ return mianModNavReady; }, '.mod[id]'); }
-    function applyMxModState(){ xjApplyModCollapsed(MX_MOD_KEY, '.mod[id]'); }
 
     function qtabWrap(inner){ return '<div class="qtab-scroll"><table class="qtab">' + inner + '</table></div>'; }
     /* 档位阈值：十一宫计分，满分三十三分；十八分及以上为吉档，负十二分及以下为需留意档，余为平档；阈值为本站归纳 */
@@ -165,8 +159,49 @@ document.addEventListener('DOMContentLoaded', function () {
       h += '<p class="mian-note">十一宫合计 ' + total + ' 分（相貌宫总览不计分），归' + bandOf(total) + '。档位阈值为本站归纳：十八分及以上为吉档，负十二分及以下为需留意档，余为平档。各宫定位见十二宫古籍原图。</p>';
       h += '<p class="mian-dis">相术为传统民俗文化，仅供文化研究与娱乐，不作人格评判与医疗依据。</p>';
       out.innerHTML = h;
+      mxSave();
     }
     window.mianGo = mianGo;
+
+    /* 自查记录：接站内共享历史弹层 xjHist，查询即自动留存，历史记录可重开 */
+    var MX_SAVED_CFG = {
+      mask: 'mxSavedMask', list: 'mxSavedList', key: 'mxMianLog', title: '历史记录（最多9条）',
+      restoreFn: 'mxRestoreSaved', delFn: 'mxDelSaved',
+      row: function (h) { return { t: h.t || '', main: h.g || '', sub: h.s || '' }; }
+    };
+    function mxSnap() {
+      var o = {}, ps = MIANY.palaces;
+      for (var i = 0; i < ps.length; i++) {
+        var p = ps[i]; if (p.key === 'xiangmao') continue;
+        o[p.key] = { m: $('mianMorph-' + p.key) ? $('mianMorph-' + p.key).value : '', c: $('mianColor-' + p.key) ? $('mianColor-' + p.key).value : '' };
+      }
+      return o;
+    }
+    function mxSave() {
+      if (!window.xjHist) return;
+      var d = mxSnap(), total = 0;
+      for (var k in d) { total += (MORPH[d[k].m] ? MORPH[d[k].m].w : 0) + (COLOR[d[k].c] ? COLOR[d[k].c].w : 0); }
+      var e = { t: xjHist.time(), g: '面相自查', s: '十一宫合计 ' + total + ' 分，' + bandOf(total), d: d };
+      xjHist.push(MX_SAVED_CFG.key, e, function (h, o) { return JSON.stringify(h.d) === JSON.stringify(o.d); });
+      if (document.getElementById('mxSavedList')) xjHist.render(MX_SAVED_CFG);
+    }
+    function mxShowSaved() { if (window.xjHist) xjHist.open(MX_SAVED_CFG); }
+    function mxDelSaved(i) { if (window.xjHist) xjHist.del(MX_SAVED_CFG, i); }
+    function mxRestoreSaved(i) {
+      if (!window.xjHist) return;
+      var e = xjHist.get(MX_SAVED_CFG.key, i); if (!e || !e.d) return;
+      for (var k in e.d) {
+        var mEl = $('mianMorph-' + k), cEl = $('mianColor-' + k);
+        if (mEl) mEl.value = e.d[k].m || '';
+        if (cEl) cEl.value = e.d[k].c || '';
+      }
+      mianGo();
+      xjHist.close();
+      var out = $('mianOut'); if (out && out.scrollIntoView) out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    window.mxRestoreSaved = mxRestoreSaved;
+    window.mxDelSaved = mxDelSaved;
+    if ($('mianHistBtn')) $('mianHistBtn').addEventListener('click', mxShowSaved);
 
     /* 模块七：面相理论流派（形神两宗与集成诸家并列，各注源流与判法，不作优劣之断） */
     function renderLiupai(){
@@ -225,10 +260,8 @@ document.addEventListener('DOMContentLoaded', function () {
       return s;
     }
 
-    /* 页面装配：共享壳件、折叠状态恢复与免责声明 */
+    /* 页面装配：共享壳件与免责声明 */
     renderChrome('mianxiang.html');
-    applyMxModState();
-    mianModNavReady = true;
     if (window.mountAI) window.mountAI(mianAiContext, '面相', { share:{ page:'mianxiang', title:'面相在线自查', result:'#mianOut', collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ mianGo(); }); } } });
     /* 分享与数据：表单快照即盘面，链接与 JSON 还原后重出自查。 */
     })();

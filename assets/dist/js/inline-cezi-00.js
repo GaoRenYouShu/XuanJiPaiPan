@@ -165,7 +165,6 @@ function show(r){
     head + chaiBox + duanBox + shuliBox + guaBox + waiBox + sfBox + casesBox + jwBox +
     `<div class="xz-note cz-tail-note">※ 健康之问请遵医嘱，切勿以此断病。</div>`;
   czRenderJw();
-  xjApplyFold('czFoldState','#out details[id]');
   LAST=r;
 }
 /* 折叠态属交互态：结果区折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */

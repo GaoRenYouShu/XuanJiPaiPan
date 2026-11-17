@@ -10,14 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var SHOU = window.XS_SHOU;
 
-    function sxToggleMod(id){ var el = $(id); if (el) el.classList.toggle('collapsed'); saveSxModState(); }
+    function sxToggleMod(id){ var el = $(id); if (el) el.classList.toggle('collapsed'); }
     window.sxToggleMod = sxToggleMod;
-
-    /* 折叠状态持久化：localStorage 为主、sessionStorage 兜底，以已存为底 */
-    var SX_MOD_KEY = 'sxModState';
-    var sxModNavReady = false;
-        function saveSxModState(){ xjSaveModCollapsed(SX_MOD_KEY, function(){ return sxModNavReady; }, '.mod[id]'); }
-    function applySxModState(){ xjApplyModCollapsed(SX_MOD_KEY, '.mod[id]'); }
 
     function qtabWrap(inner){ return '<div class="qtab-scroll"><table class="qtab">' + inner + '</table></div>'; }
     function sign(n){ return n > 0 ? '+' + n : String(n); }
@@ -251,8 +245,55 @@ document.addEventListener('DOMContentLoaded', function () {
       var h = '<div class="info-box"><h4>逐项短断（本站归纳）</h4>' + lines + '</div>';
       h += '<p class="sx-note">三线八丘合计 ' + total + ' 分，归' + bandOf(total) + '。未勾选之丘不计分。</p>';
       out.innerHTML = h;
+      sxSave();
     }
     window.sxShouGo = sxShouGo;
+
+    /* 自查多记录：接站内共享历史弹层 xjHist，存表单原值与总分档位，重开按原值重算 */
+    var SX_SAVED_CFG = {
+      mask: 'sxSavedMask', list: 'sxSavedList', key: 'sxShouLog', title: '历史记录（最多9条）',
+      restoreFn: 'sxRestoreSaved', delFn: 'sxDelSaved',
+      row: function (h) { return { t: h.t || '', main: h.g || '', sub: h.s || '' }; }
+    };
+    function sxSnap() {
+      var s = { hand: $('sxHand') ? $('sxHand').value : 'left', palm: $('sxPalm') ? $('sxPalm').value : '', se: $('sxSeColor') ? $('sxSeColor').value : '', lines: {}, hills: [] };
+      SHOU.lines.forEach(function (L) { s.lines[L.key] = $('sxLine-' + L.key) ? $('sxLine-' + L.key).value : '0'; });
+      SHOU.hills.forEach(function (q) { if ($('sxHill-' + q.key) && $('sxHill-' + q.key).checked) s.hills.push(q.key); });
+      return s;
+    }
+    function sxTotalOf(s) {
+      var t = 0;
+      SHOU.lines.forEach(function (L) { var v = L.variants[+(s.lines[L.key] || 0)]; if (v) t += v.w; });
+      return t + s.hills.length;
+    }
+    function sxHandText(s) {
+      return s.hand === 'right' ? '右手（后天之运）' : (s.hand === 'both' ? '双手合参' : '左手（先天之基）');
+    }
+    function showSxSaved() { if (window.xjHist) xjHist.open(SX_SAVED_CFG); }
+    function sxSave() {
+      if (!window.xjHist) return;
+      var s = sxSnap(), total = sxTotalOf(s);
+      var e = { t: xjHist.time(), g: sxHandText(s), s: '合计 ' + total + ' 分，' + bandOf(total), d: s };
+      xjHist.push(SX_SAVED_CFG.key, e, function (h, o) { return JSON.stringify(h.d) === JSON.stringify(o.d); });
+      if (document.getElementById('sxSavedList')) xjHist.render(SX_SAVED_CFG);
+    }
+    function sxDelSaved(i) { if (window.xjHist) xjHist.del(SX_SAVED_CFG, i); }
+    function sxRestoreSaved(i) {
+      if (!window.xjHist) return;
+      var e = xjHist.get(SX_SAVED_CFG.key, i); if (!e || !e.d) return;
+      var s = e.d;
+      if ($('sxHand')) $('sxHand').value = s.hand || 'left';
+      if ($('sxPalm')) $('sxPalm').value = s.palm || '';
+      if ($('sxSeColor')) $('sxSeColor').value = s.se || '';
+      SHOU.lines.forEach(function (L) { var el = $('sxLine-' + L.key); if (el) el.value = s.lines[L.key] || '0'; });
+      SHOU.hills.forEach(function (q) { var el = $('sxHill-' + q.key); if (el) el.checked = s.hills.indexOf(q.key) >= 0; });
+      sxShouGo();
+      xjHist.close();
+      var out = $('sxShouOut'); if (out && out.scrollIntoView) out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    window.sxRestoreSaved = sxRestoreSaved;
+    window.sxDelSaved = sxDelSaved;
+    if ($('sxHistoryBtn')) $('sxHistoryBtn').addEventListener('click', showSxSaved);
 
     /* 渲染次序：整体（掌形掌色）、局部（九宫八丘、五指指甲）、细节（三大主线、辅助线纹），末为自查与流派 */
     renderZhi();
@@ -362,10 +403,8 @@ document.addEventListener('DOMContentLoaded', function () {
       return s;
     }
 
-    /* 页面装配：共享壳件、折叠状态恢复与免责声明 */
+    /* 页面装配：共享壳件与免责声明 */
     renderChrome('shouxiang.html');
-    applySxModState();
-    sxModNavReady = true;
     if (window.mountAI) window.mountAI(sxAiContext, '手相', { share:{ page:'shouxiang', title:'手相在线自查', result:'#sxShouOut', collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ sxShouGo(); }); } } });
     /* 分享与数据：表单快照即盘面，链接与 JSON 还原后重出自查。 */
     })();

@@ -1,0 +1,716 @@
+
+let __mh=null;
+const XT_BITS={1:[1,1,1],2:[1,1,0],3:[1,0,1],4:[1,0,0],5:[0,1,1],6:[0,1,0],7:[0,0,1],8:[0,0,0]};
+/* 先天数 1-8 → 卦名（乾兑离震巽坎艮坤），见 gua.js XT2NAME */
+// ZHI_NUM 由 xuanji-lib.js 提供（勿重复声明，否则整段脚本 SyntaxError）
+/* 后天洛书数（文王八卦数）：坎1坤2震3巽4乾6兑7艮8离9，中5无卦寄艮 */
+const HT_BITS={1:[0,1,0],2:[0,0,0],3:[1,0,0],4:[0,1,1],5:[0,0,1],6:[1,1,1],7:[1,1,0],8:[0,0,1],9:[1,0,1]};
+const HT_NAME={1:'坎',2:'坤',3:'震',4:'巽',5:'艮',6:'乾',7:'兑',8:'艮',9:'离'};
+/* 洛书地支宫数（后天、方位起卦用）：子坎1 丑寅艮8 卯震3 辰巳巽4 午离9 未申坤2 酉兑7 戌亥乾6 */
+const ZHI_HT={子:1,丑:8,寅:8,卯:3,辰:4,巳:4,午:9,未:2,申:2,酉:7,戌:6,亥:6};
+/* 日干序数（三要灵应派下卦取日干） */
+// GAN_NUM 由 xuanji-lib.js 提供
+function seasonWeight(monthZhi){
+  if('寅卯辰'.includes(monthZhi)) return 1;
+  if('巳午未'.includes(monthZhi)) return 2;
+  if('申酉戌'.includes(monthZhi)) return 3;
+  return 4; /* 亥子丑 冬 */
+}
+function getBits(sys,n){ return (sys==='ht'?HT_BITS:XT_BITS)[n]; }
+function nameBySys(sys,n){ return (sys==='ht'?HT_NAME:XT2NAME)[n]; }
+// 梅花易数各流派：sys=数系统(xt先天/ht后天)，ysrc/hsrc=年、时数来源，dayBias/dongBias=额外加权
+const MEIHUA_SCHOOLS={
+  '邵雍先天派':{sys:'xt',ysrc:'zhi',hsrc:'zhi',dayBias:0,dongBias:0,
+    note:'以“乾一兑二离三震四巽五坎六艮七坤八”先天数起卦，重体用生克与卦气旺衰。本卦为事之体、变卦为事之用、互卦为过程，体用比和则吉、体克用则成、用克体则凶。'},
+  '端法后天派':{sys:'ht',ysrc:'ht',hsrc:'ht',dayBias:0,dongBias:0,
+    note:'以洛书文王数（坎1坤2震3巽4乾6兑7艮8离9）起卦，年支、时支取各自洛书宫数，多参方位之动静。体用生克法则与先天同，唯起卦之数取自方位洛书。'},
+  '卦气旺衰派':{sys:'xt',ysrc:'zhi',hsrc:'zhi',dayBias:'season',dongBias:0,
+    note:'以先天数起卦，唯日辰加“月令旺衰权重”（春1夏2秋3冬4），特重卦所隶五行当令与否：春木旺、夏火旺、秋金旺、冬水旺、四季土旺。体卦临旺相则吉，遇囚死则减力。'},
+  '三要灵应派':{sys:'xt',ysrc:'zhi',hsrc:'gan',dayBias:0,dongBias:0,
+    note:'以“耳之于声、目之于色、心之于理”三要，下卦时数取“日干”序数而非时支，兼取外应（闻吉语、见吉物为外应之吉，反之减）。断卦须合当时外境动静，不可执一。'},
+  '梅花心易派':{sys:'xt',ysrc:'zhi',hsrc:'zhi',dayBias:0,dongBias:'min',
+    note:'邵伯温所传，重“不动不占、不因事不占”，以心动、事起为占；动爻另加“分钟数”以参当下之机。体用之外更看卦象之自然呼应（如乾为君父、坤为母、坎为陷、离为文）。'}
+};
+function fillMhCat(){const el=document.getElementById('mhCat');if(!el)return;el.innerHTML=MH_CAT_LIST.map(k=>'<option>'+k+'</option>').join('')}
+function fillMhSchool(){document.getElementById('mhSchool').innerHTML=Object.keys(MEIHUA_SCHOOLS).map(k=>`<option>${k}</option>`).join('');}
+// ===== 梅花专业增强：八卦五行、体用生克、旺衰、应期、象意、分类占断 =====
+const TRIGRAM_WX={'乾':'金','兑':'金','坎':'水','震':'木','巽':'木','离':'火','艮':'土','坤':'土'};
+const WX_KE_MH={'金':'木','木':'土','土':'水','水':'火','火':'金'};      // 我克
+const SHENG_MH={'金':'水','水':'木','木':'火','火':'土','土':'金'};      // 我生
+// 先天卦数取 gua.js 真源 TRIGRAMS[卦名].xt（乾1兑2离3震4巽5坎6艮7坤8），应期基数
+// 体用关系判定
+function tiYongRel(tiWx,yongWx){
+  if(tiWx===yongWx) return {rel:'比和',judge:'比和（体用同心，事多遂意，平吉）',cls:'luck-吉'};
+  if(WX_KE_MH[tiWx]===yongWx) return {rel:'体克用',judge:'体克用（我制事，事可成、我占先，吉）',cls:'luck-吉'};
+  if(WX_KE_MH[yongWx]===tiWx) return {rel:'用克体',judge:'用克体（事制我，事难成、我受制，凶）',cls:'luck-凶'};
+  if(SHENG_MH[tiWx]===yongWx) return {rel:'体生用',judge:'体生用（我泄其气，事费力、小凶）',cls:'luck-凶'};
+  if(SHENG_MH[yongWx]===tiWx) return {rel:'用生体',judge:'用生体（事来生我，事易成、得外力，吉）',cls:'luck-吉'};
+  return {rel:'相杂',judge:'体用相杂，宜审卦象',cls:'luck-吉'};
+}
+// 卦气旺衰：依月支所属季节的当令五行 vs 体卦五行（单一口径，与 WX_SEASON 一致）
+function guaWang(tiWx, monthZhi){
+  const season=SEASON_OF_MONTH[monthZhi]||'春';
+  const ling=Object.keys(WX_SEASON[season]).find(w=>WX_SEASON[season][w]==='旺')||'木';
+  if(tiWx===ling) return {label:'旺',desc:'体卦当令，气盛事速'};
+  if(SHENG_MH[ling]===tiWx) return {label:'相',desc:'月令生体，气次旺'};
+  if(SHENG_MH[tiWx]===ling) return {label:'休',desc:'体生月令，气泄而平'};
+  if(WX_KE_MH[tiWx]===ling) return {label:'囚',desc:'体克月令，力受牵制'};
+  return {label:'死',desc:'月令克体，气绝无力'};
+}
+// 应期多层判断：①先天数定日期 ②体用旺衰定远近 ③值日辰、入墓待冲、动爻用卦当日应
+function yingQi(ben, tiWx, yongWx, wangLabel, lunar, dong){
+  const xu = TRIGRAMS[ben.upper].xt, xl = TRIGRAMS[ben.lower].xt;
+  const x = xu + xl;
+  const parts=[];
+  /* ①先天数应期：本卦上下卦先天数之和为基数，视卦体旺衰定日、月速率 */
+  const sp = wangLabel==='旺' ? '体卦当令气盛，期近（'+x+'日内或当月应）'
+           : wangLabel==='相' ? '体卦次旺，期稍近（'+x+'日内）'
+           : wangLabel==='死' ? '体卦失令，期远（'+x+'日后、经月应）'
+           : wangLabel==='囚' ? '体卦被制，期缓而难定' : '体卦平和，应期不见迟速';
+  parts.push('先天数定期：本卦先天数 '+x+'（上'+xu+'、下'+xl+'），'+sp);
+  /* ②值日辰：占事应于体卦值日或比合之日 */
+  if(lunar){
+    const dz=lunar.getDayInGanZhi()[1];
+    if(ZHI_WX[dz]===tiWx) parts.push('体卦值日辰'+dz+'（日辰同气），当日可应');
+    else if(ZHI_WX[dz]===yongWx) parts.push('用卦值日辰'+dz+'，事见应于'+dz+'日');
+    else parts.push('近应看值日：未来'+x+'日内逢'+tiWx+'之日（'+Object.keys(ZHI_WX).filter(z=>ZHI_WX[z]===tiWx).join('、')+'值日）可应');
+  }
+  /* ③入墓待冲：体或用入墓库，须等冲墓之日方应 */
+  if(lunar){
+    const dz=lunar.getDayInGanZhi()[1];
+    const muTi=MU_KU_MH[tiWx], muYong=MU_KU_MH[yongWx];
+    if(muTi&&dz===muTi) parts.push('体卦入墓库'+muTi+'，须待冲'+muTi+'之日（'+CHONG_MH[muTi]+'日）方能应事');
+    else if(muYong&&dz===muYong) parts.push('用卦入墓库'+muYong+'，事待冲墓之期方成');
+    else if(muTi) parts.push('迟应看冲墓：待'+CHONG_MH[muTi]+'日冲'+muTi+'墓库时可应');
+  }
+  /* ④月旺应期：体卦五行见当月或旺相之月最易应 */
+  const wangMonth = Object.keys(WX_SEASON[SEASON_OF_MONTH[lunar?lunar.getMonthZhi():'寅']]).find(function(w){ return WX_SEASON[SEASON_OF_MONTH[lunar?lunar.getMonthZhi():'寅']][w]==='旺'; })||'木';
+  parts.push('月令应期：应于'+tiWx+'旺相之时（'+(wangMonth===tiWx?'本月当令正旺':SHENG_MH[wangMonth]===tiWx||SHENG_MH[tiWx]===wangMonth?'相生体之月':'次旺之月')+'），遇'+Object.keys(ZHI_WX).filter(z=>ZHI_WX[z]===tiWx).join('')+'月尤验');
+  return parts.join('；')+'。';
+}
+// 地支六冲（冲墓用）
+const CHONG_MH={'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'};
+// 八卦类象全表：依《梅花易数·八卦万物类象》录象。卦、先天数、方位、五行色、时令、人身、动物、静物、德性
+const MH_TRIGRAM_INFO={
+  '乾':{natural:'天、圜、君父',person:'老父、贵人、君',de:'健',
+    num:'1',color:'大赤',season:'秋',body:'首、骨、肺',animal:'马',obj:'金玉、冠、圆物'},
+  '兑':{natural:'泽、口、缺',person:'少女、妾、说者',de:'悦、毁折',
+    num:'2',color:'素白',season:'秋',body:'口、舌、肺',animal:'羊',obj:'金刃、口舌之物'},
+  '离':{natural:'火、日、电',person:'中女、文人',de:'丽、附丽、明',
+    num:'3',color:'赤红',season:'夏',body:'目、心、上焦',animal:'雉、龟',obj:'文书、甲胄、火'},
+  '震':{natural:'雷、动',person:'长男',de:'动、奋起',
+    num:'4',color:'苍青',season:'春',body:'足、肝、发、声',animal:'龙、蛇',obj:'竹、草木、鼓'},
+  '巽':{natural:'风、木、入',person:'长女、僧尼',de:'入、谦逊',
+    num:'5',color:'碧绿',season:'春夏之交',body:'股、胆、气',animal:'鸡、蛇',obj:'绳、帛、白茅'},
+  '坎':{natural:'水、陷、险',person:'中男、盗',de:'陷、险、劳',
+    num:'6',color:'玄黑',season:'冬',body:'耳、肾、血',animal:'豕、鱼',obj:'弓轮、沟渎、酒醴'},
+  '艮':{natural:'山、止、径路',person:'少男、童仆',de:'止、静止',
+    num:'7',color:'土黄',season:'冬春之交',body:'手、鼻、指',animal:'狗、虎、鼠',obj:'山石、土、门阙'},
+  '坤':{natural:'地、顺、方',person:'母、老妇',de:'顺、柔、载物',
+    num:'8',color:'土褐',season:'夏秋之交',body:'腹、脾、胃、肉',animal:'牛、牝马',obj:'布帛、舆、釜'}
+};
+function trigramTable(){
+  const cols=[
+    ['卦','g'],['五行','wx'],['先天数','num'],['后天方位','dir'],['五行色','color'],['时令','season'],
+    ['人身','body'],['动物','animal'],['静物','obj'],['德性','de'],['自然 人物','np']
+  ];
+  /* 类象表内顿号(、)换空格、分隔符(；)换空格，保证格内整洁 */
+  const sp=function(s){ return String(s==null?'':s).replace(/、/g,' ').replace(/；/g,' ').trim(); };
+  const rows=Object.keys(MH_TRIGRAM_INFO).map(n=>{
+    const v=MH_TRIGRAM_INFO[n];
+    const np=sp(v.natural)+' '+sp(v.person);
+    return '<tr><td>'+n+'</td><td>'+wxColorSpan(TRIGRAM_WX[n])+'</td><td>'+v.num+'</td><td>'+GUA_DIR_NUM_COLOR[n].split(' ')[0]+'</td><td>'+sp(v.color)+'</td><td>'+sp(v.season)+'</td><td>'+sp(v.body)+'</td><td>'+sp(v.animal)+'</td><td>'+sp(v.obj)+'</td><td>'+sp(v.de)+'</td><td>'+np+'</td></tr>';
+  }).join('');
+  return '<div class="mh-tri-wrap"><table class="mh-tri-tbl"><thead><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+// 分类专项占断（按体用关系，8 类）：取传统梅花占法框架
+const MH_CAT={
+ '天时':{'比和':'晴云得宜，风雨顺时','体克用':'晴而有风，不久将变','用克体':'阴晦多变，风雨不时','体生用':'晴不久持','用生体':'雨泽应期'},
+ '人事':{'比和':'人事和顺，彼此相安','体克用':'人事由我，可制可控','用克体':'人事相欺，防口舌','体生用':'人情虚耗','用生体':'人来相帮，贵人助力'},
+ '家宅':{'比和':'家宅安宁，人口平安','体克用':'宅运我掌，整饬则安','用克体':'宅有侵扰','体生用':'宅气外泄','用生体':'宅得生扶，进益安居'},
+ '屋舍':{'比和':'屋舍相宜','体克用':'屋可自置','用克体':'屋有损伤','体生用':'屋宇耗损','用生体':'屋舍得助'},
+ '婚姻':{'比和':'姻缘和合，可成可久','体克用':'婚可成，我方主动','用克体':'婚多阻隔，难以成谐','体生用':'婚事我耗','用生体':'婚得相助，易成易谐'},
+ '生产':{'比和':'生产平安，母子无虞','体克用':'生产顺利','用克体':'生产有险','体生用':'产母耗气','用生体':'生产得助'},
+ '饮食':{'比和':'饮食如常','体克用':'食有余','用克体':'饮食不宜','体生用':'饮食耗费','用生体':'饮食有益'},
+ '求谋':{'比和':'谋事顺遂，所求如愿','体克用':'谋事可成','用克体':'谋事受制','体生用':'谋事费力','用生体':'谋事易成'},
+ '求名':{'比和':'名位相称','体克用':'求名可得','用克体':'求名受阻','体生用':'求名劳心','用生体':'求名得助'},
+ '求财':{'比和':'财源平稳，和气生财','体克用':'财可得，宜进取','用克体':'求财费力，防破耗','体生用':'求财费力','用生体':'财来就我，外财可得'},
+ '交易':{'比和':'交易和合，两相获利','体克用':'交易可成','用克体':'交易难成','体生用':'交易让利','用生体':'交易获利'},
+ '出行':{'比和':'出行平安','体克用':'出行利往','用克体':'出行有阻','体生用':'出行劳顿','用生体':'出行得利'},
+ '行人':{'比和':'行人消息平和','体克用':'行人将归','用克体':'行人受阻','体生用':'行人迟归','用生体':'行人将至'},
+ '谒见':{'比和':'谒见相得','体克用':'谒见可成','用克体':'谒见见拒','体生用':'谒见劳而少功','用生体':'谒见得遇'},
+ '失物':{'比和':'失物在近处','体克用':'失物可得','用克体':'失物难寻','体生用':'失物难觅','用生体':'失物自现'},
+ '疾病':{'比和':'病势和缓，调养可愈','体克用':'病可治','用克体':'病势沉','体生用':'病体耗弱','用生体':'病得生气'},
+ '官讼':{'比和':'讼事平妥','体克用':'讼我可胜','用克体':'讼事我屈','体生用':'讼事耗财','用生体':'讼得贵助'},
+ '坟墓':{'比和':'墓地相宜','体克用':'穴可自定','用克体':'墓地不宜','体生用':'地气外泄','用生体':'墓地得气'},
+ '占人':{'比和':'其人平和','体克用':'其人自强','用克体':'其人受制','体生用':'其人操劳','用生体':'其人得助'},
+ '考试':{'比和':'考试平稳','体克用':'考试可过','用克体':'考试受阻','体生用':'备考辛苦','用生体':'考试顺利'},
+ '六畜':{'比和':'六畜平安','体克用':'六畜兴旺','用克体':'六畜多病','体生用':'六畜耗损','用生体':'六畜得养'}
+};
+const MH_CAT_LIST=Object.keys(MH_CAT);
+/* 体党用党：统计多卦中与体、用同五行的数量，定事体在我或外力 */
+function dangCount(a,b,g){let x=0,y=0;g.forEach(w=>{if(w===a)x++;if(w===b)y++});return{ti:x,yong:y,other:g.length-x-y}}
+function dangText(c){const s=c.ti>c.yong?'体党'+c.ti+'卦、用党'+c.yong+'卦，体党众盛，事体在我，吉势有助':c.yong>c.ti?'用党'+c.yong+'卦、体党'+c.ti+'卦，用党势强，须防外力':'两党均势，成败相半';return s+'（计党含本、互、变、错、综十卦）'}
+/* 卦象吉凶总断（六十四卦 overview，梅花以体用为核心，总断为卦之定性） */
+/* 六十四卦总断：共享件 assets/gua-mean.js 的 overview 字段 */
+/* 五行墓库（水土同墓说：土亦墓辰；另说土墓随火在戌，站定从前说） */
+const MU_KU_MH={金:'丑',木:'未',水:'辰',火:'戌',土:'辰'};
+/* 五行×四季旺相休囚死（行=季节，列=五行；春木旺、夏火旺、秋金旺、冬水旺、四季土旺） */
+const WX_SEASON={
+  '春':{'木':'旺','火':'相','水':'休','金':'囚','土':'死'},
+  '夏':{'火':'旺','土':'相','木':'休','水':'囚','金':'死'},
+  '秋':{'金':'旺','水':'相','土':'休','火':'囚','木':'死'},
+  '冬':{'水':'旺','木':'相','金':'休','土':'囚','火':'死'},
+  '四季':{'土':'旺','金':'相','火':'休','木':'囚','水':'死'}
+};
+const SEASON_OF_MONTH={'寅':'春','卯':'春','辰':'四季','巳':'夏','午':'夏','未':'四季','申':'秋','酉':'秋','戌':'四季','亥':'冬','子':'冬','丑':'四季'};
+/* 八卦方位、先天数、五行色（外应法断用） */
+const GUA_DIR_NUM_COLOR={
+  '乾':'西北 数1 金黄','兑':'正西 数2 素白','离':'正南 数3 赤红','震':'正东 数4 苍青','巽':'东南 数5 碧绿','坎':'正北 数6 玄黑','艮':'东北 数7 土黄','坤':'西南 数8 土褐'
+};
+function renderMeihuaPro2(o){
+  const tiWx=TRIGRAM_WX[o.tiName], yongWx=TRIGRAM_WX[o.yongName];
+  const ben=hexInfo(o.benBits), hu=hexInfo(o.huBits), bian=hexInfo(o.bianBits), cuo=hexInfo(o.cuoBits), zong=hexInfo(o.zongBits);
+  const cat=o.cat;
+  const schoolNote=MEIHUA_SCHOOLS[document.getElementById('mhSchool').value].note;
+  const wangRow=o.wangPair?o.wangPair:('体卦 '+o.tiName+'（'+wxColorSpan(tiWx)+'）当令与否见上');
+  const yingRow=o.yingDetail||yingQi(ben, tiWx, yongWx, guaWang(tiWx,o.monthZhi).label, o.lunar||null, o.dong);
+  const guaMeanRow=o.guaMean?o.guaMean:'';
+  /* 卦辞爻辞：本卦卦辞 + 动爻爻辞（引《周易》） */
+  const yaoPos=['初','二','三','四','五','上'][(o.dong||1)-1];
+  const guaCiRow=(typeof GUA_CI!=='undefined'&&GUA_CI[ben.name])?GUA_CI[ben.name]:'';
+  const yaoCiRow=(typeof YAO_CI!=='undefined'&&YAO_CI[ben.name+yaoPos])?YAO_CI[ben.name+yaoPos]:'';
+  const jingRow=(guaCiRow||yaoCiRow)?`<tr><th>卦辞爻辞</th><td>${guaCiRow?'卦辞：'+guaCiRow:''}${yaoCiRow?'（'+yaoPos+'爻动：'+yaoCiRow+'）':''}</td></tr>`:'';
+  /* 吉凶判断：体用生克 + 卦气旺衰 + 卦象总断 综合定吉凶 */
+  const jixiong=o.relObj.rel==='比和'||o.relObj.rel==='用生体'||o.relObj.rel==='体克用'?((o.relObj.rel==='体克用'?'中吉，我制事':'大吉，体用相宜')+'：'+o.relObj.judge):(o.relObj.rel==='用克体'||o.relObj.rel==='体生用'?'不吉：'+o.relObj.judge:'平');
+  /* 旺衰五行量化表：五行×四季 旺相休囚死，标记体用所当季节 */
+  const season = SEASON_OF_MONTH[o.monthZhi]||'四季';
+  const wxOrder=['木','火','土','金','水'];
+  const tiInSeason=WX_SEASON[season][tiWx], yongInSeason=WX_SEASON[season][yongWx];
+  /* 读法：四土月（辰未戌丑）显示辰月（四季土旺）式，其余显示秋酉式 */
+  const seasonLb = season==='四季' ? `${o.monthZhi||''}月（四季土旺）` : `${season}${o.monthZhi||''}`;
+  const wangNote=`${seasonLb}：体卦${tiWx}为${tiInSeason}，用卦${yongWx}为${yongInSeason}。${tiInSeason==='旺'||tiInSeason==='相'?'体当令有气，事体有力':tiInSeason==='囚'||tiInSeason==='死'?'体失令受制，事体难成':'体平而不极'}`;
+  /* 五卦对体生克影响链：互、变、错、综 每卦上下卦五行对体卦生克 */
+  const wuRel=(bits,label)=>{
+    const low=trigramName(bits.slice(0,3)), up=trigramName(bits.slice(3,6));
+    const lw=TRIGRAM_WX[low], uw=TRIGRAM_WX[up];
+    const r=(w)=>{ if(w===tiWx)return '比和'; if(SHENG_MH[w]===tiWx)return '生体'; if(SHENG_MH[tiWx]===w)return '泄体'; if(WX_KE_MH[w]===tiWx)return '克体'; return '耗体'; };
+    return `${label}${low}（下,${r(lw)}）、${up}（上,${r(uw)}）`;
+  };
+  const wuChain=`<b>互卦</b>${wuRel(o.huBits,'')}；<b>变卦</b>${wuRel(o.bianBits,'')}；<b>错卦</b>${wuRel(o.cuoBits,'')}；<b>综卦</b>${wuRel(o.zongBits,'')}。<br>生体者助事，克体者制事，比和者顺事，泄耗者费事。`;
+  /* 八卦方位、数、色（外应法断用） */
+  const dirColor=`体卦${o.tiName}：${GUA_DIR_NUM_COLOR[o.tiName]}；用卦${o.yongName}：${GUA_DIR_NUM_COLOR[o.yongName]}。`;
+  /* 旺衰五行量化表：独立置于判断表前，五行×四季 旺相休囚死，标记体用所当季节 */
+  const wangBlock=`<h3 class="rel-title rel-inline">旺衰五行量化</h3>
+  <div class="mh-tbl-wrap"><table class="ly-cat-tbl mh-wang-tbl"><tbody>
+    <tr><th>五行</th>${['春','夏','秋','冬','四季'].map(s=>`<th>${s}</th>`).join('')}</tr>
+    ${wxOrder.map(w=>`<tr><th>${w}</th>${['春','夏','秋','冬','四季'].map(s=>{
+      const st=WX_SEASON[s][w];
+      const hl=(s===season);
+      return `<td${hl?' class="mh-wang-cur"':''}>${st}</td>`;
+    }).join('')}</tr>`).join('')}
+  </tbody></table></div>
+  <div class="wang-note">${wangNote}</div>`;
+  /* Table A：卦气旺衰、体党用党、卦象总断、应期、体用生克、流派解读 */
+  const tableA=`
+  <table class="ly-cat-tbl ly-zh-tbl mh-judge-tbl mh-tbl-gap-lg"><tbody>
+    <tr><th>卦气旺衰</th><td>${wangRow}</td></tr>
+    <tr><th>体党用党</th><td>${o.dangTxt}</td></tr>
+    ${guaMeanRow?`<tr><th>卦象总断</th><td>${ben.name}：${guaMeanRow}</td></tr>`:''}
+    ${jingRow}
+    <tr><th>应期</th><td>${yingRow}</td></tr>
+    <tr><th>体用生克</th><td>${o.relObj.judge}</td></tr>
+    <tr><th>五卦生克</th><td>${wuChain}</td></tr>
+    <tr><th>方位数色</th><td>${dirColor}</td></tr>
+    <tr><th>流派解读</th><td>${schoolNote}</td></tr>
+  </tbody></table>`;
+  /* Table B：综合判断（含吉凶判断 + 性别侧重） */
+  const sexLb=o.sex==='f'?'女':'男';
+  const sexNote=o.catName==='婚姻'?'（婚姻占观用卦于体之生克，生体则缘成、克体则缘阻）':o.catName==='生产'?'（生产占观体卦旺衰与用卦生克，母体胎产并察）':'';
+  const tableB=`
+  <h3 class="rel-title rel-inline">综合判断（${o.catName}${sexLb}占${sexNote}）</h3>
+  <table class="ly-cat-tbl ly-zh-tbl mh-cat-tbl mh-tbl-gap"><tbody>
+    <tr><th>吉凶</th><td class="${o.relObj.cls}">${jixiong}</td></tr>
+    ${Object.keys(cat).map(k=>`<tr><th>${k}</th><td>${cat[k]}</td></tr>`).join('')}
+  </tbody></table>`;
+  return wangBlock+tableA+tableB+`
+  <details class="mh-ref" id="mhXiangRef"><summary>八卦象意与起卦数理（参考）</summary>
+    ${trigramTable()}
+    <div class="mh-method">口径注：五行墓库从水土同墓说，土亦墓辰，另说土墓随火在戌；类象为撮录简表，非通行本全文。</div>
+    <div class="mh-method">${o.sysNote}。本卦《${ben.name}》、互卦《${hu.name}》、变卦《${bian.name}》、错卦《${cuo.name}》、综卦《${zong.name}》。${o.methodLine}</div>
+  </details>`;
+}
+function mhLineSym(bit){ return bit? '<div class="yb" role="img" aria-label="阳爻"></div>' : '<div class="yb gap" role="img" aria-label="阴爻"><span></span><span></span></div>'; }
+function guaBox(bits6,label,sub){
+  const h=hexInfo(bits6);
+  const rev=bits6.slice().reverse();
+  const lines=rev.map((b,i)=>`<div class="yao-line${i===3?' ly-gap':''}"><span class="yao-sym">${mhLineSym(b)}</span></div>`).join('');
+  return `<div class="yao-col"><h4>${label} ${h.name}</h4>${lines}${sub?`<div class="mh-yao-sub">${sub}</div>`:''}</div>`;
+}
+function mhUseNow(){
+  const n=new Date();
+  document.getElementById('mDate').value=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(n.getDate())}`;
+  document.getElementById('mTime').value=`${pad2(n.getHours())}:${pad2(n.getMinutes())}`;
+}
+var MH_MULTI_CFG={check:'mhMulti', host:'mhMultiHost'};
+var MH_HIST_CFG={
+  mask:'mhHistMask', list:'mhHistList', key:'mhHistory', title:'历史记录（最多9条）',
+  restoreFn:'restoreMhHist', delFn:'delMhHistory',
+  row:function(h){
+    return {t:(h.d||'')+(h.t?' '+h.t:''), main:(h.s||'')+(h.c?' '+h.c:'')};
+  }
+};
+function showMhHistory(){ xjHist.open(MH_HIST_CFG); }
+function closeMhHist(){ xjHist.close(); }
+function delMhHistory(i){ xjHist.del(MH_HIST_CFG,i); }
+function restoreMhHist(i){
+  try{ var his=JSON.parse(localStorage.getItem('mhHistory')||'[]'); var h=his[i]; if(!h)return;
+    document.getElementById('mDate').value=h.d; document.getElementById('mTime').value=h.t;
+    document.getElementById('mhSchool').value=h.s; document.getElementById('mhCat').value=h.c;
+    document.getElementById('mhMethod').value=h.m||'time'; mhMethodChange();
+    var fmap={mhNum1:h.n1,mhNum2:h.n2,mhNum3:h.n3,mhShengNum:h.sh,mhZhang:h.zg,mhChi:h.cg,mhCun:h.cn,mhChar:h.ch,mhName:h.nm,mhYingVal:h.yg};
+    Object.keys(fmap).forEach(function(id){ var el=document.getElementById(id); if(el&&fmap[id]!=null) el.value=fmap[id]; });
+    qigua();
+  }catch(e){}
+}
+function clearMhMulti(){ xjMulti.clear(MH_MULTI_CFG); }
+/* 应期登记与复盘：本机台账一条起卦一卡，到期点应验或未验，可导出 iCal 入日历应用 */
+var MH_YAN_KEY='mhYanLog';
+function mhYanRead(){
+  try{ var a=JSON.parse(localStorage.getItem(MH_YAN_KEY)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; }
+}
+function mhYanWrite(a){ try{ localStorage.setItem(MH_YAN_KEY, JSON.stringify(a.slice(0,30))); }catch(e){} }
+function mhYanEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function mhYanRegister(){
+  var y=window.__mhYing; if(!y) return;
+  var q=(document.getElementById('mhQ').value||'').trim();
+  var a=mhYanRead();
+  a.unshift({id:'y'+Date.now(),ts:new Date().toISOString(),gua:y.gua,day:y.day||'',q:q,dates:y.dates||[],text:y.text||'',status:''});
+  mhYanWrite(a); mhYanRender();
+}
+function mhYanSet(id,st){
+  var a=mhYanRead(); a.forEach(function(r){ if(r.id===id) r.status=st; }); mhYanWrite(a); mhYanRender();
+}
+function mhYanDel(id){
+  mhYanWrite(mhYanRead().filter(function(r){ return r.id!==id; })); mhYanRender();
+}
+function mhYanIcs(id){
+  var r=null, a=mhYanRead();
+  if(id){ r=a.filter(function(x){ return x.id===id; })[0]; }
+  else if(window.__mhYing){
+    r={gua:window.__mhYing.gua,day:window.__mhYing.day||'',dates:window.__mhYing.dates||[],q:(document.getElementById('mhQ').value||'').trim()};
+  }
+  if(!r||!(r.dates||[]).length) return;
+  var stamp=new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z';
+  var esc=function(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/[;,]/g,function(c){ return '\\'+c; }).replace(/\n/g,'\\n'); };
+  var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//xuanji//meihua//CN','CALSCALE:GREGORIAN'];
+  r.dates.forEach(function(d,i){
+    var uid='mh-'+stamp+'-'+i+'@gaoren.org';
+    var title='梅花应期 '+r.gua+' '+d.label;
+    var desc=(r.q?'占问：'+r.q+'；':'')+'应期层：'+d.label+(r.day?'；起卦日：'+r.day:'');
+    lines.push('BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+d.date.replace(/-/g,''),'SUMMARY:'+esc(title),'DESCRIPTION:'+esc(desc),'END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  var txt=lines.join('\r\n')+'\r\n';
+  var blob=new Blob([txt],{type:'text/calendar;charset=utf-8'});
+  var ael=document.createElement('a');
+  ael.href=URL.createObjectURL(blob);
+  ael.download='meihua-yingqi-'+(r.day||stamp.slice(0,8)).replace(/-/g,'')+'.ics';
+  document.body.appendChild(ael); ael.click();
+  setTimeout(function(){ URL.revokeObjectURL(ael.href); ael.remove(); },1000);
+}
+function mhYanRender(){
+  var host=document.getElementById('mhYanList'); if(!host) return;
+  var a=mhYanRead();
+  if(!a.length){ host.innerHTML='<p class="sub-note">尚无登记。起卦后点“登记应期”，到期在此点应验或未验，也可导出 iCal 入日历。</p>'; return; }
+  host.innerHTML=a.map(function(r){
+    var ds=(r.dates||[]).map(function(d){ return d.date+'（'+d.label+'）'; }).join('、');
+    var st=r.status==='yes'?'已应验':r.status==='no'?'未验':'待验';
+    return '<div class="hist-row">'+
+      '<span class="hist-t">'+mhYanEsc(r.day||'')+'<br><span class="hist-q">'+st+'</span></span>'+
+      '<span class="hist-g">'+mhYanEsc(r.gua)+'<br><span class="hist-q">'+(r.q?'占问：'+mhYanEsc(r.q)+'；':'')+'应期：'+(ds||'未落点')+'</span></span>'+
+      '<span class="hist-a">'+
+        '<button class="btn hist-act" onclick="mhYanSet(\''+r.id+'\',\'yes\')">应验</button>'+
+        '<button class="btn hist-act" onclick="mhYanSet(\''+r.id+'\',\'no\')">未验</button>'+
+        '<button class="btn hist-act" onclick="mhYanIcs(\''+r.id+'\')">导出 iCal</button>'+
+        '<button class="btn hist-act hist-del" onclick="mhYanDel(\''+r.id+'\')">删除</button>'+
+      '</span></div>';
+  }).join('');
+}
+/* 起卦方式与输入组的对应：一组一值，选中者加 .is-on，显隐由样式表定 */
+const MH_METHOD_FIELD={mhNumField:'num',mhShengField:'sheng',mhZhangField:'zhang',mhCharField:'char',mhNameField:'name',mhYingField:'ying'};
+function mhMethodChange(){
+  const m=document.getElementById('mhMethod').value;
+  Object.keys(MH_METHOD_FIELD).forEach(function(id){
+    document.getElementById(id).classList.toggle('is-on', m===MH_METHOD_FIELD[id]);
+  });
+}
+/* 当地经度：手动经度优先，其次省市区经 findLng 取数（城市级坐标为空者已由它回退省级中心）；
+   省市两级停在未知地即无经度可校，返回空而不回退东经 120 度：
+   按别人的经度折出来的时刻不著来历，与未校正是两回事。 */
+function mhLocalLng(){ return xjLocalLng('mhLng','mhProv','mhCity','mhDist'); }
+/* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时并写说明行；
+   境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
+function mhSyncOverseas(){
+  syncOverseasFields({prov:'mhProv',city:'mhCity',lng:'mhLng',tz:'mhTz',dst:'mhLocalDst',
+    tzField:'mhTzField',dstField:'mhLocalDstField',note:'mhOverseasNote'});
+}
+/* 三级下拉默认停在未知地：起首若是某地，未动过表单的卦便按该地折过一道，
+   校正量的来历盘上不著一字。填充与取值走 latlng.js 的 fillPlaceTrio，各页同一份。 */
+function initMhRegion(){
+  const pp=document.getElementById('mhProv');
+  if(!pp) return;
+  const cp=document.getElementById('mhCity'), dp=document.getElementById('mhDist');
+  const tzSel=document.getElementById('mhTz');
+  if(tzSel&&typeof overseasTzOptions==='function') tzSel.innerHTML=overseasTzOptions();
+  window.__mhPlaceTrio=fillPlaceTrio(pp, cp, dp, null);
+  /* 省或市一改即同步境外两项与说明行 */
+  pp.addEventListener('change', mhSyncOverseas);
+  cp.addEventListener('change', mhSyncOverseas);
+  placeIpPrefill({manualKey:'mh_geo_manual', group:document.getElementById('mhGeoGroup'), trio:window.__mhPlaceTrio, onDone:mhSyncOverseas});
+  mhSyncOverseas();
+}
+function qigua(){
+  const method=document.getElementById('mhMethod').value;
+  const dstMode=(document.getElementById('mhDst')||{}).value||'off';
+  const ziMode=(document.getElementById('mhZi')||{}).value||'late';
+  const sunMode=(document.getElementById('mhSun')||{}).value||'off';
+  let dv=document.getElementById('mDate').value, tv=document.getElementById('mTime').value;
+  let [y,m,d]=dv?dv.split('-').map(Number):[0,0,0];
+  let [h,mi]=tv?tv.split(':').map(Number):[0,0];
+  /* 时刻链与三式页同构（口径矩阵河洛生时与太阳时行）：境内先按夏令时折算，
+     境外按所选时区基准经线与当地夏令时另折，再按太阳时口径校正，
+     末按子时算法定日界，以最终时刻取数；太阳时缺省不校正，未定地不校并注明 */
+  const _pto=placeTimeOptsOf({prov:'mhProv',city:'mhCity',lng:'mhLng',tz:'mhTz',dst:'mhLocalDst'});
+  const timeNotes=[];
+  if(dv&&tv){
+    if(!_pto.overseas&&typeof applyDstCorrection==='function'){
+      const ds=applyDstCorrection(y,m,d,h,mi,dstMode);
+      if(ds.applied){ y=ds.y; m=ds.m; d=ds.d; h=ds.h; mi=ds.mi; timeNotes.push(ds.note); }
+    } else if(_pto.overseas&&_pto.localDst&&typeof shiftClockDay==='function'){
+      const ld=shiftClockDay(y,m,d,h,mi,-60);
+      timeNotes.push('当地夏令时：钟面 '+pad2(h)+':'+pad2(mi)+' 折为标准时 '+pad2(ld.h)+':'+pad2(ld.mi));
+      y=ld.y; m=ld.m; d=ld.d; h=ld.h; mi=ld.mi;
+    }
+    if(sunMode!=='off'&&typeof trueSolarTime==='function'){
+      const lng=mhLocalLng();
+      if(lng==null){ timeNotes.push('当地未定，未作太阳时校正，按钟面时刻'); }
+      else{
+        const ts=trueSolarTime(y,m,d,h,mi,lng,sunMode,_pto.baseLng);
+        timeNotes.push((sunMode==='mean'?'平太阳时':'真太阳时')+'：钟面 '+pad2(h)+':'+pad2(mi)+' 校正后 '+pad2(ts.h)+':'+pad2(ts.mi));
+        y=ts.y; m=ts.m; d=ts.d; h=ts.h; mi=ts.mi;
+      }
+    }
+    if(h===23) timeNotes.push(ziMode==='late'?'晚子时：23时后按次日取数':'早子时：23时仍归当日');
+  }
+  let solar=null, lunar=null, yearZhi=null, monthZhi=null, dayGZ='', dayGan='', shiZhi='', lm=0, ld=0;
+  if(dv&&tv){
+    solar=Solar.fromYmdHms(y,m,d,h,mi,0);
+    if(ziMode!=='early'&&h===23){ solar=solar.nextDay(1); }
+    lunar=solar.getLunar();
+    yearZhi=lunar.getYearZhi(); monthZhi=lunar.getMonthZhi();
+    dayGZ=lunar.getDayInGanZhi(); dayGan=dayGZ[0]; shiZhi=lunar.getTimeZhi();
+    lm=Math.abs(lunar.getMonth()); ld=lunar.getDay();
+  }
+  const sc=MEIHUA_SCHOOLS[document.getElementById('mhSchool').value];
+  const M = sc.sys==='ht'?9:8;
+  let up=0, low=0, dong=0, unum=0, lnum=0, dnum=0, dayBias=0, yingNotes='', formula='';
+  if(method==='time'){
+    if(!dv||!tv){alert('请选择日期和时间');return;}
+    const yNum = sc.ysrc==='ht'? ZHI_HT[yearZhi] : ZHI_NUM[yearZhi];
+    const hNum = sc.hsrc==='gan'? GAN_NUM[dayGan] : (sc.hsrc==='ht'? ZHI_HT[shiZhi] : ZHI_NUM[shiZhi]);
+    dayBias = sc.dayBias==='season'? seasonWeight(monthZhi) : 0;
+    const dayTerm = ld + dayBias;
+    const total = yNum + lm + dayTerm + hNum;
+    unum=yNum+lm+dayTerm; lnum=total;
+    up = unum % M; up = up||M;
+    low = total % M; low = low||M;
+    dong = (total + (sc.dongBias==='min'?mi:0)) % 6; dong = dong||6;
+    formula='上卦=（年支'+yNum+'+月'+lm+'+日'+ld+(dayBias?'+'+dayBias+'旺衰':'')+'）÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；下卦=上项加'+(sc.hsrc==='gan'?'日干序数'+hNum:'时支序数'+hNum)+'÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')；动爻=总数'+total+(sc.dongBias==='min'?'+分'+mi:'')+'÷6取余→第'+dong+'爻';
+  } else if(method==='num'){
+    /* 报数起卦：三数定上卦、下卦、动爻；只报两数时动爻取两数之和（通行两数法）；
+       空位留空即两数法，填了非正整数一律拒收，不静默归零 */
+    const raws=['mhNum1','mhNum2','mhNum3'].map(function(id){ return (document.getElementById(id).value||'').trim(); });
+    if(raws.some(function(v){ return v!=='' && !/^[1-9]\d*$/.test(v); })){ alert('报数起卦：请填正整数，或留空只报两数（两数时动爻取两数之和）'); return; }
+    const nums=raws.map(function(v){ return v===''?0:parseInt(v,10); });
+    const filled=nums.filter(function(v){ return v>0; });
+    if(filled.length<2){ alert('报数起卦：请至少报两个正整数；三数定上卦下卦动爻，两数时动爻取两数之和'); return; }
+    if(filled.length===2){
+      unum=filled[0]; lnum=filled[1];
+      up=unum%M; up=up||M; low=lnum%M; low=low||M;
+      dong=(unum+lnum)%6; dong=dong||6;
+      formula='上卦=第一数'+unum+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；下卦=第二数'+lnum+'÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')；动爻=两数之和'+(unum+lnum)+'÷6取余→第'+dong+'爻';
+    } else {
+      unum=nums[0]; lnum=nums[1]; dnum=nums[2];
+      up=unum%M; up=up||M; low=lnum%M; low=low||M;
+      dong=dnum%6; dong=dong||6;
+      formula='上卦=第一数'+unum+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；下卦=第二数'+lnum+'÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')；动爻=第三数'+dnum+'÷6取余→第'+dong+'爻';
+    }
+  } else if(method==='sheng'){
+    /* 声音起卦：闻声几数起上卦，加时支序数配下卦，总数除六取动爻 */
+    const raw=(document.getElementById('mhShengNum').value||'').trim();
+    if(!/^[1-9]\d*$/.test(raw)){ alert('声音起卦：请填闻声次数，正整数'); return; }
+    const s=parseInt(raw,10), t=shiZhi?ZHI_NUM[shiZhi]:1;
+    unum=s; lnum=s+t;
+    up=unum%M; up=up||M; low=lnum%M; low=low||M; dong=(s+t)%6; dong=dong||6;
+    formula='声音起卦：声数'+s+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；下卦=声数'+s+'+时支序数'+t+'='+(s+t)+'÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')；动爻=总数'+(s+t)+'÷6取余→第'+dong+'爻';
+  } else if(method==='zhang'){
+    /* 丈尺起卦：丈数为上卦、尺数为下卦、寸数为动爻 */
+    const raws=['mhZhang','mhChi','mhCun'].map(function(id){ return (document.getElementById(id).value||'').trim(); });
+    if(raws.some(function(v){ return !/^[1-9]\d*$/.test(v); })){ alert('丈尺起卦：丈、尺、寸各填正整数'); return; }
+    const z=parseInt(raws[0],10), c=parseInt(raws[1],10), k=parseInt(raws[2],10);
+    unum=z; lnum=c;
+    up=z%M; up=up||M; low=c%M; low=low||M; dong=k%6; dong=dong||6;
+    formula='丈尺起卦：丈'+z+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；尺'+c+'÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')；寸'+k+'÷6取余→第'+dong+'爻';
+  } else if(method==='ying'){
+    /* 外应起卦（站定口径，参三要灵应）：以当下一念所见之声、色、方位、物取五行主次。
+       四类全扫，各命中要素按类别权重（方位3、色2、声1.5、物1）累加到所隶五行，
+       权重最高者主象定上卦、次高者下卦；五行数水1火2木3金4土5即先天卦序，
+       方位象经卦属五行转数、不径落本卦；无命中以木为凭（站定兜底）。 */
+    const yval=(document.getElementById('mhYingVal').value||'').trim();
+    if(!yval){alert('请输入外应描述');return;}
+    const yingWxNum={'水':1,'火':2,'木':3,'金':4,'土':5};
+    const dirGua={'东':'震','南':'离','西':'兑','北':'坎','东南':'巽','西南':'坤','东北':'艮','西北':'乾','中':'坤'};
+    const colorWx={'青':'木','绿':'木','赤':'火','红':'火','黄':'土','棕':'土','白':'金','黑':'水','蓝':'水','紫':'火'};
+    const soundWx={'雷':'木','鼓':'木','风':'木','雨':'水','水':'水','笛':'木','钟':'金','锣':'金','炮':'金','哭声':'金'};
+    const wxWeight={};
+    const noteParts=[];
+    function addW(note, wx, w){ wxWeight[wx]=(wxWeight[wx]||0)+w; noteParts.push(note); }
+    for(const k in dirGua){ if(yval.includes(k)) addW('方位'+k+'（'+dirGua[k]+'）', TRIGRAM_WX[dirGua[k]], 3); }
+    for(const c in colorWx){ if(yval.includes(c)) addW('色'+c, colorWx[c], 2); }
+    for(const s in soundWx){ if(yval.includes(s)) addW('声'+s, soundWx[s], 1.5); }
+    for(const w in yingWxNum){ if(yval.includes(w)) addW('物'+w, w, 1); }
+    const rank=Object.keys(wxWeight).sort(function(a,b){ return (wxWeight[b]-wxWeight[a])||0; });
+    const mainWx=rank[0]||'木', subWx=rank[1]||rank[0]||'木';
+    yingNotes=noteParts.length?('依外应'+noteParts.join('、')+'，主'+mainWx+'（权'+wxWeight[mainWx]+'）、次'+subWx+(subWx===mainWx?'':'（权'+(wxWeight[subWx]||0)+'）')):'外应无明确要素，以木为凭（站定兜底口径）';
+    unum=yingWxNum[mainWx]||3; lnum=yingWxNum[subWx]||3;
+    up=unum%M; up=up||M;
+    low=lnum%M; low=low||M;
+    dong=(shiZhi?ZHI_NUM[shiZhi]:1)%6; dong=dong||6;
+    formula='外应取数：'+yingNotes+'；五行数水1火2木3金4土5即'+(sc.sys==='ht'?'洛书':'先天')+'卦序，上卦=主象数'+unum+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；下卦=次象数'+lnum+'÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')；动爻=时支序数'+(shiZhi?ZHI_NUM[shiZhi]:1)+'÷6取余→第'+dong+'爻';
+  } else if(method==='char'){
+    /* 拆字起卦（通行本字占章）：多字以少者为上卦（天轻清）、多者为下卦（地重浊），
+       总笔画除六取动爻；一字占通行以楷书左右分画，站内暂缺字形部件数据，
+       权变以全字笔画起上卦、加一象两仪起下卦，动爻仍从总画除六 */
+    const chars=document.getElementById('mhChar').value||'';
+    if(!chars){alert('请输入字');return;}
+    const cArr=Array.from(chars);
+    const st=cArr.map(getKangxiStroke);
+    if(st.some(function(v){return !v;})){alert('拆字起卦：字库未收录“'+cArr.filter(function(c,i){return !st[i];}).join('、')+'”的康熙笔画，请更换用字或改用其他起卦方式');return;}
+    const n=cArr.length;
+    if(n===1){
+      const strokes=st[0];
+      up=strokes%M; up=up||M; low=((strokes%M)+1)%M; low=low||M; dong=strokes%6; dong=dong||6;
+      unum=strokes;
+      formula='一字占：上卦=笔画'+strokes+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；下卦=笔画加一÷'+M+'取余→'+nameBySys(sc.sys,low)+'('+low+')，通行本一字占以楷书左右分画，站内以全字笔画权变；动爻=笔画÷6取余→第'+dong+'爻';
+    } else {
+      const half=Math.floor(n/2);
+      let s1=0,s2=0;
+      st.slice(0,half).forEach(function(v){s1+=v;});
+      st.slice(half).forEach(function(v){s2+=v;});
+      unum=s1; lnum=s2;
+      up=s1%M; up=up||M; low=s2%M; low=low||M; dong=(s1+s2)%6; dong=dong||6;
+      formula='字占：前'+half+'字笔画和'+s1+'为上卦（少者天轻清）→'+nameBySys(sc.sys,up)+'('+up+')，后'+(n-half)+'字笔画和'+s2+'为下卦（多者地重浊）→'+nameBySys(sc.sys,low)+'('+low+')，总笔画'+(s1+s2)+'÷6取余→第'+dong+'爻';
+    }
+  } else if(method==='name'){
+    /* 姓名起卦与六爻页同款（口径矩阵名卦取数行）：1字字兼上下卦；2字姓上名下；
+       3字姓上、名两字和下；4字以上前后平分；动爻取总画除六 */
+    const chars=document.getElementById('mhName').value||'';
+    if(!chars){alert('请输入姓名');return;}
+    const cArr=Array.from(chars);
+    const st=cArr.map(getKangxiStroke);
+    if(st.some(function(v){return !v;})){alert('姓名起卦：字库未收录“'+cArr.filter(function(c,i){return !st[i];}).join('、')+'”的康熙笔画，请更换用字或改用其他起卦方式');return;}
+    const n=cArr.length;
+    if(n===1){
+      up=st[0]%M; up=up||M; low=st[0]%M; low=low||M; dong=st[0]%6; dong=dong||6; unum=st[0]; lnum=st[0];
+      formula='姓名起卦：单字兼上下卦，笔画'+st[0]+'÷'+M+'取余→'+nameBySys(sc.sys,up)+'('+up+')；动爻=笔画÷6取余→第'+dong+'爻';
+    } else if(n===2){
+      up=st[0]%M; up=up||M; low=st[1]%M; low=low||M; dong=(st[0]+st[1])%6; dong=dong||6; unum=st[0]; lnum=st[1];
+      formula='姓名起卦：姓画'+st[0]+'为上卦→'+nameBySys(sc.sys,up)+'('+up+')，名画'+st[1]+'为下卦→'+nameBySys(sc.sys,low)+'('+low+')，各÷'+M+'取余；动爻=总画'+(st[0]+st[1])+'÷6取余→第'+dong+'爻';
+    } else if(n===3){
+      up=st[0]%M; up=up||M; low=(st[1]+st[2])%M; low=low||M; dong=(st[0]+st[1]+st[2])%6; dong=dong||6; unum=st[0]; lnum=st[1]+st[2];
+      formula='姓名起卦：姓画'+st[0]+'为上卦→'+nameBySys(sc.sys,up)+'('+up+')，名两字画和'+(st[1]+st[2])+'为下卦→'+nameBySys(sc.sys,low)+'('+low+')，各÷'+M+'取余；动爻=总画'+(st[0]+st[1]+st[2])+'÷6取余→第'+dong+'爻';
+    } else {
+      const half=Math.ceil(n/2);
+      let s1=0,s2=0;
+      st.slice(0,half).forEach(function(v){s1+=v;});
+      st.slice(half).forEach(function(v){s2+=v;});
+      unum=s1; lnum=s2;
+      up=s1%M; up=up||M; low=s2%M; low=low||M; dong=(s1+s2)%6; dong=dong||6;
+      formula='姓名起卦：前半笔画和'+s1+'为上卦→'+nameBySys(sc.sys,up)+'('+up+')，后半笔画和'+s2+'为下卦→'+nameBySys(sc.sys,low)+'('+low+')，各÷'+M+'取余；动爻=总画'+(s1+s2)+'÷6取余→第'+dong+'爻';
+    }
+  }
+  const upBits=getBits(sc.sys,up), lowBits=getBits(sc.sys,low);
+  const benBits=lowBits.concat(upBits); /* 下卦在下(初中三爻),上卦在上 */
+  const bianBits=benBits.slice(); bianBits[dong-1]=bianBits[dong-1]?0:1;
+  const huLow=[benBits[1],benBits[2],benBits[3]];
+  const huUp=[benBits[2],benBits[3],benBits[4]];
+  const huBits=huLow.concat(huUp);
+  /* 五卦：错卦（六爻全反）、综卦（整体颠倒） */
+  const cuoBits=benBits.slice().map(b=>b?0:1);
+  const zongBits=benBits.slice().reverse();
+  const dongInUpper = dong>3;
+  const tiName = dongInUpper? trigramName(lowBits): trigramName(upBits);
+  const yongName= dongInUpper? trigramName(upBits): trigramName(lowBits);
+  const upName=nameBySys(sc.sys,up), lowName=nameBySys(sc.sys,low);
+  const _tiWx=TRIGRAM_WX[tiName], _yongWx=TRIGRAM_WX[yongName];
+  const _relObj=tiYongRel(_tiWx,_yongWx), _cat=MH_CAT[document.getElementById('mhCat').value]||{};
+  const sysNote = sc.sys==='ht'
+    ? '后天洛书数（坎1坤2震3巽4乾6兑7艮8离9，余5寄艮）'
+    : '先天数（乾1兑2离3震4巽5坎6艮7坤8）';
+  const srcNote = (sc.ysrc==='ht'?'年时取洛书宫数':'年时取地支序数')
+    + (sc.hsrc==='gan'?'；下卦时数取“日干”序数':'')
+    + (sc.dayBias==='season'?'；日加月令旺衰权重('+dayBias+')':'')
+    + (sc.dongBias==='min'?'；动爻加分钟数('+mi+')':'');
+  const methodLine = `起卦法（${sc.sys==='ht'?'后天洛书':'先天'}）：${sysNote}。${formula}。${srcNote}。`;
+  /* 体党用党：本、互、变、错、综五卦中，与体卦同五行者为体党，与用卦同五行者为用党 */
+  const allTrigrams=[tiName,yongName,trigramName(huBits.slice(0,3)),trigramName(huBits.slice(3,6)),trigramName(bianBits.slice(0,3)),trigramName(bianBits.slice(3,6)),trigramName(cuoBits.slice(0,3)),trigramName(cuoBits.slice(3,6)),trigramName(zongBits.slice(0,3)),trigramName(zongBits.slice(3,6))];
+  const _dang=dangCount(_tiWx,_yongWx,allTrigrams.map(t=>TRIGRAM_WX[t]));
+  const _dangTxt=dangText(_dang);
+  /* 卦象吉凶总断：本卦综变以本卦为主，配用生克、旺衰、应期综合断 */
+  const benInfo=hexInfo(benBits), bianInfo=hexInfo(bianBits);
+  const guaMeanTxt = (window.GUA_MEAN_SHARED && window.GUA_MEAN_SHARED[benInfo.name]) ? window.GUA_MEAN_SHARED[benInfo.name].overview : '';
+  /* 旺衰月建日辰双参：体卦五行相对月建、日辰的旺相休囚死 */
+  let wangPair='';
+  if(lunar){
+    const _mz=lunar.getMonthZhi(), _dgz=lunar.getDayInGanZhi(), _dz=_dgz[1];
+    /* 体卦相对月建的旺衰：月建所属季节的当令五行生克体卦（与 guaWang/WX_SEASON 同口径） */
+    let mRel='';
+    const _season=SEASON_OF_MONTH[_mz]||'春';
+    const mWxOfMonth=Object.keys(WX_SEASON[_season]).find(w=>WX_SEASON[_season][w]==='旺')||'木';
+    if(_tiWx===mWxOfMonth)mRel='体卦'+_tiWx+'当令'+_season+'月建'+_mz+'，气旺';
+    else if(SHENG_MH[mWxOfMonth]===_tiWx)mRel='月建生体，'+_tiWx+'气次旺';
+    else if(SHENG_MH[_tiWx]===mWxOfMonth)mRel='体泄于月建，气平';
+    else if(WX_KE_MH[mWxOfMonth]===_tiWx)mRel='月建克体，'+_tiWx+'受制';
+    else mRel='体克月建，力有牵制';
+    let dRel='';
+    if(_tiWx===ZHI_WX[_dz])dRel='日辰'+_dz+'与体同气，得日扶';
+    else if(SHENG_MH[ZHI_WX[_dz]]===_tiWx)dRel='日辰生体，得日助';
+    else if(SHENG_MH[_tiWx]===ZHI_WX[_dz])dRel='体泄于日辰';
+    else if(WX_KE_MH[ZHI_WX[_dz]]===_tiWx)dRel='日辰克体，受日制';
+    else dRel='日辰与体不涉';
+    wangPair='月建：'+mRel+'；日辰：'+dRel+'。';
+  }
+  /* 应期多层判断：先天数定期 + 体用旺衰定远近 + 值日辰、入墓待冲、月旺应期 */
+  let yingDetail='';
+  if(lunar){
+    yingDetail=yingQi(hexInfo(benBits), _tiWx, _yongWx, guaWang(_tiWx,monthZhi).label, lunar, dong);
+  }
+  /* 应期落点：先天数日、体卦值日、冲墓日，去重取前三，供 iCal 与登记复盘 */
+  let mhYingDates=[];
+  try{
+    var _mbase=dv?Solar.fromYmd(+dv.slice(0,4),+dv.slice(5,7),+dv.slice(8,10)):Solar.fromDate(xjNowDate());
+    var _mx=TRIGRAMS[benInfo.upper].xt+TRIGRAMS[benInfo.lower].xt;
+    var _madd=function(n,label){ var s=_mbase.next(n); mhYingDates.push({date:s.toYmd(),label:label}); };
+    _madd(_mx,'先天数'+_mx+'日');
+    for(var _mi=1;_mi<=Math.min(Math.max(_mx,30),60);_mi++){
+      var _ms=_mbase.next(_mi), _mz=_ms.getLunar().getDayInGanZhi()[1];
+      if(ZHI_WX[_mz]===_tiWx){ _madd(_mi,'体卦值日'+_mz); break; }
+    }
+    var _mmu=MU_KU_MH[_tiWx];
+    if(_mmu){ var _mch=CHONG_MH[_mmu];
+      for(var _mj=1;_mj<=60;_mj++){ var _ms2=_mbase.next(_mj); if(_ms2.getLunar().getDayInGanZhi()[1]===_mch){ _madd(_mj,'冲墓'+_mmu); break; } }
+    }
+    var _mseen={}; mhYingDates=mhYingDates.filter(function(d){ if(_mseen[d.date])return false; _mseen[d.date]=1; return true; });
+    mhYingDates.sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; });
+    mhYingDates=mhYingDates.slice(0,3);
+  }catch(e){ mhYingDates=[]; }
+  window.__mhYing={gua:benInfo.name,day:dv,dates:mhYingDates,text:yingDetail};
+  const mhQVal=(document.getElementById('mhQ').value||'').trim();
+  const qiInfo = method==='time'
+    ? `北京时间 ${dv} ${tv}　农历${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${lunar.getTimeZhi()}时${timeNotes.length?'　'+timeNotes.join('；'):''}`
+    : method==='num' ? `报数起卦：数${unum||0}、${lnum||0}${dnum?'、'+dnum:'（两数法动爻取和）'}`
+    : method==='sheng' ? `声音起卦：声数${(document.getElementById('mhShengNum').value||'').trim()}，加时支序数配下卦`
+    : method==='zhang' ? `丈尺起卦：丈${(document.getElementById('mhZhang').value||'').trim()}、尺${(document.getElementById('mhChi').value||'').trim()}、寸${(document.getElementById('mhCun').value||'').trim()}`
+    : method==='char' ? `字占起卦：字“${document.getElementById('mhChar').value}”`
+    : method==='name' ? `姓名起卦：姓名“${document.getElementById('mhName').value}”`
+    : `外应起卦：${(document.getElementById('mhYingVal').value||'').trim()}${yingNotes?'；取象：'+yingNotes:''}`;
+  document.getElementById('out').innerHTML=`
+  <table class="ly-cat-tbl ly-zh-tbl mh-info-tbl mh-tbl-gap-lg"><tbody>
+    <tr><th>起卦信息</th><td>${qiInfo}</td></tr>
+    <tr><th>卦爻</th><td>上卦 ${upName}(${up})　下卦 ${lowName}(${low})　动爻第${dong}爻</td></tr>
+    <tr><th>体用</th><td>体卦 ${tiName}（${wxColorSpan(_tiWx)}）　<span class="${_relObj.cls}">${_relObj.rel}</span>　用卦 ${yongName}（${wxColorSpan(_yongWx)}）　<span class="mh-true-tip">（动爻所在为用，另一为体）</span>　<span class="${_relObj.cls}">${_relObj.judge}</span></td></tr>
+  </tbody></table>
+  <div class="yao-board">
+    ${guaBox(benBits,'本卦','所占之事')}
+    ${guaBox(huBits,'互卦','发展过程')}
+    ${guaBox(bianBits,'变卦','最终结果')}
+    ${guaBox(cuoBits,'错卦','事之反面')}
+    ${guaBox(zongBits,'综卦','事之演变')}
+  </div>
+  <div class="notice">${methodLine}</div>
+  ${renderMeihuaPro2({tiName:tiName,yongName:yongName,benBits:benBits,huBits:huBits,bianBits:bianBits,cuoBits:cuoBits,zongBits:zongBits,monthZhi:lunar?lunar.getMonthZhi():'寅',sysNote:sysNote,methodLine:methodLine,relObj:_relObj,cat:_cat,dang:_dang,dangTxt:_dangTxt,guaMean:guaMeanTxt,wangPair:wangPair,yingDetail:yingDetail,catName:document.getElementById('mhCat').value,dong:dong,sex:document.getElementById('mhSex').value,lunar:lunar||null})}`;
+  /* 跨术数联动：本卦同名跳六爻，起卦日跳老黄历当日盘 */
+  try{
+    var mhLinks=document.createElement('div');
+    mhLinks.className='sub-note mh-links';
+    var mhDay=dv||(function(){var t=xjNowDate();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');})();
+    mhLinks.innerHTML='联动：<a class="os-link" href="liuyao.html?gua='+benBits.join('')+'">跳到六爻同名卦</a>　<a class="os-link" href="laohuangli.html?date='+mhDay+'">当日历法盘</a>　<span class="mh-yan-ops"><button class="btn gold" onclick="mhYanRegister()">登记应期</button><button class="btn soft" onclick="mhYanIcs()">导出 iCal</button></span>';
+    document.getElementById('out').appendChild(mhLinks);
+    mhYanRender();
+  }catch(e){}
+  __mh=`起卦${method==='time'?'时间：'+y+'-'+pad2(m)+'-'+pad2(d)+' '+pad2(h)+':'+pad2(mi)+'（农历'+lunar.getMonthInChinese()+'月'+lunar.getDayInChinese()+lunar.getTimeZhi()+'时）':method==='num'?'（报数'+unum+'、'+lnum+(dnum?'、'+dnum:'，两数法动爻取和')+'）':method==='sheng'?'（声音：声数'+(document.getElementById('mhShengNum').value||'').trim()+'）':method==='zhang'?'（丈尺：丈'+(document.getElementById('mhZhang').value||'').trim()+'、尺'+(document.getElementById('mhChi').value||'').trim()+'、寸'+(document.getElementById('mhCun').value||'').trim()+'）':method==='char'?'（字占“'+document.getElementById('mhChar').value+'”）':method==='name'?'（姓名“'+document.getElementById('mhName').value+'”）':'（外应：'+(document.getElementById('mhYingVal').value||'').trim()+'）'}\n上卦：${upName}(${up})　下卦：${lowName}(${low})　动爻：第${dong}爻\n本卦：《${benInfo.name}》\n互卦：《${hexInfo(huBits).name}》\n变卦：《${bianInfo.name}》\n错卦：《${hexInfo(cuoBits).name}》\n综卦：《${hexInfo(zongBits).name}》\n体卦：${tiName}　用卦：${yongName}（动爻所在为用，另一为体）\n${methodLine}\n体用五行生克：${tiName}（${_tiWx}） ${_relObj.rel} ${yongName}（${_yongWx}）：${_relObj.judge}\n${_dangTxt}\n${wangPair}\n${yingDetail}\n卦象总断：${guaMeanTxt||'见综合判断'}
+分类占断（${document.getElementById('mhCat').value}）：${Object.keys(_cat).map(k=>k+'【'+_cat[k]+'】').join('、')}
+流派：${document.getElementById('mhSchool').value}：${MEIHUA_SCHOOLS[document.getElementById('mhSchool').value].note}`+(mhQVal?'\n占问：'+mhQVal:'');
+  /* 保存历史（最多9条）：存起卦方式与全量输入，重开按原方式与原输入重算 */
+  try{
+    xjHist.push('mhHistory', {d:dv,t:tv,s:document.getElementById('mhSchool').value,c:document.getElementById('mhCat').value,m:method,
+      n1:document.getElementById('mhNum1').value,n2:document.getElementById('mhNum2').value,n3:document.getElementById('mhNum3').value,
+      sh:document.getElementById('mhShengNum').value,zg:document.getElementById('mhZhang').value,cg:document.getElementById('mhChi').value,cn:document.getElementById('mhCun').value,
+      ch:document.getElementById('mhChar').value,nm:document.getElementById('mhName').value,yg:document.getElementById('mhYingVal').value});
+  }catch(e){}
+  /* 连占对比模式：本次结果追加为卡片，单盘照常覆盖 */
+  if(xjMulti.on(MH_MULTI_CFG)){
+    xjMulti.add(MH_MULTI_CFG, document.getElementById('out').innerHTML,
+      benInfo.name+(bianInfo.name&&bianInfo.name!==benInfo.name?('→'+bianInfo.name):'')+'、'+document.getElementById('mhCat').value+'、'+(dv||'')+' '+(tv||''));
+  }
+}
+/* 折叠态属交互态：结果区与页体折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底 */
+/* 心中默念仅作占问记录，不参与排盘取数；确保其为空、非日期输入 */
+var _mq=document.getElementById('mhQ'); if(_mq){ _mq.value=''; _mq.type='text'; }
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    renderChrome('meihua.html');
+    fillMhSchool();
+    fillMhCat();
+    initMhRegion();
+    document.getElementById('mhSchool').addEventListener('change', qigua);
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'||e.key==='Esc') closeMhHist(); });
+    /* 用户亲手改动日期时刻即置 data-keep：now 同步件轮询见标记即跳过，追占改定时刻不再被回写 */
+    ['mDate','mTime'].forEach(function(id){
+      var el=document.getElementById(id); if(!el) return;
+      el.addEventListener('input',function(){ el.setAttribute('data-keep','1'); });
+      el.addEventListener('change',function(){ el.setAttribute('data-keep','1'); });
+    });
+    mhUseNow();
+    mhYanRender();
+    mountAI(function(){ return __mh||''; }, '梅花易数', { share:{ page:'meihua', title:'梅花易数',
+      collect:function(){
+        const d={};
+        ['mhCat','mhSex','mhSchool','mhMethod','mhNum1','mhNum2','mhNum3','mhShengNum','mhZhang','mhChi','mhCun','mhChar','mhName','mhYingVal','mhQ','mDate','mTime','mhProv','mhCity','mhDist','mhLng','mhTz','mhZi','mhDst','mhSun'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.value; });
+        ['mhLocalDst','mhMulti'].forEach(function(id){ const el=document.getElementById(id); if(el) d[id]=el.checked?'1':'0'; });
+        d.__mh=__mh||'';
+        return d;
+      },
+      restore:function(d){
+        Object.keys(d||{}).forEach(function(k){
+          const el=document.getElementById(k); if(!el) return;
+          if(el.type==='checkbox') el.checked=d[k]==='1'; else el.value=d[k];
+        });
+        try{ mhMethodChange(); }catch(e){}
+        /* 三级下拉的级联不随逐项赋值重建（省变则市表变），所载之地经共用件整组落位；
+           时区与当地夏令时在落位之后重放，免被所载城市的自带偏移覆盖 */
+        if(window.__mhPlaceTrio) window.__mhPlaceTrio.set(d.mhProv, d.mhCity, d.mhDist);
+        const tzEl=document.getElementById('mhTz');
+        if(d.mhTz){ tzEl.value=d.mhTz; tzEl.dataset.lastCity=d.mhCity||''; }
+        else{ tzEl.dataset.lastCity=''; tzEl.value=''; }
+        document.getElementById('mhLocalDst').checked=d.mhLocalDst==='1';
+        mhSyncOverseas();
+      },
+      recast:function(){ try{ qigua(); }catch(e){} }
+    } });
+    if(window.mountJingWenRef) mountJingWenRef({cls:'mh-ref'});
+  }, 0);
+});

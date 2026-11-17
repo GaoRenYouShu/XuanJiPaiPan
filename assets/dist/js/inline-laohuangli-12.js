@@ -44,9 +44,6 @@
       const JIAZI60=(function(){const G=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],Z=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];const a=[];for(let i=0;i<60;i++)a.push(G[i%10]+Z[i%12]);return a;})();
       window.JIAZI60 = JIAZI60;
     })();
-    document.addEventListener('toggle',function(e){
-      if(e.target && e.target.matches && e.target.matches('#out details.fold-block')) xjSaveOneFold('lhlFoldState','#out details.fold-block');
-    },true);
     initDefault();
     mountAI(function(){
       const v=document.getElementById('dInput').value; if(!v) return '';

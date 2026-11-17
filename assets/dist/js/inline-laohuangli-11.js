@@ -389,7 +389,6 @@ function query(keepGrid){
     <div class="fei-block"><div class="fei-cap">时飞星（当前${shName}时 ${FEI_NAME[hStar]}入中）</div>${feiGridHTML(hStar)}</div>
   </div></details>`;
   document.getElementById('out').innerHTML=html;
-  xjApplyOneFold('lhlFoldState','#out details.fold-block');
  }catch(e){
   document.getElementById('out').innerHTML='<p class="notice">排盘出错：'+((e&&e.message)?e.message:e)+'</p>';
  }

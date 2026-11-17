@@ -28,10 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
         el.addEventListener(name,function(){ el.setAttribute('data-user-set','1'); });
       });
     });
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id && t.closest('#out')) xjSaveFold('czFoldState','#out details[id]');
-    },true);
     (function initCz(){
       let restored=false;
       try{

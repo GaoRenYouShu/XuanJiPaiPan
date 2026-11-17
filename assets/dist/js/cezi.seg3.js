@@ -18,3 +18,6 @@ window.CEZI_ENGINE=(function(){"use strict";const b={木:"火",火:"土",土:"�
 `,t+="综合："+n.level.name+"\uFF08"+n.total+`分\uFF09
 断曰：`+n.duan,t}return{analyze:Nn,pickRandom:bn,contextText:pn,SHENG:b,KE:G,YINGQI:B,TIYONG_SCORE:Z}})();
 
+;
+(function(s){"use strict";function i(e){return document.getElementById(e)}function u(e){return e?e.tagName==="DETAILS"?!!e.open:!e.classList.contains("collapsed"):!1}function r(e,n){var t=i(e);return t?(t.tagName==="DETAILS"?t.open=!!n:n?t.classList.remove("collapsed"):t.classList.add("collapsed"),!0):!1}function o(e,n){!e||typeof s.xjFoldRemember!="function"||s.xjFoldRemember(e,n)}var f={toggle:function(e){var n=i(e);if(n){var t=!u(n);r(e,t),o(e,t)}},open:function(e){r(e,!0)&&o(e,!0)},close:function(e){r(e,!1)&&o(e,!1)},isOpen:function(e){return u(i(e))}};s.MOD=f,s.toggleMod=function(e){f.toggle(e)},typeof document<"u"&&typeof MutationObserver=="function"&&new MutationObserver(function(e){for(var n=0;n<e.length;n++){var t=e[n].target;!t||!t.id||t.nodeType!==1||(t.tagName==="DETAILS"?o(t.id,!!t.open):t.classList&&t.classList.contains("mod")&&o(t.id,!t.classList.contains("collapsed")))}}).observe(document.documentElement,{subtree:!0,attributes:!0,attributeFilter:["class","open"]})})(typeof window<"u"?window:typeof globalThis<"u"?globalThis:this);
+

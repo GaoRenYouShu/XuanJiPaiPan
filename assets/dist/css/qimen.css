@@ -6,6 +6,96 @@
 /* 全站表单焦点：文本控件以本页主色描边，复选框与单选框只留键盘焦点环，浏览器默认焦点环不出现。
    本件每页都装载且入 base.css，故这条规则全站生效，页级同名规则按本页色覆写。 */
 
+/* 图标位定宽：图标用 emoji 字形时，字形随字体到位前后宽度差两像素，整行随之位移。
+   给宿主固定盒宽并以字形居中，字体到不到盒子都不变。 */
+.li-ico{display:inline-block;width:1.2em;text-align:center}
+
+/* 滚动条常驻占位：页面由短变长时竖向滚动条出现，视口宽度少十余像素，
+   自适应列数随之少一列，整片卡片与表格重排。预留槽位后宽度恒定。 */
+
+/* 二级折叠区与分节小标题：形制与间距在此写一份。
+   本件并入 base.css，45 页全载；style.css 只覆盖 5 页，不作全站规则落点。
+   各页样式表里原有的同款副本属承重定义，页段只写线色与题色。 */
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+.mh-ref .dyn-detail{border:none;background:transparent;padding:0;margin-top:var(--sp-2)}
+.mh-ref .sub-note{margin:var(--sp-1) 0}
+.det-h{font-size:var(--tier4);font-family:var(--font-serif);font-weight:400;color:var(--title);margin:var(--sp-3) 0 var(--sp-1);letter-spacing:.2em}
+.det-h .det-sub{color:var(--ink2)}
+
+/* 表单标签与勾选框文字：13px、次墨色。此条原只写在 style.css，未加载该件的页
+   标签一路继承正文 16px，与本草等页的 13px 不一致。落本件后 45 页同值。 */
+.field label{font-size:13px;color:var(--ink2)}
+.field.chk span{font-size:13px;color:var(--ink2)}
+
+/* 历史记录弹层的行结构：原只在各页样式表内按页类生效，凡未载入该件的页面
+   弹层无列宽与按钮档位，遂被挤成一列。此处按同值收进通用件，全站一致。 */
+.modal.hist-modal{max-width:560px}
+.hist-list{margin-top:var(--sp-1)}
+.hist-empty{padding:var(--sp-3);color:var(--ink2);font-size:var(--tier4);text-align:center}
+.hist-foot{margin-top:var(--sp-2);font-size:var(--tier4);color:var(--ink2)}
+.hist-row{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:var(--tier4);
+  padding:var(--sp-1) 0;border-bottom:1px solid var(--line)}
+.hist-t{flex:0 0 auto;max-width:110px;min-width:0;color:var(--ink2);line-height:1.5;overflow-wrap:anywhere}
+.hist-g{flex:1 1 auto;min-width:0;color:var(--ink);line-height:1.5;overflow-wrap:anywhere}
+.hist-q{color:var(--ink2);font-size:var(--tier4)}
+.hist-a{flex:0 0 auto;display:flex;gap:var(--sp-1);align-items:center}
+.modal .hist-act,.modal .hist-del{height:auto;font-size:var(--tier4);padding:2px var(--sp-2);line-height:1.5}
+.modal .hist-del{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
+
+/* 数据存储面板：三段通道同制式，段题次墨、段间三段距、段内二段距；
+   弹层标题取站内历史记录同值，存档管理弹层单独放宽。 */
+.cs-head{display:flex;align-items:baseline;gap:var(--sp-2);margin:var(--sp-2) 0 var(--sp-1)}
+.cs-head b{font-size:var(--tier4);color:var(--tk2,var(--gold2));font-weight:400}
+.cs-head span{font-size:var(--tier4);color:var(--ink2)}
+.cs-ch{padding:var(--sp-3) 0;border-top:1px solid var(--tk-line,var(--line))}
+.cs-ch:first-of-type{border-top:0;padding-top:0}
+.cs-ch-h{font-size:var(--tier4);color:var(--tk2,var(--gold2));font-weight:400;margin-bottom:var(--sp-2)}
+/* 段内纵向节奏按间距令牌三档，选择器提起权重使页内默认让位：
+   段题与内容、段内内容块取组间 --sp-3；表单行之间取同组 --sp-2；通道之间按模块之间 --sp-2。 */
+#csBlock .cs-ch{padding:var(--sp-2) 0;border-top:1px solid var(--tk-line,var(--line))}
+#csBlock .cs-ch:first-of-type{border-top:0;padding-top:0}
+#csBlock .cs-ch:last-of-type{padding-bottom:0}
+#csBlock .cs-ch>*{margin-top:0;margin-bottom:0}
+#csBlock .cs-ch>*+*{margin-top:var(--sp-3)}
+#csBlock .cs-ch-h{margin:0 0 var(--sp-3)}
+#csBlock .cs-ch .form-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0}
+#csBlock .cs-ch .form-row+.form-row{margin-top:var(--sp-2)}
+#csBlock .cs-ch .ai-actions+.form-row{margin-top:var(--sp-3)}
+#csBlock .cs-ch .ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0}
+#csBlock .cs-ch .ai-actions>*{margin:0}
+/* 数据存储的字段标签取本页主题主色，与段题同源；页表单的灰标签不落本模块 */
+#csBlock .field label{color:var(--gold2)}
+/* 连不通时的出路提示落在 csTip 内，不在 cs-ch 之下，按钮组须单独成行，免与上行文字相叠 */
+#csBlock #csTip{display:block;line-height:1.6}
+#csBlock #csTip .ai-tip{display:block;margin-top:var(--sp-2)}
+#csBlock #csTip .ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-3)}
+#csBlock #csTip .cs-bad{color:#b4432f}
+/* 通道三的服务说明与引导按块排，与其后的按钮组之间取三段距 */
+#csBlock #csPresetNote{display:block;margin:var(--sp-2) 0 0}
+#csBlock #csGuide{display:block;margin-top:var(--sp-2)}
+#csBlock #csPresetNote+.ai-actions,
+#csBlock #csPresetNote~.ai-actions,
+#csBlock #csGuide~.ai-actions{margin-top:var(--sp-3)}
+.cs-ch:last-of-type{padding-bottom:0}
+.modal .ly-hist-head{display:flex;align-items:baseline;gap:var(--sp-2);font-size:var(--tier3);
+  color:var(--tk2,var(--gold2));font-weight:400;margin:0 0 var(--sp-2);padding-bottom:var(--sp-1);
+  border-bottom:1px solid var(--tk-line,var(--line))}
+#csMask .modal.hist-modal{max-width:760px}
+#csMask .hist-g{overflow-wrap:anywhere;word-break:break-all}
+
+/* 云保存的存档行：一份一行，左为文件名与时间，右为读回与删除。
+   自带样式，不依赖弹层专用类，任何页展开附加功能即可见可点。 */
+.cs-row{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);
+  padding:var(--sp-2) 0;border-top:1px solid var(--line)}
+.cs-row-main{font-size:13px;color:var(--title);word-break:break-all}
+.cs-row-sub{font-size:12px;color:var(--ink2)}
+.cs-row-act{display:inline-flex;gap:var(--sp-2);flex-shrink:0}
+
 
 
 /* 日期时间选择器组件（自建弹层，响应式模式也可弹出）
@@ -493,12 +583,6 @@ a.btn{display:inline-flex;align-items:center}
 
 .bazi-link-banner b{color:var(--gold2);font-weight:700}
 
-.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
-
-.mh-ref:not([open]){border-bottom:1px solid var(--line)}
-
-.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
-
 .mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
 
 .mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
@@ -552,7 +636,6 @@ a.btn{display:inline-flex;align-items:center}
 .dp-cell.dp-wide{grid-column:1/-1}
 
 .dp-cell i{font-style:normal;font-weight:700;margin-right:var(--sp-1)}
-
 
 .tip{cursor:pointer;color:var(--red2)}
 
@@ -1130,7 +1213,6 @@ table.yun-tbl.rel-matrix td .rel{margin-right:0}
 .ai-head .ai-status{font-size:12px;color:var(--ink2);margin-left:auto;min-width:0}
 
 .ai-head .ai-status.is-configured{color:var(--green)}
-
 
 .ai-body{padding:var(--sp-3) var(--sp-4)}
 
@@ -2257,7 +2339,6 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 .page-qm .mod-title{color:var(--qm2)}
 
-
 .page-qm .mod-head{border-top-color:var(--qm-line);border-bottom-color:var(--qm-line)}
 
 .page-qm .page h1{color:var(--qm-deep);font-family:var(--qm-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}/* 页头细线：上下各一条 88px 夹题，卷首说明末尾 26px 竖线收束 */
@@ -2398,8 +2479,6 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   .info-grid.base-info{break-inside:avoid}
 }
 
-
-
 .page-qm .qm-tbl.crit-tbl th.col-crit{width:96px;white-space:nowrap}
 
 .page-qm .qm-tbl.evi-tbl{width:100%;table-layout:fixed}
@@ -2436,5 +2515,19 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
   .page-qm #qmSun{width:93px}
   .page-qm #qmDst,.page-qm #qmZi,.page-qm #qmSun{width:80px}
 }
+
+/* 历史记录弹层共用排版：三列行、重开与删除钮、脚注同档 */
+.modal.hist-modal{max-width:560px}
+.modal .ly-hist-head{display:flex;align-items:baseline;gap:var(--sp-2);font-size:var(--tier3);color:var(--tk2,var(--gold2));font-weight:400;margin:0 0 var(--sp-2);padding-bottom:var(--sp-1);border-bottom:1px solid var(--tk-line,var(--line))}
+.hist-list{margin-top:var(--sp-1)}
+.hist-empty{padding:var(--sp-3);color:var(--ink2);font-size:var(--tier4);text-align:center}
+.hist-foot{margin-top:var(--sp-2);font-size:var(--tier4);color:var(--ink2)}
+.hist-row{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:var(--tier4);padding:var(--sp-1) 0;border-bottom:1px solid var(--line)}
+.hist-t{flex:0 0 auto;max-width:110px;min-width:0;color:var(--ink2);line-height:1.5;overflow-wrap:anywhere}
+.hist-g{flex:1 1 auto;min-width:0;color:var(--ink);line-height:1.5;overflow-wrap:anywhere}
+.hist-q{color:var(--ink2);font-size:var(--tier4)}
+.hist-a{flex:0 0 auto;display:flex;gap:var(--sp-1);align-items:center}
+.modal .hist-act,.modal .hist-del{height:auto;font-size:var(--tier4);padding:2px var(--sp-2);line-height:1.5}
+.modal .hist-del{background:var(--gold-bg);color:var(--ink);border:1px solid var(--line)}
 
 

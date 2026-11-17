@@ -2081,36 +2081,9 @@ function drawFinal(){
   /* 逐项明细已并入页末综合判定分组表，此处不再重复列表 */
   document.getElementById('finalOut').innerHTML='';
 }
-/* 折叠态属交互态：模块与折叠块的开合由本页记忆，键按页独立，localStorage 主存、sessionStorage 隐私兜底。
-   存的是收起与否，'1' 为收起、'0' 为展开 */
-function fsReadModState(){
-  try{
-    const raw=localStorage.getItem('fsy_mod_state')||sessionStorage.getItem('fsy_mod_state');
-    const st=JSON.parse(raw||'{}');
-    return (st&&typeof st==='object')?st:{};
-  }catch(e){ return {}; }
-}
-function fsSaveModState(){
-  try{
-    /* 以已存为底、只覆盖此刻在场的件：复位本身会触发 toggle 回调本函数，
-       整份重写会把此刻未渲染的件的键一并抹掉，下次刷新读不回来 */
-    const st=fsReadModState();
-    document.querySelectorAll('section.fs-mod').forEach(mm=>{ st[mm.id]=mm.classList.contains('collapsed')?'1':'0'; });
-    document.querySelectorAll('details[id]').forEach(d=>{ st[d.id]=d.open?'0':'1'; });
-    const v=JSON.stringify(st);
-    try{ localStorage.setItem('fsy_mod_state', v); }catch(e){}
-    try{ sessionStorage.setItem('fsy_mod_state', v); }catch(e){}
-  }catch(e){}
-}
 function fsToggleMod(el){
   if(!el) return;
   el.classList.toggle('collapsed');
-  fsSaveModState();
-}
-function fsRestoreModState(){
-  const st=fsReadModState();
-  document.querySelectorAll('section.fs-mod').forEach(mm=>{ if(st[mm.id]==='1') mm.classList.add('collapsed'); });
-  document.querySelectorAll('details[id]').forEach(d=>{ if(d.id in st) d.open=(st[d.id]==='0'); });
 }
 function jumpMod(id){
   const el=document.getElementById(id); if(!el) return;

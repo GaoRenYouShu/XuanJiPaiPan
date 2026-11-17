@@ -26,6 +26,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="assets/logo/pwa-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"玄机排盘","alternateName":"XuanJi PaiPan","url":"https://gaoren.org/","inLanguage":"zh-CN"},{"@type":"WebApplication","name":"玄机排盘","url":"https://gaoren.org/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}]}</script>
 <link rel="stylesheet" href="assets/dist/css/base.css">
 <style data-critical>/* 本页首屏样式。 */
 
@@ -149,6 +150,18 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .fei-n{font-size:20px}
 }
 
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
 #out + *{margin-top:var(--sp-4)}
 
 @media(max-width:640px){
@@ -159,6 +172,8 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .field.chk input{width:auto;height:auto;padding:0}
 
+.sub-note{font-size:12px;color:var(--ink2);margin-top:var(--sp-1);line-height:1.5;font-weight:normal}
+
 @media(max-width:640px){
 .opts-row{gap:var(--sp-2)}
 }
@@ -166,6 +181,8 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 @media(max-width:540px){
 .rel-wrap{gap:var(--sp-3) var(--sp-2);line-height:2}.rel{padding:var(--sp-1) var(--sp-2)}
 }
+
+.rel-title{font-size:var(--tier2);font-family:var(--font-serif);font-weight:400;color:var(--title);margin:var(--sp-4) 0 var(--sp-1);letter-spacing:.2em}
 
 #yunHit{touch-action:pan-x pan-y}
 
@@ -404,6 +421,8 @@ table.yun-tbl.yd th:nth-child(1),table.yun-tbl.yd td:nth-child(1),
 .lr-center-ke{font-size:12px}
 }
 
+.mh-ref .sub-note{margin:var(--sp-1) 0}
+
 @media (hover:hover) and (pointer:fine){
 .zr-mod>summary:hover{background:var(--gold-bg)}
 }
@@ -474,25 +493,15 @@ table.yun-tbl.yd th:nth-child(1),table.yun-tbl.yd td:nth-child(1),
 .sj-btn{font-size:13px;padding:var(--sp-1) 2px}
 }
 
-.mod-head{display:flex;align-items:center;justify-content:flex-start;gap:var(--sp-2);cursor:pointer;user-select:none;
-  background:transparent;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;
-  box-shadow:none;padding:var(--sp-2) 0;margin:var(--sp-4) 0 var(--sp-3);transition:.15s}
-
 @media (hover:hover) and (pointer:fine){
 .mod-head:hover{background:var(--gold-bg);box-shadow:none}
 }
 
-.mod-caret{display:inline-block;color:var(--gold);font-size:13px;line-height:1;transition:transform .2s ease}
-
-.mod.collapsed .mod-caret{transform:rotate(-90deg)}
-
-.mod-title{font-size:var(--tier1);font-weight:400;color:var(--ink);letter-spacing:.6px}
-
 .mod-sub{font-size:12px;color:var(--ink2);margin-left:var(--sp-1)}
 
-.mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
+.mod-body{overflow:visible;text-align:left}
 
-.mod:last-child{margin-bottom:0}
+.mod,.mod-body,.mod-head{text-align:left}.mod{background:var(--card);border:1px solid var(--line);border-radius:0;padding:var(--sp-4) var(--sp-3);text-align:center;cursor:pointer;transition:.2s;box-shadow:var(--shadow);margin-bottom:var(--sp-4)}
 
 @media screen{
 section.mod{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none}
@@ -623,6 +632,28 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .nf-home:hover{border-color:#c65a48;color:#c65a48}
 }
 
+.mh-ref{margin-top:var(--sp-4);border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--sp-3) 0;background:transparent;text-align:left}
+
+.mh-ref:not([open]){border-bottom:1px solid var(--line)}
+
+.mh-ref summary{cursor:pointer;font-family:var(--font-serif);font-weight:400;color:var(--gold2);font-size:var(--tier3);letter-spacing:.1em;line-height:1.5}
+
+.mh-ref table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.mh-ref th,.mh-ref td{border:1px solid var(--line);padding:6px 8px;font-size:var(--tier4);text-align:center}
+
+.mh-ref th{background:var(--paper);color:var(--gold2)}
+
+.mh-ref .sub-note{margin:var(--sp-1) 0}
+
+.field label{font-size:13px;color:var(--ink2)}
+
+#csBlock #csTip{display:block;line-height:1.6}
+
+#csBlock #csPresetNote{display:block;margin:var(--sp-2) 0 0}
+
+#csBlock #csGuide{display:block;margin-top:var(--sp-2)}
+
 .dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
 
 @media(max-width:640px){
@@ -693,11 +724,23 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 .page-jy .page .lead::after{background:var(--jy-line)}
 
-.page-jy .mod-head{border-top-color:var(--jy-line);border-bottom-color:var(--jy-line)}
+.page-jy .sub-note{color:var(--jy-ink2)}
 
 .page-jy .mod-sub{color:var(--jy-ink2)}
 
+.page-jy .rel-title{color:var(--jy2)}
+
 .page-jy .form-row{align-items:flex-end}
+
+.page-jy table{width:100%;border-collapse:collapse;margin-top:var(--sp-2)}
+
+.page-jy th,.page-jy td{border:1px solid var(--jy-line);padding:6px 9px;font-size:var(--tier4);color:var(--jy-ink);text-align:left;vertical-align:top;font-weight:400}
+
+.page-jy th{background:var(--jy-tint);color:var(--jy-deep);white-space:nowrap}
+
+.page-jy .tbl-hs{margin-top:var(--sp-2)}
+
+.page-jy .mod-body .tbl-hs + .sub-note{margin-top:var(--sp-2)}
 
 .page-jy .jy-pick{position:relative;display:inline-block}
 
@@ -719,21 +762,20 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 .page-jy .jy-stock-row .jy-stock-in{flex:1 1 160px;min-width:0;width:auto;max-width:100%}
 
-.page-jy .btn.gold{background:var(--jy)}
+.page-jy .btn:not(.soft):not(.btn-ghost),.page-jy .btn.gold{background:var(--jy);color:#fff;box-shadow:none}
 
-.page-jy .btn.gold:hover{background:var(--jy2)}
+.page-jy .btn:not(.soft):not(.btn-ghost):hover,.page-jy .btn.gold:hover{background:var(--jy2);color:#fff;box-shadow:none}
 
 @media(max-width:640px){
 .page-jy .jy-pick .jy-pick-list{max-width:260px}
-}</style>
+}</style><script>try{if(document.fonts&&document.fonts.load){document.fonts.load('400 12px "Noto Serif SC Page"','\u7384\u673a\u6392\u76d8\u9996\u9875\u5386\u6cd5\u547d\u7406\u4e09\u5f0f\u5360\u535c\u6c11\u4fd7\u8fd0\u6c14\u517b\u751f\u76f8\u672f\u9644\u5f55AI');}}catch(e){}</script>
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
 <link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
 <link rel="stage2-css" href="assets/dist/fonts/fonts.css">
 <noscript><link rel="stylesheet" href="assets/dist/fonts/fonts.css"></noscript>
-<link rel="stage2-css" href="assets/dist/css/jingyou.css">
-<noscript><link rel="stylesheet" href="assets/dist/css/jingyou.css"></noscript>
+<link rel="stylesheet" href="assets/dist/css/jingyou.css">
 </head>
-<body>
+<body data-prerendered="1">
 <div class="topbar"><div class="wrap">
   <a class="brand" href="index.html" aria-label="玄机排盘 首页">
     <span class="seal" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36"><circle cx="50" cy="50" r="48" fill="#d92c1e"/><path fill="#f4efe4" transform="translate(9.330 77.771) scale(0.07888 -0.07888)" d="M499.5 797.8Q507.3 796.1 514.9 794.0Q522.6 791.9 530.1 790.3Q537.6 788.7 543.9 786.6Q550.2 784.4 554.1 779.0Q558.1 773.5 559.4 766.1Q560.7 758.8 559.8 751.0Q558.9 743.3 556.9 735.7Q555.0 728.0 553.8 720.3Q552.5 712.6 552.3 704.7Q552.0 696.7 551.6 688.8Q551.2 680.9 549.8 673.3Q548.4 665.7 547.1 658.5Q545.9 651.2 546.9 644.9Q547.9 638.5 552.4 634.1Q556.8 629.7 563.7 627.8Q570.5 625.9 578.1 626.1Q585.8 626.3 593.6 627.3Q601.5 628.4 609.3 629.1Q617.2 629.9 624.8 630.0Q632.5 630.1 639.8 630.2Q647.1 630.4 654.3 631.5Q661.6 632.5 669.2 633.2Q676.8 633.9 684.5 633.8Q692.1 633.8 699.7 634.0Q707.3 634.3 714.9 634.6Q722.4 635.0 729.9 635.7Q737.4 636.4 744.7 637.6Q752.1 638.8 759.2 640.7Q766.3 642.6 773.2 645.1Q780.1 647.5 787.2 650.0Q794.3 652.4 801.0 656.2Q807.6 660.0 813.2 665.5Q818.8 671.0 823.5 677.5Q828.2 683.9 832.6 690.6Q836.9 697.3 841.5 703.7Q846.0 710.2 851.7 715.6Q857.4 720.9 864.2 724.5Q871.0 728.1 878.6 729.2Q886.2 730.2 894.0 729.3Q901.9 728.3 909.5 726.2Q917.1 724.1 924.1 720.5Q931.0 717.0 936.2 711.6Q941.4 706.1 944.4 699.1Q947.4 692.2 951.0 686.0Q954.5 679.8 960.2 675.3Q965.9 670.8 971.1 665.3Q976.2 659.9 979.8 653.2Q983.4 646.4 985.3 639.2Q987.3 632.0 988.8 625.0Q990.4 617.9 990.6 610.8Q990.8 603.7 987.7 596.9Q984.6 590.2 979.0 585.1Q973.4 579.9 966.3 577.2Q959.2 574.5 951.4 574.0Q943.6 573.4 935.6 574.0Q927.7 574.5 919.8 575.6Q911.8 576.6 904.0 578.1Q896.1 579.5 888.4 580.9Q880.6 582.4 872.7 583.1Q864.9 583.8 856.9 584.1Q849.0 584.4 841.2 585.4Q833.4 586.3 825.7 587.5Q818.1 588.6 810.4 589.3Q802.8 590.1 795.1 590.8Q787.4 591.5 779.7 592.1Q772.0 592.7 764.3 593.1Q756.5 593.5 748.7 593.7Q740.9 593.9 733.1 593.9Q725.2 593.9 717.3 593.7Q709.5 593.6 701.5 593.4Q693.6 593.1 685.7 592.9Q677.7 592.6 669.8 592.4Q661.9 592.1 653.9 591.9Q646.0 591.7 638.1 591.4Q630.3 591.2 622.5 590.8Q614.7 590.4 607.2 589.9Q599.6 589.3 592.4 588.4Q585.2 587.5 578.6 586.2Q571.9 585.0 566.0 583.2Q560.0 581.4 554.4 579.7Q548.7 578.0 543.2 575.1Q537.8 572.2 530.9 568.5Q524.1 564.9 519.8 561.4Q515.5 557.9 518.6 554.6Q521.7 551.4 528.9 550.3Q536.0 549.2 543.9 548.8Q551.8 548.5 559.3 546.9Q566.8 545.3 572.4 541.0Q577.9 536.6 579.9 529.8Q581.9 523.0 580.5 516.0Q579.0 509.0 574.1 503.7Q569.1 498.3 562.4 494.3Q555.7 490.2 549.0 486.0Q542.3 481.7 536.5 476.5Q530.6 471.2 525.1 465.4Q519.6 459.6 514.0 453.9Q508.5 448.2 502.7 442.7Q496.9 437.2 491.0 432.0Q485.2 426.7 479.6 421.2Q474.0 415.6 468.3 410.1Q462.5 404.6 456.6 399.3Q450.6 394.0 444.7 388.7Q438.9 383.4 434.7 377.3Q430.6 371.2 429.6 363.9Q428.7 356.7 430.6 349.3Q432.5 341.9 436.8 335.6Q441.0 329.3 446.7 324.5Q452.5 319.7 457.3 314.0Q462.0 308.4 464.8 301.2Q467.5 294.0 468.3 286.2Q469.1 278.5 467.4 271.4Q465.7 264.2 460.7 258.9Q455.7 253.5 448.8 249.7Q441.9 246.0 434.6 243.2Q427.2 240.5 419.7 239.8Q412.2 239.2 404.7 241.2Q397.3 243.2 390.6 247.1Q383.8 251.0 378.8 256.7Q373.7 262.4 369.8 269.2Q365.9 275.9 362.5 283.0Q359.1 290.2 356.7 297.7Q354.3 305.2 352.3 312.8Q350.3 320.3 346.7 327.0Q343.1 333.8 338.1 339.9Q333.1 346.0 327.7 351.9Q322.3 357.8 316.6 363.5Q311.0 369.2 305.3 374.7Q299.6 380.3 294.3 386.1Q289.1 392.0 285.2 398.8Q281.2 405.5 278.9 412.8Q276.5 420.1 277.7 426.4Q278.8 432.8 284.1 435.6Q289.4 438.4 296.3 436.4Q303.1 434.5 309.7 430.5Q316.2 426.5 322.6 424.2Q329.0 421.9 335.3 421.5Q341.6 421.1 346.2 417.7Q350.8 414.4 353.6 409.1Q356.3 403.9 361.1 401.6Q365.9 399.4 372.9 399.7Q380.0 400.0 386.8 401.4Q393.6 402.9 398.5 407.6Q403.5 412.2 406.8 418.8Q410.0 425.3 411.2 431.9Q412.4 438.4 414.7 444.8Q417.0 451.1 422.3 456.6Q427.5 462.0 433.4 466.8Q439.3 471.5 443.8 477.0Q448.3 482.4 451.9 489.0Q455.6 495.6 458.8 502.7Q462.0 509.9 464.2 517.1Q466.3 524.3 467.7 531.1Q469.1 538.0 471.4 545.1Q473.6 552.2 476.3 559.5Q479.0 566.7 477.9 572.4Q476.7 578.1 469.6 579.7Q462.5 581.2 455.2 581.8Q447.8 582.4 441.7 584.0Q435.7 585.7 429.2 587.0Q422.7 588.3 415.6 589.1Q408.5 589.9 401.2 590.3Q393.8 590.8 386.2 591.0Q378.7 591.2 371.2 591.3Q363.7 591.4 356.3 591.5Q348.8 591.6 341.5 591.8Q334.2 592.0 327.1 592.1Q319.9 592.3 312.9 592.5Q305.8 592.6 298.9 592.6Q291.9 592.6 285.0 592.3Q278.1 592.0 271.1 591.4Q264.2 590.7 257.2 589.7Q250.2 588.7 243.0 587.5Q235.9 586.3 228.7 584.9Q221.5 583.6 214.1 582.3Q206.7 581.0 199.3 579.6Q191.9 578.2 184.5 576.6Q177.1 575.1 169.3 574.5Q161.6 573.9 153.6 574.1Q145.6 574.3 137.7 574.6Q129.7 574.9 121.8 574.8Q113.8 574.7 106.0 573.4Q98.3 572.1 90.5 570.8Q82.8 569.5 75.4 570.5Q68.1 571.4 62.3 575.9Q56.5 580.3 52.6 587.0Q48.6 593.7 46.2 601.1Q43.9 608.6 43.1 616.2Q42.3 623.9 41.8 631.1Q41.4 638.3 40.7 645.1Q40.0 651.9 42.7 657.3Q45.5 662.8 52.1 664.9Q58.7 667.0 66.3 666.1Q73.9 665.1 81.3 662.4Q88.8 659.7 96.1 656.5Q103.4 653.3 110.7 650.0Q118.0 646.7 125.3 643.8Q132.6 640.8 140.2 639.6Q147.7 638.3 155.5 638.7Q163.2 639.2 170.2 638.5Q177.3 637.8 183.8 635.4Q190.3 633.0 197.0 631.9Q203.8 630.7 210.5 630.1Q217.3 629.4 224.0 628.9Q230.8 628.5 237.5 628.3Q244.3 628.1 251.3 628.0Q258.2 628.0 265.3 628.0Q272.3 628.0 279.6 628.0Q286.9 628.0 294.3 628.1Q301.7 628.1 309.1 628.1Q316.6 628.1 324.1 628.2Q331.6 628.2 339.1 628.2Q346.6 628.1 354.1 628.3Q361.6 628.4 368.9 629.2Q376.1 630.0 383.3 630.3Q390.4 630.7 397.5 629.5Q404.6 628.3 411.9 627.2Q419.1 626.1 426.4 626.1Q433.7 626.1 440.6 626.3Q447.6 626.5 453.9 627.2Q460.1 627.8 464.0 630.6Q468.0 633.4 468.6 638.7Q469.2 643.9 468.2 650.8Q467.1 657.7 466.1 665.1Q465.0 672.6 463.6 679.8Q462.2 687.0 460.7 694.2Q459.3 701.3 459.7 708.9Q460.1 716.5 460.2 724.3Q460.3 732.1 459.4 740.0Q458.4 747.9 457.9 755.8Q457.4 763.7 458.2 771.5Q459.1 779.3 462.1 786.0Q465.0 792.6 470.9 796.0Q476.7 799.4 484.3 799.4Q491.8 799.5 499.5 797.8ZM693.1 457.1Q699.7 454.1 706.0 449.2Q712.2 444.4 718.4 439.3Q724.6 434.2 731.0 429.5Q737.4 424.8 743.5 420.2Q749.6 415.5 754.3 409.6Q759.1 403.8 763.0 397.0Q766.9 390.1 769.8 383.1Q772.6 376.2 772.2 369.1Q771.8 362.0 769.0 354.9Q766.2 347.8 762.2 341.6Q758.2 335.5 752.0 331.9Q745.7 328.3 738.2 326.2Q730.6 324.2 723.1 321.8Q715.7 319.3 709.0 315.3Q702.2 311.3 695.9 306.5Q689.6 301.6 683.3 296.6Q677.1 291.7 670.8 286.7Q664.5 281.7 658.3 276.7Q652.0 271.8 645.8 266.8Q639.5 261.8 633.2 256.8Q627.0 251.9 620.7 247.0Q614.4 242.2 608.5 237.2Q602.6 232.2 598.4 226.1Q594.2 220.0 590.3 214.1Q586.4 208.1 580.6 203.7Q574.7 199.3 568.2 194.9Q561.8 190.4 555.8 185.3Q549.9 180.3 544.0 176.6Q538.2 172.9 532.2 170.6Q526.2 168.4 520.7 163.9Q515.2 159.4 509.8 153.8Q504.3 148.1 498.5 142.7Q492.7 137.3 487.1 131.9Q481.5 126.5 476.0 121.0Q470.5 115.5 464.2 110.8Q457.9 106.0 451.6 101.5Q445.2 97.0 439.8 91.5Q434.4 85.9 429.2 79.9Q424.0 74.0 418.4 68.3Q412.8 62.7 407.2 57.3Q401.7 51.9 399.0 46.5Q396.4 41.2 399.9 37.5Q403.5 33.8 410.7 33.0Q417.8 32.2 425.6 32.7Q433.3 33.2 440.9 34.8Q448.5 36.4 456.3 38.0Q464.1 39.6 472.0 40.8Q479.8 41.9 487.5 43.2Q495.1 44.5 502.3 46.6Q509.4 48.7 516.8 49.9Q524.2 51.1 531.6 51.9Q538.9 52.8 545.4 55.7Q551.9 58.5 558.4 59.9Q564.9 61.4 571.7 59.2Q578.5 56.9 585.7 55.3Q592.9 53.7 600.3 55.1Q607.8 56.4 615.0 59.7Q622.2 62.9 629.2 66.1Q636.2 69.4 643.6 70.3Q651.0 71.2 658.8 70.6Q666.6 70.0 674.5 70.0Q682.4 70.1 690.1 71.1Q697.8 72.2 703.4 75.1Q708.9 78.0 709.4 83.6Q709.8 89.2 705.8 95.3Q701.8 101.4 696.2 107.1Q690.6 112.7 684.7 118.1Q678.8 123.5 672.9 128.8Q666.9 134.2 660.9 139.5Q654.9 144.8 648.9 150.1Q642.9 155.4 637.4 160.8Q631.8 166.3 629.0 172.3Q626.2 178.2 628.9 183.3Q631.7 188.3 638.1 189.8Q644.6 191.2 651.8 189.0Q659.0 186.8 666.2 183.5Q673.4 180.2 680.7 177.5Q688.1 174.7 695.2 171.6Q702.3 168.4 708.4 163.5Q714.4 158.7 720.3 153.6Q726.1 148.4 732.9 144.6Q739.7 140.7 746.8 137.4Q753.9 134.0 761.0 130.9Q768.1 127.9 775.7 125.8Q783.2 123.7 790.5 121.4Q797.7 119.2 804.3 115.7Q810.9 112.3 817.8 108.9Q824.7 105.5 831.3 101.7Q837.9 97.9 843.4 92.6Q849.0 87.3 854.6 81.6Q860.1 75.9 866.1 70.6Q872.0 65.2 878.0 60.0Q884.1 54.8 889.4 49.2Q894.7 43.6 898.2 36.7Q901.6 29.9 903.9 22.3Q906.1 14.7 908.0 6.9Q909.9 -0.8 911.8 -8.4Q913.8 -16.0 916.3 -23.2Q918.8 -30.3 920.4 -37.7Q921.9 -45.1 921.1 -52.7Q920.2 -60.3 916.9 -67.2Q913.5 -74.0 907.9 -79.4Q902.3 -84.8 895.4 -88.5Q888.5 -92.3 881.1 -94.1Q873.6 -95.9 866.0 -95.0Q858.4 -94.0 851.0 -91.8Q843.5 -89.5 836.0 -88.1Q828.4 -86.6 821.7 -84.1Q815.0 -81.5 810.3 -75.9Q805.5 -70.3 802.1 -63.2Q798.6 -56.1 795.7 -48.7Q792.8 -41.2 790.3 -33.6Q787.8 -26.0 785.4 -18.4Q782.9 -10.8 779.9 -3.5Q776.9 3.9 772.9 10.6Q768.8 17.2 764.2 23.0Q759.6 28.8 756.0 35.1Q752.5 41.4 748.4 47.5Q744.3 53.6 738.1 56.5Q732.0 59.4 724.6 58.4Q717.3 57.3 710.0 54.4Q702.6 51.5 695.8 47.6Q688.9 43.7 682.7 38.8Q676.5 34.0 670.1 29.8Q663.6 25.6 656.3 23.4Q649.0 21.2 641.1 20.4Q633.3 19.7 625.7 18.4Q618.0 17.0 610.5 14.8Q603.1 12.5 595.6 11.1Q588.0 9.6 580.4 8.0Q572.7 6.4 565.2 4.0Q557.6 1.6 550.0 -0.9Q542.4 -3.4 534.8 -5.9Q527.1 -8.3 519.5 -10.6Q511.8 -12.9 504.1 -14.9Q496.4 -17.0 488.5 -18.6Q480.7 -20.2 472.8 -20.9Q464.9 -21.7 456.9 -22.0Q449.0 -22.4 441.2 -23.5Q433.4 -24.5 425.7 -26.7Q418.1 -28.9 410.5 -31.2Q402.8 -33.4 395.0 -35.3Q387.2 -37.1 379.4 -38.5Q371.5 -39.9 363.6 -40.9Q355.6 -41.9 347.7 -42.5Q339.7 -43.2 331.8 -43.8Q323.9 -44.5 316.1 -45.7Q308.2 -47.0 300.4 -48.5Q292.6 -50.1 284.8 -51.3Q276.9 -52.4 269.0 -52.7Q261.1 -52.9 253.2 -53.4Q245.4 -53.8 237.5 -55.0Q229.7 -56.3 221.9 -57.7Q214.1 -59.2 206.7 -61.8Q199.4 -64.4 192.4 -68.2Q185.5 -72.0 178.5 -75.6Q171.4 -79.1 164.0 -80.8Q156.6 -82.4 149.6 -80.5Q142.6 -78.6 137.3 -73.3Q132.0 -68.1 128.5 -61.1Q125.0 -54.1 122.7 -46.4Q120.4 -38.8 118.4 -31.1Q116.4 -23.4 113.8 -15.9Q111.2 -8.4 107.8 -1.1Q104.4 6.1 100.5 13.0Q96.7 20.0 93.5 27.0Q90.3 34.0 90.2 40.7Q90.0 47.5 94.5 51.5Q98.9 55.6 106.3 56.5Q113.6 57.4 121.5 56.6Q129.4 55.9 137.3 54.5Q145.1 53.1 152.9 51.4Q160.8 49.7 168.5 47.7Q176.2 45.7 183.8 43.7Q191.4 41.6 199.1 40.7Q206.8 39.8 214.7 39.9Q222.6 40.0 230.6 39.8Q238.5 39.6 246.5 39.3Q254.5 39.0 262.4 38.4Q270.2 37.7 277.7 36.6Q285.1 35.4 292.2 36.3Q299.3 37.2 306.2 40.9Q313.0 44.5 319.5 49.1Q326.0 53.7 332.2 58.7Q338.5 63.7 344.5 68.9Q350.6 74.1 356.5 79.5Q362.4 84.9 368.2 90.4Q374.0 95.9 379.7 101.5Q385.4 107.1 391.2 112.6Q397.0 118.1 403.1 123.2Q409.2 128.2 415.3 133.3Q421.4 138.3 427.3 143.7Q433.3 149.1 439.0 154.7Q444.8 160.2 450.4 165.9Q456.1 171.5 461.7 177.2Q467.3 182.9 472.9 188.7Q478.4 194.4 483.9 200.3Q489.3 206.1 494.4 212.2Q499.4 218.4 504.1 224.6Q508.8 230.9 513.8 236.2Q518.9 241.6 522.5 246.9Q526.1 252.2 529.2 258.4Q532.3 264.6 537.1 270.7Q541.8 276.8 547.1 282.7Q552.4 288.7 557.7 294.7Q563.1 300.7 568.4 306.6Q573.7 312.6 578.9 318.6Q584.2 324.6 589.4 330.5Q594.7 336.4 600.4 341.7Q606.1 346.9 611.3 352.3Q616.4 357.7 620.6 363.5Q624.9 369.3 628.9 374.6Q632.9 379.9 635.3 386.1Q637.8 392.2 641.5 398.1Q645.2 404.0 648.8 409.6Q652.5 415.2 654.2 422.0Q656.0 428.7 658.9 435.7Q661.7 442.8 666.4 448.8Q671.0 454.8 677.1 457.6Q683.2 460.3 684.9 460.2Q686.5 460.1 693.1 457.1ZM701.0 153.0Q701.0 152.0 701.5 151.5Q702.0 151.0 703.0 151.0Q704.0 151.0 705.0 151.0Q706.0 151.0 706.0 152.0Q706.0 153.0 705.5 153.5Q705.0 154.0 704.0 154.0Q703.0 154.0 702.0 154.0Q701.0 154.0 701.0 153.0Z"/></svg></span>
@@ -815,16 +857,16 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
   <div class="form-row">
     <div class="field"><label for="jyPeople">人群</label><select id="jyPeople" aria-label="选择人群">
-      <option value="adult" selected>成人</option><option value="infant_3_24m">婴儿 3 至 24 月</option><option value="toddler">幼儿 2 至 6 岁</option><option value="child">儿童 6 至 12 岁</option><option value="teen">青少年 12 至 18 岁</option><option value="elder">老人 65 岁以上</option><option value="pregnant">孕期</option><option value="lactation">哺乳期</option><option value="sensitive">敏感肌</option><option value="pet_home">宠物家庭</option><option value="infant_0_3m">婴儿 0 至 3 月</option>
+      <option value="adult" selected="">成人</option><option value="infant_3_24m">婴儿 3 至 24 月</option><option value="toddler">幼儿 2 至 6 岁</option><option value="child">儿童 6 至 12 岁</option><option value="teen">青少年 12 至 18 岁</option><option value="elder">老人 65 岁以上</option><option value="pregnant">孕期</option><option value="lactation">哺乳期</option><option value="sensitive">敏感肌</option><option value="pet_home">宠物家庭</option><option value="infant_0_3m">婴儿 0 至 3 月</option>
     </select></div>
     <div class="field"><label for="jyAge">年龄段</label><select id="jyAge" aria-label="选择年龄段">
-      <option value="18-25">18 至 25</option><option value="26-35" selected>26 至 35</option><option value="36-45">36 至 45</option><option value="46-55">46 至 55</option><option value="56-65">56 至 65</option><option value="65+">65 以上</option>
+      <option value="18-25">18 至 25</option><option value="26-35" selected="">26 至 35</option><option value="36-45">36 至 45</option><option value="46-55">46 至 55</option><option value="56-65">56 至 65</option><option value="65+">65 以上</option>
     </select></div>
     <div class="field"><label for="jySeason">季节</label><select id="jySeason" aria-label="选择季节">
-      <option value="spring">春</option><option value="summer">夏</option><option value="autumn">秋</option><option value="winter" selected>冬</option>
+      <option value="spring">春</option><option value="summer">夏</option><option value="autumn">秋</option><option value="winter" selected="">冬</option>
     </select></div>
     <div class="field"><label for="jyThermal">体质</label><select id="jyThermal" aria-label="选择体质">
-      <option value="unknown" selected>不明</option><option value="balanced">平</option><option value="cold">寒</option><option value="heat">热</option>
+      <option value="unknown" selected="">不明</option><option value="balanced">平</option><option value="cold">寒</option><option value="heat">热</option>
     </select></div>
     <div class="field"><label for="jyRiskSum">风险排查</label><details class="jy-pick" id="jyRiskBox">
       <summary id="jyRiskSum">未选</summary>
@@ -841,33 +883,33 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
   <div class="form-row">
     <div class="field"><label for="jyScene">场景</label><select id="jyScene" aria-label="选择场景">
-      <option value="general" selected>通用</option><option value="office">办公族</option><option value="travel">差旅</option><option value="housework">家庭主妇与主夫</option><option value="driver">司机</option><option value="kitchen">厨师与餐饮</option><option value="medical">医护</option><option value="teacher">教师</option><option value="student">学生</option><option value="night_shift">夜班与倒班</option><option value="outdoor">户外作业</option><option value="service">服务业与售货</option><option value="fitness">运动健身</option>
+      <option value="general" selected="">通用</option><option value="office">办公族</option><option value="travel">差旅</option><option value="housework">家庭主妇与主夫</option><option value="driver">司机</option><option value="kitchen">厨师与餐饮</option><option value="medical">医护</option><option value="teacher">教师</option><option value="student">学生</option><option value="night_shift">夜班与倒班</option><option value="outdoor">户外作业</option><option value="service">服务业与售货</option><option value="fitness">运动健身</option>
     </select></div>
     <div class="field"><label for="jyMethod">用法</label><select id="jyMethod" aria-label="选择用法">
-      <option value="roller" selected>滚珠</option><option value="diffuse">扩香</option><option value="massage">按摩</option><option value="face">面部</option>
+      <option value="roller" selected="">滚珠</option><option value="diffuse">扩香</option><option value="massage">按摩</option><option value="face">面部</option>
     </select></div>
     <div class="field"><label for="jyVolume">容量</label><select id="jyVolume" aria-label="选择容量">
-      <option value="10" selected>10 毫升</option><option value="30">30 毫升</option><option value="50">50 毫升</option><option value="100">100 毫升</option>
+      <option value="10" selected="">10 毫升</option><option value="30">30 毫升</option><option value="50">50 毫升</option><option value="100">100 毫升</option>
     </select></div>
   </div>
 
   <div class="form-row">
     <div class="field"><label for="jyCount">单方数量</label><select id="jyCount" aria-label="选择单方数量">
-      <option value="2">2 种</option><option value="3" selected>3 种</option><option value="4">4 种</option><option value="5">5 种</option><option value="6">6 种</option><option value="7">7 种</option><option value="8">8 种</option>
+      <option value="2">2 种</option><option value="3" selected="">3 种</option><option value="4">4 种</option><option value="5">5 种</option><option value="6">6 种</option><option value="7">7 种</option><option value="8">8 种</option>
     </select></div>
     <div class="field"><label for="jyBaseCount">基础油数量</label><select id="jyBaseCount" aria-label="选择基础油数量">
-      <option value="1">1 种</option><option value="2" selected>2 种</option><option value="3">3 种</option>
+      <option value="1">1 种</option><option value="2" selected="">2 种</option><option value="3">3 种</option>
     </select></div>
   </div>
 
   <div class="form-row">
     <div class="field"><label for="jyPickOilSum">指定单方</label><div class="jy-stock-row"><details class="jy-pick" id="jyPickOilBox">
       <summary id="jyPickOilSum">未选</summary>
-      <div class="jy-pick-list" id="jyPickOils"></div>
+      <div class="jy-pick-list" id="jyPickOils"><div class="group-label">芸香科</div><div class="field chk"><input type="checkbox" id="jyPO-sweet-orange" value="甜橙" onchange="jySyncSums()"><label for="jyPO-sweet-orange">甜橙</label></div><div class="field chk"><input type="checkbox" id="jyPO-petitgrain" value="苦橙叶" onchange="jySyncSums()"><label for="jyPO-petitgrain">苦橙叶</label></div><div class="field chk"><input type="checkbox" id="jyPO-neroli" value="橙花" onchange="jySyncSums()"><label for="jyPO-neroli">橙花</label></div><div class="field chk"><input type="checkbox" id="jyPO-lemon" value="柠檬" onchange="jySyncSums()"><label for="jyPO-lemon">柠檬</label></div><div class="field chk"><input type="checkbox" id="jyPO-lime" value="青柠" onchange="jySyncSums()"><label for="jyPO-lime">青柠</label></div><div class="field chk"><input type="checkbox" id="jyPO-bergamot" value="佛手柑" onchange="jySyncSums()"><label for="jyPO-bergamot">佛手柑</label></div><div class="field chk"><input type="checkbox" id="jyPO-grapefruit" value="葡萄柚" onchange="jySyncSums()"><label for="jyPO-grapefruit">葡萄柚</label></div><div class="field chk"><input type="checkbox" id="jyPO-mandarin" value="红橘" onchange="jySyncSums()"><label for="jyPO-mandarin">红橘</label></div><div class="field chk"><input type="checkbox" id="jyPO-yuzu" value="柚子" onchange="jySyncSums()"><label for="jyPO-yuzu">柚子</label></div><div class="field chk"><input type="checkbox" id="jyPO-finger-citron" value="佛手" onchange="jySyncSums()"><label for="jyPO-finger-citron">佛手</label></div><div class="field chk"><input type="checkbox" id="jyPO-citron" value="香橼" onchange="jySyncSums()"><label for="jyPO-citron">香橼</label></div><div class="group-label">唇形科</div><div class="field chk"><input type="checkbox" id="jyPO-lavender" value="薰衣草" onchange="jySyncSums()"><label for="jyPO-lavender">薰衣草</label></div><div class="field chk"><input type="checkbox" id="jyPO-lavandin" value="醒目薰衣草" onchange="jySyncSums()"><label for="jyPO-lavandin">醒目薰衣草</label></div><div class="field chk"><input type="checkbox" id="jyPO-spike-lavender" value="穗花薰衣草" onchange="jySyncSums()"><label for="jyPO-spike-lavender">穗花薰衣草</label></div><div class="field chk"><input type="checkbox" id="jyPO-peppermint" value="欧薄荷" onchange="jySyncSums()"><label for="jyPO-peppermint">欧薄荷</label></div><div class="field chk"><input type="checkbox" id="jyPO-spearmint" value="留兰香" onchange="jySyncSums()"><label for="jyPO-spearmint">留兰香</label></div><div class="field chk"><input type="checkbox" id="jyPO-sage" value="鼠尾草" onchange="jySyncSums()"><label for="jyPO-sage">鼠尾草</label></div><div class="field chk"><input type="checkbox" id="jyPO-clary-sage" value="快乐鼠尾草" onchange="jySyncSums()"><label for="jyPO-clary-sage">快乐鼠尾草</label></div><div class="field chk"><input type="checkbox" id="jyPO-rosemary" value="迷迭香" onchange="jySyncSums()"><label for="jyPO-rosemary">迷迭香</label></div><div class="field chk"><input type="checkbox" id="jyPO-thyme" value="百里香" onchange="jySyncSums()"><label for="jyPO-thyme">百里香</label></div><div class="field chk"><input type="checkbox" id="jyPO-oregano" value="牛至" onchange="jySyncSums()"><label for="jyPO-oregano">牛至</label></div><div class="field chk"><input type="checkbox" id="jyPO-basil" value="甜罗勒" onchange="jySyncSums()"><label for="jyPO-basil">甜罗勒</label></div><div class="field chk"><input type="checkbox" id="jyPO-marjoram" value="马郁兰" onchange="jySyncSums()"><label for="jyPO-marjoram">马郁兰</label></div><div class="field chk"><input type="checkbox" id="jyPO-melissa" value="香蜂草" onchange="jySyncSums()"><label for="jyPO-melissa">香蜂草</label></div><div class="field chk"><input type="checkbox" id="jyPO-patchouli" value="广藿香" onchange="jySyncSums()"><label for="jyPO-patchouli">广藿香</label></div><div class="field chk"><input type="checkbox" id="jyPO-agastache" value="藿香" onchange="jySyncSums()"><label for="jyPO-agastache">藿香</label></div><div class="field chk"><input type="checkbox" id="jyPO-hyssop" value="牛膝草" onchange="jySyncSums()"><label for="jyPO-hyssop">牛膝草</label></div><div class="group-label">菊科</div><div class="field chk"><input type="checkbox" id="jyPO-roman-chamomile" value="罗马洋甘菊" onchange="jySyncSums()"><label for="jyPO-roman-chamomile">罗马洋甘菊</label></div><div class="field chk"><input type="checkbox" id="jyPO-german-chamomile" value="德国洋甘菊" onchange="jySyncSums()"><label for="jyPO-german-chamomile">德国洋甘菊</label></div><div class="field chk"><input type="checkbox" id="jyPO-blue-tansy" value="蓝艾菊" onchange="jySyncSums()"><label for="jyPO-blue-tansy">蓝艾菊</label></div><div class="field chk"><input type="checkbox" id="jyPO-mugwort" value="艾" onchange="jySyncSums()"><label for="jyPO-mugwort">艾</label></div><div class="field chk"><input type="checkbox" id="jyPO-wormwood" value="苦艾" onchange="jySyncSums()"><label for="jyPO-wormwood">苦艾</label></div><div class="field chk"><input type="checkbox" id="jyPO-tarragon" value="龙蒿" onchange="jySyncSums()"><label for="jyPO-tarragon">龙蒿</label></div><div class="field chk"><input type="checkbox" id="jyPO-yarrow" value="西洋蓍草" onchange="jySyncSums()"><label for="jyPO-yarrow">西洋蓍草</label></div><div class="group-label">桃金娘科</div><div class="field chk"><input type="checkbox" id="jyPO-tea-tree" value="茶树" onchange="jySyncSums()"><label for="jyPO-tea-tree">茶树</label></div><div class="field chk"><input type="checkbox" id="jyPO-niaouli" value="绿花白千层" onchange="jySyncSums()"><label for="jyPO-niaouli">绿花白千层</label></div><div class="field chk"><input type="checkbox" id="jyPO-cajuput" value="白千层" onchange="jySyncSums()"><label for="jyPO-cajuput">白千层</label></div><div class="field chk"><input type="checkbox" id="jyPO-eucalyptus-globulus" value="蓝胶尤加利" onchange="jySyncSums()"><label for="jyPO-eucalyptus-globulus">蓝胶尤加利</label></div><div class="field chk"><input type="checkbox" id="jyPO-eucalyptus-radiata" value="澳洲尤加利" onchange="jySyncSums()"><label for="jyPO-eucalyptus-radiata">澳洲尤加利</label></div><div class="field chk"><input type="checkbox" id="jyPO-lemon-eucalyptus" value="柠檬尤加利" onchange="jySyncSums()"><label for="jyPO-lemon-eucalyptus">柠檬尤加利</label></div><div class="field chk"><input type="checkbox" id="jyPO-clove" value="丁香" onchange="jySyncSums()"><label for="jyPO-clove">丁香</label></div><div class="group-label">伞形科</div><div class="field chk"><input type="checkbox" id="jyPO-sweet-fennel" value="甜茴香" onchange="jySyncSums()"><label for="jyPO-sweet-fennel">甜茴香</label></div><div class="field chk"><input type="checkbox" id="jyPO-coriander" value="芫荽" onchange="jySyncSums()"><label for="jyPO-coriander">芫荽</label></div><div class="field chk"><input type="checkbox" id="jyPO-carrot-seed" value="胡萝卜籽" onchange="jySyncSums()"><label for="jyPO-carrot-seed">胡萝卜籽</label></div><div class="field chk"><input type="checkbox" id="jyPO-celery-seed" value="芹菜籽" onchange="jySyncSums()"><label for="jyPO-celery-seed">芹菜籽</label></div><div class="field chk"><input type="checkbox" id="jyPO-angelica-root" value="欧白芷" onchange="jySyncSums()"><label for="jyPO-angelica-root">欧白芷</label></div><div class="field chk"><input type="checkbox" id="jyPO-angelica-sinensis" value="当归" onchange="jySyncSums()"><label for="jyPO-angelica-sinensis">当归</label></div><div class="group-label">樟科</div><div class="field chk"><input type="checkbox" id="jyPO-cinnamon-verum" value="锡兰肉桂" onchange="jySyncSums()"><label for="jyPO-cinnamon-verum">锡兰肉桂</label></div><div class="field chk"><input type="checkbox" id="jyPO-cassia" value="肉桂" onchange="jySyncSums()"><label for="jyPO-cassia">肉桂</label></div><div class="field chk"><input type="checkbox" id="jyPO-bay" value="月桂" onchange="jySyncSums()"><label for="jyPO-bay">月桂</label></div><div class="field chk"><input type="checkbox" id="jyPO-ho-wood" value="芳樟" onchange="jySyncSums()"><label for="jyPO-ho-wood">芳樟</label></div><div class="group-label">松科</div><div class="field chk"><input type="checkbox" id="jyPO-scots-pine" value="欧洲赤松" onchange="jySyncSums()"><label for="jyPO-scots-pine">欧洲赤松</label></div><div class="field chk"><input type="checkbox" id="jyPO-balsam-fir" value="香脂冷杉" onchange="jySyncSums()"><label for="jyPO-balsam-fir">香脂冷杉</label></div><div class="field chk"><input type="checkbox" id="jyPO-black-spruce" value="黑云杉" onchange="jySyncSums()"><label for="jyPO-black-spruce">黑云杉</label></div><div class="group-label">柏科</div><div class="field chk"><input type="checkbox" id="jyPO-cypress" value="丝柏" onchange="jySyncSums()"><label for="jyPO-cypress">丝柏</label></div><div class="field chk"><input type="checkbox" id="jyPO-juniper" value="杜松" onchange="jySyncSums()"><label for="jyPO-juniper">杜松</label></div><div class="group-label">姜科</div><div class="field chk"><input type="checkbox" id="jyPO-ginger" value="生姜" onchange="jySyncSums()"><label for="jyPO-ginger">生姜</label></div><div class="field chk"><input type="checkbox" id="jyPO-turmeric" value="姜黄" onchange="jySyncSums()"><label for="jyPO-turmeric">姜黄</label></div><div class="field chk"><input type="checkbox" id="jyPO-cardamom" value="小豆蔻" onchange="jySyncSums()"><label for="jyPO-cardamom">小豆蔻</label></div><div class="field chk"><input type="checkbox" id="jyPO-galangal" value="高良姜" onchange="jySyncSums()"><label for="jyPO-galangal">高良姜</label></div><div class="group-label">橄榄科</div><div class="field chk"><input type="checkbox" id="jyPO-frankincense" value="乳香" onchange="jySyncSums()"><label for="jyPO-frankincense">乳香</label></div><div class="field chk"><input type="checkbox" id="jyPO-myrrh" value="没药" onchange="jySyncSums()"><label for="jyPO-myrrh">没药</label></div><div class="group-label">檀香科</div><div class="field chk"><input type="checkbox" id="jyPO-sandalwood" value="檀香" onchange="jySyncSums()"><label for="jyPO-sandalwood">檀香</label></div><div class="group-label">莎草科</div><div class="field chk"><input type="checkbox" id="jyPO-cyperus" value="香附" onchange="jySyncSums()"><label for="jyPO-cyperus">香附</label></div><div class="group-label">牻牛儿苗科</div><div class="field chk"><input type="checkbox" id="jyPO-geranium" value="天竺葵" onchange="jySyncSums()"><label for="jyPO-geranium">天竺葵</label></div><div class="group-label">安息香科</div><div class="field chk"><input type="checkbox" id="jyPO-benzoin" value="安息香" onchange="jySyncSums()"><label for="jyPO-benzoin">安息香</label></div><div class="group-label">败酱科</div><div class="field chk"><input type="checkbox" id="jyPO-valerian" value="缬草" onchange="jySyncSums()"><label for="jyPO-valerian">缬草</label></div><div class="group-label">蔷薇科</div><div class="field chk"><input type="checkbox" id="jyPO-rose" value="大马士革玫瑰" onchange="jySyncSums()"><label for="jyPO-rose">大马士革玫瑰</label></div><div class="group-label">木犀科</div><div class="field chk"><input type="checkbox" id="jyPO-jasmine" value="茉莉" onchange="jySyncSums()"><label for="jyPO-jasmine">茉莉</label></div><div class="group-label">番荔枝科</div><div class="field chk"><input type="checkbox" id="jyPO-ylang" value="依兰" onchange="jySyncSums()"><label for="jyPO-ylang">依兰</label></div><div class="group-label">胡椒科</div><div class="field chk"><input type="checkbox" id="jyPO-black-pepper" value="黑胡椒" onchange="jySyncSums()"><label for="jyPO-black-pepper">黑胡椒</label></div><div class="group-label">肉豆蔻科</div><div class="field chk"><input type="checkbox" id="jyPO-nutmeg" value="肉豆蔻" onchange="jySyncSums()"><label for="jyPO-nutmeg">肉豆蔻</label></div></div>
     </details><input id="jyStockOilsIn" class="jy-stock-in" type="text" placeholder="其他单方，顿号分隔" aria-label="其他单方"></div></div>
     <div class="field"><label for="jyPickBaseSum">指定基础油</label><div class="jy-stock-row"><details class="jy-pick" id="jyPickBaseBox">
       <summary id="jyPickBaseSum">未选</summary>
-      <div class="jy-pick-list" id="jyPickBases"></div>
+      <div class="jy-pick-list" id="jyPickBases"><div class="field chk"><input type="checkbox" id="jyPB-jojoba" value="荷荷巴" onchange="jySyncSums()"><label for="jyPB-jojoba">荷荷巴</label></div><div class="field chk"><input type="checkbox" id="jyPB-sweet-almond" value="甜杏仁" onchange="jySyncSums()"><label for="jyPB-sweet-almond">甜杏仁</label></div><div class="field chk"><input type="checkbox" id="jyPB-grapeseed" value="葡萄籽" onchange="jySyncSums()"><label for="jyPB-grapeseed">葡萄籽</label></div><div class="field chk"><input type="checkbox" id="jyPB-wheatgerm" value="小麦胚芽" onchange="jySyncSums()"><label for="jyPB-wheatgerm">小麦胚芽</label></div><div class="field chk"><input type="checkbox" id="jyPB-avocado" value="酪梨" onchange="jySyncSums()"><label for="jyPB-avocado">酪梨</label></div><div class="field chk"><input type="checkbox" id="jyPB-olive" value="橄榄" onchange="jySyncSums()"><label for="jyPB-olive">橄榄</label></div><div class="field chk"><input type="checkbox" id="jyPB-fractionated-coconut" value="分馏椰子" onchange="jySyncSums()"><label for="jyPB-fractionated-coconut">分馏椰子</label></div><div class="field chk"><input type="checkbox" id="jyPB-sesame" value="芝麻" onchange="jySyncSums()"><label for="jyPB-sesame">芝麻</label></div><div class="field chk"><input type="checkbox" id="jyPB-rosehip" value="玫瑰果" onchange="jySyncSums()"><label for="jyPB-rosehip">玫瑰果</label></div><div class="field chk"><input type="checkbox" id="jyPB-st-johns-wort" value="圣约翰草" onchange="jySyncSums()"><label for="jyPB-st-johns-wort">圣约翰草</label></div><div class="field chk"><input type="checkbox" id="jyPB-canola" value="芥花籽" onchange="jySyncSums()"><label for="jyPB-canola">芥花籽</label></div><div class="field chk"><input type="checkbox" id="jyPB-camellia" value="山茶籽" onchange="jySyncSums()"><label for="jyPB-camellia">山茶籽</label></div><div class="field chk"><input type="checkbox" id="jyPB-argan" value="摩洛哥坚果" onchange="jySyncSums()"><label for="jyPB-argan">摩洛哥坚果</label></div><div class="field chk"><input type="checkbox" id="jyPB-sunflower" value="葵花籽" onchange="jySyncSums()"><label for="jyPB-sunflower">葵花籽</label></div><div class="field chk"><input type="checkbox" id="jyPB-safflower" value="红花籽" onchange="jySyncSums()"><label for="jyPB-safflower">红花籽</label></div><div class="field chk"><input type="checkbox" id="jyPB-rice-bran" value="米糠" onchange="jySyncSums()"><label for="jyPB-rice-bran">米糠</label></div><div class="field chk"><input type="checkbox" id="jyPB-macadamia" value="澳洲坚果" onchange="jySyncSums()"><label for="jyPB-macadamia">澳洲坚果</label></div><div class="field chk"><input type="checkbox" id="jyPB-shea" value="乳木果" onchange="jySyncSums()"><label for="jyPB-shea">乳木果</label></div></div>
     </details><input id="jyStockBasesIn" class="jy-stock-in" type="text" placeholder="其他基础油，顿号分隔" aria-label="其他基础油"></div></div>
   </div>
 
@@ -876,7 +918,7 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
       <summary id="fxSum0">已选 1 项</summary>
       <div class="jy-pick-list">
         <div class="field chk"><input type="checkbox" id="fx-sleep" value="sleep" onchange="jySyncSums()"><label for="fx-sleep">安睡氛围</label></div>
-        <div class="field chk"><input type="checkbox" id="fx-relax" value="relax" checked onchange="jySyncSums()"><label for="fx-relax">放松舒缓</label></div>
+        <div class="field chk"><input type="checkbox" id="fx-relax" value="relax" checked="" onchange="jySyncSums()"><label for="fx-relax">放松舒缓</label></div>
         <div class="field chk"><input type="checkbox" id="fx-mood" value="mood" onchange="jySyncSums()"><label for="fx-mood">情绪提振</label></div>
         <div class="field chk"><input type="checkbox" id="fx-meditate" value="meditate" onchange="jySyncSums()"><label for="fx-meditate">静心冥想</label></div>
         <div class="field chk"><input type="checkbox" id="fx-focus" value="focus" onchange="jySyncSums()"><label for="fx-focus">清醒专注</label></div>
@@ -950,101 +992,191 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
   <div id="jyOut" aria-live="polite"></div>
 
-  <section class="mod collapsed" id="jyModRule">
-    <div class="mod-head" onclick="toggleMod('jyModRule')"><span class="mod-caret">▾</span><span class="mod-title">配比与浓度</span><span class="mod-sub">种数骨架、滴数对照、基础油骨架</span></div>
+  <details class="mh-ref" id="jyModRule">
+    <summary>配比与浓度<span class="mod-sub">种数骨架、滴数对照、基础油骨架</span></summary>
     <div class="mod-body">
       <div class="sub-note">角色借调香前中后调，不套君臣佐使；种数越多单方上限越低。</div>
       <div class="tbl-hs"><table class="tbl-kv">
-        <tr><th>2 种</th><td>主调 60%、辅调 40%，单方上限 60%</td></tr>
+        <tbody><tr><th>2 种</th><td>主调 60%、辅调 40%，单方上限 60%</td></tr>
         <tr><th>3 种</th><td>主调 50%、辅调 30%、定香 20%，上限 50%</td></tr>
         <tr><th>4 种</th><td>主调 40%、辅调 30%、定香 20%、点缀 10%，上限 40%</td></tr>
         <tr><th>5 种</th><td>主调 35%、辅调 25%、定香 20%、点缀 12% 与 8%，上限 35%</td></tr>
         <tr><th>6 种</th><td>主调 30%、辅调 25%、定香 18%、点缀 12%、9%、6%，上限 30%</td></tr>
         <tr><th>基础油</th><td>一种全用；两种 75 与 25；三种 60、30、10</td></tr>
         <tr><th>滴数</th><td>一毫升约二十滴；10 毫升 2% 为 4 滴，30 毫升 2% 为 12 滴，50 毫升 3% 为 30 滴</td></tr>
-      </table></div>
+      </tbody></table></div>
       <div class="sub-note">小数差额补定香；无定香补末位一种。</div>
     </div>
-  </section>
+  </details>
 
-  <section class="mod collapsed" id="jyModOils">
-    <div class="mod-head" onclick="toggleMod('jyModOils')"><span class="mod-caret">▾</span><span class="mod-title">单方名录</span><span class="mod-sub">七十二种按科属分组</span></div>
-    <div class="mod-body"><div id="jyOilList"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModOils">
+    <summary>单方名录<span class="mod-sub">七十二种按科属分组</span></summary>
+    <div class="mod-body"><div id="jyOilList"><div class="rel-title">芸香科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>甜橙</td><td>提振、清新</td><td>健脾悦情</td><td>快乐之果</td><td>儿童与情绪低落者；光敏，用后避晒</td><td>Citrus sinensis (L.) Osbeck</td><td>柑橘</td><td>前</td><td>温</td><td>无</td><td>橙皮</td><td>光敏、宠物</td><td>2%</td></tr><tr><td>苦橙叶</td><td>放松、清新</td><td>柔肝舒压</td><td>绿叶之花</td><td>压力大与入睡困难者；宠物家庭避用</td><td>Citrus aurantium L.</td><td>柑橘</td><td>前</td><td>凉</td><td>无</td><td>枳实、枳壳</td><td>宠物</td><td>2%</td></tr><tr><td>橙花</td><td>放松、提振</td><td>安神解忧</td><td>花中公主</td><td>焦虑与熟龄肌；孕期低浓</td><td>Citrus aurantium L.</td><td>柑橘、花香</td><td>中</td><td>温</td><td>无</td><td>枳实、枳壳</td><td>宠物</td><td>2%</td></tr><tr><td>柠檬</td><td>清新、提振、清洁</td><td>净化醒神</td><td>清洁之王</td><td>油性肤与居家清洁；光敏，用后避晒</td><td>Citrus limon (L.) Osbeck</td><td>柑橘</td><td>前</td><td>凉</td><td>无</td><td>柠檬</td><td>光敏、皮肤刺激、宠物</td><td>2%</td></tr><tr><td>青柠</td><td>清新、提振</td><td>清暑提神</td><td>无</td><td>夏季与油性肤；光敏，浓度上限低</td><td>Citrus aurantifolia (Christm.) Swingle</td><td>柑橘</td><td>前</td><td>凉</td><td>无</td><td>无</td><td>光敏、皮肤刺激、宠物</td><td>0.7%</td></tr><tr><td>佛手柑</td><td>放松、清新</td><td>解郁宽胸</td><td>阳光之果</td><td>压力大与食欲不振；光敏，用后避晒</td><td>Citrus bergamia Risso &amp; Poit.</td><td>柑橘</td><td>前</td><td>温</td><td>无</td><td>无</td><td>光敏、宠物</td><td>0.4%</td></tr><tr><td>葡萄柚</td><td>提振、清新、清洁</td><td>轻盈消滞</td><td>轻盈之果</td><td>减重与水肿倾向者；光敏，用后避晒</td><td>Citrus paradisi Macfad.</td><td>柑橘</td><td>前</td><td>凉</td><td>无</td><td>无</td><td>光敏、宠物</td><td>4%</td></tr><tr><td>红橘</td><td>放松、清新</td><td>健脾安睡</td><td>儿童之果</td><td>儿童与老人低浓；光敏，用后避晒</td><td>Citrus reticulata Blanco</td><td>柑橘</td><td>前</td><td>温</td><td>无</td><td>陈皮、橘红、青皮</td><td>光敏、宠物</td><td>3%</td></tr><tr><td>柚子</td><td>清新、提振</td><td>清润舒心</td><td>无</td><td>秋冬干燥与情绪低落者；光敏，用后避晒</td><td>Citrus junos Siebold ex Tanaka</td><td>柑橘</td><td>前</td><td>温</td><td>无</td><td>无</td><td>光敏、宠物</td><td>2%</td></tr><tr><td>佛手</td><td>放松、舒展</td><td>理气和中</td><td>无</td><td>脾胃气滞与压力大者；光敏，用后避晒</td><td>Citrus medica L. var. sarcodactylis Swingle</td><td>柑橘</td><td>前</td><td>温</td><td>无</td><td>佛手</td><td>光敏、宠物</td><td>2%</td></tr><tr><td>香橼</td><td>舒展、清新</td><td>疏肝理气</td><td>无</td><td>肝郁与胸闷者；光敏，用后避晒</td><td>Citrus medica L.</td><td>柑橘</td><td>前</td><td>温</td><td>无</td><td>香橼</td><td>光敏、宠物</td><td>2%</td></tr></tbody></table></div><div class="rel-title">唇形科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>薰衣草</td><td>放松、舒展</td><td>安神修复</td><td>万能疗愈者</td><td>全龄通用；婴幼儿0.5%以内，孕期1%以内</td><td>Lavandula angustifolia Mill.</td><td>花香</td><td>中</td><td>凉</td><td>无</td><td>无</td><td>无</td><td>5%</td></tr><tr><td>醒目薰衣草</td><td>放松、舒展</td><td>放松肌肉</td><td>无</td><td>运动后与肌肉紧绷者；儿童低浓，孕期慎用</td><td>Lavandula x intermedia Emeric ex Loisel.</td><td>花香</td><td>中</td><td>凉</td><td>无</td><td>无</td><td>儿童</td><td>3%</td></tr><tr><td>穗花薰衣草</td><td>专注、清新</td><td>通窍醒神</td><td>无</td><td>呼吸道不适与注意力差者；孕期与癫痫不用</td><td>Lavandula latifolia Medik.</td><td>花香、草本</td><td>中</td><td>凉</td><td>无</td><td>无</td><td>孕忌、儿童、癫痫</td><td>2%</td></tr><tr><td>欧薄荷</td><td>清新、专注、提振</td><td>清凉醒脑</td><td>清凉之王</td><td>成人，六岁以上；薄荷醇不入婴幼儿面部</td><td>Mentha x piperita L.</td><td>草本</td><td>前</td><td>寒</td><td>无</td><td>无</td><td>儿童、皮肤刺激、宠物</td><td>3%</td></tr><tr><td>留兰香</td><td>清新、专注</td><td>清新开胃</td><td>无</td><td>儿童与消化不适者；宠物家庭避用</td><td>Mentha spicata L.</td><td>草本</td><td>前</td><td>寒</td><td>无</td><td>留兰香</td><td>宠物</td><td>3%</td></tr><tr><td>鼠尾草</td><td>专注、清洁、舒展</td><td>收敛清心</td><td>智慧之草</td><td>成人；孕期、儿童与癫痫不用</td><td>Salvia officinalis L.</td><td>草本、辛香</td><td>中</td><td>凉</td><td>侧柏酮型</td><td>无</td><td>孕忌、儿童、癫痫、皮肤刺激</td><td>0.5%</td></tr><tr><td>快乐鼠尾草</td><td>放松、舒展</td><td>滋阴调经</td><td>女性之友</td><td>经期与更年期女性；孕期不用</td><td>Salvia sclarea L.</td><td>草本、花香</td><td>中</td><td>温</td><td>无</td><td>无</td><td>孕忌</td><td>2%</td></tr><tr><td>迷迭香</td><td>专注、提振、清洁</td><td>生发醒脑</td><td>记忆之草</td><td>头皮与专注力差者；孕期、儿童与癫痫不用</td><td>Salvia rosmarinus Spenn.</td><td>草本</td><td>前</td><td>温</td><td>樟脑型、1,8-桉叶素型、马鞭草酮型</td><td>迷迭香</td><td>孕忌、儿童、癫痫、皮肤刺激</td><td>2%</td></tr><tr><td>百里香</td><td>清洁、提振</td><td>温肺御邪</td><td>勇气之草</td><td>成人，免疫低下者；孕期不用，皮肤刺激</td><td>Thymus vulgaris L.</td><td>草本、辛香</td><td>中</td><td>热</td><td>百里香酚型、芳樟醇型、香叶醇型</td><td>无</td><td>孕忌、皮肤刺激、宠物</td><td>1%</td></tr><tr><td>牛至</td><td>清洁、提振</td><td>强效抗菌</td><td>强力卫士</td><td>成人局部短期；孕期不用，皮肤刺激强</td><td>Origanum vulgare L.</td><td>草本、辛香</td><td>中</td><td>热</td><td>香芹酚型</td><td>牛至</td><td>孕忌、皮肤刺激、宠物</td><td>1%</td></tr><tr><td>甜罗勒</td><td>专注、提振、放松</td><td>开郁醒神</td><td>皇室之草</td><td>压力大与注意力差者；孕期不用</td><td>Ocimum basilicum L.</td><td>草本</td><td>前</td><td>温</td><td>芳樟醇型、甲基胡椒酚型</td><td>罗勒</td><td>孕忌、皮肤刺激</td><td>1%</td></tr><tr><td>马郁兰</td><td>放松、舒展</td><td>暖脾安神</td><td>温柔之草</td><td>失眠与肌肉紧绷者；孕期低浓</td><td>Origanum majorana L.</td><td>草本、辛香</td><td>中</td><td>温</td><td>无</td><td>无</td><td>无</td><td>3%</td></tr><tr><td>香蜂草</td><td>放松、舒展、清新</td><td>宁心解郁</td><td>生命之悦</td><td>心悸与焦虑者；皮肤刺激，低浓使用</td><td>Melissa officinalis L.</td><td>草本、柑橘</td><td>中</td><td>凉</td><td>无</td><td>蜜蜂花</td><td>皮肤刺激</td><td>1%</td></tr><tr><td>广藿香</td><td>放松、舒展</td><td>定思化湿</td><td>定香之王</td><td>思虑过度与潮湿环境；气味浓，低浓即足</td><td>Pogostemon cablin (Blanco) Benth.</td><td>土根</td><td>后</td><td>温</td><td>无</td><td>广藿香</td><td>无</td><td>3%</td></tr><tr><td>藿香</td><td>舒展、清新</td><td>化湿和中</td><td>无</td><td>暑湿与食欲不振者；孕期不用</td><td>Agastache rugosa (Fisch. &amp; C.A. Mey.) Kuntze</td><td>草本</td><td>前</td><td>温</td><td>无</td><td>藿香</td><td>孕忌</td><td>1%</td></tr><tr><td>牛膝草</td><td>专注、舒展</td><td>清肺化痰</td><td>无</td><td>成人；孕期、儿童与癫痫不用</td><td>Hyssopus officinalis L.</td><td>草本、辛香</td><td>中</td><td>温</td><td>松樟酮型</td><td>无</td><td>孕忌、儿童、癫痫、皮肤刺激</td><td>0.5%</td></tr></tbody></table></div><div class="rel-title">菊科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>罗马洋甘菊</td><td>放松、舒展</td><td>和胃安神</td><td>植物的医生</td><td>儿童与失眠者；全龄通用</td><td>Chamaemelum nobile (L.) All.</td><td>花香</td><td>中</td><td>平</td><td>无</td><td>无</td><td>无</td><td>3%</td></tr><tr><td>德国洋甘菊</td><td>放松、舒展</td><td>清肺抗敏</td><td>无</td><td>敏感肌与呼吸道不适者；菊科过敏者慎用</td><td>Matricaria chamomilla L.</td><td>花香</td><td>中</td><td>平</td><td>无</td><td>母菊</td><td>无</td><td>3%</td></tr><tr><td>蓝艾菊</td><td>放松、舒展</td><td>抗敏修护</td><td>无</td><td>敏感肌与痘肌；孕期、儿童与癫痫不用</td><td>Tanacetum annuum L.</td><td>花香</td><td>中</td><td>平</td><td>无</td><td>无</td><td>孕忌、儿童、癫痫</td><td>1%</td></tr><tr><td>艾</td><td>舒展、清洁</td><td>温经散寒</td><td>无</td><td>寒湿体质与经期不适；孕期与儿童不用</td><td>Artemisia argyi H. Lév. &amp; Vaniot</td><td>草本、辛香</td><td>中</td><td>温</td><td>无</td><td>艾叶</td><td>孕忌、儿童、癫痫、皮肤刺激</td><td>1%</td></tr><tr><td>苦艾</td><td>清洁</td><td>清苦除湿</td><td>无</td><td>成人局部；孕期、儿童与癫痫不用</td><td>Artemisia absinthium L.</td><td>草本、辛香</td><td>中</td><td>凉</td><td>侧柏酮型</td><td>无</td><td>孕忌、儿童、癫痫、皮肤刺激</td><td>0.5%</td></tr><tr><td>龙蒿</td><td>舒展、清新</td><td>开胃理气</td><td>无</td><td>食欲不振者；孕期与儿童不用</td><td>Artemisia dracunculus L.</td><td>草本、辛香</td><td>中</td><td>温</td><td>甲基胡椒酚型</td><td>无</td><td>孕忌、儿童</td><td>1%</td></tr><tr><td>西洋蓍草</td><td>放松、舒展</td><td>修护止血</td><td>无</td><td>熟龄与受损肌；孕期不用，皮肤刺激</td><td>Achillea millefolium L.</td><td>土根、花香</td><td>后</td><td>平</td><td>无</td><td>蓍草</td><td>孕忌、皮肤刺激</td><td>1%</td></tr></tbody></table></div><div class="rel-title">桃金娘科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>茶树</td><td>清新、清洁</td><td>卫气抗菌</td><td>天然卫士</td><td>痘肌与居家清洁；宠物家庭避用</td><td>Melaleuca alternifolia (Maiden &amp; Betche) Cheel</td><td>草本</td><td>前</td><td>寒</td><td>4-松油醇型</td><td>无</td><td>宠物、皮肤刺激</td><td>5%</td></tr><tr><td>绿花白千层</td><td>清新、清洁</td><td>温和通窍</td><td>无</td><td>儿童与老人低浓；宠物家庭避用</td><td>Melaleuca quinquenervia (Cav.) S.T.Blake</td><td>草本</td><td>前</td><td>寒</td><td>1,8-桉叶素型</td><td>无</td><td>儿童、宠物</td><td>2%</td></tr><tr><td>白千层</td><td>清新、清洁</td><td>通窍散寒</td><td>无</td><td>呼吸道不适者；儿童与宠物家庭避用</td><td>Melaleuca cajuputi Powell</td><td>草本</td><td>前</td><td>寒</td><td>1,8-桉叶素型</td><td>无</td><td>儿童、宠物</td><td>2%</td></tr><tr><td>蓝胶尤加利</td><td>清新、舒展</td><td>通窍清肺</td><td>呼吸道清道夫</td><td>成人，六岁以上；婴幼儿与宠物家庭不用</td><td>Eucalyptus globulus Labill.</td><td>草本</td><td>前</td><td>寒</td><td>1,8-桉叶素型</td><td>桉叶</td><td>儿童、宠物</td><td>2%</td></tr><tr><td>澳洲尤加利</td><td>清新、舒展</td><td>温和通窍</td><td>无</td><td>儿童与老人低浓；婴幼儿不用</td><td>Eucalyptus radiata Sieber ex DC.</td><td>草本</td><td>前</td><td>寒</td><td>1,8-桉叶素型</td><td>无</td><td>儿童、宠物</td><td>2%</td></tr><tr><td>柠檬尤加利</td><td>清新、提振</td><td>净化驱虫</td><td>无</td><td>夏季与居家环境；皮肤刺激，低浓使用</td><td>Corymbia citriodora (Hook.) K.D.Hill &amp; L.A.S.Johnson</td><td>柑橘</td><td>前</td><td>寒</td><td>香茅醛型</td><td>无</td><td>皮肤刺激</td><td>1%</td></tr><tr><td>丁香</td><td>清洁、提振</td><td>温中止痛</td><td>花蕾之冠</td><td>成人局部低浓；孕期、儿童与宠物家庭不用</td><td>Syzygium aromaticum (L.) Merr. &amp; L.M.Perry</td><td>辛香</td><td>中</td><td>热</td><td>丁香酚型</td><td>丁香</td><td>孕忌、儿童、宠物、皮肤刺激</td><td>0.5%</td></tr></tbody></table></div><div class="rel-title">伞形科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>甜茴香</td><td>放松、舒展</td><td>理气消胀</td><td>无</td><td>消化胀气者；孕期与癫痫不用</td><td>Foeniculum vulgare Mill. var. dulce</td><td>辛香</td><td>中</td><td>温</td><td>反式茴香脑型</td><td>小茴香</td><td>孕忌、癫痫</td><td>1%</td></tr><tr><td>芫荽</td><td>放松、清新</td><td>清热开胃</td><td>无</td><td>食欲不振与燥热者；全龄低浓</td><td>Coriandrum sativum L.</td><td>辛香</td><td>中</td><td>温</td><td>芳樟醇型</td><td>芫荽</td><td>无</td><td>3%</td></tr><tr><td>胡萝卜籽</td><td>放松、舒展</td><td>养肤淡斑</td><td>肌肤之友</td><td>熟龄与色沉者；光敏，孕期不用</td><td>Daucus carota L.</td><td>土根</td><td>后</td><td>平</td><td>胡萝卜醇型</td><td>南鹤虱</td><td>光敏、孕忌</td><td>1%</td></tr><tr><td>芹菜籽</td><td>清洁、舒展</td><td>净水利湿</td><td>无</td><td>水肿与关节不适者；光敏，孕期不用</td><td>Apium graveolens L.</td><td>土根</td><td>后</td><td>温</td><td>无</td><td>芹菜</td><td>光敏、孕忌</td><td>1%</td></tr><tr><td>欧白芷</td><td>放松、舒展</td><td>温通散寒</td><td>天使之根</td><td>寒湿与疲劳者；光敏，孕期不用</td><td>Angelica archangelica L.</td><td>土根</td><td>后</td><td>温</td><td>无</td><td>非同种</td><td>光敏、孕忌</td><td>0.8%</td></tr><tr><td>当归</td><td>放松、舒展</td><td>养血温经</td><td>女性之根</td><td>经期与血虚者；孕期不用</td><td>Angelica sinensis (Oliv.) Diels</td><td>土根</td><td>后</td><td>温</td><td>无</td><td>当归</td><td>孕忌</td><td>1%</td></tr></tbody></table></div><div class="rel-title">樟科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>锡兰肉桂</td><td>提振、清洁</td><td>温阳暖中</td><td>香料之王</td><td>成人极低浓；孕期、儿童与宠物家庭不用</td><td>Cinnamomum verum J.Presl</td><td>辛香</td><td>中</td><td>热</td><td>肉桂醛型</td><td>非同种</td><td>孕忌、儿童、宠物、皮肤刺激</td><td>0.05%</td></tr><tr><td>肉桂</td><td>提振、清洁</td><td>温阳散寒</td><td>香料之王</td><td>成人极低浓；孕期、儿童与宠物家庭不用</td><td>Cinnamomum cassia (L.) J.Presl</td><td>辛香</td><td>中</td><td>热</td><td>肉桂醛型</td><td>肉桂</td><td>孕忌、儿童、宠物、皮肤刺激</td><td>0.05%</td></tr><tr><td>月桂</td><td>清新、放松</td><td>温通开窍</td><td>无</td><td>呼吸道与关节不适者；低浓使用</td><td>Laurus nobilis L.</td><td>辛香</td><td>中</td><td>温</td><td>1,8-桉叶素型</td><td>月桂叶</td><td>无</td><td>0.5%</td></tr><tr><td>芳樟</td><td>放松、舒展</td><td>安神定志</td><td>无</td><td>焦虑与失眠者；全龄低浓</td><td>Cinnamomum camphora (L.) J.Presl ct. linalool</td><td>木质</td><td>后</td><td>平</td><td>芳樟醇型</td><td>樟木</td><td>无</td><td>3%</td></tr></tbody></table></div><div class="rel-title">松科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>欧洲赤松</td><td>清新、舒展</td><td>强筋醒神</td><td>力量之木</td><td>疲劳与肌肉酸痛者；皮肤刺激，低浓</td><td>Pinus sylvestris L.</td><td>木质</td><td>后</td><td>平</td><td>无</td><td>无</td><td>宠物、皮肤刺激</td><td>2%</td></tr><tr><td>香脂冷杉</td><td>放松、清新</td><td>清肺通窍</td><td>无</td><td>呼吸道不适者；儿童低浓</td><td>Abies balsamea (L.) Mill.</td><td>木质</td><td>后</td><td>平</td><td>无</td><td>无</td><td>无</td><td>3%</td></tr><tr><td>黑云杉</td><td>放松、舒展</td><td>补气定神</td><td>无</td><td>疲劳与压力大者；全龄低浓</td><td>Picea mariana (Mill.) Britton, Sterns &amp; Poggenb.</td><td>木质</td><td>后</td><td>平</td><td>无</td><td>无</td><td>无</td><td>3%</td></tr></tbody></table></div><div class="rel-title">柏科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>丝柏</td><td>舒展、放松</td><td>行气收敛</td><td>永恒之树</td><td>水肿与静脉不适者；孕期低浓</td><td>Cupressus sempervirens L.</td><td>木质</td><td>后</td><td>平</td><td>无</td><td>无</td><td>无</td><td>3%</td></tr><tr><td>杜松</td><td>清洁、清新</td><td>净水利湿</td><td>净化之果</td><td>水肿与油性肤；孕期不用</td><td>Juniperus communis L.</td><td>木质</td><td>后</td><td>平</td><td>无</td><td>无</td><td>孕忌</td><td>2%</td></tr></tbody></table></div><div class="rel-title">姜科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>生姜</td><td>舒展、提振</td><td>暖心驱寒</td><td>温暖之根</td><td>寒体与经期不适者；皮肤刺激，低浓</td><td>Zingiber officinale Roscoe</td><td>辛香</td><td>中</td><td>温</td><td>无</td><td>生姜</td><td>无</td><td>2%</td></tr><tr><td>姜黄</td><td>舒展、清洁</td><td>活血化瘀</td><td>无</td><td>关节与瘀滞者；孕期不用，染色性强</td><td>Curcuma longa L.</td><td>辛香</td><td>中</td><td>温</td><td>无</td><td>姜黄</td><td>无</td><td>2%</td></tr><tr><td>小豆蔻</td><td>清新、提振</td><td>温中醒脾</td><td>无</td><td>消化胀气者；全龄低浓</td><td>Elettaria cardamomum (L.) Maton</td><td>辛香</td><td>中</td><td>温</td><td>1,8-桉叶素型</td><td>非同种</td><td>儿童</td><td>2%</td></tr><tr><td>高良姜</td><td>舒展、提振</td><td>温胃止痛</td><td>无</td><td>胃寒与腹痛者；孕期慎用</td><td>Alpinia officinarum Hance</td><td>辛香</td><td>中</td><td>热</td><td>无</td><td>高良姜</td><td>儿童、皮肤刺激</td><td>1%</td></tr></tbody></table></div><div class="rel-title">橄榄科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>乳香</td><td>放松、专注</td><td>敛肺定神</td><td>神圣之油</td><td>全龄；冥想与呼吸不适者</td><td>Boswellia carterii Birdw.</td><td>树脂</td><td>后</td><td>温</td><td>α-蒎烯型</td><td>乳香</td><td>无</td><td>2%</td></tr><tr><td>没药</td><td>清洁、放松</td><td>固元生肌</td><td>神圣之泪</td><td>熟龄与修复需求者；孕期不用</td><td>Commiphora myrrha (Nees) Engl.</td><td>树脂</td><td>后</td><td>平</td><td>无</td><td>没药</td><td>孕忌</td><td>1%</td></tr></tbody></table></div><div class="rel-title">檀香科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>檀香</td><td>放松、专注</td><td>开悟定心</td><td>神圣之木</td><td>冥想与焦虑者；全龄低浓</td><td>Santalum album L.</td><td>树脂</td><td>后</td><td>温</td><td>α-檀香醇型</td><td>檀香</td><td>无</td><td>2%</td></tr></tbody></table></div><div class="rel-title">莎草科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>香附</td><td>放松、舒展</td><td>疏肝调经</td><td>无</td><td>经前与肝郁者；孕期不用</td><td>Cyperus rotundus L.</td><td>土根</td><td>后</td><td>平</td><td>无</td><td>香附</td><td>无</td><td>2%</td></tr></tbody></table></div><div class="rel-title">牻牛儿苗科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>天竺葵</td><td>放松、提振</td><td>平衡调肤</td><td>平民玫瑰</td><td>油性肤与情绪波动者；全龄低浓</td><td>Pelargonium graveolens L'Her.</td><td>花香</td><td>中</td><td>平</td><td>香茅醇型</td><td>无</td><td>无</td><td>2%</td></tr></tbody></table></div><div class="rel-title">安息香科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>安息香</td><td>放松、舒展</td><td>温肺定喘</td><td>无</td><td>咳嗽与焦虑者；低浓，皮肤刺激</td><td>Styrax benzoin Dryand.</td><td>树脂</td><td>后</td><td>平</td><td>无</td><td>安息香</td><td>无</td><td>2%</td></tr></tbody></table></div><div class="rel-title">败酱科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>缬草</td><td>放松</td><td>安神助眠</td><td>无</td><td>失眠与紧张者；气味重，低浓</td><td>Valeriana officinalis L.</td><td>土根</td><td>后</td><td>温</td><td>无</td><td>缬草</td><td>无</td><td>2%</td></tr></tbody></table></div><div class="rel-title">蔷薇科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>大马士革玫瑰</td><td>放松、提振</td><td>滋养解郁</td><td>精油之后</td><td>熟龄肌与情绪低落者；孕期低浓</td><td>Rosa damascena Mill.</td><td>花香</td><td>中</td><td>平</td><td>香茅醇型</td><td>非同种</td><td>无</td><td>2%</td></tr></tbody></table></div><div class="rel-title">木犀科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>茉莉</td><td>提振、放松</td><td>提振自信</td><td>精油之王</td><td>情绪低落与产后者；孕期低浓</td><td>Jasminum sambac (L.) Aiton</td><td>花香</td><td>中</td><td>平</td><td>乙酸苄酯型</td><td>茉莉花</td><td>无</td><td>1%</td></tr></tbody></table></div><div class="rel-title">番荔枝科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>依兰</td><td>放松、提振</td><td>喜悦解郁</td><td>花中之花</td><td>焦虑与性冷淡者；低浓，皮肤刺激</td><td>Cananga odorata (Lam.) Hook.f. &amp; Thomson</td><td>花香</td><td>中</td><td>平</td><td>无</td><td>无</td><td>皮肤刺激</td><td>1%</td></tr></tbody></table></div><div class="rel-title">胡椒科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>黑胡椒</td><td>舒展、提振</td><td>温通动力</td><td>动力之籽</td><td>疲劳与肌肉酸痛者；皮肤刺激，低浓</td><td>Piper nigrum L.</td><td>辛香</td><td>中</td><td>热</td><td>无</td><td>胡椒</td><td>皮肤刺激</td><td>1%</td></tr></tbody></table></div><div class="rel-title">肉豆蔻科</div><div class="tbl-hs"><table><thead><tr><th>单方</th><th>主要作用</th><th>具体作用</th><th>行业俗称</th><th>适用人群</th><th>学名</th><th>气味族</th><th>调位</th><th>性味</th><th>化学型</th><th>同源中药</th><th>安全</th><th>上限</th></tr></thead><tbody><tr><td>肉豆蔻</td><td>舒展、提振</td><td>温中行气</td><td>无</td><td>消化胀气者；孕期不用，低浓</td><td>Myristica fragrans Houtt.</td><td>辛香</td><td>中</td><td>温</td><td>无</td><td>肉豆蔻</td><td>孕忌</td><td>1%</td></tr></tbody></table></div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModBases">
-    <div class="mod-head" onclick="toggleMod('jyModBases')"><span class="mod-caret">▾</span><span class="mod-title">基础油</span><span class="mod-sub">十八种按质地分档</span></div>
-    <div class="mod-body"><div id="jyBaseList"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModBases">
+    <summary>基础油<span class="mod-sub">十八种按质地分档</span></summary>
+    <div class="mod-body"><div id="jyBaseList"><div class="tbl-hs"><table><thead><tr><th>基础油</th><th>主要作用</th><th>行业俗称</th><th>学名</th><th>质地</th><th>气味</th><th>保质</th><th>适用</th></tr></thead><tbody><tr><td>荷荷巴</td><td>保香稳定，面部与滚珠首选</td><td>沙漠黄金</td><td>Simmondsia chinensis (Link) C.K.Schneid.</td><td>中</td><td>无</td><td>2至3年，蜡酯结构不易氧化</td><td>面部、滚珠、头皮、全身</td></tr><tr><td>甜杏仁</td><td>温和滋润，儿童与身体常用</td><td>无</td><td>Prunus dulcis (Mill.) D.A.Webb</td><td>中</td><td>轻</td><td>12至18个月，中等氧化稳定性</td><td>身体、儿童、面部干皮</td></tr><tr><td>葡萄籽</td><td>清爽快吸收，油性肤与夏季</td><td>无</td><td>Vitis vinifera L.</td><td>轻</td><td>无</td><td>6至12个月，亚油酸高易氧化</td><td>面部、油性肤、滚珠、夏季</td></tr><tr><td>小麦胚芽</td><td>抗氧化延保，手足干燥</td><td>天然抗氧化剂</td><td>Triticum aestivum L.</td><td>重</td><td>中</td><td>12至24个月，维生素E高抗氧化强</td><td>手足、干燥、熟龄、配方抗氧化</td></tr><tr><td>酪梨</td><td>厚重滋润，干燥与熟龄</td><td>牛油果油</td><td>Persea americana Mill.</td><td>重</td><td>中</td><td>12至18个月，中等氧化稳定性</td><td>干燥、手足、熟龄、头皮</td></tr><tr><td>橄榄</td><td>油润按摩，卸妆与手足</td><td>液体黄金</td><td>Olea europaea L.</td><td>重</td><td>强</td><td>18至24个月，油酸高较稳定</td><td>手足、冬季、身体、卸妆</td></tr><tr><td>分馏椰子</td><td>清爽稀释，局部与儿童</td><td>轻椰子油</td><td>Cocos nucifera L.</td><td>轻</td><td>无</td><td>2年以上，中链饱和脂肪酸极稳</td><td>滚珠、局部、夏季、儿童、油性肤</td></tr><tr><td>芝麻</td><td>按摩承后调，木质配方</td><td>无</td><td>Sesamum indicum L.</td><td>中</td><td>强</td><td>12至18个月，芝麻酚与芝麻素天然抗氧化</td><td>身体按摩、木质后调</td></tr><tr><td>玫瑰果</td><td>熟龄修护，色沉与疤痕</td><td>疤痕之油</td><td>Rosa canina L.</td><td>重</td><td>轻</td><td>6至12个月，易氧化需冷藏</td><td>面部少量、熟龄、色沉、疤痕</td></tr><tr><td>圣约翰草</td><td>局部按摩，肌肉放松</td><td>红油</td><td>Hypericum perforatum L.</td><td>中</td><td>中</td><td>6至12个月，中等偏易氧化</td><td>局部按摩、肌肉、神经</td></tr><tr><td>芥花籽</td><td>清爽按摩，大瓶常用</td><td>无</td><td>Brassica napus L.</td><td>轻</td><td>轻</td><td>12个月，油酸与亚油酸并具</td><td>身体、大瓶按摩、调稀</td></tr><tr><td>山茶籽</td><td>滋润养肤，护发顺滑</td><td>东方橄榄油</td><td>Camellia oleifera C.Abel</td><td>中</td><td>轻</td><td>18至24个月，油酸高较稳定</td><td>面部、身体、头皮、护发</td></tr><tr><td>摩洛哥坚果</td><td>熟龄滋养，护发柔顺</td><td>摩洛哥黄金</td><td>Argania spinosa (L.) Skeels</td><td>中</td><td>轻</td><td>12至18个月，中等氧化稳定性</td><td>面部、熟龄、头皮、护发</td></tr><tr><td>葵花籽</td><td>清爽打底，调稀浓稠油</td><td>无</td><td>Helianthus annuus L.</td><td>轻</td><td>无</td><td>6至12个月，亚油酸高易氧化</td><td>面部、身体、油性肤</td></tr><tr><td>红花籽</td><td>清爽稀释，油性肤与夏季</td><td>无</td><td>Carthamus tinctorius L.</td><td>轻</td><td>无</td><td>6至12个月，亚油酸高易氧化</td><td>油性肤、身体、夏季</td></tr><tr><td>米糠</td><td>抗氧化，身体按摩</td><td>无</td><td>Oryza sativa L.</td><td>中</td><td>轻</td><td>12至18个月，含谷维素较稳</td><td>身体、面部、按摩</td></tr><tr><td>澳洲坚果</td><td>滋润保湿，手足与熟龄</td><td>无</td><td>Macadamia integrifolia Maiden &amp; Betche</td><td>重</td><td>轻</td><td>12至24个月，油酸高较稳</td><td>手足、身体、熟龄</td></tr><tr><td>乳木果</td><td>冬季滋润，手足皲裂</td><td>雪亚脂</td><td>Butyrospermum parkii (G.Don) Kotschy</td><td>重</td><td>中</td><td>18至24个月，硬脂酸高较稳</td><td>手足、身体、冬季</td></tr></tbody></table></div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModHydro">
-    <div class="mod-head" onclick="toggleMod('jyModHydro')"><span class="mod-caret">▾</span><span class="mod-title">纯露</span><span class="mod-sub">二十种，按来源植物列，不参与配比</span></div>
-    <div class="mod-body"><div id="jyHydroList"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModHydro">
+    <summary>纯露<span class="mod-sub">二十种，按来源植物列，不参与配比</span></summary>
+    <div class="mod-body"><div id="jyHydroList"><div class="tbl-hs"><table><thead><tr><th>纯露</th><th>来源植物</th><th>蒸馏部位</th><th>主要成分</th><th>pH</th><th>保质</th><th>适用</th><th>禁忌</th></tr></thead><tbody><tr><td>大马士革玫瑰</td><td>玫瑰</td><td>花</td><td>玫瑰醚、香茅醇、苯乙醇</td><td>4.0至4.5</td><td>6至12个月</td><td>爽肤、湿敷、情绪低落</td><td>孕期低浓，冷藏</td></tr><tr><td>橙花</td><td>苦橙</td><td>花</td><td>芳樟醇、乙酸芳樟酯</td><td>3.8至4.5</td><td>6至12个月</td><td>安抚、熟龄肌、焦虑</td><td>仍需避晒</td></tr><tr><td>薰衣草</td><td>薰衣草</td><td>开花全草</td><td>芳樟醇、乙酸芳樟酯</td><td>4.5至5.5</td><td>6至12个月</td><td>舒缓、晒后、睡眠</td><td>婴幼儿可用，低敏</td></tr><tr><td>罗马洋甘菊</td><td>罗马洋甘菊</td><td>花</td><td>当归酸酯类</td><td>3.5至4.5</td><td>6至9个月</td><td>儿童安抚、眼部湿敷</td><td>菊科过敏者慎用</td></tr><tr><td>德国洋甘菊</td><td>德国洋甘菊</td><td>花</td><td>母菊薁、红没药醇</td><td>4.0至4.5</td><td>6至9个月</td><td>敏感肌、抗敏</td><td>菊科过敏者慎用</td></tr><tr><td>茶树</td><td>茶树</td><td>叶与嫩枝</td><td>松油烯-4-醇</td><td>3.5至4.5</td><td>6至12个月</td><td>痘肌、清洁、异味</td><td>宠物家庭避用</td></tr><tr><td>欧薄荷</td><td>欧薄荷</td><td>叶</td><td>薄荷醇、薄荷酮</td><td>4.0至5.0</td><td>6至12个月</td><td>清凉、控油、醒神</td><td>六岁以下不用，避眼周</td></tr><tr><td>迷迭香</td><td>迷迭香</td><td>叶与嫩枝</td><td>1,8-桉叶素、樟脑</td><td>3.8至4.8</td><td>6至12个月</td><td>头皮、醒神、护发</td><td>孕期与癫痫不用</td></tr><tr><td>金缕梅</td><td>北美金缕梅</td><td>叶与嫩枝</td><td>单宁、丁香酚衍生物</td><td>3.5至4.5</td><td>6至12个月</td><td>收敛、油性肤、剃须后</td><td>干性肌不单用</td></tr><tr><td>丝柏</td><td>丝柏</td><td>叶与嫩枝</td><td>α-蒎烯、雪松醇</td><td>3.8至4.8</td><td>6至12个月</td><td>收敛、腿部沉重</td><td>孕期低浓</td></tr><tr><td>杜松</td><td>杜松</td><td>浆果</td><td>α-蒎烯、柠檬烯</td><td>3.5至4.5</td><td>6至12个月</td><td>净肤、油性肤</td><td>孕期不用</td></tr><tr><td>天竺葵</td><td>天竺葵</td><td>开花全草</td><td>香茅醇、香叶醇</td><td>4.0至5.0</td><td>6至12个月</td><td>平衡、油性肤、情绪波动</td><td>全龄低浓</td></tr><tr><td>香蜂草</td><td>香蜂草</td><td>叶</td><td>香叶醛、橙花醛</td><td>3.8至4.8</td><td>6至9个月</td><td>宁心、敏感肌</td><td>低浓，避光保存</td></tr><tr><td>月桂</td><td>月桂</td><td>叶</td><td>1,8-桉叶素</td><td>4.0至5.0</td><td>6至12个月</td><td>清爽、头皮</td><td>低浓</td></tr><tr><td>蓝胶尤加利</td><td>蓝胶尤加利</td><td>叶</td><td>1,8-桉叶素</td><td>3.5至4.5</td><td>6至12个月</td><td>呼吸、空间喷雾</td><td>婴幼儿与宠物家庭不用</td></tr><tr><td>艾</td><td>艾</td><td>叶</td><td>1,8-桉叶素、樟脑</td><td>4.0至5.0</td><td>6至12个月</td><td>温感、湿敷</td><td>孕期与儿童不用</td></tr><tr><td>永久花</td><td>意大利永久花</td><td>花</td><td>意大利酮、橙花醇</td><td>4.0至5.0</td><td>6至12个月</td><td>修护、瘀青、熟龄</td><td>低浓，孕期慎用</td></tr><tr><td>岩兰草</td><td>岩兰草</td><td>根</td><td>岩兰草醇、岩兰草酮</td><td>4.0至5.0</td><td>12至24个月</td><td>定神、干燥肌</td><td>气味重，低浓</td></tr><tr><td>乳香</td><td>乳香</td><td>树脂蒸馏液</td><td>α-蒎烯、乳香酸</td><td>4.0至5.0</td><td>9至12个月</td><td>熟龄、静心</td><td>全龄低浓</td></tr><tr><td>茉莉</td><td>茉莉</td><td>花</td><td>乙酸苄酯、芳樟醇</td><td>4.0至5.0</td><td>6至12个月</td><td>情绪、干性肌</td><td>孕期低浓</td></tr></tbody></table></div><div class="sub-note">纯露不是精油稀释液；不口服，开封冷藏，无防腐剂时按短保用完。</div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModClassic">
-    <div class="mod-head" onclick="toggleMod('jyModClassic')"><span class="mod-caret">▾</span><span class="mod-title">经典复方</span><span class="mod-sub">十二组，分历史配方、芳疗经典、中医香囊</span></div>
-    <div class="mod-body"><div id="jyClassicList"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModClassic">
+    <summary>经典复方<span class="mod-sub">十二组，分历史配方、芳疗经典、中医香囊</span></summary>
+    <div class="mod-body"><div id="jyClassicList"><div class="rel-title">历史配方</div><div class="tbl-hs"><table><thead><tr><th>组名</th><th>来历</th><th>原方形态</th><th>拟配</th><th>用法</th><th>浓度</th></tr></thead><tbody><tr><td>匈牙利水</td><td>1370年前后，欧洲宫廷相传</td><td>酒精浸提</td><td>迷迭香为主，辅柠檬、薄荷</td><td>酒精基底，拟配以荷荷巴或酒精</td><td>2至3%</td></tr><tr><td>古龙水</td><td>1709年，Farina</td><td>酒精浸提</td><td>柠檬、橙花、佛手柑、薰衣草、迷迭香</td><td>酒精基底</td><td>3至5%</td></tr><tr><td>加尔默罗会水</td><td>17世纪，法国修会</td><td>酒精浸提</td><td>橙花、柠檬、香蜂草、丁香、肉桂、芫荽</td><td>酒精基底</td><td>2至3%</td></tr><tr><td>四贼醋</td><td>中世纪，马赛相传</td><td>醋浸</td><td>大蒜、迷迭香、艾、鼠尾草、薄荷、丁香</td><td>醋浸，精油无法还原原味</td><td>不适用</td></tr><tr><td>古埃及香膏</td><td>普鲁塔克记载，古埃及</td><td>香膏</td><td>乳香、没药、肉桂、杜松、菖蒲</td><td>香膏，拟配以荷荷巴</td><td>2%</td></tr></tbody></table></div><div class="rel-title">芳疗经典</div><div class="tbl-hs"><table><thead><tr><th>组名</th><th>来历</th><th>原方形态</th><th>拟配</th><th>用法</th><th>浓度</th></tr></thead><tbody><tr><td>安神方</td><td>20世纪，Maury一系</td><td>精油复方</td><td>薰衣草、罗马洋甘菊、橙花</td><td>按摩油</td><td>2%</td></tr><tr><td>助眠方</td><td>20世纪，Tisserand一系</td><td>精油复方</td><td>薰衣草、罗马洋甘菊、檀香</td><td>睡前扩香或涂抹</td><td>2%</td></tr><tr><td>净化方</td><td>20世纪，Valnet一系</td><td>精油复方</td><td>柠檬、茶树、蓝胶尤加利</td><td>扩香</td><td>2%</td></tr><tr><td>清醒方</td><td>现代通行，芳疗通行</td><td>精油复方</td><td>迷迭香、欧薄荷、柠檬</td><td>扩香或滚珠</td><td>2%</td></tr><tr><td>呼吸清爽方</td><td>现代通行，芳疗通行</td><td>精油复方</td><td>蓝胶尤加利、茶树、欧薄荷</td><td>扩香</td><td>2%</td></tr></tbody></table></div><div class="rel-title">中医香囊</div><div class="tbl-hs"><table><thead><tr><th>组名</th><th>来历</th><th>原方形态</th><th>拟配</th><th>用法</th><th>浓度</th></tr></thead><tbody><tr><td>端午香囊</td><td>清嘉录一系，民俗</td><td>中药原药</td><td>藿香、艾、白芷、丁香、薄荷</td><td>香囊，以中药原药为主</td><td>不适用</td></tr><tr><td>安神香囊</td><td>民俗，民俗</td><td>中药原药</td><td>薰衣草、合欢花、陈皮</td><td>香囊，以中药原药为主</td><td>不适用</td></tr></tbody></table></div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModMeridian">
-    <div class="mod-head" onclick="toggleMod('jyModMeridian')"><span class="mod-caret">▾</span><span class="mod-title">经络与穴位</span><span class="mod-sub">选经出当令时辰、循行与常用穴</span></div>
-    <div class="mod-body"><div id="jyMeridian"></div></div>
-  </section>
+  
 
-  <section class="mod collapsed" id="jyModShichen">
-    <div class="mod-head" onclick="toggleMod('jyModShichen')"><span class="mod-caret">▾</span><span class="mod-title">时辰用油</span><span class="mod-sub">十二时辰当令经与宜做</span></div>
-    <div class="mod-body"><div id="jyWheelHost"></div><div class="wheel-detail" id="jyWheelDetail"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModMeridian">
+    <summary>经络与穴位<span class="mod-sub">选经出当令时辰、循行与常用穴</span></summary>
+    <div class="mod-body"><div id="jyMeridian"><div class="form-row"><div class="field"><label for="jyMerSel">经络</label><select id="jyMerSel" onchange="jyDrawMeridian()" aria-label="选择经络"><option value="lung">手太阴肺经</option><option value="large-intestine">手阳明大肠经</option><option value="stomach">足阳明胃经</option><option value="spleen">足太阴脾经</option><option value="heart">手少阴心经</option><option value="small-intestine">手太阳小肠经</option><option value="bladder">足太阳膀胱经</option><option value="kidney">足少阴肾经</option><option value="pericardium">手厥阴心包经</option><option value="triple-burner">手少阳三焦经</option><option value="gallbladder">足少阳胆经</option><option value="liver">足厥阴肝经</option><option value="ren">任脉</option><option value="du">督脉</option><option value="chong">冲脉</option><option value="dai">带脉</option><option value="yinwei">阴维脉</option><option value="yangwei">阳维脉</option><option value="yinqiao">阴跷脉</option><option value="yangqiao">阳跷脉</option></select></div></div><div id="jyMerOut"><div class="tbl-hs"><table class="tbl-kv"><tbody><tr><th>当令时辰</th><td>寅时 03:00-05:00</td></tr><tr><th>循行</th><td>起于中焦，下络大肠，还循胃口，上膈属肺，从肺系横出腋下，沿上肢内侧前缘下行，经寸口、鱼际，出拇指桡侧端；支脉从腕后直出食指桡侧端。</td></tr><tr><th>病候</th><td>是动则病，肺胀满，膨膨而喘咳，缺盆中痛，甚则交两手而瞀，此为臂厥；是主肺所生病者，咳，上气，喘喝，烦心，胸满，臑臂内前廉痛厥，掌中热</td></tr><tr><th>常用穴</th><td>中府（LU1）、云门（LU2）、天府（LU3）、侠白（LU4）、尺泽（LU5）、孔最（LU6）、列缺（LU7）、经渠（LU8）</td></tr></tbody></table></div></div><div class="sub-note">精油与经络的对应属当代推演，本站不按经推荐精油，只列该经当令时辰、循行与常用穴，精油按效果与性味另选。</div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModPeople">
-    <div class="mod-head" onclick="toggleMod('jyModPeople')"><span class="mod-caret">▾</span><span class="mod-title">人群与场景</span><span class="mod-sub">十一类人群与十三类场景</span></div>
-    <div class="mod-body"><div id="jyPeopleList"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModShichen">
+    <summary>时辰用油<span class="mod-sub">十二时辰当令经与宜做</span></summary>
+    <div class="mod-body"><div id="jyWheelHost"><div class="tbl-hs"><table class="tbl-kv"><tbody><tr><th>子时 胆经</th><td>23:00-01:00；入睡，胆经当令主决断，熟睡最能养胆气</td></tr><tr><th>丑时 肝经</th><td>01:00-03:00；深睡，肝藏血主疏泄，安睡则肝血得养</td></tr><tr><th>寅时 肺经</th><td>03:00-05:00；续睡，肺朝百脉，熟睡则气血得以重新分布</td></tr><tr><th>卯时 大肠经</th><td>05:00-07:00；起身排便、饮温水，大肠主传导，此时最利排浊</td></tr><tr><th>辰时 胃经</th><td>07:00-09:00；进食早餐，胃主受纳，此时胃气最旺，饭食最易运化</td></tr><tr><th>巳时 脾经</th><td>09:00-11:00；工作学习，脾主运化升清，此时脑力与体力最盛</td></tr><tr><th>午时 心经</th><td>11:00-13:00；午餐后小憩，心主血脉神明，小睡片刻可养心气</td></tr><tr><th>未时 小肠经</th><td>13:00-15:00；适量饮水，小肠主泌别清浊，此时助其分清别浊</td></tr><tr><th>申时 膀胱经</th><td>15:00-17:00；饮水与活动，膀胱经主一身之表，此时多饮水助代谢</td></tr><tr><th>酉时 肾经</th><td>17:00-19:00；晚餐清淡、静息，肾藏精主水，此时最忌过劳</td></tr><tr><th>戌时 心包经</th><td>19:00-21:00；散步、舒缓情志，心包代心受邪，畅怀则气血自和</td></tr><tr><th>亥时 三焦经</th><td>21:00-23:00；洗漱安神，三焦通百脉，静待入睡以养元气</td></tr></tbody></table></div></div><div class="wheel-detail" id="jyWheelDetail"><div class="sub-note">时辰与精油的对应属当代推演，本站不按时辰推荐精油；按时辰用油请结合效果与人群另行选方。</div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModSeason">
-    <div class="mod-head" onclick="toggleMod('jyModSeason')"><span class="mod-caret">▾</span><span class="mod-title">季节与体质</span><span class="mod-sub">四季阻断与四体质加权</span></div>
-    <div class="mod-body"><div id="jySeasonList"></div></div>
-  </section>
+  <details class="mh-ref" id="jyModPeople">
+    <summary>人群与场景<span class="mod-sub">十一类人群与十三类场景</span></summary>
+    <div class="mod-body"><div id="jyPeopleList"><div class="rel-title">生理人群</div><div class="tbl-hs"><table><thead><tr><th>人群</th><th>常用</th><th>上限</th><th>宜用</th><th>禁用</th><th>用法限制</th></tr></thead><tbody><tr><td>婴儿0至3月</td><td>不用</td><td>0%</td><td>按效果选</td><td>全部</td><td>只用清水与基础油，不用任何精油，不扩香</td></tr><tr><td>婴儿3至24月</td><td>0.1至0.5%</td><td>0.5%</td><td>薰衣草、罗马洋甘菊</td><td>蓝胶尤加利、澳洲尤加利、柠檬尤加利、白千层、绿花白千层、欧薄荷、留兰香、迷迭香、甜茴香</td><td>小面积、短期、不当空气清新剂，不扩香，避面部与眼周</td></tr><tr><td>幼儿2至6岁</td><td>0.5至1%</td><td>1%</td><td>薰衣草、甜橙、天竺葵、乳香</td><td>蓝胶尤加利、欧薄荷、肉桂、丁香、牛至、百里香</td><td>0.5至1%，扩香十五分钟内，保持通风，避眼与黏膜</td></tr><tr><td>儿童6至12岁</td><td>1至2%</td><td>2%</td><td>薰衣草、甜橙、乳香、檀香</td><td>肉桂、丁香、牛至、百里香</td><td>1至2%，避眼与黏膜，光敏类白天不用，面部1%以内</td></tr><tr><td>青少年12至18岁</td><td>1至3%</td><td>3%</td><td>甜橙、柠檬、薰衣草、天竺葵</td><td>无</td><td>1至3%，面部1%以内，光敏类用后十二小时避晒</td></tr><tr><td>成人</td><td>1至3%</td><td>3%</td><td>按效果选</td><td>无</td><td>面部0.5至1%，身体1至3%，局部3至5%且面积要小</td></tr><tr><td>老人65岁以上</td><td>1至2%</td><td>2%</td><td>薰衣草、甜橙、乳香、檀香</td><td>迷迭香、欧薄荷、肉桂、丁香、牛至、百里香、甜茴香</td><td>1至2%，减频次，避长期每日使用</td></tr><tr><td>孕期</td><td>0.5至1%</td><td>1%</td><td>甜橙、薰衣草、罗马洋甘菊、天竺葵、乳香</td><td>艾、苦艾、鼠尾草、快乐鼠尾草、牛膝草、肉桂、丁香、肉豆蔻、欧白芷、甜茴香、没药、杜松、芹菜籽</td><td>0.5至1%，避腹部与乳房，扩香短时通风，孕早期更严</td></tr><tr><td>哺乳期</td><td>0.5至1%</td><td>1%</td><td>甜橙、薰衣草、罗马洋甘菊、天竺葵、乳香</td><td>艾、苦艾、鼠尾草、快乐鼠尾草、牛膝草、肉桂、丁香、肉豆蔻、欧白芷、甜茴香、没药、杜松、芹菜籽</td><td>避乳房与婴儿接触区，用后洗手，扩香短时通风，婴儿在场不扩香</td></tr><tr><td>敏感肌</td><td>0.5至1%</td><td>1%</td><td>薰衣草、罗马洋甘菊、檀香</td><td>肉桂、锡兰肉桂、丁香、牛至、百里香、柠檬尤加利</td><td>0.5%起，先做前臂试验，二十四小时无反应再用</td></tr><tr><td>宠物家庭</td><td>1至2%</td><td>2%</td><td>薰衣草、乳香、罗马洋甘菊</td><td>茶树、蓝胶尤加利、澳洲尤加利、欧薄荷、留兰香、甜橙、柠檬、葡萄柚、欧洲赤松、丁香、肉桂、百里香、牛至</td><td>扩香限时通风，宠物可离开，不与宠物同处密闭空间</td></tr></tbody></table></div><div class="rel-title">风险排查</div><div class="tbl-hs"><table><thead><tr><th>风险项</th><th>禁用</th><th>浓度上限</th><th>用法限制</th></tr></thead><tbody><tr><td>癫痫</td><td>甜茴香、牛膝草、迷迭香、鼠尾草、苦艾、艾、穗花薰衣草、蓝艾菊、肉豆蔻、欧白芷</td><td>1%</td><td>扩香短时，避开密闭空间，不用高酮与高樟脑类</td></tr><tr><td>哮喘</td><td>欧薄荷、蓝胶尤加利、澳洲尤加利、茶树</td><td>1%</td><td>不用喷雾，扩香通风，避冷雾直吹</td></tr><tr><td>高血压</td><td>迷迭香、鼠尾草、百里香、欧薄荷</td><td>2%</td><td>避长期高浓，血压不稳时停用</td></tr><tr><td>肝功能不全</td><td>无</td><td>1%</td><td>单一两味，用一休一，避口服</td></tr><tr><td>肾功能不全</td><td>无</td><td>1%</td><td>单一两味，用一休一，避口服</td></tr><tr><td>服药者</td><td>佛手柑、柠檬、青柠、甜橙、葡萄柚、欧白芷、芹菜籽</td><td>1%</td><td>先询医师，不与口服药同时段使用，避长期每日</td></tr></tbody></table></div><div class="rel-title">职业与场景</div><div class="tbl-hs"><table><thead><tr><th>场景</th><th>常见诉求</th><th>用法</th><th>包装</th><th>禁忌</th></tr></thead><tbody><tr><td>通用</td><td>无特定诉求，按效果与季节体质选</td><td>手腕、颈侧、太阳穴</td><td>滚珠10毫升、香囊</td><td>不替代医疗，按人群与浓度上限执行</td></tr><tr><td>办公族</td><td>久坐、空调、肩颈发紧、下午犯困、口气</td><td>手腕、颈侧、桌面空间</td><td>滚珠10毫升、桌面扩香</td><td>不浓香扰同事，光敏类白天避用</td></tr><tr><td>差旅</td><td>密闭、时差、酒店陌生、行李有限</td><td>手腕、枕边、衣物</td><td>滚珠10毫升、香囊、湿巾加一滴</td><td>液体随身不超100毫升，酒店扩香通风</td></tr><tr><td>家庭主妇与主夫</td><td>家务、清洁剂、频繁洗手、油烟、腰背酸</td><td>手部、腰背、厨房空间</td><td>护手油30毫升、腰背按摩油、去味棉片</td><td>不与清洁剂混用，儿童在场减量</td></tr><tr><td>司机</td><td>长途疲劳、车内气味、久坐</td><td>车内出风口、手腕</td><td>车载香囊、出风口棉片，不用玻璃瓶</td><td>不替代休息，驾驶时不涂眼周，光敏注意手臂日晒</td></tr><tr><td>厨师与餐饮</td><td>油烟、手部干裂、衣物串味</td><td>手部、后厨空间</td><td>护手油30毫升、去味棉片</td><td>操作区不扩香，不与食品接触</td></tr><tr><td>医护</td><td>口罩久戴、频繁手消、夜班、压力</td><td>口罩外缘棉片、手腕</td><td>滚珠10毫升、口罩外缘棉片</td><td>病区不扩香，不替代防护与手卫生，棉片不贴皮肤</td></tr><tr><td>教师</td><td>讲台久站、粉笔灰、学生密集</td><td>手腕、办公室空间</td><td>滚珠10毫升、办公室扩香</td><td>教室不高浓扩香，学生过敏即停</td></tr><tr><td>学生</td><td>考试专注、宿舍空间小</td><td>手腕、书桌</td><td>滚珠、香囊</td><td>宿舍公共空间不浓香，睡前不用提神类</td></tr><tr><td>夜班与倒班</td><td>工作段要清醒，休息段要入睡</td><td>手腕、太阳穴</td><td>滚珠两支分装，标清日用与夜用</td><td>下班后不用提神类</td></tr><tr><td>户外作业</td><td>日晒、出汗、体力消耗</td><td>手臂、肩背</td><td>滚珠、按摩油</td><td>光敏类白天禁用，出汗后不用未稀释精油</td></tr><tr><td>服务业与售货</td><td>久站、与顾客近距离、口气</td><td>手腕、口腔外侧</td><td>口气喷雾30毫升稀释、滚珠</td><td>不浓香，不喷衣物与柜台，喷雾不吞咽</td></tr><tr><td>运动健身</td><td>运动前后、肌肉紧、出汗</td><td>肌肉、肩背、腿部</td><td>按摩油50毫升、滚珠</td><td>运动前不用光敏类，按浓度稀释到位</td></tr></tbody></table></div></div></div>
+  </details>
 
-  <section class="mod collapsed" id="jyModSafety">
-    <div class="mod-head" onclick="toggleMod('jyModSafety')"><span class="mod-caret">▾</span><span class="mod-title">安全与禁忌</span><span class="mod-sub">六类禁忌、浓度与保存期</span></div>
+  <details class="mh-ref" id="jyModSeason">
+    <summary>季节与体质<span class="mod-sub">四季阻断与四体质加权</span></summary>
+    <div class="mod-body"><div id="jySeasonList"><div class="rel-title">四季</div><div class="tbl-hs"><table><thead><tr><th>季</th><th>节气起止</th><th>阻断</th><th>警示</th></tr></thead><tbody><tr><td>春</td><td>立春至立夏</td><td>无</td><td>热类单用超一成</td></tr><tr><td>夏</td><td>立夏至立秋</td><td>肉桂、锡兰肉桂、丁香、牛至、百里香、高良姜、黑胡椒</td><td>温类超三成</td></tr><tr><td>秋</td><td>立秋至立冬</td><td>无</td><td>寒类单用超一成</td></tr><tr><td>冬</td><td>立冬至立春</td><td>欧薄荷、留兰香、蓝胶尤加利、澳洲尤加利、柠檬尤加利、茶树、白千层、绿花白千层</td><td>凉类合计超两成</td></tr></tbody></table></div><div class="rel-title">体质</div><div class="tbl-hs"><table><thead><tr><th>体质</th><th>阻断</th><th>警示</th><th>说明</th></tr></thead><tbody><tr><td>平</td><td>无</td><td>无</td><td>无需特殊调整</td></tr><tr><td>寒</td><td>欧薄荷、留兰香、蓝胶尤加利、澳洲尤加利、柠檬尤加利、茶树、白千层、绿花白千层</td><td>凉类合计超两成</td><td>冬季更严，寒类慎用</td></tr><tr><td>热</td><td>肉桂、锡兰肉桂、丁香、牛至、百里香、高良姜、黑胡椒</td><td>温类超三成</td><td>高酚辛热慎用</td></tr><tr><td>不明</td><td>无</td><td>无</td><td>不设判定器，不按症状推断</td></tr></tbody></table></div></div></div>
+  </details>
+
+  <details class="mh-ref" id="jyModSafety">
+    <summary>安全与禁忌<span class="mod-sub">六类禁忌、浓度与保存期</span></summary>
     <div class="mod-body">
-      <div id="jySafetyList"></div>
+      <div id="jySafetyList"><div class="tbl-hs"><table><thead><tr><th>类</th><th>判据</th><th>命中</th></tr></thead><tbody><tr><td>光敏</td><td>含呋喃香豆素，用后十二小时避日晒，高浓延长避晒时间</td><td>佛手柑、柠檬、青柠、甜橙、葡萄柚、佛手、香橼、欧白芷、芹菜籽、胡萝卜籽</td></tr><tr><td>孕忌</td><td>通经活血与类雌激素、高酚类，孕期与哺乳期不用</td><td>艾、苦艾、鼠尾草、快乐鼠尾草、牛膝草、百里香、肉桂、丁香、肉豆蔻、欧白芷、甜茴香、没药</td></tr><tr><td>儿童</td><td>桉叶素两岁以下禁，薄荷醇不入婴幼儿面部，高酚与樟脑慎用</td><td>蓝胶尤加利、澳洲尤加利、柠檬尤加利、欧薄荷、留兰香、迷迭香、白千层、绿花白千层、肉桂、丁香</td></tr><tr><td>癫痫</td><td>高酮、高樟脑与芳香醚类，慎用并减浓</td><td>甜茴香、牛膝草、迷迭香、鼠尾草、苦艾、艾、穗花薰衣草、肉豆蔻、欧白芷</td></tr><tr><td>宠物</td><td>猫肝脏缺乏葡萄糖醛酸转移酶，酚类与单萜代谢慢，猫家庭不用</td><td>茶树、蓝胶尤加利、澳洲尤加利、欧薄荷、留兰香、甜橙、柠檬、葡萄柚、欧洲赤松、丁香、肉桂</td></tr><tr><td>皮肤刺激</td><td>酚类、醛类与肉桂醛，低浓并先做前臂试验</td><td>肉桂、锡兰肉桂、丁香、牛至、百里香、高良姜、黑胡椒</td></tr></tbody></table></div></div>
       <div class="sub-note">面部 1% 以内，身体 2 至 3%，局部 5% 以内且面积要小；不推荐自行口服。柑橘与高萜类 6 至 12 个月，木质与树脂 2 至 3 年，调好的复方 2 至 3 个月。</div>
     </div>
-  </section>
+  </details>
 
-  <section class="mod collapsed" id="jyModYuanliu">
-    <div class="mod-head" onclick="toggleMod('jyModYuanliu')"><span class="mod-caret">▾</span><span class="mod-title">源流与典籍</span><span class="mod-sub">芳疗源流、中医芳香源流、两系边界</span></div>
+  <details class="mh-ref" id="jyModYuanliu">
+    <summary>源流与典籍<span class="mod-sub">芳疗源流、中医芳香源流、两系边界</span></summary>
     <div class="mod-body">
       <div class="sub-note">芳香疗法一说以 1937 年 Gattefossé 命名本门为始，此前有匈牙利水、古龙水、加尔默罗会水一类历史配方，多非精油。中医一系有香佩、药枕、熏蒸、敷贴，用中药原药，无精油之物。</div>
       <div class="sub-note">两系相接属当代实践：精油按同源中药的性味归经推断，标推者不充经典依据。精油归经不单立表，取同源中药归经并标推，无同源者不出归经。</div>
       <div class="sub-note">配伍与安全取 Tisserand 与 Young 安全手册与 ISO 4720 命名；中药性味取中华本草与中国药典。</div>
     </div>
-  </section>
+  </details>
 
-  <section class="mod collapsed" id="jyModBasis">
-    <div class="mod-head" onclick="toggleMod('jyModBasis')"><span class="mod-caret">▾</span><span class="mod-title">底本与凡例</span><span class="mod-sub">出处档位、已核与待核、入录范围</span></div>
+  <details class="mh-ref" id="jyModBasis">
+    <summary>底本与凡例<span class="mod-sub">出处档位、已核与待核、入录范围</span></summary>
     <div class="mod-body">
       <div class="sub-note">出处分四档：甲档为 ISO 4720、ISO 9235、Tisserand 与 Young 安全手册、IFRA 标准；乙档为 Valnet 与 Lawless 著作、中华本草、中国药典；丙档为当代实践与本站拟定；待核者不进方案。</div>
       <div class="sub-note">入录七十二种，按科属分十一组；未收门类有禾本科的柠檬草与香茅、樟科的山鸡椒、芸香科的苦橙与橙花净油以外的若干小众油，后续按批补录。</div>
     </div>
-  </section>
+  </details>
 
   <p class="jy-page-note">本页为传统文化与芳香疗法查询，不构成诊疗建议；精油不得替代诊疗，孕期、哺乳期、儿童、老人与有风险项者先询医师。</p>
 
   <div id="aiMount"><details class="ai-block" id="aiBlock">
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置（点 ⚙AI 设置）</span></summary>
+    <div class="ai-body">
+      <div class="ai-actions">
+        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
+        <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled="">停止</button>
+        <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
+        <button class="btn soft" id="aiClearBtn" onclick="clearAiChat()">清除AI对话</button>
+        <button class="btn soft" onclick="copyAiData()">复制排盘数据</button>
+        <button class="btn soft" onclick="printPage()">打印存为PDF</button>
+      <button type="button" class="btn soft" data-xj="link">复制分享链接</button><button type="button" class="btn soft" data-xj="dl" style="display: none;">导出 JSON</button><button type="button" class="btn soft" data-xj="copy" style="display: none;">复制 JSON</button><button type="button" class="btn soft" data-xj="imp" style="display: none;">导入 JSON</button><input type="file" accept=".json,application/json" data-xj-file="1" style="display: none;"><div style="display: none; flex: 1 1 100%; font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(46, 139, 87);"></div></div>
+      <div class="ai-tip" id="aiReparseTip" style="display:none;margin-top:4px">点“重新解析”会清空历史对话并按新盘面重新生成。如有需要请先点击“导出AI对话”。</div>
+      <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
+    <div class="ai-cloud" id="csBlock"><div class="cs-head"><b>数据存储</b><span id="csStatus">未选择目录</span></div><div class="cs-ch cs-common"><div class="form-row"><div class="field" style="width:183px;flex:0 0 183px"><label for="csNote">备注</label><input type="text" id="csNote" placeholder="写入文件名" style="width:100%"></div><div class="field chk" style="width:auto;flex:0 0 auto"><input type="checkbox" id="csWithAi"><label for="csWithAi"><span>保存 AI 对话</span></label></div></div><div class="ai-tip">备注与保存 AI 对话，三个通道通用。</div></div><div class="cs-ch"><div class="cs-ch-h">通道一　本地目录</div><div class="ai-actions"><button class="btn gold" id="csPick">选择文件夹</button><button class="btn gold" id="csSaveLocal">保存本次</button><button class="btn soft" id="csOpen">存档管理</button></div><div class="ai-tip" id="csLocalTip">存档写入选定文件夹，不经网络。</div></div><div class="cs-ch"><div class="cs-ch-h">通道二　文件搬运</div><div class="ai-actions" id="csFile" data-done="1"><button class="btn soft">导出 JSON</button><button class="btn soft">复制 JSON</button><input type="file" accept="application/json,.json" style="display: none;"><button class="btn soft">导入 JSON</button></div><div class="ai-tip">导出文件可跨设备或分享；导入时按存档内的输入排出结果。</div></div><div class="cs-ch"><div class="cs-ch-h">通道三　直连 WebDAV</div><div class="form-row"><div class="field"><label for="csPreset">服务</label><select id="csPreset"><option value="" data-url="">自选地址</option><option value="clouddrive2" data-url="http://localhost:19799/dav">CloudDrive2</option><option value="alist" data-url="http://127.0.0.1:5244/dav">Alist</option><option value="cloudreve" data-url="https://自有域名/dav">Cloudreve</option><option value="sharelist" data-url="https://自有域名/dav">sharelist</option><option value="nextcloud" data-url="https://域名/remote.php/dav/files/用户名/">Nextcloud</option><option value="owncloud" data-url="https://域名/remote.php/dav/files/用户名/">ownCloud</option><option value="seafile" data-url="https://域名/seafdav/">Seafile</option><option value="synology" data-url="https://NAS地址:5006/">群晖 WebDAV</option><option value="wsgidav" data-url="http://127.0.0.1:8080/">WsgiDAV</option><option value="rclone" data-url="http://127.0.0.1:8080/">rclone serve webdav</option><option value="nginx" data-url="https://域名/dav/">nginx dav 模块</option><option value="pcloud" data-url="https://webdav.pcloud.com/">pCloud</option><option value="yandex" data-url="https://webdav.yandex.com/">Yandex Disk</option><option value="infinicloud" data-url="https://服务器.teracloud.jp/dav/">InfiniCLOUD</option><option value="box" data-url="https://dav.box.com/dav/">Box</option><option value="jianguoyun" data-url="https://dav.jianguoyun.com/dav/">坚果云</option></select></div></div><div class="form-row"><div class="field"><label for="csUrl">地址</label><input type="text" id="csUrl" placeholder="https://.../dav/"></div></div><div class="form-row"><div class="field"><label for="csUser">账号</label><input type="text" id="csUser"></div><div class="field"><label for="csPass">应用密码</label><input type="password" id="csPass"></div></div><div class="ai-tip" id="csPresetNote"></div><div id="csGuide" style="display:none"></div><div class="ai-actions"><button class="btn gold" id="csTest">测试连接</button><button class="btn gold" id="csSaveDav">上传本次</button><button class="btn soft" id="csListDav">远端存档</button><button class="btn soft" id="csClear">清除凭据</button></div><div class="ai-tip">须服务端允许跨域，浏览器方得读取响应；未开启时改用通道一或通道二。</div></div><div class="ai-tip" id="csTip"></div></div></div>
   </details></div>
 </main>
-</div>
+</div><script data-sync="1">/* 折叠态首绘前落定：全站唯一一处读写折叠态的地方。
+ *
+ * 为什么单立此件：开合态要跨刷新保持，就必须在载入时读回来。若等 defer 件事后回填，
+ * 首帧是收起态、随后被展开，页面上就是一次可见的抖动。本件由构建器内联在 body 末尾、
+ * 以同步脚本执行：此时 body 已解析、首绘尚未发生，写出即终态。
+ *
+ * 口径：键为 xjFold 加页面路径，值按模块 id 记 1 或 0；未记过的模块保持源件的收起态。
+ * 页内点开合由 window.xjFoldRemember(id, open) 记录，本件只管读回与落类。
+ */
+(function () {
+  'use strict';
+  var KEY = 'xjFold:' + ((typeof location !== 'undefined' && location.pathname) || '/');
+
+  function readAll() {
+    try { return JSON.parse(sessionStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+
+  function setOpen(id, open) {
+    var n = document.getElementById(id);
+    if (!n) return;
+    if (n.tagName === 'DETAILS') n.open = !!open;
+    else if (open) n.classList.remove('collapsed');
+    else n.classList.add('collapsed');
+  }
+
+  var all = readAll();
+  Object.keys(all).forEach(function (id) { setOpen(id, !!all[id]); });
+
+  if (typeof window !== 'undefined') {
+    window.xjFoldRemember = function (id, open) {
+      if (!id) return;
+      var cur = readAll();
+      cur[id] = open ? 1 : 0;
+      try { sessionStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) { /* 存储不可用即不记忆 */ }
+    };
+  }
+})();</script>
 <footer id="footer"><div class="wrap">
   <div class="dis">排盘结果由<a href="opensource.html" class="os-link">开源算法库</a>与自研算法共同生成，仅供文化研究与娱乐参考，请勿迷信。</div>
   <div class="geo-foot" id="geoFoot" aria-live="polite"></div>
 </div></footer>
 <script defer src="assets/geo.js"></script>
 <script defer src="assets/ai-lazy.js"></script>
+<script defer src="assets/hist-modal.js"></script>
+<script data-sync="1">/* 折叠态首绘前落定：全站唯一一处读写折叠态的地方。
+ *
+ * 为什么单立此件：开合态要跨刷新保持，就必须在载入时读回来。若等 defer 件事后回填，
+ * 首帧是收起态、随后被展开，页面上就是一次可见的抖动。本件由构建器内联在 body 末尾、
+ * 以同步脚本执行：此时 body 已解析、首绘尚未发生，写出即终态。
+ *
+ * 口径：键为 xjFold 加页面路径，值按模块 id 记 1 或 0；未记过的模块保持源件的收起态。
+ * 页内点开合由 window.xjFoldRemember(id, open) 记录，本件只管读回与落类。
+ */
+(function () {
+  'use strict';
+  var KEY = 'xjFold:' + ((typeof location !== 'undefined' && location.pathname) || '/');
+
+  function readAll() {
+    try { return JSON.parse(sessionStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+
+  function setOpen(id, open) {
+    var n = document.getElementById(id);
+    if (!n) return;
+    if (n.tagName === 'DETAILS') n.open = !!open;
+    else if (open) n.classList.remove('collapsed');
+    else n.classList.add('collapsed');
+  }
+
+  var all = readAll();
+  Object.keys(all).forEach(function (id) { setOpen(id, !!all[id]); });
+
+  if (typeof window !== 'undefined') {
+    window.xjFoldRemember = function (id, open) {
+      if (!id) return;
+      var cur = readAll();
+      cur[id] = open ? 1 : 0;
+      try { sessionStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) { /* 存储不可用即不记忆 */ }
+    };
+  }
+})();</script>
 <script defer fetchpriority="low" src="assets/app.js"></script>
 <script defer fetchpriority="low" src="assets/ai.js"></script>
 <script defer fetchpriority="low" src="assets/lunar.js"></script>

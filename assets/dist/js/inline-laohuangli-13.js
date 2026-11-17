@@ -15,3 +15,18 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   },0);
 });
+
+/* 从梅花等页带入日期（?date=YYYY-MM-DD）：写入日期框并出当日盘，标记 data-keep 免被当下同步覆盖 */
+function initDateFromQuery(){
+  var p=new URLSearchParams(location.search);
+  var dt=p.get('date');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(dt||'')) return;
+  var el=document.getElementById('dInput');
+  if(!el) return;
+  el.value=dt;
+  el.setAttribute('data-keep','1');
+  try{ query(); }catch(e){}
+}
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(initDateFromQuery, 50);
+});

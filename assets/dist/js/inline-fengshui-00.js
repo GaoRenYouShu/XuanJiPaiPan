@@ -2470,18 +2470,9 @@ function fsNow(){
   fsInitDefaults();
   fsCalc();
 }
-/* 折叠与展开并持久化状态：用 localStorage 跨会话保持（sessionStorage 关标签即清空，刷新易丢；与阴宅页同例） */
-function fsSaveModState(){
-  try{
-    const st={};
-    document.querySelectorAll('section.fs-mod').forEach(m=>{ st[m.id]=m.classList.contains('collapsed')?'1':'0'; });
-    localStorage.setItem('fs_mod_state', JSON.stringify(st));
-  }catch(e){}
-}
 function fsToggleMod(el){
   if(!el) return;
   el.classList.toggle('collapsed');
-  fsSaveModState();
 }
 function fsRoomVal(g){ const el=document.getElementById('fsRoom-'+g); return (el&&el.value)?el.value.trim():''; }
 function fsRoomTxt(g){ const r=fsRoomVal(g); return r?(r+'（'+g+'宫）'):(g+'宫'); }
@@ -2907,12 +2898,4 @@ function fsDrawFinal(){
 function fsQueueFinal(){
   if(fsFinalTimer) return;
   fsFinalTimer=setTimeout(function(){ fsFinalTimer=null; fsDrawFinal(); }, 0);
-}
-/* 加载时恢复折叠状态（兼容读旧 sessionStorage 键） */
-function fsRestoreModState(){
-  try{
-    const raw=localStorage.getItem('fs_mod_state')||sessionStorage.getItem('fs_mod_state');
-    const st=JSON.parse(raw||'{}');
-    document.querySelectorAll('section.fs-mod').forEach(m=>{ if(st[m.id]==='1') m.classList.add('collapsed'); });
-  }catch(e){}
 }

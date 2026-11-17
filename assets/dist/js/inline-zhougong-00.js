@@ -66,12 +66,28 @@ function zgCardDui(r){
     zgDuiReverseHtml(r.img) +
     '</div>';
 }
+/* 吉凶筛选：通行本条目按自身基调筛，不涉所问；计数按当前结果集现算 */
+var ZG_LUCK='all', ZG_VIEW='', ZG_CAT_LIMIT=80, ZG_CAT_NOW=0;
+function zgLuckOk(r){ return ZG_LUCK==='all' || String(r.luck)===ZG_LUCK; }
+function zgLuckName(){ return ZG_LUCK==='all'?'全部':(ZG_LUCK==='1'?'吉':(ZG_LUCK==='-1'?'凶':'兼')); }
+function zgLuckBar(rows){
+  var n={all:rows.length,1:0,'-1':0,0:0};
+  rows.forEach(function(r){ var k=String(r.luck); if(n[k]!==undefined)n[k]++; });
+  var labs={all:'zgLkAll',1:'zgLkJi','-1':'zgLkXiong',0:'zgLkJian'};
+  Object.keys(labs).forEach(function(k){
+    var el=document.getElementById(labs[k]); if(el) el.textContent=n[k];
+    var btn=document.querySelector('#zgLuckBar [data-luck="'+k+'"]');
+    if(btn){ btn.classList.toggle('gold', ZG_LUCK===k); btn.classList.toggle('soft', ZG_LUCK!==k); }
+  });
+}
 function zgRenderSearch(){
+  ZG_VIEW='search';
   var q = document.getElementById('zgQ').value;
   var out = document.getElementById('zgOut');
-  var list = zgSearch(q, 0);
-  if (!q) { out.innerHTML = ''; return; }
-  if (!list.length) {
+  var all = zgSearch(q, 0);
+  if (!q) { out.innerHTML=''; zgLuckBar([]); return; }
+  if (!all.length) {
+    zgLuckBar([]);
     var kRaw = zgNorm(q);
     var k = escapeHtml(kRaw);
     var near = zgNeighbors(q);
@@ -89,8 +105,15 @@ function zgRenderSearch(){
     out.innerHTML = html;
     return;
   }
+  zgLuckBar(all);
+  var list = all.filter(zgLuckOk);
+  if (!list.length) {
+    out.innerHTML = '<div class="zg-count">检得 ' + all.length + ' 条，其中' + zgLuckName() + ' 0 条，可换筛选项或改检索词。</div>';
+    return;
+  }
   var shown = Math.min(list.length, 60);
-  var head = '检得 ' + list.length + ' 条';
+  var head = '检得 ' + all.length + ' 条';
+  if (ZG_LUCK !== 'all') head += '，筛选' + zgLuckName() + ' ' + list.length + ' 条';
   if (list.length > shown) head += '，显示前 ' + shown + ' 条';
   var terms = zgSearchTerms(q);
   if (terms.length > 1) head += '；已并检：' + terms.slice(1).join('、');
@@ -104,13 +127,32 @@ function zgRenderCats(){
   });
   document.getElementById('zgCats').innerHTML = html;
 }
-function zgRenderCat(cat){
+function zgRenderCat(cat, keepLimit){
+  ZG_VIEW='cat'; ZG_CAT_NOW=cat;
+  if(!keepLimit) ZG_CAT_LIMIT=80;
   var groups = zgCatGroups(cat);
+  var allRows=[];
+  groups.forEach(function(g){ allRows=allRows.concat(g.items); });
+  zgLuckBar(allRows);
+  var shown=0,total=0;
+  var parts=[];
+  groups.forEach(function(g){
+    var items=g.items.filter(zgLuckOk);
+    if(!items.length) return;
+    total+=items.length;
+    if(shown>=ZG_CAT_LIMIT) return;
+    var take=items.slice(0, ZG_CAT_LIMIT-shown);
+    parts.push('<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + items.length + '）</div>' +
+      take.map(zgCardBrowse).join('') + '</div>');
+    shown+=take.length;
+  });
   var html = '<h3 class="zg-cat-h">' + ZG_CATS[cat - 1] + '（第' + ['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三','二十四','二十五','二十六','二十七'][cat - 1] + '类）</h3>';
-  html += groups.map(function(g){
-    return '<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + g.items.length + '）</div>' +
-      g.items.map(zgCardBrowse).join('') + '</div>';
-  }).join('');
+  if(!total){
+    html += '<p class="sub-note">本类无' + zgLuckName() + '之条目，可换筛选项。</p>';
+  }else{
+    html += parts.join('');
+    if(total>shown) html += '<button type="button" class="zg-chip zg-more">显示更多（已显示 ' + shown + ' / 共 ' + total + '）</button>';
+  }
   document.getElementById('zgBrowse').innerHTML = html;
 }
 function zgRenderStats(){
@@ -143,6 +185,7 @@ function zgRenderNotes(){
 }
 /* 断梦秘书：地支类 chip 渲染、某类按小节分组浏览 */
 var ZG_DM_ON_CAT = 0;
+var ZG_DM_LIMIT = 80, ZG_DM_CAT_NOW = 0;
 var ZG_DM_CAT_ORDER = ['子','丑','寅','卯','辰','巳','午','未','申'];
 function zgDmRenderCats(){
   var counts = {};
@@ -153,7 +196,9 @@ function zgDmRenderCats(){
   });
   document.getElementById('zgDmCats').innerHTML = html;
 }
-function zgDmRenderCat(cat){
+function zgDmRenderCat(cat, keepLimit){
+  ZG_DM_CAT_NOW = cat;
+  if (!keepLimit) ZG_DM_LIMIT = 80;
   var rows = ZG_DM_SETS.filter(function(r){ return r[0] === cat; });
   var groups = [], idx = {};
   rows.forEach(function(r){
@@ -162,10 +207,16 @@ function zgDmRenderCat(cat){
   });
   var zhi = ZG_DM_CAT_ORDER[cat - 1];
   var html = '<h3 class="zg-cat-h">' + zhi + ' ' + ZG_DM_CATS[cat * 2 - 1] + '（' + rows.length + ' 条）</h3>';
-  html += groups.map(function(g){
-    return '<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + g.items.length + '）</div>' +
-      g.items.map(zgDmCard).join('') + '</div>';
-  }).join('');
+  var shown = 0, parts = [];
+  groups.forEach(function(g){
+    if (shown >= ZG_DM_LIMIT) return;
+    var take = g.items.slice(0, ZG_DM_LIMIT - shown);
+    parts.push('<div class="zg-sub"><div class="zg-sub-h">' + g.sub + '（' + g.items.length + '）</div>' +
+      take.map(zgDmCard).join('') + '</div>');
+    shown += take.length;
+  });
+  html += parts.join('');
+  if (rows.length > shown) html += '<button type="button" class="zg-chip zg-more" data-more="dm">显示更多（已显示 ' + shown + ' / 共 ' + rows.length + '）</button>';
   document.getElementById('zgDmBrowse').innerHTML = html;
 }
 function zgAiContext(){
@@ -222,12 +273,7 @@ function zgRenderPoem(){
 
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('zgFoldState','details[id]');
-    },true);
     renderChrome('zhougong.html');
-    xjApplyFold('zgFoldState','details[id]');
     ZG_DM_SETS.forEach(function(r){
       var bare = r[2].replace(/^梦/, '');
       if (!ZG_DM_DUI.hasOwnProperty(bare)) { ZG_DM_DUI[bare] = []; ZG_DM_NORM[bare] = r[2]; }
@@ -254,20 +300,40 @@ document.addEventListener('DOMContentLoaded', function () {
       var browse = document.getElementById('zgDmBrowse');
       if (btn.classList.contains('on')) {
         btn.classList.remove('on');
-        ZG_DM_ON_CAT = 0;
+        ZG_DM_ON_CAT = 0; ZG_DM_CAT_NOW = 0;
         browse.innerHTML = '';
         return;
       }
       document.querySelectorAll('#zgDmCats .zd-chip').forEach(function(c){ c.classList.remove('on'); });
       document.querySelectorAll('#zgCats .zg-chip').forEach(function(c){ c.classList.remove('on'); });
-      ZG_ON_CAT = 0;
+      ZG_ON_CAT = 0; ZG_CAT_NOW = 0;
       document.getElementById('zgBrowse').innerHTML = '';
       btn.classList.add('on');
       ZG_DM_ON_CAT = cat;
       zgDmRenderCat(cat);
       if (browse.scrollIntoView) browse.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
+    document.getElementById('zgDmBrowse').addEventListener('click', function(e){
+      var more = e.target.closest('.zg-more');
+      if (!more || !ZG_DM_CAT_NOW) return;
+      ZG_DM_LIMIT += 80;
+      zgDmRenderCat(ZG_DM_CAT_NOW, true);
+    });
     document.getElementById('zgBtn').addEventListener('click', zgRenderSearch);
+    document.getElementById('zgLuckBar').addEventListener('click', function(e){
+      var b = e.target.closest('[data-luck]');
+      if (!b) return;
+      ZG_LUCK = b.getAttribute('data-luck');
+      if (ZG_VIEW === 'cat' && ZG_CAT_NOW) zgRenderCat(ZG_CAT_NOW);
+      else if (document.getElementById('zgQ').value.trim()) zgRenderSearch();
+      else zgLuckBar(ZG_ROWS);
+    });
+    document.getElementById('zgBrowse').addEventListener('click', function(e){
+      var more = e.target.closest('.zg-more');
+      if (!more || !ZG_CAT_NOW) return;
+      ZG_CAT_LIMIT += 80;
+      zgRenderCat(ZG_CAT_NOW, true);
+    });
     document.getElementById('zgQ').addEventListener('keydown', function(e){
       if (e.key === 'Enter') zgRenderSearch();
     });
@@ -284,13 +350,13 @@ document.addEventListener('DOMContentLoaded', function () {
       var browse = document.getElementById('zgBrowse');
       if (btn.classList.contains('on')) {
         btn.classList.remove('on');
-        ZG_ON_CAT = 0;
+        ZG_ON_CAT = 0; ZG_CAT_NOW = 0;
         browse.innerHTML = '';
         return;
       }
       document.querySelectorAll('#zgCats .zg-chip').forEach(function(c){ c.classList.remove('on'); });
       document.querySelectorAll('#zgDmCats .zd-chip').forEach(function(c){ c.classList.remove('on'); });
-      ZG_DM_ON_CAT = 0;
+      ZG_DM_ON_CAT = 0; ZG_DM_CAT_NOW = 0;
       document.getElementById('zgDmBrowse').innerHTML = '';
       btn.classList.add('on');
       ZG_ON_CAT = cat;
@@ -306,6 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
     zgRenderCats();
     zgDmRenderCats();
     zgRenderStats();
+    zgLuckBar(ZG_ROWS);
     zgRenderNotes();
     mountAI(zgAiContext, '周公解梦', { share:{
       page: 'zhougong',
@@ -317,8 +384,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return d;
       },
       restore: function(d){
-        ZG_ON_CAT = 0;
-        ZG_DM_ON_CAT = 0;
+        ZG_ON_CAT = 0; ZG_CAT_NOW = 0;
+        ZG_LUCK = 'all'; ZG_VIEW = '';
+        ZG_DM_ON_CAT = 0; ZG_DM_CAT_NOW = 0;
         document.querySelectorAll('#zgCats .zg-chip').forEach(function(c){ c.classList.remove('on'); });
         document.querySelectorAll('#zgDmCats .zd-chip').forEach(function(c){ c.classList.remove('on'); });
         document.getElementById('zgBrowse').innerHTML = '';
@@ -345,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
         if (document.getElementById('zgQ').value) zgRenderSearch();
+        else zgLuckBar(ZG_ROWS);
       },
       /* 刷新重出：全站顶层机制回填输入后按此钩子重排结果，无关键词则不动 */
       recast:function(){ if (document.getElementById('zgQ').value) zgRenderSearch(); }

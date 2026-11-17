@@ -13,12 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     renderRef();
-    xjApplyFold('xlrFoldState','details[id]');
     switchQiMode();
-    document.addEventListener('toggle',function(e){
-      const t=e.target;
-      if(t && t.tagName==='DETAILS' && t.id) xjSaveFold('xlrFoldState','details[id]');
-    },true);
     mountAI(function(){
       if(!LAST) return '';
       const fg=GONG[LAST.gTime];

@@ -72,6 +72,17 @@ const DIAOKE={寅:'子',卯:'丑',辰:'寅',巳:'卯',午:'辰',未:'巳',申:'�
 const BINGFU={寅:'丑',卯:'寅',辰:'卯',巳:'辰',午:'巳',未:'午',申:'未',酉:'申',戌:'酉',亥:'戌',子:'亥',丑:'子'};
 // 五行墓库（六壬以五行墓为墓）：木墓未、火土墓戌、金墓丑、水墓辰
 const WX_MU={木:'未',火:'戌',土:'戌',金:'丑',水:'辰'};
+// 五行十二长生四节点（六壬取五行长生，不取十干）：长生、绝、胎、败
+const WX_CS={木:'亥',火:'寅',土:'申',金:'巳',水:'申'};
+const WX_JUE={木:'申',火:'亥',土:'亥',金:'寅',水:'巳'};
+const WX_TAI={木:'酉',火:'子',土:'子',金:'卯',水:'午'};
+const WX_BAI={木:'子',火:'卯',土:'卯',金:'午',水:'酉'};
+// 四季关神：春丑、夏辰、秋未、冬戌；与月内生气、死气同表取用
+const GUAN_SHEN={春:'丑',夏:'辰',秋:'未',冬:'戌'};
+const XING_PAIRS=[['子','卯'],['寅','巳'],['巳','申'],['申','寅'],['丑','戌'],['戌','未'],['未','丑'],['辰','辰'],['午','午'],['酉','酉'],['亥','亥']];
+function xingPair(a,b){ return XING_PAIRS.some(function(p){ return (p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a); }); }
+const HAI_PAIRS=[['子','未'],['丑','午'],['寅','巳'],['卯','辰'],['申','亥'],['酉','戌']];
+function haiPair(a,b){ return HAI_PAIRS.some(function(p){ return (p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a); }); }
 // 地支六合
 const LIUHE=['子丑','寅亥','卯戌','辰酉','巳申','午未'];
 const isLiuHe=(a,b)=>a!==b&&LIUHE.some(p=>p===a+b||p===b+a);
@@ -339,6 +350,186 @@ function bifaVerdicts(o){
     const tianKong=kongHit(c.chu), diKong=kongHit(diUnder(c.chu));
     if(tianKong||diKong) hits.push({n:'九十四',title:'喜惧空亡乃妙机',say:(tianKong&&diKong?'初传与所临之地俱空，空而又空，事多虚耗。':tianKong?'初传天盘落空，游行空亡，事有虚声。':'初传所临地盘落空，落底空亡，根基不实。')});
   }
+  /* ===== 续补：卷十一余条，逐条按盘面可判者入表 ===== */
+  const season=['寅','卯','辰'].includes(o.monthZhi)?'春':(['巳','午','未'].includes(o.monthZhi)?'夏':(['申','酉','戌'].includes(o.monthZhi)?'秋':'冬'));
+  const shengQi=ZHI[(ZHI.indexOf(o.monthZhi)-2+12)%12], siQi=chongZhi(shengQi);
+  const taiZhi=WX_TAI[ganWx];
+  // 第九 避难逃生须弃旧：干上神生干，三传无一生助，舍传就干
+  if(SHENG[wxS(ganShang)]===ganWx&&!sanChuan.some(z=>tenOf(z)==='比'||tenOf(z)==='生'))
+    hits.push({n:'九',title:'避难逃生须弃旧',say:'三传无一益身，惟干上神生干，舍传就干，主避难逃生、弃旧图新。'});
+  // 第十 朽木难雕别作为：斫轮课初传卯落旬空
+  if(c.chu==='卯'&&kongHit('卯')&&(diUnder('卯')==='申'||diUnder('卯')==='酉'))
+    hits.push({n:'十',title:'朽木难雕别作为',say:'斫轮课初传卯落空，朽木难雕，宜改科易业、别作营生。'});
+  // 第十三 鬼贼当时无畏忌：三传皆鬼而鬼旺于月令
+  if(t1==='官'&&t2==='官'&&t3==='官'&&wxWangOf(wxS(c.chu),o.monthZhi)==='旺')
+    hits.push({n:'十三',title:'鬼贼当时无畏忌',say:'三传皆鬼而鬼旺于月令，鬼贪旺不克，当时无畏；旺气一过，其祸仍发。'});
+  // 第十四 传财太旺反财亏：三传皆财而财旺于月令
+  if(t1==='财'&&t2==='财'&&t3==='财'&&wxWangOf(wxS(c.chu),o.monthZhi)==='旺')
+    hits.push({n:'十四',title:'传财太旺反财亏',say:'三传皆财而财自贪生旺，不能为我作财，求财反费己财，宜待财气稍衰之月。'});
+  // 第十五 脱上逢脱防虚诈：干生干上神，上神又生天将，三传复盗干
+  {
+    const jw=TIANJIANG_WX[tj(ganShang)];
+    if(jw&&SHENG[ganWx]===wxS(ganShang)&&SHENG[wxS(ganShang)]===jw&&sanChuan.every(z=>SHENG[ganWx]===wxS(z)))
+      hits.push({n:'十五',title:'脱上逢脱防虚诈',say:'干生上神、上神生天将，三传又盗干，脱上逢脱，主虚诈脱耗。'});
+  }
+  // 第十六 空上乘空事莫追：干上神旬空又乘天空
+  if(kongHit(ganShang)&&tj(ganShang)==='天空')
+    hits.push({n:'十六',title:'空上乘空事莫追',say:'干上神落旬空又乘天空，空上乘空，指空话空，全无实象。'});
+  // 第十九 胎财生气妻怀孕：五行胎神为日干之财，又值月内生气
+  if(taiZhi&&tenOf(taiZhi)==='财'&&taiZhi===shengQi)
+    hits.push({n:'十九',title:'胎财生气妻怀孕',say:'五行胎神作日干之财，又值月内生气，占妻主怀孕之喜。'});
+  // 第二十 胎财死气损胎推：胎神为财而值月内死气
+  if(taiZhi&&tenOf(taiZhi)==='财'&&taiZhi===siQi)
+    hits.push({n:'二十',title:'胎财死气损胎推',say:'胎神作财而值月内死气，胎气受伤，主孕而不育或损胎。'});
+  // 第三十三 有始无终难变易：初传干之长生而末传干墓，或初墓末生
+  if(c.chu===WX_CS[ganWx]&&c.mo===WX_MU[ganWx])
+    hits.push({n:'三十三',title:'有始无终难变易',say:'初传为干之长生、末传为干墓，自生传墓，主始如花锦、终无成合。'});
+  else if(c.chu===WX_MU[ganWx]&&c.mo===WX_CS[ganWx])
+    hits.push({n:'三十三',title:'有始无终难变易',say:'初传为干墓、末传为干之长生，自墓传生，主先难后易、先暗后明。'});
+  // 第三十四 苦去甘来乐里悲：三传递生，初虽克干而末制初，先受磨折后得安逸
+  if(SHENG[wxS(c.mo)]===wxS(c.zhong)&&SHENG[wxS(c.zhong)]===wxS(c.chu)
+    &&WX_KE2[wxS(c.chu)]===ganWx&&WX_KE2[wxS(c.mo)]===wxS(c.chu))
+    hits.push({n:'三十四',title:'苦去甘来乐里悲',say:'三传递生而初克干，末又制初，先受其苦后得其甘，主先难后逸。'});
+  // 第三十六 干支皆败势倾颓：干上神为干之败，支上神为支之败
+  if(ganShang===WX_BAI[ganWx]&&zhiShang===WX_BAI[zhiWx])
+    hits.push({n:'三十六',title:'干支皆败势倾颓',say:'干支上神各乘本五行败气，人宅俱衰，主气血屋舍日渐倾颓。'});
+  // 第三十八 闭口卦体两般推：旬尾加旬首发用
+  if(xunWei&&c.chu===xunWei&&diUnder(c.chu)===xunShou)
+    hits.push({n:'三十八',title:'闭口卦体两般推',say:'旬尾加旬首发用，闭口之象，主口舌闭塞、事难申说，惟宜捕盗追亡。'});
+  // 第四十 后合占婚岂用媒：干上支上皆乘天后六合
+  {
+    const houHe=z=>['六合','天后'].includes(tj(z));
+    if(houHe(ganShang)&&houHe(zhiShang))
+      hits.push({n:'四十',title:'后合占婚岂用媒',say:'干上支上皆乘天后六合，先有私情交通，嫁娶不待媒妁。'});
+  }
+  // 第四十二 尊崇传内遇三奇：三传遁干见甲戊庚或乙丙丁
+  {
+    const dg=[o.dun&&o.dun.chu,o.dun&&o.dun.zhong,o.dun&&o.dun.mo].filter(g=>GAN.includes(g));
+    if(dg.length===3&&((['甲','戊','庚'].every(g=>dg.includes(g)))||(['乙','丙','丁'].every(g=>dg.includes(g)))))
+      hits.push({n:'四十二',title:'尊崇传内遇三奇',say:'三传遁干全见甲戊庚或乙丙丁，三奇入传，主尊崇显达、灾祸可消。'});
+  }
+  // 第四十三 害贵讼直作屈断：昼夜贵受所临地盘克，又乘天空
+  {
+    const guiKe=[dayGui,nightGui].filter(g=>g&&keOf(diUnder(g),g));
+    if(guiKe.length&&guiKe.some(g=>tj(g)==='天空'))
+      hits.push({n:'四十三',title:'害贵讼直作屈断',say:'贵人受所临地盘克制又乘天空，贵人受害，占讼理直而屈断。'});
+  }
+  // 第四十五 昼夜贵加求两贵：昼贵夜贵互加
+  if(dayGui&&nightGui&&((diUnder(dayGui)===nightGui)||(diUnder(nightGui)===dayGui)))
+    hits.push({n:'四十五',title:'昼夜贵加求两贵',say:'昼夜二贵互加，告贵求事必涉两贵人，宜请谒周全。'});
+  // 第四十六 贵人差迭事参差：昼贵临夜地、夜贵临昼方
+  {
+    const dayDi=z=>[3,4,5,6,7,8].includes(ZHI.indexOf(z));
+    if(dayGui&&nightGui&&!dayDi(diUnder(dayGui))&&dayDi(diUnder(nightGui)))
+      hits.push({n:'四十六',title:'贵人差迭事参差',say:'昼贵临夜地、夜贵临昼方，贵人差迭，告贵多不归一，事多参差。'});
+  }
+  // 第四十八 鬼乘天乙乃神祗：官鬼之支乘贵人
+  if([ganShang,zhiShang].concat(sanChuan).some(z=>tenOf(z)==='官'&&tj(z)==='贵人'))
+    hits.push({n:'四十八',title:'鬼乘天乙乃神祗',say:'官鬼乘天乙贵人，鬼不作祟而作神祗，占病多主神位不肃，宜修设功德。'});
+  // 第五十三 两蛇夹墓凶难免：干墓或支墓乘螣蛇而临地盘巳位
+  {
+    const muZhi=[WX_MU[ganWx],WX_MU[zhiWx]];
+    if(muZhi.some(m=>tj(m)==='螣蛇'&&diUnder(m)==='巳'))
+      hits.push({n:'五十三',title:'两蛇夹墓凶难免',say:'墓神乘螣蛇又临巳位，两蛇夹墓，主积块沉疾，凶险难脱。'});
+  }
+  // 第五十四 虎视逢虎力难施：昴星课而白虎临传或干支上
+  if(o.kewei&&o.kewei.method&&o.kewei.method.name==='昴星'&&[c.chu,ganShang,zhiShang].some(z=>tj(z)==='白虎'))
+    hits.push({n:'五十四',title:'虎视逢虎力难施',say:'昴星虎视又逢白虎，虎视逢虎，力难施展，主强敌当前、进退受制。'});
+  // 第五十七 费有余而得不足：三传财生而多落空
+  if(sanChuan.filter(z=>tenOf(z)==='财'||tenOf(z)==='生').length>=2&&sanChuan.some(kongHit))
+    hits.push({n:'五十七',title:'费有余而得不足',say:'三传财生而多落空亡，费出有余、所得不足，谋利多虚。'});
+  // 第五十八 用破身心无所归：初传为财，坐克方，又乘白虎或引归鬼乡
+  if(t1==='财'&&keOf(diUnder(c.chu),c.chu)&&(tj(c.chu)==='白虎'||t2==='官'||t3==='官'))
+    hits.push({n:'五十八',title:'用破身心无所归',say:'初传为财而坐克方，又乘白虎或引入鬼乡，恋财反耗，身心无所归。'});
+  // 第五十九 华盖覆日人昏晦：干之墓神临干发用
+  if(c.chu===WX_MU[ganWx]&&diUnder(c.chu)===jg)
+    hits.push({n:'五十九',title:'华盖覆日人昏晦',say:'干墓临干发用，华盖覆日，主昏晦难明、冤屈难诉。'});
+  // 第六十五 干墓并关人宅废：干墓作四季关神发用，临干或临支
+  {
+    const guan=GUAN_SHEN[season];
+    if(guan&&c.chu===guan&&c.chu===WX_MU[ganWx]&&(diUnder(c.chu)===jg||diUnder(c.chu)===o.dZhi))
+      hits.push({n:'六十五',title:'干墓并关人宅废',say:'干墓作四季关神发用，临干主人衰，临支主宅废。'});
+  }
+  // 第六十六 支坟财并旅程稽：支墓作日干之财发用
+  if(c.chu===WX_MU[zhiWx]&&tenOf(c.chu)==='财')
+    hits.push({n:'六十六',title:'支坟财并旅程稽',say:'支墓作日干之财发用，主商贩折本、在路阻程。'});
+  // 第六十七 受虎克神为病症：白虎所乘之神克日干
+  {
+    const tiger=ZHI.find(z=>tj(z)==='白虎');
+    if(tiger&&WX_KE2[wxS(tiger)]===ganWx){
+      const organ={金:'肝',木:'脾',水:'心',火:'肺',土:'肾'}[wxS(tiger)]||'';
+      hits.push({n:'六十七',title:'受虎克神为病症',say:'白虎乘'+wxS(tiger)+'神克日干，受克之脏为'+organ+'，占病多见相应脏腑之疾。'});
+    }
+  }
+  // 第七十三 前后逼迫难进退：三传皆空不可进，干上神盗干或为鬼不可退
+  if(sanChuan.every(kongHit)&&(tenOf(ganShang)==='食'||tenOf(ganShang)==='官'))
+    hits.push({n:'七十三',title:'前后逼迫难进退',say:'三传皆空不可进，干上神盗干或为鬼不可退，前后逼迫，惟宜守静。'});
+  // 第七十五 宾主不投刑在上：干支上神相刑，或上神刑干支
+  if(xingPair(ganShang,zhiShang)||xingPair(ganShang,jg)||xingPair(zhiShang,o.dZhi))
+    hits.push({n:'七十五',title:'宾主不投刑在上',say:'干支上神相刑或上神刑干支，宾主不投，所谋交涉各怀异心。'});
+  // 第七十六 彼此猜忌害相随：干支上神相害，或上神与干支相害
+  if(haiPair(ganShang,zhiShang)||haiPair(ganShang,jg)||haiPair(zhiShang,o.dZhi))
+    hits.push({n:'七十六',title:'彼此猜忌害相随',say:'干支上神相害或上神与干支相害，彼此猜忌，主客不相顾接。'});
+  // 第七十九 干支值绝凡谋决：干上支上各乘本五行绝神
+  if(ganShang===WX_JUE[ganWx]&&zhiShang===WX_JUE[zhiWx])
+    hits.push({n:'七十九',title:'干支值绝凡谋决',say:'干支上神各乘绝神，凡谋宜决断结绝，不宜再图久长。'});
+  // 第八十 人宅皆死各衰羸：干上支上皆乘月内死气
+  if(ganShang===siQi&&zhiShang===siQi)
+    hits.push({n:'八十',title:'人宅皆死各衰羸',say:'干支上神皆乘月内死气，人宅俱衰，止宜休息，不宜谋动。'});
+  // 第八十一 传墓入墓分憎爱：初传为财官生比而中末入其墓
+  {
+    const mu=WX_MU[wxS(c.chu)];
+    if((t1==='财'||t1==='官'||t1==='生'||t1==='比')&&(c.zhong===mu||c.mo===mu))
+      hits.push({n:'八十一',title:'传墓入墓分憎爱',say:'初传为财官生比而中末入其墓，吉神入墓则事滞；若为鬼盗入墓，反喜其受制。'});
+  }
+  // 第八十四 合中犯杀蜜中砒：三传成三合局而四课见冲害刑
+  {
+    const g=SANHE_GROUP[c.chu];
+    if(g&&sanChuan.every(z=>SANHE_GROUP[z]===g)){
+      const chong=chongZhi(c.chu);
+      if(keSides.some(z=>z===chong||haiPair(z,c.chu)||xingPair(z,c.chu)))
+        hits.push({n:'八十四',title:'合中犯杀蜜中砒',say:'三传成三合局而四课见冲害刑，合中犯杀，恩中变怨、事将成而被阻。'});
+    }
+  }
+  // 第九十二 龙加生气吉迟迟：青龙乘生干之神又值月内生气
+  {
+    const ql=ZHI.find(z=>tj(z)==='青龙');
+    if(ql&&SHENG[wxS(ql)]===ganWx&&ql===shengQi)
+      hits.push({n:'九十二',title:'龙加生气吉迟迟',say:'青龙乘生干之神又值月内生气，吉而迟缓，目下未足，徐徐发福。'});
+  }
+  // 第九十三 妄用三传灾福异：三传与四课全无交涉
+  if(sanChuan.every(z=>!keSides.includes(z)))
+    hits.push({n:'九十三',title:'妄用三传灾福异',say:'三传与四课全无交涉，妄用三传推灾福，吉凶易差，宜参课体与类神。'});
+  // 第九十五 六爻现卦防其克：三传皆同一十神，而日辰年命见其所忧之爻
+  if(t1===t2&&t2===t3){
+    const target={财:'生',生:'食',食:'官',官:'比'}[t1];
+    if(target&&[ganShang,zhiShang,mingShang,nianShang].some(z=>z&&tenOf(z)===target))
+      hits.push({n:'九十五',title:'六爻现卦防其克',say:'三传皆现'+({财:'财',生:'父母',食:'子息',官:'官鬼',比:'兄弟'}[t1]||t1)+'爻，日辰年命又见所忧之爻，主相应六亲之事须防。'});
+  }
+  // 第九十六 旬内空亡逐类推：三传或四课见旬空
+  if(sanChuan.some(kongHit)||keSides.some(kongHit))
+    hits.push({n:'九十六',title:'旬内空亡逐类推',say:'旬内空亡见于课传，逐其所临之类推之，空在何爻即何类落空。'});
+  // 第九十七 所筮不入仍凭类：类神不现，仍以类神方所色目推之
+  {
+    const ls=leiSpot(o);
+    if(!ls.zhi)
+      hits.push({n:'九十七',title:'所筮不入仍凭类',say:'所占类神不现于课传，仍凭类神之方所、色目推之，不可因不现便断无。'});
+  }
+  // 第九十八 非占现类勿言之：类神有落点而不入六处
+  {
+    const ls=leiSpot(o);
+    if(ls.zhi&&!keSides.includes(ls.zhi)&&!sanChuan.includes(ls.zhi))
+      hits.push({n:'九十八',title:'非占现类勿言之',say:'类神有落点而不入六处，所现非所占之类，勿以现类妄断，仍以所问类神推之。'});
+  }
+  // 第九十九 常问不应逢吉象：课体得吉泰诸格
+  {
+    const ji=['龙德','铸印','官爵','富贵','三光','三奇','三阳'];
+    if(o.kewei&&o.kewei.hits&&o.kewei.hits.some(h=>ji.includes(h.name)))
+      hits.push({n:'九十九',title:'常问不应逢吉象',say:'课得龙德、铸印、官爵、富贵、三光、三奇、三阳诸吉格；有官人占为迁擢之兆，常人占反恐灾咎临身。'});
+  }
+  // 第一百 已灾凶逃返无疑：课体见天网、死奇、灾厄诸凶格
+  if(o.kewei&&o.kewei.hits&&o.kewei.hits.some(h=>['天网','死奇','灾厄'].includes(h.name)))
+    hits.push({n:'一百',title:'已灾凶逃返无疑',say:'课见天网、死奇、灾厄诸凶格；已见灾者其灾可消，未见灾者病讼丧祸并至。'});
   return hits;
 }
 /* 大六壬五派：按典籍署名，各持一套起课口径，四轴为起贵口诀、昼夜分界、月将过宫、发用取传。
@@ -424,9 +615,25 @@ function tianJiangTable(){
   }).join('');
   return '<table class="lr-jx-tbl"><thead><tr><th>天将</th><th>吉凶</th><th>五行</th><th>象意</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
-// 毕法赋断语表：将命中的毕法赋条目以表格呈现
+/* 毕法条号转序：一二三至一百，用于按原序排表 */
+function bifaOrdOf(s){
+  const cn={'零':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9};
+  s=String(s||'');
+  if(s==='一百') return 100;
+  if(s==='十') return 10;
+  if(s.charAt(0)==='十') return 10+(cn[s.charAt(1)]||0);
+  const t=s.indexOf('十');
+  if(t>0){
+    const tens=cn[s.charAt(0)]||1;
+    const ones=t+1<s.length?(cn[s.charAt(t+1)]||0):0;
+    return tens*10+ones;
+  }
+  if(s.length===2) return (cn[s.charAt(0)]||0)*10+(cn[s.charAt(1)]||0);
+  return cn[s]||99;
+}
+// 毕法赋断语表：将命中的毕法赋条目按原序以表格呈现
 function bifaTable(o){
-  const hits=bifaVerdicts(o);
+  const hits=bifaVerdicts(o).slice().sort((a,b)=>bifaOrdOf(a.n)-bifaOrdOf(b.n));
   if(!hits.length) return '<div class="sub-note">本课暂未命中毕法赋常格，未加断语。</div>';
   const rows=hits.map(h=>`<tr><th>第${h.n}　${h.title}</th><td>${h.say}</td></tr>`).join('');
   return '<table class="lr-bifa-tbl"><tbody>'+rows+'</tbody></table>';
@@ -459,6 +666,7 @@ function shaTable(o){
     ['月德',s.yuede?s.yuede+'（干）':'','主仁慈化灾、添福解厄，安祥之吉神。'],
     ['月厌',s.yueyan?s.yueyan+'（支）':'','主阴私厌魅、事多阻滞，忌嫁娶远行。'],
     ['血支',s.xuezhi?s.xuezhi+'（支）':'','主血光疮伤、产厄，忌针灸与动土。'],
+    ['飞魂',s.feihun?s.feihun+'（支）':'','主惊悸亡失、心神不宁；乘凶将临年命日辰者，占病忌见。'],
     ['岁破',s.suipo?s.suipo+'（支）':'','主岁君冲激、破耗动荡，忌兴造移徙。'],
     ['月破',s.yuepo?s.yuepo+'（支）':'','主月建冲散、成事难久，忌营造婚嫁。']
   ];
@@ -517,7 +725,6 @@ let LAST=null;
 function dlrToggleMod(id){
   const el = document.getElementById(id);
   if(el) el.classList.toggle('collapsed');
-  xjSaveModState('dlrModState','#out details[id]','__dlrInitDone');
 }
 function query(){
  try{
@@ -662,6 +869,7 @@ function query(){
     yuede:XJ_SS.YUEDE_TG[monthZhi]||'',
     yueyan:XJ_SS.YUEYAN[monthIdxOf(monthZhi)]||'',
     xuezhi:XJ_SS.XUEZHI[monthZhi]||'',
+    feihun:XJ_SS.FEIHUN[monthZhi]||'',
     suipo:chongZhi(yearZhi),
     yuepo:chongZhi(monthZhi)
   };
@@ -1207,7 +1415,6 @@ function render(o){
     <section class="mod collapsed" id="dlrModSynth"><div class="mod-head" role="button" tabindex="0" onclick="dlrToggleMod('dlrModSynth')"><span class="mod-caret">▾</span><span class="mod-title">综合判断</span><span class="mod-sub">白话总断</span></div><div class="mod-body">${baihua(o)}</div></section>
     <details class="lr-bifa" id="lrBifa"><summary>毕法赋断语（《六壬大全》卷十一，凌福之）</summary>${bifaTable(o)}</details>
     <details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details>`;
-  xjApplyModState('dlrModState','#out details[id]');
 }
 /* 历史记录：共享弹层，起课后自动存最近九条，可重开还原全部参数 */
 const DL_HIST_FIELDS=['dInput','dTime','drnCat','dlSchool','dlDay','dlJiang','dBirth','dSex','dlProv','dlCity','dlDist','dlLng','dlDst','dlZi','dlSun','dlTzOff','dlLocalDst'];

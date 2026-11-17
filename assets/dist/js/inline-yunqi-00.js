@@ -805,41 +805,18 @@ document.addEventListener('DOMContentLoaded', function () {
       return s;
     }
 
-    /* ===== 3. 折叠模块开合与状态持久化（ES5） ===== */
-    var YQ_MOD_KEY = 'yqModState';
-    var yqModNavReady = false;
-    function _yqAllModIds(){ try{ return Array.from(document.querySelectorAll('.mod[id]')).map(function(e){ return e.id; }); }catch(e){ return ['yqmod-yun']; } }
+    /* ===== 3. 折叠模块开合（ES5） ===== */
     function toggleMod(id){
       var el = document.getElementById(id); if (el) el.classList.toggle('collapsed');
-      saveYqModState();
     }
     /* 折叠头走内联 onclick 只能触达全局：脚本求值即挂上，init 中任一附加模块异常都不再拖死开合 */
     window.toggleMod = toggleMod;
-        function saveYqModState(){
-      if (!yqModNavReady) return;
-      try{
-        var o = xjReadFold(YQ_MOD_KEY);
-        _yqAllModIds().forEach(function(id){ var e = document.getElementById(id); if (e) o[id] = e.classList.contains('collapsed'); });
-        var v = JSON.stringify(o);
-        try{ localStorage.setItem(YQ_MOD_KEY, v); }catch(e){}
-        try{ sessionStorage.setItem(YQ_MOD_KEY, v); }catch(e){}
-      }catch(e){}
-    }
-    function applyYqModState(){
-      var o = xjReadFold(YQ_MOD_KEY);
-      try{
-        _yqAllModIds().forEach(function(id){
-          var e = document.getElementById(id); if (!e) return;
-          /* 结果未出时不恢复展开态：空模块展开无内容，首屏保持静态折叠 */
-          if (!YQ_LAST) return;
-          if (o[id] === true) e.classList.add('collapsed');
-          else if (o[id] === false) e.classList.remove('collapsed');
-        });
-      }catch(e){}
-    }
 
     /* ===== 4. 初始化 ===== */
     function init(){
+      /* 资料块（源流流派、六十年总表）与所查年份无关，载入即渲染，不排盘也能查阅 */
+      renderYuanliu();
+      renderTab60();
       $('yqBtn').addEventListener('click', function(){
         renderAll();
         /* 排盘按钮即出结果入口：岁运收起而结果已出时展开，落眼即所见 */
@@ -859,10 +836,8 @@ document.addEventListener('DOMContentLoaded', function () {
       zSel.addEventListener('change', function(){ if (document.getElementById('yqTabOut').innerHTML) renderTab60(); });
       /* 干支反查输入框回车即排盘 */
       $('yqGz').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') renderAll(); });
-      if (window.mountAI) window.mountAI(yqAiContext, '五运六气', { share:{ page:"yunqi", title:"五运六气在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ renderAll(); applyYqModState(); }); } } });
+      if (window.mountAI) window.mountAI(yqAiContext, '五运六气', { share:{ page:"yunqi", title:"五运六气在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ renderAll(); }); } } });
       /* 盘面分享与数据（全站附加功能模块）：表单快照为盘面，链接/JSON 均可还原并重排 */;
-      applyYqModState();
-      yqModNavReady = true;
       /* 四盘点选回调：内联 onclick 只能触达全局，故挂到 window */
       window.yqPickKe = yqPickKe;
       window.yqPickJl = yqPickJl;

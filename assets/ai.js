@@ -954,33 +954,6 @@ function openAiBlock(){
   if (b) b.open = true;
 }
 
-/* 页面级折叠恢复（xjApplyFold 等）可能在 mountAI 之后执行，按已存状态把新挂出的
-   aiBlock 重新打开；先把存储里各折叠状态中的 aiBlock 键抹掉，恢复时即无值可依。
-   只动本块一个键，别块开关不动；本块每次载入从收起态开始。 */
-function forgetAiBlockFold(){
-  const stores = [];
-  try { stores.push(localStorage); } catch (e) {}
-  try { stores.push(sessionStorage); } catch (e) {}
-  stores.forEach(function(store){
-    let keys = [];
-    try { for (let i = 0; i < store.length; i++) keys.push(store.key(i)); } catch (e) { return; }
-    keys.forEach(function(k){
-      try {
-        const raw = store.getItem(k);
-        if (!raw || raw.indexOf('aiBlock') < 0) return;
-        const o = JSON.parse(raw);
-        let changed = false;
-        const scrub = function(v){
-          if (!v || typeof v !== 'object') return;
-          if (Object.prototype.hasOwnProperty.call(v, 'aiBlock')){ delete v.aiBlock; changed = true; }
-          Object.keys(v).forEach(function(k2){ scrub(v[k2]); });
-        };
-        scrub(o);
-        if (changed) store.setItem(k, JSON.stringify(o));
-      } catch (e) {}
-    });
-  });
-}
 
 /* 页面自定义解析参数：mountAI 挂载时记下，解析与追问沿用同一份 */
 let __aiSysCustom = '';
@@ -1010,14 +983,6 @@ function mountAI(getContext, pageTitle, opts){
       <div id="aiOutWrap"></div>
     </div>
   </details>`;
-  forgetAiBlockFold();
-  const aiBlockEl = document.getElementById('aiBlock');
-  if (aiBlockEl) {
-    /* 附加功能面板每次载入从收起态开始，不恢复上次开合。 */
-    aiBlockEl.addEventListener('toggle', function(){
-      try { if (window.xjSaveOneFold) window.xjSaveOneFold('aiBlockFold', '#aiBlock'); } catch (e) {}
-    });
-  }
   const st = host.querySelector('.ai-status'); refreshAiStatus(st);
   /* 分享工具是附加功能模块的一截，与面板同一次挂载出齐：opts.share 给出即按其
      collect、restore、recast 走；不给则按缺省（页名取路径、标题取 document.title、
@@ -1512,5 +1477,16 @@ function printPage(){
     window.removeEventListener('afterprint', restore);
   }
   window.addEventListener('afterprint', restore);
+
   window.print();
 }
+
+/* 云保存面板由独立件提供，本件只负责加载，便于单独维护 */
+(function () {
+  if (document.getElementById('csLoader')) return;
+  var s = document.createElement('script');
+  s.id = 'csLoader';
+  s.src = 'assets/cloud-save.js';
+  s.defer = true;
+  document.head.appendChild(s);
+})();

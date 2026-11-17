@@ -81,7 +81,36 @@
       gz: l.getDayInGanZhi(), yearGz: l.getYearInGanZhi()
     };
   }
+  /* 社日按干支计：立春后第五个戊日为春社，立秋后第五个戊日为秋社。
+     用页内已有的节气与日干支两项推算，按年缓存，一年只算一次。 */
+  var SHE_CACHE = {};
+  function sheDates(year) {
+    if (SHE_CACHE[year]) return SHE_CACHE[year];
+    var res = { chun: '', qiu: '' };
+    function scan(sm, sd, termName, key) {
+      var d = new Date(year, sm - 1, sd), started = false, cnt = 0;
+      for (var i = 0; i < 130; i++) {
+        var info = lunarInfo({ y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() });
+        if (!info) return;
+        if (!started && info.term === termName) started = true;
+        if (started && info.gz && info.gz.charAt(0) === '戊') {
+          cnt++;
+          if (cnt === 5) { res[key] = d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); return; }
+        }
+        d.setDate(d.getDate() + 1);
+      }
+    }
+    scan(2, 1, '立春', 'chun');
+    scan(8, 1, '立秋', 'qiu');
+    SHE_CACHE[year] = res;
+    return res;
+  }
   function festMatch(f, info) {
+    if (f.type === 'ganzhi') {
+      var s = sheDates(info.dt.y);
+      var key = info.dt.y + '-' + p2(info.dt.m) + '-' + p2(info.dt.d);
+      return (f.rule === 'chun' ? s.chun : s.qiu) === key;
+    }
     if (f.type === 'term') return info.term === f.term;
     if (f.type === 'solar') return info.dt.m === f.m && info.dt.d === f.d;
     if (info.lm !== f.m) return false;
@@ -141,6 +170,81 @@
   function row(k, v) { return '<div class="jsi-row"><span class="jsi-k">' + k + '</span><span class="jsi-v">' + v + '</span></div>'; }
   function ol(items) { return '<ol class="jsi-ol">' + (items || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>'; }
   function tag(t) { return '<span class="jsi-tag">' + esc(t) + '</span>'; }
+  function anchor(id, label) { return '<a class="jsi-tag" href="#' + id + '" onclick="return jsiJump(\'' + id + '\')">' + label + '</a>'; }
+  /* 保存记录：接站内共享历史弹层 xjHist，不另写列表 */
+  var JSI_SAVED_CFG = {
+    mask: 'jsiSavedMask', list: 'jsiSavedList', key: 'jsiSavedLog', title: '历史记录（最多9条）',
+    restoreFn: 'restoreJsiSaved', delFn: 'delJsiSaved',
+    row: function (h) { return { t: h.t || '', main: h.g || '', sub: h.s || '' }; }
+  };
+  function showJsiSaved() { if (window.xjHist) xjHist.open(JSI_SAVED_CFG); }
+  function delJsiSaved(i) { if (window.xjHist) xjHist.del(JSI_SAVED_CFG, i); }
+  function saveJsi(kind) {
+    if (!window.xjHist) return;
+    var e = null;
+    if (kind === 'date' && LAST.act === 'date' && LAST.date) {
+      var info = lunarInfo(parseDate(LAST.date));
+      e = { k: 'date', t: xjHist.time(), g: '祭日 ' + LAST.date,
+        s: info ? ('农历' + info.monthName + '月' + info.dayName + '，' + info.gz + '日') : '', date: LAST.date };
+    } else if (kind === 'obj' && LAST.act === 'obj' && LAST.obj) {
+      var d = findDeity(LAST.obj);
+      if (d) e = { k: 'obj', t: xjHist.time(), g: '对象 ' + d.name + (d.alias ? '（' + d.alias + '）' : ''),
+        s: d.group + '，' + d.region + ' ' + d.era, obj: d.id };
+    } else if (kind === 'mat' && LAST.act === 'mat' && LAST.matter) {
+      var m = findMatter(LAST.matter);
+      if (m) e = { k: 'mat', t: xjHist.time(), g: '事项 ' + m.name + (m.alias ? '（' + m.alias + '）' : ''),
+        s: m.place || '', matter: m.id };
+    }
+    if (!e) return;
+    var same = function (h, o) {
+      if (h.k !== o.k) return false;
+      return h.date === o.date && h.obj === o.obj && h.matter === o.matter;
+    };
+    xjHist.push(JSI_SAVED_CFG.key, e, same);
+    if (document.getElementById('jsiSavedList')) xjHist.render(JSI_SAVED_CFG);
+  }
+  function restoreJsiSaved(i) {
+    if (!window.xjHist) return;
+    var e = xjHist.get(JSI_SAVED_CFG.key, i); if (!e) return;
+    if (e.k === 'date' && e.date) {
+      var mode = document.getElementById('jiMode');
+      if (mode) { mode.value = 'solar'; toggleMode(); }
+      var date = document.getElementById('jiDate'); if (date) date.value = e.date;
+      renderDate(e.date);
+    } else if (e.k === 'obj' && e.obj) {
+      var sel = document.getElementById('jiObj'); if (sel) sel.value = e.obj;
+      renderObject(e.obj);
+    } else if (e.k === 'mat' && e.matter) {
+      var sel2 = document.getElementById('jiMatter'); if (sel2) sel2.value = e.matter;
+      renderMatter(e.matter);
+    }
+    xjHist.close();
+    var out = document.getElementById('jsiOut');
+    if (out && out.scrollIntoView) out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function jsiJump(id) {
+    var el = document.getElementById(id);
+    if (el) { if (el.tagName === 'DETAILS') el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    return false;
+  }
+  /* 未来七日宜祭祀：逐日取通书宜忌，与择日页同源，仅列宜祭祀之日 */
+  function sevenDayYi(info) {
+    var out = [], base = new Date(info.dt.y, info.dt.m - 1, info.dt.d);
+    for (var i = 1; i <= 7; i++) {
+      var d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+      var dt = { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+      var li = lunarInfo(dt);
+      if (!li) continue;
+      var hit = (li.yi || []).some(function (x) { return String(x).indexOf('祭') >= 0; });
+      if (!hit) continue;
+      out.push({
+        date: dt.y + '-' + p2(dt.m) + '-' + p2(dt.d),
+        lunar: li.monthName + '月' + li.dayName,
+        yi: li.yi.filter(function (x) { return String(x).indexOf('祭') >= 0; }).slice(0, 3).join('、')
+      });
+    }
+    return out;
+  }
 
   /* 方位按条目所立神位与场所取：先取本条目定值，再按场所归位，末回落门外香案。 */
   var DIRS = {
@@ -241,12 +345,12 @@
     if (info.term) time += '，' + info.term;
     h += row('时', esc(time));
     h += row('所', esc(placeLine(f)));
-    h += row('方位', esc(posText(f)));
+    h += row('方位', anchor('jsiPosFold', '神位安放') + '　' + esc(posText(f)));
     var wu = (f.offer || []).join('、');
     if (f.offerFull && f.offerFull.length) wu += '。全供：' + f.offerFull.join('、');
-    h += row('物', esc(wu));
+    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc(wu));
     h += row('仪', ol(f.rite));
-    h += row('禁', tabooText(f));
+    h += row('禁', anchor('jsiTabooFold', '禁忌释义') + '　' + tabooText(f));
     h += row('据', esc(srcLineOf(f)));
     if (f.variants && f.variants.length) {
       h += row('异说', f.variants.map(function (v) {
@@ -299,6 +403,11 @@
     var head = '<div class="jsi-head">' + esc(dt.y + '年' + dt.m + '月' + dt.d + '日') + '，农历' + esc(info.monthName + '月' + info.dayName) + '，' + esc(info.gz) + '日' + (info.term ? '，' + esc(info.term) : '') + '</div>';
     if (aux.length) head += '<div class="jsi-aux">同日佛道历名目：' + esc(aux.join('、')) + '；与本站祭日两系并列，不合并裁断。</div>';
     head += yjLine(info);
+    var seven = sevenDayYi(info);
+    head += '<div class="jsi-next"><div class="jsi-sub">未来七日宜祭祀</div>' + (seven.length ? seven.map(function (n) {
+      return '<div class="jsi-next-row"><b>' + esc(n.date) + '</b> 农历' + esc(n.lunar) + '　' + esc(n.yi);
+    }).join('') : '<div class="jsi-next-row">未来七日通书未标宜祭祀。</div>') +
+      '<div class="jsi-aux">取通书宜忌，与择日页同源；仅列宜祭祀之日。</div></div>';
     if (!hits.length) {
       var next = nextFest(info, 60);
       var ml = monthList(info.lm);
@@ -309,9 +418,11 @@
         return '<div class="jsi-next-row"><b>' + esc(n.date) + '</b> 农历' + esc(n.lunar) + ' ' + esc(n.name) + '</div>';
       }).join('') + '</div>' : '';
       out.innerHTML = head + '<p class="jsi-empty">今日无岁时祭仪。</p>' + monthHtml + nextHtml + '<div class="jsi-aux">同名祭日并列同出；供品分简供与全供，详见下方总表与供品释义。</div>';
+      saveJsi('date');
       return;
     }
     out.innerHTML = head + hits.map(function (f) { return cardForFest(f, info); }).join('');
+    saveJsi('date');
   }
 
   function renderObject(id) {
@@ -326,10 +437,10 @@
     var dates = (d.dates || []).map(function (x) { return '农历' + deityDateText(x) + ' ' + x.name; }).join('；');
     h += row('日', esc(dates || '无固定祭日，随节令与家祭行之'));
     h += row('所', esc(placeLine(d)));
-    h += row('方位', esc(posText(d)));
-    h += row('物', esc((d.offer || []).join('、')));
+    h += row('方位', anchor('jsiPosFold', '神位安放') + '　' + esc(posText(d)));
+    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc((d.offer || []).join('、')));
     h += row('仪', ol(d.rite));
-    h += row('禁', tabooText(d));
+    h += row('禁', anchor('jsiTabooFold', '禁忌释义') + '　' + tabooText(d));
     var fs = (d.fest || []).map(function (fid) { var f = findFest(fid); return f ? f.name : ''; }).filter(Boolean);
     if (fs.length) h += row('祭日', esc(fs.join('、')));
     var ms = (d.matters || []).map(function (mid) { var m = findMatter(mid); return m ? m.name : ''; }).filter(Boolean);
@@ -337,6 +448,7 @@
     h += row('据', esc(srcLineOf(d)));
     h += '</article>';
     out.innerHTML = h;
+    saveJsi('obj');
   }
 
   function renderMatter(id) {
@@ -351,17 +463,28 @@
     if (m.intro) h += '<p class="jsi-intro">' + esc(m.intro) + '</p>';
     h += row('序', ol(m.steps));
     h += row('所', esc(placeLine(m)));
-    h += row('方位', esc(posText(m)));
-    h += row('物', esc((m.offer || []).join('、')));
-    h += row('禁', tabooText(m));
+    h += row('方位', anchor('jsiPosFold', '神位安放') + '　' + esc(posText(m)));
+    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc((m.offer || []).join('、')));
+    h += row('禁', anchor('jsiTabooFold', '禁忌释义') + '　' + tabooText(m));
     h += row('据', esc(srcLineOf(m)));
     h += '</article>';
     out.innerHTML = h;
+    saveJsi('mat');
   }
 
-  function monthList(lm) {
-    return FEST.filter(function (f) { return f.type === 'lunar' && f.m === lm; })
-      .sort(function (a, b) { return (a.lastDay ? 31 : a.d) - (b.lastDay ? 31 : b.d); });
+  /* 岁时按月列：农历条目按月日匹配，干支条目按当年算出的日期归入其农历月 */
+  function monthList(lm, year) {
+    var y = year || new Date().getFullYear();
+    return FEST.filter(function (f) {
+      if (f.type === 'ganzhi') {
+        var d = sheDates(y)[f.rule];
+        if (!d) return false;
+        var p = d.split('-');
+        var inf = lunarInfo({ y: parseInt(p[0], 10), m: parseInt(p[1], 10), d: parseInt(p[2], 10) });
+        return !!inf && inf.lm === lm;
+      }
+      return f.type === 'lunar' && f.m === lm;
+    }).sort(function (a, b) { return (a.lastDay ? 31 : (a.d || 99)) - (b.lastDay ? 31 : (b.d || 99)); });
   }
 
   function renderMonth(lm) {
@@ -639,6 +762,9 @@
   }
 
   g.toggleMod = toggleMod;
+  g.jsiJump = jsiJump;
+  g.restoreJsiSaved = restoreJsiSaved;
+  g.delJsiSaved = delJsiSaved;
   g.JISI = {
     init: init,
     renderDate: renderDate,

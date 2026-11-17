@@ -4,6 +4,42 @@
 
 @font-face{font-family:"Noto Serif SC Page";font-style:normal;font-weight:400;font-display:block;src:url(../../fonts/pages/hehun-1.woff2) format("woff2");unicode-range:U+0021-002c, U+002e-002f, U+0034-0035, U+0037-0038, U+003b-0040, U+0042-0048, U+004b-004d, U+004f, U+0051-0054, U+0056-0057, U+0059-007e, U+4e01, U+4e03, U+4e0a-4e0b, U+4e11, U+4e19, U+4e59, U+4e5d, U+4e8f, U+4ea5, U+5148, U+516c, U+5173, U+519c, U+51ac, U+51f8, U+521d, U+5341, U+5348, U+536f, U+53d6, U+58ec, U+5904, U+5915, U+591c, U+5927, U+5b9a, U+5bb5, U+5bc5, U+5bd2, U+5bdd, U+5c0f, U+5df1, U+5df3, U+5e9a, U+5ea7, U+5eff, U+5f26, U+5f85, U+60ca, U+620a, U+620c, U+62e9, U+636e, U+63d0, U+6570, U+65b0, U+65e2, U+660e, U+661f, U+6653, U+6666, U+6682, U+6691, U+66f4, U+6708-6709, U+6714, U+671b, U+6b8b, U+6c34, U+6d88, U+6e05, U+6e10, U+6ee1, U+7334, U+7533, U+7678, U+767d, U+76c8, U+7709, U+786e, U+793a, U+79cb, U+79cd, U+7f8a, U+814a, U+81f3, U+8292, U+86c7, U+86f0, U+86fe, U+8bef, U+8bf4, U+8c37, U+8f7d, U+8f9b, U+9149, U+9519, U+95ed, U+95f0, U+964d, U+96e8, U+96ea, U+971c, U+9732, U+9a6c, U+9e21, U+9f99}
 
+.field label{font-size:13px;color:var(--ink2)}
+
+.field.chk span{font-size:13px;color:var(--ink2)}
+
+.cs-head{display:flex;align-items:baseline;gap:var(--sp-2);margin:var(--sp-2) 0 var(--sp-1)}
+
+.cs-head b{font-size:var(--tier4);color:var(--tk2,var(--gold2));font-weight:400}
+
+.cs-head span{font-size:var(--tier4);color:var(--ink2)}
+
+.cs-ch{padding:var(--sp-3) 0;border-top:1px solid var(--tk-line,var(--line))}
+
+.cs-ch:first-of-type{border-top:0;padding-top:0}
+
+#csBlock .cs-ch{padding:var(--sp-2) 0;border-top:1px solid var(--tk-line,var(--line))}
+
+#csBlock .cs-ch:first-of-type{border-top:0;padding-top:0}
+
+#csBlock .cs-ch:last-of-type{padding-bottom:0}
+
+#csBlock .cs-ch>*{margin-top:0;margin-bottom:0}
+
+#csBlock .cs-ch>*+*{margin-top:var(--sp-3)}
+
+#csBlock .cs-ch .form-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0}
+
+#csBlock .field label{color:var(--gold2)}
+
+#csBlock #csTip{display:block;line-height:1.6}
+
+#csBlock #csPresetNote{display:block;margin:var(--sp-2) 0 0}
+
+#csBlock #csGuide{display:block;margin-top:var(--sp-2)}
+
+.cs-ch:last-of-type{padding-bottom:0}
+
 .xj-search-out:empty{display:none}
 
 .xj-only-has:empty{display:none}
@@ -32,7 +68,7 @@
 
 .dual-rel2{display:none;padding:var(--sp-2) var(--sp-2) 0;border:1px dashed var(--line);border-radius:0}
 
-.stage2-late{content-visibility:auto;contain-intrinsic-size:auto 1200px}
+.stage2-late{display:flow-root;content-visibility:auto;contain-intrinsic-size:auto 1200px}
 
 html.stage2 .stage2-late{content-visibility:visible}
 
@@ -220,6 +256,10 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 #out + *{margin-top:var(--sp-4)}
 
 .opts .field{flex:0 0 auto;min-width:120px}
+
+.field.chk{flex-direction:row;align-items:center;gap:var(--sp-1);min-width:auto}
+
+.field.chk input{width:auto;height:auto;padding:0}
 
 .birth-group{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-4);align-items:flex-end;
   flex:1 1 100%;padding:var(--sp-3) 0;background:transparent;
@@ -721,7 +761,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
   --gold-bg:var(--hh-tint);
   --ink2:var(--hh-ink2);
 
-
   /* 圆盘令牌（通用件 .wheel 用）：扇面取主色，选中弧取墨档。
      合婚只论得分率不论吉凶，故吉凶两色并归本页色轴，不落全局绿红 */
   --wheel-serif:var(--hh-serif);
@@ -819,6 +858,8 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .page-hh .ai-block .btn.gold,.page-hh .ai-block .btn.soft{background:var(--hh-tint);border-color:var(--hh-line);color:var(--hh-ink)}
 
 .page-hh .ai-block .btn.gold:hover,.page-hh .ai-block .btn.soft:hover{background:var(--card);border-color:var(--hh-line);color:var(--hh2)}
+
+.page-hh .ai-block input,.page-hh .ai-block select{color:var(--hh-ink)}
 
 .page-hh .ai-tip{color:var(--hh-ink2)}
 

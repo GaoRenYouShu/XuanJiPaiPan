@@ -53,10 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
     ['dInput','dTime'].forEach(function(id){
       const el=document.getElementById(id); if(el) el.addEventListener('blur', dlCheckDateTime);
     });
-    document.addEventListener('toggle', function(e){
-      const t = e.target;
-      if(t && t.tagName === 'DETAILS' && t.id && t.closest('#out')) xjSaveModState('dlrModState','#out details[id]','__dlrInitDone');
-    }, true);
     document.addEventListener('keydown', function(e){
       if(e.key==='Enter'||e.key===' '){
         const h=e.target.closest?e.target.closest('.mod-head'):null;

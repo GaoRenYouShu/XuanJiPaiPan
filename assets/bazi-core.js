@@ -3498,9 +3498,6 @@ function renderPillarDaYun(BZ){
    导致四柱在刷新后“被改回默认值”。这里用 localStorage 显式保存 8 个干支选择、输入方式、性别与已确认出生日期，
    刷新后优先恢复已保存值（仅在无保存时才用当前日期作默认）。四种输入方式的字段互不污染。 */
 const PILLAR_KEY='bazi_pillar_sel_v1';
-/* 三大模块折叠状态持久化：刷新后从 localStorage 读回，使展开、折叠不因重排而复位。
-   仅记录三个模块的 collapsed 布尔（内部 <details> 小节不持久化）。 */
-const BAZI_MOD_KEY='bazi_mod_state_v1';
 
 /* 干关系 chip 逐对弹出：合化与干冲从 chip 文本尾部取两干（柱位标签字皆非天干字），
    键由 bazi-data.js pairTipKey 归一，未收对回落通用释义 */

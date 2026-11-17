@@ -118,11 +118,17 @@ function minorTime(su,n){
   if(n==='一') return '新周期开启，宜即时启动';
   return '约 '+CN_NUM[n]+' '+SUIT_UNIT[su]+'内见分晓';
 }
-/* 小阿卡纳逆位时间：延迟与内化口径（宫廷牌系于人、Ace 延后开启、数字牌延滞一档） */
+/* 小阿卡纳逆位时间：延迟与内化口径（宫廷牌系于人、Ace 延后开启、数字牌按花色主题各成句） */
 function minorTimeR(su,n){
   if(COURT_EL[n]) return '其人未动，宜先内省再行动';
   if(n==='一') return '延后开启，宜先整备再启程';
-  return '约 '+CN_NUM[n]+' '+SUIT_UNIT[su]+'后仍待转化';
+  const tail={
+    权杖:['行动延滞','后仍待再点火'],
+    圣杯:['情感内收','后才见回响'],
+    宝剑:['思虑反复','内难定一论'],
+    星币:['实务迟滞','后方见落地']
+  }[su]||['延续旧局','后仍待转化'];
+  return tail[0]+'，约 '+CN_NUM[n]+' '+SUIT_UNIT[su]+tail[1];
 }
 /* 组建牌堆：majorOnly=true 仅大阿卡纳；每张含 img（牌图）/sym（花色符号，图缺失时兜底）/el（元素）/
    astro（占星对应）/time（时间指引）/tone,toneR（吉凶基调）/kw,kwr（关键词）/四领域正逆位牌义 */
