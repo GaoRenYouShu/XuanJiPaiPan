@@ -111,7 +111,7 @@
       + '<div class="ai-tip" style="margin-top:4px">走本机中转即可用坚果云的账密存档：</div>'
       + rows
       + '<div class="ai-tip" style="margin-top:6px">不想装中转，就直接用上面的本地目录直存，一样能存能读。'
-      + ' <button class="btn gold" id="csGoLocal">改用本地目录</button></div>';
+      + ' <button class="btn soft" id="csGoLocal">改用本地目录</button></div>';
     box.querySelectorAll('[data-relay]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         $('csUrl').value = this.getAttribute('data-relay');
@@ -525,7 +525,7 @@
       + '<div class="ai-tip">一、经中转服务接入：以 Alist 为例，在其后台 设置 之 站点 中开启 允许跨域，再将地址与账号改为中转服务的。</div>'
       + '<div class="ai-tip">二、改由通道一或通道二保存：存档写入本地文件夹，或导出为 JSON 文件。</div>'
       + '<div class="ai-actions">'
-      + '<button class="btn gold" id="csFallbackLocal">改用本地文件夹</button>'
+      + '<button class="btn soft" id="csFallbackLocal">改用本地文件夹</button>'
       + '<button class="btn soft" id="csFallbackRetry">我已开通，重试</button></div>';
     var a = $('csFallbackLocal'), b = $('csFallbackRetry');
     if (a) a.addEventListener('click', function () {
@@ -624,18 +624,18 @@
     var box = document.createElement('div');
     box.className = 'ai-cloud';
     box.id = 'csBlock';
-    box.innerHTML = '<div class="cs-head"><b>数据存储</b><span id="csStatus">未选择目录</span></div>'
+    box.innerHTML = '<div class="cs-head"><b>数据存储</b></div>'
       + '<div class="cs-ch cs-common">'
       + '<div class="form-row"><div class="field" style="width:183px;flex:0 0 183px"><label for="csNote">备注</label><input type="text" id="csNote" placeholder="写入文件名" style="width:100%"></div>'
       + '<div class="field chk" style="width:auto;flex:0 0 auto"><input type="checkbox" id="csWithAi"><label for="csWithAi"><span>保存 AI 对话</span></label></div></div>'
-      + '<div class="ai-tip">备注与保存 AI 对话，三个通道通用。</div>'
+      + '<div class="ai-tip">备注与保存 AI 对话，三个通道共用。</div>'
       + '</div>'
       + '<div class="cs-ch">'
       + '<div class="cs-ch-h">通道一　本地目录</div>'
-      + '<div class="ai-actions"><button class="btn gold" id="csPick">选择文件夹</button>'
-      + '<button class="btn gold" id="csSaveLocal">保存本次</button>'
+      + '<div class="ai-actions"><button class="btn soft" id="csPick">选择文件夹</button>'
+      + '<button class="btn soft" id="csSaveLocal">保存本次</button>'
       + '<button class="btn soft" id="csOpen">存档管理</button></div>'
-      + '<div class="ai-tip" id="csLocalTip">存档写入选定文件夹，不经网络。</div>'
+      + '<div class="ai-tip" id="csLocalTip">存档写入选定文件夹，不经网络。<span id="csStatus">未选择目录</span></div>'
       + '</div>'
       + '<div class="cs-ch">'
       + '<div class="cs-ch-h">通道二　文件搬运</div>'
@@ -645,16 +645,16 @@
       + '<div class="cs-ch">'
       + '<div class="cs-ch-h">通道三　直连 WebDAV</div>'
       + '<div class="form-row"><div class="field"><label for="csPreset">服务</label><select id="csPreset">' + opts + '</select></div></div>'
-      + '<div class="form-row"><div class="field"><label for="csUrl">地址</label><input type="text" id="csUrl" placeholder="https://.../dav/"></div></div>'
+      + '<div class="form-row"><div class="field" style="width:240px;max-width:100%;flex:0 0 240px"><label for="csUrl">地址</label><input type="text" id="csUrl" placeholder="https://.../dav/" style="width:100%"></div></div>'
       + '<div class="form-row">'
-      + '<div class="field"><label for="csUser">账号</label><input type="text" id="csUser"></div>'
-      + '<div class="field"><label for="csPass">应用密码</label><input type="password" id="csPass"></div>'
+      + '<div class="field" style="width:240px;max-width:100%;flex:0 0 240px"><label for="csUser">账号</label><input type="text" id="csUser" style="width:100%"></div>'
+      + '<div class="field" style="width:240px;max-width:100%;flex:0 0 240px"><label for="csPass">应用密码</label><input type="password" id="csPass" style="width:100%"></div>'
       + '</div>'
       + '<div class="ai-tip" id="csPresetNote"></div>'
       + '<div id="csGuide" style="display:none"></div>'
       + '<div class="ai-actions">'
-      + '<button class="btn gold" id="csTest">测试连接</button>'
-      + '<button class="btn gold" id="csSaveDav">上传本次</button>'
+      + '<button class="btn soft" id="csTest">测试连接</button>'
+      + '<button class="btn soft" id="csSaveDav">上传本次</button>'
       + '<button class="btn soft" id="csListDav">远端存档</button>'
       + '<button class="btn soft" id="csClear">清除凭据</button></div>'
       + '<div class="ai-tip">须服务端允许跨域，浏览器方得读取响应；未开启时改用通道一或通道二。</div>'

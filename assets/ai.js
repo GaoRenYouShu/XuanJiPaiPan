@@ -361,7 +361,7 @@ function ensureAiModal(){
         <label>已存服务商（快速填入）
           <select id="aiQuick" onchange="quickFillProvider()"><option value="">选择已存服务商</option></select>
         </label>
-        <button class="ai-model-del" onclick="removeProvider()">删除</button>
+        <button class="btn soft" onclick="removeProvider()">删除</button>
       </div>
       <div class="row">
         <label>模型昵称
@@ -399,7 +399,7 @@ function ensureAiModal(){
         <label>模型名
           <select id="aiModel"><option value="">（先获取或手填）</option></select>
         </label>
-        <button class="btn gold" onclick="fetchAiModels()">获取模型</button>
+        <button class="btn soft" onclick="fetchAiModels()">获取模型</button>
       </div>
       <label>或手动输入
         <input id="aiModelManual" placeholder="">
@@ -409,8 +409,8 @@ function ensureAiModal(){
 
     <div class="ai-actions">
       <div class="ai-act-main">
-        <button class="btn gold" onclick="testAiConfig()">测试连接</button>
-        <button class="btn" onclick="saveAiConfig()">保存此模型</button>
+        <button class="btn soft" onclick="testAiConfig()">测试连接</button>
+        <button class="btn soft" onclick="saveAiConfig()">保存此模型</button>
         <button class="btn soft" onclick="broadcastAiConfig()">一键应用到所有页面</button>
       </div>
       <div class="ai-act-file">
@@ -436,7 +436,7 @@ function renderModelList(){
   el.innerHTML = list.length ? list.map((m, i) => `<div class="ai-model-row">
     <input type="checkbox" class="ai-model-chk" data-idx="${i}" ${m.enabled !== false ? 'checked' : ''} onchange="toggleModel(${i},this.checked)">
     <span class="ai-model-name" title="${escapeHtml(m.provider || '')} ${escapeHtml(m.model || '')}">${escapeHtml(m.name || m.model || '')}</span>
-    <button class="ai-model-del" onclick="removeModel(${i})">删除</button>
+    <button class="btn soft" onclick="removeModel(${i})">删除</button>
   </div>`).join('') : '<div style="font-size:12px;color:var(--ink2)">（尚未保存任何模型）</div>';
 }
 
@@ -746,8 +746,14 @@ function broadcastAiConfig(c){
 function refreshAiStatus(el){
   if (!el) return;
   const models = aiModels();
-  if (models.length){ el.textContent = '已配置：' + models.filter(m => m.enabled !== false).length + '/' + models.length + ' 个模型'; el.classList.add('is-configured'); }
-  else { el.textContent = '未配置（点 ⚙AI 设置）'; el.classList.remove('is-configured'); }
+  if (models.length){
+    const on = models.filter(m => m.enabled !== false).length;
+    el.textContent = on === models.length
+      ? '已配置 ' + models.length + ' 个模型'
+      : '已配置 ' + models.length + ' 个，启用 ' + on + ' 个';
+    el.classList.add('is-configured');
+  }
+  else { el.textContent = '未配置'; el.classList.remove('is-configured'); }
 }
 
 
@@ -970,8 +976,8 @@ function mountAI(getContext, pageTitle, opts){
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status"></span></summary>
     <div class="ai-body">
       <div class="ai-actions">
-        <button class="btn" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
-        <button class="btn gold" onclick="openAiConfig()">配置模型</button>
+        <button class="btn gold" id="aiRunBtn" onclick="runAiAnalyze()">AI 解析</button>
+        <button class="btn soft" onclick="openAiConfig()">配置模型</button>
         <button class="btn soft" onclick="refreshAiPanel(true)">刷新模型</button>
         <button class="btn soft" id="aiStopBtn" onclick="stopAiAnalyze()" disabled>停止</button>
         <button class="btn soft" id="aiExportBtn" onclick="exportAiChat()">导出AI对话</button>
@@ -1113,7 +1119,7 @@ function buildAiPanelHtml(models, readyMsg){
     <div class="ai-follow" style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span style="font-size:13px;color:var(--ink2);white-space:nowrap">继续追问：</span>
       <input id="aiFollowQ" placeholder="对上次解析结果追问…" style="flex:1;min-width:120px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fff">
-      <button class="btn gold" style="font-weight:400" onclick="sendAiFollow()">发送</button>
+      <button class="btn soft" style="font-weight:400" onclick="sendAiFollow()">发送</button>
     </div>`;
 }
 

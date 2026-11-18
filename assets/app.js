@@ -881,6 +881,8 @@ window.xjShuffle = xjShuffle;
    一律在表格外补一层只装该表的 .tbl-hs，横滑范围即表格本身，不牵动标题与正文。
    列宽契约的 CSS 因此只认 .tbl-hs 一层，通用样式区不写任何页级类名。
    宽屏一律除名或解包还原；仅窄屏包裹一层，页面脚本取到的仍是原 table 元素本身。
+   表标 data-keep-tc 者宽屏保留 .xj-tc 包装层：预渲染在宽屏取 DOM，首屏表若解包，
+   移动端加载后再补会重排首屏；此标记只给首屏可见的表。
    甲型键值表另加 .tbl-kv 标记（表取满容器、值列折行），与数据表的按内容定宽契约分道。
    🔴 处理状态挂在 table 元素自身，重复 fit 对已处理的表不再动结构：
    本机制自身改 DOM 会触发 MutationObserver，若每轮都解包重包，滚动容器被反复重建，
@@ -983,6 +985,7 @@ window.xjShuffle = xjShuffle;
      长文列取 max-content 会整段一行（实测 444px 超屏宽），故把上限落在内容块上，
      列宽即内容块宽：短语列就是短语宽、长文列撞上限后换行。 */
   function cells(tb, on){
+    if(!on && tb.hasAttribute('data-keep-tc')) return;
     var list = tb.querySelectorAll('th,td');
     for(var i = 0; i < list.length; i++){
       var c = list[i], d = c.firstElementChild;

@@ -31,6 +31,11 @@
    标签一路继承正文 16px，与本草等页的 13px 不一致。落本件后 45 页同值。 */
 .field label{font-size:13px;color:var(--ink2)}
 .field.chk span{font-size:13px;color:var(--ink2)}
+/* 数据存储的保存 AI 对话：文字随本页主色，不落次墨 */
+#csBlock .field.chk span{color:var(--gold2)}
+
+/* AI 解析配置弹窗：输入与选择框的焦点描边随主按钮红，不落全站金色 */
+.modal.ai-cfg input:focus,.modal.ai-cfg select:focus{border-color:var(--red)}
 
 /* 历史记录弹层的行结构：原只在各页样式表内按页类生效，凡未载入该件的页面
    弹层无列宽与按钮档位，遂被挤成一列。此处按同值收进通用件，全站一致。 */
@@ -319,6 +324,7 @@ input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
 
 body{--footer-ink:#0f454d}
 
+
 /* 本页样式：只含本页用到的规则，次序与共享源一致。 */
 
 body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
@@ -375,7 +381,11 @@ body{
 
 
 
+.ai-gear{display:inline-flex;align-items:center;height:30px;padding:0 var(--sp-2);background:none;
+  color:#c6c0b2;border:0;border-radius:0;
+  font-size:12.5px;letter-spacing:.1em;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .15s}
 
+.ai-gear:hover{background:#a5321f;color:#f5efe2}
 
 
 
@@ -2416,9 +2426,9 @@ body:has(.page-wnl) .scroll-jump:not(.show){display:none}
 
 .page-wnl .ai-block .btn:hover{background:var(--wnl2)}
 
-.page-wnl .ai-block .btn.gold,.page-wnl .ai-block .btn.soft{background:var(--wnl-tint);border-color:var(--wnl-line);color:var(--wnl-ink)}
+.page-wnl .ai-block .btn.soft{background:var(--wnl-tint);border-color:var(--wnl-line);color:var(--wnl-ink)}
 
-.page-wnl .ai-block .btn.gold:hover,.page-wnl .ai-block .btn.soft:hover{background:var(--card);border-color:var(--wnl-line);color:var(--wnl2)}
+.page-wnl .ai-block .btn.soft:hover{background:var(--card);border-color:var(--wnl-line);color:var(--wnl2)}
 
 .page-wnl .ai-tab{border-radius:0}
 
