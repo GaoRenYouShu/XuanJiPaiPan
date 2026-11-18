@@ -16,7 +16,7 @@
 [![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-39_个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-40_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
