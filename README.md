@@ -17,7 +17,7 @@
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
 [![排盘工具](https://img.shields.io/badge/排盘工具-40_个-2CA5E0?style=flat-square)](#功能总览)
-[![纯前端](https://img.shields.io/badge/纯前端-零构建-4c9e4c?style=flat-square)](#技术构成)
+[![纯前端](https://img.shields.io/badge/纯前端-构建产物-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
 ![Vibe Coding](https://img.shields.io/badge/Vibe_Coding-100%25-ff69b4?style=flat-square)
@@ -128,7 +128,7 @@
 - **阴宅风水**：峦头觅龙察砂观水点穴、玄空飞星坐向、三合水法与八煞黄泉桃花水、仙命配山与二十八宿分金，安葬择日避重丧复日四离四绝
 - **罗经仪**：集三盘三针、分金、卦运、星宿诸层于一盘的在线罗经，照真实罗经形制可转可读；三盘层制可换，上北下南、盘面角即地理度，黑金白三色底色取用
 
-各占卜工具均支持流派与算法切换，结果实时计算。
+六爻、梅花易数、小六壬可切换流派与子时算法，结果实时计算。
 
 ## 站内导航
 
@@ -140,14 +140,12 @@
 
 ## 技术构成
 
-- 纯 HTML、CSS 与原生 JavaScript，无构建步骤，静态部署即可运行
+- 纯 HTML、CSS 与原生 JavaScript；页面由构建产出，静态部署即可运行
 - 可安装到桌面与主屏幕（PWA），已访问页面断网可用；跟随系统自动切换深浅色主题
 - 安卓装成应用须能访问 Google（由 Play 服务生成），装成后不再依赖；
   不便访问时改用添加到主屏幕建快捷方式，该路无此限制
-- 历法引擎基于 [lunar-javascript](https://github.com/6tail/lunar-javascript)（MIT）
-- 紫微斗数排盘基于 [iztro](https://github.com/SylarLong/iztro)（MIT）
-- 占星星历基于 [astronomy-engine](https://github.com/cosinekitty/astronomy)（MIT）
-- 字体自托管（SIL OFL 1.1），离线可用；完整清单见 `opensource.html`
+- 字体自托管（SIL OFL 1.1），离线可用
+- 开源引擎与数据来源统一列于文末（数据来源与致谢）
 
 ## 本地运行
 
@@ -163,7 +161,7 @@ python -m http.server 8080
 
 ## 在线部署
 
-纯静态零构建，Fork 到自己账号后任选一家托管，任意域名与子路径都无需改动源码：页面内的 canonical、og:url 与分享图链接由 `assets/meta.js` 按实际访问地址自动生成，404 页各平台自动识别。
+纯静态，仓库内页面已构建完成；Fork 到自己账号后任选一家托管，任意域名与子路径都无需改动源码：页面内的 canonical、og:url 与分享图链接由 `assets/meta.js` 按实际访问地址自动生成，404 页各平台自动识别。
 
 - **GitHub Pages**：仓库 Settings → Pages → Source 选 Deploy from a branch，Branch 选 main 与根目录（`(root)`）。
 - **Vercel**：在 vercel.com/new 导入仓库，Framework Preset 选 Other，构建命令留空、输出目录 `./`；其余保持默认即可。
@@ -173,7 +171,7 @@ python -m http.server 8080
 
 ## Docker 部署
 
-纯静态站不依赖后端，容器只承担静态文件服务，无需构建步骤与环境变量。最简一条命令从零拉仓并启动：
+纯静态站不依赖后端，容器只承担静态文件服务；部署时直接使用仓库内已构建的页面，无需再构建，也无需环境变量。最简一条命令从零拉仓并启动：
 
 ```bash
 git clone --depth 1 https://github.com/GaoRenYouShu/XuanJiPaiPan.git && cd XuanJiPaiPan && docker run -d --name xuanji-paipan -p 8080:80 -v "$PWD:/usr/share/nginx/html:ro" nginx:alpine
@@ -287,13 +285,15 @@ XuanJiPaiPan/
 
 ## 数据来源与致谢
 
-- [6tail/lunar-javascript](https://github.com/6tail/lunar-javascript)：历法数据底座（MIT）
-- [SylarLong/iztro](https://github.com/SylarLong/iztro)：紫微斗数引擎（MIT）
-- [cosinekitty/astronomy-engine](https://github.com/cosinekitty/astronomy)：占星星历（MIT）
-- [Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Rider-Waite_tarot_deck)：韦特史密斯塔罗 78 张公有领域牌图（Pamela Colman Smith 绘，1909）
-- [Unicode Unihan 数据库](https://www.unicode.org/charts/unihan.html)：康熙笔画字库数据源（Unicode Data Files License）
-- CBDB 中国历代人物传记资料库：姓名学人物资料（CC BY-NC-SA 4.0）
-- 京都大学人文科学研究所汉籍资料库（Kanripo）、维基文库：古籍全文底本（公有领域与 CC BY-SA）
+| 项目 | 用途 | 许可 |
+|---|---|---|
+| [6tail/lunar-javascript](https://github.com/6tail/lunar-javascript) | 历法数据底座 | MIT |
+| [SylarLong/iztro](https://github.com/SylarLong/iztro) | 紫微斗数排盘 | MIT |
+| [cosinekitty/astronomy-engine](https://github.com/cosinekitty/astronomy) | 占星星历 | MIT |
+| [Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Rider-Waite_tarot_deck) | 韦特史密斯塔罗 78 张公有领域牌图（Pamela Colman Smith 绘，1909） | 公有领域 |
+| [Unicode Unihan 数据库](https://www.unicode.org/charts/unihan.html) | 康熙笔画字库数据源 | Unicode Data Files License |
+| CBDB 中国历代人物传记资料库 | 姓名学人物资料 | CC BY-NC-SA 4.0 |
+| 京都大学人文科学研究所汉籍资料库（Kanripo）、维基文库 | 古籍全文底本 | 公有领域与 CC BY-SA |
 
 完整清单与逐条许可见 `opensource.html`。
 
