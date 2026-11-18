@@ -65,14 +65,14 @@ function fillBase(){
   sitEl.innerHTML=FS.SHAN_LIST.map(s=>`<option value="${s}">${s}山</option>`).join('');
   faceEl.innerHTML=FS.SHAN_LIST.map(s=>`<option value="${s}"${s==='午'?' selected':''}>${s}山</option>`).join('');
   sitEl.onchange=function(){ faceEl.selectedIndex=(FS.SHAN_LIST.indexOf(this.value)+12)%24; fsApplyBase(); };
-  fillLocalBase();
+  fillLocalBaseYin();
 }
 /* 各层坐向控件（第 5 立向、第 6 定线、第 7 配仙命三处，制式与阳宅页同）：全页真值只一份（页顶基础设定那一组），
    层内控件只是同一真值的另一个入口。改任一层即写回真值再整页重排，重排末尾由 syncLocalBase 把真值刷回所有层，
    故不存在多份状态互不同步；程序赋值不触发 change 事件，也不会回环。
    第 8 步择日模块另有成课自有控件 ckSit/ckFace/ckLong/ckXm（经 ckSyncBase 等与基础设定同步），不在此列，避免重复入口。
    形法四步（觅龙、察砂、观水、点穴）与第 5 步之外的各步不涉坐向计算，不设本层控件。 */
-function fillLocalBase(){
+function fillLocalBaseYin(){
   const sit=document.getElementById('baseSit'), face=document.getElementById('baseFace');
   if(!sit||!face) return;
   document.querySelectorAll('.fs-lb-sit').forEach(el=>{ el.innerHTML=sit.innerHTML; });

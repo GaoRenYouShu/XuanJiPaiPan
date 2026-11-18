@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderZhangse(){
-      var h = '<p class="sx-note">掌色五色配属出传统医相通说，吉凶等级为通行归纳；五色生死句源出《素问·五藏生成篇》，页面按通行相书简作吉凶，青如枯草、赤如丹砂、赤如赭土为通行改写，原文分别作草兹、鸡冠、衃血；掌质四目为通行之说。掌色随四时与起居而变，只宜当时参照，不作久远之断。</p>';
+      var h = '<p class="sx-note">掌色五色配属出传统医相通说，吉凶等级为通行归纳；五色生死句源出《素问·五藏生成篇》，页面按通行相书简作吉凶，青如枯草、赤如丹砂、赤如赭土为通行改写，原文分别作草兹、鸡冠、瘀血；掌质四目为通行之说。掌色随四时与起居而变，只宜当时参照，不作久远之断。</p>';
       var t = '<thead><tr><th>掌色</th><th>五行</th><th>五脏</th><th>本位</th><th>所主</th><th>通行断语</th></tr></thead><tbody>';
       var zs = SHOU.zhangse;
       for (var i = 0; i < zs.length; i++){
