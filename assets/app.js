@@ -53,6 +53,8 @@ const NAV_GROUPS = [
     {href:'liuyao.html', name:'六爻'},
     {href:'meihua.html', name:'梅花易数'},
     {href:'xiaoliuren.html', name:'小六壬'},
+    {href:'jinkoujue.html', name:'六壬金口诀'},
+    {href:'lingqijing.html', name:'灵棋经'},
     {href:'lingqian.html', name:'灵签'},
     {href:'tarot.html', name:'塔罗牌'},
     {href:'lenormand.html', name:'雷诺曼'},
@@ -439,7 +441,7 @@ xjScheduleNowDefaults();
 
   /* 当前页面的主题后缀（wnl 等）：日期图标与日期弹框共用同一份，免两处各写一份页面清单 */
   function pageThemeSuffix(){
-    const el=document.querySelector('.page-wnl,.page-lhl,.page-foli,.page-daoli,.page-zeri,.page-hj,.page-hh,.page-bazi,.page-zw,.page-tieban,.page-nm,.page-xz,.page-qz,.page-qm,.page-dlr,.page-ty,.page-ly,.page-mh,.page-xlr,.page-lq,.page-tr,.page-ln,.page-ms,.page-xx,.page-ts,.page-fs,.page-fy,.page-hl,.page-zl,.page-yq,.page-ziwu,.page-sx,.page-mian,.page-lp');
+    const el=document.querySelector('.page-wnl,.page-lhl,.page-foli,.page-daoli,.page-zeri,.page-hj,.page-hh,.page-bazi,.page-zw,.page-tieban,.page-nm,.page-xz,.page-qz,.page-qm,.page-dlr,.page-ty,.page-ly,.page-mh,.page-xlr,.page-jinkoujue,.page-lingqijing,.page-lq,.page-tr,.page-ln,.page-ms,.page-xx,.page-ts,.page-fs,.page-fy,.page-hl,.page-zl,.page-yq,.page-ziwu,.page-sx,.page-mian,.page-lp');
     const c=el ? [...el.classList].find(x=>/^page-/.test(x)) : '';
     return c ? c.slice(5) : '';
   }

@@ -1,0 +1,76 @@
+body{--footer-ink:#31506b;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif;--font-serif:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif SC Page','Xuanji Serif SC','Noto Serif','Noto Sans Devanagari','Source Han Serif SC','Songti SC','STSong','SimSun',serif}
+
+/* 本页样式：只含本页用到的规则，次序与共享源一致。 */
+
+:root{color-scheme:light}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+html,body{height:100%}
+
+/* page-font:begin */
+/* page-font:end */
+
+.page-jinkoujue{--x:#31506b;--x2:#223b4f;--x-deep:#223b4f;--x-ink:#1f3446;--x-ink2:#4a5d70;--x-line:#c9d6e0;--x-tint:#eef4f8;--x-serif:var(--font-serif);--gold:var(--x);--gold2:var(--x2);--gold-brown:var(--x2);--gold-bg:var(--x-tint);--line:var(--x-line);--ink:var(--x-ink);--ink2:var(--x-ink2);--title:var(--x2)}
+.dtm-jinkoujue{--tk:#31506b;--tk2:#223b4f;--tk-ink:#1f3446;--tk-line:#c9d6e0;--tk-tint:#eef4f8;--line:#c9d6e0;--ink:#1f3446;--ink2:#4a5d70;--gold:#31506b;--gold2:#223b4f;--gold-bg:#eef4f8}
+
+.page-jinkoujue .page h1{color:var(--x2);font-family:var(--x-serif);font-size:23px;letter-spacing:.3em;text-indent:.3em;text-align:center;line-height:1.3}
+.page-jinkoujue .page h1::before{content:'';display:block;width:88px;height:1px;background:var(--x-line);margin:0 auto var(--sp-3)}
+.page-jinkoujue .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--x-line);margin:var(--sp-3) auto 0}
+.page-jinkoujue .page .lead{color:var(--x-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
+.page-jinkoujue .page .lead::after{background:var(--x-line)}
+.page-jinkoujue .page > .form-row{margin-bottom:var(--sp-4)}
+.page-jinkoujue .page > .form-row .field input,.page-jinkoujue .page > .form-row .field select{border-color:var(--x-line)}
+.page-jinkoujue .page > .form-row .field input:focus,.page-jinkoujue .page > .form-row .field select:focus{border-color:var(--x);outline:none}
+/* 时间折算行紧接出生地组：出生地组底部内距归零，由 opts 的 12px 间距单独承担，与八字、奇门同档。 */
+.page-jinkoujue .birth-group.compact{padding-bottom:0}
+/* 窄屏时间折算下拉给终值宽：定宽由共享件在加载后按实测写入，先给同值免首绘后再变宽。 */
+@media(max-width:970px){
+  .page-jinkoujue #jDst,.page-jinkoujue #jZi,.page-jinkoujue #jSun{width:80px}
+  .page-jinkoujue #jJiang{width:93px}
+}
+.page-jinkoujue .rel-title{color:var(--x-deep);font-family:var(--x-serif);font-weight:400;letter-spacing:.2em}
+.page-jinkoujue .jk-table{font-size:13px;border-collapse:collapse;width:100%;max-width:100%}
+.page-jinkoujue .jk-table th,.page-jinkoujue .jk-table td{border:1px solid var(--x-line);padding:6px 9px;text-align:left;vertical-align:top;font-weight:400}
+.page-jinkoujue .jk-table th{background:var(--x-tint);color:var(--x-deep);white-space:nowrap}
+.page-jinkoujue .jk-table td{color:var(--x-ink)}
+.page-jinkoujue .mod-head{border-top-color:var(--x-line);border-bottom-color:var(--x-line)}
+.page-jinkoujue .jk-ref{border-color:var(--x-line)}
+.page-jinkoujue .jk-ref summary{color:var(--x2)}
+.page-jinkoujue .mod-title{color:var(--x2)}
+.page-jinkoujue .ai-head h3{color:var(--x2)}
+.page-jinkoujue .ai-head{border-bottom-color:var(--x-line)}
+.page-jinkoujue .jk-result{border-top:1px solid var(--x-line);border-bottom:1px solid var(--x-line);background:transparent;border-radius:0;box-shadow:none;padding:0}
+.page-jinkoujue .jk-result .mod-head{border-top:0}
+.page-jinkoujue .btn:not(.soft):not(.btn-ghost),.page-jinkoujue .btn.gold{background:var(--x);color:#fff;box-shadow:none}
+.page-jinkoujue .btn:not(.soft):not(.btn-ghost):hover,.page-jinkoujue .btn.gold:hover{background:var(--x2);color:#fff;box-shadow:none}
+.page-jinkoujue .page > .form-row .btn.gold{border-radius:0;padding:5px 14px;margin-bottom:0}
+.page-jinkoujue .ai-block .btn{border-radius:0}
+.page-jinkoujue .ai-block .btn.gold{background:var(--x);border-color:var(--x);color:#fff}
+.page-jinkoujue .ai-block .btn.gold:hover{background:var(--x2);border-color:var(--x2);color:#fff}
+.page-jinkoujue .ai-block .btn.soft{background:var(--x-tint);border-color:var(--x-line);color:var(--x-ink)}
+.page-jinkoujue .ai-block .btn.soft:hover{background:#fff;border-color:var(--x);color:var(--x2)}
+.page-jinkoujue .sub-note{color:var(--x-ink2)}
+
+/* 查询页空态不预留高度：结果等用户点主按钮后出现 */
+.jk-p{font-size:13px;line-height:1.8;color:var(--ink2);margin:0 0 var(--sp-2)}
+.jk-p:last-child{margin-bottom:0}
+.jk-table-wrap{overflow-x:auto}
+.jk-table{min-width:680px}
+.jk-table th:first-child,.jk-table td:first-child{white-space:nowrap}
+.jk-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3);margin-top:var(--sp-2)}
+.jk-pos{border-top:1px solid var(--x-line);padding:var(--sp-3) 0;background:transparent}
+.jk-pos-name{font-size:15px;font-weight:600;color:var(--x-ink);line-height:1.5}
+.jk-pos-sub{font-size:13px;color:var(--ink2);line-height:1.7;margin-top:var(--sp-1)}
+.jk-pos-elem{font-size:12px;color:var(--x-deep);margin-top:var(--sp-1)}
+.jk-tags{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin-top:var(--sp-2)}
+.jk-tag{font-size:12px;line-height:1.7;color:var(--x-ink);border-bottom:1px solid var(--x-line);padding:0 2px}
+.jk-note{font-size:12px;line-height:1.7;color:var(--ink2);margin-top:var(--sp-2)}
+
+input:where([type=checkbox],[type=radio]){accent-color:var(--x)}
+.ai-model-chk{accent-color:var(--cfg-accent,var(--x))}
+
+@media(max-width:640px){
+  .jk-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .jk-table{min-width:600px}
+}

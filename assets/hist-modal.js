@@ -50,7 +50,8 @@
       mask.addEventListener('click', function (e) { if (e.target === mask) close(); });
       document.body.appendChild(mask);
     }
-    mask.innerHTML = '<div class="modal hist-modal">'
+    var tk = (window.pageThemeSuffix && window.pageThemeSuffix()) || '';
+    mask.innerHTML = '<div class="modal hist-modal' + (tk ? ' dtm-' + tk : '') + '">'
       + '<span class="close" onclick="xjHist.close()" aria-label="关闭">×</span>'
       + '<div class="ly-hist-head">' + esc(cfg.title || '历史记录（最多9条）') + '</div>'
       + '<div class="hist-list" id="' + cfg.list + '"></div>'

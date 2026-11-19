@@ -16,7 +16,7 @@
 [![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-40_个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-42_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-构建产物-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
@@ -37,14 +37,14 @@
 
 ## 功能总览
 
-涵盖历法、命理、三式、占卜、民俗、运气、养生、相术八大类，共 40 个独立工具。
+涵盖历法、命理、三式、占卜、民俗、运气、养生、相术八大类，共 42 个独立工具。
 
 | 分类 | 工具 |
 |---|---|
 | **历法** | 万年历、老黄历、佛历、道历、藏历、择日、皇极经世 |
 | **命理** | 八字排盘、八字合婚、紫微斗数、河洛理数、铁板神数、姓名学、占星术、七政四余 |
 | **三式** | 奇门遁甲、大六壬、太乙神数 |
-| **占卜** | 六爻、梅花易数、小六壬、灵签、塔罗牌、雷诺曼 |
+| **占卜** | 六爻、梅花易数、小六壬、六壬金口诀、灵棋经、灵签、塔罗牌、雷诺曼 |
 | **民俗** | 民俗占法、测字、周公解梦、二十八宿、太岁生肖、祭祀供奉 |
 | **运气** | 五运六气、子午流注 |
 | **养生** | 精油芳疗、食疗、推拿按跷 |
@@ -91,11 +91,13 @@
 - **大六壬**：自动起天地盘、四课三传，配十二天将与课体格局，断吉凶应期
 - **太乙神数**：太乙积年推算、十六神布局、主客算与大小游
 
-### 占卜（6 件）
+### 占卜（8 件）
 
 - **六爻**：铜钱、数字、时间等七种起卦，自动装卦排六亲六神世应，标注旬空月破与神煞应期，支持真太阳时与连占对比
 - **梅花易数**：时间起卦，自动分体用、排互卦变卦错综，按体用生克与卦气旺衰断吉凶应期
 - **小六壬**：大安、留连、速喜、赤口、小吉、空亡六神掌诀，月日时三数即断
+- **六壬金口诀**：月将加时、地分、贵神、人元四位起课，十二将神与十二贵神表，五动三动、三合六合、三奇、空亡与月破断课
+- **灵棋经**：十二棋分上、中、下三组，各组零至四计数合成一百二十五课，出课名、课象、象辞、诗与又辞
 - **灵签**：黄大仙、观音、月老、关公等签文抽签解签，签诗、古人典故与吉凶释义
 - **塔罗牌**：韦特体系 78 张原版牌图，六种牌阵，逐张正逆位关键词与分域牌义、占星对应
 - **雷诺曼**：36 卡七种牌阵，630 对全组合词典成句，扑克对应、指标牌宫位与马步读法
@@ -263,7 +265,7 @@ docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
 
 ```
 XuanJiPaiPan/
-├── *.html        45 个页面：40 个工具加首页、附录三类与 404 页
+├── *.html        47 个页面：42 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
 ├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理
