@@ -219,11 +219,13 @@
 
 .ty-derive .dr dt,.ty-derive .dr dd{font-weight:400}
 
+/* 时刻框的原生图标在解析期即须隐去：静态源件不带 dt-input 类，若只按类隐藏，
+   app.js 的 defer 执行前会露出浏览器原生时钟，点它即开原生拾取轮，构成首屏中间态。 */
 input[type="text"].dt-input::-webkit-calendar-picker-indicator,
-input[type="time"].dt-input::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+input[type="time"]::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
 
 input[type="text"].dt-input::-moz-calendar-picker-indicator,
-input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
+input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap{position:relative;display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-width:0;height:30px;box-sizing:border-box}
 
@@ -235,7 +237,11 @@ input[type="time"].dt-input::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
 
-input[type="text"].dt-input,input[type="time"].dt-input{text-align:center}
+/* 未包 dt-wrap 的时刻框在解析期也按 72px 出宽：包与不包同宽，注入前后不位移。
+   .page .form-row .field 前缀用于压过各页遗留的 .form-row .field input{width:auto}。 */
+.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+
+input[type="text"].dt-input,input[type="time"]{text-align:center}
 
 .dt-modal{max-width:340px;padding-top:32px;border-radius:0;border-width:1px;border-color:var(--line);box-shadow:none}
 
