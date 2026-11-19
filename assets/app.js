@@ -79,9 +79,9 @@ const NAV_GROUPS = [
   {type:'group', name:'相术', items:[
     {href:'shouxiang.html', name:'手相'},
     {href:'mianxiang.html', name:'面相'},
+    {href:'luopan.html', name:'罗经仪'},
     {href:'fengshui.html', name:'阳宅风水'},
     {href:'fengshui-yin.html', name:'阴宅风水'},
-    {href:'luopan.html', name:'罗经仪'},
   ]},
   {type:'group', name:'附录', items:[
     {href:'dianji.html', name:'典籍参考'},
