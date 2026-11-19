@@ -16,7 +16,7 @@
 [![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-42-2CA5E0?style=flat-square)](#feature-overview)
+[![Tools](https://img.shields.io/badge/Tools-43-2CA5E0?style=flat-square)](#feature-overview)
 [![Pure frontend](https://img.shields.io/badge/Pure_frontend-Built_artifacts-4c9e4c?style=flat-square)](#tech-stack)
 [![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
 [![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
@@ -37,14 +37,14 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Eight categories with 42 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
+Eight categories with 43 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
 
 | Category | Tools |
 |---|---|
 | **Calendars** | Perpetual Calendar, Almanac, Buddhist Calendar, Taoist Calendar, Tibetan Calendar, Date Selection, Huangji Jingshi |
 | **Fate Analysis** | BaZi Chart, BaZi Compatibility, Zi Wei Dou Shu, He Luo Numerology, Tie Ban Shen Shu, Name Analysis, Western Astrology, Qizheng Siyu |
 | **Three Styles** | Qi Men Dun Jia, Da Liu Ren, Tai Yi Shen Shu |
-| **Divination** | Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Liu Ren Jin Kou Jue, Ling Qi Jing, Fortune Sticks, Tarot, Lenormand |
+| **Divination** | Da Yan Divination, Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Liu Ren Jin Kou Jue, Ling Qi Jing, Fortune Sticks, Tarot, Lenormand |
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
 | **Wellness** | Essential Oil Aromatherapy, Dietary Therapy, Tuina Massage |
@@ -91,8 +91,9 @@ Introduced in the order of the site's eight sections.
 - **Da Liu Ren**: automatic heaven and earth plates, four lessons and three transmissions, the twelve heavenly generals and pattern classifications, with judgments and timing
 - **Tai Yi Shen Shu**: Tai Yi accumulated years, the sixteen-deity layout, host and guest counts, and major and minor wanderings
 
-### Divination (8)
+### Divination (9)
 
+- **Da Yan Divination**: fifty yarrow stalks split, one hung, counted by fours, with remainders returned; three changes make a line and eighteen make a hexagram, with judgments taken from the seven change rules, plus the yarrow method, ritual and a 64-hexagram lookup
 - **Liu Yao**: seven casting methods including coins, numbers and time; automatic hexagram construction with six relations, six spirits, world and response lines; void and broken markers and symbolic-star timing; true solar time and consecutive-cast comparison
 - **Plum Blossom Numerology**: time-based casting with automatic body and function separation, mutual, changed, opposite and reversed hexagrams, and judgments by generation and restraint and by hexagram qi
 - **Xiao Liu Ren**: the six spirit hand formulas of Da An, Liu Lian, Su Xi, Chi Kou, Xiao Ji and Kong Wang; instant judgment from month, day and hour numbers
@@ -264,7 +265,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        47 pages: 42 tools plus the home page, three appendix pages and a 404 page
+├── *.html        48 pages: 43 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

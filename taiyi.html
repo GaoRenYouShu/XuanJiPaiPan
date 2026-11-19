@@ -76,6 +76,10 @@
 
 #csBlock .cs-ch .form-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0}
 
+#csBlock .cs-ch .ai-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:0}
+
+#csBlock .cs-ch .ai-actions>*{margin:0}
+
 #csBlock .field label{color:var(--gold2)}
 
 #csBlock #csTip{display:block;line-height:1.6}
@@ -944,6 +948,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
       <a class="active" href="taiyi.html">太乙神数</a>
     </div></div>
     <div class="nav-group" data-gi="4"><button class="nav-top" onclick="toggleNavGroup(this)">占卜<span class="caret"></span></button><div class="nav-menu">
+      <a class="" href="dayan.html">大衍筮法</a>
       <a class="" href="liuyao.html">六爻</a>
       <a class="" href="meihua.html">梅花易数</a>
       <a class="" href="xiaoliuren.html">小六壬</a>
@@ -1105,7 +1110,6 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
     </details>
 
   <div class="stage2-late">
-<div class="stage2-late">
 <div id="aiMount"><details class="ai-block" id="aiBlock">
     <summary class="ai-head"><h3>附加功能</h3><span class="ai-status">未配置</span></summary>
     <div class="ai-body">
@@ -1123,9 +1127,8 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
       <div id="aiOutWrap"><div class="ai-tip">尚未配置或启用任何模型，请点"配置模型"进行设置。</div></div>
     <div class="ai-cloud" id="csBlock"><div class="cs-head"><b>数据存储</b></div><div class="cs-ch cs-common"><div class="form-row"><div class="field" style="width:183px;flex:0 0 183px"><label for="csNote">备注</label><input type="text" id="csNote" placeholder="写入文件名" style="width:100%"></div><div class="field chk" style="width:auto;flex:0 0 auto"><input type="checkbox" id="csWithAi"><label for="csWithAi"><span>保存 AI 对话</span></label></div></div><div class="ai-tip">备注与保存 AI 对话，三个通道共用。</div></div><div class="cs-ch"><div class="cs-ch-h">通道一　本地目录</div><div class="ai-actions"><button class="btn soft" id="csPick">选择文件夹</button><button class="btn soft" id="csSaveLocal">保存本次</button><button class="btn soft" id="csOpen">存档管理</button></div><div class="ai-tip" id="csLocalTip">存档写入选定文件夹，不经网络。<span id="csStatus">未选择目录</span></div></div><div class="cs-ch"><div class="cs-ch-h">通道二　文件搬运</div><div class="ai-actions" id="csFile" data-done="1"><button class="btn soft">导出 JSON</button><button class="btn soft">复制 JSON</button><input type="file" accept="application/json,.json" style="display: none;"><button class="btn soft">导入 JSON</button></div><div class="ai-tip">导出文件可跨设备或分享；导入时按存档内的输入排出结果。</div></div><div class="cs-ch"><div class="cs-ch-h">通道三　直连 WebDAV</div><div class="form-row"><div class="field"><label for="csPreset">服务</label><select id="csPreset"><option value="" data-url="">自选地址</option><option value="clouddrive2" data-url="http://localhost:19799/dav">CloudDrive2</option><option value="alist" data-url="http://127.0.0.1:5244/dav">Alist</option><option value="cloudreve" data-url="https://自有域名/dav">Cloudreve</option><option value="sharelist" data-url="https://自有域名/dav">sharelist</option><option value="nextcloud" data-url="https://域名/remote.php/dav/files/用户名/">Nextcloud</option><option value="owncloud" data-url="https://域名/remote.php/dav/files/用户名/">ownCloud</option><option value="seafile" data-url="https://域名/seafdav/">Seafile</option><option value="synology" data-url="https://NAS地址:5006/">群晖 WebDAV</option><option value="wsgidav" data-url="http://127.0.0.1:8080/">WsgiDAV</option><option value="rclone" data-url="http://127.0.0.1:8080/">rclone serve webdav</option><option value="nginx" data-url="https://域名/dav/">nginx dav 模块</option><option value="pcloud" data-url="https://webdav.pcloud.com/">pCloud</option><option value="yandex" data-url="https://webdav.yandex.com/">Yandex Disk</option><option value="infinicloud" data-url="https://服务器.teracloud.jp/dav/">InfiniCLOUD</option><option value="box" data-url="https://dav.box.com/dav/">Box</option><option value="jianguoyun" data-url="https://dav.jianguoyun.com/dav/">坚果云</option></select></div></div><div class="form-row"><div class="field" style="width:240px;max-width:100%;flex:0 0 240px"><label for="csUrl">地址</label><input type="text" id="csUrl" placeholder="https://.../dav/" style="width:100%"></div></div><div class="form-row"><div class="field" style="width:240px;max-width:100%;flex:0 0 240px"><label for="csUser">账号</label><input type="text" id="csUser" style="width:100%"></div><div class="field" style="width:240px;max-width:100%;flex:0 0 240px"><label for="csPass">应用密码</label><input type="password" id="csPass" style="width:100%"></div></div><div class="ai-tip" id="csPresetNote"></div><div id="csGuide" style="display:none"></div><div class="ai-actions"><button class="btn soft" id="csTest">测试连接</button><button class="btn soft" id="csSaveDav">上传本次</button><button class="btn soft" id="csListDav">远端存档</button><button class="btn soft" id="csClear">清除凭据</button></div><div class="ai-tip">须服务端允许跨域，浏览器方得读取响应；未开启时改用通道一或通道二。</div></div><div class="ai-tip" id="csTip"></div></div></div>
   </details></div>
-  </div>
-</div>
-</div>
+  
+</div></div>
 </div><script data-sync="1">/* 折叠态首绘前落定：全站唯一一处读写折叠态的地方。
  *
  * 为什么单立此件：开合态要跨刷新保持，就必须在载入时读回来。若等 defer 件事后回填，
