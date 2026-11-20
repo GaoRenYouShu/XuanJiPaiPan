@@ -16,7 +16,6 @@ html,body{height:100%}
 .page-dayan .page h1::after{content:'';display:block;width:88px;height:1px;background:var(--x-line);margin:var(--sp-3) auto 0}
 .page-dayan .page .lead{color:var(--x-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
 .page-dayan .page .lead::after{background:var(--x-line)}
-.page-dayan .page > .form-row{margin-bottom:var(--sp-4)}
 .page-dayan .page > .form-row .field input,.page-dayan .page > .form-row .field select{border-color:var(--x-line)}
 .page-dayan .page > .form-row .field input:focus,.page-dayan .page > .form-row .field select:focus{border-color:var(--x);outline:none}
 
@@ -27,6 +26,10 @@ html,body{height:100%}
 
 .page-dayan .dy-manual{display:none}
 .page-dayan .dy-manual.is-on{display:flex}
+/* 空占位不参与纵距：手录行未开启时容器与空提示不占位，输入区到 .mh-ref 长线保持 --sp-4。 */
+.page-dayan .opts:not(:has(.dy-manual.is-on)){display:none}
+.page-dayan .sub-note:empty{display:none}
+.page-dayan #out:empty{display:none}
 .page-dayan .dy-step-panel{display:none;margin:var(--sp-2) 0 var(--sp-3)}
 .page-dayan .dy-step-panel.is-on{display:block}
 .page-dayan .dy-step-note{font-size:13px;line-height:1.8;color:var(--x-ink);margin:0 0 var(--sp-2)}

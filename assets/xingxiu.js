@@ -382,9 +382,7 @@ function renderYan() {    var p = parseYmd($('xxYanDate').value);
     var box = $('xxSky');
     if (!box) return;
     var todayName = Solar.fromDate(new Date()).getLunar().getXiu();
-    /* 星图按 data-built 当日写实为页面终值：未换日即保留静态图，换日才重绘。 */
-    var builtBox = document.querySelector('.page-xx');
-    if (box.querySelector('svg.xx-sky') && builtBox && builtBox.getAttribute('data-built') === xjNowStr().slice(0, 10)) return;
+    /* 星图按访问日重绘，页面不记构建日。 */
     /* 半径：盘心 220、外圈线 182（鎏金图版外缘）、刻度 168–176、内界圈 108（柔光圈，让出盘心区）、
        盘心圈 60；宿名 144（最外圈一字环布）、宿点 130、四象弧 180（盘缘内侧贴）、四象名 198。
        二十八项每项 12.86° 太窄，省略 28 段弧带（与经络盘 12 段不同），盘面以刻线、宿点、骨架圆为主，更克制 */
@@ -507,10 +505,8 @@ function renderYan() {    var p = parseYmd($('xxYanDate').value);
 
   /* ===== 初始化 ===== */
   function init() {
-    /* 本日值宿已是页面终值，data-built 记写出当日，访问日与所记不同才重出。 */
-    var built = document.querySelector('.page-xx');
-    built = built ? built.getAttribute('data-built') : '';
-    if (built !== xjNowStr().slice(0, 10)) renderToday();
+    /* 本日值宿按访问日重算，页面不记构建日。 */
+    renderToday();
     renderTable(); renderGong(); renderYiJi(); renderShan(); renderZhanci(); renderZhanci3Jia(); renderDu(); renderSan36(); renderSky(); renderMingAll();
     $('xxMingBtn').addEventListener('click', renderMing);
     $('xxYanBtn').addEventListener('click', renderYan);

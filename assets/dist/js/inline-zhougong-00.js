@@ -363,12 +363,8 @@ document.addEventListener('DOMContentLoaded', function () {
       zgRenderCat(cat);
       if (browse.scrollIntoView) browse.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
-    /* 诗文是静态终值，访问日与 data-built 不同才重排；分类条数随数据现算，每次装载都重出。 */
-    var zgBuilt = document.querySelector('.page-zg');
-    zgBuilt = zgBuilt ? zgBuilt.getAttribute('data-built') : '';
-    if (zgBuilt !== xjNowStr().slice(0, 10)) {
-      zgRenderPoem();
-    }
+    /* 诗文按访问日重排；分类条数随数据现算，每次装载都重出。 */
+    zgRenderPoem();
     zgRenderCats();
     zgDmRenderCats();
     zgRenderStats();

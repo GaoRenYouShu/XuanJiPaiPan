@@ -206,21 +206,19 @@ document.addEventListener('DOMContentLoaded', function () {
     fsGeoInit('fsy_geo_manual');
     fillBuLong();
     (function(){
-      /* 静态默认态所属日由容器 data-built 记写：日期框停在构建日时校正到访问日，
+      /* 日期框默认值按访问日写：源件与预渲染件都不留静态值，空框才填。
          用户改过的日期带 data-user-set，不覆盖。成课结束日期是派生值（data-keep），恒等于起始日期加三十日。
          安葬流年默认写当年，用户改过的不覆盖。本段只改控件值，不出盘：结果等用户点起盘。 */
       const n=new Date(), p2=v=>(v<10?'0':'')+v;
       const ymd=n.getFullYear()+'-'+p2(n.getMonth()+1)+'-'+p2(n.getDate());
-      const builtEl=document.querySelector('[data-built]');
-      const bd=builtEl?builtEl.getAttribute('data-built'):'';
       const fixDate=id=>{
         const el=document.getElementById(id);
-        if(el&&!el.hasAttribute('data-user-set')&&(!el.value||el.value===bd)) el.value=ymd;
+        if(el&&!el.hasAttribute('data-user-set')&&!el.value) el.value=ymd;
       };
       fixDate('zrDate');
       fixDate('ckFrom');
       const de=document.getElementById('baseYear2');
-      if(de&&!de.hasAttribute('data-user-set')&&(!de.value||de.value===bd.slice(0,4))) de.value=String(n.getFullYear());
+      if(de&&!de.hasAttribute('data-user-set')&&!de.value) de.value=String(n.getFullYear());
       const ckf=document.getElementById('ckFrom'), ckt=document.getElementById('ckTo');
       const m=ckf&&ckt?/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(ckf.value||''):null;
       if(m){

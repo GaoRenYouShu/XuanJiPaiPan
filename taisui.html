@@ -151,7 +151,7 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 #nmTwinKind{width:130px}
 
-.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-4)}
+.form-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:flex-end;margin-bottom:var(--sp-3)}
 
 .field{display:flex;flex-direction:column;gap:var(--sp-1);min-width:0}
 
@@ -921,7 +921,7 @@ html .page-ts {
   </nav>
   <button class="menu-btn" id="menuBtn" title="导航菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
 </div></div>
-<div class="wrap page-ts" data-built="2026-10-30">
+<div class="wrap page-ts">
 <main class="page">
   <h1>太岁生肖</h1>
   <p class="lead">输入生日查本命生肖与流年犯太岁，并览六十甲子星君全传与化太岁仪轨。</p>
@@ -929,10 +929,10 @@ html .page-ts {
     <div class="mod-head" onclick="toggleMod('tsmod-check')"><span class="mod-caret">▾</span><span class="mod-title">太岁查询</span><span class="mod-sub">本命生肖与流年犯太岁判定</span></div>
     <div class="mod-body">
     <div class="form-row">
-      <div class="field ts-field-date"><label for="tsDate">公历生日</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsDate" aria-label="公历生日" placeholder="2026-09-05" data-autonow="1" readonly=""></span></div>
+      <div class="field ts-field-date"><label for="tsDate">公历生日</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsDate" aria-label="公历生日" placeholder="YYYY-MM-DD" data-autonow="1" readonly=""></span></div>
       <div class="field ts-field-hour"><label for="tsHour">出生时辰</label><select id="tsHour" aria-label="出生时辰" data-keep=""><option value="">未知</option><option value="00:30">子(23-01)</option><option value="02:00">丑(01-03)</option><option value="04:00">寅(03-05)</option><option value="06:00">卯(05-07)</option><option value="08:00">辰(07-09)</option><option value="10:00">巳(09-11)</option><option value="12:00">午(11-13)</option><option value="14:00">未(13-15)</option><option value="16:00">申(15-17)</option><option value="18:00">酉(17-19)</option><option value="20:00">戌(19-21)</option><option value="22:00">亥(21-23)</option></select></div>
       <div class="field"><label for="tsZhiPick">或按生肖直查</label><select id="tsZhiPick" aria-label="按生肖直查"><option value="">按生日推算</option><option value="子">鼠（子）</option><option value="丑">牛（丑）</option><option value="寅">虎（寅）</option><option value="卯">兔（卯）</option><option value="辰">龙（辰）</option><option value="巳">蛇（巳）</option><option value="午">马（午）</option><option value="未">羊（未）</option><option value="申">猴（申）</option><option value="酉">鸡（酉）</option><option value="戌">狗（戌）</option><option value="亥">猪（亥）</option></select></div>
-      <div class="field ts-field-date"><label for="tsSuiDate">流年参考日</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsSuiDate" aria-label="流年参考日" placeholder="2026-09-05" data-autonow="1" readonly=""></span></div>
+      <div class="field ts-field-date"><label for="tsSuiDate">流年参考日</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsSuiDate" aria-label="流年参考日" placeholder="YYYY-MM-DD" data-autonow="1" readonly=""></span></div>
       <button id="tsCheckBtn" class="btn gold" type="button">查询犯太岁</button>
       <button id="tsSuiPrev" class="btn soft" type="button">流年上一年</button>
       <button id="tsSuiNext" class="btn soft" type="button">流年下一年</button>
@@ -944,7 +944,7 @@ html .page-ts {
     <div class="mod-head" onclick="toggleMod('tsmod-year')"><span class="mod-caret">▾</span><span class="mod-title">生肖太岁</span><span class="mod-sub">年月日三层生肖关系</span></div>
     <div class="mod-body">
     <div class="form-row">
-      <div class="field ts-field-date"><label for="tsYearDate">查询日期（公历）</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsYearDate" aria-label="查询日期" placeholder="2026-09-05" data-autonow="1" readonly=""></span></div>
+      <div class="field ts-field-date"><label for="tsYearDate">查询日期（公历）</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsYearDate" aria-label="查询日期" placeholder="YYYY-MM-DD" data-autonow="1" readonly=""></span></div>
       <button id="tsYearBtn" class="btn gold" type="button">查询年月日生肖关系</button>
     </div>
     <div id="tsYearOut"></div>
@@ -960,7 +960,7 @@ html .page-ts {
     <div class="mod-head" onclick="toggleMod('tsmod-fortune')"><span class="mod-caret">▾</span><span class="mod-title">生肖运程</span><span class="mod-sub">年度、月度十二生肖运程</span></div>
     <div class="mod-body">
     <div class="form-row">
-      <div class="field ts-field-date"><label for="tsFortuneDate">流年参考日（公历）</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsFortuneDate" aria-label="流年参考日" placeholder="2026-09-05" data-autonow="1" readonly=""></span></div>
+      <div class="field ts-field-date"><label for="tsFortuneDate">流年参考日（公历）</label><span class="dt-wrap dtm-ts"><input type="text" class="dt-input" id="tsFortuneDate" aria-label="流年参考日" placeholder="YYYY-MM-DD" data-autonow="1" readonly=""></span></div>
       <button id="tsFortuneBtn" class="btn gold" type="button">查生肖运程</button>
     </div>
     <div id="tsFortuneOut"></div>
