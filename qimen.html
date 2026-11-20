@@ -62,11 +62,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -676,7 +677,7 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 .modal.qi-gong-modal{max-width:460px;
   --qm2:#213b45;--qm-ink:#33424a;--qm-line:#ccd9dc;--qm-ink2:#4f656d}
 
-.page-qm .form-row .field input[type="time"]{width:72px}
+.page-qm .form-row .field input[data-time]{width:72px}
 
 .page-qm .form-row .field input.qi-w-gz{width:80px}
 
@@ -900,7 +901,7 @@ html .page-qm {
         </select>
       </div>
       <div class="field q-mode-time"><label for="qDate">起局日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qDate" value="2026-10-29"></div>
-      <div class="field q-mode-time"><label for="qTime">时间</label><input type="time" id="qTime"></div>
+      <div class="field q-mode-time"><label for="qTime">时间</label><input type="text" data-time="1" id="qTime"></div>
       <div class="field q-mode-normal"><label for="qPurpose">用神</label>
         <select id="qPurpose">
           <option value="综合">综合</option>

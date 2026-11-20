@@ -92,11 +92,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -936,14 +937,14 @@ html .page-qz {
     <div class="qz-form">
       <div class="qz-row-inputs">
         <div class="field f-date" data-built="2026-10-29"><label for="qzDate">出生日期</label><span class="dt-wrap dtm-qz"><input type="text" class="dt-input" placeholder="2026-09-30" id="qzDate" value="2026-10-29"></span></div>
-        <div class="field f-time"><label for="qzTime">出生时间</label><span class="dt-wrap dtm-qz"><input type="time" class="dt-input" id="qzTime" value="12:00"></span></div>
+        <div class="field f-time"><label for="qzTime">出生时间</label><span class="dt-wrap dtm-qz"><input type="text" data-time="1" id="qzTime" value="12:00"></span></div>
         <div class="field f-sex"><label for="qzSex">性别</label><select id="qzSex"><option>男</option><option>女</option></select></div>
         <div class="field f-tz" id="qzTzField" hidden><label for="qzTz">时区</label><input type="number" id="qzTz" value="8" step="0.5"></div>
         <div class="field f-mode"><label for="qzQiHeng">过宫制</label><select id="qzQiHeng"><option value="ding">定气过宫</option><option value="heng">恒气过宫</option></select></div>
         <div class="field f-mode"><label for="qzMingFa">命度法</label><select id="qzMingFa"><option value="guolao">果老度级</option><option value="asc">天文上升</option></select></div>
         <div class="field f-mode"><label for="qzNode">罗计口径</label><select id="qzNode"><option value="mean">平交点 古法</option><option value="true">真交点 天文</option></select></div>
         <div class="qz-btns">
-          <button class="btn" onclick="qzPai()">排盘</button>
+          <button class="btn gold" onclick="qzPai()">排盘</button>
         </div>
       </div>
       <div class="birth-group compact">
@@ -983,7 +984,7 @@ html .page-qz {
       <div class="qz-rel2" id="qzRel2">
         <div class="qz-row-inputs">
           <div class="field f-date"><label for="qzBDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="qzBDate"></div>
-          <div class="field f-time"><label for="qzBTime">出生时间</label><input type="time" id="qzBTime" value="12:00"></div>
+          <div class="field f-time"><label for="qzBTime">出生时间</label><input type="text" data-time="1" id="qzBTime" value="12:00"></div>
           <div class="field f-sex"><label for="qzBSex">性别</label><select id="qzBSex"><option>女</option><option>男</option></select></div>
           <div class="field f-tz" id="qzBTzField" hidden><label for="qzBTz">时区</label><select id="qzBTz" aria-label="选择出生地标准时区偏移"></select></div>
         </div>

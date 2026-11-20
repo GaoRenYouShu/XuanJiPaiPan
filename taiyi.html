@@ -102,11 +102,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -997,7 +998,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
 
     <div class="form-row">
       <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">推算日期（公历）</label><span class="dt-wrap dtm-ty"><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" aria-label="推算日期" value="2026-10-29" data-autonow="1" readonly=""></span></div>
-      <div class="field"><label for="hInput">推算时刻</label><span class="dt-wrap dtm-ty"><input type="time" id="hInput" aria-label="推算时刻" data-autonow="1" class="dt-input" readonly=""></span></div>
+      <div class="field"><label for="hInput">推算时刻</label><span class="dt-wrap dtm-ty"><input type="text" data-time="1" id="hInput" aria-label="推算时刻" data-autonow="1" readonly=""></span></div>
       <div class="field"><label for="tahunInput">积年体系</label><select id="tahunInput" aria-label="积年体系" onchange="query()">
         <option value="0">太乙统宗</option>
         <option value="1">太乙金镜</option>
@@ -1178,6 +1179,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
   }
   function isDateBox(el, calPage) {
     if (el.tagName !== 'INPUT') return false;
+    if (el.hasAttribute('data-time')) return false;
     if (kept(el) && !(calPage && isCalDate(el))) return false;
     if (el.type === 'date') return true;
     if (el.type !== 'text' || !el.classList.contains('dt-input')) return false;
@@ -1207,7 +1209,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
         if (own(el)) put(el, ymd);
         return;
       }
-      if (el.type === 'time' && !kept(el) && own(el)) put(el, hm);
+      if ((el.type === 'time' || el.hasAttribute('data-time')) && !kept(el) && own(el)) put(el, hm);
     });
     document.querySelectorAll('select').forEach(function (sel) {
       if (kept(sel) || sel.hasAttribute('data-user-set') || sel.options.length < 12) return;
@@ -1319,6 +1321,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
   }
   function isDateBox(el, calPage) {
     if (el.tagName !== 'INPUT') return false;
+    if (el.hasAttribute('data-time')) return false;
     if (kept(el) && !(calPage && isCalDate(el))) return false;
     if (el.type === 'date') return true;
     if (el.type !== 'text' || !el.classList.contains('dt-input')) return false;
@@ -1348,7 +1351,7 @@ body:has(.page-ty) .scroll-jump:not(.show){display:none}
         if (own(el)) put(el, ymd);
         return;
       }
-      if (el.type === 'time' && !kept(el) && own(el)) put(el, hm);
+      if ((el.type === 'time' || el.hasAttribute('data-time')) && !kept(el) && own(el)) put(el, hm);
     });
     document.querySelectorAll('select').forEach(function (sel) {
       if (kept(sel) || sel.hasAttribute('data-user-set') || sel.options.length < 12) return;

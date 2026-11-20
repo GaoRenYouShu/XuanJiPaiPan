@@ -228,11 +228,8 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
-/* 起卦时刻框：与 xiaoliuren 页同一口径。静态已在 .dt-wrap 内、宽 72px，但 app.js 到齐后
-   才给 input[type="time"] 补 dt-input 类并隐藏原生时钟图标、字心居中；首绘先按同口径出，
-   否则首秒图标占位把分钟挤掉（只显 11:），脚本到齐后图标消失、字心换位。 */
-.page-mh .field input[type="time"]{width:72px;text-align:center}
-.page-mh .field input[type="time"]::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+/* 起卦时刻框：文本件加 data-time，静态即在 .dt-wrap 内、宽 72px，解析期就是终值。 */
+.page-mh .field input[data-time]{width:72px;text-align:center}
 
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
@@ -2167,7 +2164,7 @@ to{opacity:1;transform:none}}
 .page-mh .ly-time-row .field{flex:0 0 auto;min-width:0;margin:0}
 
 /* 时刻框定宽 72px：挂日期弹层前后同宽，首帧不因包裹层改宽 */
-.page-mh .ly-time-row .field input[type="time"]{width:72px}
+.page-mh .ly-time-row .field input[data-time]{width:72px}
 
 /* 日期框定宽 96px：时刻行不在 .form-row 内，通用日期框定宽规则取不到，此处补一条同值 */
 .page-mh .ly-time-row .field input[type="text"].dt-input{width:96px}

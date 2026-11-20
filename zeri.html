@@ -152,11 +152,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -971,7 +972,7 @@ html .page-zeri {
 
 .page-zeri .field input.dt-input{width:96px;height:30px}
 
-.page-zeri .field input[type="time"]{width:72px;height:30px}
+.page-zeri .field input[data-time]{width:72px;height:30px}
 
 body:has(.page-zeri) .scroll-jump:not(.show){display:none}</style><script>try{if(document.fonts&&document.fonts.load){document.fonts.load('400 12px "Noto Serif SC Page"','\u7384\u673a\u6392\u76d8\u9996\u9875\u5386\u6cd5\u547d\u7406\u4e09\u5f0f\u5360\u535c\u6c11\u4fd7\u8fd0\u6c14\u517b\u751f\u76f8\u672f\u9644\u5f55AI');}}catch(e){}</script>
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
@@ -1084,7 +1085,7 @@ body:has(.page-zeri) .scroll-jump:not(.show){display:none}</style><script>try{if
       <div class="zr-mod-b">
         <div class="form-row r3">
           <div class="field"><label for="bDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="bDate"></div>
-          <div class="field"><label for="bTime">出生时间</label><input type="time" id="bTime" value="12:00" class="dt-input"></div>
+          <div class="field"><label for="bTime">出生时间</label><input type="text" data-time="1" id="bTime" value="12:00"></div>
           <div class="field"><label for="bSex">性别</label>
             <select id="bSex"><option value="1">男</option><option value="0">女</option></select>
           </div>
@@ -1206,7 +1207,7 @@ body:has(.page-zeri) .scroll-jump:not(.show){display:none}</style><script>try{if
             <div class="form-row">
               <div class="field zm-sex"><label for="zmP1Sex">性别</label><select id="zmP1Sex"><option selected="">男</option><option>女</option></select></div>
               <div class="field"><label for="zmP1Date">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmP1Date"></div>
-              <div class="field"><label for="zmP1Time">出生时间</label><input type="time" id="zmP1Time" value="12:00" class="dt-input"></div>
+              <div class="field"><label for="zmP1Time">出生时间</label><input type="text" data-time="1" id="zmP1Time" value="12:00"></div>
               <div class="field"><label for="zmP1Prov">省份</label><select id="zmP1Prov"></select></div>
               <div class="field"><label for="zmP1City">城市</label><select id="zmP1City"></select></div>
               <div class="field"><label for="zmP1Dist">区县</label><select id="zmP1Dist"></select></div>
@@ -1219,7 +1220,7 @@ body:has(.page-zeri) .scroll-jump:not(.show){display:none}</style><script>try{if
             <div class="form-row">
               <div class="field zm-sex"><label for="zmP2Sex">性别</label><select id="zmP2Sex"><option>男</option><option selected="">女</option></select></div>
               <div class="field"><label for="zmP2Date">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zmP2Date"></div>
-              <div class="field"><label for="zmP2Time">出生时间</label><input type="time" id="zmP2Time" value="12:00" class="dt-input"></div>
+              <div class="field"><label for="zmP2Time">出生时间</label><input type="text" data-time="1" id="zmP2Time" value="12:00"></div>
               <div class="field"><label for="zmP2Prov">省份</label><select id="zmP2Prov"></select></div>
               <div class="field"><label for="zmP2City">城市</label><select id="zmP2City"></select></div>
               <div class="field"><label for="zmP2Dist">区县</label><select id="zmP2Dist"></select></div>

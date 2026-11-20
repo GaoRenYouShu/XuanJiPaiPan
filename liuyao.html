@@ -102,11 +102,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -1065,7 +1066,7 @@ body:has(.page-ly) .scroll-jump:not(.show){display:none}</style><script>try{if(d
         <input type="text" class="dt-input" id="lyDate" aria-label="起卦日期" placeholder="2026-09-30" value="2026-10-29">
       </div>
       <div class="field"><label for="lyTime">起卦时刻</label>
-        <input type="time" id="lyTime" aria-label="起卦时刻" value="">
+        <input type="text" data-time="1" id="lyTime" aria-label="起卦时刻" value="">
       </div>
       <div class="field"><label for="lySchool">流派</label><select id="lySchool" aria-label="选择流派">
         <option value="jingfang">京房纳甲派</option>

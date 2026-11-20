@@ -159,11 +159,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -840,10 +841,6 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-zw .btn:not(.soft):not(.btn-ghost):hover,.page-zw .btn.gold:hover{background:var(--zw2);color:#fff;box-shadow:none}
 
-.page-zw .btn-ghost{background:var(--zw-tint);border:1px solid var(--zw-line);color:var(--zw-ink)}
-
-.page-zw .btn-ghost:hover{background:var(--card);border-color:var(--zw-line);color:var(--zw2)}
-
 .page-zw .form-row .field#zNameField input{width:96px;align-self:flex-start}
 
 .page-zw .ai-block .btn{border-radius:0}
@@ -973,7 +970,7 @@ html .page-zw {
 .page-zw .opts-row .field select#zLeap{width:106px}
 }
 
-.page-zw .field input[type="time"]{width:72px;height:30px}</style><script>try{if(document.fonts&&document.fonts.load){document.fonts.load('400 12px "Noto Serif SC Page"','\u7384\u673a\u6392\u76d8\u9996\u9875\u5386\u6cd5\u547d\u7406\u4e09\u5f0f\u5360\u535c\u6c11\u4fd7\u8fd0\u6c14\u517b\u751f\u76f8\u672f\u9644\u5f55AI');}}catch(e){}</script>
+.page-zw .field input[data-time]{width:72px;height:30px}</style><script>try{if(document.fonts&&document.fonts.load){document.fonts.load('400 12px "Noto Serif SC Page"','\u7384\u673a\u6392\u76d8\u9996\u9875\u5386\u6cd5\u547d\u7406\u4e09\u5f0f\u5360\u535c\u6c11\u4fd7\u8fd0\u6c14\u517b\u751f\u76f8\u672f\u9644\u5f55AI');}}catch(e){}</script>
 <link rel="preload" as="font" type="font/woff2" crossorigin fetchpriority="high" href="assets/fonts/pages/ziwei-1.woff2">
 <link rel="preload" as="font" type="font/woff2" fetchpriority="low" crossorigin href="assets/fonts/site-sym/symbols2.woff2">
 <link rel="stylesheet" href="assets/dist/fonts/fonts-first.css">
@@ -1079,7 +1076,7 @@ html .page-zw {
       <div class="field chk" id="zLunarLeapField" hidden><input type="checkbox" id="zLunarLeap" aria-label="闰月"><label for="zLunarLeap">闰月</label></div>
       <div class="field" id="zLunarDField" hidden><label for="zLunarD">农历日</label><select id="zLunarD" aria-label="农历日"><option value="1">初一</option><option value="2">初二</option><option value="3">初三</option><option value="4">初四</option><option value="5">初五</option><option value="6">初六</option><option value="7">初七</option><option value="8">初八</option><option value="9">初九</option><option value="10">初十</option><option value="11">十一</option><option value="12">十二</option><option value="13">十三</option><option value="14">十四</option><option value="15">十五</option><option value="16">十六</option><option value="17">十七</option><option value="18">十八</option><option value="19">十九</option><option value="20">二十</option><option value="21">廿一</option><option value="22">廿二</option><option value="23">廿三</option><option value="24">廿四</option><option value="25">廿五</option><option value="26">廿六</option><option value="27">廿七</option><option value="28">廿八</option><option value="29">廿九</option><option value="30">三十</option></select></div>
       <div class="field" id="zTimeField"><label for="zTime">出生时间</label>
-        <input type="time" id="zTime" aria-label="出生时间" value="12:00">
+        <input type="text" data-time="1" id="zTime" aria-label="出生时间" value="12:00">
       </div>
       <div class="field chk" id="zUnsureField"><input type="checkbox" id="zUnsure" aria-label="出生时辰不确定" onchange="zwUnsureToggle()"><label for="zUnsure">时辰不确定</label></div>
       <div class="field" id="zSexField"><label for="zSex">性别</label>
@@ -1091,8 +1088,8 @@ html .page-zw {
           <option value="sihua">四化派</option>
         </select>
       </div>
-      <button class="btn" onclick="paipan()">排盘</button>
-      <button class="btn btn-ghost" type="button" onclick="zwSaveEntry()">保存</button>
+      <button class="btn gold" onclick="paipan()">排盘</button>
+      <button class="btn soft" type="button" onclick="zwSaveEntry()">保存</button>
     </div>
       <!-- 四柱模式：填四柱干支反查可能的公历出生日期，选定其一后定盘。
            干支下拉、六十甲子校验、五虎遁、五鼠遁、候选公历日一律走 bazi-core.js 的共享真源：
@@ -1175,7 +1172,7 @@ html .page-zw {
     <div class="dual-rel2" id="zwRel2">
       <div class="form-row">
         <div class="field" data-built="2026-10-29"><label for="zFDate">出生日期</label><input type="text" class="dt-input" placeholder="2026-09-30" id="zFDate" value="2026-10-29"></div>
-        <div class="field"><label for="zFTime">出生时间</label><input type="time" id="zFTime" aria-label="第二人出生时间" value="12:00"></div>
+        <div class="field"><label for="zFTime">出生时间</label><input type="text" data-time="1" id="zFTime" aria-label="第二人出生时间" value="12:00"></div>
         <div class="field"><label for="zFSex">性别</label><select id="zFSex"><option>男</option><option>女</option></select></div>
       </div>
       <div class="birth-group compact">

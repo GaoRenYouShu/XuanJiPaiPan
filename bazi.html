@@ -141,11 +141,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -157,7 +158,7 @@ body{--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto Emoji','Noto Serif S
 
 .page-bazi .field input[type="text"].dt-input{width:96px;height:30px}
 
-.page-bazi .field input[type="time"]{width:72px;height:30px}
+.page-bazi .field input[data-time]{width:72px;height:30px}
 
 body:has(.page-bazi) .scroll-jump:not(.show){display:none}
 
@@ -1190,11 +1191,11 @@ html .page-bazi {
       <div class="field" id="fLunarM" hidden=""><label for="bLunarM">农历月</label><select id="bLunarM" aria-label="农历月"><option value="1">正月</option><option value="2">二月</option><option value="3">三月</option><option value="4">四月</option><option value="5">五月</option><option value="6">六月</option><option value="7">七月</option><option value="8">八月</option><option value="9">九月</option><option value="10">十月</option><option value="11">十一月</option><option value="12">十二月</option></select></div>
       <div class="field chk" id="fLunarLeap" hidden=""><input type="checkbox" id="bLunarLeap" aria-label="闰月"><label for="bLunarLeap">闰月</label></div>
       <div class="field" id="fLunarD" hidden=""><label for="bLunarD">农历日</label><select id="bLunarD" aria-label="农历日"><option value="1">初一</option><option value="2">初二</option><option value="3">初三</option><option value="4">初四</option><option value="5">初五</option><option value="6">初六</option><option value="7">初七</option><option value="8">初八</option><option value="9">初九</option><option value="10">初十</option><option value="11">十一</option><option value="12">十二</option><option value="13">十三</option><option value="14">十四</option><option value="15">十五</option><option value="16">十六</option><option value="17">十七</option><option value="18">十八</option><option value="19">十九</option><option value="20">二十</option><option value="21">廿一</option><option value="22">廿二</option><option value="23">廿三</option><option value="24">廿四</option><option value="25">廿五</option><option value="26">廿六</option><option value="27">廿七</option><option value="28">廿八</option><option value="29">廿九</option><option value="30">三十</option></select></div>
-      <div class="field" id="fTime"><label for="bTime">出生时间</label><span class="dt-wrap dtm-bazi"><input type="time" id="bTime" aria-label="出生时间" value="12:00" data-autonow="1" class="dt-input" readonly=""></span></div>
+      <div class="field" id="fTime"><label for="bTime">出生时间</label><span class="dt-wrap dtm-bazi"><input type="text" data-time="1" id="bTime" aria-label="出生时间" value="12:00" data-autonow="1" readonly=""></span></div>
       <!-- 排盘与保存两钮：四柱模式下由样式换位到年月日时四柱之后（见 bazi.css 四柱模式段），
            公历、农历两模式仍随出生时间之后，与"先填资料、后出盘"的落笔次序一致 -->
-      <button class="btn bazi-act" onclick="go()">排盘</button>
-      <button class="btn btn-ghost bazi-act" type="button" onclick="saveBaziEntry()">保存</button>
+      <button class="btn gold bazi-act" onclick="go()">排盘</button>
+      <button class="btn soft bazi-act" type="button" onclick="saveBaziEntry()">保存</button>
     </div>
     <div class="form-row bazi-pillar" id="fPillar" hidden="">
       <div class="field"><label for="pyG">年柱</label><div class="gz-mini"><select id="pyG" class="gz-g" aria-label="年柱天干" onchange="savePillarSel()"><option value="甲">甲</option><option value="乙">乙</option><option value="丙">丙</option><option value="丁">丁</option><option value="戊">戊</option><option value="己">己</option><option value="庚">庚</option><option value="辛">辛</option><option value="壬">壬</option><option value="癸">癸</option></select><select id="pyZ" class="gz-z" aria-label="年柱地支" onchange="savePillarSel()"><option value="子">子</option><option value="丑">丑</option><option value="寅">寅</option><option value="卯">卯</option><option value="辰">辰</option><option value="巳">巳</option><option value="午">午</option><option value="未">未</option><option value="申">申</option><option value="酉">酉</option><option value="戌">戌</option><option value="亥">亥</option></select></div></div>
@@ -1323,7 +1324,7 @@ html .page-bazi {
           <div class="field" id="dLunarMWrap" hidden=""><label for="dLunarM">农历月</label><select id="dLunarM" aria-label="第二盘农历月"><option value="1">正月</option><option value="2">二月</option><option value="3">三月</option><option value="4">四月</option><option value="5">五月</option><option value="6">六月</option><option value="7">七月</option><option value="8">八月</option><option value="9">九月</option><option value="10">十月</option><option value="11">十一月</option><option value="12">十二月</option></select></div>
           <div class="field chk" id="dLunarLeapWrap" hidden=""><input type="checkbox" id="dLunarLeap" aria-label="第二盘闰月"><label for="dLunarLeap">闰月</label></div>
           <div class="field" id="dLunarDWrap" hidden=""><label for="dLunarD">农历日</label><select id="dLunarD" aria-label="第二盘农历日"><option value="1">初一</option><option value="2">初二</option><option value="3">初三</option><option value="4">初四</option><option value="5">初五</option><option value="6">初六</option><option value="7">初七</option><option value="8">初八</option><option value="9">初九</option><option value="10">初十</option><option value="11">十一</option><option value="12">十二</option><option value="13">十三</option><option value="14">十四</option><option value="15">十五</option><option value="16">十六</option><option value="17">十七</option><option value="18">十八</option><option value="19">十九</option><option value="20">二十</option><option value="21">廿一</option><option value="22">廿二</option><option value="23">廿三</option><option value="24">廿四</option><option value="25">廿五</option><option value="26">廿六</option><option value="27">廿七</option><option value="28">廿八</option><option value="29">廿九</option><option value="30">三十</option></select></div>
-          <div class="field"><label for="dTime">出生时间</label><span class="dt-wrap dtm-bazi"><input type="time" id="dTime" aria-label="第二盘出生时间" value="12:00" data-autonow="1" class="dt-input" readonly=""></span></div>
+          <div class="field"><label for="dTime">出生时间</label><span class="dt-wrap dtm-bazi"><input type="text" data-time="1" id="dTime" aria-label="第二盘出生时间" value="12:00" data-autonow="1" readonly=""></span></div>
           <div class="field"><label for="dSex">性别</label><select id="dSex" aria-label="第二盘性别"><option value="1">男</option><option value="0">女</option></select></div>
         </div>
         <div class="birth-group compact" id="dBirthGroup">

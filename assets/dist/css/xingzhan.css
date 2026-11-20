@@ -344,8 +344,8 @@ html.stage2 .stage2-late{content-visibility:visible}
 
 .ty-derive .dr dt,.ty-derive .dr dd{font-weight:400}
 
-/* 时刻框的原生图标在解析期即须隐去：静态源件不带 dt-input 类，若只按类隐藏，
-   app.js 的 defer 执行前会露出浏览器原生时钟，点它即开原生拾取轮，构成首屏中间态。 */
+/* 时刻框是文本件（type=text 加 data-time），浏览器不渲染原生钟形图标与拾取轮，
+   解析期首绘就是终值。原生 type=time 的隐藏规则留作旧存页面的兜底。 */
 input[type="text"].dt-input::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
 
@@ -360,13 +360,14 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-/* 未包 dt-wrap 的时刻框在解析期也按 72px 出宽：包与不包同宽，注入前后不位移。
+/* 时刻框在解析期即按 72px 出宽：包与不包同宽，注入前后不位移。
    .page .form-row .field 前缀用于压过各页遗留的 .form-row .field input{width:auto}。 */
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 .dt-modal{max-width:340px;padding-top:32px;border-radius:0;border-width:1px;border-color:var(--line);box-shadow:none}
 

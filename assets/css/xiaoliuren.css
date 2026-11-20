@@ -267,12 +267,10 @@ html .page .lead + section.mod > .mod-head{margin-top:calc(-1 * var(--sp-4));pad
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
-/* 起课时刻框：app.js 的日期件到齐后把裸 input[type="time"] 收进 .dt-wrap 并定为 72px；
-   首绘先按同宽、同字心与同图标口径出，否则框宽由原生 92px 收到 72px，右侧流派字段与
-   起课钮整体左移 20px，且首秒时钟图标占位把分钟挤掉（只显 11:）。与 bazi 页同一口径
-   （.page-bazi .field input[type="time"]{width:72px;height:30px}）。 */
-.page-xlr .field input[type="time"]{width:72px;text-align:center}
-.page-xlr .field input[type="time"]::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+/* 起课时刻框：文本件加 data-time，解析期即 72px、字心居中、显示当下值，
+   不进原生时刻控件，故无图标占位，也不随挂层改宽。与 bazi 页同一口径
+   （.page-bazi .field input[data-time]{width:72px;height:30px}）。 */
+.page-xlr .field input[data-time]{width:72px;text-align:center}
 
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;

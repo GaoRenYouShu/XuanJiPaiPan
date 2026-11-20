@@ -146,11 +146,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -860,7 +861,7 @@ body.p404-page{background:#17171a;color:#e6e1d6}
 
 .page-hh .hh-res-same input{margin-right:var(--sp-1)}
 
-.page-hh .field input[type="time"]{width:72px;height:30px}
+.page-hh .field input[data-time]{width:72px;height:30px}
 
 .page-hh .hh-res-same{display:block;width:max-content;margin-left:0;margin-top:var(--sp-1);font-family:var(--hh-serif)}
 
@@ -1033,7 +1034,7 @@ html .page-hh {
         <div class="field hh-sex"><label for="mSex">性别</label><select id="mSex" onchange="hhSexChanged(1)"><option selected="">男</option><option>女</option></select></div>
         <div class="form-row">
           <div class="field" data-built="2026-10-29"><label for="mDate">出生日期</label><span class="dt-wrap dtm-hh"><input type="text" class="dt-input" placeholder="2026-09-30" id="mDate" value="2026-10-29" data-autonow="1" readonly=""></span></div>
-          <div class="field"><label for="mTime">出生时间</label><span class="dt-wrap dtm-hh"><input type="time" id="mTime" value="12:00" data-autonow="1" class="dt-input" readonly=""></span></div>
+          <div class="field"><label for="mTime">出生时间</label><span class="dt-wrap dtm-hh"><input type="text" data-time="1" id="mTime" value="12:00" data-autonow="1" readonly=""></span></div>
         </div>
         <div class="birth-group compact" id="mBirthGroup">
           <div class="group-label">出生地（用于经度校正，内置行政区划经度）<label class="hh-res-same"><input type="checkbox" id="mResSame" checked="" onchange="hhResToggle(1)">现居地与出生地相同</label></div>
@@ -1061,7 +1062,7 @@ html .page-hh {
         <div class="field hh-sex"><label for="fSex">性别</label><select id="fSex" onchange="hhSexChanged(2)"><option>男</option><option selected="">女</option></select></div>
         <div class="form-row">
           <div class="field" data-built="2026-10-29"><label for="fDate">出生日期</label><span class="dt-wrap dtm-hh"><input type="text" class="dt-input" placeholder="2026-09-30" id="fDate" value="2026-10-29" data-autonow="1" readonly=""></span></div>
-          <div class="field"><label for="fTime">出生时间</label><span class="dt-wrap dtm-hh"><input type="time" id="fTime" value="09:30" data-autonow="1" class="dt-input" readonly=""></span></div>
+          <div class="field"><label for="fTime">出生时间</label><span class="dt-wrap dtm-hh"><input type="text" data-time="1" id="fTime" value="09:30" data-autonow="1" readonly=""></span></div>
         </div>
         <div class="birth-group compact" id="fBirthGroup">
           <div class="group-label">出生地（用于经度校正，内置行政区划经度）<label class="hh-res-same"><input type="checkbox" id="fResSame" checked="" onchange="hhResToggle(2)">现居地与出生地相同</label></div>

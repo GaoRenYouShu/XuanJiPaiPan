@@ -13,6 +13,7 @@
   }
   function isDateBox(el, calPage) {
     if (el.tagName !== 'INPUT') return false;
+    if (el.hasAttribute('data-time')) return false;
     if (kept(el) && !(calPage && isCalDate(el))) return false;
     if (el.type === 'date') return true;
     if (el.type !== 'text' || !el.classList.contains('dt-input')) return false;
@@ -42,7 +43,7 @@
         if (own(el)) put(el, ymd);
         return;
       }
-      if (el.type === 'time' && !kept(el) && own(el)) put(el, hm);
+      if ((el.type === 'time' || el.hasAttribute('data-time')) && !kept(el) && own(el)) put(el, hm);
     });
     document.querySelectorAll('select').forEach(function (sel) {
       if (kept(sel) || sel.hasAttribute('data-user-set') || sel.options.length < 12) return;

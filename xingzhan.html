@@ -152,11 +152,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -1028,13 +1029,13 @@ html .page-xz {
     <div class="xz-form">
       <div class="xz-row-inputs">
         <div class="field f-date" data-built="2026-10-30"><label for="xzDate">出生日期</label><span class="dt-wrap dtm-xz"><input type="text" class="dt-input" placeholder="2026-09-30" id="xzDate" value="2026-10-30" data-autonow="1" readonly=""></span></div>
-        <div class="field f-time"><label for="xzTime">出生时间</label><span class="dt-wrap dtm-xz"><input type="time" id="xzTime" value="12:00" data-autonow="1" class="dt-input" readonly=""></span></div>
+        <div class="field f-time"><label for="xzTime">出生时间</label><span class="dt-wrap dtm-xz"><input type="text" data-time="1" id="xzTime" value="12:00" data-autonow="1" readonly=""></span></div>
         <div class="field f-sex"><label for="xzSex">性别</label><select id="xzSex"><option>男</option><option>女</option></select></div>
         <div class="field f-tz" id="xzTzField" hidden=""><label for="xzTz">时区</label><input type="number" id="xzTz" value="8" step="0.5"></div>
         <div class="field chk" id="xzLocalDstField" hidden=""><input type="checkbox" id="xzLocalDst"><label for="xzLocalDst">当地夏令时（钟面减1小时）</label></div>
         <div class="field f-house"><label for="xzHouse">宫位制</label><select id="xzHouse"><option value="whole">整宫制</option><option value="placidus">Placidus 分宫制</option></select></div>
         <div class="xz-btns">
-          <button class="btn" onclick="xzPai()">排盘</button>
+          <button class="btn gold" onclick="xzPai()">排盘</button>
         </div>
       </div>
       <div class="birth-group compact">
@@ -1050,7 +1051,7 @@ html .page-xz {
       <div class="xz-rel2" id="xzRel2" style="display:none">
         <div class="xz-row-inputs">
           <div class="field f-date"><label for="xzBDate">出生日期</label><span class="dt-wrap dtm-xz"><input type="text" class="dt-input" placeholder="2026-09-30" id="xzBDate" data-autonow="1" readonly=""></span></div>
-          <div class="field f-time"><label for="xzBTime">出生时间</label><span class="dt-wrap dtm-xz"><input type="time" id="xzBTime" value="12:00" data-autonow="1" class="dt-input" readonly=""></span></div>
+          <div class="field f-time"><label for="xzBTime">出生时间</label><span class="dt-wrap dtm-xz"><input type="text" data-time="1" id="xzBTime" value="12:00" data-autonow="1" readonly=""></span></div>
           <div class="field f-sex"><label for="xzBSex">性别</label><select id="xzBSex"><option>男</option><option>女</option></select></div>
           <div class="field f-tz" id="xzBTzField" hidden=""><label for="xzBTz">时区</label><input type="number" id="xzBTz" value="8" step="0.5"></div>
           <div class="field chk" id="xzBLocalDstField" hidden=""><input type="checkbox" id="xzBLocalDst"><label for="xzBLocalDst">当地夏令时（钟面减1小时）</label></div>

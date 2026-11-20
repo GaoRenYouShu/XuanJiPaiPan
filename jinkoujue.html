@@ -808,11 +808,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -988,7 +989,7 @@ body{--footer-ink:#31506b;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
     <div class="lead">以月将加时、地分、贵神、人元四位起课，依五行生克与课体断事。</div>
     <div class="form-row r2">
       <div class="field" id="fDate" data-built="2026-11-18"><label for="jDate">公历日期</label><span class="dt-wrap dtm-jinkoujue"><input type="text" class="dt-input" id="jDate" value="2026-11-18" placeholder="YYYY-MM-DD" autocomplete="off" aria-label="起课公历日期"></span></div>
-      <div class="field" id="fTime"><label for="jTime">时刻</label><span class="dt-wrap dtm-jinkoujue"><input type="time" id="jTime" aria-label="起课时刻"></span></div>
+      <div class="field" id="fTime"><label for="jTime">时刻</label><span class="dt-wrap dtm-jinkoujue"><input type="text" data-time="1" id="jTime" aria-label="起课时刻"></span></div>
       <div class="field"><label for="jPlace">地分方位</label><select id="jPlace" aria-label="选择地分方位" data-keep>
         <option value="" selected>请选择方位</option>
         <option value="子">子（正北）</option>

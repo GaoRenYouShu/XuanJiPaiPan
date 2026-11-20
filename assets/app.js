@@ -371,22 +371,26 @@ function xjShareRecast(recast){
   window.__xjAnchor = null;
 }
 
-/* ===== 日期与时辰默认当下（全站唯一初始值真源） =====
-   本件以 defer 装载，解析完成即执行，早于首次绘制，故本段在顶层直接调用。
-   只在载入时写一次：不绑 input 与 change，不设定时器，用户改值后不再回写。
+/* ===== 日期与时辰默认当下（解析期件 now.js 的 defer 兜底与分钟续算） =====
+   本件以 defer 装载，载入时按当下写一遍，此后每分钟边界复算一次。
    日期：type=date、dt-input 文本框，以及占位、id 或无障碍标签语义为日期的文本框。
    时辰：type=time 与十二时辰下拉，下拉按选项文字首字定位，兼容各页取值口径。
    带 data-keep 的字段是派生值，例如择日结束日期等于起始加六十日，一律跳过，
-   其取值由所在页按各自规则在载入时派生。 */
+   其取值由所在页按各自规则在载入时派生。
+   带 data-user-set 的字段是用户改过的值，任何一次复算都跳过。 */
+/* 手选标记只在值真被用户改动时落下：input 与 change 且事件可信。
+   指针按下与按键不参与标记；点开选择器而未改值，自动当下值照常随分钟校正。
+   本件自建的日期与时刻弹层写值后显式调用 xjMarkUserSet，合成事件不参与 isTrusted 判定。 */
 function xjBindUserSet(el){
   if(el.__xjUserBound) return;
   el.__xjUserBound = true;
-  ['pointerdown','keydown','input','change'].forEach(function(name){
+  ['input','change'].forEach(function(name){
     el.addEventListener(name,function(e){
       if(e && e.isTrusted) el.setAttribute('data-user-set','1');
     });
   });
 }
+function xjMarkUserSet(el){ if(el) el.setAttribute('data-user-set','1'); }
 function xjMarkAuto(el){
   xjBindUserSet(el);
   el.setAttribute('data-autonow','1');
@@ -400,6 +404,7 @@ function xjApplyNowDefaults(){
   function userSet(el){ return el.hasAttribute('data-user-set'); }
   function isDateBox(el){
     if(el.tagName!=='INPUT' || kept(el)) return false;
+    if(el.hasAttribute('data-time')) return false;
     if(el.type==='date') return true;
     if(el.type!=='text' || !el.classList.contains('dt-input')) return false;
     if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(el.value||'')) return true;
@@ -411,7 +416,7 @@ function xjApplyNowDefaults(){
     xjBindUserSet(el);
     if(userSet(el)) return;
     if(isDateBox(el)){ el.value = ymd; xjMarkAuto(el); return; }
-    if(el.type==='time' && !kept(el)){ el.value = hm; xjMarkAuto(el); }
+    if((el.type==='time' || el.hasAttribute('data-time')) && !kept(el)){ el.value = hm; xjMarkAuto(el); }
   });
   /* 十二时辰下拉：选项文字以地支领起且带时段说明，按当下地支选中 */
   document.querySelectorAll('select').forEach(function(sel){
@@ -575,6 +580,7 @@ xjScheduleNowDefaults();
     body.querySelectorAll('.dt-cell[data-d]').forEach(c=>{
       c.addEventListener('click', ()=>{
         input.value = c.getAttribute('data-d');
+        xjMarkUserSet(input);
         input.dispatchEvent(new Event('change',{bubbles:true}));
         closePicker();
       });
@@ -600,12 +606,14 @@ xjScheduleNowDefaults();
       h = Number(o.getAttribute('data-h'));
       hc.querySelectorAll('.dt-opt').forEach(x=>x.classList.remove('on')); o.classList.add('on');
       input.value = `${pad2(h)}:${pad2(mi)}`;
+      xjMarkUserSet(input);
       input.dispatchEvent(new Event('change',{bubbles:true}));
     }));
     mc.querySelectorAll('.dt-opt').forEach(o=>o.addEventListener('click',()=>{
       mi = Number(o.getAttribute('data-mi'));
       mc.querySelectorAll('.dt-opt').forEach(x=>x.classList.remove('on')); o.classList.add('on');
       input.value = `${pad2(h)}:${pad2(mi)}`;
+      xjMarkUserSet(input);
       input.dispatchEvent(new Event('change',{bubbles:true}));
     }));
   }
@@ -616,12 +624,14 @@ xjScheduleNowDefaults();
   /* 为每个日期与时间输入挂上自建弹层：点输入框即开，页内不设图标。
      绑定态记在元素属性之外（静态页会把 data-* 一并写进 HTML），每次加载都重新挂事件。 */
   window.initPickers = function(){
-    document.querySelectorAll('input[type="text"].dt-input,input[type="time"]').forEach(inp=>{
+    document.querySelectorAll('input[type="text"].dt-input,input[type="time"],input[data-time]').forEach(inp=>{
       if(inp.__pkBound) return;
       inp.__pkBound = true;
       /* 扫描态只存元素 expando，静态页不会把它序列化进 HTML */
       inp.removeAttribute('data-dt-swept');
-      inp.classList.add('dt-input');
+      /* 时刻框是文本件，靠 data-time 认；日期框靠 dt-input 认，两者各走一套宽度规则 */
+      const isTime = inp.type==='time' || inp.hasAttribute('data-time');
+      if(!isTime) inp.classList.add('dt-input');
       inp.readOnly = true;
       let wrap = inp.parentElement;
       if(!wrap || !wrap.classList.contains('dt-wrap')){
@@ -631,7 +641,6 @@ xjScheduleNowDefaults();
         inp.parentNode.insertBefore(wrap, inp);
         wrap.appendChild(inp);
       }
-      const isTime = inp.type==='time';
       const open = ()=>{ if(isTime) openTimePicker(inp); else openDatePicker(inp); };
       inp.addEventListener('click', e=>{ e.preventDefault(); open(); });
       /* 日期框落盘前先过合法性判据：非法串（URL 参数或旧存档带来的 2 月 31 日一类）

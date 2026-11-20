@@ -92,11 +92,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -922,7 +923,7 @@ html .page-cz {
       <div class="field"><label for="czChar">所测之字（一字）</label><input id="czChar" class="cz-char-input" maxlength="4" placeholder="随手写一字"></div>
       <div class="field"><label for="czCat">所问之事</label><select id="czCat"><option value="zong">总论</option><option value="shiye">事业功名</option><option value="caiyun">财运买卖</option><option value="hunyin">婚姻感情</option><option value="jiankang">健康疾病</option><option value="xueye">学业考试</option><option value="chuxing">出行行人</option><option value="xunwu">寻人寻物</option><option value="guansi">官司是非</option></select></div>
       <div class="field"><label for="czDate">起测日期</label><span class="dt-wrap"><input type="text" class="dt-input" id="czDate" aria-label="起测日期" placeholder="2026-11-02" data-autonow="1" readonly=""></span></div>
-      <div class="field"><label for="czTime">起测时刻</label><span class="dt-wrap"><input type="time" id="czTime" aria-label="起测时刻" data-autonow="1" class="dt-input" readonly=""></span></div>
+      <div class="field"><label for="czTime">起测时刻</label><span class="dt-wrap"><input type="text" data-time="1" id="czTime" aria-label="起测时刻" data-autonow="1" readonly=""></span></div>
       <button class="btn gold" onclick="draw()">✍ 拆字详测</button>
       <button class="btn" onclick="nianzi()">🎲 随机拈字</button>
     </div>

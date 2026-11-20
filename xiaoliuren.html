@@ -164,11 +164,12 @@ input[type="time"]::-moz-calendar-picker-indicator{display:none}
 
 .dt-wrap input[type="text"].dt-input{flex:0 0 96px;width:96px}
 
-.dt-wrap input[type="time"]{flex:0 0 72px;width:72px}
+.dt-wrap input[type="time"],.dt-wrap input[data-time]{flex:0 0 72px;width:72px}
 
-.field input[type="time"],.page .form-row .field input[type="time"]{width:72px}
+.field input[type="time"],.page .form-row .field input[type="time"],
+.field input[data-time],.page .form-row .field input[data-time]{width:72px}
 
-input[type="text"].dt-input,input[type="time"]{text-align:center}
+input[type="text"].dt-input,input[type="time"],input[data-time]{text-align:center}
 
 @media(max-width:640px){
 .cal-page .form-row .field input[type="text"].dt-input{width:96px;flex:0 0 96px}
@@ -255,9 +256,7 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 
 .form-row .field input,.form-row .field select{width:auto;max-width:100%;display:inline-block}
 
-.page-xlr .field input[type="time"]{width:72px;text-align:center}
-
-.page-xlr .field input[type="time"]::-webkit-calendar-picker-indicator{display:none;opacity:0;pointer-events:none}
+.page-xlr .field input[data-time]{width:72px;text-align:center}
 
 .btn{
   height:30px;padding:0 16px;border:1px solid transparent;border-radius:0;cursor:pointer;
@@ -1033,7 +1032,7 @@ body:has(.page-xlr) .scroll-jump:not(.show){display:none}
         <option value="char">汉字笔画</option>
       </select></div>
       <div class="field" id="fDate" data-built="2026-10-29"><label for="dInput">日期（公历）</label><input type="text" class="dt-input" placeholder="2026-09-30" id="dInput" value="2026-10-29"></div>
-      <div class="field" id="fTime"><label for="tInput">时刻</label><input type="time" id="tInput" aria-label="起课时刻"></div>
+      <div class="field" id="fTime"><label for="tInput">时刻</label><input type="text" data-time="1" id="tInput" aria-label="起课时刻"></div>
       <div class="field" id="fNum1" style="display:none"><label for="qNum1">第一数（月）</label><input type="number" min="1" max="999" id="qNum1" class="dt-input xlr-num-input"></div>
       <div class="field" id="fNum2" style="display:none"><label for="qNum2">第二数（日）</label><input type="number" min="1" max="999" id="qNum2" class="dt-input xlr-num-input"></div>
       <div class="field" id="fNum3" style="display:none"><label for="qNum3">第三数（时）</label><input type="number" min="1" max="999" id="qNum3" class="dt-input xlr-num-input"></div>
