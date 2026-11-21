@@ -624,7 +624,7 @@ function hlClearYun(){
 function renderDayun(){
   const out=document.getElementById('hlDyOut');
   const h=HL_STATE.calc;
-  if(!h){ out.innerHTML='<p class="sub-note">先在起卦模块排出命卦。</p>'; return; }
+  if(!h){ out.innerHTML='<p class="sub-note">先点排命卦，再查运程。</p>'; return; }
   const rows=h.dayuns.map(function(d){
     return [d.tag,d.from+' 至 '+d.to+'（共'+(d.to-d.from+1)+'年）',d.gua,hlYaoLabel(d.bits,d.pos),d.yang?'阳爻九年':'阴爻六年'];
   });
@@ -649,7 +649,7 @@ function hlQueryLoc(){
 function renderLiuNian(){
   const out=document.getElementById('hlNianOut');
   const h=HL_STATE.calc;
-  if(!h){ out.innerHTML='<p class="sub-note">先在起卦模块排出命卦。</p>'; return; }
+  if(!h){ out.innerHTML='<p class="sub-note">先点排命卦，再查运程。</p>'; return; }
   if(!HL_STATE.yunValid){ out.innerHTML='<p class="sub-note">命卦已排，点查运程看流年流月流日流时。</p>'; return; }
   try{
     const q=hlQueryLoc(),Y=q.loc.Y;
@@ -677,7 +677,7 @@ function renderLiuNian(){
 function renderLiuYue(){
   const out=document.getElementById('hlYueOut');
   const h=HL_STATE.calc;
-  if(!h){ out.innerHTML='<p class="sub-note">先在起卦模块排出命卦。</p>'; return; }
+  if(!h){ out.innerHTML='<p class="sub-note">先点排命卦，再查运程。</p>'; return; }
   if(!HL_STATE.yunValid){ out.innerHTML='<p class="sub-note">命卦已排，点查运程看流月。</p>'; return; }
   try{
     const q=hlQueryLoc();
@@ -701,7 +701,7 @@ function renderLiuYue(){
 function renderLiuRiShi(){
   const out=document.getElementById('hlRiOut');
   const h=HL_STATE.calc;
-  if(!h){ out.innerHTML='<p class="sub-note">先在起卦模块排出命卦。</p>'; return; }
+  if(!h){ out.innerHTML='<p class="sub-note">先点排命卦，再查运程。</p>'; return; }
   if(!HL_STATE.yunValid){ out.innerHTML='<p class="sub-note">命卦已排，点查运程看流日流时。</p>'; return; }
   try{
     const q=hlQueryLoc(),dv=q.dv,loc=q.loc;
@@ -760,7 +760,7 @@ function hlQiStateOf(bits,monthZhi){
 function renderHeCan(){
   const out=document.getElementById('hlHeOut');
   const h=HL_STATE.calc;
-  if(!h){ out.innerHTML='<p class="sub-note">先在起卦模块排出命卦，再查合参结论。</p>'; return; }
+  if(!h){ out.innerHTML='<p class="sub-note">先点排命卦，再查合参结论。</p>'; return; }
   if(!HL_STATE.yunValid){ out.innerHTML='<p class="sub-note">命卦已排，点查运程看合参结论。</p>'; return; }
   try{
     const q=hlQueryLoc(),Y=q.loc.Y,mSel=q.loc.m;
@@ -868,6 +868,8 @@ function hlRestore(d){
   renderQigua();
   HL_STATE.yunValid=true;
   renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan();
+  /* 还原只露出结果模块，开合态由折叠记忆与用户操作决定，不写死展开 */
+  hlShowMods(HL_STATE.calc?['hlmod-qigua','hlmod-dayun','hlmod-nian','hlmod-hecan']:['hlmod-qigua']);
 }
 
 /* ---------- 9. 初始化 ---------- */
@@ -881,6 +883,18 @@ function hlCurLichunYear(){
 }
 /* ===== 折叠模块开合 ===== */
 function toggleMod(id){ var el=document.getElementById(id); if(el) el.classList.toggle('collapsed'); }
+/* 结果模块静态隐藏，有输出才露出；主输出模块由按钮动作展开。
+   显隐与开合属交互态，只由按钮与还原入口调用，渲染函数只管写内容。 */
+function hlShowMods(ids, openId){
+  (ids||[]).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.removeAttribute('hidden');
+  });
+  if(!openId) return;
+  if(window.MOD&&typeof window.MOD.open==='function'){ window.MOD.open(openId); return; }
+  var top=document.getElementById(openId);
+  if(top) top.classList.remove('collapsed');
+}
 
 /* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时、收起中国夏令时并写说明行；
    境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
@@ -907,10 +921,12 @@ function hlInit(){
   document.getElementById('hlBtn').addEventListener('click',function(){
     renderQigua();
     hlClearYun();
+    hlShowMods(HL_STATE.calc?['hlmod-qigua','hlmod-dayun']:['hlmod-qigua'],'hlmod-qigua');
   });
   document.getElementById('hlNianBtn').addEventListener('click',function(){
     if(HL_STATE.calc) HL_STATE.yunValid=true;
     renderLiuNian(); renderLiuYue(); renderLiuRiShi(); renderHeCan();
+    hlShowMods(HL_STATE.calc&&HL_STATE.yunValid?['hlmod-nian','hlmod-hecan']:['hlmod-nian'],'hlmod-nian');
   });
   if(window.mountAI) window.mountAI(heluoAiContext,'河洛理数',{
     'share':{
