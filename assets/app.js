@@ -1556,3 +1556,30 @@ window.xjShuffle = xjShuffle;
   document.addEventListener('click', gate, true);
   document.addEventListener('change', gate, true);
 })();
+
+/* 引擎预取：首屏两秒窗后再起，点击时引擎已就位；不占首屏带宽。
+   只对带 data-xj-engine 的页生效；宿主与装载器未就位时轮询等待。 */
+(function(){
+  var tries = 0;
+  var find = setInterval(function(){
+    var host = document.querySelector('[data-xj-engine]');
+    if (!host) {
+      if (++tries > 100) clearInterval(find);
+      return;
+    }
+    clearInterval(find);
+    var page = host.getAttribute('data-xj-engine');
+    if (!page) return;
+    setTimeout(function(){
+      var n = 0;
+      var t = setInterval(function(){
+        if (window.xjLoadEngine) {
+          clearInterval(t);
+          window.xjLoadEngine(page, function(){});
+        } else if (++n > 100) {
+          clearInterval(t);
+        }
+      }, 100);
+    }, 2100);
+  }, 100);
+})();

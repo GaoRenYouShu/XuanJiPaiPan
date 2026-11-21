@@ -526,8 +526,8 @@ const xjGrid = (function(){
   }
   return { slots: slots, render: render };
 })();
-/* 解析期渲染件 build/site/cal-boot.js 已在页内装上 window.xjCal 时，xjCalGrid 只作别名，
-   不再另起一套格渲染；其余四页尚未迁移，无 xjCal 时仍用旧实现，迁移后删除旧实现。 */
+/* 解析期渲染件 build/site/cal-boot.js 在页内装上 window.xjCal 时，xjCalGrid 直接取该渲染件；
+   未装 xjCal 的页由本件 xjGrid 出格。同页只许一件实际写格。 */
 window.xjCalSlots = xjGrid.slots;
 window.xjCalGrid = window.xjCal || xjGrid;
 
