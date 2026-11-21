@@ -270,13 +270,13 @@
   function afterPaint() {
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        /* 首屏字体未就位不引 stage2：分片声明、整份样式与重引擎都排在首屏字体之后取，
-           首秒带宽只让给首屏字体，避免同窗争流把页级字体拖过一秒；字体久候仍按上限放行。 */
+        /* 首绘后立即引 stage2：页级首屏字体已内联进关键样式，首绘即终态；分片声明、整份样式
+           与重引擎在首绘后立刻取，字体分片在 3 秒全量窗内完成。 */
         var done = false;
         function go() { if (done) return; done = true; activate(); }
         if (document.fonts && document.fonts.ready) {
           document.fonts.ready.then(go).catch(go);
-          setTimeout(go, 1200);
+          setTimeout(go, 0);
         } else {
           go();
         }

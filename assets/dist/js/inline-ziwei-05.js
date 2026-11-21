@@ -4,20 +4,15 @@
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
     renderChrome('ziwei.html');
+    /* iztro 属 3 秒全量：页头 preload 先下载，DCL 即插脚本执行，点击时已就绪。 */
+    if (typeof iztro === 'undefined') zwLoadScript('assets/iztro.min.js');
     /* 出生地默认停在未知地：起首若是某地，未动过表单的盘便按该地折过一道，校正量的来历盘上不著一字。
-       主盘与第二人两组下拉各自独立，共 fillPlaceTrio 同一份填充与取值。 */
-    (function initZwBirth(){
-      const sp=document.getElementById('zProv'); if(!sp||typeof provList!=='function') return;
-      const sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
-      window.__zwPlaceTrio=fillPlaceTrio(sp, sc, sd, zwSyncOverseas);
-    })();
-    (function initZwFBirth(){
-      const sp=document.getElementById('zFProv'); if(!sp||typeof provList!=='function') return;
-      const sc=document.getElementById('zFCity'), sd=document.getElementById('zFDist');
-      fillPlaceTrio(sp, sc, sd, zwSyncFOverseas);
+       主盘与第二人两组下拉各自独立，共 fillPlaceTrio 同一份填充与取值。
+       出生地数据按需取：用户首次触到出生地下拉或勾选双人合盘时才装 latlng.js。 */
+    (function initZwBirthLazy(){
+      const sp=document.getElementById('zProv'), spF=document.getElementById('zFProv');
       const tzF=document.getElementById('zFTz'), tz0=document.getElementById('zTz');
       if(tzF&&tz0) tzF.innerHTML=tz0.innerHTML;
-      zwSyncFOverseas();
       /* 第二人性别默认取主表单性别的相异项（男盘默认女、女盘默认男）；用户手动改过第二人性别时不覆盖 */
       const fse=document.getElementById('zFSex');
       if(fse){
@@ -27,10 +22,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const se0=document.getElementById('zSex');
         if(se0){ se0.addEventListener('change',syncFSex); syncFSex(); }
       }
+      function fill(){
+        if(typeof provList!=='function'||typeof fillPlaceTrio!=='function') return;
+        const sc=document.getElementById('zCity'), sd=document.getElementById('zDist');
+        if(sp) window.__zwPlaceTrio=fillPlaceTrio(sp, sc, sd, zwSyncOverseas);
+        const scF=document.getElementById('zFCity'), sdF=document.getElementById('zFDist');
+        if(spF) fillPlaceTrio(spF, scF, sdF, zwSyncFOverseas);
+        zwSyncFOverseas();
+      }
+      function go(){ zwEnsureLatlng(function(){ fill(); }); }
+      if(typeof provList==='function') fill();
+      else go();
     })();
     window.addEventListener('resize', ()=>zwDrawLinks(document.querySelector('.zw-focused')?.dataset?.name));
-    zwFillGZSelects();
     zwRestoreMode();
+    /* 排盘依赖首屏后即预取：lunar 与 bazi-data 不阻塞首绘，点击时已在途中或就绪。 */
+    zwEnsureBaziData(function(){});
     (function(){
       const p=new URLSearchParams(window.location.search);
       if(p.get('fromBazi')!=='1'){ return; }
@@ -48,7 +55,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if(sunEl&&p.get('bSun')) sunEl.value=p.get('bSun');
       else if(sunEl&&p.get('bTrue')) sunEl.value=(p.get('bTrue')==='1')?'true':'off';
     })();
-    mountAI(function(){ return __zw||''; }, '紫微斗数', { share:{ page:"ziwei", title:"紫微斗数在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ paipan(); }); } } });
+    (function mountAIOnce(){
+      if(typeof mountAI!=='function'){ zwEnsureAI(mountAIOnce); return; }
+      mountAI(function(){ return __zw||''; }, '紫微斗数', { share:{ page:"ziwei", title:"紫微斗数在线排盘", collect:xjShareCollect, restore:xjShareRestore, recast:function(){ xjShareRecast(function(){ paipan(); }); } } });
+    })();
     (function(){
       const apply=zwRelToggle;
       if(document.readyState==='complete') setTimeout(apply,0);

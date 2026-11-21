@@ -22,184 +22,22 @@
   } catch (e) { /* 挂载失败静默 */ }
 })();
 
-/* 分组导航：首页 + 历法、命理、三式、占卜、民俗、运气、相术、附录（八卷谱系） */
-const NAV_GROUPS = [
-  {type:'link', href:'index.html', name:'首页'},
-  {type:'group', name:'历法', items:[
-    {href:'wannianli.html', name:'万年历'},
-    {href:'laohuangli.html', name:'老黄历'},
-    {href:'foli.html', name:'佛历'},
-    {href:'daoli.html', name:'道历'},
-    {href:'zangli.html', name:'藏历'},
-    {href:'zeri.html', name:'择日'},
-    {href:'huangji.html', name:'皇极经世'},
-  ]},
-  {type:'group', name:'命理', items:[
-    {href:'bazi.html', name:'八字排盘'},
-    {href:'hehun.html', name:'八字合婚'},
-    {href:'ziwei.html', name:'紫微斗数'},
-    {href:'heluo.html', name:'河洛理数'},
-    {href:'tieban.html', name:'铁板神数'},
-    {href:'xingming.html', name:'姓名学'},
-    {href:'xingzhan.html', name:'占星术'},
-    {href:'qizheng.html', name:'七政四余'},
-  ]},
-  {type:'group', name:'三式', items:[
-    {href:'qimen.html', name:'奇门遁甲'},
-    {href:'daliuren.html', name:'大六壬'},
-    {href:'taiyi.html', name:'太乙神数'},
-  ]},
-  {type:'group', name:'占卜', items:[
-    {href:'dayan.html', name:'大衍筮法'},
-    {href:'liuyao.html', name:'六爻'},
-    {href:'meihua.html', name:'梅花易数'},
-    {href:'xiaoliuren.html', name:'小六壬'},
-    {href:'jinkoujue.html', name:'六壬金口诀'},
-    {href:'lingqijing.html', name:'灵棋经'},
-    {href:'lingqian.html', name:'灵签'},
-    {href:'tarot.html', name:'塔罗牌'},
-    {href:'lenormand.html', name:'雷诺曼'},
-  ]},
-  {type:'group', name:'民俗', items:[
-    {href:'minsu.html', name:'民俗占法'},
-    {href:'cezi.html', name:'测字'},
-    {href:'zhougong.html', name:'周公解梦'},
-    {href:'xingxiu.html', name:'二十八宿'},
-    {href:'taisui.html', name:'太岁生肖'},
-    {href:'jisi.html', name:'祭祀供奉'},
-  ]},
-  {type:'group', name:'运气', items:[
-    {href:'yunqi.html', name:'五运六气'},
-    {href:'ziwu.html', name:'子午流注'},
-  ]},
-  {type:'group', name:'养生', items:[
-    {href:'jingyou.html', name:'精油芳疗'},
-    {href:'shiliao.html', name:'食疗'},
-    {href:'tuina.html', name:'推拿按跷'},
-  ]},
-  {type:'group', name:'相术', items:[
-    {href:'shouxiang.html', name:'手相'},
-    {href:'mianxiang.html', name:'面相'},
-    {href:'luopan.html', name:'罗经仪'},
-    {href:'fengshui.html', name:'阳宅风水'},
-    {href:'fengshui-yin.html', name:'阴宅风水'},
-  ]},
-  {type:'group', name:'附录', items:[
-    {href:'dianji.html', name:'典籍参考'},
-    {href:'shuoming.html', name:'说明文档'},
-    {href:'opensource.html', name:'算法数据'},
-  ]},
-];
-
-/* 导航就地校正：首屏静态导航已在页面 HTML 里，本函数只按 NAV_GROUPS 对齐既有节点。
-   结构一致时仅改当前页高亮；增删只补删对应菜单项，不重建整段。
-   整段重绘会让顶栏重排、把手标与工具区图标一并重建，刷新和切页因此闪跳。 */
+/* 导航由 build/site/topbar.tpl 静态直出；本函数只按当前页切换高亮，
+   不持第二份导航表、不补删、不重排、不重建整段。 */
 function syncNav(nav, active){
-  const tools = nav.querySelector(':scope > .nav-tools');
-  NAV_GROUPS.forEach(function(g, gi){
-    if(g.type === 'link'){
-      let a = nav.querySelector(':scope > a.nav-link');
-      if(!a){
-        a = document.createElement('a');
-        nav.insertBefore(a, nav.firstChild);
-      }
-      const cls = g.href === active ? 'nav-link active' : 'nav-link';
-      if(a.getAttribute('href') !== g.href) a.setAttribute('href', g.href);
-      if(a.textContent !== g.name) a.textContent = g.name;
-      if(a.className !== cls) a.className = cls;
-      return;
-    }
-    let box = nav.querySelector(':scope > .nav-group[data-gi="' + gi + '"]');
-    if(!box){
-      box = document.createElement('div');
-      box.className = 'nav-group';
-      box.setAttribute('data-gi', String(gi));
-      box.innerHTML = '<button class="nav-top" onclick="toggleNavGroup(this)">' + g.name
-        + '<span class="caret"></span></button><div class="nav-menu"></div>';
-      let at = tools;
-      for(let k = gi + 1; k < NAV_GROUPS.length; k++){
-        const later = nav.querySelector(':scope > .nav-group[data-gi="' + k + '"]');
-        if(later){ at = later; break; }
-      }
-      nav.insertBefore(box, at || null);
-    }
-    const btn = box.querySelector('.nav-top');
-    if(btn){
-      const first = btn.firstChild;
-      if(first && first.nodeType === 3){
-        if(first.nodeValue !== g.name) first.nodeValue = g.name;
-      } else {
-        btn.insertBefore(document.createTextNode(g.name), btn.firstChild);
-      }
-    }
-    const menu = box.querySelector('.nav-menu');
-    if(menu){
-      const want = {};
-      g.items.forEach(function(it){ want[it.href] = it.name; });
-      Array.prototype.slice.call(menu.children).forEach(function(a){
-        if(a.tagName === 'A' && !Object.prototype.hasOwnProperty.call(want, a.getAttribute('href'))) menu.removeChild(a);
-      });
-      g.items.forEach(function(it, idx){
-        let a = null;
-        Array.prototype.slice.call(menu.children).some(function(x){
-          if(x.tagName === 'A' && x.getAttribute('href') === it.href){ a = x; return true; }
-          return false;
-        });
-        if(!a){
-          a = document.createElement('a');
-          const rest = g.items.slice(idx + 1).map(function(x){ return x.href; });
-          let next = null;
-          Array.prototype.slice.call(menu.children).some(function(x){
-            if(x.tagName === 'A' && rest.indexOf(x.getAttribute('href')) >= 0){ next = x; return true; }
-            return false;
-          });
-          menu.insertBefore(a, next || null);
-        }
-        if(a.getAttribute('href') !== it.href) a.setAttribute('href', it.href);
-        if(a.textContent !== it.name) a.textContent = it.name;
-        const cls = it.href === active ? 'active' : '';
-        if(a.className !== cls) a.className = cls;
-      });
-    }
-    const on = g.items.some(function(it){ return it.href === active; });
-    box.classList.toggle('has-active', on);
-  });
-  Array.prototype.slice.call(nav.querySelectorAll(':scope > .nav-group')).forEach(function(box){
-    const gi = Number(box.getAttribute('data-gi'));
-    if(!NAV_GROUPS[gi] || NAV_GROUPS[gi].type !== 'group') nav.removeChild(box);
-  });
+  const links = nav.querySelectorAll('a[href]');
+  for (let i = 0; i < links.length; i++) {
+    links[i].classList.toggle('active', links[i].getAttribute('href') === active);
+  }
+  const groups = nav.querySelectorAll('.nav-group');
+  for (let i = 0; i < groups.length; i++) {
+    groups[i].classList.toggle('has-active', !!groups[i].querySelector('a.active'));
+  }
 }
 
 function renderChrome(active){
-  let navHtml = '';
-  NAV_GROUPS.forEach((g,gi)=>{
-    if(g.type==='link'){
-      const cls = g.href===active ? 'nav-link active' : 'nav-link';
-      navHtml += `<a class="${cls}" href="${g.href}">${g.name}</a>`;
-    } else {
-      const hasActive = g.items.some(it=>it.href===active);
-      const items = g.items.map(it=>{
-        const c = it.href===active ? 'active' : '';
-        return `<a class="${c}" href="${it.href}">${it.name}</a>`;
-      }).join('');
-      navHtml += `<div class="nav-group${hasActive?' has-active':''}" data-gi="${gi}">
-        <button class="nav-top" onclick="toggleNavGroup(this)">${g.name}<span class="caret"></span></button>
-        <div class="nav-menu">${items}</div>
-      </div>`;
-    }
-  });
-
-  /* 静态导航首屏直出，这里只校正差异；页面若不带导航（空 nav）才整段构建一次。 */
   const nav = document.querySelector('.topbar nav.nav');
-  if (nav) {
-    if (nav.querySelector('.nav-group')) {
-      syncNav(nav, active);
-    } else {
-      const tools = nav.querySelector('.nav-tools');
-      nav.innerHTML = navHtml;
-      if (tools) nav.appendChild(tools);
-    }
-  }
+  if (nav) syncNav(nav, active);
 
   defaultToday();
   initPickers();

@@ -1,4 +1,43 @@
 let __zw=null;
+/* 按需依赖装载：农历、出生地、AI、四柱校验只在对应功能触发时取；iztro 由页头 preload 先取。 */
+var __zwLoad = {};
+function zwLoadScript(src, cb) {
+  if (__zwLoad[src]) { if (cb) __zwLoad[src].push(cb); return; }
+  __zwLoad[src] = cb ? [cb] : [];
+  var s = document.createElement('script');
+  s.src = src;
+  s.async = true;
+  s.onload = function () {
+    var q = __zwLoad[src] || []; delete __zwLoad[src];
+    q.forEach(function (f) { try { f(); } catch (e) { console.error('[zw] 装载回调失败 ' + src, e); } });
+  };
+  s.onerror = function () {
+    var q = __zwLoad[src] || []; delete __zwLoad[src];
+    q.forEach(function (f) { try { f(new Error(src)); } catch (e) { console.error('[zw] 装载失败回调 ' + src, e); } });
+  };
+  document.head.appendChild(s);
+}
+function zwEnsureLunar(cb) { if (typeof Lunar !== 'undefined') return cb(); zwLoadScript('assets/lunar.js', cb); }
+function zwEnsureLatlng(cb) { if (typeof findLng === 'function') return cb(); zwLoadScript('assets/latlng.js', cb); }
+function zwEnsureAI(cb) { if (typeof mountAI === 'function') return cb(); zwLoadScript('assets/ai.js', cb); }
+function zwEnsureBaziCore(cb) {
+  if (typeof isValidGZ === 'function') return cb();
+  zwEnsureLunar(function (err) {
+    if (err) return cb(err);
+    zwLoadScript('assets/bazi-core.js', cb);
+  });
+}
+/* 干支常量与子时口径在 bazi-data.js；adjustZiShi 依赖 lunar.js 的 Solar，两件并行取，先到者不等人。 */
+function zwEnsureBaziData(cb) {
+  if (typeof GAN !== 'undefined' && typeof ZHI_ORDER !== 'undefined') return cb();
+  var left = 1, firstErr = null;
+  function done(err) {
+    if (err && !firstErr) firstErr = err;
+    if (--left <= 0) cb(firstErr);
+  }
+  if (typeof Lunar === 'undefined') { left++; zwLoadScript('assets/lunar.js', done); }
+  zwLoadScript('assets/bazi-data.js', done);
+}
 /* 十四主星五行，全页单一真源 */
 /* 星曜亮度七档，全页单一真源：庙、旺、得、利、平、不、陷；强弱判定与图例同一次序。 */
 const ZW_BRI_RANK={庙:6,旺:5,得:4,利:3,平:2,不:1,陷:0,'不得地':1};
@@ -1402,11 +1441,13 @@ function zwHePan(astroM, astroF, school, sexM, sexF){
 /* 境外出生地取数：主盘与第二人同一套，按元素编号取共享件 overseasInfo 的结果；
    时区、当地夏令时与经度皆按用户手改优先，未改即取城市自带值。 */
 function zwOvInfo(){
+  if (typeof overseasInfo !== 'function') return null;
   return overseasInfo({prov:'zProv', city:'zCity', lng:'zLng', tz:'zTz', dst:'zOvDst'});
 }
 /* 境外出生地界面同步：选到境外城市时挂出时区与当地夏令时两项并写说明行，
    收起中国夏令时；境内还原。显隐与文案由共享件 syncOverseasFields 一处判。 */
 function zwSyncOverseas(){
+  if (typeof syncOverseasFields !== 'function') return;
   syncOverseasFields({prov:'zProv', city:'zCity', lng:'zLng', tz:'zTz', dst:'zOvDst',
     tzField:'zTzField', dstField:'zOvDstField', note:'zOverseasNote', chinaDstField:'zDstField'});
 }
@@ -1415,9 +1456,11 @@ function zwOvChange(){ try{ paipan(); }catch(e){} }
 function zwFixLeap(){ return ((document.getElementById('zLeap')||{}).value||'next')!=='same'; }
 /* 第二人境外出生地：与主盘同一套时区、经度与当地夏令时取数。 */
 function zwOvFInfo(){
+  if (typeof overseasInfo !== 'function') return null;
   return overseasInfo({prov:'zFProv', city:'zFCity', lng:'zFLng', tz:'zFTz', dst:'zFOvDst'});
 }
 function zwSyncFOverseas(){
+  if (typeof syncOverseasFields !== 'function') return;
   syncOverseasFields({prov:'zFProv', city:'zFCity', lng:'zFLng', tz:'zFTz', dst:'zFOvDst',
     tzField:'zFTzField', dstField:'zFOvDstField', note:'zFOverseasNote', chinaDstField:'zFDstField'});
 }
@@ -1450,7 +1493,7 @@ function zwClockToPalace(y,m,d,h,mi,lng,dstMode,sunMode,ziMode,baseLng){
 const ZW_MODE_KEY='ZW_PAGE_MODE', ZW_SAVED_KEY='ZW_SAVED', ZW_SAVED_SESS_KEY='ZW_SAVED_SESS', ZW_SAVED_MAX=9;
 const ZW_LUNAR_M=['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 const ZW_LUNAR_D=['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
-/* 时支还原钟面整点：TZ_HOUR 由 bazi-core.js 与八字页共用，此处直取同一真源。 */
+/* 时支还原钟面整点：子 0、丑 2 依次到亥 22，由 bazi-data 的 ZHI_ORDER 直接推出。 */
 /* 字段显隐：本页 .form-row 为 flex 容器，会压过浏览器对 hidden 属性的默认样式，故显式兑现一次 */
 function zwShow(id,on){ const el=document.getElementById(id); if(el) el.hidden=!on; }
 function zwMode(){
@@ -1602,6 +1645,7 @@ function zwRestoreMode(){
 /* 干支下拉填值：十干十二支全列，六十甲子之外的组合留到选完时用 isValidGZ 判，不靠下拉预筛。
    预筛会随先选干还是先选支而变，反而把可用的另一半挡在门外。 */
 function zwFillGZSelects(){
+  if(typeof GAN==='undefined'||typeof ZHI_ORDER==='undefined') return;
   [['zpyG','zpyZ'],['zpmG','zpmZ'],['zpdG','zpdZ'],['zptG','zptZ']].forEach(([gId,zId])=>{
     const g=document.getElementById(gId), z=document.getElementById(zId);
     if(!g||!z||g.options.length) return;
@@ -1612,12 +1656,13 @@ function zwFillGZSelects(){
 /* 四柱反查：年月日三柱定候选公历日，时支还原成钟面整点回填时间框。
    月柱由年干遁出、时柱由日干遁出，故组合不自洽时直接指明错在哪一柱，用户改的就是自己填错的那一位。 */
 function zwPillarLookup(){
+  if(typeof GAN==='undefined'||typeof ZHI_ORDER==='undefined'){ zwEnsureBaziData(zwPillarLookup); return; }
   zwFillGZSelects();
   const pickField=document.getElementById('zPillarPickField'), pick=document.getElementById('zPillarPick');
   if(!pick) return;
-  /* 干支校验与五虎遁、五鼠遁由 bazi-core.js 提供，四柱反查先装载同一清单再判，未载时不得直调 */
-  if(window.xjLoadEngine && !window.xjEngineReady('ziwei')){
-    window.xjLoadEngine('ziwei', function(err){ if(!err) zwPillarLookup(); });
+  /* 干支校验与五虎遁、五鼠遁由 bazi-core.js 提供；四柱反查先按需装载同一真源再判。 */
+  if (typeof isValidGZ !== 'function') {
+    zwEnsureBaziCore(function (err) { if (!err) zwPillarLookup(); });
     return;
   }
   const v=id=>(document.getElementById(id)||{}).value||'';
@@ -1686,7 +1731,7 @@ function zwPillarPick(){
   if(!dv) return;
   document.getElementById('zDate').value=dv;
   const tz=(document.getElementById('zptZ')||{}).value||'子';
-  document.getElementById('zTime').value=String(TZ_HOUR[tz]).padStart(2,'0')+':00';
+  document.getElementById('zTime').value=String(ZHI_ORDER.indexOf(tz)*2).padStart(2,'0')+':00';
   try{ paipan(); }catch(e){}
 }
 /* 已存取用：localStorage 为主、sessionStorage 为备，与八字页同式，
@@ -1813,17 +1858,26 @@ const ZW_NO_PLACE_MSG='太阳时校正已开，但未定出生地：请在出生
 function zwLngOf(prefix){
   const ml=document.getElementById(prefix+'Lng').value;
   if(ml!=='') return parseFloat(ml);
+  if (typeof findLng !== 'function') return null;
   const p=document.getElementById(prefix+'Prov'), c=document.getElementById(prefix+'City'), s=document.getElementById(prefix+'Dist');
   if(!p) return null;
   const lng=(s&&s.value)?findLng(p.value,c.value,s.value):findLng(p.value,c.value,'');
   return (lng==null||isNaN(lng))?null:lng;
 }
 function paipan(){
-  /* 重计算件按需装载：首屏只载界面件，点排盘时按清单加载 iztro 与 bazi-core。 */
-  if (window.xjLoadEngine && !window.xjEngineReady('ziwei')) {
+  /* 干支常量按需补；核心只等 iztro，农历模式先补 lunar，四柱模式由 zwPillarLookup 另补 bazi-core。 */
+  if (typeof GAN === 'undefined' || typeof ZHI_ORDER === 'undefined') {
+    zwEnsureBaziData(paipan);
+    return;
+  }
+  if (zwMode().isLunar && typeof Lunar === 'undefined') {
+    zwEnsureLunar(function (err) { if (!err) paipan(); });
+    return;
+  }
+  if (typeof iztro === 'undefined') {
     const btn = document.querySelector('.page-zw button[onclick="paipan()"]');
     if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = '排盘中'; }
-    window.xjLoadEngine('ziwei', function (err) {
+    zwLoadScript('assets/iztro.min.js', function (err) {
       if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || '排盘'; }
       if (!err) paipan();
     });
