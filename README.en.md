@@ -16,7 +16,7 @@
 [![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code_size)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-43-2CA5E0?style=flat-square)](#feature-overview)
+[![Tools](https://img.shields.io/badge/Tools-44-2CA5E0?style=flat-square)](#feature-overview)
 [![Pure frontend](https://img.shields.io/badge/Pure_frontend-Built_artifacts-4c9e4c?style=flat-square)](#tech-stack)
 [![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
 [![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
@@ -37,7 +37,7 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Eight categories with 43 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
+Eight categories with 44 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
 
 | Category | Tools |
 |---|---|
@@ -48,7 +48,7 @@ Eight categories with 43 independent tools: Calendars, Fate Analysis, Three Styl
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
 | **Wellness** | Essential Oil Aromatherapy, Dietary Therapy, Tuina Massage |
-| **Physiognomy** | Palmistry, Face Reading, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui, Luopan |
+| **Physiognomy** | Palmistry, Face Reading, Bone Reading, Luopan, Yang Dwelling Feng Shui, Yin Dwelling Feng Shui |
 
 ## Interface Preview
 
@@ -123,10 +123,11 @@ Introduced in the order of the site's eight sections.
 - **Dietary Therapy**: food, recipe, seasonal and meal-plan queries by constitution, season and group, with 358 foods, 40 recipes and the food-medicine catalog
 - **Tuina Massage**: acupoint and technique queries by body region, symptom and meridian, with 16 techniques, 9 regions, 36 symptoms, 72 point routines and 12 contraindication groups; a separate section introduces pediatric tuina as a system, its sources and when to stop and see a doctor
 
-### Physiognomy (5)
+### Physiognomy (6)
 
 - **Palmistry**: seven palm shapes with nine palaces and eight mounts, the three major lines and auxiliary lines, a checklist self-assessment, and texts quoted from the Ma Yi Physiognomy
 - **Face Reading**: three zones, seven face shapes, the five features, complexion and mole readings with twelve-palace position texts, plus self-assessment and classical illustrations
+- **Bone Reading**: classical comparisons of the nine head bones, the eighteen occipital bones and bone-flesh harmony, with queries by bone position and form and a nine-bone self-check; texts quoted from the Yuebo Dongzhong Ji, Taiqing Shenjian and Shenxiang Quanbian, with variants listed side by side
 - **Yang Dwelling Feng Shui**: purple-white flying stars for year, month, day and hour, eight-mansion auspicious directions, 24-mountain orientation and annual Tai Sui avoidance; the compass uses the WMM2025 geomagnetic model to correct declination; the dwelling is the body and the year the function
 - **Yin Dwelling Feng Shui**: terrain survey of dragon, sand, water and point, flying-star sitting and facing, three-harmony water methods and the eight-sha, yellow-spring and peach-blossom waters, immortal-destiny mountain matching and 28-mansion metal division, with burial dates chosen to avoid repeated mourning, repeat days, and the four separations and four severances
 - **Luopan**: an online geomantic compass that gathers three plates and three needles, metal division, hexagram cycles and the 28 mansions onto one dial, modeled on a real luopan and fully rotatable; the three plate configurations are switchable, north is up and south is down, dial angles are geographic degrees, and black, gold or white backgrounds are available
@@ -265,7 +266,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        48 pages: 43 tools plus the home page, three appendix pages and a 404 page
+├── *.html        49 pages: 44 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

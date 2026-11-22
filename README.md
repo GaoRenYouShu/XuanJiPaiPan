@@ -16,7 +16,7 @@
 [![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-43_个-2CA5E0?style=flat-square)](#功能总览)
+[![排盘工具](https://img.shields.io/badge/排盘工具-44_个-2CA5E0?style=flat-square)](#功能总览)
 [![纯前端](https://img.shields.io/badge/纯前端-构建产物-4c9e4c?style=flat-square)](#技术构成)
 [![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
 [![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
@@ -37,7 +37,7 @@
 
 ## 功能总览
 
-涵盖历法、命理、三式、占卜、民俗、运气、养生、相术八大类，共 43 个独立工具。
+涵盖历法、命理、三式、占卜、民俗、运气、养生、相术八大类，共 44 个独立工具。
 
 | 分类 | 工具 |
 |---|---|
@@ -48,7 +48,7 @@
 | **民俗** | 民俗占法、测字、周公解梦、二十八宿、太岁生肖、祭祀供奉 |
 | **运气** | 五运六气、子午流注 |
 | **养生** | 精油芳疗、食疗、推拿按跷 |
-| **相术** | 手相、面相、阳宅风水、阴宅风水、罗经仪 |
+| **相术** | 手相、面相、摸骨、罗经仪、阳宅风水、阴宅风水 |
 
 ## 界面预览
 
@@ -123,10 +123,11 @@
 - **食疗**：按食材、食疗方、当令与体质季节人群配膳，含三百五十八味食材、四十首食疗方与药食同源目录
 - **推拿按跷**：按部位、症状与经脉查取穴与手法，含十六法、九部位、三十六症、七十二穴推拿取法与十二类禁忌；另设小儿推拿资料一节，只述体系、源流与就医边界
 
-### 相术（5 件）
+### 相术（6 件）
 
 - **手相**：掌形七类与九宫八丘、三大主线与辅助线纹，勾选式自查计分，条文照录《麻衣相法》
 - **面相**：三停、面形七类、五官、气色痣相与十二宫定位条文对照，附自查计分与古籍原图
+- **摸骨**：九骨、玉枕十八骨与骨肉相称的典籍对照，按骨位与骨形查询，附九骨自查；条文节录《月波洞中记》《太清神鉴》《神相全编》，异文并列
 - **阳宅风水**：年月日时紫白飞星、八宅吉凶方位、二十四山坐山立极、流年太岁避煞，罗盘内置 WMM2025 地磁模型校正磁偏角，宅为体、年为用综合诊断
 - **阴宅风水**：峦头觅龙察砂观水点穴、玄空飞星坐向、三合水法与八煞黄泉桃花水、仙命配山与二十八宿分金，安葬择日避重丧复日四离四绝
 - **罗经仪**：集三盘三针、分金、卦运、星宿诸层于一盘的在线罗经，照真实罗经形制可转可读；三盘层制可换，上北下南、盘面角即地理度，黑金白三色底色取用
@@ -266,7 +267,7 @@ docker run -d --name xuanji-paipan -p 8080:80 xuanji-paipan
 
 ```
 XuanJiPaiPan/
-├── *.html        48 个页面：43 个工具加首页、附录三类与 404 页
+├── *.html        49 个页面：44 个工具加首页、附录三类与 404 页
 ├── assets/       全部脚本、样式、字体与图源
 ├── manifest.webmanifest 与 sw.js   PWA 清单与离线 Service Worker
 ├── .nojekyll     GitHub Pages 免 Jekyll 处理
