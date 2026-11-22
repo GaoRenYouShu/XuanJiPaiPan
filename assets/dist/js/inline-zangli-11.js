@@ -99,7 +99,7 @@ function _zlShow(title, body){
 }
 function showZlTip(name){
   const o = (typeof zlMean === 'function') ? zlMean(name) : null;
-  if(!o){ _zlShow(name, '（暂无说明）'); return; }
+  if(!o){ _zlShow(name, '暂无说明'); return; }
   _zlShow(o.t, o.d);
 }
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeZlTip(); });

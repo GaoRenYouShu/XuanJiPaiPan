@@ -140,7 +140,7 @@
       if (jiWang.length) duan += '；' + jiWang.join('、') + '为忌而势旺，扶抑之行愈急';
     }
     text += '断（扶抑能行几分）：' + duan + '。';
-    text += '（旺衰扶抑与三得之说，民国徐乐吾、袁树珊、韦千里诸家以旺衰定用神一路所主；空亡填实与冲实之说出自古法空亡论，此条据此推演）';
+    text += '旺衰扶抑与三得之说，民国徐乐吾、袁树珊、韦千里诸家以旺衰定用神一路所主；空亡填实与冲实之说出自古法空亡论，此条据此推演。';
     return { text: text, duan: duan, liang: li.map(r => ({ wx: r.wx, li: r.li, tier: r.tier })), kong: kongs };
   }
 

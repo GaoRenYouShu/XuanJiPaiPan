@@ -222,7 +222,7 @@ function ziweiRead(astro, school, trans){
     <tr><th>命宫</th><td>${soulMj}，${natOf.dual?('两星同宫，取其合成之性：'+natOf.dual+'。'):(natOf.nm+'为其禀性，')}${briTxt}；事业方向：${natOf.dir||'量才而进'}。</td></tr>
     <tr><th>身宫</th><td>落${bodyName.replace(/宫$/,'')}宫，主${bodyMean||''}。${bodyAdv}。${curMean?'　'+curMean+'。':''}</td></tr>
     <tr><th>四化</th><td>${luFen||'化禄未见明确落宫'}；${jiFen||'化忌未见明确落宫'}。逢忌之宫宜守、逢禄之宫可谋，以定吉凶应期。</td></tr>
-    <tr><th>三方四正</th><td>（命财官迁）${sanName}。${sanAdv}。</td></tr>
+    <tr><th>三方四正</th><td>${sanName}。${sanAdv}。</td></tr>
     ${bpTxt?'<tr><th>北派要旨</th><td>'+bpTxt+'。</td></tr>':''}
     <tr><th>一生总纲</th><td>${zong}</td></tr>
   </tbody></table>`;
@@ -644,7 +644,7 @@ function zwLiuNian(astro, sex, school){
     text=`流年${gz}：流年命宫${mgName}，主星${mgStars}${mgZhong}。三方四正：${sanText}。${ge}${xsTxt}`;
     body=`<table class="zp-yun-tbl"><tbody>
         <tr><th>流年命宫</th><td>${mgName}：${mgStars}${(mg&&mg.name&&mg.name!=='命宫')?('，落本命'+mg.name+'宫位，主'+((()=>{const r=ZIWEI_PAL_MEAN.find(x=>x[0]===mg.name);return r?r[1]:mg.name;})())):''}${mgZhong}</td></tr>
-        <tr><th>三方四正</th><td>（命财官迁 详断）${sanLines}</td></tr>
+        <tr><th>三方四正</th><td>${sanLines}</td></tr>
         <tr><th>吉凶总评</th><td>${ge}</td></tr>
         <tr><th>随岁</th><td>${xsTxt} 逐年察星曜亮度与三方吉凶之动。</td></tr>
       </tbody></table>`;

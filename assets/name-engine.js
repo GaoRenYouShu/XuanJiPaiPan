@@ -169,7 +169,7 @@ function analyze(xing, ming, linkXi, linkJi){
 
   /* 三才 */
   var st=sancaiWx(wg.tian), sr=sancaiWx(wg.ren), sd=sancaiWx(wg.di);
-  var sc=D.SANCAI[st+sr+sd]||{luck:'xj', text:'（三才组合释义缺）'};
+  var sc=D.SANCAI[st+sr+sd]||{luck:'xj', text:'三才组合释义缺'};
 
   /* 三运关系 */
   function yun(a,b){

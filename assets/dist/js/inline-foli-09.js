@@ -75,7 +75,7 @@ function _foliShow(title, body){
 /* 术语弹窗：斋期五类、宿曜概念、圣诞通名等，释义取 foli-terms.js 单一真源 */
 function showFoliTip(name){
   const o=(typeof foliMean==='function')?foliMean(name):null;
-  if(!o){ _foliShow(name,'（暂无说明）'); return; }
+  if(!o){ _foliShow(name,'暂无说明'); return; }
   _foliShow(o.t, o.d);
 }
 /* 当日值宿弹窗：宿曜全名＋逐宿释义＋宿曜吉凶歌；与宿盘详情同一文案，不另起一套。

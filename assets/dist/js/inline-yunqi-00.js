@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (jiKey === 'ping'){
         html += '<p class="sub-note">' + esc(p.pingqi.desc) + '，故本年为平气，不取太过不及之气交变文；平气之纪政令中和，物候以常为度（《素问·五常政大论》）。</p>';
       } else {
-        html += '<p class="sub-note">' + esc(YUN_QJ[p.yun.wx][jiKey]) + '（《素问·气交变大论》照录，为古人对气候物候与人体相应之观察记录，属运气学说原文，不作诊断依据）</p>';
+        html += '<p class="sub-note">' + esc(YUN_QJ[p.yun.wx][jiKey]) + '语出《素问·气交变大论》，照录，为古人对气候物候与人体相应之观察记录，属运气学说原文，不作诊断依据。</p>';
       }
       $('yqYunOut').innerHTML = ov + html;
     }
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
       html += '</tbody></table></div>';
       html += '<p class="sub-note">上半年由“' + esc(p.sitian.name) + '”主事，气候传统认为偏' + esc(WX_SE[p.sitian.wx] || p.sitian.wx) + '；下半年由“' + esc(p.zaiquan.name) + '”主事，偏' + esc(WX_SE[p.zaiquan.wx] || p.zaiquan.wx) + '。</p>';
       html += '<div class="yq-head">' + esc(p.sitian.name) + '司天之政</div>';
-      html += '<p class="sub-note">' + esc(SITIAN_ZHENG[p.sitian.name]) + '（《素问·六元正纪大论》照录）</p>';
+      html += '<p class="sub-note">' + esc(SITIAN_ZHENG[p.sitian.name]) + '语出《素问·六元正纪大论》，照录。</p>';
       $('yqSitianOut').innerHTML = html;
     }
 
@@ -229,12 +229,12 @@ document.addEventListener('DOMContentLoaded', function () {
       h += '</tbody></table></div>';
       /* 六气标本中见与胜复：至真要大论原文照录 */
       h += '<div class="yq-head">六气标本中见</div>';
-      h += '<p class="sub-note">' + esc(YQ_BIAOBEN) + '（《素问·至真要大论》照录）</p>';
+      h += '<p class="sub-note">' + esc(YQ_BIAOBEN) + '语出《素问·至真要大论》，照录。</p>';
       h += '<div class="yq-head">六气胜复</div>';
-      h += '<p class="sub-note">' + esc(YQ_SHENG_FU) + '（《素问·至真要大论》照录：初气终三气天气主之，胜之常也；四气尽终气地气主之，复之常也）</p>';
+      h += '<p class="sub-note">' + esc(YQ_SHENG_FU) + '语出《素问·至真要大论》，照录。</p>';
       /* 五郁治则与五郁之发：六元正纪大论原文照录 */
       h += '<div class="yq-head">五郁之治与五郁之发</div>';
-      h += '<p class="sub-note">' + esc(YQ_YU_ZHI) + '（《素问·六元正纪大论》照录）</p>';
+      h += '<p class="sub-note">' + esc(YQ_YU_ZHI) + '语出《素问·六元正纪大论》，照录。</p>';
       h += '<div class="yq-tbl-wrap"><table class="yq-tbl"><thead><tr><th>郁发</th><th>气候物候之变（《素问·六元正纪大论》照录）</th></tr></thead><tbody>';
       for (var m = 0; m < YQ_YU_FA.length; m++){
         h += '<tr><td class="yq-c0">' + esc(YQ_YU_FA[m].yu) + '</td><td>' + esc(YQ_YU_FA[m].txt.replace(YQ_YU_FA[m].yu + '，', '')) + '</td></tr>';

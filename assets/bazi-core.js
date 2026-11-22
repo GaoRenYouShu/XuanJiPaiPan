@@ -871,7 +871,7 @@ function cardStripBr(s){
     if(aJi.length) sparts.push('忌神不现，反免其扰。'+aJi.map(g=>jiShort[g]).join('；')+'。');
     if(aNeu.length) sparts.push(aNeu.map(g=>neuShort[g]).join('；')+'。');
     if(!absent.length && wXi.length) sparts.push('十神皆现，但'+wXi.map(g=>xiWeak[g]).join('；')+'。');
-    if(!absent.length && wJi.length) sparts.push('（<span class="tip sha-xiong">为忌</span>之神仅弱藏、其势不彰）'+wJi.map(g=>jiWeak[g]).join('；')+'。');
+    if(!absent.length && wJi.length) sparts.push('<span class="tip sha-xiong">为忌</span>之神仅弱藏、其势不彰：'+wJi.map(g=>jiWeak[g]).join('；')+'。');
     if(!absent.length && wNeu.length) sparts.push('十神皆现，但'+wNeu.map(g=>neuShort[g]).join('；')+'。');
     const posShort=[];
     if(cai>0 && caiTouN===0) posShort.push('财星全藏不透、求财须主动引动');
@@ -7963,10 +7963,10 @@ function buildSchoolsDeep(BZ, sel, selMeta){
     let consLine=consensusOf(s);
     // 评级仲裁：评分曲线（吉平中凶）与流派共识相左时，明示两口径来源，以流派判定为纲、曲线作参
     if(m&&m.rating){ const _t=tally(s);
-      if(m.rating==='凶'&&_t.xi.length>=3) consLine+=`（曲线示低谷，然${_t.xi.length}派判喜，以流派判定为主）。`;
-      else if(m.rating==='吉'&&_t.ji.length>=3) consLine+=`（曲线示上升，然${_t.ji.length}派判忌，以流派判定为主）。`;
-      else if(m.rating==='平'&&_t.xi.length>=3) consLine+=`（曲线示平稳，然${_t.xi.length}派判喜，以流派判定为主）。`;
-      else if(m.rating==='平'&&_t.ji.length>=3) consLine+=`（曲线示平稳，然${_t.ji.length}派判忌，以流派判定为主）。`;
+      if(m.rating==='凶'&&_t.xi.length>=3) consLine+=`曲线示低谷，然${_t.xi.length}派判喜，以流派判定为主。`;
+      else if(m.rating==='吉'&&_t.ji.length>=3) consLine+=`曲线示上升，然${_t.ji.length}派判忌，以流派判定为主。`;
+      else if(m.rating==='平'&&_t.xi.length>=3) consLine+=`曲线示平稳，然${_t.xi.length}派判喜，以流派判定为主。`;
+      else if(m.rating==='平'&&_t.ji.length>=3) consLine+=`曲线示平稳，然${_t.ji.length}派判忌，以流派判定为主。`;
     }
     h+=`<tr><td class="sk-c-name">${_skBr('共识与分歧')}</td><td class="sk-c-read">${consLine}</td></tr>`;
     h+=`</tbody></table>`;

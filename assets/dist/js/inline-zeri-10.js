@@ -212,8 +212,8 @@ function calcUserXi(){
     <p class="ly-zh-p">日主 <span class="zr-k">${BZ.dayGan}（${USER_DWX}）</span>　首选用神：<span class="zr-k">${USER_USE}</span></p>
     <p class="ly-zh-p">喜神（生扶用神）：<span class="zr-good">${xiStr}</span>　忌神：<span class="zr-bad">${jiStr}</span></p>
     <p class="ly-zh-p">本命年命纳音：<span class="zr-k">${USER_NAYIN}（${USER_NAYIN_WX||'无'}）</span></p>
-    ${BZ.sunOff?'<p class="ly-zh-p zr-mini">（未定出生地，未作太阳时校正，按钟面标准时）</p>':''}
-    <p class="ly-zh-p zr-mini">（扶抑法，含调候、通关、病药、格局综合；日主${A.strength}）</p>
+    ${BZ.sunOff?'<p class="ly-zh-p zr-mini">未定出生地，未作太阳时校正，按钟面标准时。</p>':''}
+    <p class="ly-zh-p zr-mini">扶抑法，含调候、通关、病药、格局综合；日主${A.strength}。</p>
   </div>`;
 }
 /* ============ 模块③ 真太岁方位 ============ */

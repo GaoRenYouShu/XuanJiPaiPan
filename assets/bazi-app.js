@@ -1304,7 +1304,7 @@ function showTip(key, extra){
   } else if(o){
     body=tipHtml(key);
   } else {
-    body=`<h3 class="tip-title">${key}</h3><div class="tip-body">（暂无说明）</div>`;
+    body=`<h3 class="tip-title">${key}</h3><div class="tip-body">暂无说明</div>`;
   }
   if(nayin) body+=`<div class="tip-body tip-nayin">纳音查法：本煞以年柱纳音五行立极而取，与日干主查法属不同体系，两法并见时各具其义。</div>`;
   document.getElementById('modalBody').innerHTML=gzAllColorSpan(body);
@@ -1321,7 +1321,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
    格局取 bazi-rel.js 的 getAnalysis（清浊、层次、喜忌三处的剥括号口径与喜用格局段一致）。 */
 function bzXiuTip(nm){
   const L=(typeof LunarUtil!=='undefined')?LunarUtil:null;
-  if(!nm) return '<h3 class="tip-title">二十八宿</h3><div class="tip-body">（暂无说明）</div>';
+  if(!nm) return '<h3 class="tip-title">二十八宿</h3><div class="tip-body">暂无说明</div>';
   const luck=(L&&L.XIU_LUCK&&L.XIU_LUCK[nm])||'';
   const g=(L&&L.GONG&&L.GONG[nm])||'', shou=(g&&L.SHOU&&L.SHOU[g])||'';
   const song=(L&&L.XIU_SONG&&L.XIU_SONG[nm])||'';
@@ -1336,7 +1336,7 @@ function bzPalaceTip(){
   const M=(B&&B.meta)?B.meta:{};
   const PD=(typeof PALACE_DEF!=='undefined')?PALACE_DEF:{};
   const rows=[['命宫',M.mingGong],['胎元',M.taiYuan],['身宫',M.shenGong]].filter(p=>p[1]);
-  if(!rows.length) return '<h3 class="tip-title">三垣</h3><div class="tip-body">（暂无说明）</div>';
+  if(!rows.length) return '<h3 class="tip-title">三垣</h3><div class="tip-body">暂无说明</div>';
   const lines=['三垣为命宫、胎元、身宫之合称，又称三宫，出于四柱之外而补四柱之未备：命宫言其志，胎元言其根，身宫言其行；与星官三垣紫微垣、太微垣、天市垣同名异指。'];
   rows.forEach(p=>{ lines.push(`<b>${p[0]} ${p[1]}</b>：${PD[p[0]]||''}`); });
   return `<h3 class="tip-title">三垣</h3><div class="tip-body">${lines.join('<br>')}</div>`;
@@ -1345,14 +1345,14 @@ function bzXunTip(){
   const B=(typeof window!=='undefined')?window.BZ:null;
   const M=(B&&B.meta&&B.meta.xun)?B.meta.xun:{};
   const rows=[['年柱',M.year],['月柱',M.month],['日柱',M.day],['时柱',M.time]].filter(p=>p[1]);
-  if(!rows.length) return '<h3 class="tip-title">旬首旬空</h3><div class="tip-body">（暂无说明）</div>';
+  if(!rows.length) return '<h3 class="tip-title">旬首旬空</h3><div class="tip-body">暂无说明</div>';
   const lines=['六十甲子分六旬，每旬以甲日起首，旬内十日而地支余二，余出之两支即旬空；所值之柱主虚而不实。'];
   rows.forEach(p=>{ lines.push(`<b>${p[0]}</b> ${p[1]}`); });
   lines.push('四柱各论本柱之旬，不与他柱相袭；与四柱表“空亡”行同源同值。');
   return `<h3 class="tip-title">旬首旬空</h3><div class="tip-body">${lines.join('<br>')}</div>`;
 }
 function bzMingGuaTip(){
-  const bad='<h3 class="tip-title">命卦</h3><div class="tip-body">（暂无说明）</div>';
+  const bad='<h3 class="tip-title">命卦</h3><div class="tip-body">暂无说明</div>';
   const B=(typeof window!=='undefined')?window.BZ:null;
   if(!B) return bad;
   const male=(B.sex===1||B.sex==='男'||B.sex===true);
@@ -1368,7 +1368,7 @@ function bzMingGuaTip(){
   return `<h3 class="tip-title">命卦 ${mg.gua}宫</h3><div class="tip-body">${lines.join('<br>')}</div>`;
 }
 function bzGeJuTip(){
-  const bad='<h3 class="tip-title">格局</h3><div class="tip-body">（暂无说明）</div>';
+  const bad='<h3 class="tip-title">格局</h3><div class="tip-body">暂无说明</div>';
   const B=(typeof window!=='undefined')?window.BZ:null;
   if(!B) return bad;
   let A=null;

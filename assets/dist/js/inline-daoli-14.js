@@ -36,12 +36,12 @@ function showDaoTip(name){
   const t=(typeof tongshuMean==='function')?tongshuMean(nm):null;
   if(o) _daoShow(o.t, o.d);
   else if(t) _daoShow(t.t, t.d);
-  else _daoShow(nm,'（暂无说明）');
+  else _daoShow(nm,'暂无说明');
 }
 /* 候名弹窗：标题为“节气 候序 候名”，正文为释义（与万年历、老黄历同源，shiling.js 单一真源） */
 function showHouTip(wu){
   const info=(typeof shilingHouInfo==='function')?shilingHouInfo(_daoTxt(wu)):null;
-  if(!info){ _daoShow(wu,'（暂无说明）'); return; }
+  if(!info){ _daoShow(wu,'暂无说明'); return; }
   _daoShow(info.jq+' '+info.hou+' '+info.wu, info.mean);
 }
 /* 值宿弹窗：宿名（如“室”）直取，给全名、第几宿、四象、吉凶与宿诗。

@@ -86,7 +86,7 @@
     var wi = XX_SU27.indexOf(wang);
     var idx = (ld <= 15) ? ((wi - (15 - ld)) % 27 + 27) % 27 : ((wi + (ld - 15)) % 27);
     var su = XX_SU27[idx];
-    return { su: su, yao: yao, lm: lm, ld: ld, leap: l.getMonth() < 0, ming: XX_MING[su] || '（判语未辑录）' };
+    return { su: su, yao: yao, lm: lm, ld: ld, leap: l.getMonth() < 0, ming: XX_MING[su] || '判语未辑录' };
   }
   function renderMing() {
     var p = parseYmd($('xxMingDate').value);

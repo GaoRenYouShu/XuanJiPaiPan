@@ -897,7 +897,7 @@ window.NAME_TWIN = (function(){
       else if(BLACK_IDIOM.indexOf(fixed) >= 0) warn = '已登记为不宜入名的条目';
       var fdup = dupPattern(fixed);
       if(fdup === 'dup') return { ok:false, reason:'成语“' + fixed + '”为叠字结构（AABB、ABCC 一类），拆出的名字单调，已排除。' };
-      pool = [{ idiom:fixed, def:fdef || '（本站成语库未收录此条释义，拆法仍可用）', dup:fdup }];
+      pool = [{ idiom:fixed, def:fdef || '本站成语库未收录此条释义，拆法仍可用', dup:fdup }];
     }
 
     var out = [];

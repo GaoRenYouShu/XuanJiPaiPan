@@ -1689,7 +1689,7 @@ function pairTipKey(base, a, b){
 }
 function tipHtml(key){
   const o = DICT[key];
-  if(!o) return `<div class="tip-body">（暂无说明）</div>`;
+  if(!o) return `<div class="tip-body">暂无说明</div>`;
   return `<h3 class="tip-title">${o.t}</h3><div class="tip-body">${o.d}</div>`;
 }
 

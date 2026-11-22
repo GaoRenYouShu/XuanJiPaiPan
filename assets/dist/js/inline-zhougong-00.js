@@ -232,8 +232,8 @@ function zgAiContext(){
       if (dmUsed + dmLine.length > dmLim) { dmCut = true; break; }
       s += dmLine; dmUsed += dmLine.length;
     }
-    if (dmCut) s += '（以上为节选，已按字数截断；全类共 ' + dmRows.length
-      + ' 条，如需其余条目，请提示用户输入具体梦象关键词检索，勿臆造未列出的条目）\n';
+    if (dmCut) s += '以上为节选，已按字数截断；全类共 ' + dmRows.length
+      + ' 条，如需其余条目，请提示用户输入具体梦象关键词检索，勿臆造未列出的条目。\n';
     return s;
   }
   if (ZG_ON_CAT){

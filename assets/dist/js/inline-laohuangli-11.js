@@ -73,20 +73,20 @@ function _lhlShow(title, body){
 /* 通书术语弹窗：宜忌、吉神凶煞、值神、建除、彭祖百忌、方位概念等，释义取 tongshu-terms.js 单一真源 */
 function showTongshuTip(name){
   const o=(typeof tongshuMean==='function')?tongshuMean(name):null;
-  if(!o){ _lhlShow(name,'（暂无说明）'); return; }
+  if(!o){ _lhlShow(name,'暂无说明'); return; }
   _lhlShow(o.t, o.d);
 }
 /* 候名弹窗：标题为“节气 候序 候名”，正文为释义（与万年历同源） */
 function showHouTip(wu){
   const info=(typeof shilingHouInfo==='function')?shilingHouInfo(wu):null;
-  if(!info){ _lhlShow(wu,'（暂无说明）'); return; }
+  if(!info){ _lhlShow(wu,'暂无说明'); return; }
   _lhlShow(info.jq+' '+info.hou+' '+info.wu, info.mean);
 }
 /* 时令项弹窗：三伏、数九、入梅出梅的规则说明（取 shiling.js 单一真源） */
 function showShilingTip(item){
   const key=(typeof shilingRuleKeyOf==='function')?shilingRuleKeyOf(item):'';
   const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
-  _lhlShow(item, txt||'（暂无说明）');
+  _lhlShow(item, txt||'暂无说明');
 }
 /* 经络当令弹窗：当令经的全名、时段与宜做（取 shiling.js SHILING_JINGLUO 单一真源）；
    按传入时支取数，与行内所示同一时辰，不按点击时刻重推 */

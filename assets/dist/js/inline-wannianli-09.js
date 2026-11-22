@@ -111,14 +111,14 @@ function _wnlShow(title, body){
 /* 候名弹窗：标题为“节气 候序 候名”，正文为释义（出处与释义性质见说明页口径注） */
 function showHouTip(wu){
   const info=(typeof shilingHouInfo==='function')?shilingHouInfo(wu):null;
-  if(!info){ _wnlShow(wu,'（暂无说明）'); return; }
+  if(!info){ _wnlShow(wu,'暂无说明'); return; }
   _wnlShow(info.jq+' '+info.hou+' '+info.wu, info.mean);
 }
 /* 时令项弹窗：三伏、数九、入梅出梅的规则说明（取 shiling.js 单一真源） */
 function showShilingTip(item){
   const key=(typeof shilingRuleKeyOf==='function')?shilingRuleKeyOf(item):'';
   const txt=(typeof shilingRuleText==='function')?shilingRuleText(key):'';
-  _wnlShow(item, txt||'（暂无说明）');
+  _wnlShow(item, txt||'暂无说明');
 }
 /* 经络当令弹窗：当令经的全名、时段与宜做（取 shiling.js SHILING_JINGLUO 单一真源）；
    按传入时支取数，与行内所示同一时辰，不按点击时刻重推 */
@@ -126,7 +126,7 @@ function showDangLingTip(zhi){ return xjShowDangLingTip(zhi,_wnlShow); }
 /* 通书术语弹窗（宜忌诸名）：释义取 tongshu-terms.js 单一真源，与老黄历页同一张表 */
 function showTongshuTip(name){
   const o=(typeof tongshuMean==='function')?tongshuMean(name):null;
-  if(!o){ _wnlShow(name,'（暂无说明）'); return; }
+  if(!o){ _wnlShow(name,'暂无说明'); return; }
   _wnlShow(o.t, o.d);
 }
 /* 宜忌名目可点 span：名在释义表内才包可点，未收者原样输出（点了弹空窗反是误导） */

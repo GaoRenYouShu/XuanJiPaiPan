@@ -546,7 +546,7 @@ function hlShowTip(name){
   }
   const o=heluoMean(name);
   document.getElementById('hlTipBody').innerHTML='<h3 class="tip-title">'+(o?o.t:name)+'</h3>'
-    +'<div class="tip-body">'+(o?o.d:'（暂无说明）')+'</div>';
+    +'<div class="tip-body">'+(o?o.d:'暂无说明')+'</div>';
   mask.classList.add('show');
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') hlCloseTip(); });
