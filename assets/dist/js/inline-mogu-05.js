@@ -34,6 +34,18 @@ document.addEventListener('DOMContentLoaded', function () {
         return '<div class="mogu-result"><h4>' + esc(title) + '</h4>' + body + '</div>';
       }
 
+      function citeHtml(b) {
+        var s = '<p>典籍：';
+        if (b.roleQuote) s += '“' + esc(b.roleQuote) + '”<span class="sub-note">' + esc(b.roleSrc) + '</span>；';
+        s += '“' + esc(b.quote) + '”<span class="sub-note">' + esc(b.src) + '</span></p>';
+        return s;
+      }
+
+      function noteParts(b) {
+        var cut = b.note.indexOf('。');
+        return { pos: cut > 0 ? b.note.slice(0, cut) : b.note, method: cut > 0 ? b.note.slice(cut + 1) : '' };
+      }
+
       function moguGo() {
         var out = $('moguOut');
         if (!out) return;
@@ -45,14 +57,16 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         var cls = f.v === '得势' ? ' class="yi"' : (f.v === '平常' ? '' : ' class="ji"');
-        var cut = b.note.indexOf('。');
-        var pos = cut > 0 ? b.note.slice(0, cut) : b.note;
-        var method = cut > 0 ? b.note.slice(cut + 1) : '';
+        var n = noteParts(b);
         var body = '<p>所主：' + esc(b.role) + '</p>';
-        body += '<p>典籍：“' + esc(b.quote) + '”<span class="sub-note">' + esc(b.src) + '</span></p>';
-        body += '<p>' + esc(f.t) + '（' + esc(f.d.replace(/。$/, '')) + '）：<span' + cls + '>' + esc(f.v) + '</span>，' + esc(b.r && b.r[fk] ? b.r[fk] : f.e) + '</p>';
-        body += '<p>位置：' + esc(pos) + '。</p>';
-        body += '<p>方法：' + esc(method) + '</p>';
+        body += citeHtml(b);
+        if (b.limited) {
+          body += '<p>' + esc(f.t) + '（' + esc(f.d.replace(/。$/, '')) + '）：骨形记录 ' + esc(f.v) + '；此骨古籍只列名目与所主，逐形相义未系，不作断。</p>';
+        } else {
+          body += '<p>' + esc(f.t) + '（' + esc(f.d.replace(/。$/, '')) + '）：<span' + cls + '>' + esc(f.v) + '</span>，' + esc(b.r && b.r[fk] ? b.r[fk] : f.e) + '</p>';
+        }
+        body += '<p>位置：' + esc(n.pos) + '。</p>';
+        body += '<p>方法：' + esc(n.method) + '</p>';
         out.innerHTML = resultHtml(b.name + '，' + f.t, body);
       }
       window.moguGo = moguGo;
@@ -89,9 +103,9 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (flat >= 5) overall = '骨格平稳：守成有余，进取须借后天；宜守正渐进。';
         else overall = '骨格参差：强弱互见，一生起伏；须看具体骨位与后天修为。';
         var body = '<p>' + esc(overall) + '</p>' + lines;
-        body += '<p class="sub-note">九骨计数：' + esc(sum.join('、')) + '。</p>';
-        body += '<p class="sub-note">九骨合参，不以一骨定论；骨相只是传统相术的一支，后天修为与选择更重。</p>';
-        out.innerHTML = resultHtml('九骨简评', body);
+        body += '<p class="sub-note">头面九位计数：' + esc(sum.join('、')) + '。</p>';
+        body += '<p class="sub-note">头面九位合参，不以一位定论；总评为记录项计数归纳，低陷、露骨、偏斜计入偏弱，非典籍成法，不作吉凶判定；骨相只是传统相术的一支，后天修为与选择更重。</p>';
+        out.innerHTML = resultHtml('头面九位简评', body);
         moguSave();
       }
       window.moguCheck = moguCheck;
@@ -133,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var ff = D.forms[jj];
           if (counts[ff.key]) parts.push(ff.t + ' ' + counts[ff.key]);
         }
-        var e = { t: xjHist.time(), g: '骨相自查', s: parts.join('、') || '九骨未选', d: d };
+        var e = { t: xjHist.time(), g: '骨相自查', s: parts.join('、') || '头面九位未选', d: d };
         xjHist.push(MG_SAVED_CFG.key, e, function (h, o) { return JSON.stringify(h.d) === JSON.stringify(o.d); });
         if (document.getElementById('mgSavedList')) xjHist.render(MG_SAVED_CFG);
       }
@@ -164,9 +178,11 @@ document.addEventListener('DOMContentLoaded', function () {
         var s = '【摸骨页】当前骨位查询。\n';
         if (b && f) {
           s += '骨位：' + b.name + '；骨形：' + f.t + '（' + f.v + '）。\n';
+          s += '部位：' + b.loc + '\n';
           s += '骨位义：' + b.meaning + '\n';
-          s += '合参：' + (b.r && b.r[fk] ? b.r[fk] : f.e) + '\n';
+          s += '合参：' + (b.limited ? '此骨古籍只列名目与所主，逐形相义未系。' : (b.r && b.r[fk] ? b.r[fk] : f.e)) + '\n';
           s += '所主：' + b.role + '就其得势者言。\n';
+          if (b.roleQuote) s += '所主原文：' + b.roleQuote + '（' + b.roleSrc + '）\n';
           s += '原文：' + b.quote + '（' + b.src + '）\n';
           s += '骨形：' + f.d + '\n';
           s += '今形：' + f.e + '\n';
@@ -184,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var ff = D.forms[jj];
           if (counts[ff.key]) parts.push(ff.t + ' ' + counts[ff.key]);
         }
-        s += '九骨自查：' + (parts.length ? parts.join('、') : '未选') + '。\n';
+        s += '头面九位自查：' + (parts.length ? parts.join('、') : '未选') + '。\n';
         s += '相术为传统民俗文化，仅供文化研究与娱乐，不作人格评判与医疗依据。';
         return s;
       }
@@ -192,10 +208,21 @@ document.addEventListener('DOMContentLoaded', function () {
       function moguRecast() {
         var bk = $('moguBone') ? $('moguBone').value : '';
         var fk = $('moguForm') ? $('moguForm').value : '';
-        if (bk && fk) { moguGo(); return; }
-        var d = moguSnap(), any = false;
-        for (var k in d) { if (d[k]) { any = true; break; } }
-        if (any) moguCheck();
+        if (bk && fk) moguGo();
+        var d = moguSnap(), all = true, any = false;
+        for (var k in d) {
+          if (d[k]) any = true;
+          else all = false;
+        }
+        if (any && all) {
+          moguCheck();
+          if ((location.hash || '').indexOf('#xj=') === 0) {
+            var mod = $('mogumod-check');
+            if (mod && mod.classList.contains('collapsed')) mod.classList.remove('collapsed');
+            var out = $('moguCheckOut');
+            if (out && out.scrollIntoView) out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }
       }
       window.moguRecast = moguRecast;
 
@@ -204,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (window.mountAI) {
         window.mountAI(moguAiContext, '摸骨', {
           share: {
-            page: 'mogu', title: '摸骨在线查询', result: '#moguOut',
+            page: 'mogu', title: '摸骨在线查询', result: ['#moguOut', '#moguCheckOut'],
             collect: xjShareCollect, restore: xjShareRestore,
             recast: function () { xjShareRecast(function () { moguRecast(); }); }
           }
