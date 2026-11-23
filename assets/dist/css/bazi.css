@@ -2906,6 +2906,10 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
 
 .page-bazi .bz-info .bz-seg{display:inline-block;white-space:nowrap}
 
+/* 旬首旬空四段：固定两列网格，窄到放不下时整列；任何宽度都不出现三行与折行首空格。 */
+.page-bazi .bz-info .bz-i.bz-xun>.v>.tip{display:grid;grid-template-columns:repeat(2,max-content);column-gap:.9em;row-gap:0}
+.page-bazi .bz-info .bz-i.bz-xun .bz-br{display:none}
+
 @media(max-width:640px){
   .page-bazi .bz-info{columns:1}
   /* 窄屏单栏，标签栏收到 72px（最长标签三垣 命卦约 62px），值栏多出 16px */
@@ -2917,6 +2921,11 @@ body:where(.bz-root):not(.mode-date):not(.mode-lunar) #birthGroup{display:none}
   .page-bazi .ts-box{letter-spacing:0}
   /* 窄屏选项行行距收到 --sp-2；出生地组的内边距与桌面同值，由本页出生地分组规则给出 */
   .page-bazi .opts{gap:var(--sp-2)}
+}
+
+/* 旬首旬空：值栏放不下两列时整列排（356-380 单栏、641-760 双栏字段流的窄值栏）。 */
+@media(max-width:380px),(min-width:641px) and (max-width:760px){
+  .page-bazi .bz-info .bz-i.bz-xun>.v>.tip{grid-template-columns:max-content}
 }
 
 .page-bazi .wheel-wheels{border-top:0;margin-top:0;padding-top:0}

@@ -3012,7 +3012,7 @@ function renderBaziPage(R, BZ = window.BZ){
     }
     infoFlow+=bi('节气', `当令 ${pj.getName()} ${pj.getSolar().toYmd()}<span class="bz-br"></span>下一节 ${nj.getName()} ${nj.getSolar().toYmd()}`);
     /* 柱不明（公元前）时四项皆空，整项略去，不留空行；所值之项按 年 月 日 时 四段横排，释义见弹窗。 */
-    if(xv.some(p=>p)) infoFlow+=bi('旬首旬空', `<span class="tip" onclick="showTip('__XUN__')">${['年','月','日','时'].map((t,i)=>xv[i]?seg(t,xv[i]):'').filter(s=>s).join('<span class="bz-br"></span>')}</span>`, 'bz-oneline');
+    if(xv.some(p=>p)) infoFlow+=bi('旬首旬空', `<span class="tip" onclick="showTip('__XUN__')">${['年','月','日','时'].map((t,i)=>xv[i]?seg(t,xv[i]):'').filter(s=>s).join('<span class="bz-br"></span>')}</span>`, 'bz-xun');
   }
   // BZ.meta：两模式统一在此设置，供复制排盘与 AI 模块取用
   BZ.meta={ sex:sex?'男':'女',
@@ -4035,7 +4035,7 @@ function renderDualTable(BZ2, D2){
     /* 对比盘此值不挂弹窗：__XUN__ 弹窗读主盘 BZ.meta，挂上会把主盘四柱之旬错当成对比盘之旬，
        故只列本盘四柱所值，释义见主盘字段流同项。 */
     const x2=xunVals(ec);
-    if(x2.some(p=>p)) flow+=bi('旬首旬空', ['年','月','日','时'].map((t,i)=>x2[i]?seg(t,x2[i]):'').filter(s=>s).join('<span class="bz-br"></span>'), 'bz-oneline');
+    if(x2.some(p=>p)) flow+=bi('旬首旬空', ['年','月','日','时'].map((t,i)=>x2[i]?seg(t,x2[i]):'').filter(s=>s).join('<span class="bz-br"></span>'), 'bz-xun');
   }
   if(A2){
     const dg2=BZ2.dayGan, dwx2=GAN_WX[dg2]||'';
