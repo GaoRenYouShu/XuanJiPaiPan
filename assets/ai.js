@@ -815,8 +815,11 @@ function injectShare(host, share){
   /* 结果快照：计算完成后存本页数据，刷新只恢复不重算。
      快照按页一键，只留当前页；表单签名不一致即作废。 */
   const SNAP_KEY = 'xj:last:' + page;
-  const SNAP_VER = '2026-10-27';
+  const SNAP_VER = '2026-11-23';
   const resultSel = share.result || '#out';
+  const resultList = function(){
+    return (Array.isArray(resultSel) ? resultSel : [resultSel]).map(function(s){ return document.querySelector(s); }).filter(Boolean);
+  };
   function formValues(){
     const host = document.querySelector('[data-xj-page]') || document.querySelector('.page') || document.body;
     const o = {};
@@ -846,11 +849,11 @@ function injectShare(host, share){
   function writeSnap(){
     if(window.__xjRestoring) return;
     try {
-      const el = document.querySelector(resultSel);
-      if(!el || !el.textContent.trim()) return;
+      const els = resultList();
+      if(!els.length || !els.some(function(el){ return el.textContent.trim(); })) return;
       const data = collect();
       if(!data) return;
-      const html = el.innerHTML;
+      const html = els.map(function(el){ return el.innerHTML; });
       for(let i = sessionStorage.length - 1; i >= 0; i--){
         const k = sessionStorage.key(i);
         if(k && k.indexOf('xj:last:') === 0 && k !== SNAP_KEY) sessionStorage.removeItem(k);
@@ -858,13 +861,14 @@ function injectShare(host, share){
       sessionStorage.setItem(SNAP_KEY, JSON.stringify({v:SNAP_VER, sig:formSig(), data:data, html:html, at:Date.now()}));
     } catch(e){}
   }
-  const resultEl = document.querySelector(resultSel);
-  if(resultEl){
+  const resultEls = resultList();
+  if(resultEls.length){
     let snapTimer = 0;
-    new MutationObserver(function(){
+    const obs = new MutationObserver(function(){
       clearTimeout(snapTimer);
       snapTimer = setTimeout(writeSnap, 400);
-    }).observe(resultEl, {childList:true, subtree:true});
+    });
+    resultEls.forEach(function(el){ obs.observe(el, {childList:true, subtree:true}); });
   }
   try { window.__xjShare = {page:page, collect:collect, restore:restore, recast:recast, apply:applyShared, save:writeSnap, resultSel:resultSel}; } catch(e){}
 
@@ -932,8 +936,9 @@ function injectShare(host, share){
         window.__xjRestoring = true;
         try{ applyShared({d:snap.data}); }catch(e){}
           try{
-            const el = document.querySelector(resultSel);
-            if(el && snap.html) el.innerHTML = snap.html;
+            const els = resultList();
+            if(Array.isArray(snap.html)) els.forEach(function(el,i){ if(snap.html[i]) el.innerHTML = snap.html[i]; });
+            else if(els[0] && snap.html) els[0].innerHTML = snap.html;
           }catch(e){}
         window.__xjRestoring = false;
       };
