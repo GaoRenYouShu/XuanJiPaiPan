@@ -614,7 +614,7 @@ function query(){
       if(!window.NAME_HEXAGRAM) return '';
       var r2=window.NAME_HEXAGRAM.build((LAST.xs||[]).filter(function(c){return isHanzi(c);}), (LAST.ms||[]).filter(function(c){return isHanzi(c);}));
       if(!r2) return '';
-      return '<details class="mh-ref" id="nmModMingGua"><summary>名卦（梅花字占，民俗参考）</summary>'
+      return '<details class="mh-ref" id="nmModMingGua"><summary>名卦<span class="mod-sub">梅花字占，民俗参考</span></summary>'
         +'<div class="nm-fold-body" hidden>'
         +'<div class="hex-row nm-center"><div class="hex-name"><span class="hx">'+r2.lsym+r2.usym+'</span> <b>'+r2.name+'</b></div></div>'
         +'<p class="sub-note nm-center">上卦'+r2.upper+'（姓 '+r2.xingStrokes+' 画），下卦'+r2.lower+'（名 '+r2.mingStrokes+' 画），动爻第'+r2.dong+'爻，变卦<b>'+r2.changedName+'</b></p>'

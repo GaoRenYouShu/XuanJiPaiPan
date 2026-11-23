@@ -288,7 +288,7 @@ function query(restOnly){
       const rows=HJ.chronYun(L.yun.noG);
       const evRows=rows.filter(r=>r.t);
       const show=filterOn?evRows:rows;
-      chronHtml='<details class="hj-ref" id="hjChronFold"><summary>原书逐年表（以运经世）</summary>'
+      chronHtml='<details class="hj-ref" id="hjChronFold"><summary>原书逐年表<span class="mod-sub">以运经世</span></summary>'
         +'<div class="hj-nav"><button class="btn" onclick="navChron(-1)">上一运</button><button class="btn" onclick="navChron(1)">下一运</button><button class="btn" onclick="toggleChronFilter()">'+(filterOn?'显示全部干支年':'只看有记事之年')+'</button></div>'
         +'<table class="hj-np hj-chron"><colgroup><col class="c1"><col class="c2"><col></colgroup><tbody>'
         +show.map(r=>{
@@ -300,7 +300,7 @@ function query(restOnly){
         +(L.yun.noG===CHRON_LAST_YUN?'<div class="sub-note">本运为原书年表之末运。原书成于宋，以运经世止于后周显德六年己未（公元959），即本运第296年；本运余下六十余年原书未载，非缺漏。邵雍生于公元1011、卒于1077，已在年表之外，故年表中查不到邵雍本人。</div>':'')
         +'</details>';
     }else{
-      chronHtml='<details class="hj-ref" id="hjChronFold"><summary>原书逐年表（以运经世）</summary>'
+      chronHtml='<details class="hj-ref" id="hjChronFold"><summary>原书逐年表<span class="mod-sub">以运经世</span></summary>'
         +'<div class="sub-note">所推年份（'+HJ.fmtYear(L.A)+'）在年表范围外，已代显原书首运。原书年表起帝尧甲辰（公元前2357，巳会第180运）讫后周显德六年己未（公元959，第'+span.maxYun+'运）；书成于宋，止于五代，宋初以后原书不载，故邵雍本人（1011至1077）亦在表外。可点下方按钮在年表范围内浏览。</div>'
         +'<div class="hj-nav"><button class="btn" onclick="jumpYearTo('+span.minA+')">跳到年表首年（前2357）</button><button class="btn" onclick="jumpYearTo('+span.maxA+')">跳到年表末年(959)</button></div>'
         +chronYunTable(span.minYun)
@@ -401,7 +401,7 @@ const outHtml = wheelHtml
     +'<button class="btn" type="button" onclick="hjYjhYunAll()">整运一览</button>'
     +'</div>'
     +'<div id="hjYjhOut"></div>'
-    +'<details class="hj-ref" id="hjYunAllFold"><summary>元会运世总表（一元三百六十运）</summary>'
+    +'<details class="hj-ref" id="hjYunAllFold"><summary>元会运世总表<span class="mod-sub">一元三百六十运</span></summary>'
     +'<div class="sub-note">一元十二会、每会三十运，合三百六十运；每运值一卦之爻（六十卦各六爻），故每卦主六运。绛底一运即本运，绛字各运即同会。</div>'
     +'<div class="hj-np-wrap">'+hjYunTable(L)+'</div>'
     +'</details>'

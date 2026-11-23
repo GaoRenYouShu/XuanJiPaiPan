@@ -458,7 +458,7 @@ function qzRenderAll(c, placeLabel, lon, lat, chartB){
       <div class="mod-body"><h3 class="rel-title">七政择时（天象格局吉时扫描）</h3>${zeBody}${relBody ? `<h3 class="rel-title">双人对照</h3>${relBody}` : ''}<h3 class="rel-title">综合解读</h3>${synthMod}${refMod}</div>
     </section>
     <details class="qz-ref" id="qzLumRef">
-      <summary>十一曜通义（参考）</summary>
+      <summary>十一曜通义<span class="mod-sub">参考</span></summary>
       <div class="qz-ref-body"><div class="qz-tbl-wrap"><table class="qz-tbl qz-lum-ref-tbl"><thead><tr><th>曜</th><th>通义</th></tr></thead><tbody>${QZ_LUM.map(l => `<tr><td>${l.nm}</td><td>${QZ_LUM_TXT[l.k]}</td></tr>`).join('')}</tbody></table></div></div>
     </details>`;
 }

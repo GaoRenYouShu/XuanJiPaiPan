@@ -234,7 +234,7 @@ function renderMeihuaPro2(o){
     ${Object.keys(cat).map(k=>`<tr><th>${k}</th><td>${cat[k]}</td></tr>`).join('')}
   </tbody></table>`;
   return wangBlock+tableA+tableB+`
-  <details class="mh-ref" id="mhXiangRef"><summary>八卦象意与起卦数理（参考）</summary>
+  <details class="mh-ref" id="mhXiangRef"><summary>八卦象意与起卦数理<span class="mod-sub">参考</span></summary>
     ${trigramTable()}
     <div class="mh-method">口径注：五行墓库从水土同墓说，土亦墓辰，另说土墓随火在戌；类象为撮录简表，非通行本全文。</div>
     <div class="mh-method">${o.sysNote}。本卦《${ben.name}》、互卦《${hu.name}》、变卦《${bian.name}》、错卦《${cuo.name}》、综卦《${zong.name}》。${o.methodLine}</div>

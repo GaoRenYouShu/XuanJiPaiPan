@@ -2190,7 +2190,7 @@ function paipan(){
   </div></section>
   ${astroF?`<section class="mod" id="zwModHe"><div class="mod-head" onclick="zwToggleMod('zwModHe')"><span class="mod-caret">▾</span><span class="gua-ico">☴</span><span class="mod-title">双人合盘</span><span class="mod-sub">契合评分 四化互涉 综合论断</span></div><div class="mod-body">${zwHePan(astro, astroF, school, sex, sexF).html}</div></section>`:''}
   ${zwBaziLink(astro, school, trans, sex)}
-  <details class="zw-ref" id="zwPalMeanRef"><summary>星曜亮度与十二宫含义（参考）</summary>
+  <details class="zw-ref" id="zwPalMeanRef"><summary>星曜亮度与十二宫含义<span class="mod-sub">参考</span></summary>
     
     <div class="zw-legend"><b>星曜亮度</b>：庙（最得地，吉力最强）＞旺＞得地（得）＞利＞平＞不得地（不）＞陷（失地，吉减凶增）。同星入不同宫亮度不同，断吉凶须参之；四化（禄权科忌）为动，亮度为静，合参方全。</div>
     <div class="sub-note">四化表取通行本：庚干太阳化禄、武曲化权、太阴化科、天同化忌；壬干天梁化禄、紫微化权、左辅化科、武曲化忌。另有天府化科等派，本站未列。</div>

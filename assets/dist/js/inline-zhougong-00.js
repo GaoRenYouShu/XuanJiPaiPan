@@ -181,7 +181,7 @@ function zgRenderNotes(){
   tb.innerHTML = ZG_NOTES.map(function(n){
     return '<tr><td>' + n[0] + '</td><td>' + n[1] + '</td></tr>';
   }).join('');
-  document.getElementById('zgNotesSum').textContent = '底本用字说明（' + ZG_NOTES.length + ' 条）';
+  document.getElementById('zgNotesCount').textContent = ZG_NOTES.length + ' 条';
 }
 /* 断梦秘书：地支类 chip 渲染、某类按小节分组浏览 */
 var ZG_DM_ON_CAT = 0;

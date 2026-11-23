@@ -1413,8 +1413,8 @@ function render(o){
        <p class="sub-note">${DLR_SCHOOL_NOTE}${presetNote}</p>
      </div></div></section>
     <section class="mod collapsed" id="dlrModSynth"><div class="mod-head" role="button" tabindex="0" onclick="dlrToggleMod('dlrModSynth')"><span class="mod-caret">▾</span><span class="mod-title">综合判断</span><span class="mod-sub">白话总断</span></div><div class="mod-body">${baihua(o)}</div></section>
-    <details class="lr-bifa" id="lrBifa"><summary>毕法赋断语（《六壬大全》卷十一，凌福之）</summary>${bifaTable(o)}</details>
-    <details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意（参考）</summary>${tianJiangTable()}</details>`;
+    <details class="lr-bifa" id="lrBifa"><summary>毕法赋断语<span class="mod-sub">《六壬大全》卷十一，凌福之</span></summary>${bifaTable(o)}</details>
+    <details class="lr-jx" id="lrJx"><summary>十二天将吉凶象意<span class="mod-sub">参考</span></summary>${tianJiangTable()}</details>`;
 }
 /* 历史记录：共享弹层，起课后自动存最近九条，可重开还原全部参数 */
 const DL_HIST_FIELDS=['dInput','dTime','drnCat','dlSchool','dlDay','dlJiang','dBirth','dSex','dlProv','dlCity','dlDist','dlLng','dlDst','dlZi','dlSun','dlTzOff','dlLocalDst'];
