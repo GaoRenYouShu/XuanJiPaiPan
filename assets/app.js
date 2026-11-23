@@ -252,7 +252,8 @@ function xjApplyNowDefaults(){
   }
   document.querySelectorAll('input').forEach(function(el){
     xjBindUserSet(el);
-    if(userSet(el)) return;
+    /* 空白手选值不是有效选择：仍按当下回填，免刷新后停在空白。 */
+    if(userSet(el) && String(el.value||'').trim()) return;
     if(isDateBox(el)){ el.value = ymd; xjMarkAuto(el); return; }
     if((el.type==='time' || el.hasAttribute('data-time')) && !kept(el)){ el.value = hm; xjMarkAuto(el); }
   });
@@ -609,7 +610,10 @@ window.xjShuffle = xjShuffle;
       var o={};
       fields().forEach(function(el){
         if(autoOnly(el)) return;
-        o[el.id]=val(el);
+        var v=val(el);
+        /* 日期与时辰框的空值不落快照：空值不是用户选择，落盘后刷新会还原成空白。 */
+        if(v==='' && (el.hasAttribute('data-time') || el.type==='time' || (el.classList && el.classList.contains('dt-input')))) return;
+        o[el.id]=v;
         if(el.hasAttribute('data-user-set')) o['__user:'+el.id]=1;
       });
       wr(K_F,JSON.stringify(o));
@@ -649,6 +653,8 @@ window.xjShuffle = xjShuffle;
             /* 派生值与自动当下值不恢复旧快照：刷新时保持页内派生与本机当下，只还原手选值。 */
             if(autoOnly(el)) return;
             var v=o[id];
+            /* 日期与时辰框的空值不恢复：空值不是用户选择，恢复会停在空白。 */
+            if(String(v)==='' && (el.hasAttribute('data-time') || el.type==='time' || (el.classList && el.classList.contains('dt-input')))) return;
             if(el.type==='checkbox'||el.type==='radio'){
               if(el.checked!==v){ el.checked=v; changed.push(el); if(!hook) fire(el); }
             }else if(el.value!==String(v)&&selHas(el,String(v))){

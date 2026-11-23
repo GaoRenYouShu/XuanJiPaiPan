@@ -38,7 +38,8 @@
     var zhi = '子丑寅卯辰巳午未申酉戌亥'[Math.floor(((n.getHours() + 1) % 24) / 2)];
     var calPage = !!document.getElementById('calGrid');
     document.querySelectorAll('input').forEach(function (el) {
-      if (el.hasAttribute('data-user-set')) return;
+      /* 空白手选值不是有效选择：仍按当下回填，免刷新后停在空白。 */
+      if (el.hasAttribute('data-user-set') && String(el.value || '').trim()) return;
       if (isDateBox(el, calPage)) {
         if (own(el)) put(el, ymd);
         return;

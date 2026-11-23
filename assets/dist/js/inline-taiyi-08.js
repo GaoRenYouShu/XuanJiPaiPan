@@ -283,7 +283,7 @@ function boardHTML(s){
           :(s.homeCal>s.awayCal?'主算胜于客算，主占先':(s.homeCal<s.awayCal?'客算胜于主算，客占先':'主客算相等，势均力敌'))));
         let txt=`太乙居${gName}宫。${cmp}（主算${s.homeCal}、客算${s.awayCal}）。`;
         if(s.pattern) txt+=`格局：${s.pattern}。`;
-        if(s.homeGen===5||s.awayGen===5) txt+='（有杜塞之象）';
+        if(s.homeGen===5||s.awayGen===5) txt+='有杜塞之象。';
         if(s.doorZhiShi){
           const zi=Taiyi.DOOR_INFO[s.doorZhiShi]||{};
           txt+=`八门：值使${s.doorZhiShi}门（${zi.吉凶||''}）。`;

@@ -1307,10 +1307,11 @@ function showTip(key, extra){
     body=`<h3 class="tip-title">${key}</h3><div class="tip-body">暂无说明</div>`;
   }
   if(nayin) body+=`<div class="tip-body tip-nayin">纳音查法：本煞以年柱纳音五行立极而取，与日干主查法属不同体系，两法并见时各具其义。</div>`;
+  const _tm=xjTipMask('modalMask','modalBody','closeTip');
   document.getElementById('modalBody').innerHTML=gzAllColorSpan(body);
-  document.getElementById('modalMask').classList.add('show');
+  _tm.classList.add('show');
 }
-function closeTip(){ document.getElementById('modalMask').classList.remove('show'); }
+function closeTip(){ const m=document.getElementById('modalMask'); if(m) m.classList.remove('show'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTip(); });
 
 /* ---------- 基础信息字段流弹窗：二十八宿、三垣、旬首旬空、命卦、格局 ----------
