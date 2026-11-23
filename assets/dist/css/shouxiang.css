@@ -2056,6 +2056,12 @@ table b,table strong,.sub-note b,.sub-note strong,.note-vedic b,.note-vedic stro
 
 .page-sx .qtab-scroll{overflow-x:auto}
 
+/* 表下注与表同组：表到注取紧邻档，注到下一表取组间档 */
+.page-sx .mh-ref .qtab-scroll:has(+ .sx-note){margin-bottom:0;padding-bottom:0}
+.page-sx .mh-ref .qtab-scroll + .sx-note{margin-top:var(--sp-1);margin-bottom:var(--sp-3)}
+/* 末注贴模块边界：下距归零，模块底距由模块内距与模块间距承担 */
+.page-sx .mh-ref .sx-tbl-group:last-child > .sx-note{margin-bottom:0}
+
 .page-sx .qtab{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--sx-line)}
 
 .page-sx .qtab th,.page-sx .qtab td{border:0;border-bottom:1px solid var(--sx-line);padding:6px 9px;text-align:left;vertical-align:top;color:var(--sx-ink)}

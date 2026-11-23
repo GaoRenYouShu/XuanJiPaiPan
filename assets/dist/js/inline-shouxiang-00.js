@@ -10,10 +10,115 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var SHOU = window.XS_SHOU;
 
+    /* 手部全息反射区：现代手诊、反射学与全息诊疗法之说，非古籍条文；
+       三系分区各本不一，只列通行较一致者，不混拼第三值。 */
+    var SX_REFLEX = {
+      zones: [
+        { pos: '十指指腹与指尖', tcm: '头面、五官', reflex: '头、脑、鼻窦、眼、耳' },
+        { pos: '拇指根与掌指关节', tcm: '颈项、咽喉', reflex: '头颈、甲状腺' },
+        { pos: '食指根至虎口', tcm: '肝、胆', reflex: '肺、大肠' },
+        { pos: '中指根下', tcm: '心、小肠', reflex: '心、循环' },
+        { pos: '无名指根下', tcm: '肺、大肠', reflex: '肝、胆' },
+        { pos: '小指根下', tcm: '肾、膀胱', reflex: '肾、膀胱' },
+        { pos: '大鱼际中部', tcm: '脾、胃', reflex: '胸、心、呼吸' },
+        { pos: '掌心明堂', tcm: '心、胃', reflex: '腹腔神经丛、胃、肠' },
+        { pos: '小鱼际下部', tcm: '肾、膀胱、生殖', reflex: '下腹、肠道' },
+        { pos: '掌根正中', tcm: '肾、生殖、泌尿', reflex: '盆腔、生殖器官' },
+        { pos: '腕横纹', tcm: '未载', reflex: '盆腔、下肢' },
+        { pos: '手背', tcm: '未载', reflex: '脊柱、腰背' }
+      ],
+      zonesNote: '现代手诊与反射学之说，非古籍条文；两系对应各本不一，只列通行较一致者；不作诊疗依据。',
+      points: [
+        { name: '头穴', loc: '第二掌骨桡侧，近指端', body: '头、眼、耳、鼻、口' },
+        { name: '颈穴', loc: '头穴之后', body: '颈项、咽喉' },
+        { name: '上肢穴', loc: '颈穴之后', body: '上肢、肩肘' },
+        { name: '心肺穴', loc: '上肢穴之后', body: '心、肺、胸' },
+        { name: '肝穴', loc: '心肺穴之后', body: '肝、胆' },
+        { name: '胃穴', loc: '肝穴之后', body: '胃、脘腹' },
+        { name: '十二指肠穴', loc: '胃穴之后', body: '十二指肠、小肠' },
+        { name: '肾穴', loc: '十二指肠穴之后', body: '肾、泌尿' },
+        { name: '腰穴', loc: '肾穴之后', body: '腰、背' },
+        { name: '下腹穴', loc: '腰穴之后', body: '下腹、盆腔' },
+        { name: '腿穴', loc: '下腹穴之后', body: '下肢' },
+        { name: '足穴', loc: '近腕端', body: '足、踝' }
+      ],
+      pointsNote: '张颖清所立，十二穴自指端向腕端；另有心肺分作肺、心两穴的十三穴异文。通行说，不作诊疗依据。',
+      states: [
+        { k: '色泽（古典五色）', biao: '青、赤、黄、白、黑', mean: '青应肝、赤应心、黄应脾、白应肺、黑应肾', note: '五色配属同本页掌色表，属传统五行配属。' },
+        { k: '色泽（现代手诊）', biao: '白', mean: '炎症', note: '现代流行手诊说，与古典五色配属分属两系。' },
+        { k: '色泽（现代手诊）', biao: '红', mean: '炎症较重或出血', note: '同上。' },
+        { k: '色泽（现代手诊）', biao: '青、绿', mean: '循环不良', note: '同上。' },
+        { k: '色泽（现代手诊）', biao: '褐', mean: '久病、慢性', note: '同上。' },
+        { k: '色泽（现代手诊）', biao: '黑', mean: '危重', note: '同上。' },
+        { k: '形态', biao: '凹陷', mean: '相应脏腑气虚', note: '通行手诊说，未逐条对标准核。' },
+        { k: '形态', biao: '凸起', mean: '气滞、痰湿、郁结', note: '同上。' },
+        { k: '形态', biao: '结节', mean: '久病、瘀滞', note: '同上。' },
+        { k: '青筋', biao: '明显', mean: '寒湿、瘀滞', note: '同上。' },
+        { k: '温度', biao: '偏热', mean: '热证', note: '同上。' },
+        { k: '温度', biao: '偏凉', mean: '寒证、阳虚', note: '同上。' },
+        { k: '压痛', biao: '明显', mean: '该体系主张对应部位有异', note: '全息诊疗法与反射学均以压痛为察点。' }
+      ],
+      statesNote: '现代手诊通行说，各本解释不一；只作形态参考，不作病名之断。',
+      wangLines: [
+        { no: '1线', name: '远端横曲线、感情线、天线', loc: '自手掌尺侧伸向食指与中指之间下方，弧形反向抛物状', zhu: '主胃肠、呼吸、生殖系统；长度与走向反映消化功能。' },
+        { no: '2线', name: '近端横曲线、小鱼际抛物线、智慧线、心线', loc: '起于食指近节关节腔边缘，向小鱼际抛行，止于无名指中线', zhu: '主神经精神、心血管、智力与外伤。' },
+        { no: '3线', name: '大鱼际曲线、大鱼际抛物线、生命线、地线', loc: '包绕整个拇指球', zhu: '主体质、精力、能力、健康及疾病。' },
+        { no: '4线', name: '健康线', loc: '起于大鱼际，以不接触3线为原则，斜向小指，可到小指根部1线', zhu: '劳心、体弱者，肝肾功能差或慢性呼吸系统病多见。' },
+        { no: '5线', name: '玉柱线、事业线', loc: '自手掌下方经掌心明堂直达中指下方，宜浅细笔直', zhu: '越长至中指下，健康越差；主心肺功能减退、中晚年心脑血管病。' },
+        { no: '6线', name: '干扰线、障碍线', loc: '横切各主线或辅助线的不正常纹线，位置不固定', zhu: '深长超过1cm才有临床价值。' },
+        { no: '7线', name: '太阳线', loc: '5线的副线，位于无名指下，比5线短', zhu: '临床少见。' },
+        { no: '8线', name: '放纵线', loc: '月丘下方稍低处，粗长丑陋，向3线延伸', zhu: '生活不规律、熬夜、体力过度消耗、性生活过度、嗜酒、长期服安眠药或麻醉品。' },
+        { no: '9线', name: '金星线', loc: '食指与中指指缝下缘向无名指与小指指缝下连接的弧线', zhu: '过敏体质；不孕症夫妻双方均有9线须查抗体。' },
+        { no: '10线', name: '土星线', loc: '中指基底部弧形半月圆', zhu: '性格孤僻，与近视家族史有关。' },
+        { no: '11线', name: '性线', loc: '小指根部、1线之上的短线，约近小指根一半', zhu: '多数人两三条；主泌尿生殖功能。' },
+        { no: '12线', name: '肝病线、酒线', loc: '起于1线与小指根线中部，斜行连到1线无名指下方', zhu: '嗜酒或一饮即醉、肝脏解毒力下降、酒精中毒型肝硬化；慢性肝炎、接触毒品者多见。' },
+        { no: '13线', name: '悉尼线', loc: '2线变异一直延伸到手掌尺侧缘', zhu: '肝癌、血液病、牛皮癣患者可见；部分后天形成，有岛纹意义更大。' },
+        { no: '14线', name: '通贯掌', loc: '1线消失、2线与3线合并', zhu: '遗传倾向极强。' }
+      ],
+      wangLinesNote: '王晨霞掌纹诊病十四线，由三条主线与十一条辅助线组成；现代通行说，线名与顺序取通行名单，未逐条对原书核；不作诊疗依据。',
+      wangMarks: [
+        { name: '十字纹', shape: '交叉短线', loc: '掌中任意处', zhu: '预知早期病症；器官功能紊乱或炎症，浮浅色红多急性，深暗多慢性。' },
+        { name: '井字纹', shape: '四条短线组成四角形', loc: '掌中', zhu: '辨识实质病变；慢性炎症，发展较慢；胆区者炎症无结石。' },
+        { name: '米字纹', shape: '三、四条短纹交叉', loc: '掌中', zhu: '提示脏器淤血；胆区者可见结石，心区者提示心绞痛。' },
+        { name: '三角纹', shape: '短线与主线相交成三角形', loc: '主线旁', zhu: '显示病症变化；冠心病隐患，程度比十字纹重、比井字纹轻。' },
+        { name: '方格纹', shape: '四条线围成长方形或正方形', loc: '手术或外伤疤痕处', zhu: '代表病情稳定；手术或外伤疤痕，有向好转归之意。' },
+        { name: '五角星纹', shape: '五角星形', loc: '掌中', zhu: '关注脑部病变；较少见，缺血性脑血管意外。' },
+        { name: '岛纹', shape: '形如小岛', loc: '主线之上', zhu: '警示肿瘤癌变；肿瘤或炎性肿块，纹越小越需留意。' },
+        { name: '环形纹', shape: '圆环状', loc: '掌中', zhu: '代表外伤撞击；较重外伤可在掌上留下环形纹。' }
+      ],
+      wangMarksNote: '王晨霞掌纹诊病八种异常纹，现代通行说；不同资料顺序不一，本表只列名目；与本页辅助线纹与标记的通行名目分属两系，同名不同义者各随本系；不作病名之断。',
+      wangZones: [
+        { zone: '肺二区', loc: '大鱼际桡侧，拇指掌指褶纹中点与腕纹中点连线外侧', organ: '肺', sign: '未载' },
+        { zone: '肺一区', loc: '中指与无名指根部', organ: '肺', sign: '1线出现方格纹，表示感染。' },
+        { zone: '心一区', loc: '中指、无名指根部掌纹与1线之间', organ: '心', sign: '纹理杂乱，提示心脏功能受损。' },
+        { zone: '心二区', loc: '2线上劳宫穴周围', organ: '心', sign: '出现十字纹，提示心律不齐、心悸、心脏神经官能症。' },
+        { zone: '心三区', loc: '大鱼际除震位与肺二区所余部分', organ: '心', sign: '压之松软塌陷、指印久不消，提示微循环差、心功能衰弱；青黄色更重。' },
+        { zone: '胃一区', loc: '虎口，拇指掌指褶纹内侧端平行线至3线以上所包围的面积', organ: '胃', sign: '树叶状岛纹提示慢性胃炎；岛纹隆起为肥厚性，塌陷为萎缩性。' },
+        { zone: '胆一区', loc: '食指根部巽位', organ: '胆', sign: '隆起提示胆固醇偏高、血脂血压偏高；塌陷松软、黄白杂现提示胆道功能受损；十字纹、井字纹提示胆囊炎、胆管炎；米字纹提示胆囊结石或息肉。' },
+        { zone: '脾一区', loc: '无名指下，以1线为中轴向下画半圆弧所包围的面积', organ: '脾', sign: '未载' },
+        { zone: '脾二区', loc: '3线上胰腺区下方，约小指指甲盖大小', organ: '脾、胰腺', sign: '黄暗色斑点、青暗斑，提示脾大。' },
+        { zone: '肝区', loc: '2线与3线之间，拇指掌侧一带', organ: '肝', sign: '十字纹或6线较多提示肝疲劳；米字纹提示肝瘀气滞；3线较大岛纹提示肝大；脂肪隆起提示脂肪肝。' },
+        { zone: '膀胱一区', loc: '小指根部，与前列腺二区坤位重叠', organ: '膀胱、前列腺', sign: '未载' },
+        { zone: '前列腺一区', loc: '腕横纹中部上1厘米，靠近大鱼际边缘', organ: '前列腺', sign: '未载' },
+        { zone: '子宫区', loc: '腕横纹中部上1厘米，靠近大鱼际边缘', organ: '子宫', sign: '未载' },
+        { zone: '下肢关节区', loc: '腕横纹中部上0.5厘米', organ: '下肢关节', sign: '未载' },
+        { zone: '颈椎区', loc: '拇指掌指褶纹处', organ: '颈椎', sign: '提示颈椎增生。' },
+        { zone: '艮位', loc: '大鱼际下部', organ: '未载', sign: '青暗色提示感冒；暗紫色提示流感。' },
+        { zone: '震位', loc: '大鱼际上部、虎口', organ: '未载', sign: '提示慢性胃炎。' },
+        { zone: '离位', loc: '中指、无名指下方，掌心上部', organ: '未载', sign: '提示心肌供血不足。' },
+        { zone: '坤位', loc: '小指根部下方，小鱼际上部', organ: '前列腺、生殖', sign: '大量竖纹提示慢性前列腺炎；淡红色为炎症，青黄色为性病。' },
+        { zone: '乾位', loc: '小鱼际下部尺侧', organ: '前列腺', sign: '十字纹提示前列腺炎。' },
+        { zone: '兑位', loc: '小鱼际上部', organ: '肺、支气管', sign: '十字纹提示支气管炎。' },
+        { zone: '坎位', loc: '掌根正中，腕横纹上方', organ: '未载', sign: '5线起于坎位，越长健康状况越差。' }
+      ],
+      wangZonesNote: '王晨霞掌纹诊病掌部脏腑分区，现代通行说；分区与对应各本不一，只列通行名单；表现意义为该体系主张，未逐条对原书核；不作诊疗依据。'
+    };
+
     function sxToggleMod(id){ var el = $(id); if (el) el.classList.toggle('collapsed'); }
     window.sxToggleMod = sxToggleMod;
 
     function qtabWrap(inner){ return '<div class="qtab-scroll"><table class="qtab">' + inner + '</table></div>'; }
+    function qtabNote(inner, note){ return '<div class="sx-tbl-group">' + qtabWrap(inner) + '<p class="sx-note">' + esc(note) + '</p></div>'; }
     function sign(n){ return n > 0 ? '+' + n : String(n); }
     /* 档位阈值：满分十四分，七分及以上为吉档，负三分及以下为需留意档，余为平档 */
     function bandOf(n){ return n >= 7 ? '吉档' : (n <= -3 ? '需留意档' : '平档'); }
@@ -89,6 +194,54 @@ document.addEventListener('DOMContentLoaded', function () {
       t2 += '</tbody>';
       h += qtabWrap(t2);
       $('sxAuxBody').innerHTML = h;
+    }
+
+    /* 模块四：手部全息反射区（现代手诊、反射学与全息诊疗法三系并列，每表与其注同组，注在表下） */
+    function renderReflex(){
+      var h = '';
+      var t = '<thead><tr><th>手部位置</th><th>中医手诊所候</th><th>反射学所应</th></tr></thead><tbody>';
+      for (var i = 0; i < SX_REFLEX.zones.length; i++){
+        var z = SX_REFLEX.zones[i];
+        t += '<tr><td class="lbl">' + esc(z.pos) + '</td><td>' + esc(z.tcm) + '</td><td>' + esc(z.reflex) + '</td></tr>';
+      }
+      t += '</tbody>';
+      h += qtabNote(t, SX_REFLEX.zonesNote);
+      var t2 = '<thead><tr><th>穴名</th><th>定位（自指端向腕端）</th><th>所应部位</th></tr></thead><tbody>';
+      for (var j = 0; j < SX_REFLEX.points.length; j++){
+        var p = SX_REFLEX.points[j];
+        t2 += '<tr><td class="lbl">' + esc(p.name) + '</td><td>' + esc(p.loc) + '</td><td>' + esc(p.body) + '</td></tr>';
+      }
+      t2 += '</tbody>';
+      h += qtabNote(t2, SX_REFLEX.pointsNote);
+      var t3 = '<thead><tr><th>所察</th><th>表现</th><th>通行意义</th><th>说明</th></tr></thead><tbody>';
+      for (var k = 0; k < SX_REFLEX.states.length; k++){
+        var s = SX_REFLEX.states[k];
+        t3 += '<tr><td class="lbl">' + esc(s.k) + '</td><td>' + esc(s.biao) + '</td><td>' + esc(s.mean) + '</td><td>' + esc(s.note) + '</td></tr>';
+      }
+      t3 += '</tbody>';
+      h += qtabNote(t3, SX_REFLEX.statesNote);
+      var t4 = '<thead><tr><th>序号</th><th>线名</th><th>位置与走向</th><th>所主</th></tr></thead><tbody>';
+      for (var w = 0; w < SX_REFLEX.wangLines.length; w++){
+        var L = SX_REFLEX.wangLines[w];
+        t4 += '<tr><td class="lbl">' + esc(L.no) + '</td><td>' + esc(L.name) + '</td><td>' + esc(L.loc) + '</td><td>' + esc(L.zhu) + '</td></tr>';
+      }
+      t4 += '</tbody>';
+      h += qtabNote(t4, SX_REFLEX.wangLinesNote);
+      var t5 = '<thead><tr><th>纹名</th><th>形态</th><th>常见位置</th><th>所主</th></tr></thead><tbody>';
+      for (var q = 0; q < SX_REFLEX.wangMarks.length; q++){
+        var M = SX_REFLEX.wangMarks[q];
+        t5 += '<tr><td class="lbl">' + esc(M.name) + '</td><td>' + esc(M.shape) + '</td><td>' + esc(M.loc) + '</td><td>' + esc(M.zhu) + '</td></tr>';
+      }
+      t5 += '</tbody>';
+      h += qtabNote(t5, SX_REFLEX.wangMarksNote);
+      var t6 = '<thead><tr><th>分区</th><th>位置</th><th>对应脏腑</th><th>表现意义</th></tr></thead><tbody>';
+      for (var n = 0; n < SX_REFLEX.wangZones.length; n++){
+        var Z = SX_REFLEX.wangZones[n];
+        t6 += '<tr><td class="lbl">' + esc(Z.zone) + '</td><td>' + esc(Z.loc) + '</td><td>' + esc(Z.organ) + '</td><td>' + esc(Z.sign) + '</td></tr>';
+      }
+      t6 += '</tbody>';
+      h += qtabNote(t6, SX_REFLEX.wangZonesNote);
+      $('sxReflexBody').innerHTML = h;
     }
 
     /* 模块一：掌形与掌色（掌形七类为通行坊本中西合参称谓，古籍无载；掌色配属出医相通说，统一注明一次） */
@@ -295,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.sxDelSaved = sxDelSaved;
     if ($('sxHistoryBtn')) $('sxHistoryBtn').addEventListener('click', showSxSaved);
 
-    /* 渲染次序：整体（掌形掌色）、局部（九宫八丘、五指指甲）、细节（三大主线、辅助线纹），末为自查与流派 */
+    /* 渲染次序：整体（掌形掌色）、局部（九宫八丘、五指指甲）、细节（三大主线、辅助线纹、全息反射区），末为自查与流派 */
     renderZhi();
     renderZhangse();
     renderGong();
@@ -303,6 +456,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderWuZhi();
     renderHand();
     renderAux();
+    renderReflex();
     renderShouForm();
     renderLiupai();
 
