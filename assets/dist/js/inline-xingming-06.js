@@ -683,7 +683,7 @@ function query(){
     var grade = s.total>=86?'上乘':s.total>=75?'优良':s.total>=68?'良好':s.total>=56?'中等':s.total>=45?'偏弱':'需斟酌';
     var col = nmScoreColor(s.total);
     window.__nmScore=s.parts;
-    var scoreHtml='<section class="mod" id="nmModScore"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">'+(r.match?'六':'五')+'、综合评分</span><span class="mod-sub">八项分项、权重透明</span></div>'
+    var scoreHtml='<section class="mod" id="nmModScore"><div class="mod-head"><span class="mod-caret">▾</span><span class="mod-title">综合评分</span><span class="mod-sub">八项分项、权重透明</span></div>'
       +'<div class="mod-body">'
       +'<div class="hh-total hh-total-xz nm-total">'
       +'<div class="hh-total-cap">综合评分</div>'
@@ -1227,7 +1227,7 @@ function formBlock(mchars){
   /* 总评置于表末行：项名"总评"，断语与分值入结论列 */
   rows.push('<tr><th>总评</th><td class="'+(LUCK_CLS[cls]||'')+'"><b>'+lv+'</b>　'+lead+'（'+v+' 分）</td></tr>');
   return '<div class="nm-sub-sec"><p class="det-h">字形评断</p>'
-    +'<table class="xlr-table"><thead><tr><th>评断项</th><th>结论</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+    +'<table class="xlr-table nm-left"><thead><tr><th>评断项</th><th>结论</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>'
     +'</div>';
 }
 /* ---- 姓名对比（选填第二姓名，六维对等对比） ---- */

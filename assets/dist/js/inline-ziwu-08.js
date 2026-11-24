@@ -16,6 +16,9 @@
   function meridianByShichen(zhi) { var a = meridians(); for (var i = 0; i < a.length; i++) if (a[i].shichen === zhi) return a[i]; return null; }
   function xingOf(m) { if (m.xingFull) return m.xingFull; var s = shilingOfShichen(m.shichen); return s ? s.xingFull : ''; }
   function zzBrief(p) { return p && p.zz ? p.zz : '未载'; }
+  function symptoms() { return (hasData() && window.JL.SYMPTOMS) ? window.JL.SYMPTOMS : []; }
+  /* 症状速查读共享索引：选中症状按该条穴位集筛选，改关键词或归经即回到文本筛选 */
+  var SYM_POINTS = null;
 
   var QI_STATUS = {
     子:'气血初生，胆气主令', 丑:'肝血归藏，解毒修复', 寅:'肺朝百脉，气血重新分布', 卯:'大肠传导，排浊外出',
@@ -171,7 +174,8 @@
     if (!kw && !mer && !reg) list = list.filter(function (p) { return p.meridian === 'lung'; });
     if (mer) list = list.filter(function (p) { return p.meridian === mer; });
     if (reg) list = list.filter(function (p) { return p.region === reg; });
-    if (kw) list = list.filter(function (p) { return (p.name + p.code + p.zz + p.fx + p.pinyin).indexOf(kw) >= 0; });
+    if (SYM_POINTS) list = list.filter(function (p) { return SYM_POINTS.indexOf(p.name) >= 0; });
+    else if (kw) list = list.filter(function (p) { return (p.name + p.code + p.zz + p.fx + p.pinyin).indexOf(kw) >= 0; });
     var total = list.length;
     if (!total) { out.innerHTML = '<div class="jl-empty">未找到相符穴位，请换关键词或放宽筛选。</div>'; return; }
     var shown = list.slice(0, 80);
@@ -524,11 +528,13 @@
       if (e) e.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') renderNow(); });
     });
     var pb = $('jlPointBtn');
-    if (pb) pb.addEventListener('click', renderPoints);
+    if (pb) pb.addEventListener('click', function () { SYM_POINTS = null; renderPoints(); });
     var sb = $('jlSymptomBtn');
     if (sb) sb.addEventListener('click', function () {
       var s = $('jlSymptom') ? $('jlSymptom').value : '';
       if (!s) return;
+      var hit = symptoms().filter(function (x) { return x.name === s; })[0];
+      SYM_POINTS = hit ? hit.points : null;
       $('jlPointKw').value = s;
       if ($('jlPointMer')) $('jlPointMer').value = '';
       if ($('jlPointRegion')) $('jlPointRegion').value = '';
@@ -538,10 +544,13 @@
     if (zb) zb.addEventListener('click', renderZiliu);
     ['jlPointMer', 'jlPointRegion'].forEach(function (id) {
       var e = $(id);
-      if (e) e.addEventListener('change', renderPoints);
+      if (e) e.addEventListener('change', function () { SYM_POINTS = null; renderPoints(); });
     });
     var kw = $('jlPointKw');
-    if (kw) kw.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') renderPoints(); });
+    if (kw) {
+      kw.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { SYM_POINTS = null; renderPoints(); } });
+      kw.addEventListener('input', function () { SYM_POINTS = null; });
+    }
     var mo = $('jlMeridianOut');
     if (mo) mo.addEventListener('click', function (ev) {
       var tr = ev.target.closest('tr[data-mid]');
@@ -563,7 +572,23 @@
     window.dispatchEvent(new Event('resize'));
   };
 
+  /* 症状选项由共享索引生成，页面源件只留占位项，避免两处各列一份 */
+  function fillSymptoms() {
+    var sel = $('jlSymptom');
+    if (!sel) return;
+    var list = symptoms();
+    if (!list.length) return;
+    while (sel.options.length > 1) sel.remove(1);
+    list.forEach(function (s) {
+      var o = document.createElement('option');
+      o.value = s.name;
+      o.textContent = s.name;
+      sel.appendChild(o);
+    });
+  }
+
   function init() {
+    fillSymptoms();
     bind();
     renderMeridians();
     renderPointFilters();

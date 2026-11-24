@@ -40,45 +40,51 @@
     { id: 'quanshen', name: '全身', meridians: ['du', 'ren'], points: ['百会', '大椎', '命门', '中脘', '气海', '足三里', '三阴交', '涌泉'], route: '自头面始，经颈肩背腰，再上肢下肢，末以手足收', methods: ['tui', 'na', 'an', 'rou', 'gun', 'cuo'], dur: '二十至三十分钟', note: '全身推拿先轻后重，收势以轻手法与擦法透热为度' }
   ];
 
-  /* 三十六症：八组，只列体感与生活场景，不列病名诊断 */
-  TN.SYMPTOMS = [
-    { id: 'toutong', name: '头痛', group: '头面', points: ['百会', '太阳', '风池', '合谷'], methods: ['mo', 'rou', 'an'], note: '前额痛加印堂与攒竹，后头胀加风府', src: '《推拿学》通行本' },
-    { id: 'touyun', name: '头晕', group: '头面', points: ['百会', '风池', '印堂', '太冲'], methods: ['mo', 'rou', 'an'], note: '头晕伴血压高者不做头低位与重手法', src: '《推拿学》通行本' },
-    { id: 'shimian', name: '失眠', group: '头面', points: ['百会', '印堂', '神门', '三阴交', '涌泉'], methods: ['mo', 'rou', 'an'], note: '睡前操作，手法宜轻，以摩与揉为主', src: '《推拿学》通行本' },
-    { id: 'muzhang', name: '目胀', group: '头面', points: ['攒竹', '睛明', '太阳', '风池'], methods: ['rou', 'mo', 'an'], note: '眼周只揉不按，睛明轻揉，不压眼球', src: '《推拿学》通行本' },
-    { id: 'bisai', name: '鼻塞', group: '头面', points: ['迎香', '印堂', '合谷', '风池'], methods: ['rou', 'tui', 'an'], note: '自迎香向鼻根方向推，两侧各三十次', src: '《推拿学》通行本' },
-    { id: 'mianjin', name: '面紧', group: '头面', points: ['颊车', '下关', '地仓', '四白'], methods: ['rou', 'mo', 'an'], note: '咬肌紧者自下关向颊车揉，张口受限先就医', src: '《推拿学》通行本' },
-    { id: 'jingjianjin', name: '颈肩紧', group: '颈项', points: ['风池', '天柱', '肩井', '大椎', '肩中俞'], methods: ['na', 'rou', 'bo', 'an'], note: '久坐者自风池向下拿至肩井，肩胛内缘拨筋', src: '《推拿学》通行本' },
-    { id: 'luozhen', name: '落枕', group: '颈项', points: ['风池', '天柱', '肩井', '后溪'], methods: ['rou', 'na', 'an'], note: '先远端取穴后局部，不做颈椎旋转扳法', src: '《推拿学》通行本' },
-    { id: 'xiangqiang', name: '项强', group: '颈项', points: ['风府', '大椎', '天柱', '完骨'], methods: ['rou', 'tui', 'an'], note: '项强伴发热与呕吐先就医，不做推拿', src: '《推拿学》通行本' },
-    { id: 'yanbujin', name: '咽部紧', group: '颈项', points: ['廉泉', '合谷', '风池'], methods: ['rou', 'an'], note: '颈前只轻揉，不压迫气管与颈动脉窦', src: '《推拿学》通行本' },
-    { id: 'jiansuan', name: '肩酸', group: '肩背', points: ['肩井', '肩髃', '肩髎', '天宗'], methods: ['gun', 'rou', 'an', 'bo'], note: '肩髃与肩髎处可拨，肩前痛加云门轻揉', src: '《推拿学》通行本' },
-    { id: 'jianjiatong', name: '肩胛痛', group: '肩背', points: ['天宗', '秉风', '曲垣', '膏肓'], methods: ['bo', 'an', 'rou'], note: '肩胛内缘条索处弹拨，力度以能忍为度', src: '《推拿学》通行本' },
-    { id: 'beichen', name: '背沉', group: '肩背', points: ['身柱', '大杼', '风门', '膏肓'], methods: ['gun', 'rou', 'ca'], note: '膀胱经自上而下滚揉，末以横擦透热', src: '《推拿学》通行本' },
-    { id: 'jiuzuo', name: '久坐劳损', group: '肩背', points: ['肩井', '天宗', '肾俞', '委中', '承山'], methods: ['gun', 'rou', 'an', 'bo'], note: '每坐一小时起身活动，推拿只作缓解', src: '《推拿学》通行本' },
-    { id: 'shangzhima', name: '上肢麻', group: '肩背', points: ['极泉', '曲池', '手三里', '合谷'], methods: ['rou', 'na', 'an'], note: '麻木持续或肌力下降先就医，不单靠推拿', src: '《推拿学》通行本' },
-    { id: 'yaosuan', name: '腰酸', group: '腰骶', points: ['肾俞', '大肠俞', '命门', '委中'], methods: ['an', 'rou', 'ca', 'gun'], note: '腰酸伴下肢放射痛先就医，不做重手法', src: '《推拿学》通行本' },
-    { id: 'yaoleng', name: '腰冷', group: '腰骶', points: ['命门', '腰阳关', '肾俞', '志室'], methods: ['ca', 'rou', 'an'], note: '横擦腰骶至透热，介质可用葱姜水', src: '《推拿学》通行本' },
-    { id: 'dibusuan', name: '骶部酸', group: '腰骶', points: ['次髎', '腰俞', '膀胱俞', '委中'], methods: ['an', 'rou', 'ca'], note: '骶部手法宜缓和，孕期与经期禁', src: '《推拿学》通行本' },
-    { id: 'jiuzhan', name: '久站腰困', group: '腰骶', points: ['肾俞', '大肠俞', '承山', '足三里'], methods: ['rou', 'an', 'tui'], note: '久站者重点在小腿与腰骶，收势抬腿', src: '《推拿学》通行本' },
-    { id: 'jingqianyao', name: '经前腰酸', group: '腰骶', points: ['肾俞', '次髎', '三阴交', '太冲'], methods: ['rou', 'an', 'mo'], note: '经前以轻手法为主，经期不做腰骶重手法', src: '《推拿学》通行本' },
-    { id: 'wansuan', name: '腕酸', group: '上肢', points: ['阳溪', '阳池', '外关', '合谷'], methods: ['rou', 'nian', 'an'], note: '腕部先捻后揉，肿痛明显先就医', src: '《推拿学》通行本' },
-    { id: 'zhousuan', name: '肘酸', group: '上肢', points: ['曲池', '手三里', '尺泽', '少海'], methods: ['rou', 'an', 'bo'], note: '肱骨外上髁处只揉不重拨', src: '《推拿学》通行本' },
-    { id: 'shouzhima', name: '手指麻', group: '上肢', points: ['曲池', '手三里', '合谷', '后溪'], methods: ['rou', 'nian', 'an'], note: '夜间麻醒者先排查腕管，不单靠推拿', src: '《推拿学》通行本' },
-    { id: 'shoubifali', name: '手臂乏力', group: '上肢', points: ['曲池', '手三里', '内关', '合谷'], methods: ['na', 'rou', 'cuo'], note: '以拿与搓为主，力度由轻渐重', src: '《推拿学》通行本' },
-    { id: 'tuichen', name: '腿沉', group: '下肢', points: ['足三里', '阴陵泉', '承山', '委中'], methods: ['tui', 'na', 'rou'], note: '自下向上推回，静脉曲张处禁按揉', src: '《推拿学》通行本' },
-    { id: 'xiruan', name: '膝软', group: '下肢', points: ['犊鼻', '内膝眼', '鹤顶', '足三里', '血海'], methods: ['rou', 'an', 'mo'], note: '膝部只揉不摇，肿胀积液先就医', src: '《推拿学》通行本' },
-    { id: 'xiaotuizhang', name: '小腿胀', group: '下肢', points: ['承山', '委中', '昆仑', '三阴交'], methods: ['rou', 'an', 'tui'], note: '小腿肿胀发热须先排除血栓，不做按揉', src: '《推拿学》通行本' },
-    { id: 'zugen', name: '足跟酸', group: '下肢', points: ['昆仑', '太溪', '涌泉', '照海'], methods: ['rou', 'an', 'mo'], note: '足跟痛者以揉摩为主，晨起第一步痛明显者减量', src: '《推拿学》通行本' },
-    { id: 'fuzhang', name: '腹胀', group: '腹部', points: ['中脘', '天枢', '气海', '足三里'], methods: ['mo', 'rou', 'an'], note: '顺时针摩腹，饭后一小时内不做', src: '《推拿学》通行本' },
-    { id: 'shiyucha', name: '食欲差', group: '腹部', points: ['中脘', '足三里', '脾俞', '胃俞'], methods: ['mo', 'rou', 'an'], note: '背部脾俞胃俞各揉一分钟，腹部顺时针摩', src: '《推拿学》通行本' },
-    { id: 'bianmi', name: '便秘', group: '腹部', points: ['天枢', '大横', '支沟', '上巨虚'], methods: ['mo', 'an', 'rou'], note: '沿结肠走向顺时针推按，孕妇禁腹部手法', src: '《推拿学》通行本' },
-    { id: 'jingqianfuzhang', name: '经前腹胀', group: '腹部', points: ['气海', '关元', '三阴交', '太冲'], methods: ['mo', 'rou'], note: '经前轻摩小腹，经期不做腹部手法', src: '《推拿学》通行本' },
-    { id: 'pilao', name: '疲劳', group: '全身', points: ['百会', '大椎', '足三里', '涌泉'], methods: ['na', 'rou', 'an', 'ca'], note: '以背腰与下肢为主，收势擦涌泉', src: '《推拿学》通行本' },
-    { id: 'weihan', name: '畏寒', group: '全身', points: ['命门', '关元', '肾俞', '涌泉'], methods: ['ca', 'mo', 'an'], note: '擦腰骶与擦涌泉至透热，介质可用葱姜水', src: '《推拿学》通行本' },
-    { id: 'yixing', name: '易醒', group: '全身', points: ['神门', '内关', '三阴交', '涌泉'], methods: ['rou', 'mo', 'an'], note: '睡前半小时操作，全程轻手法，不做擦法', src: '《推拿学》通行本' },
-    { id: 'yundongsuan', name: '运动后酸痛', group: '全身', points: ['大椎', '肾俞', '委中', '承山', '足三里'], methods: ['gun', 'rou', 'an', 'tui'], note: '运动后两小时再做，急性拉伤二十四小时内不做推拿', src: '《推拿学》通行本' }
-  ];
+  /* 症状到穴映射唯一在 jingluo-data.js 的 JL.SYMPTOMS：本件只存手法与提示，按 id 并回 */
+  var SYM_DETAIL = {
+    toutong: { methods: ['mo', 'rou', 'an'], note: '前额痛加印堂与攒竹，后头胀加风府' },
+    touyun: { methods: ['mo', 'rou', 'an'], note: '头晕伴血压高者不做头低位与重手法' },
+    shimian: { methods: ['mo', 'rou', 'an'], note: '睡前操作，手法宜轻，以摩与揉为主' },
+    muzhang: { methods: ['rou', 'mo', 'an'], note: '眼周只揉不按，睛明轻揉，不压眼球' },
+    bisai: { methods: ['rou', 'tui', 'an'], note: '自迎香向鼻根方向推，两侧各三十次' },
+    mianjin: { methods: ['rou', 'mo', 'an'], note: '咬肌紧者自下关向颊车揉，张口受限先就医' },
+    jingjianjin: { methods: ['na', 'rou', 'bo', 'an'], note: '久坐者自风池向下拿至肩井，肩胛内缘拨筋' },
+    luozhen: { methods: ['rou', 'na', 'an'], note: '先远端取穴后局部，不做颈椎旋转扳法' },
+    xiangqiang: { methods: ['rou', 'tui', 'an'], note: '项强伴发热与呕吐先就医，不做推拿' },
+    yanbujin: { methods: ['rou', 'an'], note: '颈前只轻揉，不压迫气管与颈动脉窦' },
+    jiansuan: { methods: ['gun', 'rou', 'an', 'bo'], note: '肩髃与肩髎处可拨，肩前痛加云门轻揉' },
+    jianjiatong: { methods: ['bo', 'an', 'rou'], note: '肩胛内缘条索处弹拨，力度以能忍为度' },
+    beichen: { methods: ['gun', 'rou', 'ca'], note: '膀胱经自上而下滚揉，末以横擦透热' },
+    jiuzuo: { methods: ['gun', 'rou', 'an', 'bo'], note: '每坐一小时起身活动，推拿只作缓解' },
+    shangzhima: { methods: ['rou', 'na', 'an'], note: '麻木持续或肌力下降先就医，不单靠推拿' },
+    yaosuan: { methods: ['an', 'rou', 'ca', 'gun'], note: '腰酸伴下肢放射痛先就医，不做重手法' },
+    yaoleng: { methods: ['ca', 'rou', 'an'], note: '横擦腰骶至透热，介质可用葱姜水' },
+    dibusuan: { methods: ['an', 'rou', 'ca'], note: '骶部手法宜缓和，孕期与经期禁' },
+    jiuzhan: { methods: ['rou', 'an', 'tui'], note: '久站者重点在小腿与腰骶，收势抬腿' },
+    jingqianyao: { methods: ['rou', 'an', 'mo'], note: '经前以轻手法为主，经期不做腰骶重手法' },
+    wansuan: { methods: ['rou', 'nian', 'an'], note: '腕部先捻后揉，肿痛明显先就医' },
+    zhousuan: { methods: ['rou', 'an', 'bo'], note: '肱骨外上髁处只揉不重拨' },
+    shouzhima: { methods: ['rou', 'nian', 'an'], note: '夜间麻醒者先排查腕管，不单靠推拿' },
+    shoubifali: { methods: ['na', 'rou', 'cuo'], note: '以拿与搓为主，力度由轻渐重' },
+    tuichen: { methods: ['tui', 'na', 'rou'], note: '自下向上推回，静脉曲张处禁按揉' },
+    xiruan: { methods: ['rou', 'an', 'mo'], note: '膝部只揉不摇，肿胀积液先就医' },
+    xiaotuizhang: { methods: ['rou', 'an', 'tui'], note: '小腿肿胀发热须先排除血栓，不做按揉' },
+    zugen: { methods: ['rou', 'an', 'mo'], note: '足跟痛者以揉摩为主，晨起第一步痛明显者减量' },
+    fuzhang: { methods: ['mo', 'rou', 'an'], note: '顺时针摩腹，饭后一小时内不做' },
+    shiyucha: { methods: ['mo', 'rou', 'an'], note: '背部脾俞胃俞各揉一分钟，腹部顺时针摩' },
+    bianmi: { methods: ['mo', 'an', 'rou'], note: '沿结肠走向顺时针推按，孕妇禁腹部手法' },
+    jingqianfuzhang: { methods: ['mo', 'rou'], note: '经前轻摩小腹，经期不做腹部手法' },
+    pilao: { methods: ['na', 'rou', 'an', 'ca'], note: '以背腰与下肢为主，收势擦涌泉' },
+    weihan: { methods: ['ca', 'mo', 'an'], note: '擦腰骶与擦涌泉至透热，介质可用葱姜水' },
+    yixing: { methods: ['rou', 'mo', 'an'], note: '睡前半小时操作，全程轻手法，不做擦法' },
+    yundongsuan: { methods: ['gun', 'rou', 'an', 'tui'], note: '运动后两小时再做，急性拉伤二十四小时内不做推拿' }
+  };
+  TN.SYMPTOMS = (((typeof globalThis !== 'undefined' && globalThis.JL) ? globalThis.JL.SYMPTOMS : null) || []).filter(function (s) {
+    return SYM_DETAIL[s.id];
+  }).map(function (s) {
+    var d = SYM_DETAIL[s.id];
+    return { id: s.id, name: s.name, group: s.group, points: s.points.slice(), methods: d.methods, note: d.note, src: s.src };
+  });
 
   /* 七十二穴推拿取法：穴名与 jingluo-data 逐字一致，代码由该件按名取 */
   TN.POINT_OPS = [

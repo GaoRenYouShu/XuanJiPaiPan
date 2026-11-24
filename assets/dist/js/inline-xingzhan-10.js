@@ -344,7 +344,7 @@ function xzEphParse(s){
   return {y: p[0], m: p[1], d: p[2], z};
 }
 function xzEphCell(lon, sp){
-  return xz_fmtDeg(lon) + '<span class="el">' + xz_signName(lon) + (sp < 0 ? ' 逆' : '') + '</span>';
+  return xz_fmtDeg(lon) + '<br><span class="el">' + xz_signName(lon) + (sp < 0 ? ' 逆' : '') + '</span>';
 }
 function xzEphTableHtml(a, b, step){
   let rows = '';
@@ -357,19 +357,28 @@ function xzEphTableHtml(a, b, step){
     rows += '<tr><td>' + xzYmdStr(c.y, c.m, c.d) + '</td>' + tds + '</tr>';
   }
   const ths = XZ_PLANETS.map(function(p){ return '<th>' + p.glyph + ' ' + p.name + '</th>'; }).join('');
-  return '<div class="xz-tbl-wrap"><table class="xz-tbl xz-eph-tbl"><thead><tr><th>日期（UTC 0 时）</th>'
-    + ths + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  return '<div class="xz-tbl-wrap"><table class="xz-tbl xz-eph-tbl"><thead><tr><th>日期</th>'
+    + ths + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+    + '<div class="sub-note">表中时刻取世界时 0 时。</div>';
+}
+/* 输入提示走站内 .notice 内联件，不用浏览器弹窗 */
+function xzNotice(id, msg){
+  const o = document.getElementById(id);
+  if(!o) return;
+  o.innerHTML = '<p class="notice">' + msg + '</p>';
 }
 function xzEphGo(){
   const a = xzEphParse(document.getElementById('xzEphFrom').value);
   const b = xzEphParse(document.getElementById('xzEphTo').value);
   const step = Number(document.getElementById('xzEphStep').value) || 1;
-  if(!a || !b){ alert('请填写有效的起止日期'); return; }
-  if(a.z > b.z){ alert('起始日期不得晚于结束日期'); return; }
+  if(!a || !b){ xzNotice('xzEphOut', '请填写有效的起止日期'); return; }
+  if(a.z > b.z){ xzNotice('xzEphOut', '起始日期不得晚于结束日期'); return; }
   const rows = Math.floor((b.z - a.z) / step) + 1;
-  if(rows > 200){ alert('当前区间按此步长将出 ' + rows + ' 行，最多 200 行，请缩小区间或加大步长'); return; }
+  if(rows > 200){ xzNotice('xzEphOut', '当前区间按此步长将出 ' + rows + ' 行，最多 200 行，请缩小区间或加大步长'); return; }
   document.getElementById('xzEphOut').innerHTML = xzEphTableHtml(a, b, step);
 }
+/* 查询按钮走内联 onclick，函数须挂全局：闭包内函数名不外露则点按无反应 */
+window.xzEphGo = xzEphGo;
 function xzEphBlk(){
   const t = xzTodayYmd().split('-').map(Number);
   const e = xzAddDays(t[0], t[1], t[2], 29);
@@ -403,7 +412,7 @@ const XZ_YOGA_ADVICE = {
 function xzPai(){
   const dv = document.getElementById('xzDate').value;
   const tv = document.getElementById('xzTime').value;
-  if(!dv || !tv){ alert('请选择出生日期与时间'); return; }
+  if(!dv || !tv){ xzNotice('out', '请选择出生日期与时间'); return; }
   let [y,m,d] = dv.split('-').map(Number);
   let [hh,mm] = tv.split(':').map(Number);
   const sex = document.getElementById('xzSex').value;
@@ -454,7 +463,7 @@ function xzPai(){
   if(document.getElementById('xzRel').checked){
     const bdv = document.getElementById('xzBDate').value;
     const btv = document.getElementById('xzBTime').value;
-    if(!bdv || !btv){ alert('请填写第二人出生日期与时间'); return; }
+    if(!bdv || !btv){ xzNotice('out', '请填写第二人出生日期与时间'); return; }
     let [by,bm,bd] = bdv.split('-').map(Number);
     let [bhh,bmm] = btv.split(':').map(Number);
     /* 第二人同一口径：时区与当地夏令时按第二人出生地取数 */
@@ -1173,10 +1182,10 @@ function strip(html){ return html.replace(/<[^>]+>/g, ''); }
 /* 行运日期输入：默认今天，点"查看行运"仅重算行运区（快照+相位），不动本命盘其他区块 */
 window.xzTrGo = function(){
   const v = (document.getElementById('xzTrDate') || {}).value || '';
-  if(!v){ alert('请填写行运日期'); return; }
-  if(!__xzChart){ alert('请先排本命盘'); return; }
+  if(!v){ xzNotice('xzTrSnap', '请填写行运日期'); return; }
+  if(!__xzChart){ xzNotice('xzTrSnap', '请先排本命盘'); return; }
   const p = v.split('-').map(Number);
-  if(p.length !== 3 || !p[0] || !p[1] || !p[2] || p[1] < 1 || p[1] > 12 || p[2] < 1 || p[2] > 31){ alert('行运日期格式须为 yyyy-mm-dd'); return; }
+  if(p.length !== 3 || !p[0] || !p[1] || !p[2] || p[1] < 1 || p[1] > 12 || p[2] < 1 || p[2] > 31){ xzNotice('xzTrSnap', '行运日期格式须为 yyyy-mm-dd'); return; }
   const snap = document.getElementById('xzTrSnap');
   if(snap) snap.innerHTML = xzTrSnapHtml(__xzChart, p[0], p[1], p[2]);
 };
@@ -1260,10 +1269,10 @@ function xzTrTimeTitle(chart){
 /* 推运日期输入：默认今天，点"查看推运"仅重算推运区四块，不动本命盘其他区块 */
 window.xzPrGo = function(){
   const v = (document.getElementById('xzPrDate') || {}).value || '';
-  if(!v){ alert('请填写推运日期'); return; }
-  if(!__xzChart){ alert('请先排本命盘'); return; }
+  if(!v){ xzNotice('xzPrg', '请填写推运日期'); return; }
+  if(!__xzChart){ xzNotice('xzPrg', '请先排本命盘'); return; }
   const p = v.split('-').map(Number);
-  if(p.length !== 3 || !p[0] || !p[1] || !p[2] || p[1] < 1 || p[1] > 12 || p[2] < 1 || p[2] > 31){ alert('推运日期格式须为 yyyy-mm-dd'); return; }
+  if(p.length !== 3 || !p[0] || !p[1] || !p[2] || p[1] < 1 || p[1] > 12 || p[2] < 1 || p[2] > 31){ xzNotice('xzPrg', '推运日期格式须为 yyyy-mm-dd'); return; }
   const box = document.getElementById('xzPrg');
   if(box) box.innerHTML = xzPrHtml(__xzChart, p[0], p[1], p[2]);
 };
@@ -1579,7 +1588,7 @@ function xzFortuneBlk(chart){
 function xzFtGo(){
   const v = (document.getElementById('xzFtDate').value || '').trim();
   const p = v.split('-').map(Number);
-  if(!(p.length === 3 && p[0] > 0 && p[1] >= 1 && p[1] <= 12 && p[2] >= 1 && p[2] <= 31)){ alert('请选择有效日期'); return; }
+  if(!(p.length === 3 && p[0] > 0 && p[1] >= 1 && p[1] <= 12 && p[2] >= 1 && p[2] <= 31)){ xzNotice('xzFtDay', '请选择有效日期'); return; }
   const chart = window.__xzChart;
   if(chart) document.getElementById('xzFtDay').innerHTML = xzFortuneDayHtml(chart, p[0], p[1], p[2]);
 }
