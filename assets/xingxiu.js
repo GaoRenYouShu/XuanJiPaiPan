@@ -335,6 +335,9 @@ function renderYan() {    var p = parseYmd($('xxYanDate').value);
     return {xiu: '', lon: sl};
   }
   function renderDu() {
+    /* 预渲染走本地文件协议，只取静态宿度表作快照；今日太阳随日期变，不烘进快照。
+       真访问（http 与 https）照常按当日计算。 */
+    if (typeof location !== 'undefined' && location.protocol === 'file:') return;
     var now = Solar.fromDate(new Date());
     var si = sunInXiu(now.getYear(), now.getMonth(), now.getDay());
     var siObj = xiuObj(si.xiu);

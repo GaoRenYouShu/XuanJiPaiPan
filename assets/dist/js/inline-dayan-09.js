@@ -217,6 +217,7 @@
   window.dayanStep = function () {
     var info = DAYAN.stepNext();
     var body = el('dyStepBody');
+    if (body && info.yao === 0 && info.bian === 1) body.innerHTML = '';
     if (body) body.insertAdjacentHTML('beforeend', stepRow(info));
     if (el('dyStepNote')) el('dyStepNote').textContent = stepNarrative(info);
     var total = info.state.yao * 3 + info.state.bian;

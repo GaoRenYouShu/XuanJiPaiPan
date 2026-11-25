@@ -177,22 +177,24 @@ function wnlPickJingluo(i){
 }
 /* 节气盘取数：二十四气的交节日期一律走 shiling.js 的单一真源，页面不另写一套节气表推算；
    gap 为交节日减本日（正数＝尚未来到），ord 即本日在此气中的第几天。
+   交节表值带时分，日差一律按日历日归零：交节当日即算当日，不因交节时刻未到而多算一天。
    只填 WNL_JQ 与选中序，不出盘面串；默认月加载时用它补可点数据，不重画首屏。 */
 function wnlJqData(solar, lunar){
   const cur = lunar.getCurrentJieQi() || lunar.getPrevJieQi();
   const curIdx = JIEQI_24.indexOf(cur.getName());
   if (curIdx < 0) return -1;
   const dN = new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay());
+  const dayOnly = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
   const y = solar.getYear();
   WNL_JQ = JIEQI_24.map(function (nm, i) {
     const sea = JIEQI_SEA.filter(function (q) { return i >= q[1] / 15 && i < q[1] / 15 + 6; })[0] || JIEQI_SEA[0];
     let dt = (typeof shilingJieQiDate === 'function') ? shilingJieQiDate(y, nm) : null;
     if (dt) {
-      const off = Math.round((dt - dN) / 86400000);
+      const off = Math.round((dayOnly(dt) - dN) / 86400000);
       if (off > 183) dt = shilingJieQiDate(y - 1, nm) || dt;
       else if (off < -183) dt = shilingJieQiDate(y + 1, nm) || dt;
     }
-    const gap = dt ? Math.round((dt - dN) / 86400000) : 0;
+    const gap = dt ? Math.round((dayOnly(dt) - dN) / 86400000) : 0;
     return { name: nm, sea: sea[0], seaColor: sea[2], isJie: i % 2 === 0,
       md: dt ? (dt.getMonth() + 1) + '月' + dt.getDate() + '日' + ('0' + dt.getHours()).slice(-2) + ':' + ('0' + dt.getMinutes()).slice(-2) : '未载',
       gap: gap, ord: -gap + 1,

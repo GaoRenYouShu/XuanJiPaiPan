@@ -271,8 +271,9 @@ window.NAME_DATA = (function(){
   /* 一轴以天为视角，二轴以人为视角；两轴折到我这一侧后同用全站一判，档位不在本件另立 */
   var REL_FLIP = {same:'same', sheng:'beisheng', beisheng:'sheng', ke:'beike', beike:'ke'};
   function axisJudge(a, b, axis){
+    var code = xjWxRelCode(a, b);
     var r = relOf(a, b);
-    var luck = xjWxLuckSelf(axis === 1 ? REL_FLIP[r] : r);
+    var luck = xjWxLuckSelf(axis === 1 ? REL_FLIP[code] : code);
     return {rel:r, luck:luck, text:SANCAI_TEXT['axis'+axis][r]};
   }
   var SANCAI = {};

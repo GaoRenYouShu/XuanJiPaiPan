@@ -46,7 +46,7 @@ const QZ_GONG = [
   {zhi:'寅', nm:'人马', from:240, zhu:'jupiter', zwx:'木'},
   {zhi:'丑', nm:'磨羯', from:270, zhu:'saturn',  zwx:'土'},
   {zhi:'子', nm:'宝瓶', from:300, zhu:'saturn',  zwx:'水'},
-  {zhi:'亥', nm:'双鱼', from:330, zhu:'jupiter', zwx:'木'}
+  {zhi:'亥', nm:'双鱼', from:330, zhu:'jupiter', zwx:'水'}
 ];
 const QZ_GONG_MAP = {};
 QZ_GONG.forEach((g, i) => { g.idx = i; QZ_GONG_MAP[g.zhi] = g; });

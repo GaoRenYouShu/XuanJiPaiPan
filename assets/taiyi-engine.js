@@ -83,30 +83,12 @@ window.Taiyi = (function () {
     return 0;
   }
 
-  // 时计（淘金歌时计捷法五子元）：以太乙日局数与时辰干支，依甲子、丙子、戊子、庚子、壬子五子加临定值时太乙之局。
+  // 时计入元局：据《太乙统宗宝鉴》卷之一求时计入太乙纪元局法。
+  // 积日减一乘十二，加所求时，为积时；以周纪法三百六十去之，余以元法七十二约之，
+  // 得元数与入元局，每元一至七十二局，五元合三百六十周纪。
   const GAN_ARR = '甲乙丙丁戊己庚辛壬癸'.split('');
   const ZHI_ARR = '子丑寅卯辰巳午未申酉戌亥'.split('');
   const WUZI = ['甲子', '丙子', '戊子', '庚子', '壬子'];
-  const WUZI_JU = [1, 73, 145, 217, 289];
-  function jiaZi60() {
-    const out = [];
-    for (let i = 0; i < 60; i++) out.push(GAN_ARR[i % 10] + ZHI_ARR[i % 12]);
-    return out;
-  }
-  // 五子元：自各五子日（甲子、丙子、戊子、庚子、壬子）隔位加临日干支，推值时太乙局数。
-  function wuZiYuan(taiyiju, hourGanZhi) {
-    const ja = jiaZi60();
-    try {
-      const rows = WUZI.map((w, i) => {
-        const start = ja.indexOf(w);
-        const seq = [];
-        for (let k = 0; k <= 71; k++) seq.push(ja[(start + 2 * k) % 60]);
-        return { gz: seq[taiyiju - 1], ju: WUZI_JU[i] };
-      });
-      const hit = rows.find(r => r.gz === hourGanZhi);
-      return hit ? { 局数: hit.ju, 五子: hit.gz } : { 局数: taiyiju, 五子: hourGanZhi };
-    } catch (e) { return { 局数: taiyiju, 五子: hourGanZhi }; }
-  }
 
   function kook(jiStyle, tahun, acc) {
     const k = acc % 72 || 72;
@@ -494,7 +476,7 @@ window.Taiyi = (function () {
     return { year: build(0), month: build(1), day: build(2) };
   }
 
-  // 时计（值时太乙）：据日计局数与时辰干支，依淘金歌五子元法定值时局数，再按主客推算。
+  // 时计（值时太乙）：据《太乙统宗宝鉴》卷之一求时计入太乙纪元局法，以积时取周纪余与入元局，再按主客推算。
   // 时计阴阳遁依冬至夏至：冬至后至芒种为阳遁，夏至后至大雪为阴遁；年月日计恒为阳遁。
   const YANG_JQ = ['冬至', '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种'];
   function dunOf(lunar) {
@@ -507,18 +489,22 @@ window.Taiyi = (function () {
     } catch (e) { /* 无节气表时按阳遁 */ }
     return '阳';
   }
-  function computeShi(y, m, d, hour, minute, lunar, tahun) {
+  function computeShi(y, m, d, hour, minute, lunar, tahun, ziMode) {
     if (hour < 0) return null;
     if (tahun === undefined) tahun = 0;
     const accD = accnum(2, tahun, 0, 0, 0, y, m, d);
     const kkD = kook(2, tahun, accD);
     const dayJu = kkD.shu;
     const hourGz = lunar && lunar.getTimeInGanZhi ? lunar.getTimeInGanZhi() : '';
-    const wzy = wuZiYuan(dayJu, hourGz);
-    const shiJu = wzy.局数 % 72 || 72;
+    const shiIdx = Math.floor(((hour + 1) % 24) / 2) % 12;
+    let shiShu = (accD - 1) * 12 + shiIdx;
+    if (hour === 23 && ziMode !== 'early') shiShu += 12;
+    const r = ((shiShu % 360) + 360) % 360;
+    const juInYuan = (r % 72) + 1;
+    const yuanName = WUZI[Math.floor(r / 72)] + '元';
     const dun = dunOf(lunar);
     const jiStyle = dun === '阳' ? 0 : 3;
-    const acc = shiJu;
+    const acc = juInYuan;
     const kk = kook(jiStyle, tahun, acc);
     const taishui = (lunar ? lunar.getTimeZhi() : '') || '子';
     const shen = sixteenGong(jiStyle, tahun, acc, taishui);
@@ -527,8 +513,8 @@ window.Taiyi = (function () {
     const tyN = tyVal(jiStyle, tahun, acc);
     const ed = eightDoors(tyN, acc, kk.dun);
     return {
-      jiStyle: 3, label: '时计　值时太乙', 时干支: hourGz, 五子: wzy.五子, 值日局: dayJu,
-      k: shiJu, dun: kk.dun, wen: kk.wen, acc: shiJu, taishui,
+      jiStyle: 3, label: '时计　值时太乙', 时干支: hourGz, 元: yuanName, 入元局: juInYuan, 值日局: dayJu,
+      k: kk.shu, dun: kk.dun, wen: kk.wen, acc: juInYuan, taishui,
       tyGong: shen.太乙, tyNum: tyN, wc: shen.文昌, sh: shen.始击, ji: shen.计神, he: shen.合神,
       homeCal: homeC, awayCal: awayC, dingCal: dingC,
       homeGen: homeGeneral(jiStyle, tahun, acc), awayGen: awayGeneral(jiStyle, tahun, acc),
@@ -569,7 +555,7 @@ window.Taiyi = (function () {
   }
 
   return {
-    compute, computeShi, wuZiYuan, mingFa, num2cn, eightDoors, eightDoorZhiShi, dingCal, wuxingShengFu, ninePalace, changDuanShu, jianBei, bingZhen, dayouXiaoyou,
+    compute, computeShi, mingFa, num2cn, eightDoors, eightDoorZhiShi, dingCal, wuxingShengFu, ninePalace, changDuanShu, jianBei, bingZhen, dayouXiaoyou,
     TAIYI_METHODS,
     NINE_PALACE, BAZHEN,
     DOOR, DOOR_INFO, DOOR_ORDER: num.slice(),

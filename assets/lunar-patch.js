@@ -22,6 +22,21 @@
     if (typeof orig !== 'function') return;
     Lunar[k] = function () { return patchLunar(orig.apply(Lunar, arguments)); };
   });
+  /* 时冲另有一条实现：页面取 lunar.getTime() 的 LunarTime 实例，
+     其实例方法逐个挂在对象上、无原型可改，故在门面 fromYmdHms 出口逐个补全角。 */
+  var LunarTime = g.LunarTime;
+  function patchTimeDesc(o) {
+    if (o && typeof o.getChongDesc === 'function') {
+      o.getChongDesc = function () {
+        return '（' + this.getChongGan() + this.getChong() + '）' + this.getChongShengXiao();
+      };
+    }
+    return o;
+  }
+  if (LunarTime && typeof LunarTime.fromYmdHms === 'function') {
+    var ltOrig = LunarTime.fromYmdHms;
+    LunarTime.fromYmdHms = function () { return patchTimeDesc(ltOrig.apply(LunarTime, arguments)); };
+  }
 
   /* 二、道历腊月廿四祭灶王，与廿三并列，南北两说同出 */
   if (!TaoUtil.FESTIVAL['12-24']) {

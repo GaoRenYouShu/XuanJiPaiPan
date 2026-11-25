@@ -169,13 +169,14 @@ function query(){
     const ziMode=(document.getElementById('tyZi')||{}).value||'late';
     const shiIdx=Math.floor(((h+1)%24)/2)%12;
     const shiZhi='子丑寅卯辰巳午未申酉戌亥'[shiIdx];
-    const dayGz=ziMode==='early'?lunar.getDayInGanZhiExact2():lunar.getDayInGanZhiExact();
+    const lunarH=(h===23?Solar.fromYmdHms(y,m,d,23,0,0).getLunar():lunar);
+    const dayGz=ziMode==='early'?lunarH.getDayInGanZhiExact2():lunarH.getDayInGanZhiExact();
     const ganIdx='甲乙丙丁戊己庚辛壬癸'.indexOf(dayGz[0]);
     const hourGz='甲乙丙丁戊己庚辛壬癸'[(ganIdx%5*2+shiIdx)%10]+shiZhi;
     const lunarShi=Object.create(lunar);
     lunarShi.getTimeInGanZhi=function(){ return hourGz; };
     lunarShi.getTimeZhi=function(){ return shiZhi; };
-    Rshi=Taiyi.computeShi(y,m,d,h,mi,lunarShi,tahun);
+    Rshi=Taiyi.computeShi(y,m,d,h,mi,lunarShi,tahun,ziMode);
     if(h===23) timeNote=(timeNote?timeNote+'；':'')+(ziMode==='early'?'早子时：23时仍归当日':'晚子时：23时后日柱归次日');
   }
   const ly=`${lunar.getYearInChinese()}年（${lunar.getYearInGanZhi()}）${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
@@ -269,7 +270,7 @@ function boardHTML(s){
       <tr><td>岁计</td><td>值年太乙，${R.year.wen}，太乙居 ${GONG_NAME[R.year.tyGong]}宫</td></tr>
       <tr><td>月计</td><td>值月太乙，${R.month.wen}，太乙居 ${GONG_NAME[R.month.tyGong]}宫</td></tr>
       <tr><td>日计</td><td>值日太乙，${R.day.wen}，太乙居 ${GONG_NAME[R.day.tyGong]}宫</td></tr>
-      ${Rshi?`<tr><td>时计</td><td>值时太乙，${Rshi.wen}（${Rshi.时干支}时），太乙居 ${GONG_NAME[Rshi.tyGong]}宫</td></tr>`:''}
+      ${Rshi?`<tr><td>时计</td><td>值时太乙，${Rshi.wen}（${Rshi.元}，${Rshi.时干支}时），太乙居 ${GONG_NAME[Rshi.tyGong]}宫</td></tr>`:''}
       <tr><td>二十八宿</td><td>${(()=>{const song=(lunar.getXiuSong?lunar.getXiuSong():'').trim();const song2=song?(/[。！？]$/.test(song)?song:song+'。'):'';return '本日值宿 '+lunar.getXiu()+'（<span class="'+(lunar.getXiuLuck()==='凶'?'d-xj3':'d-jj3')+'">'+lunar.getXiuLuck()+'</span>）'+(lunar.getZheng?'，其曜为'+lunar.getZheng():'')+(lunar.getAnimal?'，宿主'+lunar.getAnimal():'')+(lunar.getGong?'，所在'+lunar.getGong():'')+'。星宿临日，主当日吉凶所应：'+song2;})()}</td></tr>
     </tbody></table>
     </div></section>
@@ -337,7 +338,7 @@ function boardHTML(s){
     <h3 class="rel-title">占断总纲</h3>
       <table class="ty-np"><tbody>
         <tr><td>总纲</td><td>太乙神数以"主客"为纲：以太乙为"主"、始击为"客"、文昌（天目）佐主，三方定主客之争。本页依${Taiyi.TAIYI_METHODS[tahun]||'太乙统宗'}体系推演。</td></tr>
-        <tr><td>起局</td><td>局数取积年对七十二取余而定，年计、月计、日计恒为阳遁，三计各自独立起局；时计另按五子元定局，冬至后至芒种为阳遁、夏至后至大雪为阴遁。</td></tr>
+        <tr><td>起局</td><td>局数取积年对七十二取余而定，年计、月计、日计恒为阳遁，三计各自独立起局；时计按积时入元局定局，每元七十二局、五元合三百六十周纪，冬至后至芒种为阳遁、夏至后至大雪为阴遁。</td></tr>
         <tr><td>定盛衰</td><td>主算、客算定双方强弱，算之奇偶分阳和、阴和；主算胜则主占先，客算胜则客占先，相等则势均。又有定算：以合神加太岁、取文昌临处依主算法推之，偏助客方，为主客之外的第三重参考。</td></tr>
         <tr><td>观格</td><td>囚（太乙与文昌同宫）、杜塞（主客大将入中宫）、迫、击、掩、挟、关、对诸格，皆由局数经权威表查得，主静动与吉凶之机。</td></tr>
         <tr><td>参神将</td><td>再参十神（君基、臣基、民基、四神、天乙、地乙、直符、飞符）与计神、五福，综论岁气灾祥、兵谋胜负、水旱丰歉。</td></tr>

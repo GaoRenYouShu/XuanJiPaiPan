@@ -1187,7 +1187,7 @@ function fsYzDetail(){
   if(!p) return;
   const x=p.zongJx==='大凶'||p.zongJx==='凶';
   fwDetail('fsYzDetail',
-    `${p.gua}宫（${p.dir}方） 八宅 ${p.baName}（${p.baGood?'吉':'凶'}）${p.xkStar?' 玄空 '+p.xkStar:''}${p.dingCai?' 流年'+p.dingCai:''}`
+    `${p.gua}宫（${fsDir(p.gua)}方） 八宅 ${p.baName}（${p.baGood?'吉':'凶'}）${p.xkStar?' 玄空 '+p.xkStar:''}${p.dingCai?' 流年'+p.dingCai:''}`
     +`<span class="wd-br"></span>`
     +`综合 <span class="${x?'wd-x':'wd-g'}">${p.zongJx}</span> ${p.use}`);
 }
@@ -1232,7 +1232,7 @@ function drawJsy(){
         <span class="fs-jsy-m">${mean}</span></div>`;
     }).join('');
     return `<div class="fs-jsy-g">
-      <div class="fs-jsy-gh"><span class="fs-jsy-gn">${g.gua}宫（${g.dir}）</span>
+      <div class="fs-jsy-gh"><span class="fs-jsy-gn">${g.gua}宫（${fsDir(g.gua)}）</span>
         <span class="fs-jsy-gf">喜${g.fav}　${g.wx}</span>
         <span class="fs-jsy-gs">${shapeTxt}</span>
         <span class="fs-jsy-gc">已定 ${picked.length}/${g.shan.length}</span></div>${rows}</div>`;

@@ -33,6 +33,7 @@
   const JIU_NAMES = ['一九','二九','三九','四九','五九','六九','七九','八九','九九'];
 
   const addDays = (s, n) => { const d = new Date(s.getFullYear(), s.getMonth(), s.getDate()); d.setDate(d.getDate() + n); return d; };
+  const dateOnly = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const isoOf = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   const ganOf = d => Solar.fromYmd(d.getFullYear(), d.getMonth() + 1, d.getDate()).getLunar().getDayInGanZhi()[0];
   const zhiOf = d => Solar.fromYmd(d.getFullYear(), d.getMonth() + 1, d.getDate()).getLunar().getDayInGanZhi()[1];
@@ -96,11 +97,13 @@
         if (sl.入梅 && iso === isoOf(sl.入梅)) out.push('入梅');
         if (sl.出梅 && iso === isoOf(sl.出梅)) out.push('出梅');
       }
-      /* 数九：取该日所属冬季的冬至（当年冬至前属上年冬至）；各九统一带“第N天” */
+      /* 数九：取该日所属冬季的冬至（当年冬至前属上年冬至）；各九统一带“第N天”。
+         冬至表值带交节时分，起算与日差一律按日历日归零，冬至凌晨也算入一九第一天。 */
       const dzNow = jieQiDate(y, '冬至'), dzPrev = jieQiDate(y - 1, '冬至');
-      const dongZhi = (dzNow && day >= dzNow) ? dzNow : ((dzPrev && day >= dzPrev) ? dzPrev : null);
+      const dayOnly = dateOnly(day), dz0 = dzNow && dateOnly(dzNow), dz1 = dzPrev && dateOnly(dzPrev);
+      const dongZhi = (dz0 && dayOnly >= dz0) ? dz0 : ((dz1 && dayOnly >= dz1) ? dz1 : null);
       if (dongZhi) {
-        const dd = Math.floor((day - dongZhi) / 86400000);
+        const dd = Math.round((dayOnly - dongZhi) / 86400000);
         if (dd >= 0 && dd < 81) {
           const jiu = Math.floor(dd / 9), c = dd % 9 + 1;
           out.push(JIU_NAMES[jiu] + '第' + c + '天');

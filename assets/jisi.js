@@ -168,6 +168,12 @@
     return head;
   }
   function row(k, v) { return '<div class="jsi-row"><span class="jsi-k">' + k + '</span><span class="jsi-v">' + v + '</span></div>'; }
+  /* 供品两档同出：常供为日常所备，全供为大祭所备；凡出供品处一律两档并列。 */
+  function offerText(x) {
+    var s = '常供：' + (((x && x.offer) || []).join('、') || '未载');
+    if (x && x.offerFull && x.offerFull.length) s += '；全供：' + x.offerFull.join('、');
+    return s;
+  }
   function ol(items) { return '<ol class="jsi-ol">' + (items || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>'; }
   function tag(t) { return '<span class="jsi-tag">' + esc(t) + '</span>'; }
   function anchor(id, label) { return '<a class="jsi-tag" href="#' + id + '" onclick="return jsiJump(\'' + id + '\')">' + label + '</a>'; }
@@ -346,8 +352,7 @@
     h += row('时', esc(time));
     h += row('所', esc(placeLine(f)));
     h += row('方位', anchor('jsiPosFold', '神位安放') + '　' + esc(posText(f)));
-    var wu = (f.offer || []).join('、');
-    if (f.offerFull && f.offerFull.length) wu += '。全供：' + f.offerFull.join('、');
+    var wu = offerText(f);
     h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc(wu));
     h += row('仪', ol(f.rite));
     h += row('禁', anchor('jsiTabooFold', '禁忌释义') + '　' + tabooText(f));
@@ -438,7 +443,7 @@
     h += row('日', esc(dates || '无固定祭日，随节令与家祭行之'));
     h += row('所', esc(placeLine(d)));
     h += row('方位', anchor('jsiPosFold', '神位安放') + '　' + esc(posText(d)));
-    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc((d.offer || []).join('、')));
+    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc(offerText(d)));
     h += row('仪', ol(d.rite));
     h += row('禁', anchor('jsiTabooFold', '禁忌释义') + '　' + tabooText(d));
     var fs = (d.fest || []).map(function (fid) { var f = findFest(fid); return f ? f.name : ''; }).filter(Boolean);
@@ -464,7 +469,7 @@
     h += row('序', ol(m.steps));
     h += row('所', esc(placeLine(m)));
     h += row('方位', anchor('jsiPosFold', '神位安放') + '　' + esc(posText(m)));
-    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc((m.offer || []).join('、')));
+    h += row('物', anchor('jsiOfferFold', '供品释义') + '　' + esc(offerText(m)));
     h += row('禁', anchor('jsiTabooFold', '禁忌释义') + '　' + tabooText(m));
     h += row('据', esc(srcLineOf(m)));
     h += '</article>';
@@ -520,7 +525,7 @@
     GROUP_ORDER.forEach(function (grp) {
       DEITY.filter(function (d) { return d.group === grp; }).forEach(function (d) {
         var dates = (d.dates || []).map(function (x) { return deityDateText(x) + ' ' + x.name; }).join('<br>') || '无固定祭日';
-        rows += '<tr><td>' + esc(d.name) + '</td><td>' + esc(d.group) + '</td><td>' + dates + '</td><td>' + esc((d.offer || []).join('、')) + '</td><td>' + esc(d.region) + '</td></tr>';
+        rows += '<tr><td>' + esc(d.name) + '</td><td>' + esc(d.group) + '</td><td>' + dates + '</td><td>' + esc(offerText(d)) + '</td><td>' + esc(d.region) + '</td></tr>';
       });
     });
     body.innerHTML = rows;
@@ -686,10 +691,10 @@
       var d = findDeity(LAST.obj);
       if (d) s += '对象：' + d.name + (d.alias ? '（' + d.alias + '）' : '') + '\n' +
         '日：' + ((d.dates || []).map(function (x) { return '农历' + deityDateText(x) + ' ' + x.name; }).join('；') || '无固定祭日') + '\n' +
-        '所：' + placeLine(d) + '\n方位：' + posText(d) + '\n物：' + (d.offer || []).join('、') + '\n仪：' + (d.rite || []).join('、') + '\n禁：' + (d.taboo || []).join('；') + '\n据：' + srcLineOf(d);
+        '所：' + placeLine(d) + '\n方位：' + posText(d) + '\n物：' + offerText(d) + '\n仪：' + (d.rite || []).join('、') + '\n禁：' + (d.taboo || []).join('；') + '\n据：' + srcLineOf(d);
     } else if (LAST.act === 'mat') {
       var m = findMatter(LAST.matter);
-      if (m) s += '事项：' + m.name + '\n序：' + (m.steps || []).join('、') + '\n所：' + placeLine(m) + '\n方位：' + posText(m) + '\n物：' + (m.offer || []).join('、') + '\n禁：' + (m.taboo || []).join('；') + '\n据：' + srcLineOf(m);
+      if (m) s += '事项：' + m.name + '\n序：' + (m.steps || []).join('、') + '\n所：' + placeLine(m) + '\n方位：' + posText(m) + '\n物：' + offerText(m) + '\n禁：' + (m.taboo || []).join('；') + '\n据：' + srcLineOf(m);
     } else {
       var dt = parseDate(LAST.date || val('jiDate'));
       var info = dt ? lunarInfo(dt) : null;
@@ -700,7 +705,7 @@
         if (info.ji.length) s += '通书忌：' + info.ji.slice(0, 8).join('、') + '\n';
         s += '当日祭仪：' + (hits.length ? hits.map(function (f) { return f.name; }).join('、') : '无') + '\n';
         s += hits.map(function (f) {
-          return '【' + f.name + '】方位：' + posText(f) + '；物：' + (f.offer || []).join('、') + '；仪：' + (f.rite || []).join('、') + '；禁：' + (f.taboo || []).join('；') + '；据：' + srcLineOf(f);
+          return '【' + f.name + '】方位：' + posText(f) + '；物：' + offerText(f) + '；仪：' + (f.rite || []).join('、') + '；禁：' + (f.taboo || []).join('；') + '；据：' + srcLineOf(f);
         }).join('\n');
       }
     }

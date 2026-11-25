@@ -9,6 +9,25 @@ const QIMEN_AI_SCHOOLS = [
   { key:'geju', name:'格局派', brief:'以吉格凶格为断，兼看用神宫气与星旺，重格局成阻。' }
 ];
 const QIMEN_AI_PROMPT = '本盘为奇门遁甲。请严格依据盘面“综合断语、多派断局、断局特征、应期参考”作答：先引综合断语，写明主判、次判、分歧与取用；按所选流派逐派成段，只用该派权重所取的层，引用该派关键证据与出处；五派成段后总收共识与分歧，并说明取舍；应期按五法并列，逐法给推算与应期，不合成单一日期；所有结论须在盘面证据中有对应项，证据不足时明说，不得自造格局、克应或断语；末尾提示仅供参考。';
+/* 天禽寄宫下拉两档宽度：寄坤二与寄艮八共用短宽，寄二八回到 auto 原宽；初始短宽写在页内，脚本只在手动切换时改宽，首绘后不动布局。 */
+function qinGongWidth(){
+  const sel=document.getElementById('qQinGong'); if(!sel) return;
+  if(sel.value==='二八'){ sel.style.width='auto'; return; }
+  const cs=getComputedStyle(sel);
+  const probe=document.createElement('span');
+  probe.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;';
+  probe.style.fontFamily=cs.fontFamily; probe.style.fontSize=cs.fontSize; probe.style.fontWeight=cs.fontWeight;
+  document.body.appendChild(probe);
+  let shortW=0;
+  Array.prototype.forEach.call(sel.options,function(o){
+    if(o.value==='二八') return;
+    probe.textContent=o.textContent; shortW=Math.max(shortW,probe.offsetWidth);
+  });
+  document.body.removeChild(probe);
+  shortW=Math.max(136,Math.ceil(shortW)+44);
+  sel.style.width=shortW+'px';
+}
+window.qinGongWidth=qinGongWidth;
 /* 九宫洛书显示顺序：4巽 9离 2坤、3震 5中 7兑、8艮 1坎 6乾 */
 const GRID=['4','9','2','3','5','7','8','1','6'];
 const GONG_NAME={'1':'坎','2':'坤','3':'震','4':'巽','5':'中','6':'乾','7':'兑','8':'艮','9':'离'};
@@ -24,9 +43,9 @@ const JX_KEY={'吉':'da_ji','凶':'da_xiong','平':'ping'};
 const QI_LEGEND='天盘干（红，大字），地盘、暗干（灰），值符（红角），值使（绿角），空亡（黑角），驿马（蓝角）。点击任意宫可看本宫详情。';
 /* 综合判断、格局建议转表格 */
 /* 九星、八门、八神、九宫 通俗释义（用于悬停 tooltip 和白话解读） */
-const XING_MEAN = {'天蓬':'凶星，主胆大冒险、易惹是非，宜静守','天芮':'凶星，主疾病问题、师生交流，遇吉门可解','天冲':'吉星，主冲锋行动、快速见效，利武事',
-  '天辅':'吉星，主辅助文教、温和稳重，利学业','天禽':'吉星，主居中协调、稳重有成，百事可为','天心':'吉星，主谋略管理、计划周密，利策划',
-  '天柱':'凶星，主口舌破坏、中伤毁谤，宜防守','天任':'吉星，主担当承受、厚德载物，利农事','天英':'平星，主表象英华、虚有其表，宜观望'};
+const XING_MEAN = {'天蓬':'大凶星，主胆大冒险、易惹是非，宜静守','天芮':'大凶星，主疾病问题、师生交流，遇吉门可解','天冲':'小吉星，主冲锋行动、快速见效，利武事',
+  '天辅':'上吉星，主辅助文教、温和稳重，利学业','天禽':'上吉星，主居中协调、稳重有成，百事可为','天心':'上吉星，主谋略管理、计划周密，利策划',
+  '天柱':'小凶星，主口舌破坏、中伤毁谤，宜防守','天任':'小吉星，主担当承受、厚德载物，利农事','天英':'小凶星，主表象英华、虚有其表，宜观望'};
 const MEN_MEAN = {'休门':'大吉，主婚姻休养、安定团结，北行大利','生门':'大吉，主财源生长、求财得利，东北方吉','伤门':'大凶，主伤灾破损、出行不利，宜捕猎',
   '杜门':'大凶，主闭塞不通、隐藏埋伏，宜防守','景门':'小吉，主文书消息、名声远扬，宜献策','死门':'大凶，主死亡争斗、了结之事，行刑可用',
   '惊门':'小凶，主惊恐不安、官非口舌，宜埋伏','开门':'大吉，主事业开创、万事通达，西北方吉'};
@@ -37,8 +56,8 @@ const SHEN_MEAN = {'值符':'吉神，主贵人相助、首脑坐镇，百恶消
 const GONG_MEAN = {'1':'坎宫 正北 五行属水，主险阻、智慧、流动之事','2':'坤宫 西南 五行属土，主包容、母亲、田地房产','3':'震宫 正东 五行属木，主行动、长子、事业变动',
   '4':'巽宫 东南 五行属木，主文书、长女、入仕进官','5':'中宫 中央 五行属土，主枢纽、协调、居中调度','6':'乾宫 西北 五行属金，主权威、父亲、领导能力','7':'兑宫 正西 五行属金，主口舌、少女、表达沟通',
   '8':'艮宫 东北 五行属土，主停止、少男、积蓄等待','9':'离宫 正南 五行属火，主光明、中女、事业成就'};
-const XING_MEAN_SHORT = {'天蓬':'凶星，主胆大冒险','天芮':'凶星，主疾病问题','天冲':'吉星，主冲锋行动','天辅':'吉星，主辅助文教',
-  '天禽':'吉星，主居中协调','天心':'吉星，主谋略管理','天柱':'凶星，主口舌破坏','天任':'吉星，主担当承受','天英':'平星，主表象英华'};
+const XING_MEAN_SHORT = {'天蓬':'大凶星，主胆大冒险','天芮':'大凶星，主疾病问题','天冲':'小吉星，主冲锋行动','天辅':'上吉星，主辅助文教',
+  '天禽':'上吉星，主居中协调','天心':'上吉星，主谋略管理','天柱':'小凶星，主口舌破坏','天任':'小吉星，主担当承受','天英':'小凶星，主表象英华'};
 const MEN_MEAN_SHORT = {'休门':'大吉，主婚姻休养','生门':'大吉，主财源生长','伤门':'大凶，主伤灾破损','杜门':'大凶，主闭塞不通',
   '景门':'小吉，主文书消息','死门':'大凶，主死亡争斗','惊门':'小凶，主惊恐不安','开门':'大吉，主事业开创'};
 const SHEN_MEAN_SHORT = {'值符':'吉神，主贵人相助','螣蛇':'凶神，主虚惊怪异','太阴':'吉神，主暗中辅助','六合':'吉神，主合作和合',
@@ -143,8 +162,9 @@ function renderQiOutput(pan, cells, baseInfo, purpose){
     const a = (pan.jiuGongAnalysis||{})[g]||{};
     const menRel = a.menRel ? `<span class="${a.menRel==='门迫'?'qm-rel-xiong':'qm-rel-ji'}">${a.menRel}</span>` : '无';
     const xingW = a.xingWang ? `<span class="${a.xingWang==='旺'||a.xingWang==='相'?'qm-wx-wang':(a.xingWang==='囚'||a.xingWang==='废'?'qm-wx-ruo':'qm-wx-ping')}">${a.xingWang}</span>` : '无';
+    const xwM = (a.xingWangMonth && a.xingWangMonth!==a.xingWang) ? `（月令${a.xingWangMonth}）` : '';
     const ky = a.keYing ? a.keYing : '无';
-    return `<tr><td>${GONG_NAME[g]}宫</td><td>${pan.jiuXing[g]||'无'}</td><td>${pan.baMen[g]||'无'}</td><td>${pan.baShen[g]||'无'}</td><td>${menRel}</td><td>${xingW}</td><td>${ky}</td></tr>`;
+    return `<tr><td>${GONG_NAME[g]}宫</td><td>${pan.jiuXing[g]||'无'}</td><td>${pan.baMen[g]||'无'}</td><td>${pan.baShen[g]||'无'}</td><td>${menRel}</td><td>${xingW}${xwM}</td><td>${ky}</td></tr>`;
   }).join('');
   const yq=an.yingQi||{};
   const yqSchools=yq.schools||[];
@@ -156,12 +176,12 @@ function renderQiOutput(pan, cells, baseInfo, purpose){
   const gq=ft.gongQi||{};
   const gqRows=GONG8.map(g=>{
     const q=gq[g]||{};
-    const ws=q.wangShuai?`<span class="${q.wangShuai==='旺'||q.wangShuai==='相'?'qm-wx-wang':(q.wangShuai==='囚'||q.wangShuai==='废'?'qm-wx-ruo':'qm-wx-ping')}">${q.wangShuai}</span>`:'无';
+    const ws=q.wangShuai?`<span class="${q.wangShuai==='旺'||q.wangShuai==='相'?'qm-wx-wang':(q.wangShuai==='囚'||q.wangShuai==='死'?'qm-wx-ruo':'qm-wx-ping')}">${q.wangShuai}</span>`:'无';
     const cs=(q.changSheng||[]).map(x=>x.zhi+x.stage).join('、')||'无';
     const isUse=ft.yongShen&&ft.yongShen.gong===g;
     return `<tr><td>${GONG_NAME[g]}宫${isUse?'（用神）':''}</td><td>${q.wx||'无'}</td><td>${ws}</td><td>${(q.nums||[]).join('、')||'无'}</td><td>${q.tian||'无'}</td><td>${cs}</td></tr>`;
   }).join('');
-  const gqHtml=`<table class="qm-tbl"><thead><tr><th>宫</th><th>五行</th><th>宫气</th><th>生数成数</th><th>天盘干</th><th>十二长生</th></tr></thead><tbody>${gqRows}</tbody></table><div class="qm-note">宫气按节气月令五行定旺相休囚废；十二长生取天盘干在本宫地支之位，一宫两支者两支并看。中五无位，寄坤二、艮八。</div>`;
+  const gqHtml=`<table class="qm-tbl"><thead><tr><th>宫</th><th>五行</th><th>宫气</th><th>生数成数</th><th>天盘干</th><th>十二长生</th></tr></thead><tbody>${gqRows}</tbody></table><div class="qm-note">宫气按节气月令五行定旺相休囚死；十二长生取天盘干在本宫地支之位，一宫两支者两支并看。中五无位，寄坤二、艮八。</div>`;
   const pairs=ft.pairs||[];
   const pairOf=l=>pairs.find(p=>p.labelB===l);
   const relWord=p=>{
@@ -234,7 +254,7 @@ function renderQiOutput(pan, cells, baseInfo, purpose){
     <section class="mod" id="qmModGong"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGong')"><span class="mod-caret">▾</span><span class="mod-title">宫位要览</span><span class="mod-sub">九星 八门 八神 旺衰</span></div><div class="mod-body">
      <table class="qm-tbl qm-tbl-sm"><thead><tr><th>宫</th><th>九星</th><th>八门</th><th>八神</th><th>门宫关系</th><th>星之旺衰</th><th>十干克应</th></tr></thead>
      <tbody>${gongOverviewRows}</tbody></table>
-     <div class="qm-note">门迫（门克宫，事受制）<span class="qm-rel-xiong">红字</span>；门制（宫克门，力有牵制）<span class="qm-rel-ji">金字</span>。星旺衰：旺相<span class="qm-wx-wang">绿</span>、囚废<span class="qm-wx-ruo">红</span>、休平<span class="qm-wx-ping">灰</span>。</div>
+     <div class="qm-note">门迫（门克宫，事受制）<span class="qm-rel-xiong">红字</span>；门制（宫克门，力有牵制）<span class="qm-rel-ji">金字</span>。星旺衰以宫内为主，月令为辅，两者不同时并列；旺相<span class="qm-wx-wang">绿</span>、囚废<span class="qm-wx-ruo">红</span>、休平<span class="qm-wx-ping">灰</span>。</div>
     </div></section>
     <section class="mod" id="qmModGeju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModGeju')"><span class="mod-caret">▾</span><span class="mod-title">格局</span><span class="mod-sub">吉格 凶格</span></div><div class="mod-body">${gejuHtml}${pan.family!=='时家'?'<div class="qm-note">非时家局：格局按盘面通用项列出。</div>':''}</div></section>
     <section class="mod" id="qmModDuanju"><div class="mod-head" role="button" tabindex="0" onclick="qmToggleMod('qmModDuanju')"><span class="mod-caret">▾</span><span class="mod-title">断局特征</span><span class="mod-sub">宫气 用神网络 多派</span></div><div class="mod-body">
@@ -568,7 +588,8 @@ function showGongDetail(g){
   const cs=(gq.changSheng||[]).map(x=>x.zhi+x.stage).join('、');
   if(cs) relRows.push(['十二长生', cs]);
   if(a.menRel) relRows.push(['门宫关系', a.menRel==='门迫'?'门迫（门克宫，事受制）':'门制（宫克门，力有牵制）']);
-  if(a.xingWang) relRows.push(['星之旺衰', a.xingWang]);
+  if(a.xingWang) relRows.push(['星之旺衰', '宫内'+a.xingWang]);
+  if(a.xingWangMonth) relRows.push(['月令旺衰', a.xingWangMonth]);
   if(a.keYing) relRows.push(['十干克应', a.keYing+(a.keYingSrc?` <span class="qi-mp-src">${a.keYingSrc}</span>`:'')]);
   const kv=arr=>arr.map(r=>`<div class="mk">${r[0]}</div><div>${r[1]}</div>`).join('');
   const sec=(t,inner)=>`<div class="qi-g-sec"><div class="qi-g-sec-t">${t}</div>${inner}</div>`;

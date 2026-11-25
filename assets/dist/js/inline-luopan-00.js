@@ -625,7 +625,7 @@ function lpTouDetail(){
 /* 八卦盘 */
 function lpBaguaCore(sel){
   var shan=FS.SHAN_LIST[sel], g=FS.SHAN_BAGUA[shan];
-  return [shan+'山', g+'卦属'+FS.SHAN_WX[shan], '', FS.GUA_DIR[g]+'方'];
+  return [shan+'山', g+'卦属'+FS.SHAN_WX[shan], '', lpDir(g)+'方'];
 }
 function lpLuoshuCore(sel){
   var shan=FS.SHAN_LIST[sel], g=FS.SHAN_BAZI[shan]||1;
@@ -814,7 +814,7 @@ function lpBazhaiDetail(){
 /* 天星盘 */
 function lpTianxingCore(sel){
   var shan=FS.SHAN_LIST[sel], g=FS.tianXingGui(shan);
-  return [shan+'山', g.gui?('应'+g.star.split('、')[0]):'无催官贵星', g.gui?'var(--wheel-good)':'', FS.GUA_DIR[FS.SHAN_BAGUA[shan]]+'方'];
+  return [shan+'山', g.gui?('应'+g.star.split('、')[0]):'无催官贵星', g.gui?'var(--wheel-good)':'', lpDir(FS.SHAN_BAGUA[shan])+'方'];
 }
 function lpTianxingSvg(){
   var sel=LP_SEL.tianxing;

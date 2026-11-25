@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function () {
         { no: '13线', name: '悉尼线', loc: '2线变异一直延伸到手掌尺侧缘', zhu: '肝癌、血液病、牛皮癣患者可见；部分后天形成，有岛纹意义更大。' },
         { no: '14线', name: '通贯掌', loc: '1线消失、2线与3线合并', zhu: '遗传倾向极强。' }
       ],
-      wangLinesNote: '王晨霞掌纹诊病十四线，由三条主线与十一条辅助线组成；现代通行说，线名与顺序取通行名单，未逐条对原书核；不作诊疗依据。',
       wangMarks: [
         { name: '十字纹', shape: '交叉短线', loc: '掌中任意处', zhu: '预知早期病症；器官功能紊乱或炎症，浮浅色红多急性，深暗多慢性。' },
         { name: '井字纹', shape: '四条短线组成四角形', loc: '掌中', zhu: '辨识实质病变；慢性炎症，发展较慢；胆区者炎症无结石。' },
@@ -86,32 +85,31 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: '岛纹', shape: '形如小岛', loc: '主线之上', zhu: '警示肿瘤癌变；肿瘤或炎性肿块，纹越小越需留意。' },
         { name: '环形纹', shape: '圆环状', loc: '掌中', zhu: '代表外伤撞击；较重外伤可在掌上留下环形纹。' }
       ],
-      wangMarksNote: '王晨霞掌纹诊病八种异常纹，现代通行说；不同资料顺序不一，本表只列名目；与本页辅助线纹与标记的通行名目分属两系，同名不同义者各随本系；不作病名之断。',
       wangZones: [
-        { zone: '肺二区', loc: '大鱼际桡侧，拇指掌指褶纹中点与腕纹中点连线外侧', organ: '肺', sign: '未载' },
+        { zone: '肺二区', loc: '大鱼际桡侧，拇指掌指褶纹中点与腕纹中点连线外侧', organ: '肺', sign: '主要提示感冒或流感：普通感冒时掌色苍白、青筋暴露、指尖凉、腕部青色血管显露；流感时掌色赤白夹杂。' },
         { zone: '肺一区', loc: '中指与无名指根部', organ: '肺', sign: '1线出现方格纹，表示感染。' },
         { zone: '心一区', loc: '中指、无名指根部掌纹与1线之间', organ: '心', sign: '纹理杂乱，提示心脏功能受损。' },
         { zone: '心二区', loc: '2线上劳宫穴周围', organ: '心', sign: '出现十字纹，提示心律不齐、心悸、心脏神经官能症。' },
         { zone: '心三区', loc: '大鱼际除震位与肺二区所余部分', organ: '心', sign: '压之松软塌陷、指印久不消，提示微循环差、心功能衰弱；青黄色更重。' },
         { zone: '胃一区', loc: '虎口，拇指掌指褶纹内侧端平行线至3线以上所包围的面积', organ: '胃', sign: '树叶状岛纹提示慢性胃炎；岛纹隆起为肥厚性，塌陷为萎缩性。' },
         { zone: '胆一区', loc: '食指根部巽位', organ: '胆', sign: '隆起提示胆固醇偏高、血脂血压偏高；塌陷松软、黄白杂现提示胆道功能受损；十字纹、井字纹提示胆囊炎、胆管炎；米字纹提示胆囊结石或息肉。' },
-        { zone: '脾一区', loc: '无名指下，以1线为中轴向下画半圆弧所包围的面积', organ: '脾', sign: '未载' },
-        { zone: '脾二区', loc: '3线上胰腺区下方，约小指指甲盖大小', organ: '脾、胰腺', sign: '黄暗色斑点、青暗斑，提示脾大。' },
+        { zone: '脾一区', loc: '无名指下，以1线为中轴向下画半圆弧所包围的面积', organ: '脾', sign: '脾区通用：病理掌色为黄暗色斑点、青暗斑，可能脾大。' },
+        { zone: '脾二区', loc: '3线上胰腺区下方，约小指指甲盖大小', organ: '脾、胰腺', sign: '脾区通用：病理掌色为黄暗色斑点、青暗斑，可能脾大。' },
         { zone: '肝区', loc: '2线与3线之间，拇指掌侧一带', organ: '肝', sign: '十字纹或6线较多提示肝疲劳；米字纹提示肝瘀气滞；3线较大岛纹提示肝大；脂肪隆起提示脂肪肝。' },
-        { zone: '膀胱一区', loc: '小指根部，与前列腺二区坤位重叠', organ: '膀胱、前列腺', sign: '未载' },
-        { zone: '前列腺一区', loc: '腕横纹中部上1厘米，靠近大鱼际边缘', organ: '前列腺', sign: '未载' },
-        { zone: '子宫区', loc: '腕横纹中部上1厘米，靠近大鱼际边缘', organ: '子宫', sign: '未载' },
-        { zone: '下肢关节区', loc: '腕横纹中部上0.5厘米', organ: '下肢关节', sign: '未载' },
-        { zone: '颈椎区', loc: '拇指掌指褶纹处', organ: '颈椎', sign: '提示颈椎增生。' },
-        { zone: '艮位', loc: '大鱼际下部', organ: '未载', sign: '青暗色提示感冒；暗紫色提示流感。' },
-        { zone: '震位', loc: '大鱼际上部、虎口', organ: '未载', sign: '提示慢性胃炎。' },
-        { zone: '离位', loc: '中指、无名指下方，掌心上部', organ: '未载', sign: '提示心肌供血不足。' },
+        { zone: '膀胱一区', loc: '小指根部，与前列腺二区坤位重叠', organ: '膀胱、前列腺', sign: '慢性膀胱炎的掌纹与慢性前列腺炎相近，纹理位置略高。' },
+        { zone: '前列腺一区', loc: '腕横纹中部上1厘米，靠近大鱼际边缘', organ: '前列腺', sign: '片状红斑提示慢性前列腺炎；岛形样纹提示前列腺增生。' },
+        { zone: '子宫区', loc: '腕横纹中部上1厘米，靠近大鱼际边缘', organ: '子宫', sign: '3线岛形样纹提示子宫肌瘤；片状或点状暗红提示盆腔炎；与3线相连的小岛纹多提示生殖系统肿瘤。' },
+        { zone: '下肢关节区', loc: '腕横纹中部上0.5厘米', organ: '下肢关节', sign: '通行转述只以雨伞形样纹定位，未给所主。' },
+        { zone: '颈椎区', loc: '拇指掌指褶纹处', organ: '颈椎', sign: '白色硬结提示颈椎增生；苍白色提示增生引起头部供血不足。' },
+        { zone: '艮位', loc: '大鱼际下部', organ: '通行转述未列', sign: '青暗色提示感冒；暗紫色提示流感。' },
+        { zone: '震位', loc: '大鱼际上部、虎口', organ: '胃', sign: '凌乱十字纹或井字纹提示慢性胃炎；米字纹提示胃溃疡。' },
+        { zone: '离位', loc: '中指、无名指下方，掌心上部', organ: '心', sign: '米字纹提示心肌供血不足；五星样纹提示心脏器质性病变；与2线尾端、3线尾端三星呼应时提示易中风、猝死。' },
         { zone: '坤位', loc: '小指根部下方，小鱼际上部', organ: '前列腺、生殖', sign: '大量竖纹提示慢性前列腺炎；淡红色为炎症，青黄色为性病。' },
         { zone: '乾位', loc: '小鱼际下部尺侧', organ: '前列腺', sign: '十字纹提示前列腺炎。' },
         { zone: '兑位', loc: '小鱼际上部', organ: '肺、支气管', sign: '十字纹提示支气管炎。' },
-        { zone: '坎位', loc: '掌根正中，腕横纹上方', organ: '未载', sign: '5线起于坎位，越长健康状况越差。' }
+        { zone: '坎位', loc: '掌根正中，腕横纹上方', organ: '通行转述未列', sign: '5线起于坎位，越长健康状况越差。' }
       ],
-      wangZonesNote: '王晨霞掌纹诊病掌部脏腑分区，现代通行说；分区与对应各本不一，只列通行名单；表现意义为该体系主张，未逐条对原书核；不作诊疗依据。'
+      wangNote: '王晨霞掌纹诊病一系的十四线、八种异常纹与掌部脏腑分区，均属现代通行说：线名与顺序取通行名单，八纹只列名目、不同资料顺序不一，分区与对应亦各本不一；三表表现意义取《王晨霞14线掌纹诊病与治病》通行转述，原书页码待核；纹名与本页辅助线纹的通行名目分属两系，同名不同义者各随本系；不作病名之断与诊疗依据。'
     };
 
     function sxToggleMod(id){ var el = $(id); if (el) el.classList.toggle('collapsed'); }
@@ -196,7 +194,8 @@ document.addEventListener('DOMContentLoaded', function () {
       $('sxAuxBody').innerHTML = h;
     }
 
-    /* 模块四：手部全息反射区（现代手诊、反射学与全息诊疗法三系并列，每表与其注同组，注在表下） */
+    /* 模块四：手部全息反射区（现代手诊、反射学与全息诊疗法三系并列，每表与其注同组，注在表下；
+       王晨霞三表合用一条注，附三表之后，不逐表重复） */
     function renderReflex(){
       var h = '';
       var t = '<thead><tr><th>手部位置</th><th>中医手诊所候</th><th>反射学所应</th></tr></thead><tbody>';
@@ -226,21 +225,21 @@ document.addEventListener('DOMContentLoaded', function () {
         t4 += '<tr><td class="lbl">' + esc(L.no) + '</td><td>' + esc(L.name) + '</td><td>' + esc(L.loc) + '</td><td>' + esc(L.zhu) + '</td></tr>';
       }
       t4 += '</tbody>';
-      h += qtabNote(t4, SX_REFLEX.wangLinesNote);
+      h += '<div class="sx-tbl-group">' + qtabWrap(t4) + '</div>';
       var t5 = '<thead><tr><th>纹名</th><th>形态</th><th>常见位置</th><th>所主</th></tr></thead><tbody>';
       for (var q = 0; q < SX_REFLEX.wangMarks.length; q++){
         var M = SX_REFLEX.wangMarks[q];
         t5 += '<tr><td class="lbl">' + esc(M.name) + '</td><td>' + esc(M.shape) + '</td><td>' + esc(M.loc) + '</td><td>' + esc(M.zhu) + '</td></tr>';
       }
       t5 += '</tbody>';
-      h += qtabNote(t5, SX_REFLEX.wangMarksNote);
+      h += '<div class="sx-tbl-group">' + qtabWrap(t5) + '</div>';
       var t6 = '<thead><tr><th>分区</th><th>位置</th><th>对应脏腑</th><th>表现意义</th></tr></thead><tbody>';
       for (var n = 0; n < SX_REFLEX.wangZones.length; n++){
         var Z = SX_REFLEX.wangZones[n];
         t6 += '<tr><td class="lbl">' + esc(Z.zone) + '</td><td>' + esc(Z.loc) + '</td><td>' + esc(Z.organ) + '</td><td>' + esc(Z.sign) + '</td></tr>';
       }
       t6 += '</tbody>';
-      h += qtabNote(t6, SX_REFLEX.wangZonesNote);
+      h += '<div class="sx-tbl-group">' + qtabWrap(t6) + '<p class="sx-note">' + esc(SX_REFLEX.wangNote) + '</p></div>';
       $('sxReflexBody').innerHTML = h;
     }
 
