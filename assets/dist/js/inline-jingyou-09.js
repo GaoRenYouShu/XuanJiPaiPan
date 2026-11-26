@@ -247,6 +247,15 @@
   function therName(id) { var c = A.CONSTITUTION.filter(function (x) { return x.id === id; })[0]; return c ? c.name : ''; }
   function methodName(id) { return { roller: '滚珠', diffuse: '扩香', massage: '按摩', face: '面部' }[id] || ''; }
 
+  /* 扩香不稀释：隐去基础油容量与基础油数量两项。 */
+  function syncMethodFields() {
+    var diffuse = $('jyMethod').value === 'diffuse';
+    ['jyVolume', 'jyBaseCount'].forEach(function (id) {
+      var f = $(id).closest('.field');
+      if (f) f.classList.toggle('field-off', diffuse);
+    });
+  }
+
   function safetyText(p) {
     var tags = [];
     p.parts.forEach(function (x) {
@@ -256,13 +265,17 @@
     return tags.length ? esc(tags.join('、')) : '无特殊禁忌';
   }
   function usageText(p) {
+    if (p.cond.method === 'diffuse') {
+      return esc('扩香，每次按空间大小增减，密闭空间限时通风' + (p.scene ? '；' + p.scene.limits : ''));
+    }
     if (!p.scene) return '按所选用法使用';
     return esc(p.scene.methods + '；' + p.scene.package + '；' + p.scene.limits);
   }
 
   /* 配方与基础油一律数据表：表头即数据维度，逐行一味。 */
   function planTable(p) {
-    var h = '<div class="tbl-hs"><table><thead><tr><th>单方</th><th>角色</th><th>占比</th><th>滴数</th><th>性味</th><th>调位</th></tr></thead><tbody>';
+    var diffuse = p.cond && p.cond.method === 'diffuse';
+    var h = '<div class="tbl-hs"><table><thead><tr><th>单方</th><th>角色</th><th>占比</th><th>' + (diffuse ? '每次滴数' : '滴数') + '</th><th>性味</th><th>调位</th></tr></thead><tbody>';
     p.parts.forEach(function (x) {
       h += '<tr><td>' + esc(x.oil) + '</td><td>' + esc(x.role) + '</td><td>' + x.pct + '%</td><td>' + x.drops
         + '</td><td>' + esc(x.thermal) + '</td><td>' + esc(x.layer) + '</td></tr>';
@@ -287,16 +300,19 @@
       var e = A.EFFECTS.filter(function (x) { return x.id === id; })[0];
       return e ? e.name : id;
     }).join('、');
+    var diffuse = p.cond.method === 'diffuse';
     var h = '<div class="rel-title">配方</div>';
     h += '<div class="tbl-hs"><table class="tbl-kv">'
       + '<tr><th>效果</th><td>' + esc(effects) + '</td></tr>'
       + '<tr><th>人群</th><td>' + esc((p.group && p.group.name) || '成人') + '</td></tr>'
       + '<tr><th>季节体质</th><td>' + esc(seasonName(p.cond.season)) + '，' + esc(therName(p.cond.thermal)) + '</td></tr>'
-      + '<tr><th>用法</th><td>' + esc(methodName(p.cond.method)) + '，' + p.total.ml + ' 毫升</td></tr>'
+      + '<tr><th>用法</th><td>' + esc(methodName(p.cond.method)) + (diffuse ? '' : '，' + p.total.ml + ' 毫升') + '</td></tr>'
       + '</table></div>';
     h += planTable(p);
     h += '<div class="tbl-hs"><table class="tbl-kv">'
-      + '<tr><th>用量</th><td>共 ' + p.total.drops + ' 滴，浓度 ' + p.total.conc + '%，成品 ' + p.total.ml + ' 毫升</td></tr>'
+      + '<tr><th>用量</th><td>' + (diffuse
+        ? '每次 ' + p.total.drops + ' 滴（每十平方米三至五滴，密闭小空间减半）；不稀释，不出浓度与基础油用量'
+        : '共 ' + p.total.drops + ' 滴，浓度 ' + p.total.conc + '%，成品 ' + p.total.ml + ' 毫升') + '</td></tr>'
       + '<tr><th>禁忌</th><td>' + safetyText(p) + '</td></tr>'
       + '<tr><th>施用</th><td>' + usageText(p) + '</td></tr>'
       + '</table></div>';
@@ -359,6 +375,7 @@
     if (e.hVolume) $('jyVolume').value = e.hVolume;
     if (e.hCount) $('jyCount').value = e.hCount;
     if (e.hBaseCount) $('jyBaseCount').value = e.hBaseCount;
+    syncMethodFields();
     Array.prototype.forEach.call(document.querySelectorAll('#jyPickOils input, #jyPickBases input'), function (n) { n.checked = false; });
     $('jyStockOilsIn').value = e.hStockOils || '';
     $('jyStockBasesIn').value = e.hStockBases || '';
@@ -388,6 +405,10 @@
       return e ? e.name : id;
     }).join('、');
     var lines = ['效果：' + effects, '人群：' + (aiCtx.group ? aiCtx.group.name : '成人')];
+    var method = aiCtx.cond.method || 'roller';
+    lines.push('用法：' + methodName(method) + (method === 'diffuse'
+      ? '，每次 ' + aiCtx.total.drops + ' 滴，不稀释'
+      : '，' + aiCtx.total.ml + ' 毫升，浓度 ' + aiCtx.total.conc + '%'));
     aiCtx.parts.forEach(function (x) { lines.push(x.oil + ' ' + x.role + ' ' + x.pct + '% ' + x.drops + '滴'); });
     if (aiCtx.notices && aiCtx.notices.length) lines.push('提示：' + aiCtx.notices.join('；'));
     return lines.join('\n');
@@ -406,8 +427,10 @@
     renderMeridian();
     renderShichen();
     syncSums();
+    syncMethodFields();
     $('jyBtn').addEventListener('click', runSolve);
     $('jyHistBtn').addEventListener('click', histOpen);
+    $('jyMethod').addEventListener('change', syncMethodFields);
     /* 下拉勾选：点面板外任一区域即收起，点面板内只勾选不收起。 */
     document.addEventListener('click', function (e) {
       Array.prototype.forEach.call(document.querySelectorAll('.jy-pick[open]'), function (d) {

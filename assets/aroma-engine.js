@@ -170,28 +170,32 @@
   /* 用法档：face 面部、roller 局部、massage 身体、diffuse 扩香。 */
   var METHOD_CONC = { face: 'face', roller: 'local', massage: 'body', diffuse: 'diffuse' };
 
-  /* 浓度取人群、风险、用法档三者最小；滴数按容量与占比分配，差额补定香。 */
+  /* 浓度取人群、风险、用法档三者最小；滴数按容量与占比分配，差额补定香；扩香不稀释，按每次用量计。 */
   function calcDrops(cond, picks, pct) {
     var group = resolveGroup(cond);
     var risks = (cond.risks || []).map(riskOf).filter(Boolean);
     var method = cond.method || 'roller';
+    var diffuse = method === 'diffuse';
     var arch = A.RULES.conc[METHOD_CONC[method]] || 2;
-    var conc = method === 'diffuse' ? 0 : (cond.conc || arch);
+    var conc = diffuse ? 0 : (cond.conc || arch);
     var cap = group ? group.cap : 3;
-    if (method !== 'diffuse' && arch < cap) cap = arch;
+    if (!diffuse && arch < cap) cap = arch;
     risks.forEach(function (r) { if (r.cap && r.cap < cap) cap = r.cap; });
-    /* 单方上限反推总浓度：高酚与光敏类上限极低，按占比折回总浓度，免单方超限。 */
-    picks.forEach(function (p, i) {
-      var o = oilOf(p.name);
-      if (o && pct[i] > 0) cap = Math.min(cap, o.concMax / (pct[i] / 100));
-    });
+    /* 单方上限反推总浓度：高酚与光敏类上限极低，按占比折回总浓度，免单方超限；扩香不稀释，不判。 */
+    if (!diffuse) {
+      picks.forEach(function (p, i) {
+        var o = oilOf(p.name);
+        if (o && pct[i] > 0) cap = Math.min(cap, o.concMax / (pct[i] / 100));
+      });
+    }
     var used = Math.min(conc, cap);
     var vol = cond.volume || 30;
     var per = A.RULES.dropsPerMl;
     var n = picks.length;
-    var total = Math.round(vol * per * used / 100);
+    /* 扩香每十平方米三至五滴，页面无面积输入按四滴基准，味数超过四时每味一滴。 */
+    var total = diffuse ? Math.max(n, 4) : Math.round(vol * per * used / 100);
     var lifted = false;
-    if (total < n) { total = n; lifted = true; }
+    if (!diffuse && total < n) { total = n; lifted = true; }
     var extra = total - n;
     var drops = pct.map(function (p) { return 1 + Math.round(extra * p / 100); });
     var sum = drops.reduce(function (a, b) { return a + b; }, 0);
@@ -202,20 +206,21 @@
       if (sum > total) { if (drops[maxI] > 1) { drops[maxI]--; sum--; } else break; }
       else { drops[maxI]++; sum++; }
     }
-    var real = vol * per > 0 ? total / (vol * per) * 100 : 0;
-    return { drops: drops, conc: Math.round(real * 100) / 100, total: total, cap: cap, lifted: lifted };
+    var real = !diffuse && vol * per > 0 ? total / (vol * per) * 100 : 0;
+    return { drops: drops, conc: Math.round(real * 100) / 100, total: total, cap: cap, lifted: lifted, diffuse: diffuse };
   }
 
   /* 六项硬标准。 */
   function checkPlan(plan) {
     var out = [];
+    var diffuse = plan.cond && plan.cond.method === 'diffuse';
     out.push({ name: '六道合规', pass: !plan.conflicts || plan.conflicts.length === 0, note: plan.conflicts && plan.conflicts.length ? plan.conflicts.join('；') : '通过' });
-    out.push({ name: '浓度上限', pass: plan.total.conc <= plan.cap + 0.001, note: plan.total.conc + '%，上限 ' + plan.cap + '%' });
-    var overConc = plan.parts.filter(function (p) {
+    out.push({ name: '浓度上限', pass: diffuse || plan.total.conc <= plan.cap + 0.001, note: diffuse ? '扩香不稀释，不判浓度' : plan.total.conc + '%，上限 ' + plan.cap + '%' });
+    var overConc = diffuse ? [] : plan.parts.filter(function (p) {
       var o = oilOf(p.oil);
       return o && (plan.total.conc * p.pct / 100) > o.concMax + 0.001;
     });
-    out.push({ name: '单方实际浓度', pass: overConc.length === 0, note: overConc.length ? overConc.map(function (p) { return p.oil + ' 上限 ' + oilOf(p.oil).concMax + '%'; }).join('、') : '通过' });
+    out.push({ name: '单方实际浓度', pass: diffuse || overConc.length === 0, note: diffuse ? '扩香不稀释，不判浓度' : (overConc.length ? overConc.map(function (p) { return p.oil + ' 上限 ' + oilOf(p.oil).concMax + '%'; }).join('、') : '通过') });
     var cap = A.RULES.cap[(plan.cond && plan.cond.count) || plan.parts.length] || 100;
     var over = plan.parts.filter(function (p) { return p.pct > cap; });
     out.push({ name: '单方上限', pass: over.length === 0, note: over.length ? over.map(function (p) { return p.oil + ' ' + p.pct + '%'; }).join('、') : '通过' });
@@ -290,7 +295,7 @@
       cond: cond,
       parts: partsOf(picks, pct, dr.drops),
       bases: pickBases(cond),
-      total: { drops: dr.total, conc: dr.conc, ml: cond.volume || 30, lifted: dr.lifted },
+      total: { drops: dr.total, conc: dr.conc, ml: cond.method === 'diffuse' ? 0 : (cond.volume || 30), lifted: dr.lifted },
       cap: dr.cap,
       conflicts: []
     };
@@ -331,7 +336,7 @@
       cond: cond,
       parts: partsOf(picks, pct, dr.drops),
       bases: pickBases(cond),
-      total: { drops: dr.total, conc: dr.conc, ml: cond.volume || 30, lifted: dr.lifted },
+      total: { drops: dr.total, conc: dr.conc, ml: cond.method === 'diffuse' ? 0 : (cond.volume || 30), lifted: dr.lifted },
       cap: dr.cap,
       conflicts: conflicts,
       excluded: f.excluded,
