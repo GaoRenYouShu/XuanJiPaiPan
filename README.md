@@ -6,20 +6,20 @@
   <img src="assets/logo/og-image.png" alt="玄机排盘：玄之又玄，众妙之门" width="560">
 
 [![GitHub Pages](https://github.com/GaoRenYouShu/XuanJiPaiPan/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/GaoRenYouShu/XuanJiPaiPan/deployments)
-[![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel)](https://xuanjipaipan.vercel.app/)
-[![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare)](https://xuanjipaipan.pages.dev/)
-[![Netlify](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.netlify.app%2F&label=Netlify&logo=netlify)](https://xuanjipaipan.netlify.app/)
-[![gaoren.org](https://img.shields.io/badge/gaoren.org-在线-4c9e4c)](https://gaoren.org/)
+[![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel&style=flat-square&cacheSeconds=3600)](https://xuanjipaipan.vercel.app/)
+[![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare&style=flat-square&cacheSeconds=3600)](https://xuanjipaipan.pages.dev/)
+[![Netlify](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.netlify.app%2F&label=Netlify&logo=netlify&style=flat-square&cacheSeconds=3600)](https://xuanjipaipan.netlify.app/)
+[![gaoren.org](https://img.shields.io/badge/gaoren.org-%E5%9C%A8%E7%BA%BF-4c9e4c?style=flat-square)](https://gaoren.org/)
 
-[![许可](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=许可)](LICENSE)
-[![最近提交](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=仓库体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
-[![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=代码体积)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
-[![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=提交总数)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![排盘工具](https://img.shields.io/badge/排盘工具-45_个-2CA5E0?style=flat-square)](#功能总览)
-[![纯前端](https://img.shields.io/badge/纯前端-构建产物-4c9e4c?style=flat-square)](#技术构成)
-[![离线可用](https://img.shields.io/badge/离线可用-PWA-7e57c2?style=flat-square)](#技术构成)
-[![双主题](https://img.shields.io/badge/深浅双主题-跟随系统-8a6d3b?style=flat-square)](#技术构成)
+[![许可](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=%E8%AE%B8%E5%8F%AF&cacheSeconds=3600)](LICENSE)
+[![最近提交](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square&label=%E6%9C%80%E8%BF%91%E6%8F%90%E4%BA%A4&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
+[![仓库体积](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=%E4%BB%93%E5%BA%93%E4%BD%93%E7%A7%AF&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
+[![代码体积](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=%E4%BB%A3%E7%A0%81%E4%BD%93%E7%A7%AF&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
+[![提交总数](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=%E6%8F%90%E4%BA%A4%E6%80%BB%E6%95%B0&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
+[![排盘工具](https://img.shields.io/badge/%E6%8E%92%E7%9B%98%E5%B7%A5%E5%85%B7-45_%E4%B8%AA-2CA5E0?style=flat-square)](#功能总览)
+[![纯前端](https://img.shields.io/badge/%E7%BA%AF%E5%89%8D%E7%AB%AF-%E6%9E%84%E5%BB%BA%E4%BA%A7%E7%89%A9-4c9e4c?style=flat-square)](#技术构成)
+[![离线可用](https://img.shields.io/badge/%E7%A6%BB%E7%BA%BF%E5%8F%AF%E7%94%A8-PWA-7e57c2?style=flat-square)](#技术构成)
+[![双主题](https://img.shields.io/badge/%E6%B7%B1%E6%B5%85%E5%8F%8C%E4%B8%BB%E9%A2%98-%E8%B7%9F%E9%9A%8F%E7%B3%BB%E7%BB%9F-8a6d3b?style=flat-square)](#技术构成)
 ![Vibe Coding](https://img.shields.io/badge/Vibe_Coding-100%25-ff69b4?style=flat-square)
 </div>
 
