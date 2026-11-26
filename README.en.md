@@ -6,9 +6,9 @@
   <img src="assets/logo/og-image.png" alt="XuanJi PaiPan: mystery of mysteries, gate of all wonders" width="560">
 
 [![GitHub Pages](https://github.com/GaoRenYouShu/XuanJiPaiPan/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/GaoRenYouShu/XuanJiPaiPan/deployments)
-[![Vercel](https://badgen.net/badge/Vercel/online/4c9e4c)](https://xuanjipaipan.vercel.app/)
-[![Cloudflare Pages](https://badgen.net/badge/Cloudflare%20Pages/online/4c9e4c)](https://xuanjipaipan.pages.dev/)
-[![Netlify](https://badgen.net/badge/Netlify/online/4c9e4c)](https://xuanjipaipan.netlify.app/)
+[![Vercel](https://badgen.net/badge/Vercel/online/4c9e4c?icon=vercel)](https://xuanjipaipan.vercel.app/)
+[![Cloudflare Pages](https://badgen.net/badge/Cloudflare%20Pages/online/4c9e4c?icon=cloudflarepages)](https://xuanjipaipan.pages.dev/)
+[![Netlify](https://badgen.net/badge/Netlify/online/4c9e4c?icon=netlify)](https://xuanjipaipan.netlify.app/)
 [![gaoren.org](https://badgen.net/badge/gaoren.org/online/4c9e4c)](https://gaoren.org/)
 
 [![License](https://badgen.net/github/license/GaoRenYouShu/XuanJiPaiPan?label=License)](LICENSE)
