@@ -17,8 +17,6 @@
   }
   function arr(v) { return Array.isArray(v) ? v : (v == null || v === '' ? [] : [v]); }
   function val(id) { var el = $(id); return el ? String(el.value || '').trim() : ''; }
-  function has(list, x) { return arr(list).indexOf(x) >= 0; }
-  function uniq(a) { var o = []; a.forEach(function (x) { if (x && o.indexOf(x) < 0) o.push(x); }); return o; }
 
   function currentJieQi() {
     try {
@@ -41,8 +39,6 @@
 
   function natureHit(nature, want) {
     if (!want) return true;
-    if (want === '寒') return /寒/.test(nature);
-    if (want === '热') return /热/.test(nature);
     return nature === want;
   }
   function effectHit(m, want) {
@@ -108,7 +104,7 @@
     if (params.nature) cond.push('性味 ' + params.nature);
     if (params.mer) cond.push('归经 ' + params.mer);
     if (params.eff) cond.push('香用 ' + params.eff);
-    var h = aux('香材查询：' + (cond.length ? cond.join('；') : '全部') + '；命中 ' + list.length + ' 味。');
+    var h = aux('香材查询：' + (cond.length ? cond.join('；') : '全部') + '；共 ' + list.length + ' 味。');
     h += list.length ? list.map(materialCard).join('') : empty('无匹配香材，换关键词或放宽筛选。');
     out.innerHTML = h;
   }
@@ -155,13 +151,9 @@
     if (p.era) cond.push('朝代 ' + p.era);
     var out = $('xdOut');
     if (!out) return;
-    var h = aux('香方查询：' + (cond.length ? cond.join('；') : '全部') + '；命中 ' + list.length + ' 首。');
+    var h = aux('香方查询：' + (cond.length ? cond.join('；') : '全部') + '；共 ' + list.length + ' 首。');
     h += list.length ? list.map(formulaCard).join('') : empty('无匹配香方，换关键词或放宽筛选。');
     out.innerHTML = h;
-  }
-
-  function materialByName(name) {
-    return MAT.filter(function (m) { return m.name === name || arr(m.alias).indexOf(name) >= 0; })[0] || null;
   }
 
   function searchSeasonal() {
@@ -288,11 +280,12 @@
   function shareRestore(d) {
     d = d || {};
     var p = d.params || {};
-    var map = {
-      xdMatKw: p.kw, xdMatCat: p.cat, xdMatNature: p.nature, xdMatMer: p.mer, xdMatEffect: p.eff,
-      xdForKw: p.kw, xdForUse: p.use, xdForType: p.type, xdForEra: p.era,
-      xdTerm: p.term, xdConst: p.const
+    var maps = {
+      materials: { xdMatKw: p.kw, xdMatCat: p.cat, xdMatNature: p.nature, xdMatMer: p.mer, xdMatEffect: p.eff },
+      formulas: { xdForKw: p.kw, xdForUse: p.use, xdForType: p.type, xdForEra: p.era },
+      seasonal: { xdTerm: p.term, xdConst: p.const }
     };
+    var map = maps[d.mode] || {};
     Object.keys(map).forEach(function (id) {
       var el = $(id);
       if (el && map[id] != null) el.value = map[id];
