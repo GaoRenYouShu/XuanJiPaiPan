@@ -6,21 +6,21 @@
   <img src="assets/logo/og-image.png" alt="XuanJi PaiPan: mystery of mysteries, gate of all wonders" width="560">
 
 [![GitHub Pages](https://github.com/GaoRenYouShu/XuanJiPaiPan/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/GaoRenYouShu/XuanJiPaiPan/deployments)
-[![Vercel](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.vercel.app%2F&label=Vercel&logo=vercel&style=flat-square&cacheSeconds=3600)](https://xuanjipaipan.vercel.app/)
-[![Cloudflare Pages](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.pages.dev%2F&label=Cloudflare%20Pages&logo=cloudflare&style=flat-square&cacheSeconds=3600)](https://xuanjipaipan.pages.dev/)
-[![Netlify](https://img.shields.io/website?url=https%3A%2F%2Fxuanjipaipan.netlify.app%2F&label=Netlify&logo=netlify&style=flat-square&cacheSeconds=3600)](https://xuanjipaipan.netlify.app/)
-[![gaoren.org](https://img.shields.io/badge/gaoren.org-online-4c9e4c?style=flat-square)](https://gaoren.org/)
+[![Vercel](https://badgen.net/badge/Vercel/online/4c9e4c)](https://xuanjipaipan.vercel.app/)
+[![Cloudflare Pages](https://badgen.net/badge/Cloudflare%20Pages/online/4c9e4c)](https://xuanjipaipan.pages.dev/)
+[![Netlify](https://badgen.net/badge/Netlify/online/4c9e4c)](https://xuanjipaipan.netlify.app/)
+[![gaoren.org](https://badgen.net/badge/gaoren.org/online/4c9e4c)](https://gaoren.org/)
 
-[![License](https://img.shields.io/github/license/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=License&cacheSeconds=3600)](LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/GaoRenYouShu/XuanJiPaiPan/main?style=flat-square&label=Last%20commit&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Repo size](https://img.shields.io/github/repo-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Repo%20size&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
-[![Code size](https://img.shields.io/github/languages/code-size/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Code%20size&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
-[![Commits](https://img.shields.io/github/commit-activity/t/GaoRenYouShu/XuanJiPaiPan?style=flat-square&label=Commits&cacheSeconds=3600)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://img.shields.io/badge/Tools-45-2CA5E0?style=flat-square)](#feature-overview)
-[![Pure frontend](https://img.shields.io/badge/Pure_frontend-Built_artifacts-4c9e4c?style=flat-square)](#tech-stack)
-[![Works offline](https://img.shields.io/badge/Works_offline-PWA-7e57c2?style=flat-square)](#tech-stack)
-[![Dual themes](https://img.shields.io/badge/Dual_themes-Follows_system-8a6d3b?style=flat-square)](#tech-stack)
-![Vibe Coding](https://img.shields.io/badge/Vibe_Coding-100%25-ff69b4?style=flat-square)
+[![License](https://badgen.net/github/license/GaoRenYouShu/XuanJiPaiPan?label=License)](LICENSE)
+[![Last commit](https://badgen.net/github/last-commit/GaoRenYouShu/XuanJiPaiPan?label=Last%20commit)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
+[![Repo size](https://badgen.net/badge/Repo%20size/114.2%20MiB/blue)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
+[![Code size](https://badgen.net/badge/Code%20size/27.8%20MiB/blue)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
+[![Commits](https://badgen.net/github/commits/GaoRenYouShu/XuanJiPaiPan?label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
+[![Tools](https://badgen.net/badge/Tools/45/2CA5E0)](#feature-overview)
+[![Pure frontend](https://badgen.net/badge/Pure%20frontend/Built%20artifacts/4c9e4c)](#tech-stack)
+[![Works offline](https://badgen.net/badge/Works%20offline/PWA/7e57c2)](#tech-stack)
+[![Dual themes](https://badgen.net/badge/Dual%20themes/Follows%20system/8a6d3b)](#tech-stack)
+![Vibe Coding](https://badgen.net/badge/Vibe%20Coding/100%25/ff69b4)
 </div>
 
 A research and demonstration site for traditional Chinese metaphysics, calendrics and divination culture. A pure front-end static application with no backend: open it and it works. The site interface is in Chinese; browser translation works well for a quick look.
