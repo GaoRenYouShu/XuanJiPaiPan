@@ -130,7 +130,7 @@ function renderRef(){
   const cur=host.querySelector('#xlrFold .xlr-table tbody');
   if(cur && cur.innerHTML===rows) return;
   host.innerHTML=
-    '<details class="mh-ref" id="xlrFold" open><summary>掌诀指图 六宫总览</summary>'+
+    '<details class="mh-ref" id="xlrFold"><summary>掌诀指图 六宫总览</summary>'+
     '<div class="xlr-ref-grid"><div class="xlr-palm-wrap">'+palm+'</div>'+
     '<div class="xlr-table-wrap"><table class="xlr-table xlr-hecan-tbl"><thead><tr><th>宫</th><th>序</th><th>五行</th><th>六神</th><th>方位</th><th>颜色</th><th>主数</th><th>应期</th><th>意象</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '</div></div></details>';
