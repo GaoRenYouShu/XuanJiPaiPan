@@ -1,5 +1,5 @@
 
-const LV_CLS={'上上':'lv-ji','上上签':'lv-ji','上上大吉签':'lv-ji','大吉':'lv-ji','上吉':'lv-ji','上吉签':'lv-ji','上平签':'lv-ji','上签':'lv-ji','上':'lv-ji','中吉':'lv-ji','中上签':'lv-ji','中平':'lv-ping','中平签':'lv-ping','中签':'lv-ping','中':'lv-ping','中下':'lv-xiong','下签':'lv-xiong','下下':'lv-xiong','下吉':'lv-xiong','下':'lv-xiong'};
+const LV_CLS={'上上':'lv-ji','上上签':'lv-ji','上上大吉签':'lv-ji','大吉':'lv-ji','上吉':'lv-ji','上吉签':'lv-ji','上平签':'lv-ji','上签':'lv-ji','上':'lv-ji','中吉':'lv-ji','中上签':'lv-ji','小吉':'lv-ji','吉':'lv-ji','中平':'lv-ping','中平签':'lv-ping','中签':'lv-ping','中':'lv-ping','平':'lv-ping','中下':'lv-xiong','下签':'lv-xiong','下下':'lv-xiong','下吉':'lv-xiong','下':'lv-xiong','凶':'lv-xiong','大凶':'lv-xiong'};
 let LAST=null, LAST_SET=null;
 function curSet(){ return LQ_SETS[document.getElementById('lqSet').value]||LQ_SETS['三山国王灵签41签']; }
 function fillSet(){
@@ -43,11 +43,12 @@ function draw(){
   setTimeout(()=>{ show(set.signs[idx], key); lqSaveHist(key, set.signs[idx].no); },650);
 }
 function pickNo(){
-  const key=document.getElementById('lqSet').value, set=curSet();
-  const s=prompt('请输入签号（1 - '+set.signs.length+'）：');
-  if(!s)return; const n=parseInt(s,10);
-  const sign=set.signs.find(x=>x.no===n);
-  if(sign){ show(sign, key); lqSaveHist(key, n); } else alert('暂无该签号（当前收录 1-'+set.signs.length+'）');
+  const ref=document.getElementById('lqSearchRef');
+  const inp=document.getElementById('lqSearchInput');
+  window.LQ_PICK_MODE=true;
+  if(ref && !ref.open) ref.open=true;
+  if(inp){ inp.value=''; inp.placeholder='输入签号，从下方结果点选'; inp.focus(); lqRenderSearch(); }
+  if(ref) ref.scrollIntoView({behavior:'smooth'});
 }
 const LQ_SEL_KEY='lq_set_sel';
 function saveSel(){ try{ localStorage.setItem(LQ_SEL_KEY, document.getElementById('lqSet').value); }catch(e){} }
@@ -64,7 +65,7 @@ function lqRenderSearch(){
   if(!host) return;
   const set=curSet();
   const kw=(document.getElementById('lqSearchInput').value||'').trim();
-  const hits=set.signs.filter(s=>!kw||lqSearchText(s).indexOf(kw)>=0);
+  const hits=(window.LQ_PICK_MODE && /^\d+$/.test(kw)) ? set.signs.filter(s=>s.no===parseInt(kw,10)) : set.signs.filter(s=>!kw||lqSearchText(s).indexOf(kw)>=0);
   document.getElementById('lqSearchCount').textContent=kw?('命中 '+hits.length+' 签'):('共 '+hits.length+' 签');
   const cap=kw?60:12;
   host.innerHTML=hits.slice(0,cap).map(s=>{

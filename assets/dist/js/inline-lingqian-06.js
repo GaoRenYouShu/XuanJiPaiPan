@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
     renderChrome('lingqian.html');
     fillSet();
-    document.getElementById('lqSet').addEventListener('change',()=>{ const k=document.getElementById('lqSet').value; saveSel(); show(curSet().signs[0], k); });
+    document.getElementById('lqSet').addEventListener('change',()=>{ saveSel(); LAST=null; LAST_SET=null; document.getElementById('out').innerHTML=''; });
     (function initLq(){
       let saved='三山国王灵签41签';
       try{ const v=localStorage.getItem(LQ_SEL_KEY); if(v && LQ_SETS[v]) saved=v; }catch(e){}
