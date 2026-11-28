@@ -16,7 +16,7 @@
 [![Repo size](https://badgen.net/badge/Repo%20size/114.2%20MiB/blue)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Code size](https://badgen.net/badge/Code%20size/27.8%20MiB/blue)](https://github.com/GaoRenYouShu/XuanJiPaiPan)
 [![Commits](https://badgen.net/github/commits/GaoRenYouShu/XuanJiPaiPan?label=Commits)](https://github.com/GaoRenYouShu/XuanJiPaiPan/commits/main)
-[![Tools](https://badgen.net/badge/Tools/45/2CA5E0)](#feature-overview)
+[![Tools](https://badgen.net/badge/Tools/46/2CA5E0)](#feature-overview)
 [![Pure frontend](https://badgen.net/badge/Pure%20frontend/Built%20artifacts/4c9e4c)](#tech-stack)
 [![Works offline](https://badgen.net/badge/Works%20offline/PWA/7e57c2)](#tech-stack)
 [![Dual themes](https://badgen.net/badge/Dual%20themes/Follows%20system/8a6d3b)](#tech-stack)
@@ -37,14 +37,14 @@ All five mirrors serve identical content; speed depends on your location and rou
 
 ## Feature Overview
 
-Eight categories with 45 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
+Eight categories with 46 independent tools: Calendars, Fate Analysis, Three Styles, Divination, Folk Practices, Yunqi, Wellness and Physiognomy.
 
 | Category | Tools |
 |---|---|
 | **Calendars** | Perpetual Calendar, Almanac, Buddhist Calendar, Taoist Calendar, Tibetan Calendar, Date Selection, Huangji Jingshi |
 | **Fate Analysis** | BaZi Chart, BaZi Compatibility, Zi Wei Dou Shu, He Luo Numerology, Tie Ban Shen Shu, Name Analysis, Western Astrology, Qizheng Siyu |
 | **Three Styles** | Qi Men Dun Jia, Da Liu Ren, Tai Yi Shen Shu |
-| **Divination** | Da Yan Divination, Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Liu Ren Jin Kou Jue, Ling Qi Jing, Fortune Sticks, Tarot, Lenormand |
+| **Divination** | Da Yan Divination, Liu Yao, Plum Blossom Numerology, Xiao Liu Ren, Liu Ren Jin Kou Jue, Ling Qi Jing, Fortune Sticks, Tarot, Lenormand, Zhan Cha Wooden Wheels |
 | **Folk Practices** | Folk Divination, Character Divination, Duke of Zhou Dream Interpretation, Twenty-Eight Mansions, Tai Sui and Zodiac, Sacrificial Offerings |
 | **Yunqi** | Five Movements and Six Qi, Ziwu Liuzhu Meridian Clock |
 | **Wellness** | Dietary Therapy, Incense Way, Essential Oil Aromatherapy, Tuina Massage |
@@ -91,7 +91,7 @@ Introduced in the order of the site's eight sections.
 - **Da Liu Ren**: automatic heaven and earth plates, four lessons and three transmissions, the twelve heavenly generals and pattern classifications, with judgments and timing
 - **Tai Yi Shen Shu**: Tai Yi accumulated years, the sixteen-deity layout, host and guest counts, and major and minor wanderings
 
-### Divination (9)
+### Divination (10)
 
 - **Da Yan Divination**: fifty yarrow stalks split, one hung, counted by fours, with remainders returned; three changes make a line and eighteen make a hexagram, with judgments taken from the seven change rules, plus the yarrow method, ritual and a 64-hexagram lookup
 - **Liu Yao**: seven casting methods including coins, numbers and time; automatic hexagram construction with six relations, six spirits, world and response lines; void and broken markers and symbolic-star timing; true solar time and consecutive-cast comparison
@@ -102,6 +102,7 @@ Introduced in the order of the site's eight sections.
 - **Fortune Sticks**: draw and interpret sticks from the Wong Tai Sin, Guanyin, Yue Lao and Guan Gong sets, with poems, historical allusions and auspicious or inauspicious readings
 - **Tarot**: the 78-card Rider-Waite deck, six spreads, upright and reversed keywords with readings by domain, and astrological correspondences
 - **Lenormand**: 36 cards, seven spreads, a full 630-pair combination dictionary, playing-card correspondences, significator houses and knight-move reading
+- **Zhan Cha Wooden Wheels**: three sets of wooden wheels from the Sutra of the Divination of Good and Evil Karma, with ten wheels for past good and evil, three wheels for the strength of body, speech and mind, and six wheels cast three times for 189 karmic signs recorded from the sutra
 
 ### Folk Practices (6)
 
@@ -267,7 +268,7 @@ If the upstream history was rewritten and `git pull` fails, align with `git fetc
 
 ```
 XuanJiPaiPan/
-├── *.html        50 pages: 45 tools plus the home page, three appendix pages and a 404 page
+├── *.html        51 pages: 46 tools plus the home page, three appendix pages and a 404 page
 ├── assets/       all scripts, styles, fonts and image sources
 ├── manifest.webmanifest and sw.js   PWA manifest and offline service worker
 ├── .nojekyll     skips Jekyll processing on GitHub Pages

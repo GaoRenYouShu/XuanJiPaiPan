@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
       s+=`\n组合成句：${pairs.join('；')}\n关键位：${keyCard.n}（${LENO_TONE(keyCard)}）。请按雷诺曼直白语法组合解读，给出整体判断。`;
      }
      return s;
-    }, '雷诺曼卡', { share:{ page:"lenormand", title:"雷诺曼卡在线占卜",
+    }, '雷诺曼', { share:{ page:"lenormand", title:"雷诺曼在线占卜",
      collect:function(){
        if(!LAST) return {};
        return {sp:LAST.sp,q:LAST.q||'',sig:LAST.sig||'f',picks:LAST.picks.map(p=>p.card.no)};
