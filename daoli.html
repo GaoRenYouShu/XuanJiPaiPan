@@ -1164,20 +1164,6 @@ body:has(.page-daoli){background:#17171a;color:#d6d2cd}
     if (shape == null) return '';
     return tpl(shape, rec.slice(1));
   }
-  function writeCard(key) {
-    var inner = cardInnerOf(key);
-    if (!inner) return;
-    var host = document.getElementById('dayDetail');
-    if (!host) return;
-    var node = host.querySelector('.today-card');
-    if (!node) {
-      node = document.createElement('div');
-      node.className = 'today-card';
-      host.insertBefore(node, host.firstChild);
-    }
-    node.innerHTML = inner;
-  }
-
   /* 页内注记元素：数据契约只藏历页有卡外注记，选择器按该页 body.part 实际结构取；
      其余页与缺配置时以 .rv-note 兜底。 */
   var NOTE_SEL = { zangli: '#calReverse .rev-note' };
@@ -1205,12 +1191,6 @@ body:has(.page-daoli){background:#17171a;color:#d6d2cd}
     var facts = window.__CAL_FACTS__;
     var v = (facts.dict || [])[idx];
     return v == null ? '' : String(v);
-  }
-  function writeNote(key) {
-    var text = noteOf(key);
-    if (!text) return;
-    var el = document.querySelector(NOTE_SEL[pageName()] || '.rv-note') || document.querySelector('.rv-note');
-    if (el) el.textContent = text;
   }
 
   /* 首轮卡面单写：解析期件已写出 .today-card 时，页内首轮只重画卡面以下，原卡节点整棵保留；
