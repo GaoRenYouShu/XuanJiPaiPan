@@ -183,7 +183,6 @@
     restoreFn: 'restoreJsiSaved', delFn: 'delJsiSaved',
     row: function (h) { return { t: h.t || '', main: h.g || '', sub: h.s || '' }; }
   };
-  function showJsiSaved() { if (window.xjHist) xjHist.open(JSI_SAVED_CFG); }
   function delJsiSaved(i) { if (window.xjHist) xjHist.del(JSI_SAVED_CFG, i); }
   function saveJsi(kind) {
     if (!window.xjHist) return;

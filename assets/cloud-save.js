@@ -213,19 +213,7 @@
     }).catch(function () { tip('未选择目录', true); });
   }
 
-  /* 不支持目录选择的浏览器的通路：下载一份存档，或从文件读回 */
-  function downloadSnap() {
-    var snap = snapshot();
-    if (!snap.outputs.text && !snap.outputs.html) { tip('本页尚无结果可存，请先排盘或起课', true); return; }
-    var blob = new Blob([JSON.stringify(snap, null, 1)], { type: 'application/json' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = fileName();
-    a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-    tip('已下载 ' + a.download);
-  }
-
+  /* 不支持目录选择的浏览器的通路：从文件读回存档 */
   function importSnap(file) {
     if (!file) return;
     file.text().then(function (txt) { restoreSnap(JSON.parse(txt), file.name); })
@@ -691,7 +679,6 @@
     if (dn) tip('上次用过目录 ' + dn + '，刷新后需重选');
   }
 
-  window.cloudSnapshot = snapshot;
   /* 面板由 ai.js 挂出，挂出后可能再重挂一次；盯住挂载点，面板一换即把数据存储补回。 */
   function mountIfReady() {
     if (!document.querySelector('#aiBlock .ai-body')) return;

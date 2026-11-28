@@ -79,7 +79,6 @@
     return { m: 3, throws: throws, total: total, sign: total > 0 ? total : 0 };
   }
 
-  function faceWord(f) { return f === 'shan' ? '善' : (f === 'e' ? '恶' : '不现'); }
   function askLine(r) {
     var q = (r && r.q != null) ? r.q : val('zcQuestion');
     return q ? '<p class="zc-ask">所观主念：' + esc(q) + '</p>' : '';

@@ -32,7 +32,6 @@
   var CATS = ['谷薯', '豆类', '蔬菜', '果品', '畜肉', '禽蛋', '水产', '乳品', '菌藻', '坚果种子', '调味', '药食同源'];
   var COST_TIERS = ['平价', '中等', '较高'];
   var MERIDIANS = ['心', '肝', '脾', '肺', '肾', '胃', '胆', '大肠', '小肠', '膀胱', '三焦', '心包'];
-  var SEASON_IDS = ['spring', 'summer', 'changxia', 'autumn', 'winter'];
   var SEASON_NAMES = { spring: '春', summer: '夏', changxia: '长夏', autumn: '秋', winter: '冬' };
   var LAST = { mode: '', params: {} };
 

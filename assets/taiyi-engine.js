@@ -86,8 +86,6 @@ window.Taiyi = (function () {
   // 时计入元局：据《太乙统宗宝鉴》卷之一求时计入太乙纪元局法。
   // 积日减一乘十二，加所求时，为积时；以周纪法三百六十去之，余以元法七十二约之，
   // 得元数与入元局，每元一至七十二局，五元合三百六十周纪。
-  const GAN_ARR = '甲乙丙丁戊己庚辛壬癸'.split('');
-  const ZHI_ARR = '子丑寅卯辰巳午未申酉戌亥'.split('');
   const WUZI = ['甲子', '丙子', '戊子', '庚子', '壬子'];
 
   function kook(jiStyle, tahun, acc) {
