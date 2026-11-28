@@ -35,6 +35,12 @@ body{--footer-ink:#355f37;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 .page-tuina .page .lead{color:var(--tn-ink2);text-align:center;font-size:12.5px;letter-spacing:.22em;text-indent:.22em;margin-top:var(--sp-3)}
 
+.page-tuina .page .lead::after{background:var(--tn-line)}
+
+.page-tuina .field input,.page-tuina .field select{border-color:var(--tn-line)}
+
+.page-tuina .field input:focus,.page-tuina .field select:focus{border-color:var(--tn);outline:none}
+
 .page-tuina .sub-note{color:var(--tn-ink2)}
 
 /* 结果区默认空，高度由内容自然撑开：空态不预留高度，免得中间留一片空白。 */
@@ -65,6 +71,8 @@ body{--footer-ink:#355f37;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 .page-tuina .btn{background:var(--tn);box-shadow:none}
 .page-tuina .btn:hover{background:var(--tn2);box-shadow:none}
 .page-tuina .page > .form-row .btn.gold{border-radius:0;padding:5px 14px;margin-bottom:0}
+.page-tuina .ai-head{border-bottom-color:var(--tn-line)}
+.page-tuina .ai-head h3{color:var(--tn2);font-family:var(--tn-serif);font-weight:400}
 .page-tuina .ai-block .btn{border-radius:0}
 .page-tuina .ai-block .btn.soft{background:var(--tn-tint);border-color:var(--tn-line);color:var(--tn-ink)}
 .page-tuina .ai-block .btn.soft:hover{background:#fff;border-color:var(--tn);color:var(--tn2)}
@@ -73,6 +81,7 @@ body{--footer-ink:#355f37;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 .page-tuina .mod-body > :first-child{margin-top:var(--sp-3)}
 
 @media(max-width:640px){
+  .page-tuina .form-row{gap:var(--sp-2)}
   /* 乙型数据表四列同构，窄屏保底加横滚；三列长文表仍流式，不横滚。 */
   .page-tuina .tn-tbl.tn-tbl-4{width:max-content;min-width:100%}
   .page-tuina .tn-tbl th,.page-tuina .tn-tbl td{white-space:normal}

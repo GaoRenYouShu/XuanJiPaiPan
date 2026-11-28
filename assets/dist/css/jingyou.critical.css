@@ -35,7 +35,7 @@ html .page .lead + *,html .page .lead + * > :first-child{border-top:0;padding-to
 .field label{font-size:13px;color:var(--ink2)}
 
 .field input,.field select{
-  height:30px;padding:4px 12px;border:1px solid var(--line);border-radius:0;
+  height:30px;padding:4px 12px;border:1px solid;border-color:var(--line);border-radius:0;
   background:var(--card);font-size:13px;font-family:inherit;color:var(--ink);
   line-height:1.35;box-sizing:border-box;
 }
@@ -714,4 +714,8 @@ body{--footer-ink:#4b3c62;--font:'Noto Sans Symbols 2','Noto Sans Symbols','Noto
 
 @media(max-width:640px){
 .page-jy .jy-pick .jy-pick-list{max-width:260px}
+}
+
+@media print{
+.wrap .page{--line:#cfcfcf;--ink:#1c1c1c}
 }
